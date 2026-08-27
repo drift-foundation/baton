@@ -1,0 +1,91 @@
+W19784 third independent review evidence — 2026-08-27T02:00:13Z
+
+1. Second-review correction independently confirmed
+
+The reviewer's original cross-root regression is preserved and green:
+
+  env PYTHONPATH=src python3 -B -m unittest \
+    tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.\
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another
+  Ran 1 test in 0.007s — OK
+
+Attempt, OCI and workspace suites, with filesystem warnings fatal:
+
+  env PYTHONPATH=src python3 -B -W error::ResourceWarning -m unittest \
+    tests.manager.test_attempts tests.manager.test_oci \
+    tests.manager.test_workspaces
+  Ran 179 tests in 0.240s — OK
+
+The new OCI vector class itself:
+
+  env PYTHONPATH=src python3 -B -m unittest \
+    tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted
+  Ran 8 tests in 0.001s — OK
+
+The implementation carries `input_root` in the adapter start request,
+requires exactly one matching source at `/input`, requires read-only, refuses
+an unproved `/input`, and the positive case reads the exact engine argv.
+
+Other W19784 gates:
+
+  manager manifest/frozen/canonical: 77 tests — OK
+  contract model: 31 tests — OK
+  conformance model: 74 tests — OK
+  ordinary direct worker: 75 run, only the two recorded W6633 failures
+
+2. Remaining pre-journal canonical-spelling gap
+
+The early check is:
+
+  attempts.py:_plan_agrees
+    os.path.normpath(target) == oci.INPUT_TARGET
+    os.path.realpath(source) == os.path.realpath(inputs)
+
+The OCI boundary deliberately checks raw spelling first:
+
+  oci.py:_canonical
+    rejects `..` before realpath
+
+and `_mounts` likewise rejects `..` in the target before normpath.
+
+Thus the early check accepts spellings the adapter necessarily refuses later.
+That journals `runtime.start` and invokes the adapter before discovering a
+declared plan could never be mounted. It contradicts the second-review plan's
+explicit pre-journal refusal boundary.
+
+3. Additive regressions
+
+Added to TheRuntimeIsStartedOnceAndReconciled:
+
+  test_a_noncanonical_input_target_refuses_before_start_is_journalled
+    target = /else/../input
+
+  test_a_noncanonical_input_source_refuses_before_start_is_journalled
+    source = <proved-inputs>/../inputs
+
+Each uses the valid composed/authorized root and requires ContractRefusal,
+zero adapter calls and execution_runtime still `not-started`.
+
+Focused result:
+
+  Ran 2 tests in 0.015s
+  FAILED (failures=2)
+  AssertionError: ContractRefusal not raised
+
+Combined attempt/OCI result after the regressions:
+
+  env PYTHONPATH=src python3 -B -m unittest \
+    tests.manager.test_attempts tests.manager.test_oci
+  Ran 144 tests in 0.197s
+  FAILED (failures=2)
+
+The correction boundary is narrow: reject noncanonical source and target
+spellings in `_plan_agrees` using the same rule as OCI before comparing their
+canonical destinations. No change to the accepted root identity or worker
+contract is required.
+
+4. Built-image gate
+
+This managed reviewer still cannot access the Docker socket, so the recorded
+37/37 daemon-backed result was not independently rerun. The remaining defect
+is in the pre-adapter manager path and is fully reproduced without the daemon.

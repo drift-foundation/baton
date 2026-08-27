@@ -387,10 +387,23 @@ whose prerequisites have closed are actionable.
    non-retention, explicit policy, untrusted outputs, normalized lifecycle,
    transport-partition fencing, proof-bound remote reattachment, and
    negative/race/crash/recovery behavior.
+4a. [pending] Revise the completed worker-control and conformance contracts
+   for the 2026-08-25 artifact-neutral-manager supersession. The core manager
+   exposes only read-only `/input/input.json` and writable-then-frozen
+   `/output/output.json`, freezes and digests output generically, and never
+   interprets its format. Private ephemeral storage is runtime capacity rather
+   than protocol vocabulary. Workers and downstream consumers interpret the
+   manifests' opaque consumption/result descriptions. Preserve the earlier
+   Git/directory source and result types as explicitly superseded history and
+   cover persistent-output workspaces, ephemeral-workspace export, publication
+   of `output.json` last, unresolved identifier-only output, and frozen
+   output-to-read-only-input chaining.
 5. [pending] Build one OCI reference worker, runnable by Docker or Podman, that
-   supports both a configured read-only Git source cloned into private writable
-   storage and a digest-bound read-only directory source with separate writable
-   result output. Permit broad, non-interactive command freedom inside the
+   receives the standardized read-only input directory and persistent writable
+   output directory, reads `input.json`, and publishes `output.json` last. It
+   may use private ephemeral storage or work directly below output, without
+   teaching the manager the input or result format. Permit broad,
+   non-interactive command freedom inside the
    assignment's private writable surfaces, including destructive commands,
    without granting host privilege or per-command approval. Preserve
    defense-in-depth sandboxing, prohibit privileged containers, host
@@ -399,7 +412,10 @@ whose prerequisites have closed are actionable.
    the worker to pass the runtime conformance suite.
 6. [pending] Build the trusted host-side Worker Manager and OCI runtime adapter
    behind the worker-control API. Normalize start/cancel/inspect/collect/
-   destroy, persist attempt-to-runtime reconciliation identities, and prove
+   destroy, mount the standardized input/output surfaces, validate only the
+   generic JSON envelopes, persist attempt-to-runtime reconciliation
+   identities, freeze and digest output without format-specific
+   interpretation, and prove
    cancellation fencing and quiescence before replacement; keep engine CLI or
    API mechanics deployment-specific. After the local reference path, certify
    a remote runtime adapter such as SSH against the same contract without
@@ -514,3 +530,24 @@ whose prerequisites have closed are actionable.
     hierarchy independent from repositories, Work containment and dependency
     edges. Design and certify deterministic fail-closed role resolution in a
     separate M6-contained Job; do not backport this model to v11.
+22. [deferred; confirmed 2026-08-26] Render opaque human-facing identifiers as
+    lower-case, separator-free, typed Crockford Base32 shorthands such as
+    `w12abc` in the v12 TUI, using the shortest prefix unambiguous in the stated
+    authority/view. Accept either ASCII case from human input, case-fold for
+    resolution, re-render lower-case, and never generate mixed-case compact
+    IDs. Resolve every shorthand to its full canonical identity before
+    mutation and fail closed on ambiguity. Preserve human-readable names and
+    canonical digest encodings. Order this with the post-proof modular TUI
+    work in item 17; do not migrate v11 IDs or delay the Docker ping-pong proof
+    for it.
+23. [confirmed 2026-08-27; MVP credential boundary] Permit a trusted runtime
+    profile to pass one exact provider-owned host credential file into one
+    running worker container through a read-only bind mount. Keep the image,
+    assignment, argv, environment, labels, logs, Events, durable Baton state
+    and outputs credential-free; expose no containing host state directory.
+    Do not require an assignment-private Baton copy for the MVP, although the
+    already staged W17110 provider remains an acceptable stricter input while
+    that live Work is claimed. Revalidate this ruling at the next bounded
+    credential-capability handoff and defer writable refresh caches,
+    short-lived service credentials and multi-tenant brokerage until after the
+    two-provider Docker proof.

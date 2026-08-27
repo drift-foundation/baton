@@ -251,7 +251,15 @@ from baton_work.authority import Authority, WorkError
 # `snapshot_seq` are unchanged, and a consumer that ignores the new member
 # reads exactly what it read before. The MINOR advances because a consumer
 # that WANTS it needs to know it is there.
-PROJECTION_VERSION = "12.5"
+#
+# W24755 adds the `work-graph` verb and its `work_graph` projection: the
+# complete current Work graph in one snapshot, with the four typed relation
+# families spelled explicitly. Additive in the same sense -- it is a NEW
+# result shape under a NEW verb, and every existing response is byte-for-byte
+# what it was. The MINOR advances because a consumer that wants the export
+# needs to know the surface exists; it never has to parse the DOT rendering,
+# which carries its own independent `baton_dot_version`.
+PROJECTION_VERSION = "12.6"
 
 
 def require_version(requested: str | None) -> None:

@@ -30,9 +30,15 @@ options:
 
 Invokes \`BATON --config PATH --participant TEAM.MEMBER wait timeout=S\`
 (protocol 11, key=value grammar) and forwards one trusted compact event
-per previously unseen action key. Level-triggered: a key is suppressed
-while it stays present, forgotten when it disappears, and emitted again
-if it later returns. codex-baton-bridge is read-only.`;
+per actionable key. Level-triggered against CANONICAL state: an
+obligation, trial, poke or refresh is suppressed while it stays present,
+forgotten when it disappears, and emitted again if it returns; a ready
+unclaimed Work is an OFFER that stays armed until the authority reports
+the claim, is retried with bounded backoff meanwhile, and waits its turn
+while the participant's one claim slot is occupied. Forwarding an event
+is transport acknowledgement and never clears an offer — so --once
+proves the socket path, not the claim loop. codex-baton-bridge is
+read-only.`;
 }
 
 function parse(argv) {
@@ -157,7 +163,24 @@ export function validateEnvelope(payload, participant) {
       if (action.title !== undefined && typeof action.title !== "string") {
         throw new Error(`work action ${action.action_key} title is not a string`);
       }
-      if (action.claimed !== undefined && typeof action.claimed !== "boolean") {
+      // W11910 R5: REQUIRED, not merely typed. `claimed` stopped being
+      // descriptive prose when this correction made it the input that decides
+      // whether another Work owns the participant's one claim slot, and both
+      // consumers read it as `claimed === true` — so an ABSENT field answers
+      // "unclaimed" for a Work that may well be claimed. `participant_actions`
+      // emits a Boolean for every Work action (`projection.py`, revalidated),
+      // so omission is not a canonical variant this build has to tolerate; it
+      // is an unreadable envelope, and an unreadable envelope is `uncertain`.
+      // Fields that only DESCRIBE the Work stay optional above, because
+      // nothing schedules on them.
+      // Two diagnostics rather than one, because they are two different
+      // authority faults and the older one already had a name: a WRONG type is
+      // an answer this build cannot read, and an ABSENT field is an answer the
+      // authority did not give.
+      if (action.claimed === undefined) {
+        throw new Error(`work action ${action.action_key} carries no claimed verdict`);
+      }
+      if (typeof action.claimed !== "boolean") {
         throw new Error(`work action ${action.action_key} claimed is not a boolean`);
       }
     } else if (action.kind === "obligation") {
@@ -385,6 +408,215 @@ export function claimedFirst(actions) {
   return claimed.length === 0 ? actions : [...claimed, ...rest];
 }
 
+// W11910 (finding-readiness-offer-cleared-before-claim): the readiness
+// LEVEL and what actually clears it.
+//
+// Both adapter families used to record an action key as delivered the
+// moment their transport accepted it — a returned agent prompt here, an
+// accepted event socket write in the Codex producer. That conflates two
+// different facts. Transport acknowledgement says the wake reached the
+// runner; only the atomic `claim` says the runner TOOK the Work. The
+// four-Work stall on 2026-08-25 (W6630, W6632, W6633, W10265) is what
+// the difference costs: every one of them completed a turn that could
+// not claim, every one was suppressed for the life of the process, and
+// only a restart — which happens to empty this memory — recovered them.
+//
+// So Work carries per-offer state rather than a Boolean:
+//
+//   pending      — the level is asserted and this offer is retained
+//   presented    — a turn was spent on it; retry when its deadline passes
+//   recovering   — a Work first seen ALREADY CLAIMED, whose one recovery
+//                  wake has not reached the runner yet
+//   acknowledged — canonical `claimed:true` answering an offer this
+//                  adapter made, or a claimed-Work recovery wake it has
+//                  delivered
+//   withdrawn    — the pre-turn revalidation says the episode is over
+//
+// Review [P1]: `recovering` exists because `pending` was carrying two
+// unrelated meanings. A first-seen-claimed Work created a `pending`
+// entry and emitted its recovery wake; if that delivery FAILED, the
+// next unchanged poll saw `claimed:true` beside a `pending` entry and
+// acknowledged it — reading "the offer was answered by a claim" from a
+// state that actually meant "the wake never arrived". The participant
+// then sat on a live claim with no wake and no retry, which is the
+// restart-dependent stall this whole Work exists to remove. A claim can
+// acknowledge an OFFER; it cannot acknowledge a wake nobody received.
+//
+// Non-Work actions — obligations, trials, pokes, refresh requests — keep
+// exactly their old rule: delivered once while present, forgotten when
+// they disappear, re-emitted if they return. Nothing about a claim
+// applies to them.
+export const MAX_OFFER_RETRY_MS = 60_000;
+
+export class ReadinessOffers {
+  constructor({ now = () => Date.now(), retryMs = 1000,
+                maxRetryMs = MAX_OFFER_RETRY_MS } = {}) {
+    this.clock = now;
+    this.retryMs = retryMs;
+    this.maxRetryMs = maxRetryMs;
+    // W148 R2 identity, unchanged: authority uuid + participant +
+    // action key. An authority or participant switch retires the old
+    // set atomically because none of its identities appear again.
+    this.entries = new Map();
+    this.busy = false;
+  }
+
+  key(envelope, action) {
+    return `${envelope.authority_uuid}:${envelope.participant}`
+      + `:${action.action_key}`;
+  }
+
+  // Exponential from the deployment's own retry interval, capped. The
+  // cap is a MANAGED delivery policy, not a protocol value: slow enough
+  // that a persistently unclaimable offer cannot spend model turns in a
+  // loop, fast enough that a corrected runner recovers on its own.
+  backoff(attempts) {
+    const grown = this.retryMs * 2 ** Math.max(0, attempts - 1);
+    return Math.min(this.maxRetryMs, grown);
+  }
+
+  /** The actions to deliver from THIS canonical snapshot.
+   *
+   *  Ordering is the envelope's own — the caller has already applied
+   *  whatever managed promotion it uses — so a Work offer never
+   *  displaces the obligation or poke beside it. */
+  sync(envelope) {
+    const actionable = envelope.result.actionable;
+    const current = new Set(actionable.map(
+      (action) => this.key(envelope, action)));
+    for (const key of [...this.entries.keys()]) {
+      // Disappearance is canonical WITHDRAWAL — blocked, rerouted,
+      // parked, closed, superseded, or simply somebody else's now —
+      // and it retires every local trace, backoff included.
+      if (!current.has(key)) this.entries.delete(key);
+    }
+    // A participant holds at most one claim, so one claimed Work in
+    // the projection means the slot is occupied and no unclaimed
+    // offer can be taken yet. Offering one anyway is a model turn
+    // spent to reach a refusal.
+    const busy = actionable.some(
+      (action) => action.kind === "work" && action.claimed === true);
+    // The claim-slot transition. A retained offer that was deferred
+    // on somebody's claim has not failed at anything, so it starts
+    // its first attempt immediately rather than serving a backoff it
+    // never earned.
+    if (this.busy && !busy) {
+      for (const entry of this.entries.values()) {
+        if (entry.status !== "pending" && entry.status !== "presented") {
+          continue;
+        }
+        entry.attempts = 0;
+        entry.nextAttemptAt = 0;
+      }
+    }
+    this.busy = busy;
+    const now = this.clock();
+    let admitted = false;
+    const fresh = [];
+    for (const action of actionable) {
+      const key = this.key(envelope, action);
+      let entry = this.entries.get(key);
+      if (action.kind !== "work") {
+        if (!entry) fresh.push(action);
+        continue;
+      }
+      if (action.claimed === true) {
+        if (!entry) {
+          // First seen ALREADY CLAIMED: this adapter restarted
+          // under a live claim, and the participant's own
+          // claimed Work is still theirs to finish. One
+          // recovery delivery, exactly as before.
+          this.entries.set(key, { status: "recovering", attempts: 0,
+                                  nextAttemptAt: 0 });
+          fresh.push(action);
+        } else if (entry.status === "recovering") {
+          // ITS OWN WAKE HAS NOT ARRIVED. The claim is not an
+          // acknowledgement of this: nobody offered it and
+          // nobody answered it, so it stays eligible until a
+          // transport or prompt actually carries it.
+          fresh.push(action);
+        } else if (entry.status === "pending"
+                   || entry.status === "presented") {
+          // THE acknowledgement. The offer this adapter made is
+          // answered by canonical state, not by the transport
+          // that carried it, and it is never made again while
+          // the claim stands.
+          entry.status = "acknowledged";
+          entry.attempts = 0;
+          entry.nextAttemptAt = 0;
+        }
+        continue;
+      }
+      if (!entry) {
+        entry = { status: "pending", attempts: 0, nextAttemptAt: 0 };
+        this.entries.set(key, entry);
+      }
+      // Retained, in canonical order, and NOT forgotten: everything
+      // below decides whether this poll is the moment to offer it.
+      if (busy || admitted) continue;
+      if (entry.status !== "pending" && entry.status !== "presented") {
+        continue;
+      }
+      // Its turn was spent and canonical state still says unclaimed,
+      // so the offer stands and is retried — after its deadline, so
+      // a level that nobody can take cannot spend turns in a loop.
+      // Skipping it here rather than stopping is deliberate: the
+      // head's claim-slot outcome is already KNOWN, and holding the
+      // whole queue behind an offer nobody claimed would starve
+      // every Work behind it.
+      if (entry.nextAttemptAt > now) continue;
+      admitted = true;
+      fresh.push(action);
+    }
+    return fresh;
+  }
+
+  /** A turn was spent on this action — which is not an acknowledgement.
+   *
+   *  For Work it records the attempt and its retry deadline; canonical
+   *  `claimed:true` on a later poll is what actually clears it. For
+   *  every other kind it is the old delivered-while-present rule. */
+  markPresented(envelope, action) {
+    const key = this.key(envelope, action);
+    if (action.kind !== "work") {
+      this.entries.set(key, { status: "acknowledged", attempts: 0,
+                              nextAttemptAt: 0 });
+      return;
+    }
+    if (action.claimed === true) {
+      // The recovery delivery for an already-claimed Work. It is
+      // spent, and the claim it recovers is its own acknowledgement.
+      this.entries.set(key, { status: "acknowledged", attempts: 0,
+                              nextAttemptAt: 0 });
+      return;
+    }
+    const entry = this.entries.get(key)
+      ?? { status: "pending", attempts: 0, nextAttemptAt: 0 };
+    entry.status = "presented";
+    entry.attempts += 1;
+    entry.nextAttemptAt = this.clock() + this.backoff(entry.attempts);
+    this.entries.set(key, entry);
+  }
+
+  /** W49: the pre-turn revalidation says this exact episode is over.
+   *
+   *  Suppressed while the stale key is still in the projection, and
+   *  retired with it — a genuinely new episode or configuration
+   *  generation arrives under a different key and is a new offer. */
+  markWithdrawn(envelope, action) {
+    this.entries.set(this.key(envelope, action),
+                     { status: "withdrawn", attempts: 0, nextAttemptAt: 0 });
+  }
+
+  /** Is this exact action currently held as an unanswered Work offer?
+   *  Reporting only — nothing schedules on it. */
+  retained(envelope, action) {
+    const entry = this.entries.get(this.key(envelope, action));
+    return entry?.status === "pending" || entry?.status === "presented"
+      || entry?.status === "recovering";
+  }
+}
+
 function delay(ms, signal) {
   if (signal.aborted) return Promise.resolve();
   return new Promise((resolve) => {
@@ -398,16 +630,19 @@ function delay(ms, signal) {
   });
 }
 
-export async function codexBatonBridge(options, { signal = new AbortController().signal, runWait, execute, emitEvent = sendEvent, logger = console } = {}) {
+export async function codexBatonBridge(options, { signal = new AbortController().signal, runWait, execute, emitEvent = sendEvent, logger = console, now = () => Date.now() } = {}) {
   const waitTimeout = positiveInteger(options["wait-timeout"], 60, "--wait-timeout");
   const retryMs = positiveInteger(options["retry-ms"], 1000, "--retry-ms");
   const socket = options.socket ?? process.env.CODEX_EVENT_SOCKET ?? defaultEventSocketPath();
-  // WHOLE-SET delivery memory, never one queue head: key -> delivered.
-  // A key stays suppressed while present, is forgotten when the action
-  // disappears, and re-emits if it later becomes actionable again. A
-  // restart starts empty and rediscovers the current set. A key whose
-  // forwarding failed stays undelivered and retries without loss.
-  const delivered = new Map();
+  // W11910: WHOLE-SET readiness memory, never one queue head — and
+  // claim-aware. A non-Work key stays suppressed while present, is
+  // forgotten when the action disappears, and re-emits if it later
+  // becomes actionable again. A Work key is an OFFER: forwarding it is
+  // not acknowledging it, so it stays armed until the authority reports
+  // the claim. A restart starts empty and rediscovers the current set.
+  // A key whose forwarding failed stays undelivered and retries without
+  // loss.
+  const offers = new ReadinessOffers({ now, retryMs });
   // W5: an unknown action kind is a BUILD-level skew, not a per-entry
   // event, so it is reported once per kind. Level-triggered delivery
   // would otherwise repeat the same diagnostic on every poll for as
@@ -447,35 +682,40 @@ export async function codexBatonBridge(options, { signal = new AbortController()
     // session republishes its held facts, and nothing is ever queued
     // for a model. Dropping it here instead would remove the signal
     // at the one place it arrives.
-    const actions = claimedFirst(payload.result.actionable);
+    // W4303: claimed Work first, so a restarting lane looks at the claim
+    // occupying its slot before anything it cannot take yet.
+    payload.result.actionable = claimedFirst(payload.result.actionable);
     // W148 R2: memory carries the SAME identity the event does —
     // authority uuid + participant + action key. An authority switch
     // therefore retires the old set atomically (its identities no
     // longer appear) and a same-named action in the new authority is
     // a genuinely new wake.
-    const scope = `${payload.authority_uuid}:${payload.participant}`;
-    const currentKeys = new Set(actions.map((action) => `${scope}:${action.action_key}`));
-    for (const key of [...delivered.keys()]) {
-      if (!currentKeys.has(key)) delivered.delete(key);
-    }
+    const fresh = offers.sync(payload);
     let emitted = 0;
     let answered = 0;
     let failed = false;
-    for (const action of actions) {
-      if (delivered.get(`${scope}:${action.action_key}`)) continue;
+    for (const action of fresh) {
       const refresh = action.kind === "runtime_refresh";
       const message = refresh
         ? refreshRequest(payload, action, options)
         : actionEvent(payload, action, options);
       try {
         const response = await emitEvent(socket, message);
-        if (!response.accepted && response.reason !== "duplicate") {
+        // W11910: `in-flight` is the dispatcher saying it is ALREADY
+        // holding this exact delivery — queued, starting, ambiguous, or
+        // active. That is neither a failure nor an acknowledgement: the
+        // offer stays armed and backs off exactly as a spent turn does,
+        // because the turn it is waiting on has not answered yet.
+        if (!response.accepted && response.reason !== "duplicate"
+            && response.reason !== "in-flight") {
           throw new Error(`${refresh ? "refresh" : "event"} rejected: ${JSON.stringify(response)}`);
         }
-        // The same whole-set memory covers both: a request whose
-        // handoff failed stays undelivered and is retried, and one the
-        // dispatcher answered disappears from `wait` and is forgotten.
-        delivered.set(`${scope}:${action.action_key}`, true);
+        // W11910: PRESENTED, not acknowledged. A request whose handoff
+        // failed stays undelivered and is retried; one the dispatcher
+        // answered disappears from `wait` and is forgotten; and a Work
+        // offer the dispatcher accepted is cleared by canonical
+        // `claimed:true` on a later poll, by nothing else.
+        offers.markPresented(payload, action);
         if (refresh) {
           answered += 1;
           logger.info(`v11 runtime refresh handed to the dispatcher: ${action.action_key} -> ${options.target}`);

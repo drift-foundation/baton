@@ -1,0 +1,50 @@
+W14828 independent final re-review
+UTC: 2026-08-26T12:21:49Z
+
+Codex bridge full suite after reviewer regression:
+
+  cd tools/codex-event-bridge
+  npm test
+
+  tests 420
+  pass 420
+  fail 0
+
+Focused role-instruction/documentation suite:
+
+  cd tools/codex-event-bridge
+  node test/role_instructions.test.mjs
+
+  tests 17
+  pass 17
+  fail 0
+
+ACP bridge runtime suite:
+
+  cd tools/acp-baton-bridge
+  npm test
+
+  tests 77
+  pass 77
+  fail 0
+
+Template parse:
+
+  jq empty conf/acp-claude.template.json conf/acp-gemini.template.json
+  exit 0
+
+Whitespace:
+
+  git diff --check
+  clean
+
+Reviewer additive assertion:
+
+  every launcher documentation surface names the ACP prompt and environment
+
+It checks the Codex README, ACP README and shared renderer independently for
+both `readiness prompt` and `environment`. This strengthens the implementer's
+new all-surfaces case, which claimed both carriers but asserted only `prompt`.
+
+Repository result: signed off. Live release rollover and first-claim smoke
+remain operator-owned PLAN item 6.

@@ -1,0 +1,70 @@
+W15232 independent implementation re-review
+UTC: 2026-08-26T12:19:34Z
+
+Focused functional gate:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_workspaces tests.manager.test_oci
+
+  Ran 97 tests in 0.017s
+  OK
+
+The prior additive regressions are included and pass:
+
+  TheCoreManagerDoesNotAcquireSources.
+    test_no_git_metadata_root_survives_the_acquisition_cut
+
+  AMountIsCanonicalAndNeverTheHosts.
+    test_the_assignment_root_contract_is_artifact_neutral
+
+Inventory gate:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory
+
+  Ran 86 tests in 589.825s
+  FAILED (failures=6)
+
+The six failures are concurrent non-W15232 gaps:
+
+  - an OCI destroy runtime-id probe is intercepted by its newer command shape;
+  - 21 missing probes name handshake profiles, intake retention, sessions,
+    OCI destroy and W6634 sealing;
+  - 23 orphan calls name intake, sealing and newer manager boundaries;
+  - 21 unowned entries begin in documents.freeze_requested;
+  - persisted operation_id/settled_at are absent from the adopted universe.
+
+None names workspaces.py, assignment_workspace, ROOT_NAMES, an acquisition
+operation, or a Git metadata root.
+
+Remaining stale live text:
+
+  v12/python/src/baton_v12/worker_manager/oci.py:121
+    "The private `git` root is never mounted at either posture ..."
+
+  v12/python/tests/manager/test_workspaces.py:1-18
+    promises deleted revision/ref, shared-Git-metadata and fake-repository
+    cases.
+
+  v12/python/tests/manager/test_workspaces.py:37-38
+    unused SHA1 and MOVED fixtures retained from the deleted Git cases.
+
+Source search:
+
+  rg -n "\\bgit\\b|GitPort|materialize_(git|directory)_source|gitSource|directorySource" \
+    v12/python/src/baton_v12/worker_manager --glob '*.py'
+
+Executable acquisition operations/root uses: none. Matches are the stale OCI
+paragraph, historical workspaces explanatory prose, and the generic
+git-change-proposal output type in schema.py.
+
+Whitespace gate:
+
+  git diff --check -- \
+    v12/python/src/baton_v12/worker_manager/workspaces.py \
+    v12/python/src/baton_v12/worker_manager/oci.py \
+    v12/python/tests/manager/test_workspaces.py \
+    v12/python/tests/manager/test_oci.py
+
+  clean

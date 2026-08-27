@@ -1,0 +1,167 @@
+W6632 — evidence after the correction answering the 02:14:24Z re-review.
+
+Review answered: review-2026-08-26T02-14-24Z.md
+  [P0] assignment-label filters still hide contradictory same-attempt state
+
+
+THE FINDING, AND MY PREVIOUS CORRECTION IS WHAT IT IS ABOUT
+
+  The correction before this one moved the three resolved digests out of the
+  engine filters and STOPPED THERE, leaving the attempt id, the four parts of
+  the assignment and the generation as exact filters. So I fixed one instance
+  of the defect and left the same defect, in the same boundary, one field
+  over: a runtime carrying THIS attempt id under generation 0 while the
+  request says generation 1 is still hidden by the engine, `start` reads
+  absence, and it reaches `run`.
+
+  And the post-read half was incomplete in the same way. `list` parsed the
+  whole label record and then compared only the engine-reported image and the
+  three digests — never the attempt, authority, work, participant or
+  generation values it had asked for. Engine-side selection is not proof that
+  a returned record has the values requested. That sentence is my own
+  correction's, and I had not applied it to the half I had just written.
+
+
+THE GENERAL RULE, WHICH IS WHAT WAS MISSING
+
+  ANY assignment fact used as a filter hides a runtime that contradicts it,
+  and a contradictory runtime is exactly what this adapter exists to refuse.
+  There is no shorter version: it is not about digests, and it was never about
+  generation either.
+
+  So the selector is the MINIMAL OWNERSHIP KEY — the one label that answers
+  "is this runtime this attempt's" and cannot disagree without meaning a
+  different attempt entirely:
+
+    _CANDIDATE_LABELS = ("runtime_attempt_id",)
+
+  and the COMPLETE returned record is compared in process against the record
+  that was asked for, member by member across the whole frozen label set. A
+  candidate that carries this attempt id and contradicts the request is WRONG,
+  not absent.
+
+  TWO COMPARISONS, AND THEY ANSWER DIFFERENT QUESTIONS. The new loop asks
+  whether this runtime is the one the CALLER named; the existing
+  `_LABELLED_IDENTITY` loop asks whether it is the one THIS ADAPTER resolved.
+  `list` is reachable without `start`, so neither implies the other and both
+  are kept. The engine-image comparison and the ambiguity behaviour are
+  untouched, as the review required.
+
+
+ONE EXISTING ASSERTION REVISED A SECOND TIME, UNDER EXPLICIT CONFIRMATION
+
+  `test_the_listing_selects_candidates_and_never_pre_compares_identity`
+  required the attempt AND the four parts of the assignment, which is the
+  first correction's incomplete rule written down as an expectation. The
+  review gives explicit case-specific confirmation to revise it to the minimal
+  selector; it now requires exactly one filter and asserts that EVERY other
+  member of the frozen label set is absent from the filters — not just the
+  three digests this time.
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_oci
+    Ran 74 tests in 0.006s
+    OK
+
+  70 -> 74. The review's two additive methods are kept as written and pass;
+  one assertion was revised one-for-one; two are new:
+
+    every label that contradicts the request is refused — driven for each
+      member of the frozen set except the selector itself
+    a contradictory candidate stops a start before the engine creates
+
+  CAN-ACTUALLY-FAIL, measured. With the selector widened back to five labels
+  and the whole-record comparison removed:
+
+    x  test_a_returned_candidate_must_match_the_requested_assignment
+    x  test_a_stale_assignment_runtime_is_not_filtered_into_a_duplicate_start
+    x  test_every_label_that_contradicts_the_request_is_refused
+       (authority_uuid, work_id, participant, generation)
+    x  test_the_listing_selects_candidates_and_never_pre_compares_identity
+    Ran 74 tests -- FAILED (failures=7)
+
+  The file was restored byte for byte afterwards.
+
+
+AGAINST A REAL ENGINE, because the defect is about what a real daemon does
+with a filter
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_oci_engine
+    Ran 14 tests in 0.449s
+    OK (skipped=5)
+
+  Docker 29.1.3; the five podman cases skip. The duplicate-start refusal is
+  the case that drives the candidate query against a daemon that really does
+  apply label filters.
+
+
+ADJACENT
+
+    $ env PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_attempts tests.manager.test_sessions \
+        tests.manager.test_store tests.manager.test_offers \
+        tests.manager.test_secrets tests.manager.test_output \
+        tests.manager.test_interrogation tests.manager.test_handshake
+    Ran 486 tests -- OK
+
+
+FULL SOURCE SUITE AND LOCKED BUILD
+
+  THE FIRST PAIR OF NUMBERS DID NOT DESCRIBE ONE TREE, and that is recorded
+  rather than tidied. The source run finished at 1241 tests with 9 failures;
+  the locked build that followed reported 1244 with 13 failures and 2 errors.
+  The difference is not the installed layout: a reviewer added three cases to
+  `test_secrets.py` under W6630 while the build was running. A pair of gate
+  numbers taken across a moving tree is two measurements of two things, so
+  both were re-taken:
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1244 tests in 481.581s
+    FAILED (failures=13, errors=2, skipped=6)
+
+    $ cd v12/python && just build
+    Ran 1244 tests in 477.377s
+    FAILED (failures=13, errors=2, skipped=5)
+
+  Now they agree, and the fifteen are:
+
+    7  test_boundary_inventory       — the long-standing seven
+    6  test_secrets                  — W6630's eighth review, below
+    2  tools.test_worker_image_build — W6633's, below
+
+  `test_oci` DOES NOT APPEAR. Both W6632 failures the suite carried are gone
+  and nothing was added by this correction.
+
+
+REPORTED AND NOT FIXED
+
+  W6630 — `tests.manager.test_secrets`, posted with
+  `review-2026-08-26T03-10-29Z.md` while this correction was in progress:
+    test_pair_ownership_precedes_membership_and_runs_no_caller_hash
+    test_pair_redactions_are_themselves_proved_by_containment
+    test_message_and_durability_type_assertions_do_not_consult_metaclass
+
+  All three are real defects in that Work's own last correction — mine — and
+  the review is right that the decision I recorded there ("every diagnostic in
+  this constructor is now behind the same rule") is not established:
+  membership hashes a rejected operand before the safe renderer runs; the
+  redaction sentence and the type name it composes are themselves unproved
+  against the live snapshot; and two later type assertions still use
+  `type(value).__name__` rather than the metaclass-safe helper this module
+  already owns.
+
+  W6633 — `tests.tools.test_worker_image_build`, already reported on T6633:
+    TwoBuildsReachOneIdentity.test_source_checkout_mtime_is_not_part_of_the_image_identity
+    TheBuildVectorIsClosed.test_a_failed_stage_removal_cannot_report_a_successful_build
+
+  Both Works are routed to `baton.feat` and neither is held by this claim.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w6632c_full2.txt  the re-taken full source-suite log
+    /tmp/w6632c_build.txt  the locked installed-layout log
+    /tmp/w6632c_full.txt   the first source run, kept because the pair of
+                           numbers it belongs to is discussed above

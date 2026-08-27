@@ -44,7 +44,11 @@ __all__ = ["CONTRACTS", "ASSIGNMENT", "profile_certified",
            "session_reconciled", "session_quiescence_requested",
            "operation", "manifest_retained", "freeze_requested",
            "result_frozen", "output_answer", "frozen_output",
-           "output_artifact", "interrogation", "interrogation_requested"]
+           "output_artifact", "interrogation", "interrogation_requested",
+           "collect_requested", "destroy_command", "intake_artifact",
+           "intake_receipt", "retain_command",
+           "retention", "retention_decided", "cleanup_blocked",
+           "cleanup_settled", "cleanup_unsettled"]
 
 # name -> (required, optional). ONE table, so "what does this manager answer
 # with" is a question with a written answer rather than a survey of return
@@ -103,9 +107,18 @@ CONTRACTS = {
     # parts of the assignment are among them: the frozen host omitted the
     # participant, so two participants' runtimes on one Work and generation were
     # indistinguishable by label.
+    #
+    # W6632 review [P1]: `policy_digest` joins them, and this is the second
+    # time this build has extended these labels past the frozen host's set for
+    # the same reason. Reconciliation after a restart finds a runtime by these
+    # labels and then reasons about WHAT WAS DELIVERED from them, so every
+    # member of the resolved identity that the engine cannot report itself has
+    # to be here or it does not survive the restart. The engine knows the
+    # image it is running and reports it; it has never heard of a policy
+    # digest, so a label is the only carrier there is.
     "runtime.labels": (("runtime_attempt_id", "authority_uuid", "work_id",
                         "participant", "generation", "profile_digest",
-                        "adapter_digest"), ()),
+                        "policy_digest", "adapter_digest"), ()),
     "runtime.start-requested": (("attempt_id", "operation_id"), ()),
     # THREE DECISIONS, THREE DOCUMENTS. A reconciliation answers "attached",
     # "uncertain" or "cancel", and each carries different facts -- one shape
@@ -226,6 +239,56 @@ CONTRACTS = {
     "output.frozen": (("attempt_id", "result_id", "disposition",
                        "manifest_digest", "freeze_operation_id", "frozen_at",
                        "artifacts"), ()),
+    # -- W6629: intake, retention and cleanup --------------------------------
+    #
+    # THE ASK, journalled before the adapter is called, so a restart can tell
+    # "we never asked" from "we asked and do not know what came back".
+    "collect.requested": (("attempt_id", "result_id", "operation"), ()),
+    # W6629 review [P1]: THE TWO FROZEN COMMANDS THIS MANAGER ISSUES, in the
+    # schema's own member order. `outputRetainBody` and `runtimeDestroyBody`
+    # each have five required operands; the manager used to type the adapter's
+    # capability and then send one of them nothing and the other a bare
+    # runtime id, so the side holding the material was told neither what
+    # authorized the act nor which protocol operation it was executing.
+    "retain.command": (("assignment_ref", "runtime_attempt_id",
+                        "artifact_ids", "disposition",
+                        "retention_policy_digest"), ()),
+    "destroy.command": (("assignment_ref", "runtime_attempt_id", "runtime_id",
+                         "intake_receipt_digest",
+                         "retention_policy_digest"), ()),
+    "intake.artifact": (("artifact_id", "content_digest", "bytes",
+                         "custody_locator"), ()),
+    # THE RECEIPT, and it is THIS MANAGER'S DOCUMENT.
+    #
+    # `runtimeDestroyBody.intake_receipt_digest` is a digest of a shape the
+    # frozen contract never states -- exactly like the ten `*_policy_digest`
+    # members whose documents it also never shapes. The difference is
+    # direction: a policy is CONSUMED, so it is bound by identity and never
+    # interpreted; a receipt is PRODUCED here, so the producer owns its shape
+    # and writes it down.
+    #
+    # `custody` and `recoverable` are two different reasons material is still
+    # on disk and are deliberately not one member: `quarantined` is doubt
+    # keeping it, and `recoverable` is a CANCELLED attempt's work being kept so
+    # it can be recovered. Merging them would answer "why is this still here?"
+    # with "it is still here".
+    "intake.receipt": (("attempt_id", "assignment", "result_id",
+                        "manifest_digest", "custody", "why", "recoverable",
+                        "artifacts", "operation"), ()),
+    "retention.decision": (("artifact_id", "disposition",
+                            "retention_policy_digest", "decided_at"), ()),
+    "retention.decided": (("attempt_id", "artifact_ids", "disposition",
+                           "retention_policy_digest", "operation"), ()),
+    # BLOCKED IS AN ANSWER, not an error and not a retry: the frozen cleanup
+    # axis has `blocked-on-intake`, so cleanup WAITS on intake, and a caller
+    # that looped would be inventing a mechanism the axis already has.
+    "cleanup.blocked": (("attempt_id", "why"), ()),
+    # AND UNSETTLED IS A THIRD ANSWER. An engine account that did not settle
+    # what became of the runtime moves nothing, because a cleanup axis that
+    # advanced on it would record an ending nobody observed.
+    "cleanup.unsettled": (("attempt_id", "state", "why", "operation"), ()),
+    "cleanup.settled": (("attempt_id", "cleanup", "state", "why", "kept",
+                         "operation"), ()),
     # -- W6627: the operator interrogation split -----------------------------
     #
     # THE REQUEST, journalled before the adapter is asked. Its four bindings
@@ -357,6 +420,46 @@ def output_artifact(**members):
 
 def frozen_output(**members):
     return _emit("output.frozen", members)
+
+
+def collect_requested(**members):
+    return _emit("collect.requested", members)
+
+
+def retain_command(**members):
+    return _emit("retain.command", members)
+
+
+def destroy_command(**members):
+    return _emit("destroy.command", members)
+
+
+def intake_artifact(**members):
+    return _emit("intake.artifact", members)
+
+
+def intake_receipt(**members):
+    return _emit("intake.receipt", members)
+
+
+def retention(**members):
+    return _emit("retention.decision", members)
+
+
+def retention_decided(**members):
+    return _emit("retention.decided", members)
+
+
+def cleanup_blocked(**members):
+    return _emit("cleanup.blocked", members)
+
+
+def cleanup_unsettled(**members):
+    return _emit("cleanup.unsettled", members)
+
+
+def cleanup_settled(**members):
+    return _emit("cleanup.settled", members)
 
 
 def interrogation_requested(**members):

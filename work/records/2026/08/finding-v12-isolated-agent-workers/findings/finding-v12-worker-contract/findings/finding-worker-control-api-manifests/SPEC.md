@@ -33,6 +33,65 @@ sentence as written stops being conformant. One consequence is new, and it is
 called out where it lives — a `claim_token` operand enters the payload as its
 verifier digest rather than literally, which §4.2 explains.
 
+**Superseded in part on 2026-08-26 by the artifact-neutral Worker Manager
+ruling of 2026-08-25 (W14251).** This is a SUPERSESSION rather than a
+clarification: documents that satisfied §7 as it was written stop being
+conformant, because the vocabulary they used no longer exists.
+
+The Worker Manager standardizes exactly two filesystem roles and their two
+manifests — a read-only `/input/` carrying `input.json`, and an `/output/`
+that is writable until quiescence and then frozen, carrying an `output.json`
+published LAST. It validates envelope shape, identity, containment, completion
+publication and generic integrity, and it never executes an ingestion
+instruction or interprets payload semantics.
+
+So §7 no longer describes HOW input is acquired. The acquisition
+vocabulary — a source `type`, an absolute acquisition `uri`, the
+version-control and directory source variants — and the three closed output
+kinds are gone from the schema, from §3.3's source-URI rule and from §12
+rules 4 and 7. §7.6 keeps them as dated history, because the reasoning that
+was superseded is how the next reader knows why the current rule is not the
+obvious one.
+
+What did NOT change: the version-control object type stays, because four of
+its six referents are the proposal and integration surfaces of §8.5 and §8.6,
+which this supersession did not touch; and the URI grammar stays, because
+artifact locators are still URIs this contract receives. What ended is the
+manager reading a SOURCE's acquisition locator. See
+`work/records/2026/08/finding-worker-control-artifact-neutral-io/`.
+
+**Corrected 2026-08-26 by that Work's second review.** The first revision gave
+`/output/output.json` the manager's own `baton.worker-manifest/result` schema,
+which requires a freeze operation, a manager observation and custody artifact
+references — so the contract told the WORKER to publish last a document only
+the MANAGER can author. §7.3 and the new §8.7 separate the worker's completion
+envelope from the manager's frozen-result receipt, which is what makes both
+pinned sentences of the ruling true at once. §12 rule 3 is narrowed in the same
+round: two fixed roots cannot alias by relative spelling.
+
+**Amended 2026-08-26 by W19784, and this one is a DEFECT FIX rather than a
+clarification or a supersession.** The revision above left the contract
+unsatisfiable: §8.7 requires the worker's completion envelope to carry the
+exact full `assignment_ref` including the authority generation, and §8.1 gives
+`input.json` no generation because it is minted before any claim exists. No
+other surface inside the execution container carried one — not the framed
+`work` request, not the environment. A worker that obeyed the input contract
+could not obey the output contract.
+
+The fix delivers the ALREADY-DEFINED §8.2 assignment manifest, unchanged and
+complete, at a second fixed read-only name `/input/assignment.json`. §7.0 now
+describes three protocol documents in the same two filesystem roles; the
+manager authors both input documents at their proper lifecycle moments and the
+worker still authors only `/output/output.json`. §7.1 and §12 rule 3 reserve
+the new name in its own root, and new §12 rule 16 states the cross-document
+bindings that hold the pair together.
+
+No document that satisfied the old text stops being conformant, because no
+conformant execution container could be built under it. Explicitly rejected:
+putting `assignment_ref` into `inputManifest`, putting assignment identity on
+the `work` frame, and reviving an assignment environment string. See
+`work/records/2026/08/finding-worker-completion-assignment-identity/`.
+
 ## 0. Scope and precedence
 
 This contract specifies the transport-independent boundary between the trusted
@@ -218,11 +277,18 @@ non-empty, use `/`, contain no empty, `.` or `..` segment, are not absolute,
 and contain no NUL. A path names a logical role inside one private assignment
 workspace, not a host path.
 
-Source URIs are absolute normalized URIs. They contain no userinfo, credential,
-bearer token or fragment. Query strings are forbidden in durable source URIs
-because they routinely carry signed credentials or unstable selection
-parameters. URI scheme describes transport only; source `type` selects
-semantics.
+Artifact locators are absolute normalized URIs. They contain no userinfo,
+credential, bearer token or fragment. Query strings are forbidden because they
+routinely carry signed credentials or unstable selection parameters. A URI
+scheme describes transport only and never selects semantics.
+
+**Superseded 2026-08-26 (W14251).** This paragraph applied the same grammar to
+a SOURCE URI, and a source no longer has one: the manager receives an already
+staged read-only directory. The rule survives for the locators this contract
+still carries — §9 artifact references — and one protection was lost with the
+member it guarded. A durable source URI could not carry a query BECAUSE a query
+is where a credential rides; that protection now belongs to whoever stages the
+input, and it is recorded here rather than quietly dropped.
 
 Directory content manifests sort entries bytewise by normalized relative
 path. Each entry carries path, byte length and content digest. Entries are
@@ -479,61 +545,266 @@ instructs the caller to invent a new operation ID; it requires reconciliation
 of the exact operation. Diagnostic provider text is bounded, redacted,
 untrusted and never parsed for portable semantics.
 
-## 7. Input and output descriptors
+## 7. The two filesystem roles and their descriptors
 
-### 7.1 Common source fields
+Revised 2026-08-26 by the artifact-neutral ruling (W14251). §7.6 keeps what
+this section used to say.
 
-Every source descriptor has:
+### 7.0 The two roles
+
+A worker sees exactly two standardized places and three protocol documents:
+
+```text
+/input/                 read-only for the whole runtime
+  input.json            MANAGER-authored, BEFORE claim: what is staged and how
+                        it is to be consumed
+  assignment.json       MANAGER-authored, AFTER claim: which live assignment is
+                        executing this input
+/output/                writable until quiescence, then frozen
+  output.json           WORKER-authored: published LAST; what was produced and
+                        how the result is to be consumed
+```
+
+**Revised 2026-08-26 by W19784.** This said two documents, and that was a
+defect rather than a simplification. §8.7 requires the completion envelope to
+carry the exact full `assignment_ref` — Work reference, participant AND
+authority generation — while §8.1 gives `input.json` a `work_ref` and
+deliberately no generation, because it is minted before any claim exists. No
+other frozen surface delivered the missing part: the framed `work` request
+carries only the common worker-entry identity, and the execution environment
+does not carry an assignment value. A worker consuming a structurally valid
+input manifest therefore could not author a structurally valid completion
+envelope at all.
+
+The fix is a PATH AND A LIFECYCLE, not a new document. `assignmentManifest`
+(§8.2) already holds the exact assignment identity, the runtime attempt, the
+input-manifest digest, the policy and profile digests and the claim-receipt
+binding. It is now delivered, unchanged and complete, at the second fixed
+read-only name `/input/assignment.json`. Explicitly rejected: adding
+`assignment_ref` to `inputManifest`, adding an assignment member to the `work`
+frame, and any environment string or compatibility alias.
+
+Three documents, still two filesystem roles. `/input/` gains no writable
+surface and no new mount authority, and the assignment manifest carries no
+bearer secret (§13).
+
+**The lifecycle is normative, and so is the moment the identity is proved.**
+Before the root is exposed to any container the manager holds the delivered
+assignment manifest against its own live assignment, the runtime attempt it is
+starting and the input digest the attempt was claimed against — §12 rule 17,
+added 2026-08-27 because the first implementation of this ruling proved that
+identity only at the freeze, which is after the agent has already run.
+
+`input.json` is authored before claim, and its
+bytes and digest never change afterwards — it is the pre-claim evidence the
+result is measured against. After the claim commits, the manager materializes
+`assignment.json` in the same root and validates its binding to that exact
+input, the minted generation, the runtime attempt, the policy and the profile.
+No container observes the input root during that transition. Only once both
+documents are complete is the whole `/input` surface exposed to the execution
+container, read-only. **Consent sees neither document**; consent mounts
+nothing.
+
+The manager's own receipt over the frozen tree is a FOURTH document in a place
+the worker never sees — §7.3 and §8.7 say why it cannot be `output.json`.
+
+Both paths are fixed constants of this contract rather than operands. A path a
+manifest could vary is a path a runtime can be pointed at wrongly, and the
+worker is told where to look by the contract rather than by the payload.
+
+`/input/` is mounted read-only for the whole runtime, not merely
+write-protected by convention: the input is evidence the result is measured
+against, so a runtime that could edit it could edit what it is judged by.
+
+`/output/` is writable until the manager proves quiescence and then frozen.
+Freezing is what makes a result describable: a tree somebody may still be
+writing to has no digest anybody can quote.
+
+**The manager never interprets either payload.** It validates envelope shape,
+identity, containment, completion publication and generic integrity. It does
+not execute an ingestion instruction, does not resolve a locator, and does not
+know what a version-control repository is. Those conventions may appear INSIDE
+an opaque payload member; they are not worker-control vocabulary.
+
+### 7.1 Staged-input descriptors
+
+Every source descriptor in `input.json` has:
 
 - unique assignment-local `name`;
-- `type` selecting semantics;
-- credential-free absolute normalized `uri` selecting transport;
-- unique normalized relative `destination`;
-- immutable type-specific identity;
-- `required` boolean; and
-- optional negotiated provider capability, never inferred from URI scheme.
+- unique normalized relative `destination` under `/input/`;
+- `required` boolean;
+- `content_manifest`: the generic integrity evidence of §3.3 — sorted
+  regular-file entries, tree digest, entry count, total bytes; and
+- `consumption`: an OPAQUE namespaced payload describing how the staged
+  material is to be consumed.
 
-The ordered source array is significant. Destinations cannot overlap each
-other, any output, the control endpoint or manager-owned metadata.
+The ordered source array is significant.
 
-### 7.2 Git source
+**Corrected 2026-08-26 by this Work's third review.** This said destinations
+cannot overlap "any output", which is the superseded shared-workspace rule and
+contradicted §12 rule 3 after the code was corrected — two live normative
+answers. Under §7.0's two fixed roots the actual rules are:
 
-`type: "git"` adds:
+- staged-input destinations do not overlap EACH OTHER, and declared output
+  paths do not overlap each other. Across the two roots they are never
+  compared: `/input/repo` and `/output/repo` are disjoint by construction;
+- no destination is `input.json` or `assignment.json`, or nested below
+  either, because those are the two manager-authored protocol documents of the
+  root it sits in;
+- no declared output path is `output.json` or nested below it, for the same
+  reason on the other side; and
+- no destination reaches the control endpoint or manager-owned metadata.
 
-- configured logical `repository_id`;
-- `object_format: "sha1"|"sha256"`;
-- mandatory full immutable `base_revision` object ID;
-- optional full `source_ref` used only to locate objects;
-- optional full `integration_ref` naming the intended target; and
-- acquisition policy digest.
+`assignment.json` joined this list on 2026-08-26 with §7.0's third document,
+and for the identical reason as `input.json`: a staged payload at that name
+would replace a document the manager authored.
 
-The bootstrap materializes the private clone and verifies the exact object ID
-before the agent starts. A branch never silently replaces
-`base_revision`. Credentials stay outside the URI and manifest.
+**The reserved names are reserved in their OWN root only.** An output called
+`input.json` or `assignment.json` sits under `/output/` and collides with
+nothing. Reserving every protocol name in both roots would be forbidding a
+spelling rather than protecting a document. And NESTING COUNTS:
+`input.json/data` requires that name to be a directory while the protocol
+document is a file, so it is the same collision.
 
-### 7.3 Directory source
+**`consumption` is opaque and that is the whole point.** The manager carries
+it and never reads it. A member the manager interpreted would be a second
+place that decides what an input means, and the first is the party that staged
+it. A worker that needs to know the material is a version-control checkout
+reads that from `consumption`; the manager cannot tell and does not ask.
 
-`type: "directory"` adds `content_manifest` with sorted regular-file entries,
-tree digest, entry count and total bytes. The provider materializes that exact
-collection read-only. No Git repository is synthesized.
+**How the directory was populated is outside this contract.** The manager
+receives an already staged read-only tree and the integrity evidence for it.
+Whoever staged it is answerable for how, including for the credential
+protections §3.3 used to carry.
 
-### 7.4 Output descriptors
+### 7.2 Output descriptors
 
-Every output has unique `name`, `type`, normalized writable `path`,
-`required`, and constraints: maximum bytes/entries, allowed media or file
-types, link policy (always `forbid` in 1.0), and optional type-specific
-validator digest.
+Every output has unique `name`, an OPAQUE `type`, normalized writable `path`
+under `/output/`, `required`, and constraints: maximum bytes/entries, allowed
+media or file types, link policy (always `forbid` in 1.0), and optional
+type-specific validator digest.
 
-Initial types are:
-
-- `git-change-proposal`: a private Git clone/result plus immutable bundle or
-  equivalent object transport; never a push or canonical ref;
-- `directory-result`: a distinct tree, never in-place input mutation; and
-- `record-output`: progress, research, evidence and draft findings for trusted
-  intake, never direct canonical dossier access.
+The `type` is an opaque identifier. The manager compares it, carries it into
+the result and never branches on it. Two declarations may not name the same
+tree or nest one inside the other: the same bytes under two names are two
+artifacts with two identities, and retention would then decide twice about
+material that is once.
 
 The worker sees local paths and constraints only. It never receives the
 external delivery, canonical repository or permanent dossier destination.
+
+### 7.3 The worker's completion envelope, and publication last
+
+**Corrected 2026-08-26 by this Work's second review.** This section identified
+`/output/output.json` with `baton.worker-manifest/result` — a document whose
+schema requires `freeze_operation`, `manager_observed_at` and custody artifact
+references, none of which exists until after the worker is quiescent. So the
+contract told the worker to publish last a document the worker cannot author.
+That was an unimplementable cycle rather than an ambiguity.
+
+**THERE ARE TWO DOCUMENTS AND THEY HAVE TWO AUTHORS.** This is a separation
+rather than a supersession: it is the reading under which both pinned sentences
+of the 2026-08-25 ruling are true at once — the worker "writes every durable
+result below `output/` and publishes `output.json` last", and the manager,
+"after quiescence, performs only format-neutral duties: … freeze or snapshot
+the declared output, compute generic integrity evidence, and bind the frozen
+tree to the assignment generation."
+
+| | `/output/output.json` | the frozen-result receipt |
+| --- | --- | --- |
+| schema | `baton.worker-manifest/completion` | `baton.worker-manifest/result` |
+| author | the WORKER | the MANAGER |
+| when | last, before quiescence | after quiescence, at freeze |
+| where | inside `/output/` | manager custody, never `/output/` |
+| says | what I produced and where | what I took custody of and under which operation |
+
+The worker's envelope carries, per declared output: `name`, the opaque `type`,
+the declared relative `path`, a `status` of `present` or `missing-optional`,
+the content manifest when present, and `result_metadata` — an OPAQUE namespaced
+payload the manager carries and never reads. It carries **no freeze operation,
+no manager observation and no custody locator**, because those are facts about
+an act that has not happened yet.
+
+`result_metadata` exists because the ruling's own example needs somewhere to
+go — a worker reporting a commit identifier as format-specific output
+metadata. Under the superseded closed output kinds that identifier was
+vocabulary; under an opaque type it has no home unless the envelope provides
+one.
+
+**`output.json` is published LAST**, after every durable result is written.
+That ordering is what makes it trustworthy: it exists only if everything it
+describes already succeeded, so its presence is the completion signal and no
+separate one is needed.
+
+The manager VALIDATES that envelope — shape, identity, containment, completion
+publication and generic integrity — and holds it against the input manifest it
+answers under §12 rule 15: one answer per declared output, no extras, no
+omissions, exact `name`/`type`/`path`, and no `missing-optional` answer for a
+required declaration. Only then does it produce its own receipt over the frozen
+tree. §8.4 and §8.7.
+
+**Published means published atomically.** Writing bytes into the final name is
+not publication: a process stopped inside that write leaves the name existing
+and empty, and a reader cannot distinguish it from a settled answer. The bytes
+become visible under the final name only once they are complete.
+
+A missing OPTIONAL output is answered explicitly rather than by silence. The
+declaration was made and it is answered; a receiver that saw nothing would
+lose the fact that the worker was asked. A missing REQUIRED output refuses.
+
+### 7.4 Unresolved identifiers are not results
+
+An output whose artifact is named only by an identifier the manager cannot
+resolve to bytes it holds is not a durable result. The manager takes custody
+of bytes and publishes a locator for what it holds; a reference to something
+somewhere else is a promise, and a promise cannot be frozen.
+
+### 7.5 Private ephemeral space is capacity, not protocol
+
+A runtime may be given private scratch space. It is CAPACITY: it has no
+standardized path, no manifest, no declaration and no guarantee of surviving
+the runtime. Nothing in either manifest names it, and a worker may not treat
+its presence, size or location as contract.
+
+This is stated because the obvious alternative is wrong. A third standardized
+path would be a third protocol artifact — one more thing to declare, contain,
+freeze, measure and retain — bought for something that is an implementation's
+convenience rather than a party's need.
+
+### 7.6 Superseded acquisition and result vocabulary (2026-08-25)
+
+Kept as dated history. None of the following is live vocabulary; the schema
+carries none of it. It is recorded because the reasoning that was superseded
+is how the next reader knows why the current rule is not the obvious one.
+
+**Common source fields.** A source descriptor carried `type` selecting
+semantics, a credential-free absolute normalized `uri` selecting transport, an
+immutable type-specific identity, and an optional negotiated provider
+capability never inferred from URI scheme.
+
+**Version-control source.** `type: "git"` added a configured logical
+`repository_id`, `object_format: "sha1"|"sha256"`, a mandatory full immutable
+`base_revision` object ID, optional full `source_ref` and `integration_ref`,
+and an acquisition policy digest. The bootstrap materialized a private clone
+and verified the exact object ID before the agent started; a branch never
+silently replaced `base_revision`.
+
+**Directory source.** `type: "directory"` added a `content_manifest` the
+provider materialized read-only, synthesizing no repository.
+
+**Three closed output kinds.** `git-change-proposal`, `directory-result` and
+`record-output`.
+
+**Why they went.** Each made the Worker Manager a party to what its payloads
+MEAN. Acquisition put a transport, a credential path and a repository model
+inside a component whose contract is that it decides nothing; the closed
+output kinds made every new kind of work a change to this contract. The
+replacement is two generic envelopes with an opaque payload member each.
+
+**And what did not go with them.** The version-control OBJECT type stays: four
+of its six referents are the proposal and integration surfaces of §8.5 and
+§8.6, which this supersession did not touch. Removing it wholesale would have
+deleted vocabulary that is still load-bearing somewhere else.
 
 ## 8. Manifest family
 
@@ -543,7 +814,7 @@ All manifests are sealed objects with exact `schema` and `version`, a
 
 ### 8.1 Input manifest
 
-`baton.worker-manifest/input` binds:
+`baton.worker-manifest/input` is the `/input/input.json` of §7.0. It binds:
 
 - `work_ref` and `assignment_contract` (but no generation before claim);
 - immutable human contract artifact and digest;
@@ -557,6 +828,14 @@ All manifests are sealed objects with exact `schema` and `version`, a
 Credentials, environment values and host mount paths are absent. A policy
 reference identifies reviewed policy content; it is not a free-form default.
 
+**"No generation before claim" is load-bearing, not incidental.** This document
+is minted before any claim exists, so it cannot name one; its bytes and digest
+never change afterwards. That is why §8.7's completion envelope cannot be
+satisfied from this manifest alone, and why 2026-08-26 (W19784) delivered
+§8.2 beside it rather than adding assignment identity here — which would have
+collapsed pre-claim evidence and post-claim authority into one mutable
+lifecycle.
+
 ### 8.2 Assignment manifest
 
 `baton.worker-manifest/assignment` is minted only after claim success and
@@ -565,6 +844,14 @@ binds full `assignment_ref`, `assignment_contract`, `offer_id`,
 digest/sequence, and activation time. Its generation must equal the authority's
 current live generation. It is the only manifest that unlocks writable
 execution and publication capability.
+
+**Delivered to the execution worker at `/input/assignment.json` since
+2026-08-26 (W19784).** The document is unchanged — no member was added,
+removed or aliased for this. What is new is that it now has a fixed read-only
+path inside the execution container, materialized after the claim commits and
+before the input root is mounted (§7.0), and that it is the ONE source from
+which a worker takes the `assignment_ref` §8.7 requires. §12 rule 16 states
+the bindings that hold it to the `input.json` beside it.
 
 ### 8.3 Runtime-attempt manifest
 
@@ -577,11 +864,35 @@ cleanup. Adapter diagnostics are namespaced and cannot change these states.
 
 ### 8.4 Frozen-result manifest
 
-`baton.worker-manifest/result` binds `result_id`, exact assignment, input and
-policy digests, worker disposition, every declared output's content/tree
-digest and artifact reference, evidence/log references, freeze operation and
-manager observation. It records missing optional output explicitly and refuses
-missing required output. A changed byte requires a new result ID and digest.
+`baton.worker-manifest/result` is the MANAGER's receipt over the frozen tree.
+**It is not `/output/output.json`** — see §7.3 and §8.7. It binds `result_id`,
+exact assignment, input and policy digests, worker disposition, every declared
+output's content/tree digest, artifact reference and opaque `result_metadata`,
+evidence/log references, freeze operation and manager observation. It records
+missing optional output explicitly and refuses missing required output. A
+changed byte requires a new result ID and digest.
+
+**A `completed` receipt MUST carry `completion_manifest_digest`**, naming the
+exact worker envelope §7.3 says the manager validated before freezing.
+Corrected 2026-08-26 by this Work's fourth review: the member was optional with
+a sequencing excuse, which left the contract giving two answers about one
+completed result — either no worker envelope existed, or the manager declined
+to bind the one it validated, and nothing durable told them apart.
+
+`unable`, `plan-rejected` and `cancelled` receipts MAY omit it. Those are the
+endings where the worker may have died before publishing anything, and
+requiring an envelope there would require the worker to have succeeded in order
+to be recorded as having failed. **Whenever an envelope WAS validated, the
+receipt binds its digest whatever the disposition became** — the shape admits
+it on every disposition and requires it only where its absence is otherwise
+ambiguous.
+
+There is no version or capability that relaxes this. 1.0 is the only version
+this contract admits, and widening the version vocabulary to preserve a bypass
+would be inventing a negotiation nothing performs.
+
+It lives in manager custody and is published atomically there. The worker never
+writes it and never reads it.
 
 ### 8.5 Proposal manifest
 
@@ -617,6 +928,38 @@ durably journalled refused attempt. No receipt automatically closes Work.
 
 A second differing write to any receipt ID or operation refuses. Exact replay
 returns the original receipt. Revision creates a new proposal and new receipts.
+
+### 8.7 Worker completion envelope
+
+**Added 2026-08-26 by this Work's second review**, to give `/output/output.json`
+a schema the worker can actually author. §7.3 states the split and why.
+
+`baton.worker-manifest/completion` is the file the worker publishes LAST inside
+`/output/`. It binds the exact `assignment_ref`, the worker's own
+`disposition`, and one entry per declared output carrying `name`, the opaque
+`type`, the declared relative `path`, `status`, the content manifest when
+present, and opaque `result_metadata`.
+
+**"The exact `assignment_ref`" means copied from `/input/assignment.json`.**
+Until 2026-08-26 this requirement had no satisfiable source: §8.1 carries no
+generation and nothing else in the container carried one, so a worker obeying
+the input contract could not obey this one. W19784 closed that by delivering
+§8.2 at a fixed read-only input path. The worker copies the value; it does not
+reconstruct, infer or accept it from an environment value or a request frame.
+
+**What it deliberately does not carry**, and each absence is the same reason:
+the worker cannot know it yet.
+
+- no `freeze_operation` — the freeze is an act the manager performs after the
+  worker is quiescent, under an operation identity the worker never sees;
+- no `manager_observed_at` — an observation the worker has not been observed
+  for;
+- no artifact reference — a custody locator names where THIS MANAGER put the
+  bytes, and at publication time it has not taken them.
+
+The worker's disposition is its own claim about its work, not a settlement. The
+manager records it, refuses a missing required output regardless of it, and
+settles the attempt itself.
 
 ## 9. Artifact references and evidence
 
@@ -697,12 +1040,34 @@ JSON Schema validates local shape. A conforming implementation also proves:
 1. Work ID prefix matches authority UUID.
 2. Every assignment generation is positive and matches the live authority
    projection for assignment-owned action.
-3. Names and destinations are unique; input/output destinations do not overlap.
-4. URI and locator fields contain no credentials, userinfo, query or fragment.
+3. Names are unique across sources and outputs. Destinations do not overlap
+   WITHIN the staged-input set, and do not overlap WITHIN the declared-output
+   set. No staged-input destination is `input.json` or `assignment.json`, or
+   nested below either — **`assignment.json` added 2026-08-26 (W19784)** with
+   §7.0's second manager-authored input document — and no
+   declared output path — in either the input manifest or the completion
+   envelope — is `output.json` or nested below it: each root's protocol
+   manifest name is reserved in that root. **Narrowed 2026-08-26 (W14251 second review):** this compared the two
+   sets against each other, on the superseded shared-workspace model. Under
+   §7.0's two fixed roots `/input/repo` and `/output/repo` are disjoint, so
+   equal or nested relative spellings across the two roles cannot alias. A name
+   stays unique across both, which is a different rule: a name is how one
+   manifest's declarations are told apart, and two roles sharing one is
+   ambiguous wherever the name is used.
+4. Artifact locator fields contain no credentials, userinfo, query or
+   fragment. **Narrowed 2026-08-26 (W14251):** this named source URIs too, and
+   a source no longer carries one. The party that stages `/input/` is
+   answerable for the protection that rule used to give it.
 5. Manifest and body digests recompute over canonical bytes.
 6. Content manifests are sorted, unique, within limits and match aggregate
    count/bytes/tree digest.
-7. Git object ID length matches object format and immutable base is present.
+7. Version-control object ID length matches object format and the immutable
+   base is present, **on the §8.5 proposal and §8.6 integration surfaces**.
+   **Narrowed 2026-08-26 (W14251):** this also compared a SOURCE's object
+   format against its base revision — a sha1 base under a sha256 repository is
+   a different object namespace rather than a shorter digest — and a source no
+   longer declares either. The rule is unchanged where the object type still
+   lives.
 8. Artifact byte length and content digest match collected bytes.
 9. Every operation signature includes all effective durable operands, and a
    receiver RECOMPUTES it over the exact §4.2 payload before journalling a
@@ -723,6 +1088,93 @@ JSON Schema validates local shape. A conforming implementation also proves:
     `runtime_attempt_id` and `work_ref` name one issued offer with an unspent
     verifier, so a decline can never terminate a differently bound one
     (W4487).
+15. **Added 2026-08-26 (W14251 third review).** A worker completion envelope is
+    held against the input manifest it answers, and the relations are exact.
+    For every declared output there is EXACTLY ONE answer; every answer names a
+    declared output, so there are no extras and no omissions; each answer's
+    `name`, `type` and `path` equal the declaration's; and no `required`
+    declaration is answered `missing-optional`. A declaration's `required` flag
+    is the manager's, and a worker that could answer a required output missing
+    would be settling its own attempt.
+
+    THIS RULE NEEDS TWO DOCUMENTS, which is why it is stated here rather than
+    in the completion envelope's own validation. A function handed one document
+    can prove that envelope is internally consistent — unique names,
+    non-overlapping paths, a status that agrees with its integrity evidence —
+    and nothing about whether it answers the assignment that was made. The
+    manager holds both and performs this comparison before it freezes.
+
+16. **Added 2026-08-26 (W19784).** The two manager-authored documents in
+    `/input/` are held against each other, and a party that reads them —
+    the worker before it dispatches an agent, the manager before it mounts the
+    root — proves they are ONE delivery:
+
+    - the assignment manifest's `assignment_ref.work_ref` equals the input
+      manifest's `work_ref`;
+    - the assignment manifest's `input_manifest_digest` equals the input
+      manifest's own `manifest_digest`, which is what proves these two files
+      are that pair rather than one of them beside a newer other; and
+    - `policy_digest` and `runtime_profile_digest` are equal on both.
+
+    Each document is separately closed, digest-bound and structurally valid on
+    its own; none of that says they are about one thing, which is why this is a
+    semantic rule and not a schema one.
+
+    THE GENERATION IS DELIBERATELY NOT COMPARED. The input manifest has none
+    (§8.1) — that asymmetry is the entire defect W19784 answers — so
+    `assignment.json` is the ONE source of the participant and authority
+    generation the completion envelope must carry, and the worker copies it
+    from there and from nowhere else.
+
+    `assignment_contract` is deliberately not compared EITHER, and that is not
+    an omission. Under 1.0 the frozen schema pins it to
+    `const: "v12-assignment-1"` on both documents, so two structurally valid
+    manifests cannot disagree about it; the obligation is discharged one layer
+    earlier. A version that widened that vocabulary would move the comparison
+    into this rule.
+
+17. **Added 2026-08-27 by W19784's own review.** THE PAIR RULE IS NOT AN
+    AUTHORIZATION, and the two must not be confused. Rule 16 proves the two
+    documents are one delivery; it cannot prove that delivery is the one the
+    manager authorized, because a pair minted for a superseded generation, a
+    different participant or another runtime attempt agrees with itself
+    perfectly.
+
+    So before the manager exposes `/input/` to any container it holds the
+    delivered assignment manifest against its OWN live values — the four-part
+    assignment it activated, the runtime attempt it is starting, and the input
+    manifest digest the attempt was claimed against. All three, and before the
+    root is written; a manager that composed first and checked afterwards would
+    already have created the thing it was deciding about.
+
+    **The moment is normative, not just the check.** The same comparison stated
+    only at custody is a rule that fires after the agent has run: the container
+    was mounted, the worker read material nothing had authorized, and the
+    refusal arrives too late to have prevented anything. The comparison at
+    custody stays — an envelope is a second document and deserves its own
+    proof — but it is defence in depth rather than the boundary.
+
+    The worker performs neither of these, and cannot: which generation is live
+    is a fact about the authority, and a container is the one party with no way
+    to ask. What the worker owns is §12 rule 16 and the closedness of the two
+    documents it was handed.
+
+    **AND THE ROOT THAT WAS PROVED IS THE ROOT THAT IS MOUNTED.** Added the
+    same day, because the first implementation of this rule proved one
+    directory and then started a runtime whose mount plan was an independent
+    value — free to name a sibling root of the same assignment, to land the
+    proved source at some other path, or to mount nothing at `/input` at all.
+    Containment and writability were checked and said yes, because they are
+    about a different question.
+
+    So exactly one read-only bind of that exact source lands at the fixed
+    `/input`, and where no root was authorized nothing may claim that path.
+    "The manager did not say" is not a reason to expose an unproved directory
+    where the worker will look for its assignment.
+
+    A proof about one value is not a proof about another, and two boundaries
+    that never compare their operands are two boundaries that can both pass
+    while the container is wrong.
 
 ## 13. Security and privacy invariants
 

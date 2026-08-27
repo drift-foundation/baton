@@ -1,0 +1,30 @@
+W17110 independent sixth review, 2026-08-27T05:12:00Z
+
+Installed-CLI reproduction:
+
+  docker --host unix:///tmp/w17110-no-daemon.sock image inspect \
+    sha256:0000000000000000000000000000000000000000000000000000000000000000
+
+  exit=1
+  []
+  permission denied while trying to connect to the docker API at
+  unix:///tmp/w17110-no-daemon.sock
+
+Existing gates before expansion:
+
+  reviewer suite: Ran 15 tests in 0.006s — OK
+  implementer harness: Ran 16 tests in 0.005s — OK
+  node --check v12/spike/ping-pong/trial.mjs — exit 0
+  git diff --check — exit 0
+
+Expanded reviewer gate:
+
+  test_identity_query_status_one_is_not_uniquely_image_absent ... FAIL
+
+  expected nonzero trial status when `image inspect` returned status 1 with a
+  daemon-query failure diagnostic; actual trial status was 0.
+
+  Ran 16 tests in 0.007s
+  FAILED (failures=1)
+
+No credential was opened or mounted and no live-provider trial was run.

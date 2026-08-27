@@ -1,53 +1,63 @@
-"""EXACT SOURCES, AND ONE PRIVATE WORKSPACE PER ASSIGNMENT.
+"""ASSIGNMENT-PRIVATE WORKSPACES: where staged input sits, where a worker may
+write, and what cleanup is allowed to remove.
 
-W6631 (`work/records/2026/08/finding-v12-oci-source-workspace-materializer`),
-the first bounded child of W5.
+W6631 built this component, and W15232 removed its acquisition half. What
+remains is the generic manager-owned part of that Work, and the module contract
+is written around it rather than around the operations that are gone.
 
-WHAT THIS COMPONENT IS FOR. A worker is handed material and asked to believe it
-is what the manifest says. Everything downstream -- the output seal, the
-proposal, the receipt -- describes a tree, and if the tree on disk is not the
-tree the manifest names then every one of those descriptions is faithful about
-the wrong thing. So the tree is REBUILT AND MEASURED here rather than trusted,
-and a source that does not recompute to its declared content manifest is not
-delivered at all.
+FOUR THINGS THIS COMPONENT DOES:
 
-THE FOUR RULES THAT DECIDE THE SHAPE:
+  - `assignment_workspace` allocates two roots private to one assignment --
+    `inputs`, read-only evidence, and `workspace`, the only writable tree. They
+    are SIBLINGS rather than nested: a worker that could write into its own
+    inputs would make the seal over them describe a tree that has since
+    changed.
+  - `directory_manifest` MEASURES a tree into the frozen `contentManifest`.
+    Every entry is opened once with `O_NOFOLLOW`, and both its bytes and its
+    size come from that one descriptor -- so a replacement between the check
+    and the read is a file this component never sees rather than one it
+    describes wrongly. Only bounded regular files; entries sorted bytewise,
+    which is the order the tree digest is taken over and the order §12 rule 6
+    checks.
+  - containment, so a path that leaves the root it claims to be under is
+    refused before anything opens it.
+  - `discard_workspace` removes ONLY what this component created, including the
+    read-only trees it made read-only, and says what it removed.
 
-  1. REGULAR FILES ONLY, and no link of any kind. The frozen host's own
-     `input_source.mjs` carries the lesson in its opening comment: a symlink
-     inside a record materializes as ordinary files in the worker snapshot, and
-     every downstream digest then faithfully describes content the Job was
-     never entitled to. A hard link is the same disclosure with no link to see.
-  2. THE OPEN FILE IS THE MEASURED FILE. Checking a path and then opening it
-     again is two different files whenever anything is racing -- so each entry
-     is opened ONCE with `O_NOFOLLOW`, and its identity is taken from the
-     descriptor rather than from the name.
-  3. NOTHING PARTIAL IS EVER ACCEPTED. Materialization builds under a staging
-     name this component owns and is published by one rename; a refusal removes
-     the staging tree and leaves no directory a caller could mistake for a
-     delivered source.
-  4. PRIVATE, NON-OVERLAPPING ROOTS. Two assignments never share a writable
-     workspace or Git metadata, and the read-only inputs are not inside the
-     writable tree -- a worker that could write into its own inputs would make
-     the seal over them describe something that has since changed.
+WHAT THIS COMPONENT NO LONGER DOES, and the ruling that ended it. The
+2026-08-25 artifact-neutral supersession states that the Worker Manager "does
+not understand Git, import bundles, resolve commits, prepare checkouts, or
+choose a source-acquisition operation": it receives an ALREADY STAGED
+read-only directory and its generic integrity envelope, and populating that
+directory is a source stager's job, outside this package.
 
-WHAT IS DELIBERATELY NOT HERE, because the assignment says so: OCI engine
-mutation, manager lifecycle composition, output acceptance, credential
-delivery, provider code and authority access.
+So the acquisition operations W6631 put here -- a repository port, and the
+operations that delivered a version-controlled or copied source -- are gone
+rather than re-homed, because re-homing requires an owner and the ledger has
+none. Nothing here interprets an acquisition descriptor or names one.
 
-AND THE GIT TRANSPORT IS INJECTED RATHER THAN SHELLED OUT. `GitPort` types the
-four questions this component asks a repository; the process that answers them
-is the deployment's, exactly as the authority session is. That keeps the
-VERIFICATION -- which is what W6631 owns -- provable without this package
-deciding how a repository is reached, and it is the same capability shape
-`AuthorityPort` already uses. The adapter that binds it to a real repository is
-named in the record as the next cut rather than written blind here.
+NOR DOES IT ALLOCATE PRIVATE CAPACITY FOR ONE. There was a third root holding
+version-control metadata, and every assignment got one whether its staged input
+was a directory, an archive, a database snapshot, media or a format nobody has
+written yet. Private ephemeral space is generic runtime capacity, not protocol
+vocabulary this manager provisions; a stager or driver that needs it allocates
+its own under an explicit owner.
+
+The reasoning that was superseded lives in
+`work/records/2026/08/finding-v12-artifact-neutral-source-stager/` and in
+W6631's own record. It does not need to survive as the live module contract.
 """
 
+import json
 import os
 
-from ..contracts import (ContractRefusal, check_content_manifest, digest,
-                         digest_of_bytes, validate_fragment)
+# W15232: `check_content_manifest` and `validate_fragment` went with the
+# acquisition half. They were how this module READ a `gitSource` or
+# `directorySource` descriptor and compared a claimed manifest against a
+# measured one -- both acts of interpreting an acquisition contract, and
+# neither one a manager that receives an already staged directory performs.
+from ..contracts import (ContractRefusal, canonical_bytes, check_input_pair,
+                        digest, digest_of_bytes)
 from ..contracts.errors import name_value
 from . import boundaries
 
@@ -59,16 +69,49 @@ from . import boundaries
 _FILE_KIND = 0o170000
 _REGULAR = 0o100000
 
-__all__ = ["GitPort", "MAX_ENTRIES", "MAX_BYTES", "MAX_DEPTH", "READ_ONLY_DIR",
-           "READ_ONLY_FILE", "assignment_workspace", "directory_manifest",
-           "discard_workspace", "materialize_directory_source",
-           "materialize_git_source"]
+# W15232: THE ACQUISITION HALF IS GONE, and what is left is the half the
+# artifact-neutral ruling leaves with this manager.
+#
+# W6631 built `GitPort`, `materialize_git_source` and
+# `materialize_directory_source` here. The 2026-08-25 supersession removed the
+# duty they perform from the core manager entirely -- "the Worker Manager does
+# not understand Git, import bundles, resolve commits, prepare checkouts, or
+# choose a source-acquisition operation" -- and populating the staged input
+# directory became a SOURCE STAGER's job, outside this package.
+#
+# REMOVED RATHER THAN RE-HOMED, and the difference was decided by looking. The
+# assignment permits re-homing only behind an ALREADY PINNED stager or driver
+# owner; the ledger has no such Work and the records name no such boundary, so
+# inventing one to keep the code would have been inventing the second
+# acquisition contract this Work exists to avoid. The behaviour is recoverable
+# from W6631's own record and history if a stager is ever specified; what is
+# not recoverable is the confusion of a manager that still exports it.
+#
+# WHAT STAYS IS GENERIC AND STILL THIS MANAGER'S: assignment-private paths, the
+# read-only staged input tree, the measured `contentManifest` over a directory,
+# containment, and cleanup. None of them knows where the bytes came from.
+__all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
+           "MAX_BYTES", "MAX_DEPTH", "READ_ONLY_DIR", "READ_ONLY_FILE",
+           "assignment_workspace", "compose_input_root", "copied_manifest",
+           "directory_manifest", "discard_workspace", "read_input_root"]
+
+# THE TWO MANAGER-AUTHORED PROTOCOL DOCUMENTS, at the names the contract fixes
+# (§7.0). A path a manifest could vary is a path a runtime can be pointed at
+# wrongly, so these are constants here for the same reason they are constants
+# in the worker.
+INPUT_MANIFEST = "input.json"
+ASSIGNMENT_MANIFEST = "assignment.json"
 
 # The frozen contract's own ceilings, so a manifest this component builds is one
 # `contentManifest` can hold rather than one it would refuse after the work was
 # done. `maxItems` on the entry array is 100,000; the byte total is the frozen
 # safe-integer bound, and this component's own limit is far below it because a
 # source larger than this is a configuration mistake rather than a workload.
+# A protocol document this component reads back is a file from outside this
+# call, so its size is not this function's decision and the bound has to be.
+# The worker applies the same ceiling on the same two documents.
+MAX_MANIFEST_BYTES = 4 * 1024 * 1024
+
 MAX_ENTRIES = 100_000
 MAX_BYTES = 4 * 1024 * 1024 * 1024
 # Depth is bounded for the same reason the canonicalizer bounds it: a walk with
@@ -89,48 +132,6 @@ def _refuse(message, code="path"):
 
 def _denied(message):
     raise ContractRefusal("policy", "denied", message)
-
-
-class GitPort:
-    """The four questions this component asks a repository, TYPED.
-
-    A capability rather than a subprocess call, for the reason `AuthorityPort`
-    is one: what this component owns is the VERIFICATION -- that the base
-    revision is the immutable object the manifest pins, that an advertised ref
-    still names it, and that the working tree it is handed is that revision --
-    and none of that should depend on this package deciding how a repository is
-    reached.
-
-    `resolve` answers the object a ref names, or None when the repository does
-    not carry it. `checkout` materializes one revision into a directory this
-    component created, using metadata this component created. Neither is
-    allowed to be a bare string: a capability whose members are not typed at
-    construction is one whose absence is discovered by a caller's fault.
-    """
-
-    MEMBERS = ("resolve", "checkout")
-
-    def __init__(self, repository):
-        # THE OPERATIONS ARE THE CAPABILITY, not the object carrying them. A
-        # repository is not itself something this manager calls, so typing it
-        # would refuse every well-formed one; what must exist and be callable
-        # is each question this port asks, and an absent one is discovered here
-        # rather than halfway through a delivery.
-        self._resolve = boundaries.capability(
-            getattr(repository, "resolve", None),
-            "the git repository's resolve operation")
-        self._checkout = boundaries.capability(
-            getattr(repository, "checkout", None),
-            "the git repository's checkout operation")
-
-    def resolve(self, uri, ref):
-        """The git object a ref names in this repository, or None."""
-        return self._resolve(uri=uri, ref=ref)
-
-    def checkout(self, uri, revision, *, into, git_dir):
-        """One revision, into a directory and a metadata directory OURS."""
-        return self._checkout(uri=uri, revision=revision, into=into,
-                              git_dir=git_dir)
 
 
 # -- canonical, contained roots ----------------------------------------------
@@ -204,6 +205,97 @@ def directory_manifest(root):
             _denied(f"{what} carries more than {MAX_ENTRIES} files")
         if total > MAX_BYTES:
             _denied(f"{what} carries more than {MAX_BYTES} bytes")
+    entries.sort(key=lambda entry: entry["path"].encode("utf-8"))
+    return {"entries": entries,
+            "entry_count": len(entries),
+            "total_bytes": total,
+            "tree_digest": digest(entries)}
+
+
+def copied_manifest(root, into, *, max_entries=None, max_bytes=None,
+                    admits=None):
+    """Measure a tree and COPY it, in ONE no-follow pass.
+
+    W26283. `directory_manifest` above is race-safe: it descends by opened
+    directory identity and reads every file through a descriptor it proved is a
+    regular file. A caller that measured with it and then copied by REOPENING
+    each path threw that away -- and that is what W6634's staging did. Two
+    harms were driven against it rather than argued:
+
+      a measured subdirectory renamed and replaced with a symbolic link made
+      the copy read THROUGH the link, so material from outside the tree
+      entirely landed in the destination; and
+
+      a measured regular file replaced with a FIFO made the copy's `open`
+      block forever, which is one `mkfifo` stalling the caller indefinitely.
+
+    Both are the defect this module's own walker records having fixed once --
+    "a no-follow open of the FINAL file does not stop a raced ANCESTOR from
+    becoming a symbolic link" -- reappearing in whoever copies afterwards. So
+    the copy is not a second pass over path strings: the bytes WRITTEN are the
+    bytes MEASURED, from the one descriptor that produced them, and there is no
+    window between the two for anything to be replaced in.
+
+    `max_entries` and `max_bytes` are the CALLER's declared ceilings, enforced
+    as the walk runs rather than after it. A tree that exceeds them stops being
+    copied at the entry that crosses the line, instead of being written whole
+    and refused afterwards.
+
+    `admits(relative, content)` is a rule the caller applies to each file's
+    bytes before they are written, and it raises to refuse. It exists so a
+    caller's own content rule -- §13 live-secret scanning, for one -- runs at
+    the one moment the content is in hand, without this function knowing what
+    the rule is.
+
+    Answers the same `contentManifest` shape `directory_manifest` does, over
+    what was actually written.
+    """
+    what = "a source directory"
+    real = _real(root, what)
+    entries = []
+    total = 0
+    os.makedirs(into, exist_ok=True)
+    for place, relative in _walk(real, what):
+        content = _read_exactly(place, relative, what)
+        # TWO CEILINGS, TWO REFUSALS, and the difference is not cosmetic. This
+        # module's own MAX_* are POLICY -- what this build will handle at all,
+        # whoever asked. A caller's ceiling is part of a DELIVERY's declared
+        # contract, and a tree that exceeds it is an integrity failure of that
+        # delivery rather than a request this build declines. The taxonomy
+        # already distinguishes them and callers already depend on which one
+        # they get.
+        if len(entries) + 1 > MAX_ENTRIES:
+            _denied(f"{what} carries more than {MAX_ENTRIES} files")
+        if total + len(content) > MAX_BYTES:
+            _denied(f"{what} carries more than {MAX_BYTES} bytes")
+        if max_entries is not None and len(entries) + 1 > max_entries:
+            _refuse(f"{what} carries more than the {max_entries} files its "
+                    f"declaration allows", code="limit")
+        if max_bytes is not None and total + len(content) > max_bytes:
+            _refuse(f"{what} carries more than the {max_bytes} bytes its "
+                    f"declaration allows", code="limit")
+        if admits is not None:
+            admits(relative, content)
+        target = os.path.join(into, relative)
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        # THE DESTINATION IS OPENED NO-FOLLOW AND EXCLUSIVELY TOO. This
+        # function is what makes bytes the caller's own, so a link left at a
+        # destination name by an interrupted attempt -- or by anything else
+        # that can write there -- must not become the thing written through.
+        # `O_EXCL` is what makes it exclusive: the caller clears a partial
+        # tree before calling, so an entry that already exists here is not one
+        # this pass created.
+        handle = os.open(target,
+                         os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                         0o600)
+        try:
+            os.write(handle, content)
+        finally:
+            os.close(handle)
+        entries.append({"path": relative,
+                        "bytes": len(content),
+                        "content_digest": digest_of_bytes(content)})
+        total += len(content)
     entries.sort(key=lambda entry: entry["path"].encode("utf-8"))
     return {"entries": entries,
             "entry_count": len(entries),
@@ -339,14 +431,26 @@ def _read_all(descriptor):
 
 
 def assignment_workspace(storage, assignment_id):
-    """THREE ROOTS, private to one assignment and never overlapping.
+    """TWO ROOTS, private to one assignment and never overlapping.
 
-    `inputs` is read-only evidence, `workspace` is the only writable tree, and
-    `git` holds metadata that belongs to this assignment alone. They are
-    siblings rather than nested for the reason the fourth rule states: a worker
-    that could write into its own inputs would make the seal over them describe
-    a tree that has since changed, and shared Git metadata is one assignment
-    able to move another's refs.
+    `inputs` is read-only evidence and `workspace` is the only writable tree.
+    They are siblings rather than nested for the reason the fourth rule states:
+    a worker that could write into its own inputs would make the seal over them
+    describe a tree that has since changed.
+
+    W15232 review [P1]: there was a THIRD root holding version-control metadata
+    for one assignment. It is gone, and the correction is worth naming because
+    my own cut missed it. I separated this module's two halves by closing the
+    CALL GRAPH over each, which treats a function as one node -- so this one
+    came out "generic" while the acquisition-specific work sat INSIDE it. Every
+    assignment got that metadata area whether its staged input was a directory,
+    an archive, a database snapshot, media or a format nobody has written yet.
+    That is the core manager understanding an acquisition format, which is
+    exactly what the ruling removed.
+
+    A future source stager or driver allocates its own private capacity under
+    an explicit owner. Private ephemeral space is generic runtime capacity, not
+    protocol vocabulary this manager provisions.
     """
     boundaries.identity(assignment_id, "an assignment identity")
     root = _real(storage, "the manager's workspace storage")
@@ -354,11 +458,162 @@ def assignment_workspace(storage, assignment_id):
         _refuse("the manager's workspace storage is not a directory")
     home = os.path.join(root, assignment_id)
     made = {}
-    for name in ("inputs", "workspace", "git"):
+    for name in ("inputs", "workspace"):
         place = os.path.join(home, name)
         os.makedirs(place, exist_ok=True)
         made[name] = _contained(place, root, f"the assignment's {name} root")
     return made
+
+
+def compose_input_root(inputs, input_manifest, assignment_manifest, *,
+                       assignment, runtime_attempt_id):
+    """Materialize BOTH `/input/` documents, in the order the ruling fixes.
+
+    W19784, approved 2026-08-26. §7.0's lifecycle is normative and this is the
+    one place that performs it:
+
+      `input.json` is authored BEFORE claim and its bytes and digest never
+      change afterwards -- it is the pre-claim evidence the result is measured
+      against;
+      `assignment.json` is materialized AFTER the claim commits, carrying the
+      live assignment identity the completion envelope must copy;
+      NO CONTAINER OBSERVES THE ROOT DURING THAT TRANSITION, and only once both
+      documents are complete is the whole surface exposed read-only.
+
+    So this refuses rather than repairs when the root is already composed. A
+    manager that rewrote `input.json` here would be changing the evidence after
+    the claim that was made against it, and one that replaced `assignment.json`
+    would be moving an identity a running worker may already have copied.
+
+    THE PAIR IS VALIDATED BEFORE ANYTHING IS WRITTEN (§12 rule 16). Two
+    documents that are not one delivery must never exist on disk together: a
+    mount is not the last chance to notice, it is the first moment it is too
+    late.
+
+    AND THE PAIR IS HELD TO THE MANAGER'S OWN LIVE IDENTITY. W19784 review
+    [P0]: this took the two documents alone, so it could prove only that they
+    AGREE WITH EACH OTHER -- and a self-consistent pair minted for a superseded
+    generation or another runtime attempt agrees with itself perfectly. It
+    would have been written, mounted, and caught only at the freeze, after the
+    agent had already run against material this manager never authorized.
+
+    So `assignment` and `runtime_attempt_id` are REQUIRED KEYWORD OPERANDS,
+    the manager's own values out of the attempt row, and there is no default:
+    a caller that could omit them would be a caller that composes an
+    unauthenticated root, which is the defect. The generation and the attempt
+    are proved here, BEFORE the root exists, rather than at custody.
+
+    Returns the two absolute paths it wrote.
+    """
+    root = _real(inputs, "the assignment's inputs root")
+    if not os.path.isdir(root):
+        _refuse("the assignment's inputs root is not a directory")
+    expected = boundaries.document(
+        assignment, "the manager's own assignment",
+        required=("work_ref", "participant", "generation"))
+    boundaries.identity(runtime_attempt_id, "a runtime attempt identity")
+    # VALIDATED FIRST, AND BY THE SHIPPED RULE rather than a second copy of it.
+    owned_input, owned_assignment = check_input_pair(
+        input_manifest, assignment_manifest,
+        what="the execution input root")
+    # THEN AGAINST WHAT THIS MANAGER OWNS. The order is the content: the pair
+    # rule proves the documents are one delivery, and this proves that one
+    # delivery is THIS one. Neither implies the other.
+    if owned_assignment["assignment_ref"] != expected:
+        raise ContractRefusal(
+            "stale-assignment", "generation",
+            f"the assignment manifest for this input root names "
+            f"{name_value(owned_assignment['assignment_ref'])}, and this "
+            f"manager is composing a root for "
+            f"{name_value(expected)}; a pair that agrees with itself is not "
+            f"thereby the delivery that was authorized")
+    if owned_assignment["runtime_attempt_id"] != runtime_attempt_id:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"the assignment manifest names runtime attempt "
+            f"{name_value(owned_assignment['runtime_attempt_id'])} and this "
+            f"root is being composed for "
+            f"{name_value(runtime_attempt_id)}; a worker mounting it would "
+            f"publish an envelope this attempt cannot settle")
+    written = []
+    for name, owned in ((INPUT_MANIFEST, owned_input),
+                        (ASSIGNMENT_MANIFEST, owned_assignment)):
+        place = os.path.join(root, name)
+        if os.path.lexists(place):
+            _refuse(f"{name_value(place)} already exists; the input root is "
+                    f"composed once and then frozen, and rewriting a protocol "
+                    f"document under a claim that was made against it would "
+                    f"change the evidence the result is measured by",
+                    code="path")
+        written.append(_write_read_only(place, canonical_bytes(owned), name))
+    return tuple(written)
+
+
+def read_input_root(inputs):
+    """The two composed `/input/` documents, read back OFF DISK and validated.
+
+    W19784 review [P0]: the launch path has to prove the root a runtime is
+    about to mount, and what the runtime mounts is the disk -- not a value
+    threaded down from whoever composed it. So this reads the bytes and puts
+    them through the same shipped `check_input_pair` the composition used.
+
+    It deliberately does NOT take an expected identity. Holding the pair to the
+    manager's live assignment is `attempts.authorize_input_root`, which is
+    where the attempt row is: this component owns paths and documents, and
+    which assignment is live is not a fact it has.
+    """
+    root = _real(inputs, "the assignment's inputs root")
+    if not os.path.isdir(root):
+        _refuse("the assignment's inputs root is not a directory")
+    found = {}
+    for name in (INPUT_MANIFEST, ASSIGNMENT_MANIFEST):
+        place = os.path.join(root, name)
+        try:
+            with open(place, "rb") as reading:
+                raw = reading.read(MAX_MANIFEST_BYTES + 1)
+        except OSError:
+            _refuse(f"the input root carries no readable {name_value(name)}; "
+                    f"a root missing a protocol document is one no runtime "
+                    f"may mount", code="path")
+        if len(raw) > MAX_MANIFEST_BYTES:
+            _refuse(f"{name_value(name)} is wider than "
+                    f"{MAX_MANIFEST_BYTES} bytes", code="limit")
+        try:
+            found[name] = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError):
+            _refuse(f"{name_value(name)} is not a readable document",
+                    code="schema")
+    return check_input_pair(found[INPUT_MANIFEST], found[ASSIGNMENT_MANIFEST],
+                            what="the composed input root")
+
+
+def _write_read_only(place, payload, name):
+    """One protocol document, published atomically and then made evidence.
+
+    ATOMIC because a half-written protocol document under its final name is
+    indistinguishable from a complete one, and this root is about to be handed
+    to a container that reads exactly these two names.
+
+    READ-ONLY because the mode says on disk what the contract says in prose. A
+    bind mounted read-only protects the container's view; it does not protect
+    the host copy from this manager's own later mistake.
+    """
+    staged = place + ".composing"
+    handle = os.open(staged, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                     READ_ONLY_FILE)
+    try:
+        written = 0
+        while written < len(payload):
+            moved = os.write(handle, payload[written:])
+            if moved <= 0:
+                _refuse(f"the manager's {name_value(name)} could not be "
+                        f"written whole", code="limit")
+            written += moved
+        os.fsync(handle)
+    finally:
+        os.close(handle)
+    os.replace(staged, place)
+    return place
 
 
 def discard_workspace(storage, assignment_id):
@@ -395,314 +650,3 @@ def _remove(place):
             os.rmdir(child)
     os.chmod(place, 0o700)
     os.rmdir(place)
-
-
-# -- delivering a source ------------------------------------------------------
-
-
-def materialize_directory_source(source, *, origin, inputs):
-    """Deliver one directory source, EXACT and read-only.
-
-    The declared content manifest is not evidence about the tree; it is the
-    CLAIM this checks. The tree is measured, the measurement is compared member
-    for member, and only then is anything published -- so a source whose digest,
-    count or byte total disagrees never becomes a directory a worker can read.
-
-    NOTHING PARTIAL IS PUBLISHED. The copy is built under a staging name this
-    component owns and moved into place by one rename; every refusal removes it.
-    """
-    what = "a directory source"
-    # THE FROZEN CLOSED FRAGMENT FIRST, before a member is read or the
-    # filesystem is touched. Review [P1]: this owned the document and then
-    # checked a hand-written member list, which is a SECOND contract for a
-    # shape the frozen schema already states exactly -- `directorySource`
-    # closes its member set, types every one of them and carries the content
-    # manifest's own rules. A manual list is the "contract that names a subset
-    # of what it accepts is a floor" defect, and it also let a malformed
-    # source reach a `realpath` call before anything had established it was a
-    # source at all.
-    declared = validate_fragment(
-        boundaries.document(source, "a directory source"),
-        "directorySource", what=what)
-    measured = directory_manifest(origin)
-    _agree(measured, declared["content_manifest"], what)
-    destination = _destination(inputs, declared["destination"], what)
-    return _publish(origin, destination, measured, what)
-
-
-def _agree(measured, claimed, what):
-    """MEMBER FOR MEMBER, and the disagreement is named.
-
-    Comparing the tree digests alone would be enough to refuse, and would say
-    only that two long strings differ. A reader of this refusal is trying to
-    find out what is on disk that should not be, so the count and the byte
-    total are compared first and named when they differ.
-    """
-    for member in ("entry_count", "total_bytes", "tree_digest"):
-        if measured[member] != claimed[member]:
-            _refuse(f"{what} declares {member} "
-                    f"{name_value(claimed[member])} and its origin "
-                    f"measures {name_value(measured[member])}",
-                    code="digest")
-    if measured["entries"] != claimed["entries"]:
-        _refuse(f"{what} entries do not match its origin, although their "
-                f"count, byte total and tree digest agree", code="digest")
-
-
-def _destination(inputs, destination, what):
-    """Where the source lands, INSIDE the assignment's own inputs root."""
-    root = _real(inputs, "the assignment's inputs root")
-    place = os.path.normpath(os.path.join(root, destination))
-    if not _within(place, root):
-        _refuse(f"{what} destination "
-                f"{name_value(destination)} leaves the "
-                f"assignment's inputs root")
-    if os.path.exists(place):
-        _refuse(f"{what} destination {name_value(destination)} is "
-                f"already delivered; a source is materialized once")
-    return place
-
-
-def _publish(origin, destination, measured, what):
-    """Copy under a staging name, then ONE rename.
-
-    The staging directory is a sibling of the destination and carries a name
-    this component owns, so a half-built tree is never reachable under the name
-    a worker is told to read. A refusal removes it; a success is one atomic
-    rename.
-    """
-    staging = _staging(destination, what)
-    os.makedirs(os.path.dirname(destination), exist_ok=True)
-    try:
-        os.makedirs(staging, mode=0o700)
-        for entry in measured["entries"]:
-            _place(origin, staging, entry, what)
-        _seal(staging)
-        os.rename(staging, destination)
-    except BaseException:
-        if os.path.exists(staging):
-            _remove(staging)
-        raise
-    return {"destination": destination,
-            "entry_count": measured["entry_count"],
-            "total_bytes": measured["total_bytes"],
-            "tree_digest": measured["tree_digest"]}
-
-
-def _staging(destination, what):
-    """The staging name, and NOTHING MAY ALREADY BE THERE.
-
-    Review [P1]: this removed whatever it found. A symbolic link planted at the
-    staging name would have been followed by that removal -- deleting somebody
-    else's tree -- and even a leftover directory is material this operation did
-    not create and must not silently take over. `lstat` asks about the NAME
-    rather than what it points at, so a link is seen as a link.
-
-    A leftover from a crashed delivery is therefore an operator's decision, not
-    this operation's: cleanup removes what this component created, and it can
-    be asked to.
-    """
-    staging = destination + ".materializing"
-    try:
-        os.lstat(staging)
-    except FileNotFoundError:
-        return staging
-    except OSError as error:
-        _refuse(f"{what} cannot examine its staging name: {error.strerror}")
-    _refuse(f"{what} already has something at its staging name; this "
-            f"operation does not follow or remove material it did not create")
-
-
-def _place(origin, staging, entry, what):
-    """One file, re-read and RE-MEASURED as it is written.
-
-    The manifest was measured a moment ago and this reads the origin again, so
-    the two reads are compared: a file replaced in between is caught HERE rather
-    than delivered under a digest taken from the version that is gone. Reading
-    twice is the cost of the guarantee, and the guarantee is the point of the
-    component.
-    """
-    relative = entry["path"]
-    # THE SAME NO-FOLLOW DESCENT for the second read. Resolving the whole
-    # relative path as a string would walk ancestors by name again, which is
-    # the door the fd walk exists to close.
-    place = _reach(origin, relative, what)
-    try:
-        content = _read_exactly(place, relative, what)
-    finally:
-        os.close(place[0])
-    if digest_of_bytes(content) != entry["content_digest"]:
-        _refuse(f"{what} entry {name_value(relative)} changed while "
-                f"it was being delivered", code="digest")
-    place = os.path.join(staging, relative)
-    os.makedirs(os.path.dirname(place), mode=0o700, exist_ok=True)
-    descriptor = os.open(place, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
-                         READ_ONLY_FILE)
-    try:
-        # A SHORT WRITE IS NOT A WRITTEN FILE. Review [P1]: `os.write` may
-        # write fewer bytes than it was given and answers how many -- a
-        # truncated delivery would otherwise be published under the digest of
-        # the whole file, which is the seal describing the wrong tree by
-        # another route.
-        written = 0
-        while written < len(content):
-            moved = os.write(descriptor, content[written:])
-            if moved <= 0:
-                _refuse(f"{what} could not finish writing "
-                        f"{name_value(relative)}")
-            written += moved
-    finally:
-        os.close(descriptor)
-
-
-def _reach(origin, relative, what):
-    """`(directory descriptor, name)` for one relative path, opened
-    component by component and never followed."""
-    parts = relative.split("/")
-    handle = _open_directory(None, origin, "", what)
-    opened = [handle]
-    try:
-        for part in parts[:-1]:
-            handle = _open_directory(handle, part, relative, what)
-            opened.append(handle)
-        # THE ANCESTORS ARE CLOSED EITHER WAY. Review [P1]: they were closed
-        # only on the failing path, so every delivered file leaked one
-        # descriptor per directory above it. The LAST handle is the one the
-        # caller reads through and is closed by `_place`.
-        for one in opened[:-1]:
-            os.close(one)
-        return (handle, parts[-1])
-    except BaseException:
-        for one in opened:
-            os.close(one)
-        raise
-
-
-def _seal(place):
-    """Read-only on disk, deepest first, so a directory is closed after its
-    files are."""
-    for current, directories, files in os.walk(place, topdown=False,
-                                               followlinks=False):
-        for name in files:
-            os.chmod(os.path.join(current, name), READ_ONLY_FILE)
-        for name in directories:
-            os.chmod(os.path.join(current, name), READ_ONLY_DIR)
-    os.chmod(place, READ_ONLY_DIR)
-
-
-def materialize_git_source(source, *, git, inputs, git_metadata):
-    """Deliver one Git source at its IMMUTABLE base revision.
-
-    THE REVISION IS THE CONTRACT AND THE REF IS EVIDENCE. §12 pins
-    `base_revision` as an object; a ref is a name that moved once and can move
-    again. So the revision is what is checked out, and an advertised
-    `source_ref` or `integration_ref` is verified to still name that object --
-    a ref that has moved REFUSES rather than being followed, because a source
-    delivered from where the branch is now is not the source the assignment was
-    made against.
-
-    §12 rule 7 is the contracts layer's: a sha1 revision under a sha256
-    repository is a different object namespace, not a shorter digest.
-    """
-    what = "a git source"
-    # The frozen closed fragment first, for the same reasons as the directory
-    # half: `gitSource` closes the member set, types the revision as a
-    # `gitObject` and bounds the ref strings.
-    declared = validate_fragment(boundaries.document(source, "a git source"),
-                                 "gitSource", what=what)
-    # THE FROZEN FRAGMENT ALREADY OWNS IT. `_pinned` stood here and is gone:
-    # measured over every malformed revision a caller could send -- absent
-    # members, a wrong algorithm, a hex of the wrong length or alphabet, an
-    # extra member -- the `gitSource` fragment admits NONE of them, so
-    # `_pinned` could never refuse anything that reached it. Item 2's
-    # correction, which put the fragment ahead of every member read, is what
-    # made it unreachable. The tenth boundary this campaign has removed rather
-    # than documented.
-    revision = declared["base_revision"]
-    if revision["algorithm"] != declared["object_format"]:
-        _refuse(f"{what} declares object format "
-                f"{name_value(declared['object_format'])} and a "
-                f"{name_value(revision['algorithm'])} base revision "
-                f"(§12 rule 7)")
-    # EVERY ADVERTISED REF, and both of them are optional. `null` means the
-    # manifest advertises none, which is not the same as advertising one that
-    # cannot be resolved.
-    for member in ("source_ref", "integration_ref"):
-        advertised = declared[member]
-        if advertised is None:
-            continue
-        _advertised(advertised)
-        found = git.resolve(declared["uri"], advertised)
-        if found is None:
-            _denied(f"{what} advertises {member} "
-                    f"{name_value(advertised)}, which this "
-                    f"repository does not carry")
-        found = _resolved(found)
-        if (found["algorithm"], found["hex"]) \
-                != (revision["algorithm"], revision["hex"]):
-            _denied(f"{what} {member} {name_value(advertised)} now "
-                    f"names {name_value(found['hex'])} and the "
-                    f"assignment pins {name_value(revision['hex'])}; "
-                    f"a ref that moved is evidence that it moved, not a new "
-                    f"base revision")
-    destination = _destination(inputs, declared["destination"], what)
-    private = _private_metadata(git_metadata, declared["name"])
-    staging = _staging(destination, what)
-    os.makedirs(os.path.dirname(destination), exist_ok=True)
-    try:
-        os.makedirs(staging, mode=0o700)
-        git.checkout(declared["uri"], revision, into=staging,
-                     git_dir=private)
-        # WHAT ARRIVED IS MEASURED LIKE ANY OTHER TREE. A checkout is somebody
-        # else's process writing into a directory this component owns, so its
-        # answer is evidence and the tree is the fact -- and the same link,
-        # special-file and limit rules apply to it.
-        measured = directory_manifest(staging)
-        _seal(staging)
-        os.rename(staging, destination)
-    except BaseException:
-        if os.path.exists(staging):
-            _remove(staging)
-        raise
-    return {"destination": destination,
-            "base_revision": dict(revision),
-            "git_dir": private,
-            "entry_count": measured["entry_count"],
-            "total_bytes": measured["total_bytes"],
-            "tree_digest": measured["tree_digest"]}
-
-
-def _advertised(ref):
-    """A ref name the manifest advertises as evidence."""
-    return boundaries.text(ref, "an advertised git ref")
-
-
-def _resolved(found):
-    """THE REPOSITORY'S ANSWER, owned on the way in.
-
-    It comes from a capability the deployment supplied, so it is a received
-    document rather than one this build made -- indexed only after it is proved
-    to have the two members it is about to be compared on.
-    """
-    return boundaries.document(found, "a resolved git object",
-                               required=("algorithm", "hex"))
-
-
-def _private_metadata(git_metadata, name):
-    """Metadata for ONE source of one assignment, and nobody else's.
-
-    Shared Git metadata is one assignment able to move another's refs, prune
-    another's objects and decide what another's revision resolves to. The
-    directory is created here rather than accepted from a caller so that
-    "private" is a fact about what this component made.
-    """
-    root = _real(git_metadata, "the assignment's git metadata root")
-    place = os.path.join(root, name)
-    if not _within(place, root):
-        _refuse(f"git metadata for {name_value(name)} leaves the "
-                f"assignment's own metadata root")
-    if os.path.exists(place):
-        _refuse(f"git metadata for {name_value(name)} already "
-                f"exists; a source's metadata is created once")
-    os.makedirs(place, mode=0o700)
-    return place

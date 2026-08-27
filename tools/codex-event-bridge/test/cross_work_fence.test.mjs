@@ -121,10 +121,20 @@ function alwaysLive() {
     revalidate: async (file, args) => {
       calls.push({ file, args });
       const participant = args[args.indexOf("--participant") + 1];
-      return { stdout: JSON.stringify({ result: { actionable: [
-        { kind: "work", action_key: `work:43c-W30:1:g1`, participant },
-        { kind: "work", action_key: `work:43c-W28:1:g1`, participant },
-      ] } }) };
+      // W11910 review [P1]: the whole canonical envelope, because the
+      // dispatcher's revalidation now applies the same typed v11 contract
+      // both readiness producers apply to this command's output. An
+      // abbreviation would be a reply the real authority never emits.
+      return { stdout: JSON.stringify({
+        protocol_version: 11, projection_version: "12.4",
+        authority_uuid: "43cf1d2e9a7b4c5d8e6f0a1b2c3d4e5f",
+        participant, snapshot_seq: 1,
+        result: { timed_out: false, actionable: [
+          { kind: "work", action_key: `work:43c-W30:1:g1`, work: "43c-W30",
+            episode_seq: 1, config_generation: 1, claimed: false },
+          { kind: "work", action_key: `work:43c-W28:1:g1`, work: "43c-W28",
+            episode_seq: 1, config_generation: 1, claimed: false },
+        ] } }) };
     },
   };
 }

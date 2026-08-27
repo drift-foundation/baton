@@ -165,6 +165,37 @@ def _snapshot():
         return tuple(_live)
 
 
+def _carries_live_secret(text, live=None):
+    """Whether composed DIAGNOSTIC text contains a currently live bearer.
+
+    The containment half of the walk, over one already-composed string rather
+    than over a document. `ContractRefusal` calls it as the last thing it does
+    before accepting its message, which is the ONE crossing every diagnostic in
+    this distribution passes through — see the reasoning recorded there.
+
+    Private to this package on purpose: it answers a question about a message
+    this build is in the middle of constructing, and a caller holding it would
+    be asking about the registry, which is what `live_secret` is for.
+
+    `live` is a snapshot taken by the caller. Sixth review [P1]: a refusal has
+    to ask this about TWO strings — the message it was handed and the
+    replacement it would use instead — and asking twice would let the registry
+    move between the two answers. One snapshot makes them one decision, which
+    is the same reason `_walk` takes its snapshot once for a whole document.
+    """
+    if type(text) is not str:
+        return False
+    for secret in _live_values() if live is None else live:
+        if secret in text:
+            return True
+    return False
+
+
+def _live_values():
+    """The snapshot a caller shares across several containment questions."""
+    return _snapshot()
+
+
 def check_no_durable_secret(document, what="a durable surface"):
     """Refuse a document that carries a secret, at any depth.
 

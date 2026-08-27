@@ -226,3 +226,171 @@ Status: **changes requested** in
    semantic validator.
 4. [next] Rerun focused and affected adjacent gates, append exact evidence,
    and return for independent review.
+
+## Fifth review correction — 2026-08-25
+
+`review-2026-08-25T13-19-17Z.md`: two public document owners let an
+ownership/type diagnostic quote a live bearer before their §13 walk. The
+review's items 2 and 3 are done, and item 3's re-audit changed what item 2's
+fix had to be.
+
+1. [done] **The two named doors walk the RAW operand first.**
+   `certify_agent_session_profile` and `record_inquiry_answer` both walk
+   before `boundaries.document`. The review's refutation of the fourth
+   correction's rationale is right and is recorded at both sites: this walk
+   traverses only exact built-in `dict`, `list`, `tuple` and `str`, so it runs
+   no caller behaviour and is safe on an unowned operand.
+2. [done] **The re-audit, done by probe rather than by reading, found thirty
+   leaking public surfaces rather than two.** Every callable in
+   `worker_manager.__all__` was driven with the live bearer in every operand.
+   The list is in `evidence/gate-after-fifth-correction-2026-08-25.txt`.
+3. [done] **So §13 moves to the one crossing: `ContractRefusal.__init__`.**
+   Any refusal naming a caller operand is a §13 surface — an ordinary
+   `refused.precondition` leaks exactly as `integrity.schema` does — so
+   door-local ordering is a list with one entry per public operation and one
+   more for each one written later. The constructor already owns the message
+   as durable text; "a bounded diagnostic cannot itself leak" is the fourth
+   rule in that list. Pinned in `FINDING.md`.
+4. [done] **A third door found by the re-audit:** `seal_refusal` quoted a
+   live bearer in its type diagnostic. It walks first now.
+5. [done] **The reviewer's additive two-door regression is kept and green**,
+   answering `('secret-leak', False)` at both doors.
+6. [done] **The probe is kept as a gate, not as a script.**
+   `NoPublicRefusalQuotesALiveBearer` derives the same universe the public
+   inventory does — asserted equal to it, so the two cannot drift — drives
+   every surface with the bearer live, and requires the sweep to have driven
+   something that refuses. `TheRefusalConstructorIsTheOneCrossing` holds the
+   crossing's own behaviour, including the recursion the first version of this
+   correction had.
+7. [done] Focused 70/70; adjacent 295 OK; full source suite 1182 with the
+   thirteen pre-existing failures, and the boundary-inventory seven PROVED
+   pre-existing against a copy of this tree with the correction removed.
+8. [next] Independent review.
+
+## Sixth review correction — 2026-08-25
+
+Status: **changes requested** in
+`review-2026-08-25T22-52-21Z.md`.
+
+1. [done 2026-08-25] Confirm the fifth correction's centralized crossing, the
+   two named document-ordering fixes, its original 70/70 focused gate, and the
+   byte-identical source/build mirrors.
+2. [next] Remove the equality-only safety assumption for
+   `SECRET_LEAK_MESSAGE`. Prove the replacement itself contains no currently
+   live value, with a recursion-free fallback when the preferred prose
+   overlaps one; preserve the raising site's durability.
+3. [next] Keep the additive 32-character-substring regression and require the
+   escaping `integrity.secret-leak` message not to contain that live bearer.
+4. [next] Rerun the focused, adjacent, source and installed-layout gates,
+   append exact evidence, and return for independent review.
+
+
+## Sixth review correction — 2026-08-25
+
+`review-2026-08-25T22-52-21Z.md`'s one [P1] is corrected. The crossing and the
+durability propagation are kept, as the review required.
+
+1. [done] **The equality exemption is removed.** The replacement passes the
+   same containment test as every other message.
+2. [done] **The fallback is an EMPTY message**, which is safe by construction:
+   a non-empty value cannot be contained in it, and `remember_secret` refuses
+   an empty value. It is also what bottoms the recursion, so no exemption is
+   needed to terminate.
+3. [done] **The closed pair survives.** `integrity.secret-leak` and the
+   raising site's durability are unchanged; only the readable prose gives way,
+   and only when it would leak.
+4. [done] **One snapshot answers both questions**, so the message and its
+   replacement are one decision rather than two that the registry can move
+   between.
+5. [done] **One assertion of mine was the defect and is replaced.**
+   `..._is_this_build_s_own_prose_and_cannot_recurse` required the exempt
+   construction to succeed; it now requires it to refuse. The reviewer's
+   additive regression is kept as written and the full public-surface sweep is
+   untouched.
+6. [done] `test_secrets` 71 -> 75; adjacent 485 OK; source suite and locked
+   build both 1223 with eleven failures, **none of them this Work's** — and
+   `test_secrets` no longer appears in that list at all.
+7. [next] Independent review.
+
+## Seventh review correction — 2026-08-26
+
+Status: **changes requested** in
+`review-2026-08-26T01-53-20Z.md`.
+
+1. [done 2026-08-26] Confirm the sixth correction's containment-safe preferred
+   prose, empty terminal fallback, shared snapshot, durability propagation,
+   and original 75/75 focused gate.
+2. [next] Prevent `ContractRefusal`'s earlier category/code pairing assertions
+   from interpolating a currently live operand. Preserve assertion taxonomy
+   and the closed pair; do not turn invalid build-owned pairs into ordinary
+   manager refusals.
+3. [next] Keep the additive two-subcase regression, rerun focused, adjacent,
+   source and installed-layout gates, and return for independent review.
+
+
+## Seventh review correction — 2026-08-26
+
+`review-2026-08-26T01-53-20Z.md`'s one [P1] is corrected. The crossing, the
+durability propagation, the closed pairing and the assertion taxonomy are all
+unchanged, as the review required.
+
+1. [done] **The pair assertions are behind the guard.** `_rejected` renders a
+   rejected category or code without ever carrying a live value.
+2. [done] **Proved, not suppressed.** An ordinary bad pair is still quoted
+   verbatim; only a live value gives way, and to a sentence that says so.
+3. [done] **One snapshot** answers the pair assertions and the message guard.
+4. [done] **A defect the review did not name**: `repr` ran caller-chosen code
+   inside a diagnostic. A pair operand is named by its type now.
+5. [done] `test_secrets` 76 -> 81, with the review's regression kept as
+   written and five added; all measured to fail against the old rendering.
+6. [done] Adjacent 590; source suite and locked build both 1239 with eleven
+   failures, and `test_secrets` is not among them.
+7. [done 2026-08-26] Independent review confirmed the original 81-case gate
+   and found one remaining P1 at the whole constructor-assertion boundary.
+
+## Eighth review correction — 2026-08-26
+
+Status: **changes requested** in
+`review-2026-08-26T03-10-29Z.md`.
+
+1. [done 2026-08-26] Confirm the seventh correction for exact string pair
+   operands, its one-snapshot rule, closed pairing, assertion taxonomy, and
+   original 81/81 focused gate.
+2. [next] Own category/code shape before mapping or set membership can hash a
+   malformed operand. No rejected value may run caller code before the safe
+   assertion is constructed.
+3. [next] Prove the complete assertion text by containment against the same
+   live snapshot, including pair redaction and inert type-name prose. Safe
+   provenance does not establish safe content.
+4. [next] Replace metaclass-dispatched type naming at the message and
+   durability assertions with the existing safe type-name rule.
+5. [next] Keep all three additive regressions and the public-surface sweep,
+   rerun focused, adjacent, source and installed-layout gates, and return for
+   independent review.
+
+
+## Eighth review correction — 2026-08-26
+
+`review-2026-08-26T03-10-29Z.md`'s one [P1], in all three manifestations.
+
+1. [done] **Shape before membership.** Category and code are established as
+   text before any `in` can hash them, so no caller `__hash__` runs and no
+   unhashable operand escapes the taxonomy.
+2. [done] **`_defect` proves the complete assertion text**, including any
+   redaction sentence or type description it composes, against the one live
+   snapshot.
+3. [done] **`type_name_of` at the message and durability assertions**, which
+   this module has owned since W6782.
+4. [done] **By construction, and checked**: an AST case requires every
+   `raise AssertionError` in the constructor to pass through `_defect`, and a
+   sibling forbids `.__name__` lookup in the class.
+5. [done] `test_secrets` 84 -> 90, with the review's three kept as written and
+   six added; the whole correction measured to fail without it (7 failures,
+   8 errors).
+6. [done] Adjacent 682 OK. Source suite and locked build both 1250 with nine
+   failures, taken over a tree hashed identical before and after.
+7. [done 2026-08-26] Independent ninth review signed off the correction. The
+   focused 90-case gate is green, source/build mirrors agree, and the full
+   source run contains only the recorded seven boundary-inventory failures
+   plus four Docker setup errors caused by this managed context's unavailable
+   daemon. Durable review: `review-2026-08-26T04-12-33Z.md`.

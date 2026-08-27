@@ -1,0 +1,57 @@
+Independent re-review focused evidence
+UTC: 2026-08-26T13:12:18Z
+
+Command:
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_sealing
+
+Result:
+  Ran 23 tests in 0.009s
+  FAILED (failures=5, errors=1)
+
+Expected review error:
+  test_an_exact_seal_retry_replays_custody_without_the_workspace
+    First seal succeeds. After the live workspace output is removed, the exact
+    retry raises refused.precondition: required output 'proposal' is absent.
+
+Expected review failures:
+  test_output_paths_are_validated_at_construction
+    ContractRefusal was not raised for:
+      ../escape
+      /absolute
+      out/../other
+      out//nested
+      out/./nested
+
+Retained baseline and prior corrections:
+  The other 21 focused cases passed, including immutable custody after live
+  workspace mutation and same/nested output declaration refusal.
+
+Credential boundary:
+  No credential test can exercise the approved mechanism because no logical
+  slot/profile/provider/materialization/mount/registry/teardown surface exists
+  in the current adapter implementation. The test module explicitly records
+  credential delivery as absent.
+
+Broader command:
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_output tests.manager.test_intake \
+    tests.manager.test_oci tests.manager.test_boundary_inventory
+
+Broader result:
+  Ran 278 tests in 592.165s
+  FAILED (failures=6)
+
+  The first 192 output, intake and OCI cases passed. Boundary inventory reports
+  that W6634's new sealing receivers are owned but never probed, including:
+    sealing.py:sealed_result
+      request, request.assignment, request.attempt_id, request.disposition,
+      request.now, request.operation
+    sealing.py:collected_result
+      operands, operands.attempt_id, operands.output_names, operands.result_id
+
+  The other boundary failures name concurrent neighbouring manager changes
+  (destroy-command probing, retained profiles/sessions/retentions, document
+  emitters and persisted operation columns). They were reported by the same
+  command but are not attributed to W6634 by this review.

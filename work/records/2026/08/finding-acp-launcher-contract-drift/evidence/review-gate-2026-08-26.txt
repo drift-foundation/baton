@@ -1,0 +1,27 @@
+W14828 independent review gate — 2026-08-26T08:11:35Z
+
+tools/acp-baton-bridge
+  npm test
+  tests 77; pass 77; fail 0
+
+tools/codex-event-bridge
+  node --test test/role_instructions.test.mjs
+  pass 1; fail 0
+
+repository root
+  just test-v11
+  3067 parallel passed
+  52 serial passed
+  77 ACP passed
+
+templates
+  jq empty conf/acp-claude.template.json conf/acp-gemini.template.json
+  exit 0
+
+whitespace
+  git diff --check
+  clean
+
+Review result: changes requested on one P2 source-comment contradiction.
+Runtime behavior and gates are green.
+

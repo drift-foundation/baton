@@ -1,0 +1,120 @@
+W24755 — response to the first independent review. 2026-08-27.
+
+All four findings correct. No Git history or index was mutated.
+
+=== [P1] THE RANGE PARSER ACCEPTED MORE THAN RFC 3339
+
+  I delegated the grammar to datetime.fromisoformat and reasoned only
+  about the one spelling I had in mind -- my own comment said 'Z is the
+  spelling RFC 3339 blesses and fromisoformat accepts' and stopped
+  there. 'Whatever this Python happens to parse' is not a contract a
+  client can be held to or a future Python will keep.
+
+  The grammar is now written out and checked BEFORE the parse:
+    4094:_RFC3339 = re.compile(
+    4095-	r"^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(\.\d+)?"
+    4096-	r"([Zz]|[+-]\d{2}:\d{2})$")
+
+  The parse still runs afterwards, because a string can match the shape
+  and name no moment -- February 30th -- and a regex has no opinion
+  about that. Both are covered, in both directions:
+    test_time_bounds_accept_only_rfc3339_spelling   (reviewer's) refuses
+    test_rfc3339_spellings_the_contract_does_accept accepts
+    test_a_well_shaped_instant_that_names_no_moment_refuses
+
+  AND THE FIX HAD ITS OWN DEFECT, which the accept-side case found.
+  RFC 3339 §5.6 makes both T and Z case-insensitive, so
+  2026-08-27t00:00:00z IS the contract -- and fromisoformat rejects the
+  lower-case z. A grammar that admitted a spelling the parser then
+  called 'not a moment' would have been worse than the original. The
+  case is normalized before parsing, and the measurement showed only
+  the z half is load-bearing on this CPython; the asymmetry is stated
+  in the source rather than left to be rediscovered.
+
+=== [P1] THE RENDERER DID NOT KEEP ITS OWN PROMISE
+
+  dot.py's docstring said it 'VALIDATES ITS INPUT rather than trusting
+  that the projection built it'. It owned container shapes and the
+  relation enum and nothing else. That is a claim the code did not
+  keep, which is worse than no claim, because a reader stops checking.
+
+  ONE ENFORCEMENT, NOT TWO COPIES. The reviewer's requirement was not
+  'add checks to the renderer'. projection._export_validate is now the
+  public validate_work_graph, and the renderer CALLS it:
+    296-	# be able to trust are there; the validator then answers the semantic
+    297-	# questions -- duplicate node, duplicate typed edge, missing endpoint,
+    298-	# forged predicate -- that no per-statement check can see.
+    299-	nodes = [_owned_node(one) for one in result["nodes"]]
+    300-	edges = [_owned_edge(one) for one in result["edges"]]
+    301:	validate_work_graph(nodes, edges)
+
+  It also now takes the nodes as a SEQUENCE rather than a mapping. A
+  caller that had already built a mapping would have collapsed two
+  nodes sharing an id before anything could object, and an export
+  naming one Work twice is exactly as broken as one naming an endpoint
+  it never described. That is a case too.
+
+  A case asserts the rule TEXT exists in one module only, by AST plus
+  phrase search: two statements of one rule agree until they don't.
+
+=== [P1] 'selected' LOST ITS baton_* MEMBER
+
+  I read 'scope=selected|context' and 'a baton_* per structured node
+  member' as competing instructions and resolved the conflict. The
+  reviewer is right that there was none: one is the readable role, the
+  other is the projection's exact boolean. Both are emitted. I recorded
+  the wrong reading as a deliberate clarification in the last round,
+  which made an unnecessary decision look considered.
+
+=== [P2] THE TEAM CHECK SAT OUTSIDE THE NAMED SNAPSHOT
+
+  _export_scope queried teams before _read_snapshot, so one authority
+  read that ADMITS the export happened at a different instant from the
+  rows it admits. Split: operand validation stays outside and still
+  refuses before a transaction is opened; the configured-team fact
+  moved inside.
+
+  Observed AT THE CONNECTION rather than inferred from where the call
+  sits in the source -- the teams query is recorded together with
+  whether a transaction was open when it ran:
+    1024:def test_the_configured_team_is_read_inside_the_named_snapshot(world):
+    1025-	"""Review [P2]: every authority read that admits the export is in the
+    1026-	transaction the export names.
+    1027-
+    1028-	OBSERVED AT THE CONNECTION, not inferred from where the call sits in the
+    1029-	source. The teams query is recorded together with whether a transaction
+    1030-	was open when it ran, so moving the check back outside the snapshot fails
+    1031-	here rather than passing on a reading of the code.
+    1032-	"""
+
+=== MEASURED BY REMOVAL
+
+  Seven mutations were added for the four findings. Two of the first
+  attempts were UNSEEN and both were my test's fault, not the fix's:
+    the lower-case t/z normalization -- my mutation removed only the T half,
+      and this CPython accepts a lower-case t anyway. Re-anchored on the one
+      normalizing call, and the source now states which half is load-bearing.
+    
+    the offset requirement -- my refusal case used a bare date '2026-01-01',
+      which fails the grammar for a DIFFERENT reason (no time part at all).
+      Making the offset optional therefore changed nothing observable. A
+      complete date-time carrying no offset is now the case.
+
+    [caught] a refusal writes a partial document first
+             test_the_dot_branch_writes_once_and_only_a_whole_document
+    
+    all 41 mutations caught
+
+    source fingerprint before: 330a3fdb39505d0e8ef9eec9afc1863abe50d3710981e08fe81582537c96f886
+    source fingerprint after : 330a3fdb39505d0e8ef9eec9afc1863abe50d3710981e08fe81582537c96f886
+    IDENTICAL — every mutation was reverted.
+
+=== GATES
+    this Work        : 64 passed in 1.81s
+    v11 parallel     : 3130 passed, 188 warnings in 50.82s
+    v11 serial       : 54 passed, 3130 deselected, 1 warning in 130.03s (0:02:10)
+    ACP bridge       : 77 pass, 0 fail
+
+  The three reviewer regressions are unmodified and pass. Sixty-four
+  cases total: 57 mine from the first round, 3 the reviewer's, 4 added
+  for these fixes.

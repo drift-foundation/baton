@@ -1,0 +1,159 @@
+W17110 — BOTH REAL AGENTS RETURNED THE CORRELATED EXACT PONG.
+2026-08-27. SPIKE ONLY.
+
+The live trials did not alter tracked source. Source and dossier changes
+made this round are described below and are the ordinary work of the
+Work; no Git history or index was mutated.
+
+=== 1. THE TWO TRIALS, IN THE RULING'S ORDER
+
+  --- claude
+    image id                 sha256:bc33b65e4e0b25100
+    mount                    /input readonly
+    mount                    /output WRITABLE
+    mount                    /home/nonroot/.claude/.credentials.json readonly
+    published facts          ['correlation_id', 'exit_status', 'finished_at', 'provider', 'result_bytes', 'result_digest', 'spike', 'started_at', 'stderr_bytes']
+    failure category         None
+    verdict.expected_spike          True
+    verdict.expected_provider       True
+    verdict.correlation_matches     True
+    verdict.provider_exit_zero      True
+    verdict.container_exit_zero     True
+    verdict.answer_is_exactly_pong  True
+    verdict.closed_result_shape     True
+    clean                    True
+    SATISFYING               True
+    provider text anywhere?  False
+
+  --- codex
+    image id                 sha256:70f282871165e8fca
+    mount                    /input readonly
+    mount                    /output WRITABLE
+    mount                    /home/nonroot/.codex/auth.json readonly
+    published facts          ['correlation_id', 'exit_status', 'finished_at', 'provider', 'result_bytes', 'result_digest', 'spike', 'started_at', 'stderr_bytes']
+    failure category         None
+    verdict.expected_spike          True
+    verdict.expected_provider       True
+    verdict.correlation_matches     True
+    verdict.provider_exit_zero      True
+    verdict.container_exit_zero     True
+    verdict.answer_is_exactly_pong  True
+    verdict.closed_result_shape     True
+    clean                    True
+    SATISFYING               True
+    provider text anywhere?  False
+
+  Every verdict clause true on both: this spike's own identity, the
+  provider asked for, the correlation carried from ping to result, both
+  exit states zero, the answer's digest equal to sha256('pong') derived
+  on the host, and a closed value-checked document shape. Enforced clean
+  teardown on both. No provider text in either report.
+
+=== 2. WHAT THE CODEX FAILURE ACTUALLY WAS, and it was mine
+  Two rounds classified Codex 'network', and the classifier was right --
+  it described what it saw. What it saw was a defect in MY RECIPE.
+
+  A bounded sieve, reporting which of a fixed set of phrases appeared and
+  never the phrases themselves, matched 'certificate' and 'CA' and
+  reported:
+
+    ca-certificates present: NO
+
+  node:22-bookworm-slim ships no /etc/ssl/certs/ca-certificates.crt. The
+  Codex CLI is a NATIVE BINARY and uses the system trust store, so every
+  TLS handshake failed and surfaced as a connection error. Claude Code
+  uses Node's bundled store and never noticed.
+
+  THAT IS THE WRAPPER-BOUNDARY FINDING OF THIS WHOLE EXPERIMENT, and it
+  is not one a scripted worker could have produced: two agent runtimes
+  packaged identically differ in whether they need the system trust
+  store, and the one that needs it fails in a way that reads like the
+  network being wrong.
+    17:# THE SYSTEM TRUST STORE. `node:22-bookworm-slim` ships no
+    18-# `/etc/ssl/certs/ca-certificates.crt`, and a runtime that is a NATIVE BINARY
+    19-# uses the system store rather than Node's bundled one -- so every TLS
+    20-# handshake fails, and it surfaces as a connection error that reads like a
+  Installed on BOTH images, so the two trials differ in the runtime and
+  not in the ground they stand on — which is what makes the comparison
+  worth anything.
+
+=== 3. [P1] A WRITE DENIED SOMEWHERE IS NOT A WRITE DENIED HERE
+  'credential-write-denied' matched generic EACCES, permission-denied and
+  cannot-write wording, which can name the input root, the output root,
+  HOME or any path the runtime touched. That establishes a write-denied
+  RESULT and nothing about what was being written to — the eighth
+  review's rule, applied to my replacement for the thing it removed.
+
+  Causation is now earned only when the message names the exact path
+  this trial mounted the credential at:
+    53:function writeDeniedCategory(text) {
+    54-  if (!WRITE_DENIED.test(text)) return null;
+    55-  if (CREDENTIAL_PATH && text.includes(CREDENTIAL_PATH)) {
+    56-    return "credential-write-denied";
+    57-  }
+    58-  return "write-denied";
+    59-}
+    60-
+
+  AND THE CONTROLS FOUND AN ORDERING DEFECT WHILE PROVING IT.
+  "EACCES: permission denied, open '.../.credentials.json'" contains the
+  word 'credential', so with the broader list checked first it classified
+  as 'authentication' — naming the wrong failure entirely, and doing it
+  most confidently in the case that mentions the credential. A denied
+  write now wins in either form.
+
+=== 4. [P1] THE OPERATOR DOCUMENTS DESCRIBED A STATE THE WORK HAD LEFT
+  OPERATOR.md still opened by saying no provider had been nominated. The
+  provider was staged and two rounds had run. An operator reading it
+  would have acted on a state that no longer existed.
+    # W17110 — where this stands, and what the operator does next
+    
+    **Updated 2026-08-27, after two live rounds.** This file used to say no
+    provider had been nominated and that nomination was the only thing left. That
+    is no longer true and leaving it would have had an operator act on a state the
+    Work had moved past.
+    
+    ## Where it actually stands
+    
+    The provider **is** staged at `/run/baton/credentials` — a traverse-only
+    root-owned carrier with two `0400` entries owned by the container identity —
+    and both trials have run against it, twice.
+    
+        Claude   credential-expired    (the token was past its lifetime)
+        Codex    network
+    
+    Neither returned a pong, so under the full-proof ruling the Work is still open.
+    
+
+  And PLAN.md kept the decline/partial-close action as an unmarked live
+  line. A later section superseded it, and a confirmed decision has to
+  leave only ONE actionable rule — so the line itself now says so:
+    240:2. [SUPERSEDED 2026-08-27 — done in its first half, and its second half no
+    297:- [SUPERSEDED 2026-08-27] Nominate providers readable by uid 65532 and run
+
+=== 5. [P2] THE MUTATION CLAIM WAS WIDER THAN THE FACT
+  Every transcript said 'no repository state was mutated' while
+  documenting source and dossier changes. The intended fact is narrower
+  and is what this file now says at its head: the live trials did not
+  alter tracked source, and no Git history or index was mutated. The
+  earlier files are historical events and are not rewritten.
+
+=== 6. THE SUITES AND THE LIVE PREFLIGHT
+    Ran 18 tests in 0.007s
+    
+    OK
+    Ran 24 tests in 0.075s
+    
+    OK
+    live preflight exit=0
+
+=== 7. THE ENGINE, ASKED WHETHER ANYTHING SURVIVED
+    containers: (nothing listed = none)
+    images    : (nothing listed = none)
+
+=== 8. THE CREDENTIAL IS STILL STAGED
+  The approved decision has the OPERATOR unlink the two exact entries
+  and remove the now-empty directories once the trials are done and
+  cleanup is proved. Both are done and proved. The exact commands are in
+  OPERATOR.md; no recursive deletion is authorized and none is written.
+  An agent does not withdraw the operator's own credential staging.

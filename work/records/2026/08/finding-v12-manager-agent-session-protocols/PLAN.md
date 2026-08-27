@@ -317,13 +317,47 @@ green and kept as written.
 Status: **changes requested** in
 `review-2026-08-25T13-11-30Z.md`.
 
-21. [next] Move adapter capability validation inside the fresh journal action,
-    so exact replay consults no current adapter state. Preserve the fresh
-    invalid-adapter schema refusal and prove that it leaves no interrogation or
-    durable operation record.
-22. [next] Extend the aggregate mutable-input regression to count adapter
-    capability inspection as well as clock and authority reads; keep the
-    additive restart-style replay regression.
-23. [next] Rerun focused, boundary, section-13, source and locked
-    installed-layout gates; record the exact delta and return for independent
-    certification.
+21. [done] **[P1] Adapter capability validation moved inside the fresh journal
+    action.** The adapter is the THIRD mutable input, after the clock and the
+    live authority, and it is not a signed operand: `store.transact` returns
+    the replayed value before `BEGIN IMMEDIATE`, so the action — and with it
+    the adapter — is never reached on the replay path.
+
+    The fresh invalid-adapter refusal is KEPT and is still non-durable: a
+    `ContractRefusal` carrying `durable=False` raised inside the action takes
+    `ROLLBACK TO act` and `ROLLBACK`, so nothing is journalled. The case
+    proves the identity is genuinely still free by re-running the SAME
+    operation id with a usable adapter and requiring a fresh commit rather
+    than a replay.
+
+    One consequence, recorded in FINDING.md rather than left to be found:
+    refusal PRECEDENCE moved for fresh requests, because the check now runs
+    after `_bound_session` instead of before it.
+22. [done] **Aggregate mutable-input regression extended to all three inputs.**
+    `test_nothing_mutable_is_consulted_before_the_journal_decides` counted the
+    clock and the authority only, so its universal name was broader than the
+    property it proved. It counts adapter INSPECTION through a proxy that
+    records attribute access rather than calls — the protocol check reads the
+    attributes without calling them, so a call-counting proxy would have
+    reported zero however early the check ran. The review's additive
+    restart-style replay regression is kept as written.
+
+    Both new cases were proved to FAIL against the reverted code, because a
+    regression that passes before and after proves nothing.
+23. [done] Focused, boundary, source and locked installed-layout gates rerun;
+    the exact delta is in `evidence/gate-after-fifth-correction-2026-08-25.txt`.
+    Nothing added, one removed. The boundary inventory was compared by its
+    ORPHAN LIST rather than its failure count, because an already-red test
+    would have hidden a new unowned call behind an unchanged count: 11 before,
+    the same 11 after, and `interrogation.py:_ask` in neither.
+
+    Returned for independent certification rather than closed.
+
+## Independent certification — 2026-08-25
+
+24. [done] Fifth-correction re-review signed off in
+    `review-2026-08-25T20-04-47Z.md`. Adapter capability inspection now occurs
+    only inside the journal's fresh action; exact replay consults no clock,
+    live authority, or adapter; fresh invalid-adapter refusal remains
+    non-durable; and focused, adjacent, source/build parity, and independent
+    `inquire` replay checks pass at the recorded boundary.

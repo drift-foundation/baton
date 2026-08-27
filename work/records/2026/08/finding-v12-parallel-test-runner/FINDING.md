@@ -164,3 +164,58 @@ job default and lower-only override bounds; parallel failure propagation;
 serial work never overlapping parallel work or another serial item; signal and
 failure cleanup of descendant processes and result directories; and jobs=1
 versus default producing identical collected ids and outcomes.
+
+## Implementer revalidation — 2026-08-25
+
+### Clarification: the mandatory serial registry holds TWO source modules
+
+The reviewer inventory above was taken against the tree at 07:10 on
+2026-08-25. `tests/manager/test_oci_engine.py` was ADDED later the same day by
+commit `d36ca47` ("v12: harden worker identity and OCI boundaries", 08:57) and
+is therefore named by NEITHER registry in that inventory. The sentence
+"`tests.manager.test_worker_container` is one indivisible source serial module"
+is CLARIFIED, not superseded: it was true of the tree it described, and the
+parallel-safe set of 28 it pins is unchanged and still correct. What changed is
+the serial side.
+
+`tests.manager.test_oci_engine` is mandatory-serial for the same class of
+reason as `test_worker_container`, on evidence in the module itself:
+
+- It drives a REAL Docker/Podman daemon over `subprocess.run`, not a fake
+  engine port. `test_oci.py` is the argv-level twin and stays parallel-safe.
+- It MUTATES THE SHARED IMAGE STORE: `resolved_image()` pulls the pinned base
+  when absent. The module's own comment records that pulling unconditionally
+  changed what W6633's build gate resolved between its two builds — two suites
+  disagreeing about an artefact because one of them fetched it. Concurrency
+  with the Docker gate would reintroduce exactly that.
+- Its final survivor case asks the engine `ps --all --filter
+  name=baton-w6632-engine` — a daemon-global query over a suite-shared name
+  prefix. A concurrent shard of this module holding a live container would
+  make that assertion report another shard's container as a leak.
+
+It uses `setUp`/`addCleanup` only and declares no class or module fixture, so
+the "no source test outside `test_worker_container` has `setUpModule`,
+`tearDownModule`, `setUpClass` or `tearDownClass`" statement above still holds
+verbatim and was re-checked against the current tree. Per-test fixtures are not
+what makes it serial; the third-party daemon and the shared image store are.
+
+Confirmed counts on the current tree: 30 source test modules total — the 28
+pinned parallel-safe modules plus these two serial ones. Registry completeness
+therefore has no residue and needs no transitional exception.
+
+### Clarification: how the lower-only jobs bound is evaluated
+
+The pinned text says the default "uses available CPUs", is "capped at the
+number of ready shards", and that an override is "a whole number from 1 through
+the detected default". Those two caps are read as one order, because a shard
+cap that also bound the override would refuse a legitimate lowering whenever a
+selection happened to be small:
+
+    detected  = os.process_cpu_count()                 # 32 on this host
+    requested = override if given else detected        # refused unless 1..detected
+    effective = min(requested, len(ready_shards))       # the shard cap
+
+The refusal is on `requested`, so `jobs=0`, `jobs=33`, `jobs=8.5` and `jobs=x`
+are all refused against the DETECTED count and never against a shard count that
+varies with the selection. The shard cap then only avoids starting workers with
+nothing to run. This is a clarification of the pinned rule, not a change to it.

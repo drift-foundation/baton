@@ -1,0 +1,77 @@
+W14251 fifth independent implementation review
+UTC: 2026-08-26T20:47:06Z
+
+Accepted implementation gates
+=============================
+
+Focused shipped gate:
+  Ran 230 tests in 0.882s — OK
+
+Intake and sealing migration:
+  Ran 92 tests in 0.540s — OK
+
+Runtime conformance:
+  Ran 74 tests in 4.458s — OK
+  cases: 123 {'control-success': 27, 'control-refusal': 48,
+              'invariant': 48}
+
+Boundary inventory:
+  Ran 92 tests in 787.607s
+  FAILED (failures=6)
+
+Those are the same six baseline inventory failures reported before the receipt
+migration. No result-manifest or completion-digest fixture appears among them.
+
+Four schema copies:
+  22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc
+  for the source package, tracked build shadow, retired-Node copy and canonical
+  contract-record copy.
+
+git diff --check: status 0
+
+Vacuous invalid-vector reproduction
+===================================
+
+The vector:
+
+  name: result-completed-without-its-completion-envelope
+  expected: required
+  patch: completion_manifest_digest = null
+
+Applying it to the valid result receipt leaves the member present. Validating
+the resultManifest branch directly reports:
+
+  None is not of type 'string'
+  Unevaluated properties are not allowed (...)
+
+It does NOT report:
+
+  'completion_manifest_digest' is a required property
+
+Validating through the top-level `oneOf` produces 112 messages containing the
+generic word `required` from other document branches. The existing invalid-
+vector harness flattens all branch errors and accepts any matching message, so
+the vector passes without reaching its named conditional rule.
+
+Additive regression:
+
+  python3 -m unittest \
+    test_contract_model.SchemaAndVectorTests.\
+test_the_completed_receipt_vector_reaches_its_named_rule
+
+  Ran 1 test in 0.001s
+  FAILED (failures=1)
+
+Full canonical model after adding it:
+
+  Ran 25 tests in 0.111s
+  FAILED (failures=1)
+
+Correction boundary
+===================
+
+Use a valid non-completed result receipt with no completion digest as the
+mutation base; change only disposition to completed in the invalid vector;
+expect the exact missing-property message. Remove the duplicate
+`_validate_result_manifest` semantic check because the model declares that
+JSON Schema owns expressible shape rules.

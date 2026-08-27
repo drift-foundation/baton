@@ -44,6 +44,20 @@ NODE_COPIES = {
     for name in CANONICAL
 }
 
+# W19784 review [P0], 2026-08-27: A FIFTH COPY, and it travels INSIDE the OCI
+# worker image. The worker used to read the manager's two `/input/` documents
+# by picking out the members it wanted, so a false self-digest or an extra
+# top-level member reached the agent. The fix derives the closed member sets
+# from the contract itself rather than from a list typed into the worker -- and
+# that requires the contract to be present where the worker runs.
+#
+# It is here for the same reason the other four are: what must never happen is
+# the copies drifting. Only `worker-control` travels; the worker speaks no
+# agent-session vocabulary and an image carrying a contract it does not use
+# would be a copy nothing keeps true.
+WORKER_IMAGE_COPY = (REPOSITORY / "v12" / "worker"
+                     / "worker-control-1.0.schema.json")
+
 
 class TheSchemaTravelsWithTheDistribution(unittest.TestCase):
 
@@ -63,13 +77,87 @@ class TheSchemaTravelsWithTheDistribution(unittest.TestCase):
                 self.assertTrue(NODE_COPIES[name].is_file())
                 self.assertEqual(packaged[name], NODE_COPIES[name].read_bytes())
 
+    def test_the_worker_image_carries_the_same_contract(self):
+        """W19784 review [P0]. The OCI worker derives its closed member sets
+        from this document, so a copy that drifted would be a worker holding
+        the manager's documents to a contract the manager no longer speaks --
+        and it would drift silently, because the worker validates against
+        whatever it was shipped.
+
+        The recipe must actually deliver it, too: a file beside the Dockerfile
+        that no `COPY` line names is a file the image does not have, and the
+        worker's own refusal for a missing schema would be the first anyone
+        heard of it.
+        """
+        self.assertTrue(WORKER_IMAGE_COPY.is_file(),
+                        f"the worker image's contract copy is missing: "
+                        f"{WORKER_IMAGE_COPY}")
+        self.assertEqual(WORKER_CONTROL_BYTES, WORKER_IMAGE_COPY.read_bytes())
+        recipe = (WORKER_IMAGE_COPY.parent / "Dockerfile").read_text(
+            encoding="utf-8")
+        self.assertIn(f"COPY {WORKER_IMAGE_COPY.name} ", recipe)
+        # AND ONLY worker-control. An image carrying a contract it never reads
+        # is a fifth copy nothing keeps true.
+        self.assertFalse(
+            (WORKER_IMAGE_COPY.parent / "agent-session-1.0.schema.json").exists(),
+            "the worker image carries a contract it does not speak")
+
+    def test_the_tracked_build_copy_is_not_a_fourth_contract(self):
+        """W14251 review: the repository tracks `build/lib` too.
+
+        Calling the canonical, source-package and retired-Node assets "all
+        three copies" left this fourth file carrying the superseded
+        acquisition schema. A tracked build shadow is either the same frozen
+        contract or it is a second distribution account; it cannot be omitted
+        from the byte-identity claim because a normal Python path can import
+        it directly.
+        """
+        built = DISTRIBUTION / "build" / "lib" / "baton_v12" \
+            / "contracts" / "schema" / "worker-control-1.0.schema.json"
+        self.assertTrue(built.is_file(), f"tracked build copy missing: {built}")
+        self.assertEqual(WORKER_CONTROL_BYTES, built.read_bytes())
+
     def test_the_recorded_digests_still_hold(self):
         # The numbers the boundary review measured, re-measured rather than
         # quoted: a digest in a document and a digest in a tree are different
         # facts.
         for name, expected in [
+                # W14251, 2026-08-26: the artifact-neutral revision changed
+                # these bytes DELIBERATELY, so the recorded number moves with
+                # them and this case is what makes that a decision rather than
+                # a drift. The prior digest was
+                # be1a536bc9aa2d7e23749cf54ceb98906f8dceeb8de9d72e2abc17b9baf18658;
+                # the schema went from 53 definitions to 51 when the
+                # acquisition and result-kind vocabulary left it.
+                # W14251 second review, 2026-08-26: the bytes moved again,
+                # deliberately, when the worker's completion envelope was
+                # separated from the manager's frozen-result receipt. The
+                # prior digest was
+                # cfeb8db50f667b10205cb73e3509c07a3589e98731727c03539366e75e682bd5;
+                # 51 definitions become 53 with `workerOutput` and
+                # `completionManifest`, and `resultManifest` gains one
+                # OPTIONAL member naming the worker document it validated.
+                # W14251, 2026-08-26. The fourth review settled the
+                # escalation the third raised: under 1.0 a COMPLETED
+                # frozen-result receipt MUST carry
+                # `completion_manifest_digest`, because §7.3 makes the manager
+                # validate `/output/output.json` before it freezes and a
+                # receipt naming none leaves two answers about one result.
+                # Non-completed dispositions may omit it -- that is where a
+                # worker may have died before publishing anything.
+                #
+                # The 96 fixture refusals I measured were migration cost, not
+                # a compatibility promise, and 92 of them came from ONE shared
+                # helper. The prior digest was
+                # bc2675fb7fa0428c500c7450805e49e4e1e132901d610d4ed2c7622c7281f5f4.
+                #
+                # NOT MOVED BY THE RESERVED MANIFEST FILENAMES, which are a
+                # SEMANTIC rule: a schema refusal carries `integrity/schema`
+                # and cannot name which rule failed, so putting them there
+                # would contradict the review's own `integrity/path`
+                # regression and make the semantic rule unreachable.
                 ("worker-control-1.0.schema.json",
-                 "be1a536bc9aa2d7e23749cf54ceb98906f8dceeb8de9d72e2abc17b9baf18658"),
+                 "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"),
                 ("agent-session-1.0.schema.json",
                  "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c")]:
             with self.subTest(schema=name):

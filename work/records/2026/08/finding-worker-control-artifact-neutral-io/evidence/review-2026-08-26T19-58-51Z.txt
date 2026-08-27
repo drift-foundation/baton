@@ -1,0 +1,68 @@
+W14251 fourth independent implementation review
+UTC: 2026-08-26T19:58:51Z
+
+Corrected executable gates
+==========================
+
+Focused shipped-Python gate:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_frozen tests.manager.test_manifest_rules \
+    tests.manager.test_output tests.manager.test_secrets \
+    tests.manager.test_workspaces
+
+  Ran 228 tests in 0.846s — OK
+
+Canonical contract model:
+
+  python3 -m unittest test_contract_model.py
+  Ran 24 tests in 0.108s — OK
+
+Runtime conformance model and builder:
+
+  python3 -m unittest test_conformance_model.py
+  Ran 74 tests in 4.379s — OK
+
+  python3 -B build_cases.py
+  cases: 123 {'control-success': 27, 'control-refusal': 48,
+              'invariant': 48}
+
+Four schema copies:
+
+  bc2675fb7fa0428c500c7450805e49e4e1e132901d610d4ed2c7622c7281f5f4
+  for the source package, tracked build shadow, retired-Node copy and canonical
+  contract-record copy.
+
+Whitespace gate:
+
+  git diff --check
+  status 0
+
+Remaining P1 reproduction
+=========================
+
+`resultManifest.properties` defines `completion_manifest_digest`, but its
+`required` array ends at `manager_observed_at`. Control SPEC §8.4 calls the
+member OPTIONAL. The shipped case
+`TheReceiptBindsTheEnvelopeItValidated.test_a_receipt_may_still_omit_the_binding_today`
+constructs a version 1.0 receipt with `disposition: completed`, omits the
+member, calls `check_manifest_structure(..., "resultManifest")`, and passes.
+
+That contradicts SPEC §7.3, which says the manager validates the worker
+completion envelope and only then produces its receipt. `$defs.version` pins
+major to 1 and minor to 0, so no versioned legacy/new distinction exists.
+
+Correction boundary
+===================
+
+  - completed receipt: completion_manifest_digest required;
+  - non-completed receipt: it may be absent if no worker envelope was
+    published; if an envelope was validated, its digest is bound;
+  - no version-vocabulary widening for this migration;
+  - update the 96 measured fixtures and add/retain a negative completed-without-
+    digest regression.
+
+The prior reported breakdown is 58 test_intake cases, 34 test_output cases and
+2 test_credentials cases. That is migration breadth, not a durable protocol
+boundary.

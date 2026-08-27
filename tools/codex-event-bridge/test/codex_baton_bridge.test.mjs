@@ -54,12 +54,22 @@ function trialAction(work, trial, generation) {
   };
 }
 
-function harness(script, options = {}) {
+// W11910: an offer retry has a DEADLINE, so every run gets a clock it
+// controls. Frozen unless a test advances it deliberately — otherwise
+// whether a bounded retry fired would depend on the test's own wall
+// time, which is not a property worth asserting.
+function clock(start = 1_000_000) {
+  let value = start;
+  return { now: () => value, advance(ms) { value += ms; return value; } };
+}
+
+function harness(script, { now = clock().now, ...options } = {}) {
   const events = [];
   const controller = new AbortController();
   let calls = 0;
   const run = codexBatonBridge({ participant: "baton.codex", target: "baton", "retry-ms": "1", ...options }, {
     signal: controller.signal,
+    now,
     runWait: async () => {
       if (calls >= script.length) {
         controller.abort();
@@ -76,7 +86,7 @@ function harness(script, options = {}) {
       const respond = options.respond ?? (() => ({ accepted: true }));
       return respond(event);
     },
-    logger: { info() {}, warn() {} },
+    logger: options.logger ?? { info() {}, warn() {} },
   });
   return { run, events, controller };
 }
@@ -103,20 +113,149 @@ test("multiple simultaneous action keys each emit one scoped event", async () =>
   }
 });
 
-test("a persistent set is level-triggered: suppressed while present, no busy loop", async () => {
+// -- W11910: readiness stays armed until the canonical claim -----------
+//
+// `work/records/2026/08/finding-readiness-offer-cleared-before-claim/`.
+//
+// This case used to be one test asserting that a persistent unclaimed
+// key is suppressed after the socket accepts it. That conflated two
+// different rules, and the wrong half of it was the live defect: an
+// accepted event is TRANSPORT acknowledgement, and a managed turn that
+// forwarded it may well have ended without claiming anything. The
+// authority's `claimed:true` is the acknowledgement. So the case is
+// split — an unclaimed offer stays armed and is retried under a bounded
+// deadline; the claim, and only the claim, clears it.
+
+test("an unclaimed offer is retained, not spent again, before its deadline", async () => {
   const set = [workAction("7ba67cb8-W5")];
   const { run, events } = harness([envelope(set), envelope(set), envelope(set)]);
   await run;
-  assert.equal(events.length, 1, "a persistent key re-emitted");
+  assert.equal(events.length, 1, "an unclaimed offer busy-looped the target");
 });
 
-test("claiming the same Work does not duplicate its wake", async () => {
+test("an unclaimed offer is forwarded again once its deadline passes", async () => {
+  const time = clock();
+  const set = [workAction("7ba67cb8-W5")];
+  const { run, events } = harness([
+    envelope(set),
+    envelope(set),
+    // the managed turn ended without claiming and canonical state is
+    // unchanged, so the offer stands — and this process re-offers it
+    // rather than needing to be restarted
+    () => { time.advance(60_000); return envelope(set); },
+  ], { now: time.now });
+  await run;
+  assert.equal(events.length, 2, "a turn that never claimed cleared the offer");
+  assert.equal(events[0].id, events[1].id);
+});
+
+test("claiming the same Work acknowledges it rather than duplicating its wake", async () => {
+  const time = clock();
   const { run, events } = harness([
     envelope([workAction("7ba67cb8-W5")]),
-    envelope([workAction("7ba67cb8-W5", { claimed: true })]),
-  ]);
+    // far past any retry deadline: it is the CLAIM that clears this
+    () => { time.advance(600_000); return envelope([workAction("7ba67cb8-W5", { claimed: true })]); },
+    () => { time.advance(600_000); return envelope([workAction("7ba67cb8-W5", { claimed: true })]); },
+  ], { now: time.now });
   await run;
   assert.equal(events.length, 1, "the claim manufactured a second event");
+});
+
+test("a producer starting on a live claim still forwards one recovery wake", async () => {
+  const claimed = [workAction("7ba67cb8-W2907", { claimed: true })];
+  const { run, events } = harness([envelope(claimed), envelope(claimed)]);
+  await run;
+  assert.equal(events.length, 1, "claimed-Work restart recovery changed");
+  assert.equal(events[0].action.claimed, true);
+});
+
+test("an unclaimed offer waits for the claim slot and is forwarded when it frees", async () => {
+  const held = workAction("7ba67cb8-W6627", { claimed: true });
+  const waiting = workAction("7ba67cb8-W10265");
+  const { run, events } = harness([
+    envelope([held, waiting]),
+    envelope([held, waiting]),
+    envelope([waiting]),
+  ]);
+  await run;
+  assert.deepEqual(events.map((event) => event.action.key),
+                   [held.action_key, waiting.action_key],
+                   "an occupied claim slot was given work it cannot take");
+});
+
+test("the producer admits one unclaimed Work per poll, in canonical order", async () => {
+  // Review [P1] renamed this. It used to claim the head was held "until
+  // its outcome is known", which this file cannot check: `markPresented`
+  // runs here on socket ACCEPTANCE, before the dispatcher has started
+  // the turn, so the producer never learns the outcome at all. What it
+  // does assert is real and worth keeping — one per poll, canonical
+  // order — and the claim-slot boundary it does NOT assert is proved
+  // across the producer and the dispatcher in `test/claim_slot.test.mjs`.
+  const first = workAction("7ba67cb8-W6630");
+  const second = workAction("7ba67cb8-W6632");
+  const { run, events } = harness([
+    envelope([first, second]),
+    envelope([first, second]),
+  ]);
+  await run;
+  assert.deepEqual(events.map((event) => event.action.key),
+                   [first.action_key, second.action_key]);
+});
+
+test("obligations, trials and pokes beside a deferred Work keep their own rule", async () => {
+  const held = workAction("7ba67cb8-W6627", { claimed: true });
+  const waiting = workAction("7ba67cb8-W10265");
+  const { run, events } = harness([
+    envelope([held, waiting, obligationAction(9, "7ba67cb8-W2"),
+              trialAction("7ba67cb8-W3", 1, 1), pokeAction(4)]),
+  ]);
+  await run;
+  assert.deepEqual(events.map((event) => event.action.key),
+                   [held.action_key, "obligation:9", "trial:7ba67cb8-W3:1:1",
+                    "poke:4"]);
+});
+
+test("a retained offer withdrawn while it waits is never forwarded", async () => {
+  const held = workAction("7ba67cb8-W6627", { claimed: true });
+  const waiting = workAction("7ba67cb8-W10265");
+  const { run, events } = harness([
+    envelope([held, waiting]),
+    // blocked, rerouted, parked, superseded or closed
+    envelope([held]),
+    envelope([], { timedOut: true }),
+  ]);
+  await run;
+  assert.deepEqual(events.map((event) => event.action.key), [held.action_key]);
+});
+
+test("a dispatcher already holding the delivery keeps the offer armed", async () => {
+  // The dispatcher retains the exact v11 event id for the whole
+  // queued/starting/ambiguous/active lifetime, so a bounded retry of an
+  // unclaimed offer is refused as `in-flight`. That is neither a failure
+  // to report nor an acknowledgement: the offer backs off and stands.
+  const time = clock();
+  const set = [workAction("7ba67cb8-W5")];
+  const warnings = [];
+  let forwarded = 0;
+  const { run, events } = harness([
+    envelope(set),
+    () => { time.advance(60_000); return envelope(set); },
+    () => { time.advance(60_000); return envelope(set); },
+    () => { time.advance(60_000); return envelope([workAction("7ba67cb8-W5", { claimed: true })]); },
+  ], { now: time.now,
+       respond: (event) => {
+         forwarded += 1;
+         // the first delivery is queued; every retry meets the retained
+         // identity of a delivery this dispatcher is still holding
+         return forwarded === 1
+           ? { accepted: true, reason: "queued", eventId: event.id }
+           : { accepted: false, reason: "in-flight", eventId: event.id };
+       },
+       logger: { info() {}, warn(message) { warnings.push(message); } } });
+  await run;
+  assert.equal(events.length, 3,
+    "an in-flight refusal cleared the offer instead of keeping it armed");
+  assert.deepEqual(warnings, [], "an in-flight refusal was reported as a failure");
 });
 
 test("disappearance forgets the key and reappearance emits it again", async () => {
@@ -435,10 +574,26 @@ test("every field the trusted summary consumes is typed and agreeing", () => {
   // episode_seq and config_generation out of that set: they are the
   // action's identity, not description, so a bare action still carries
   // them and the key still has to agree.
+  //
+  // W11910 R5 moved `claimed` out of it too, with the review's explicit
+  // case-specific confirmation to revise this assertion. The rule the set is
+  // drawn on has not changed — a field this build SCHEDULES on is not
+  // descriptive — and `claimed` became a scheduling input when the claim slot
+  // started deciding whether a Work may take a turn. `local_id`, `title` and
+  // `phase` describe the Work and nothing reads them to decide anything, so
+  // they stay optional and the bare action below still proves it.
   const bare = envelope([{ kind: "work", action_key: "work:7ba67cb8-W5:1:g1",
                            work: "7ba67cb8-W5", episode_seq: 1,
-                           config_generation: 1 }]);
+                           config_generation: 1, claimed: false }]);
   assert.equal(validateEnvelope(bare, "baton.codex").snapshot_seq, 42);
+  // And the field is REQUIRED rather than merely typed, which is the half the
+  // fifth review found missing: absence read as `claimed === true` being
+  // false is a Work answering "nobody holds the slot" about a slot it may
+  // itself hold.
+  const { claimed, ...unread } = bare.result.actionable[0];
+  assert.throws(
+    () => validateEnvelope(envelope([unread]), "baton.codex"),
+    /carries no claimed verdict/);
 });
 
 test("the real invocation is the documented argv through the executor boundary", async () => {

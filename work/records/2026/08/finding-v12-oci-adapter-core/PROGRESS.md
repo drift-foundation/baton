@@ -204,3 +204,287 @@ than a guess in this one.
 
 **Awaiting independent re-review.** The claim is not released and no Git
 operation was performed.
+
+## Fifth review correction — 2026-08-25
+
+All three items from `review-2026-08-25T15-07-37Z.md` are corrected and its
+five additive methods are green. Two of the three needed a decision rather
+than an edit, and both are recorded rather than assumed.
+
+**[P0] The absence sentence has to be the thing that names the runtime.** The
+previous version asked two separate questions of one diagnostic — is there an
+absence phrase anywhere, and is the requested identity anywhere — and answered
+"absent" when both were true. The review's
+
+    Error: No such container: runtime-2; request was for runtime-1
+
+is the whole finding: two fragments are not an association, and this is the one
+branch that releases an assignment whose worker may still be running. Each
+engine's own complete form is now a pattern that CAPTURES the identity, and
+only a captured identity equal to the one asked about is absence. Per engine
+rather than pooled — a docker adapter reading podman's phrasing would be taking
+evidence from a daemon it is not talking to.
+
+**[P1] Four digests, and the two halves survive the restart by different
+routes.** The review is right that a green case named
+`..._three_digests_and_nothing_else` is how a narrowing of a confirmed contract
+stops looking like one. It counts four now and asserts the member tuple itself,
+so the next change to it has to come through that case.
+
+- **The image is the ENGINE'S fact.** Read from the listing rather than from a
+  label, because a label is what this manager wrote about a delivery and the
+  engine's record is what is actually running — and those are only the same
+  while nobody has replaced anything, which is what reconciliation exists for.
+  Measured against a real Docker 29.1.3 daemon rather than assumed: `ps
+  --no-trunc --format {{json .}}` answers `Image` as the `sha256:` reference,
+  because this adapter always starts by digest. Podman answers `ImageID` too
+  and it is asked for first. A listing naming no image, or naming a tag, is
+  refused: a tag is a pointer that was true when somebody last pushed.
+- **The policy has no engine fact, so it is a label.** `runtime.labels` gains
+  `policy_digest`. This is the second time this build has extended those labels
+  past the frozen host's set and it is the same argument that added
+  `participant`: reconciliation decides by comparing labels, so a member of the
+  resolved identity the engine cannot report does not survive a restart at all.
+
+**[P1] The cleanup proof selected nothing this module creates.** MARK is a
+LABEL and never a name — every runtime name is derived from
+`runtime.start:<digest>` — so `--filter name=baton-w6632-engine` matched none
+of them and reported empty whatever survived. It queries the label namespace
+the runtimes actually carry now, and requires the query to have SUCCEEDED
+before reading its result as absence. `remove_everything` surfaces failure too:
+a refused `rm` is not by itself a failure, because a name is registered the
+instant it can exist, but a container still present afterwards is — and that is
+a question for the engine rather than for its prose.
+
+## One thing this correction REACHED rather than owns
+
+`attempts.policy_digest` is nullable, so making it a runtime label means an
+attempt recorded without one can no longer start a runtime. That is the right
+answer — a delivery whose policy this manager cannot name is one no later
+reconciliation can describe — but *when `request_runtime_start` refuses* is a
+lifecycle rule belonging to W5/W6636, not to this adapter core.
+
+It is implemented here because the label member is useless without it, and it
+is refused explicitly in `_runtime_labels`, with a message naming the missing
+policy digest rather than surfacing as a digest complaint about `None` two
+layers down. **Flagged for the reviewer to confirm or reroute.** I am not
+treating my own reach as a ruling.
+
+## The fixtures that moved, named because they are other cuts'
+
+Five test modules built runtime labels or recorded an attempt without a policy
+digest: `test_attempts`, `test_sessions`, `test_boundary_inventory`, `test_oci`
+and `test_oci_engine`. Each records one now. **No assertion is weakened** —
+what changed is that their fixtures satisfy an extended contract. Two existing
+assertions did move and both are strengthenings the contract forced: the golden
+argv length is 43 rather than 41 because there are eight labels, and the
+identity-count case now asserts four members and their names.
+
+The cost was not free and the number is worth recording: at one point the label
+change had `test_boundary_inventory` failing **593** times, all from a handful
+of shared fixture helpers that start a runtime. It is back to seven.
+
+## The OCI inventory, measured again
+
+Zero unowned, zero unprobed, zero probed-never-owned for `oci.py`. One probe
+was added, and finding it was the audit's own work: `OciAdapter.__init__ /
+identity` was owned under two labels — the document envelope and each digest
+inside it — and only the envelope was probed. It is driven with the EMPTY
+STRING rather than the surrogate, because `own` walks the envelope for
+encodability first and a surrogate would prove the envelope's rule instead.
+
+`_image_identity` takes a LITERAL label at its owner. That is the fourth time
+this distribution has been corrected for a computed one, so the reason is a
+comment at the site rather than something to learn again.
+
+## Verification
+
+`evidence/gate-after-fifth-correction-2026-08-25.txt`.
+
+- `test_oci` **64** (59 + five of mine), `test_oci_engine` **14** with Docker
+  29.1.3 green and the five podman cases skipped, `test_attempts` **52**.
+- Adjacent twelve modules: **522, OK**.
+- `test_boundary_inventory`: the same **seven** pre-existing failures, naming
+  four sites this correction does not touch.
+- Full source suite **1189, nine failures**; locked installed-layout build
+  **1189, the same nine**. Seven are the boundary inventory's, one is W6633's
+  image gate, and one is reported below. **The five OCI failures the review
+  reported are gone and nothing was added.**
+
+## Reported and not fixed
+
+`tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.
+test_the_substitute_cannot_quote_a_live_bearer_substring` — a reviewer
+regression added to **W6630** after this participant passed that Work back, and
+it is a real defect in that correction: §13's substitute message is exempted
+from the containment guard as a whole, so a live bearer that is a 32-character
+SUBSTRING of this build's constant prose leaves inside the replacement. W6630
+is routed to `baton.feat` and is not held by this claim, so fixing it here
+would be executing Work nobody claimed. Reported on that thread and here.
+
+## State
+
+**Awaiting independent re-review.** The claim is not released and no Git
+operation was performed.
+
+
+## Sixth review correction — 2026-08-26
+
+Both findings are corrected, and the [P0] is the one worth reading.
+
+**Discovery has to be broader than comparison, and asking the engine both
+questions was the defect.** `list_vector` filtered on all eight labels,
+including the three resolved-identity digests — and a real engine applies every
+filter before it returns a row. So a runtime from THIS attempt under an old
+policy never appeared in stdout, never reached the comparison that would have
+refused it, and `start` read the empty candidate set as "nothing exists" and
+created a second runtime for one attempt.
+
+This module's own docstring has said the opposite from the beginning: "a stale
+identity is refused rather than filtered away, because it is not absent, it is
+WRONG, and dropping it leaves a mislabelled runtime running." That was true of
+everything except the query that finds the runtime. The fake engine could not
+show it, because a fake that ignores the filters it was handed is a fake that
+agrees with whatever the adapter believes.
+
+The engine answers which runtimes belong to this ATTEMPT; the adapter decides
+in process whether each is this delivery's. `_CANDIDATE_LABELS` is DERIVED from
+the frozen label set minus the resolved identity, so a label added tomorrow
+becomes a selector or a comparison by which list it belongs to rather than by
+somebody remembering this site.
+
+**Narrowing the filters did not narrow the ownership.** The whole label set is
+still owned before the engine is asked anything, so an invented member, a
+missing member or a text-shaped digest still refuses before a query exists.
+Only which of those proved values become filters changed, and a case pins it.
+
+**The target's spelling is checked before `normpath` can erase it** — the rule
+`_canonical` already followed for a host source and that this side was missing.
+`/workspace/../etc` was accepted and emitted as `target=/etc`, moving the
+assignment's writable bind over the image filesystem.
+
+## One existing assertion revised, under explicit confirmation
+
+`test_the_listing_filters_on_every_label` required a filter for EVERY label,
+which is the defect stated as an expectation. The review gives explicit
+case-specific confirmation to revise it; it now asserts the candidate selector
+in the contract's own order and asserts each identity digest is NOT among the
+filters — a digest used as a filter is a runtime the engine hides rather than
+one this adapter refuses.
+
+## Verification
+
+`evidence/gate-after-sixth-correction-2026-08-25.txt`.
+
+- `test_oci` **70/70** (66 before): the review's two kept as written, one
+  revised one-for-one, four new — ownership before the query, a stale
+  candidate refused for each of the three digests, a stale candidate stopping
+  a start before any create, and an ordinary start still creating.
+- **Measured to fail without the corrections**: reverting both gives three
+  failures, restored byte for byte.
+- **Against a real daemon**, because the defect was about what a real engine
+  does: `test_oci_engine` 14 green on docker 29.1.3, including the
+  duplicate-start refusal that drives the candidate query.
+- Adjacent **564 OK**. Source suite and locked build both **1228, eleven
+  failures**, and `test_oci` is not among them.
+
+## Reported and not fixed
+
+- **W6630**, `test_secrets.…test_the_pair_assertions_cannot_quote_a_live_bearer`
+  (two subcases) — a seventh-review regression posted minutes after this
+  participant passed W6630 back, and a real defect in that correction: the
+  constructor's category and code assertions run BEFORE the §13 message guard
+  and interpolate the rejected operand with `repr`, so a live bearer supplied
+  as an invalid category or code escapes in an `AssertionError` the crossing
+  never sees. Reported on T6630 with the direction I would take.
+- **W6633**, the two `tests.tools.test_worker_image_build` regressions,
+  already reported on their own thread.
+
+The remaining seven are the long-standing boundary-inventory failures.
+
+## State
+
+**Awaiting independent re-review.** The claim is not released and no Git
+operation was performed.
+
+
+## Seventh review correction — 2026-08-26
+
+The review is about my own previous correction, and it is right. I moved the
+three resolved digests out of the engine filters and STOPPED THERE — leaving
+the attempt id, the four parts of the assignment and the generation as exact
+filters — so I fixed one instance of the defect and left the same defect, in
+the same boundary, one field over. A runtime carrying this attempt id under
+generation 0 while the request says 1 is still hidden, `start` reads absence,
+and it reaches `run`.
+
+The post-read half was incomplete the same way: `list` parsed the whole label
+record and compared only the engine image and the three digests, never the
+assignment values it had asked for. **Engine-side selection is not proof that a
+returned record has the values requested** — which is my own correction's
+sentence, and I had not applied it to the half I had just written.
+
+**The general rule is what was missing.** Any assignment fact used as a filter
+hides a runtime that contradicts it, and a contradictory runtime is exactly
+what this adapter exists to refuse. It was never about digests specifically.
+
+So the selector is the minimal ownership key — `runtime_attempt_id` alone, the
+one label that answers "is this runtime this attempt's" and cannot disagree
+without meaning a different attempt — and the complete returned record is
+compared in process, member by member across the whole frozen label set.
+
+**Two comparisons, two questions.** The new loop asks whether a candidate is
+the runtime the CALLER named; the existing one asks whether it is the one THIS
+ADAPTER resolved. `list` is reachable without `start`, so neither implies the
+other.
+
+## The selector assertion, revised a second time
+
+It required the attempt AND the four assignment parts — the first correction's
+incomplete rule written down as an expectation. Under the review's explicit
+confirmation it now requires exactly one filter and asserts that EVERY other
+member of the frozen set is absent, not just the three digests.
+
+## A pair of gate numbers that did not describe one tree
+
+Recorded rather than tidied. The source run finished at 1241 tests with 9
+failures and the locked build that followed reported 1244 with 13 failures and
+2 errors. That is not an installed-layout difference: a reviewer added three
+cases to `test_secrets.py` under W6630 while the build was running. **A pair of
+gate numbers taken across a moving tree is two measurements of two things**, so
+both were re-taken and now agree at 1244 — the same discipline the W10265
+harness needed, applied to my own evidence.
+
+## Verification
+
+`evidence/gate-after-seventh-correction-2026-08-26.txt`.
+
+- `test_oci` **74/74** (70 before), with the review's two kept as written and
+  two added; **both halves measured to fail** without them, restored byte for
+  byte.
+- `test_oci_engine` **14** green against docker 29.1.3 — the defect is about
+  what a real daemon does with a filter, so the duplicate-start refusal
+  driving the candidate query against a real one matters here.
+- Adjacent **486 OK**. Source suite and locked build both **1244, fifteen
+  failures**, and `test_oci` is not among them.
+
+## Reported and not fixed
+
+- **W6630**, three new `test_secrets` cases from its eighth review, posted
+  mid-correction. All three are real defects in that Work's last correction —
+  mine — and the review is right that the decision I recorded there is not
+  established: membership hashes a rejected operand before the safe renderer
+  runs, the redaction sentence and type name it composes are themselves
+  unproved against the live snapshot, and two later type assertions still use
+  `type(value).__name__` instead of the metaclass-safe helper this module
+  already owns.
+- **W6633**, the two `tests.tools.test_worker_image_build` cases already
+  reported on T6633.
+
+Both are routed to `baton.feat`. The remaining seven are the long-standing
+boundary-inventory failures.
+
+## State
+
+**Awaiting independent re-review.** The claim is not released and no Git
+operation was performed.

@@ -1,12 +1,12 @@
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { CodexClient } from "./codex_client.mjs";
 import { loadConfig, validateConfig } from "./config.mjs";
 import { EventBridge } from "./event_bridge.mjs";
 import { formatEventMessage, normalizeEvent } from "./event_types.mjs";
-import { readRoleInstructions } from "./role_instructions.mjs";
+import { codexDeveloperInstructions, readRoleInstructions } from "./role_instructions.mjs";
 import { verifySchemaCompatibility } from "./schema_check.mjs";
 
 const toolRoot = fileURLToPath(new URL("..", import.meta.url));
@@ -58,7 +58,20 @@ export async function resolveTargetInstructions(config, { read = readRoleInstruc
   if (!config.roleInstructions) return config;
   const entries = await Promise.all(Object.entries(config.targets).map(async ([name, target]) => {
     const resolved = await read(config.roleInstructions, target.identity, { signal });
-    return [name, Object.freeze({ ...target, developerInstructions: resolved.instructions, instructionRole: resolved.role, instructionGeneration: resolved.configurationGeneration })];
+    // W12229: the accepted role prose AND this target's own launcher
+    // contract. Composed HERE, from the configured source and the
+    // VALIDATED identity the read just proved, so every `thread/resume`
+    // reapplies it and a restart rebuilds it from current configuration
+    // rather than from whatever an old thread remembers.
+    //
+    // `resolved.participant` and `resolved.role` rather than the
+    // configured ones: `validateRoleInstructions` has already refused an
+    // envelope whose participant or role disagrees, so these are the
+    // values the authority itself confirmed for this target.
+    const developerInstructions = codexDeveloperInstructions(
+      resolved.instructions, config.roleInstructions,
+      { participant: resolved.participant, role: resolved.role });
+    return [name, Object.freeze({ ...target, developerInstructions, instructionRole: resolved.role, instructionGeneration: resolved.configurationGeneration })];
   }));
   return Object.freeze({ ...config, targets: Object.freeze(Object.fromEntries(entries)) });
 }
@@ -125,10 +138,41 @@ export const BOOTSTRAP_PROMPT =
   + "file, or use any tool.";
 
 export async function bootstrapThread(options, log, { clientFactory, read = readRoleInstructions, out = process.stdout } = {}) {
-  for (const name of ["endpoint", "cwd", "baton", "baton-config", "participant"]) {
+  // W12229: `--role` joins the required operands. It was refused only
+  // INDIRECTLY, by the instruction reader, so one of the four contract
+  // fields failed later and in somebody else's error while the other
+  // three failed here. All four are the same contract and fail in the
+  // same place, before any instruction read or Codex connection.
+  for (const name of ["endpoint", "cwd", "baton", "baton-config",
+                      "participant", "role"]) {
     if (!options[name]) throw new Error(`--start-thread requires --${name}`);
   }
-  const identity = { participant: options.participant, ...(options.role === undefined ? {} : { role: options.role }) };
+  // W12229 review [P1]: AND THE TWO PATHS ARE ABSOLUTE.
+  //
+  // Presence was checked and absoluteness was not, so a relative
+  // `bin/baton` was accepted -- resolved by whatever launch context the
+  // process happened to have -- and a relative config was read from
+  // whatever working directory it happened to inherit. The block then
+  // labelled those inferred locations "authoritative; do not infer",
+  // which is the confirmed boundary's own rule broken by the value that
+  // states it.
+  //
+  // THE SAME RULE THE DISPATCHER ALREADY APPLIES. `validateConfig`
+  // requires both `roleInstructions` paths to be absolute; standalone
+  // bootstrap never passes through that validator, so the two entry
+  // points refused different shapes for the same contract. They refuse
+  // the same one now, and both do it BEFORE the instruction read and
+  // before any Codex connection -- a launcher operand is wrong the
+  // moment it arrives, not once somebody has tried to use it.
+  for (const name of ["baton", "baton-config"]) {
+    if (!isAbsolute(options[name])) {
+      throw new Error(`--start-thread requires --${name} to be an absolute `
+        + `path; a relative one is resolved from whatever context this `
+        + `process happens to have, which is the inference the launcher `
+        + `contract exists to remove`);
+    }
+  }
+  const identity = { participant: options.participant, role: options.role };
   const resolved = await read({ binary: options.baton, config: options["baton-config"] }, identity);
   const connect = clientFactory ?? ((name) => new CodexClient({ name, endpoint: options.endpoint, debug: options.debug, logger: log }));
 
@@ -148,7 +192,15 @@ export async function bootstrapThread(options, log, { clientFactory, read = read
   await client.connectAndInitialize();
   try {
     const started = await client.startThread({
-      cwd: options.cwd, developerInstructions: resolved.instructions,
+      cwd: options.cwd,
+      // W12229: the fresh context is told its four launcher values from
+      // the first turn. A thread bootstrapped without them is exactly
+      // the `pc.plan` context that reached W12181 repeatedly and could
+      // not claim it.
+      developerInstructions: codexDeveloperInstructions(
+        resolved.instructions,
+        { binary: options.baton, config: options["baton-config"] },
+        { participant: resolved.participant, role: resolved.role }),
     });
     threadId = started.thread.id;
     log.info(`[bootstrap] thread ${threadId} created; recording its first turn`);

@@ -1,0 +1,149 @@
+W6630 — evidence after the SEVENTH review correction, 2026-08-26.
+
+Review answered: review-2026-08-26T01-53-20Z.md
+  [P1] the constructor's pair assertions quote live operands before §13
+
+
+THE FINDING, AND IT IS THE LAST DIAGNOSTIC IN FRONT OF THE GUARD
+
+  `ContractRefusal.__init__` owns its category and code with construction-time
+  assertions, and those assertions ran BEFORE the §13 message guard and
+  rendered the rejected operand with `repr`. A live bearer supplied as an
+  invalid category or code therefore escaped in an `AssertionError` the
+  crossing never saw:
+
+    'bearer-9999999999999999999999999999999999999999' is not one of the
+    frozen error categories
+
+  Classifying an invalid pair as a raising-site defect is right and is
+  unchanged. It does not make an assertion carrying a live secret safe.
+
+  THE SAME SHAPE, FOR THE SIXTH TIME IN THIS WORK: a diagnostic standing in
+  front of the guard. A manifest door, a row boundary, two document owners,
+  thirty public surfaces, the substitute itself -- and now the two checks that
+  run before the message is even looked at, in the very function the crossing
+  lives in.
+
+
+THE CORRECTION: PROVED, NOT SUPPRESSED
+
+  `_rejected(value, live)` names a rejected category or code without ever
+  carrying a live value, and the ordinary case is untouched:
+
+    not text            -> `a <type name>`, read without metaclass dispatch
+    a live-carrying str -> "a string §13 will not let this build quote,
+                            because the registry says it is live"
+    anything else       -> `repr(value)`, exactly as before
+
+  A misspelled `integrty` is still quoted verbatim, because that is the whole
+  use of this message. Only a value the registry says is live gives way, and
+  it gives way to a sentence that says so rather than to silence: a reader has
+  to be able to tell a redaction from a missing value.
+
+  ONE SNAPSHOT FOR THE WHOLE CONSTRUCTION. The registry is read once at the
+  top of `__init__` and the same view answers the pair assertions and the
+  message guard, so two reads cannot disagree about one value inside one
+  construction.
+
+  AND A DEFECT THE CORRECTION CLOSES THAT THE REVIEW DID NOT NAME. `{value!r}`
+  runs `__repr__`, which is caller-chosen code, inside a diagnostic. The
+  module's own `name_value` has refused to do that since W6782 -- "a refusal
+  never RUNS the value it refuses" -- and these two assertions were doing it.
+  A pair operand with a raising `__repr__` replaced the assertion with an
+  exception of the caller's choosing; it is named by its type now.
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_secrets
+    Ran 81 tests in 0.279s
+    OK
+
+  76 -> 81. The review's additive regression is kept as written and passes;
+  five are new:
+
+    an ordinary bad pair is still quoted verbatim — both category and code
+    a live pair operand gives way to a SENTENCE that says so, and the
+      assertion still says what was wrong
+    a pair operand that is not text is named by its type — driven with a
+      hostile `__repr__` that raises
+    a live-bearer CONTAINING operand gives way too — containment here as
+      everywhere
+    the pair and the message share one snapshot — counted, not assumed
+
+  CAN-ACTUALLY-FAIL, measured. With `{category!r}` and `{code!r}` restored and
+  nothing else changed:
+
+    x  test_the_pair_assertions_cannot_quote_a_live_bearer  (both subcases)
+    x  test_a_live_pair_operand_gives_way_to_a_sentence_that_says_so
+    x  test_a_live_bearer_containing_pair_operand_gives_way_too
+    E  test_a_pair_operand_that_is_not_text_is_named_by_its_type
+    Ran 81 tests -- FAILED (failures=4, errors=1)
+
+  The ERROR is the hostile `__repr__` escaping the constructor, which is the
+  unnamed defect above showing itself. The file was restored byte for byte.
+
+
+ADJACENT
+
+    $ env PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_store tests.manager.test_offers \
+        tests.manager.test_handshake tests.manager.test_interrogation \
+        tests.manager.test_attempts tests.manager.test_sessions \
+        tests.manager.test_output tests.manager.test_contracts_inventory \
+        tests.manager.test_pod tests.manager.test_oci \
+        tests.manager.test_diagnostic_rendering \
+        tests.manager.test_dependencies tests.manager.test_text_sweep \
+        tests.manager.test_frozen tests.manager.test_validate
+    Ran 590 tests -- FAILED (failures=2, skipped=1)
+
+  The two are W6632's, listed below.
+
+
+FULL SOURCE SUITE AND LOCKED BUILD
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1239 tests in 480.349s
+    FAILED (failures=11, skipped=6)
+
+    $ cd v12/python && just build
+    Ran 1239 tests in 477.862s
+    FAILED (failures=11, skipped=5)
+
+  1232 -> 1239 is this correction's five added cases plus two the W6633
+  reviewer added mid-correction.
+
+  `test_secrets` DOES NOT APPEAR in the failure list. It was the one W6630
+  failure the suite carried, and it is gone again. Nothing was added by this
+  correction.
+
+
+REPORTED AND NOT FIXED
+
+  W6632 — `tests.manager.test_oci`, already reported on T6632:
+    test_a_stale_assignment_runtime_is_not_filtered_into_a_duplicate_start
+    test_a_returned_candidate_must_match_the_requested_assignment
+
+  W6633 — `tests.tools.test_worker_image_build`, posted with
+  `review-2026-08-26T02-37-11Z.md` while this correction was in progress:
+    TwoBuildsReachOneIdentity.test_source_checkout_mtime_is_not_part_of_the_image_identity
+    TheBuildVectorIsClosed.test_a_failed_stage_removal_cannot_report_a_successful_build
+
+  Both are real defects in that Work, and the first contradicts a decision I
+  wrote and defended: I kept a regular file's mtime on the grounds that it
+  "came out of the build context and is content", but git carries file bytes
+  and the executable bit and NOT mtime — so two checkouts of one recipe differ,
+  and the reproducible identity depends on when each checkout was populated.
+  The second is a cleanup that runs in a `finally` and discards its result, so
+  a build can return a pinnable digest while its unnormalized image survives,
+  which makes that function's own documented guarantee false.
+
+  Both routed to `baton.feat`. Reported on T6633 with the direction I would
+  take. The remaining seven are the long-standing `test_boundary_inventory`
+  failures.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w6630c_full.txt   the full source-suite log
+    /tmp/w6630c_build.txt  the locked installed-layout log

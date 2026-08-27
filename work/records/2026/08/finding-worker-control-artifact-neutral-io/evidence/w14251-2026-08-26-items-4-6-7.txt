@@ -1,0 +1,89 @@
+W14251 — review corrections and PLAN items 4, 6 and 7. 2026-08-26.
+No repository state was mutated.
+
+=== 1. [P1] the canonical vector no longer crashes its own contract model
+$ python3 -m unittest test_contract_model
+----------------------------------------------------------------------
+Ran 24 tests in 0.091s
+
+OK
+
+=== 2. [P1] the tracked build shadow no longer exposes the superseded contract
+$ PYTHONPATH=build/lib python3 -c <import the schema and the manager surface>
+imported from: /home/sl/src/baton/v12/python/build/lib/baton_v12/contracts/schema
+the two superseded definitions: []   <- both are gone from the shadow
+acquisition surface: []
+definitions: 51
+
+$ diff -rq build/lib/baton_v12 src/baton_v12   (excluding caches)
+Only in src/baton_v12/worker_manager: credentials.py
+Files build/lib/baton_v12/worker_manager/documents.py and src/baton_v12/worker_manager/documents.py differ
+Files build/lib/baton_v12/worker_manager/__init__.py and src/baton_v12/worker_manager/__init__.py differ
+Only in src/baton_v12/worker_manager: intake.py
+Files build/lib/baton_v12/worker_manager/oci.py and src/baton_v12/worker_manager/oci.py differ
+Files build/lib/baton_v12/worker_manager/output.py and src/baton_v12/worker_manager/output.py differ
+Files build/lib/baton_v12/worker_manager/schema.py and src/baton_v12/worker_manager/schema.py differ
+Only in src/baton_v12/worker_manager: sealing.py
+  ^ the residue belongs to W6628, W6629, W6632 and W6634; see PROGRESS.md.
+
+=== 3. the focused gate the review ran
+$ PYTHONPATH=src python3 -m unittest test_frozen test_manifest_rules test_output test_secrets test_workspaces
+----------------------------------------------------------------------
+Ran 222 tests in 0.800s
+
+OK
+
+=== 4. item 6 — the revised conformance contract
+$ python3 -B build_cases.py
+cases: 118 {'control-success': 26, 'invariant': 47, 'control-refusal': 45}
+$ python3 -m unittest test_conformance_model
+----------------------------------------------------------------------
+Ran 74 tests in 4.059s
+
+OK
+
+=== 5. item 7 — W6633 revalidated by measurement
+$ grep -n <superseded surfaces> v12/worker/baton_worker.py
+111:    "work": COMMON_MEMBERS + ("task",),
+121:    "work": ("disposition", "workspace", "recap"),
+132:                  "BATON_WORKER_ASSIGNMENT", "BATON_WORKER_WORKSPACE",
+133:                  "BATON_WORKER_OUTPUT"),
+276:    A consent container that could read `BATON_WORKER_ASSIGNMENT` would be a
+319:        if value is None and name == "workspace":
+385:    if operation == "work" and type(request["task"]) is not str:
+  input.json occurrences:  0
+  output.json occurrences: 0
+  The exact affected contract is recorded in PROGRESS.md as five numbered
+  obligations plus three environment members that become unnecessary
+  rather than renamed.
+
+=== 6. the aggregate gate
+$ cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+ERROR: test_a_cleanup_exception_cannot_replace_an_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_cleanup_exception_cannot_replace_an_earlier_failure)
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+FAIL: test_a_short_file_write_does_not_truncate_the_credential (tests.manager.test_credentials.MaterializationArmsTheRegistryFirst.test_a_short_file_write_does_not_truncate_the_credential)
+FAIL: test_an_engine_declined_start_releases_the_undelivered_credential (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_an_engine_declined_start_releases_the_undelivered_credential)
+FAIL: test_a_partial_adoption_does_not_leave_an_unowned_live_bearer (tests.manager.test_credentials.RestartAdoptsOnlyAnExactAgreement.test_a_partial_adoption_does_not_leave_an_unowned_live_bearer)
+FAIL: test_a_refused_cleanup_is_attached_to_the_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_refused_cleanup_is_attached_to_the_earlier_failure)
+Ran 1375 tests in 732.904s
+FAILED (failures=10, errors=1, skipped=6)
+V12_STATUS=1
+
+test_frozen's tracked-build-copy case is GREEN and no longer appears.
+None of the eleven is this Work's:
+  - six are the long-standing boundary-inventory gaps;
+  - two are W6633's test_worker_image_build;
+  - three are additive review regressions added to W6634's
+    test_credentials while this round ran. They are real defects in
+    W6634's credential lifecycle -- a short os.write, an engine-declined
+    start, and a partial adoption, each leaving a live bearer -- and
+    W6634 is with its reviewer, so they are reported rather than fixed
+    under this claim.
+
+$ diff --check over the working tree
+DIFFCHECK_STATUS=0

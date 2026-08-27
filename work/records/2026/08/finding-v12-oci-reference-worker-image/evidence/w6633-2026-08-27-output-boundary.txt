@@ -1,0 +1,175 @@
+W6633 — the eleventh review's three output-boundary [P1]s, as one slice.
+2026-08-27. No repository state was mutated.
+
+=== 1. THE REVIEWER'S OWN COMMAND, verbatim
+  $ PYTHONPATH=src python3 -B -m unittest \
+      tests.manager.test_worker_image \
+      tests.tools.test_worker_image_build \
+      tests.tools.test_parallel_runner \
+      tests.manager.test_worker_container.TheDaemonGateExercisesWhatTheManagerWillRun
+    Ran 156 tests in 12.627s
+    OK
+  144 at the review, three failing. 156 now, none.
+
+=== 2. AND THE WHOLE FOCUSED MANAGER GATE IS GREEN
+    Ran 905 tests in 2.913s
+    OK (skipped=1)
+  Every round of this campaign since 2026-08-26 has reported two
+  standing failures as 'W6633's own open contradiction, not mine'.
+  They were mine the moment I held this Work, and they are gone.
+
+=== 3. [P1] THE RULES ARE DERIVED, NOT PARAPHRASED
+  The declared-output shape, the constraint shape and the path grammar
+  all come out of the shipped contract. W19784's third review is the
+  standing lesson: a paraphrase agrees with its original until it
+  doesn't, and stops agreeing where it costs most.
+    223:DECLARATION_DEFINITION = "outputDescriptor"
+    224:CONSTRAINT_DEFINITION = "outputConstraints"
+    225:RELATIVE_PATH = "relativePath"
+    599:    grammar = re.compile(frozen["$defs"][RELATIVE_PATH]["pattern"])
+
+  ONE CASE PROVES I DID NOT INVENT A STRICTER RULE EITHER: the frozen
+  grammar ACCEPTS a trailing separator, so 'out/nested/' is deliberately
+  absent from the refused list and the omission says why.
+      'out' accepted
+      'out/nested/' accepted
+      'out/./nested' refused
+      'out//nested' refused
+      'out/nested/.' refused
+      '../tmp/escaped' refused
+      '' refused
+
+=== 4. [P1] the ceilings are enforced WHILE measuring
+    778:    ceiling_entries = constraints["max_entries"]
+    779:    ceiling_bytes = constraints["max_bytes"]
+    794:            if len(entries) + 1 > ceiling_entries:
+    797:                    f"this output declares at most {ceiling_entries} "
+    800:            if total + size > ceiling_bytes:
+    803:                    f"this output declares at most {ceiling_bytes} bytes and "
+  Before the next file is accumulated, so an oversized tree is never
+  read into this process and nothing is published.
+
+  AND AN HONEST ACCOUNT OF EVERY OTHER FROZEN CONSTRAINT MEMBER, which
+  is what 'rather than silently dropping them' asks for:
+    link_policy       enforced BY CONSTRUCTION -- the measurement admits
+                      regular files only, so a link is refused whatever
+                      the policy said. It is const:'forbid' in 1.0, so a
+                      comparison could never fail and would be a guard
+                      no removal can measure.
+    allowed_media_types  CARRIED, not enforced here, and the reason is
+                      that a frozen contentManifest entry is a path, a
+                      byte count and a digest -- this worker has no media
+                      type for anything it measures. It is enforced where
+                      one exists, on the collected artifact:
+                        558:    if seen["artifact"]["media_type"] not in limits["allowed_media_types"]:
+    validator_digest  REFUSES the assignment when non-null. Fail-closed
+                      rather than unimplemented: SPEC 7.2 makes 'type'
+                      opaque and says the manager never branches on it,
+                      so a worker running a type-specific validator would
+                      be branching on exactly that -- and nothing else in
+                      1.0 runs one either.
+
+=== 5. [P1] the two surfaces carry different things
+    1091:        "outputs": [one["name"] for one in published
+  and check_answer's rule no longer exempts the member most able to
+  carry a shape the manager would have to interpret:
+
+=== 6. every guard, measured by REMOVAL
+=== baseline: OK
+=== REMOVE: the declared descriptor is the contract's closed shape
+    FAILED (failures=3)  (3 NEW case(s))
+       FAIL: test_a_descriptor_that_is_not_the_frozen_shape_refuses 
+       FAIL: test_a_descriptor_that_is_not_the_frozen_shape_refuses 
+       FAIL: test_a_descriptor_that_is_not_the_frozen_shape_refuses 
+=== REMOVE: the declared constraints are the contract's closed shape
+    FAILED (failures=2)  (2 NEW case(s))
+       FAIL: test_constraints_that_are_not_the_frozen_shape_refuse 
+       FAIL: test_constraints_that_are_not_the_frozen_shape_refuse 
+=== REMOVE: the path obeys the frozen relative-path grammar
+    FAILED (failures=5)  (5 NEW case(s))
+       FAIL: test_a_spelling_the_grammar_refuses_never_reaches_the_agent 
+       FAIL: test_a_spelling_the_grammar_refuses_never_reaches_the_agent 
+       FAIL: test_a_spelling_the_grammar_refuses_never_reaches_the_agent 
+       FAIL: test_a_spelling_the_grammar_refuses_never_reaches_the_agent 
+       FAIL: test_a_spelling_the_grammar_refuses_never_reaches_the_agent 
+=== REMOVE: the path resolves inside the output root
+    FAILED (failures=1)  (1 NEW case(s))
+       FAIL: test_a_path_that_resolves_out_of_the_root_never_reaches_the_agent 
+=== REMOVE: the output manifest name is reserved
+    FAILED (failures=2)  (2 NEW case(s))
+       FAIL: test_the_output_manifest_name_is_reserved 
+       FAIL: test_the_output_manifest_name_is_reserved 
+=== REMOVE: two declarations cannot name the same tree
+    FAILED (failures=2)  (2 NEW case(s))
+       FAIL: test_two_declarations_cannot_name_one_tree 
+       FAIL: test_two_declarations_cannot_name_one_tree 
+=== REMOVE: a name is declared once
+    FAILED (failures=1)  (1 NEW case(s))
+       FAIL: test_one_name_is_declared_once 
+=== REMOVE: a stated validator digest is refused rather than ignored
+    FAILED (failures=1)  (1 NEW case(s))
+       FAIL: test_a_stated_validator_digest_is_refused_rather_than_ignored 
+=== REMOVE: the entry ceiling is enforced while measuring
+    FAILED (failures=1)  (1 NEW case(s))
+       FAIL: test_the_entry_ceiling_refuses_before_publication 
+=== REMOVE: the byte ceiling is enforced while measuring
+    FAILED (failures=1)  (1 NEW case(s))
+       FAIL: test_declared_output_limits_hold_before_completion_publication 
+=== REMOVE: the framed answer carries names only
+    FAILED (failures=4, errors=2)  (6 NEW case(s))
+       ERROR: test_the_scripted_work_answer_is_exactly_the_pinned_set 
+       ERROR: test_execution_completes_and_recaps 
+       FAIL: test_the_correlated_work_answer_names_outputs_only 
+       FAIL: test_the_envelope_carries_the_delivered_identity_exactly 
+       FAIL: test_a_frame_refused_for_its_shape_never_spends_its_id 
+       FAIL: test_a_missing_optional_output_is_not_named_as_produced 
+=== REMOVE: `check_answer` applies its rule to every member
+    FAILED (failures=2)  (2 NEW case(s))
+       FAIL: test_an_entry_wider_than_a_frame_is_not_bounded_text 
+       FAIL: test_the_rule_has_no_exemption_for_outputs 
+the worker is restored
+
+  EIGHT OF THESE TWELVE CAME BACK VACUOUS ON THE FIRST PASS. I had built
+  a boundary and driven a third of it. The grammar and the containment
+  rule were masking each other in particular -- the review's own escape
+  case passes with EITHER removed -- so they are now separated: spellings
+  that stay inside the root once resolved, and a canonical spelling that
+  resolves out through a planted link.
+
+=== 7. THE BUILT CONTAINER, which the handoff asked for and which this
+        reviewer cannot run
+    Ran 41 tests in 28.751s
+    OK
+    a real container answering with NAMES while its envelope holds the
+    whole records; an oversized declared output producing no completion
+    signal; ../tmp/escaped refused before the agent -- which is the case
+    the read-only input mount does NOT cover, because that spelling
+    targets the writable private ephemeral space; and the reserved
+    output.json name refused.
+
+=== 8. AN OPERATIONAL FINDING: conformance covers two of these three
+      A-03: Declared output paths are normalized POSIX-relative, non-overlapping, and links are forbidden.
+       cases: A-output-traversal-refused, A-output-symlink-refused, A-output-overlap-refused
+      cases naming a declared ceiling: NONE
+  So the path grammar and the overlap rule ARE certified. The declared
+  BYTE AND ENTRY CEILINGS are not covered by any case, and neither is
+  the worker-entry answer being names-only. Both are frozen rules the
+  suite cannot currently observe -- the same shape of gap W19784's
+  reviews found twice.
+
+  NOT EXTENDED HERE. The register belongs to
+  finding-worker-runtime-conformance, these are pre-existing frozen
+  rules rather than anything this Work introduced, and W6634's design
+  checkpoint is a standing warning about a slice carrying more Jobs than
+  it was scoped for. Recorded for whoever owns that register.
+
+=== 9. the boundary inventory
+    FAIL: test_every_declared_probe_reaches_its_named_boundary  (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+    FAIL: test_every_owned_entry_has_exactly_one_probe 
+    FAIL: test_the_missing_probe_check_can_actually_fail 
+    FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared 
+    FAIL: test_every_receiving_entry_has_an_owning_validator 
+    FAIL: test_the_universe_sees_every_persisted_column_that_is_read 
+    Ran 93 tests in 806.794s
+    FAILED (failures=6)
+    (done)

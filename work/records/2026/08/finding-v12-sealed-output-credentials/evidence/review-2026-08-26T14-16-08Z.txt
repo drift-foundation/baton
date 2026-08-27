@@ -1,0 +1,87 @@
+W6634 second independent re-review
+UTC: 2026-08-26T14:16:08Z
+
+Focused baseline before the two additive regressions:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_sealing tests.manager.test_oci \
+    tests.manager.test_dependencies
+
+  Ran 118 tests in 0.229s
+  OK (skipped=1)
+
+Focused sealing run after the regressions:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_sealing
+
+  Ran 25 tests in 0.010s
+  FAILED (failures=2)
+
+Expected failure 1:
+
+  TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.
+    test_a_partial_custody_directory_is_not_a_settled_replay
+
+  A two-file live output has a pre-existing custody directory containing only
+  `a.txt`, modelling a restart during staging. The adapter treats directory
+  existence as settled replay evidence and returns entry_count 1 rather than
+  the complete two-entry output.
+
+Expected failure 2:
+
+  TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.
+    test_an_exact_retry_preserves_a_missing_optional_answer
+
+  First seal: `missing-optional`.
+  The optional output then appears in the live workspace.
+  Exact retry of the same request: `present`, with a new artifact.
+
+The original 23 sealing cases pass.
+
+Credential source search:
+
+  rg -n 'credential|credentials|provider|volatile|live_secret|remember_secret|forget_secret|held_secret|CREDENTIAL' \
+    v12/python/src/baton_v12 \
+    v12/python/tests/manager/test_sealing.py \
+    v12/python/tests/manager/test_oci.py
+
+The manager has the pre-existing section-13 registry in contracts/secrets.py,
+but W6634 adds no slot/profile/provider/materialization/mount/teardown surface.
+`test_sealing.py` explicitly says assignment-scoped credential delivery is not
+present. `/run/baton/credentials` occurs nowhere in the searched source/tests.
+
+Focused boundary inventory:
+
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale \
+    tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared \
+    tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe \
+    tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary \
+    tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness.test_every_stated_owner_names_a_witness_that_exists
+
+  Ran 5 tests in 257.503s
+  FAILED (failures=3)
+
+  PASS: no declared owner is stale.
+  PASS: every stated owner has an existing witness.
+  FAIL: a shared 23-entry orphan set begins in intake.py:_chosen. This
+        aggregate failure is retained as concurrent evidence and is not used
+        to claim that every W6634 inventory relationship is green.
+  FAIL: 11 owned-but-unprobed entries begin in
+        handshake.py:certified_agent_session_profile; none names
+        sealing.py:sealed_result or sealing.py:collected_result.
+  FAIL: the OCI destroy runtime-id probe is intercepted by the newer destroy
+        command envelope before reaching `a runtime id`.
+
+Whitespace gate:
+
+  git diff --check -- \
+    v12/python/src/baton_v12/worker_manager/sealing.py \
+    v12/python/src/baton_v12/worker_manager/oci.py \
+    v12/python/tests/manager/test_sealing.py \
+    v12/python/tests/manager/test_boundary_inventory.py \
+    work/records/2026/08/finding-v12-sealed-output-credentials
+
+  clean

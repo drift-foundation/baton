@@ -276,3 +276,102 @@ belong to W6633's and W6630's in-flight reviews.
 
 **Awaiting independent re-review and certification.** The claim is not
 released and no Git operation was performed.
+
+## Fifth re-review correction — 2026-08-25
+
+The one [P1] is corrected and the review's additive regression is green and
+kept as written. This claim began after a deployment outage, which is recorded
+at the end because it cost four readiness dispatches and no implementation.
+
+**The adapter is the third mutable input.** `_ask` validated `agent.probe` and
+`agent.inquire` before `store.transact` could decide replay. The adapter is
+mutable external state, is not a signed operand, and is not called on the
+replay path — so an exact retry after a restart that left no reachable adapter
+was refused over a capability the replay had promised not to use, with its
+durable answer already sitting in the journal. It is checked inside the fresh
+action now, beside the clock the third correction moved and the live authority
+read the fourth did.
+
+I read the mechanism rather than trusting the shape of the fix: `transact`
+returns the replayed value from `replay()` BEFORE `BEGIN IMMEDIATE`, so the
+action — and with it the adapter — is genuinely unreachable on that path.
+
+**The non-durable half is kept, and is now asserted instead of implied.** A
+`ContractRefusal` carrying `durable=False` raised inside the action takes
+`ROLLBACK TO act` and `ROLLBACK`, so a fresh request with an unusable adapter
+journals nothing. My case proves the identity is really free the only way that
+means anything: it re-runs the SAME operation id with a usable adapter and
+requires a fresh commit rather than a replay.
+
+**The property is stated over all three inputs.** The review was right that
+`test_nothing_mutable_is_consulted_before_the_journal_decides` named "nothing"
+while counting two things. It counts adapter INSPECTION as well, through a
+proxy recording attribute access rather than calls — the protocol check reads
+the attributes without calling them, so a call-counting proxy would have read
+zero however early the check ran.
+
+**Refusal precedence moved, and that is a consequence rather than an edit.**
+The adapter check used to run ahead of `_bound_session`; inside the action it
+necessarily runs after. A fresh call carrying both an unusable adapter and an
+unbound session now refuses `refused/precondition` where it refused
+`integrity/schema`. Nothing asserted the old order, but it is in FINDING.md so
+that a caller diffing refusals across builds does not read it as a regression.
+
+## Verification
+
+`evidence/gate-after-fifth-correction-2026-08-25.txt`. Focused suites 152/152.
+Source 1173 (16 failures, 1 error); locked installed layout 1173 (14 failures,
+1 error).
+
+**The two runs disagree on the count, and the file explains it rather than
+averaging it.** `just build` truncates the suite to `tail -3`, so the recipe
+cannot say which fourteen. Reproduced with the same locked venv and the whole
+output captured, the installed list is a strict SUBSET of the source list:
+the only difference is two `test_worker_container` image-reproducibility cases
+present in source and absent installed, both W6633's and both
+environment-dependent in the way the fourth correction's note already
+recorded. Nothing appears installed that did not appear in source.
+
+**Nothing was added by this correction and one thing was removed** — the
+review's own additive case. The delta was measured against THIS tree with only
+the correction reverted, because the recorded 1100/14 baseline has moved to
+1173 as other Work's reviewers wrote into the same working tree.
+
+**The already-red test that could have hidden a new defect was measured, not
+counted.** `test_every_boundary_call_belongs_to_an_entry_or_is_declared` fails
+on a LIST of unowned boundary calls, so a newly unowned call would have grown
+the list while leaving the failure count at seven. Orphan lists with and
+without the correction are byte-identical at 11 entries, and
+`interrogation.py:_ask` is in neither.
+
+**Both new cases were proved to fail against the reverted code.** A regression
+that passes before and after proves nothing.
+
+Seventeen failures remain, every one owned elsewhere: `test_boundary_inventory`
+7 pre-existing, `test_oci` 3 and `test_oci_engine` 2 on W6632, `test_secrets` 2
+on W6630, `test_worker_container` 3 on W6633. The `test_secrets` one needed
+checking rather than assuming, because one of its doors is
+`record_inquiry_answer` — an interrogation door. It takes no adapter and does
+not go through `transact` at all, so nothing this correction moved can reach
+it. Reported, not fixed.
+
+## Operational finding — this participant could not reach Baton for four dispatches
+
+**Observed 2026-08-25.** The ACP bootstrap for `baton.claude` pinned
+`/home/sl/opt/baton/v11/fc613e3/bin/baton` against the live generation-2
+config. That build predates `roles.*.instructions` (added in `7bea055`), so it
+refused the whole document before any verb ran:
+
+    team 'baton' role 'approv' carries unknown fields ['instructions']
+
+The refusal precedes every verb, so `claim`, `detail`, `say`, `pass` and even
+`wait` were all unreachable, and the incident could not be filed on the ledger
+either. W6627, W6630, W6632 and W6633 were dispatched to this participant while
+it was provably unable to answer. Repinning to `14aecfb` cleared it and this
+claim followed immediately. Recorded here because the dossier is where it
+survives; the ledger has only the poke answer on 11300.
+
+## State
+
+**Awaiting independent re-review and certification.** The claim is not
+released and no Git operation was performed.

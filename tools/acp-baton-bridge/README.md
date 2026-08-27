@@ -72,6 +72,39 @@ or model identity is inferred:
   Baton executable; a missing or unheld role fails closed. ACP has no
   developer-instruction field, so the resolved text rides every supervised
   readiness prompt, including the first.
+- The Baton launcher contract — `BATON_BIN`, `BATON_CONFIG`,
+  `BATON_PARTICIPANT`, `BATON_ROLE` — has ONE source and TWO carriers, and the
+  source is the accepted `baton` section above. A context may not infer any of
+  the four from a repository path, a deployment symlink, remembered history,
+  another participant, a persistent bootstrap or load file, or a filesystem
+  search.
+
+  **The prompt carries it.** Every supervised readiness prompt — Work,
+  obligation, trial and poke, in both `new` and `load` — ends with the same
+  JSON-quoted block the Codex family renders, from the same shared pure
+  renderer. This is the carrier a fresh model actually reads, and it exists
+  because it once did not: after a healthy restart the rendered runtime
+  context held the correct four values, the prompt named none of them, and
+  the model went looking and found a persistent participant `load.json` still
+  pinned to a retired deployment. Its first claim went through the wrong
+  executable and failed while the authority still showed Work claimed by that
+  participant (W14828).
+
+  **The spawned environment carries it too**, DERIVED from the same `baton`
+  section rather than supplied beside it. `agent.env` need not spell the four
+  keys — templates may omit them entirely — and the derived values also
+  override anything the parent process exported, because a stale ambient
+  `BATON_BIN` is the same untrusted carrier as a stale file. An operator may
+  still spell them for legibility, but only to the SAME values: a conflicting
+  entry refuses startup by key rather than being resolved in favour of either
+  side. Two spellings of one contract is the drift, not the fix.
+
+  The Codex-backed adapter carries the same four values through
+  `developerInstructions`, because one app-server process hosts every Codex
+  target and its start/resume contract has no per-thread environment — see
+  that bridge's README (W12229). The shared role-instruction reader both
+  families use returns accepted role prose ALONE, so the launcher block is
+  composed beside it rather than inside it.
 - `permissionMode` is the exact operator-selected ACP session mode
   (the ruled trial mode is `bypassPermissions`). The bridge requires it
   among the agent's advertised modes and selects it after new/load; a
@@ -95,10 +128,41 @@ or model identity is inferred:
 
 ## Behavior
 
-Level-triggered whole-set delivery exactly like the Codex bridge: one
-compact `[BATON READY]` prompt per previously unseen action key
-(identity: authority uuid + participant + action key), suppressed while
-present, forgotten when it disappears, delivered again if it returns.
+Level-triggered whole-set delivery exactly like the Codex bridge, and
+level-triggered against CANONICAL state: one compact `[BATON READY]`
+prompt per actionable key (identity: authority uuid + participant +
+action key).
+
+An obligation, trial or poke is suppressed while present, forgotten when
+it disappears, and delivered again if it returns.
+
+A **ready unclaimed Work is an OFFER**, and the exact successful atomic
+`claim` is what clears it (W11910,
+`work/records/2026/08/finding-readiness-offer-cleared-before-claim/`). A
+returned prompt is TRANSPORT acknowledgement: the wake reached the
+agent, and the agent may well have finished the turn without claiming
+anything. So:
+
+- the offer stays armed while canonical state reports `ready &&
+  unclaimed`, and is presented again under a bounded exponential retry
+  (from `retryMs`, capped at 60s) — recovery never needs a restart;
+- canonical `claimed:true` for that key acknowledges it, and no second
+  turn is spent on it while the claim stands;
+- while the participant holds ANY claim, unclaimed offers wait locally
+  rather than interrupting a busy agent, and the first retained offer
+  becomes eligible when the slot frees;
+- at most one unclaimed Work is admitted per poll, in canonical order,
+  and here presentation happens AFTER the prompt returns — so the head's
+  claim-slot outcome is already known and the next offer may rotate in;
+- a Work first seen ALREADY claimed is delivered once, which is the
+  claimed-Work restart recovery contract — and once means once it has
+  actually been delivered: a recovery prompt that FAILED stays eligible,
+  because the claim it was going to recover cannot acknowledge a wake
+  nobody received;
+- a key that stops being actionable — blocked, rerouted, parked,
+  superseded, closed, or a changed episode/configuration generation —
+  withdraws the retained offer.
+
 Busy sessions serialize ordinary wakes — one turn at a time, never
 steered. An unexpected ACP permission request while the configured
 bypass mode is active is answered `cancelled` and reported as a
@@ -134,13 +198,18 @@ the release runs without this checkout, npm, or network access, and
 Node >= 20 remains the only runtime requirement.
 
 `--once` exits after the first delivered wake (useful for smoke
-proofs). Node >= 20 is required (pinned in `package.json` engines).
+proofs). It proves the TRANSPORT path — configuration, session
+selection, prompt delivery — and deliberately not the claim loop:
+acceptance of one prompt is not claim acknowledgement, so `--once`
+certifies nothing about the retained-offer retry the production loop
+runs. Node >= 20 is required (pinned in `package.json` engines).
 Tests: `npm test` in this directory — and the repository's single
 operator gate `just test-v11` runs the same acceptance through its
 `test-acp` sub-gate, installing the pinned SDK deterministically from
 the committed lockfile when absent. The suite drives the full
 acceptance against a real fake-agent subprocess speaking the same SDK
-(lifecycle ordering, compact prompt delivery, level-triggering, busy
+(lifecycle ordering, compact prompt delivery, claim-based offer
+clearing and one-at-a-time Work admission, level-triggering, busy
 serialization, permission-cancel policy, crash/malformed retry with
 readiness preserved, participant isolation, session load continuity,
 fail-closed mode/capability/policy refusals across repeated retries,

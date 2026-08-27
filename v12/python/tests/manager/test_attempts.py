@@ -25,8 +25,12 @@ from baton_v12.worker_manager import (AuthorityPort, ControlStore, TRANSITIONS,
                                       reconcile_runtime, record_attempt,
                                       request_cancellation,
                                       request_runtime_start, submit_claim)
+from baton_v12.worker_manager.attempts import authorize_input_root
 from baton_v12.worker_manager.schema import ATTEMPT_COLUMNS
+from baton_v12.worker_manager.workspaces import (assignment_workspace,
+                                                 compose_input_root)
 
+from . import input_roots
 from .test_offers import (FakeSession, NOW, PROFILE, UUID, WHO, WORK,
                           fake_claim_signature)
 
@@ -92,9 +96,14 @@ class AttemptCase(unittest.TestCase):
         self.port = AuthorityPort(self.session, fake_claim_signature)
 
     def recorded(self, attempt_id=ATTEMPT):
+        # THE POLICY DIGEST IS RECORDED, because W6632 review [P1] made a
+        # runtime's labels carry it: reconciliation after a restart proves the
+        # resolved identity from the engine's image and this manager's labels,
+        # and the policy exists in neither unless it is written here.
         return record_attempt(self.store, attempt_id=attempt_id,
                               adapter_name="acp", adapter_digest=ADAPTER,
-                              profile_digest=PROFILE)
+                              profile_digest=PROFILE,
+                              policy_digest="sha256:" + "2" * 64)
 
     def claimed(self, offer_id="offer-1", attempt_id=ATTEMPT):
         """An attempt with THIS attempt's own committed claim behind it."""
@@ -687,6 +696,60 @@ class TheRuntimeIsStartedOnceAndReconciled(AttemptCase):
                             expect=self.expect())
         return attempt_id
 
+    # THIS SUITE'S OWN CONSTANTS CANNOT APPEAR IN A MANIFEST, and that is not
+    # a fixture nicety. `UUID` is 31 zeros and an `a`, so its first eight
+    # characters are `00000000` while `WORK` reads `0000000a-W1` -- §12 rule 1
+    # refuses that pair, and this suite never noticed because nothing here
+    # validated a manifest until now. The launch boundary does, so the cases
+    # that drive it use a Work reference the contract accepts.
+    VALID_WORK = {"authority_uuid": "43c55d4b1234567890abcdef12345678",
+                  "work_id": "43c55d4b-W1439"}
+
+    def delivered(self, attempt_id=ATTEMPT, **override):
+        """A composed input root for this attempt, and the attempt recorded
+        against the very input manifest inside it.
+
+        BOTH HALVES, because the launch boundary compares them: an attempt
+        recorded against one digest and a root carrying another is exactly the
+        mis-composition it exists to refuse, and a fixture that produced it by
+        accident would make every case here a test of that one refusal.
+        """
+        work_ref = dict(self.VALID_WORK)
+        live = {"work_ref": dict(work_ref), "participant": WHO,
+                "generation": 1}
+        self.session._work = {"status": "open", "phase": "queued",
+                              "handler": None, "gate": None,
+                              "authority_uuid": work_ref["authority_uuid"]}
+        self.session.claim_answer = dict(live)
+        self.session.live_assignment = dict(live)
+        given, assignment = input_roots.documents(
+            work_ref=work_ref, participant=WHO, generation=1,
+            runtime_attempt_id=attempt_id, **override)
+        issue_offer(self.store, self.port, offer_id="offer-1",
+                    work_id=work_ref["work_id"],
+                    runtime_attempt_id=attempt_id,
+                    input_digest=given["manifest_digest"],
+                    policy_digest="sha256:" + "2" * 64,
+                    profile_digest=PROFILE, profile_name="reference",
+                    mint_bearer=lambda: "bearer-1")
+        accept_offer(self.store, self.port, offer_id="offer-1",
+                     decision="accept", bearer="bearer-1", now=NOW,
+                     runtime_attempt_id=attempt_id, work_ref=dict(work_ref))
+        record_attempt(self.store, attempt_id=attempt_id, adapter_name="acp",
+                       adapter_digest=ADAPTER, profile_digest=PROFILE,
+                       input_digest=given["manifest_digest"],
+                       policy_digest="sha256:" + "2" * 64)
+        submit_claim(self.store, self.port, offer_id="offer-1")
+        activate_assignment(self.store, self.port, attempt_id=attempt_id,
+                            expect=dict(live))
+        storage = input_roots.storage_under(self)
+        inputs = assignment_workspace(storage, attempt_id)["inputs"]
+        compose_input_root(inputs, given, assignment,
+                           assignment=dict(assignment["assignment_ref"]),
+                           runtime_attempt_id=attempt_id)
+        self.addCleanup(input_roots._forcibly_remove, storage)
+        return inputs, given, assignment
+
     def labels(self, attempt_id=ATTEMPT):
         row = self.row(attempt_id)
         return {"runtime_attempt_id": row["runtime_attempt_id"],
@@ -695,7 +758,195 @@ class TheRuntimeIsStartedOnceAndReconciled(AttemptCase):
                 "participant": row["assignment_participant"],
                 "generation": row["assignment_generation"],
                 "profile_digest": row["profile_digest"],
+                "policy_digest": row["policy_digest"],
                 "adapter_digest": row["adapter_digest"]}
+
+    def test_a_start_over_an_authorized_root_proceeds(self):
+        """W19784 review [P0]. The positive: an attempt claimed against an
+        input manifest, a root composed for that exact assignment and attempt,
+        and the runtime starts."""
+        inputs, given, _assignment = self.delivered()
+        adapter = Adapter()
+        answer = request_runtime_start(self.store, adapter,
+                                       attempt_id=ATTEMPT, inputs=inputs)
+        self.assertEqual(answer["decision"], "attached")
+        back_input, back_assignment = authorize_input_root(
+            self.store, attempt_id=ATTEMPT, inputs=inputs)
+        self.assertEqual(back_input["manifest_digest"],
+                         given["manifest_digest"])
+        self.assertEqual(back_assignment["assignment_ref"],
+                         {"work_ref": dict(self.VALID_WORK),
+                          "participant": WHO, "generation": 1})
+
+    def test_authorizing_one_root_cannot_start_an_adapter_mounting_another(self):
+        """The launch authorization and the mount must name ONE root.
+
+        `request_runtime_start` currently validates its `inputs` operand and
+        then calls an adapter whose mount plan is independent of that operand.
+        The production OCI adapter owns such a plan at construction. Without
+        an equality boundary the manager can prove one directory and expose a
+        different one at the worker's fixed `/input` path.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.mounts = ({"source": os.path.join(os.path.dirname(inputs),
+                                                   "workspace"),
+                           "target": "/input", "writable": False},)
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(adapter.started, [])
+        self.assertEqual(self.row()["execution_runtime"], "not-started")
+
+    def test_a_noncanonical_input_target_refuses_before_start_is_journalled(
+            self):
+        """Normalizing a plan must not erase the spelling being authorized.
+
+        OCI's own boundary refuses `..` before normalization. If the earlier
+        manager check normalizes first, `/else/../input` masquerades as the
+        fixed `/input`; the adapter eventually refuses it, but only after the
+        manager committed a start operation that now needs settlement.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.mounts = ({"source": inputs, "target": "/else/../input",
+                           "writable": False},)
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(adapter.started, [])
+        self.assertEqual(self.row()["execution_runtime"], "not-started")
+
+    def test_a_noncanonical_input_source_refuses_before_start_is_journalled(
+            self):
+        """The same rule applies to the host source spelling.
+
+        `realpath` equality proves where a spelling resolves; it does not make
+        a traversal spelling canonical. The OCI boundary refuses such a
+        source, so the earlier plan check must not journal it first.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.mounts = ({"source": os.path.join(inputs, "..", "inputs"),
+                           "target": "/input", "writable": False},)
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(adapter.started, [])
+        self.assertEqual(self.row()["execution_runtime"], "not-started")
+
+    def test_the_authorized_root_crosses_the_adapter_seam(self):
+        """W19784 second review [P0], the half `_plan_agrees` cannot cover.
+
+        The manager's own check reads an adapter's DECLARED plan, and an
+        adapter that declares none -- or one reached by any path other than
+        this function -- still has to fail closed on its own. It can only do
+        that if it is told which root was proved, so what this observes is the
+        value ARRIVING: the adapter's own cases in `test_oci` then decide what
+        it does with it.
+
+        Without this the manager's earlier refusal would mask the seam
+        entirely, and the adapter would be trusting a plan nobody compared.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                              inputs=inputs)
+        self.assertEqual(adapter.started[0]["input_root"], inputs)
+
+    def test_a_start_with_no_root_says_so_across_the_seam(self):
+        """And absence crosses it too, as a value rather than as an omission.
+        An adapter cannot refuse a `/input` bind it was never told was
+        unauthorized."""
+        # `activated()` records the attempt WITHOUT an input digest, which is
+        # the only state in which no root can be required -- and this suite's
+        # ordinary fixture, so the case reads the same path every other start
+        # case here does.
+        self.activated()
+        adapter = Adapter()
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertIn("input_root", adapter.started[0])
+        self.assertIsNone(adapter.started[0]["input_root"])
+
+    def test_a_claimed_attempt_will_not_start_without_a_root(self):
+        """THE REQUIREMENT IS DERIVED, not optional. `inputs=None` is reachable
+        only when the attempt records no input digest -- and an attempt that
+        was offered and claimed against an input manifest records one, so from
+        that moment there is no way to start without an authorized root.
+
+        An optional operand would have been the hole the review found: a caller
+        that could pass nothing would start a runtime over a directory nothing
+        established.
+        """
+        self.delivered()
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, Adapter(), attempt_id=ATTEMPT)
+        self.assertEqual(caught.exception.code, "precondition")
+        self.assertEqual(self.row()["execution_runtime"], "not-started",
+                         "a refused authorization still journalled a start")
+
+    def test_a_root_composed_for_another_delivery_never_starts_a_runtime(self):
+        """Each root below is internally perfect and composed by the real
+        boundary. What refuses is that it is not THIS attempt's -- and it
+        refuses BEFORE the start operation is journalled, so there is no
+        runtime and nothing to reconcile."""
+        storage = input_roots.storage_under(self)
+        self.delivered()
+        mine = {"work_ref": dict(self.VALID_WORK), "participant": WHO,
+                "generation": 1}
+        for what, spoiled, elsewhere in (
+                ("a superseded generation",
+                 dict(mine, generation=mine["generation"] + 1), "other-1"),
+                ("another participant",
+                 dict(mine, participant="baton.someone"), "other-2"),
+                ("another runtime attempt", dict(mine), "other-3")):
+            with self.subTest(what=what):
+                given, assignment = input_roots.documents(
+                    work_ref=spoiled["work_ref"],
+                    participant=spoiled["participant"],
+                    generation=spoiled["generation"],
+                    runtime_attempt_id=(ATTEMPT if what != "another runtime "
+                                        "attempt" else elsewhere))
+                inputs = assignment_workspace(storage, elsewhere)["inputs"]
+                compose_input_root(
+                    inputs, given, assignment,
+                    assignment=dict(assignment["assignment_ref"]),
+                    runtime_attempt_id=assignment["runtime_attempt_id"])
+                with self.assertRaises(ContractRefusal):
+                    request_runtime_start(self.store, Adapter(),
+                                          attempt_id=ATTEMPT, inputs=inputs)
+                self.assertEqual(self.row()["execution_runtime"],
+                                 "not-started")
+        self.addCleanup(input_roots._forcibly_remove, storage)
+
+    def test_a_root_carrying_another_input_manifest_never_starts(self):
+        """The third manager-owned fact: the attempt's own record of what it
+        was claimed against. A root whose assignment names the right identity
+        but whose input manifest is a different document is a delivery this
+        attempt was never offered."""
+        storage = input_roots.storage_under(self)
+        self.delivered()
+        given, assignment = input_roots.documents(
+            work_ref=dict(self.VALID_WORK),
+            participant=WHO, generation=1, runtime_attempt_id=ATTEMPT,
+            policy_digest="sha256:" + "e" * 64)
+        inputs = assignment_workspace(storage, "other-input")["inputs"]
+        compose_input_root(inputs, given, assignment,
+                           assignment=dict(assignment["assignment_ref"]),
+                           runtime_attempt_id=ATTEMPT)
+        self.addCleanup(input_roots._forcibly_remove, storage)
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, Adapter(), attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(caught.exception.code, "digest")
+
+    def test_an_unactivated_attempt_has_no_assignment_to_authorize_against(
+            self):
+        self.claimed()
+        with self.assertRaises(ContractRefusal) as caught:
+            authorize_input_root(self.store, attempt_id=ATTEMPT,
+                                 inputs=input_roots.storage_under(self))
+        self.assertEqual(caught.exception.code, "precondition")
 
     def test_the_start_operation_is_journalled_before_the_adapter_is_called(
             self):
@@ -727,6 +978,31 @@ class TheRuntimeIsStartedOnceAndReconciled(AttemptCase):
         for part in ("authority_uuid", "work_id", "participant", "generation"):
             with self.subTest(part=part):
                 self.assertIsNotNone(labels[part])
+
+    def test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with(
+            self):
+        """W6632 review [P1] made the policy digest a reconciliation label.
+
+        `policy_digest` is nullable on the attempt row, so this is a real
+        precondition rather than a shape complaint: a delivery whose policy
+        this manager cannot name is one no restart can describe, and the
+        refusal says that rather than surfacing as a digest fault about
+        `None` from inside the label constructor.
+        """
+        self.claimed()
+        self.store._connection.execute(
+            "UPDATE attempts SET policy_digest = NULL "
+            "WHERE runtime_attempt_id = ?",
+            (ATTEMPT,))
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        adapter = Adapter()
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertIn("records no policy digest", caught.exception.message)
+        self.assertEqual(adapter.started, [],
+                         "nothing may be started for a delivery whose policy "
+                         "this manager cannot name")
 
     def test_an_unactivated_attempt_cannot_start_a_runtime(self):
         self.recorded()

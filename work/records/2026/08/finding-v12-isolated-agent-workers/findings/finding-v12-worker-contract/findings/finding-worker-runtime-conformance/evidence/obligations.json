@@ -3,17 +3,17 @@
  "obligations": [
   {
    "id": "A-01",
-   "source": "worker-control 1.0 §7.2",
-   "statement": "A Git source materializes the exact immutable base_revision; a branch never silently replaces it.",
-   "observable": "The input manifest's git source, and the object id the workspace tree actually resolves to.",
+   "source": "worker-control 1.0 §7.0, §7.1",
+   "statement": "The worker sees a read-only /input/ whose input.json declares each staged tree; the manager acquires nothing and interprets no consumption payload.",
+   "observable": "The mount mode of /input/, the declared destinations in input.json, and whether the manager performed any acquisition transport during activation.",
    "verdict": {
-    "passed": "the materialized object id equals the manifest base_revision",
-    "failed": "the materialized object id differs, or a ref was resolved in its place",
-    "unable": "the harness cannot read the materialized object id"
+    "passed": "/input/ is read-only to the worker and no acquisition transport was performed by the manager",
+    "failed": "a write into /input/ succeeded, or the manager resolved a locator or read a consumption payload to populate it",
+    "unable": "the harness cannot observe the mount mode or the manager's transport activity"
    },
    "cases": [
-    "A-git-exact-base",
-    "A-git-moved-ref-refused"
+    "A-input-is-read-only",
+    "A-manager-acquires-nothing"
    ],
    "covers": {
     "control_kinds": [
@@ -26,17 +26,16 @@
   },
   {
    "id": "A-02",
-   "source": "worker-control 1.0 §7.3",
-   "statement": "A directory source materializes exactly its sorted content manifest, read-only.",
-   "observable": "The collected tree digest, entry count and total bytes against the declared content manifest.",
+   "source": "worker-control 1.0 §3.3, §7.1",
+   "statement": "A staged input tree matches its declared content manifest exactly: sorted entries, tree digest, entry count and total bytes.",
+   "observable": "The declared content_manifest in input.json and the tree the worker actually finds under the declared destination.",
    "verdict": {
-    "passed": "tree digest, count and bytes all match and every entry is read-only to the worker",
-    "failed": "any entry differs, is missing, is extra, or is writable",
-    "unable": "the harness cannot enumerate the materialized tree"
+    "passed": "tree digest, entry count and total bytes all equal the declared content manifest",
+    "failed": "any of the three differs from the declaration",
+    "unable": "the harness cannot enumerate the staged tree"
    },
    "cases": [
-    "A-directory-exact-tree",
-    "A-input-readonly"
+    "A-staged-tree-matches-its-manifest"
    ],
    "covers": {
     "manifests": [
@@ -46,7 +45,7 @@
   },
   {
    "id": "A-03",
-   "source": "worker-control 1.0 §3.3, §7.4",
+   "source": "worker-control 1.0 §3.3, §7.2",
    "statement": "Declared output paths are normalized POSIX-relative, non-overlapping, and links are forbidden.",
    "observable": "The freeze refusal category/code for each malformed or overlapping declaration.",
    "verdict": {
@@ -145,7 +144,7 @@
   },
   {
    "id": "A-07",
-   "source": "worker-control 1.0 §6.4, §7.4",
+   "source": "worker-control 1.0 §6.4, §7.2, §7.3",
    "statement": "A missing REQUIRED output prevents a successful result; unable may still carry bounded evidence.",
    "observable": "The declared disposition and the frozen-result manifest's per-output records.",
    "verdict": {
@@ -164,9 +163,9 @@
   },
   {
    "id": "A-08",
-   "source": "worker-control 1.0 §7.4",
-   "statement": "A git-change-proposal is a bundle or equivalent object transport, never a push or canonical ref update.",
-   "observable": "The proposal manifest's artifact and the canonical target's revision before and after.",
+   "source": "worker-control 1.0 §8.5",
+   "statement": "A change proposal is an immutable artifact or equivalent object transport, never a push or a canonical ref.",
+   "observable": "The published proposal artifact and the canonical target revision before and after publication.",
    "verdict": {
     "passed": "the proposal is an immutable artifact and the canonical target revision is unchanged",
     "failed": "the canonical target advanced, or a remote ref was written",
@@ -206,6 +205,260 @@
     ],
     "control_kinds": [
      "output.collect"
+    ]
+   }
+  },
+  {
+   "id": "A-10",
+   "source": "worker-control 1.0 §7.0, §7.3, §8.7",
+   "statement": "The WORKER publishes /output/output.json last and atomically: it appears under its final name only after every durable result below /output/ is written.",
+   "observable": "The order in which /output/ entries become visible, and whether output.json ever exists under its final name holding incomplete bytes.",
+   "verdict": {
+    "passed": "output.json becomes visible after every declared output is written, and never exists partially written",
+    "failed": "output.json is visible before an output it describes is complete, or exists empty or truncated after an interrupted publish",
+    "unable": "the harness cannot order the appearance of /output/ entries"
+   },
+   "cases": [
+    "A-output-json-published-last",
+    "A-interrupted-publish-leaves-no-output-json"
+   ],
+   "covers": {
+    "manifests": [
+     "baton.worker-manifest/completion"
+    ]
+   }
+  },
+  {
+   "id": "A-11",
+   "source": "worker-control 1.0 §7.4",
+   "statement": "An output named only by an identifier the manager cannot resolve to bytes it holds is refused as a durable result.",
+   "observable": "The declared artifact reference and whether the manager holds bytes whose digest and length it measured.",
+   "verdict": {
+    "passed": "a result whose artifact is identifier-only refuses, and nothing is published",
+    "failed": "an identifier-only artifact is accepted into a frozen result",
+    "unable": "the harness cannot read the artifact reference"
+   },
+   "cases": [
+    "A-identifier-only-output-refused"
+   ],
+   "covers": {
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "error_pairs": [
+     [
+      "integrity",
+      "digest"
+     ]
+    ],
+    "manifests": [
+     "baton.worker-manifest/result"
+    ]
+   }
+  },
+  {
+   "id": "A-12",
+   "source": "worker-control 1.0 §7.0, §7.5",
+   "statement": "A declared output workspace persists past the runtime that produced it; the frozen tree and its manifest outlive the container.",
+   "observable": "Whether the frozen output tree and output.json are still readable after the runtime is destroyed.",
+   "verdict": {
+    "passed": "the frozen tree and output.json are readable after runtime destruction, with unchanged digests",
+    "failed": "either is gone or its digest changed once the runtime was destroyed",
+    "unable": "the harness cannot read /output/ after runtime destruction"
+   },
+   "cases": [
+    "A-output-persists-past-the-runtime"
+   ],
+   "covers": {
+    "control_kinds": [
+     "runtime.destroy"
+    ],
+    "manifests": [
+     "baton.worker-manifest/result"
+    ]
+   }
+  },
+  {
+   "id": "A-13",
+   "source": "worker-control 1.0 §7.5",
+   "statement": "Private ephemeral space is capacity rather than protocol: nothing in it is collected, and material only becomes a result by being exported into a declared output path before quiescence.",
+   "observable": "What the probe wrote to ephemeral space, what it exported, and what the collection actually contains.",
+   "verdict": {
+    "passed": "only exported material is collected, and unexported ephemeral material appears in no manifest",
+    "failed": "unexported ephemeral material is collected, or exported material is not",
+    "unable": "the harness cannot enumerate the collection"
+   },
+   "cases": [
+    "A-ephemeral-not-exported-not-collected",
+    "A-ephemeral-exported-is-collected"
+   ],
+   "covers": {
+    "control_kinds": [
+     "output.collect"
+    ],
+    "manifests": [
+     "baton.worker-manifest/result"
+    ]
+   }
+  },
+  {
+   "id": "A-14",
+   "source": "worker-control 1.0 §7.0, §7.1",
+   "statement": "A frozen output chains into a later assignment as a read-only staged input, by its content manifest and with no re-acquisition.",
+   "observable": "The second assignment's input.json content manifest against the first assignment's frozen result, and the mount mode of the chained tree.",
+   "verdict": {
+    "passed": "the chained input's content manifest equals the frozen result's, the tree is read-only, and no acquisition transport ran",
+    "failed": "the digests differ, the chained tree is writable, or the material was re-acquired rather than staged",
+    "unable": "the harness cannot run two chained assignments or cannot read the second manifest"
+   },
+   "cases": [
+    "A-frozen-output-chains-as-read-only-input"
+   ],
+   "covers": {
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "manifests": [
+     "baton.worker-manifest/input",
+     "baton.worker-manifest/result"
+    ]
+   }
+  },
+  {
+   "id": "A-15",
+   "source": "worker-control 1.0 §7.3, §8.4, §8.7",
+   "statement": "The worker's completion envelope and the manager's frozen-result receipt are two documents with two authors: /output/output.json is baton.worker-manifest/completion and carries no freeze operation, manager observation or custody locator; the manager's baton.worker-manifest/result lives outside /output/.",
+   "observable": "The schema of /output/output.json, the schema and location of the manager's receipt, and whether the worker document carries any manager-only member.",
+   "verdict": {
+    "passed": "the two schemas are distinct, the receipt is outside /output/, and output.json carries no freeze operation",
+    "failed": "either document carries the other's schema, the receipt is published inside /output/, or output.json carries a manager-only member",
+    "unable": "the harness cannot read one of the two documents"
+   },
+   "cases": [
+    "A-manager-receipt-is-not-the-worker-envelope"
+   ],
+   "covers": {
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "manifests": [
+     "baton.worker-manifest/completion",
+     "baton.worker-manifest/result"
+    ]
+   }
+  },
+  {
+   "id": "A-16",
+   "source": "worker-control 1.0 §12 rule 15",
+   "statement": "The worker's completion envelope is held against the input manifest it answers: exactly one answer per declared output, no extras and no omissions, exact name/type/path, and no missing-optional answer for a required declaration.",
+   "observable": "The declared outputs of input.json and the answers in /output/output.json, compared name by name.",
+   "verdict": {
+    "passed": "every declaration has exactly one answer, every answer names a declaration, each identity matches, and no required declaration is answered missing",
+    "failed": "an answer is missing, duplicated, undeclared, carries a differing identity, or answers a required declaration missing-optional",
+    "unable": "the harness cannot read one of the two documents"
+   },
+   "cases": [
+    "A-completion-answers-every-declaration-once",
+    "A-completion-with-an-undeclared-answer-refused",
+    "A-completion-identity-must-match-the-declaration",
+    "A-required-declaration-cannot-be-answered-missing"
+   ],
+   "covers": {
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "error_pairs": [
+     [
+      "integrity",
+      "schema"
+     ],
+     [
+      "refused",
+      "precondition"
+     ]
+    ],
+    "manifests": [
+     "baton.worker-manifest/input",
+     "baton.worker-manifest/completion"
+    ]
+   }
+  },
+  {
+   "id": "A-17",
+   "source": "worker-control 1.0 §7.0, §7.1, §8.2, §12 rules 3 and 16",
+   "statement": "The execution container's /input/ carries TWO manager-authored documents at fixed read-only names -- the pre-claim input.json and the post-claim assignment.json -- and they are one delivery: same Work, the assignment minted against that exact input manifest digest, and the same policy and runtime-profile digests. Both names, and every spelling nested beneath them, are reserved against staged payloads. Consent sees neither document. The root a runtime MOUNTS is the root the manager authorized: exactly one read-only bind of that exact source at the fixed /input, and no bind on that path at all when no root was authorized.",
+   "observable": "The presence, schema and mount mode of /input/input.json and /input/assignment.json in the execution container; the cross-document members of the two; the same paths during the consent phase; and the refusal the manager or worker emits when either document is absent, malformed or bound to another delivery. And the mount the engine was actually told to make: its source, its target and its writability, compared with the root the manager proved.",
+   "verdict": {
+    "passed": "both documents are present and read-only at their fixed names, validate against their own schemas, agree on Work, input digest, policy and runtime profile, and are absent from the consent phase, and the runtime mounts exactly that source read-only at /input",
+    "failed": "either document is missing, writable, at another path, structurally invalid, bound to another input/Work/policy/profile, visible to consent, or replaced by a staged payload at a reserved name, or the runtime mounts a different source, no source, or a writable one at /input while a different root was authorized",
+    "unable": "the harness cannot read the input root of the execution container"
+   },
+   "cases": [
+    "A-assignment-manifest-delivered-read-only-beside-the-input",
+    "A-execution-without-the-assignment-manifest-refused",
+    "A-malformed-assignment-manifest-refused",
+    "A-assignment-minted-against-another-input-refused",
+    "A-input-pair-naming-two-work-items-refused",
+    "A-consent-sees-neither-input-document",
+    "A-only-the-authorized-root-is-mounted-at-the-fixed-path"
+   ],
+   "covers": {
+    "control_kinds": [
+     "assignment.activate",
+     "runtime.start"
+    ],
+    "manifests": [
+     "baton.worker-manifest/input",
+     "baton.worker-manifest/assignment"
+    ],
+    "error_pairs": [
+     [
+      "policy",
+      "denied"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "A-18",
+   "source": "worker-control 1.0 §7.0, §8.2, §8.7, §12 rule 16",
+   "statement": "/input/assignment.json is the ONE source of the assignment identity the completion envelope carries, and the identity is proved TWICE at two different moments: the manager holds the composed input root against its own assignment, generation and runtime attempt BEFORE the root is exposed and before any agent is dispatched, and it compares the envelope's copied assignment_ref with that same owned assignment again before it mutates custody.",
+   "observable": "The assignment_ref and runtime_attempt_id in /input/assignment.json, the manager's own activated assignment and runtime attempt, whether a runtime was started and an agent dispatched, the assignment_ref in /output/output.json, and the refusal emitted at whichever of the two moments disagrees.",
+   "verdict": {
+    "passed": "a root whose assignment disagrees with the manager's own is refused before exposure with no runtime started, and an envelope whose identity disagrees is refused before custody",
+    "failed": "a stale, cross-participant or wrong-attempt root is mounted and an agent runs, or a disagreeing envelope reaches custody",
+    "unable": "the harness cannot read the composed input root or the manager's own assignment"
+   },
+   "cases": [
+    "A-input-root-authorized-against-the-owned-assignment",
+    "A-stale-generation-root-refused-before-mount",
+    "A-wrong-attempt-root-refused-before-mount",
+    "A-completion-copies-the-delivered-assignment-identity",
+    "A-completion-under-a-superseded-generation-refused",
+    "A-assignment-manifest-naming-another-runtime-attempt-refused"
+   ],
+   "covers": {
+    "control_kinds": [
+     "runtime.start",
+     "output.freeze"
+    ],
+    "error_pairs": [
+     [
+      "stale-assignment",
+      "generation"
+     ],
+     [
+      "runtime-observation",
+      "identity-mismatch"
+     ],
+     [
+      "refused",
+      "precondition"
+     ]
+    ],
+    "manifests": [
+     "baton.worker-manifest/assignment",
+     "baton.worker-manifest/completion"
     ]
    }
   },

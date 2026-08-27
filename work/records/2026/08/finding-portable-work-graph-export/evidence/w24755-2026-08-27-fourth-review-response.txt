@@ -1,0 +1,104 @@
+W24755 — response to the fourth independent review. 2026-08-27.
+
+Both findings correct, and one of them names a defect in a test of MINE
+rather than only in the code. No Git history or index was mutated.
+
+=== [P1] INDIVIDUALLY VALID VALUES FORMED IMPOSSIBLE STATES
+
+  status, phase and outcome are ONE state and I validated them as three
+  fields. Every value in an open-node-with-an-outcome is individually
+  type-correct and in-domain, so the enum guards added last round could
+  not see the contradiction. The same gap let a containment edge name
+  an obligation it cannot have come from.
+
+  Both are now cross-member rules in the shared validator:
+    4393:def _export_node_state(node) -> None:
+    4394-	"""status, phase and outcome are ONE state, not three fields.
+    4395-
+    4396-	Fourth review [P1]: each was proved to be in its own closed vocabulary and
+    4425:def _export_edge_provenance(edge) -> None:
+    4426-	"""`via_obligation` is dependency provenance and null everywhere else.
+    4427-
+    4428-	Fourth review [P1]: the type rule allowed a nullable integer on every
+
+  AND THE REVIEW FOUND A TEST OF MINE ASSERTING THE WRONG THING.
+  test_null_is_accepted_exactly_where_the_contract_allows_it asserted
+  that phase=null renders on an OPEN node. The confirmed schema forbids
+  that. It passed because the validator treated the three members
+  independently — so my case and my code agreed with each other and both
+  disagreed with the schema. That is worse than a missing case: a test
+  asserting the wrong thing is a defect with a guard in front of it.
+  Corrected to exercise the two valid paired states, and it still holds
+  the line the original was reaching for — that the rule must not become
+  a way of refusing every null.
+
+=== [P1] 'THE WHOLE INPUT VALIDATED' EXCLUDED SCOPE AND COUNTS
+
+  The renderer required scope and counts and validated neither. A forged
+  closure became an authoritative-looking graph attribute; a count
+  contradicting its own array was ignored despite being a required
+  structured member — and a count is the cheapest thing in the document
+  for a reader to trust.
+
+  ONE shared result validator now owns the whole document, and the
+  PROJECTION runs it on its own output before answering: a producer
+  exempt from the rules its consumer enforces is how the two come to
+  disagree. Counts are PROVED from the arrays rather than compared to a
+  second description of the same data.
+
+  A consequence I had to fix in the same round: the interval rule then
+  existed in TWO places — the operand path and the document path — which
+  is the duplication three earlier rounds corrected elsewhere.
+  _export_scope now parses and delegates; every rule about the result is
+  stated once:
+    4305:	THIS FUNCTION PARSES; `_export_scope_document` RULES. Fourth review [P1]
+    4306-	gave the scope a document validator, and for one round this held a second
+    4307-	copy of the same interval and status rules -- two statements of one rule,
+    4308-	which is the thing three earlier rounds corrected elsewhere. What is left
+    4309-	here is the only operand-specific work there is: turning whatever legal
+    4310-	spelling the operator typed into the canonical instant the document
+    4311-	carries. Every rule about the result is stated once, downstream.
+    4312-	"""
+
+=== THE COMMITMENT FROM LAST ROUND, APPLIED AND ALREADY EARNING
+
+  I said that where a comment states a general rule there would be a
+  case named for that rule, or the sentence would be narrowed. The
+  renderer's contract is now an explicit eight-line table, and
+  test_the_renderer_refuses_one_input_per_category_it_claims_to_own
+  drives one malformed input per line AND asserts the prose and the
+  table name the same categories.
+
+  IT FAILED ON ITS FIRST RUN, which is the whole point: my prose said
+  "every member's presence, type and closed vocabulary" while the table
+  said "member presence" and "member type". Drift of exactly the kind
+  four reviews have been finding, caught by the case instead of by the
+  reviewer.
+    1445:def test_the_renderer_refuses_one_input_per_category_it_claims_to_own(world):
+    1446-	"""THE DOCSTRING'S LIST, ENFORCED ITEM BY ITEM.
+    1447-
+    1448-	`render_work_graph_dot` says it owns the scope document, the derived
+
+=== MEASURED BY REMOVAL
+
+  Ten mutations added for these two findings — one per cross-member rule
+  in both directions, one per validated part of the result, and one that
+  removes the projection's validation of its own output.
+
+             test_the_dot_branch_writes_once_and_only_a_whole_document
+    
+    all 60 mutations caught
+
+    source fingerprint before: 02a3184e068db7904309e3cb6d8b8f8b3619a45fd91f3dd7dc637d9a4fd9c53b
+    source fingerprint after : 02a3184e068db7904309e3cb6d8b8f8b3619a45fd91f3dd7dc637d9a4fd9c53b
+    IDENTICAL — every mutation was reverted.
+
+=== GATES
+    this Work        : 86 passed in 1.94s
+    boundaries       : 5 passed in 0.18s
+    v11 parallel     : 3153 passed, 188 warnings in 53.84s
+    v11 serial       : 54 passed, 3153 deselected, 1 warning in 130.06s (0:02:10)
+    ACP bridge       : 77 pass, 0 fail
+
+    cases here       : 65 definitions, 86 parameterized
+    Sixty mutations, all caught.

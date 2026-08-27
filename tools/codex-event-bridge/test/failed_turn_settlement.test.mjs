@@ -127,10 +127,22 @@ function authority(answers) {
 			const next = queue.length > 1 ? queue.shift() : queue[0];
 			if (next instanceof Error) throw next;
 			if (typeof next === "string") return { stdout: next };
-			return { stdout: JSON.stringify(
-				{ result: { actionable: next } }) };
+			return { stdout: JSON.stringify(canonical(next)) };
 		},
 	};
+}
+
+/** The whole canonical envelope.
+ *
+ *  W11910 review [P1]: the dispatcher's revalidation applies the same typed
+ *  v11 contract both readiness producers apply to this command's output, so a
+ *  fixture carrying only an actionable array is a reply the real authority
+ *  never emits — and a suite built on one would be proving the behaviour of
+ *  code that does not run. */
+function canonical(actionable, participant = "baton.codex") {
+	return { protocol_version: 11, projection_version: "12.4",
+		authority_uuid: UUID, participant, snapshot_seq: 1,
+		result: { timed_out: false, actionable } };
 }
 
 function entry(work, episode, claimed) {
@@ -478,13 +490,11 @@ test("a reconnect settlement racing late turn/completed files one incident",
 		const secondEntered = new Promise((resolve) => { secondRead = resolve; });
 		const revalidate = async () => {
 			calls += 1;
-			if (calls === 1) return { stdout: JSON.stringify(
-				{ result: { actionable: OFFERED } }) };
+			if (calls === 1) return { stdout: JSON.stringify(canonical(OFFERED)) };
 			if (calls === 2) firstRead();
 			if (calls === 3) secondRead();
 			await held;
-			return { stdout: JSON.stringify(
-				{ result: { actionable: HELD } }) };
+			return { stdout: JSON.stringify(canonical(HELD)) };
 		};
 		const { dispatcher, fake, incidents } = bridge({ revalidate });
 		try {
@@ -1147,7 +1157,12 @@ test("promotion never displaces a delivery already in flight", async () => {
 	// `#drain` holds the head across an await and `#reconcileTarget` looks
 	// it up by position; splicing in front of it would settle the wrong
 	// event.
-	const answer = authority([[entry(W2928, 9, false), entry(WORK, EPISODE, true)]]);
+	// W11910 review [P1]: W2928 is revalidated FIRST, while nothing is
+	// claimed — which is the realistic ordering for this scenario and the
+	// only one the claim-slot rule now permits to start. The promotion
+	// arrives after, exactly as the case is about.
+	const answer = authority([[entry(W2928, 9, false)],
+		[entry(W2928, 9, false), entry(WORK, EPISODE, true)]]);
 	const { dispatcher, fake } = bridge({ revalidate: answer.revalidate });
 	try {
 		await ready(dispatcher, fake);

@@ -60,6 +60,10 @@ VECTORS = (REPOSITORY / "work" / "records" / "2026" / "08"
            / "vectors.json")
 
 POLICY = "sha256:" + "2" * 64
+# The worker completion envelope a completed receipt binds. W14251's split
+# makes `/output/output.json` the worker's document and the frozen result the
+# manager's receipt over the tree; the receipt names the envelope it validated.
+COMPLETION = "sha256:" + "9" * 64
 CONTENT = "sha256:" + "8" * 64
 
 
@@ -198,6 +202,18 @@ class OutputCase(unittest.TestCase):
             "evidence": [],
             "freeze_operation": dict(operation),
             "manager_observed_at": NOW,
+            # W14251 fourth review: a COMPLETED receipt binds the worker
+            # completion envelope the manager validated before freezing.
+            # `/output/output.json` is the completion signal, so a completed
+            # receipt naming none claims a completion nothing signalled -- and
+            # the frozen schema requires it rather than leaving the 1.0 shape
+            # ambiguous about which of those two a receipt is.
+            #
+            # A fixture value, because these cases are about the receiving
+            # rules rather than about which envelope was validated. The
+            # non-completed dispositions may omit it and one case below drives
+            # that: the worker may have died before publishing anything.
+            "completion_manifest_digest": COMPLETION,
         }
         body.update(members)
         return sealed(body)
@@ -222,6 +238,10 @@ class OutputCase(unittest.TestCase):
         total = sum(entry["bytes"] for entry in entry_list)
         return [{
             "name": name, "type": "directory-result", "status": "present",
+            # W14251: the frozen `artifactOutput` carries opaque
+            # format-specific metadata now. The manager never reads it, which
+            # is why an empty document is a complete answer.
+            "result_metadata": {},
             "content_manifest": {
                 "entries": entry_list,
                 "entry_count": len(entry_list),
@@ -239,7 +259,8 @@ class OutputCase(unittest.TestCase):
     def missing(name="proposal"):
         return [{"name": name, "type": "directory-result",
                  "status": "missing-optional",
-                 "content_manifest": None, "artifact": None}]
+                 "content_manifest": None, "artifact": None,
+                 "result_metadata": {}}]
 
     def frozen(self, **overrides):
         """The whole happy path: freeze, seal, record."""

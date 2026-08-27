@@ -137,7 +137,8 @@ class SessionCase(unittest.TestCase):
                      runtime_attempt_id=attempt_id,
                      work_ref={"authority_uuid": UUID, "work_id": WORK})
         record_attempt(self.store, attempt_id=attempt_id, adapter_name="acp",
-                       adapter_digest=ADAPTER, profile_digest=PROFILE)
+                       adapter_digest=ADAPTER, profile_digest=PROFILE,
+                       policy_digest="sha256:" + "2" * 64)
         submit_claim(self.store, self.port, offer_id="offer-" + attempt_id)
         if activate:
             activate_assignment(

@@ -1,0 +1,118 @@
+W12229 — evidence after the correction answering the 01:31:59Z review.
+
+Review answered: review-2026-08-26T01-31-59Z.md
+  [P1] fresh bootstrap renders relative launcher sources as authoritative
+
+
+THE FINDING, AND IT IS EXACT
+
+  `bootstrapThread` checked only TRUTHINESS for `--baton` and
+  `--baton-config`. A relative `bin/baton` is resolved by whatever launch
+  context the process happens to have, and a relative config is read from
+  whatever working directory it inherits — so the block labelled those
+  inferred locations "authoritative; do not infer". The confirmed boundary's
+  own rule, broken by the value that states it.
+
+  The dispatcher path was never exposed to this: `validateConfig` has always
+  required both `roleInstructions` paths to be absolute. Standalone bootstrap
+  never passes through that validator, so ONE contract had TWO admission rules
+  depending on which door it came in.
+
+
+THE CORRECTION, IN THE SAME OPERAND GATE
+
+  Both paths are required to be absolute in the gate that already refuses a
+  missing operand — before the instruction read and before any client factory
+  is reached. A launcher operand is wrong the moment it arrives, not once
+  somebody has tried to use it.
+
+  The renderer is untouched: it still reads nothing, searches nothing and
+  defaults nothing. Absoluteness is a property of the operand a launcher
+  supplies, which is where the dispatcher checks it too.
+
+
+AND A THIRD DOOR INTO THE SAME CONTRACT, FOUND WHILE CORRECTING THE SECOND
+
+  `tools/acp-baton-bridge/src/config.mjs` required `baton.binary` and
+  `baton.config` to be non-empty strings and NOT to be absolute. Those two are
+  the ACP family's half of this same contract — they become `BATON_BIN` and
+  `BATON_CONFIG` in the agent's own environment — and the confirmed boundary
+  says in as many words that the contract applies to ACP-backed participants
+  as well as Codex-backed ones, and that a context must not infer these values
+  from repository paths, deployment symlinks or filesystem context.
+
+  So there were three doors into one contract and only one of them was closed.
+  It refuses for the same reason as the other two now.
+
+  BEYOND THE REVIEW'S LITERAL ASK, AND FLAGGED AS SUCH. The review scoped its
+  required correction to `bootstrapThread` and said to keep the dispatcher
+  validation and the renderer unchanged — which this does. It did not ask for
+  the ACP door, because it had not been looked at. Leaving a known instance of
+  the exact defect just named would be the fix-only-what-was-named shape this
+  campaign has been corrected for repeatedly; but it is the reviewer's to
+  confirm or to split into its own Work, and it is named here rather than
+  folded in quietly.
+
+
+FOCUSED
+
+    $ node --test test/bootstrap_thread.test.mjs
+    i  tests 22   i  pass 22   i  fail 0        (19 before)
+
+  The review's additive regression is kept as written and passes. Three are
+  new:
+
+    the two entry points refuse the same relative shape — drives BOTH
+      `validateConfig` and `bootstrapThread` with the same two spellings, so
+      the two doors cannot drift apart again
+    a path that merely LOOKS rooted is not absolute — `./bin/baton`,
+      `../baton/bin/baton`, `~/baton/bin/baton`, `$BATON_HOME/bin/baton`: the
+      values a launcher template produces when a variable did not expand,
+      which have the shape of a path and none of the meaning
+    an absolute pair still reaches the read and the contract — the guard
+      refuses a shape, not the ordinary case
+
+    $ npm test        # tools/acp-baton-bridge
+    i  tests 67   i  pass 67   i  fail 0        (66 before)
+
+  One new case drives the third door with four relative spellings and then
+  requires the ordinary absolute pair to validate.
+
+  CAN-ACTUALLY-FAIL, measured on both doors. With the bootstrap guard removed:
+
+    x  --start-thread refuses a relative Baton source before reading it
+    x  the two entry points refuse the same relative shape
+    x  a path that merely LOOKS rooted is not absolute
+    i  pass 19   i  fail 3
+
+  and with the ACP guard removed:
+
+    x  the ACP launcher contract refuses a relative executable or config
+    i  pass 66   i  fail 1
+
+  Both files were restored byte for byte afterwards.
+
+
+GATES
+
+    $ npm test        # tools/codex-event-bridge
+    i  tests 399   i  pass 399   i  fail 0
+
+    $ npm test        # tools/acp-baton-bridge
+    i  tests 67    i  pass 67    i  fail 0
+
+    whitespace check over the diff: clean
+
+  BOTH NODE SUITES ARE FULLY GREEN. The one Codex failure the previous
+  W12229 evidence recorded was this review's own regression, and the two
+  before that were W11910's, which has since been corrected under its own
+  claim. Nothing is reported as somebody else's this time because there is
+  nothing left to report.
+
+
+NOT DONE, AND IT IS THE OPERATOR'S
+
+  PLAN item 6: drain, deploy, restart with fresh contexts, complete W12181
+  through `pc.rsrch -> pc.impl -> pc.rsrch -> pc.ops`, and return W10198. A
+  live smoke on an existing thread does not satisfy the fresh-context
+  acceptance, and nothing here was verified against the running deployment.

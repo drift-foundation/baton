@@ -1,0 +1,127 @@
+W11910 — evidence after the correction answering the 03:43:47Z review.
+
+Review answered: review-2026-08-26T03-43-47Z.md
+  [P1] a malformed matching action bypasses the occupied claim slot
+
+
+[P1] THE CANONICAL READ WAS THE ONE CONSUMER THAT DID NOT TYPE ITS ENVELOPE
+
+  `EventBridge.#revalidate` accepted any reply carrying an actionable ARRAY
+  and then scheduled from the matching entry's `kind` and `claimed`. A present
+  array says nothing about the entries in it. An entry carrying this episode's
+  Work key while claiming the `obligation` kind — a shape the contract rejects,
+  because `obligation:<seq>` cannot equal `work:<id>:<ep>:g<gen>` — was read as
+  an ordinary non-Work action and started a turn against an occupied slot.
+
+  THREE CONSUMERS OF ONE ENVELOPE, AND ONLY TWO APPLIED THE CONTRACT. Both
+  readiness producers have run `validateEnvelope` over exactly this command's
+  output since W148; the ACP bridge revalidates through `waitOnce`, which
+  validates. This dispatcher read the same envelope from the same binary and
+  consumed it untyped. It applies the same contract now, at the same boundary,
+  and any validation failure takes the identical bounded `uncertain` path,
+  because a read that cannot be typed proves neither that the episode still
+  exists nor that the claim slot is free.
+
+  THE SECOND HALF OF THE RULING, AND IT WAS LIVE IN BOTH BRIDGES. The contract
+  is deliberately liberal about kinds this build does not know: it drops them
+  from the actionable set and files them under `ignored_actions` so a newer
+  authority can add a primitive without breaking an older bridge. That
+  tolerance is about DELIVERY. Reading the removal as withdrawal would clear a
+  live level with something that is not a claim — this Work's own defect one
+  layer down. An entry carrying the exact key is now `uncertain` in the Codex
+  dispatcher AND in the ACP bridge's `episodeVerdict`, which had it too and
+  was not named by the review.
+
+
+THE FIXTURES WERE THE OTHER HALF OF THE FINDING
+
+  Four dispatcher suites scripted `wait timeout=0` as `{result:{actionable}}`
+  — a reply the real authority never emits. Every one of them was an
+  abbreviation the untyped read happened to accept, which is why a suite of
+  403 could be green over this defect. They are canonical envelopes now, with
+  each key expanded into the structured locator the contract requires it to
+  agree with:
+
+    test/claim_slot.test.mjs            `envelope()` and the default answer
+    test/stale_episode.test.mjs         `answering()` -> new `canonical()`
+    test/cross_work_fence.test.mjs      `alwaysLive()`
+    test/failed_turn_settlement.test.mjs `authority()` -> new `canonical()`
+
+  Deliberately NOT changed: the fixtures that are unreadable on purpose
+  (`{}`, `{result:{}}`, a thrown executor). Those assert the uncertain path
+  and still reach it.
+
+
+FOCUSED — CODEX DISPATCHER
+
+    $ node test/claim_slot.test.mjs
+    tests 32 -> 36, pass 36, fail 0
+
+  The review's additive case is kept exactly as written and passes. Four are
+  mine, and three of them are the defect ONE FIELD OVER:
+
+    a malformed NEIGHBOUR makes the read unreadable, not just a malformed
+      match — the review's entry was the MATCHING one, so typing only the
+      match would have answered the review and left the hole. The
+      occupied-slot question is answered from the entries that are NOT the
+      match, so an unreadable neighbour disqualifies the read exactly as much
+    an envelope answering about ANOTHER PARTICIPANT is not authority for this
+      episode — this deployment has already been bitten once by a readiness
+      action reaching the wrong participant
+    a key carried under a kind this build does not know is retained, not read
+      as withdrawn
+    a key the authority no longer names AT ALL is still dropped — the guard
+      that keeps the retention honest, and the one case that passes both with
+      and without the correction, on purpose
+
+  CAN-ACTUALLY-FAIL, measured. With the typed validation and the ignored-key
+  branch removed and the canonical fixtures left in place:
+
+    x  a key carried under a kind this build does not know is retained
+    x  a malformed NEIGHBOUR makes the read unreadable
+    x  a malformed matching action cannot masquerade as non-Work (the review's)
+    x  an envelope answering about another participant is not authority
+    tests 36, pass 32, fail 4
+
+  Restored byte for byte: md5 f3497aab142a62ff8f0b7a4295f89872.
+
+
+FOCUSED — ACP BRIDGE, WHICH THE REVIEW DID NOT NAME
+
+    $ npm test    (tools/acp-baton-bridge)
+    tests 67 -> 69, pass 69, fail 0
+
+  `episodeVerdict` had the ignored-entry half of the same defect and reached
+  it by a different route: `waitOnce` validates, so the unknown kind is
+  already in `ignored_actions` by the time the verdict is derived, and the
+  key's absence from `actionable` read as `over`. It returns `uncertain` now,
+  and `runBridge` retains an uncertain offer exactly as it retains a deferred
+  one — no prompt, no `markWithdrawn`, no `markPresented`.
+
+    a key answered under an unknown kind is unreadable, not withdrawn —
+      driven through the REAL validator, because the ignored set is the
+      contract's own output and a fixture that invented it would prove
+      nothing about the code that runs
+    an offer answered under an unknown kind stays armed and spends no turn
+
+  CAN-ACTUALLY-FAIL: both fail with the branch removed (67 pass, 2 fail).
+  Restored byte for byte: md5 69c526ef41d79e8d603d6ae64d670541
+  (`baton_readiness.mjs`) and d9eefba7b4ddbb6c3eb39e313d12996c
+  (`acp_baton_bridge.mjs`).
+
+
+BOTH SUITES
+
+    $ npm test    (tools/codex-event-bridge)
+    tests 408, pass 408, fail 0            403 -> 408
+
+    $ npm test    (tools/acp-baton-bridge)
+    tests 69, pass 69, fail 0              67 -> 69
+
+  No trailing whitespace in either bridge's `src` or `test`.
+
+
+NOT DONE, AND IT IS NOT MINE
+
+  PLAN item 9's live smoke and item 10's deploy. Nothing here was verified
+  against the running deployment, and the claim is not released.

@@ -1,0 +1,54 @@
+# SPIKE ONLY — W17110's Codex trial image. Not a v12 contract.
+#
+# Deliberately NOT `v12/worker/Dockerfile`. That recipe is W6633's reviewed
+# reference worker: pinned base by digest, no package manager state, no network
+# client, `--network none` at runtime. This one needs the opposite of the last
+# two — a real agent runtime talks to a real provider — and mixing the two would
+# either weaken the reviewed image or misrepresent this one as it.
+FROM node:22-bookworm-slim
+
+# THE PROVIDER RUNTIME, BY EXACT VERSION. "Which agent answered" is one of the
+# outer facts the ruling asks the evidence to carry, and a floating tag would
+# make that unanswerable the day after the trial.
+ARG CODEX_VERSION=0.150.1
+RUN npm install -g "@openai/codex@${CODEX_VERSION}" \
+    && npm cache clean --force
+
+# THE SYSTEM TRUST STORE. `node:22-bookworm-slim` ships no
+# `/etc/ssl/certs/ca-certificates.crt`, and a runtime that is a NATIVE BINARY
+# uses the system store rather than Node's bundled one -- so every TLS
+# handshake fails, and it surfaces as a connection error that reads like a
+# network fault. W17110's Codex trial spent two rounds classified `network`
+# for exactly this, and the classifier was right: it was describing what it
+# saw, and what it saw was a defect in THIS RECIPE rather than anything about
+# the provider or the credential.
+#
+# Installed on both images so the two trials differ in the runtime and not in
+# the ground they stand on, which is what makes the comparison worth anything.
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# NO CREDENTIAL IS BUILT IN, and this comment is the place someone would look
+# for one. The provider is mounted read-only at run time from a path the
+# operator nominates; the ruling forbids a credential in an image, a
+# repository, a result, an evidence file or a log.
+
+COPY trial.mjs /opt/spike/trial.mjs
+
+# A non-root user, because the container writes into a mounted `/output` the
+# host then reads. Same numeric id as the reviewed worker uses, so the two
+# behave the same way against a host-owned directory.
+RUN useradd --uid 65532 --create-home nonroot \
+    && mkdir -p /home/nonroot/.codex \
+    && chown -R 65532:65532 /home/nonroot
+# THE STATE DIRECTORY IS PRE-CREATED AND OWNED, and the trials are why.
+# Docker creates a missing bind-mount parent as ROOT, so mounting a credential
+# file at `/home/nonroot/.codex/...` into an image without that directory left
+# the runtime unable to write beside its own credential -- "Permission denied"
+# before it ever reached an authentication decision. A container that runs as an
+# unprivileged uid needs its home prepared at build time.
+USER 65532:65532
+
+ENV NODE_NO_WARNINGS=1
+ENTRYPOINT ["node", "/opt/spike/trial.mjs"]

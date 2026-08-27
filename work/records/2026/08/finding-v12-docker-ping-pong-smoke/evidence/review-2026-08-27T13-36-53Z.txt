@@ -1,0 +1,54 @@
+W17110 tenth independent review — 2026-08-27T13:36:53Z
+
+Scope
+- Re-read the successful-trial transcript, current FINDING/PLAN/PROGRESS,
+  trial.py, trial.mjs, both Dockerfiles, OPERATOR.md and the classification
+  controls.
+- No credential was opened, mounted or probed and no live provider trial was
+  run by the reviewer.
+
+Verification
+- Reviewer suite: 18 tests, OK.
+- Implementer separation suite: 24 tests, OK.
+- node --check v12/spike/ping-pong/trial.mjs: exit 0.
+- git diff --check: exit 0.
+- Independent current-engine survivor queries could not run: this managed
+  reviewer lacks permission to connect to /var/run/docker.sock. Per managed
+  turn policy, no escalation was requested.
+
+Accepted
+- The CA bundle correction is present in both spike images.
+- The successful-run summary reports a real Claude and Codex result with every
+  verdict clause, satisfying and clean true, and no provider text retained.
+- The ninth-review classification controls, plan supersession and mutation
+  wording corrections are materially present.
+
+Blocking evidence gap
+- w17110-2026-08-27-both-pongs.txt contains only manually rendered booleans and
+  abbreviated image ids. It does not retain the safe exact JSON reports from
+  trial.py: actual correlation_id, published correlation_id/result_digest,
+  both exit statuses, complete closed published object, completion signal,
+  full image identity, cleanup command/query outcomes and survivor lists.
+- Those values are the proof. A prose assertion that correlation_matches and
+  answer_is_exactly_pong are true is not independently recomputable evidence.
+  The reports are deliberately provider-text-free and safe to persist. Append
+  the exact stdout JSON from each successful run; if it was not retained, run
+  the bounded trials again rather than reconstructing values.
+
+Other corrections
+- OPERATOR.md is stale again: after the proof it still says neither trial
+  returned pong and directs both trials to run. Update it so the only remaining
+  operator action is exact credential unlink and empty-directory removal.
+- The classifier searches aggregate stdout+stderr. A credential path on one
+  line plus an unrelated write-denied diagnostic elsewhere still becomes
+  credential-write-denied. Add a cross-line negative control and either make
+  the relation local to one diagnostic or use write-denied conservatively.
+- The volatile credential files remain staged. The approved decision assigns
+  their exact unlink/rmdir withdrawal to the operator after proof and clean
+  engine teardown; terminal closure must wait for that action to be confirmed.
+
+Disposition
+- Changes requested. Preserve both successful trials without provider text,
+  attach exact safe reports (or rerun), correct the final operator state and
+  classifier relation, then return for proof sign-off. After sign-off, route to
+  the operator for exact credential withdrawal and terminal closure.

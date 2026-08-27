@@ -102,30 +102,281 @@ AGENT = "agent-script"
 RECEIPT = "workflow-receipt"
 
 # ----------------------------------------------------------------- family A --
-case("A-git-exact-base",
-     success(eq("materialized_object_id", "base-revision-under-test"),
-             true("object_id_matches_manifest"), false("ref_was_resolved")),
-     stim(CTRL, ["assignment.activate"], [], "Materialize a git source whose manifest binds an exact base revision."),
-     ["manifest", "log"],
-     "The workspace resolves to the exact base_revision the input manifest bound.")
+#
+# REVISED 2026-08-26 by the artifact-neutral ruling (W14251).  Family A used to
+# open with two acquisition cases -- an exact base revision and a moved-ref
+# refusal -- and a directory-source materialization.  The manager no longer
+# acquires anything: it receives an already staged read-only tree and its
+# generic integrity evidence, so what family A can observe changed with it.
+#
+# The two acquisition cases are GONE rather than rewritten.  A case that tests
+# a rule which no longer exists asserts nothing, and keeping it under a new
+# name would make the matrix claim coverage it does not have.  What replaces
+# them is the pair of facts the new contract actually has: the input is
+# read-only, and the manager performed no acquisition.
+case("A-manager-acquires-nothing",
+     invariant(empty("manager_acquisition_transports"),
+               false("consumption_payload_read")),
+     stim(CTRL, ["assignment.activate"], [], "Activate an assignment whose input.json declares a staged tree with an opaque consumption payload."),
+     ["log", "trace"],
+     "The manager performs no acquisition transport and reads no consumption payload; /input/ is staged before it acts.")
 
-case("A-git-moved-ref-refused",
-     refusal(E("integrity", "digest"), false("object_id_matches_manifest")),
-     stim(CTRL, ["assignment.activate"], [], "Move the source ref after binding, then materialize."),
-     ["manifest", "log"],
-     "A source ref that moved after binding refuses rather than taking the new tip.")
-
-case("A-directory-exact-tree",
+case("A-staged-tree-matches-its-manifest",
      success(true("tree_digest_matches"), true("entry_count_matches"), true("total_bytes_matches")),
-     stim(CTRL, ["assignment.activate"], [], "Materialize a directory source and enumerate the tree."),
+     stim(CTRL, ["assignment.activate"], [], "Activate, then enumerate the staged tree under its declared destination."),
      ["manifest", "log"],
-     "The materialized tree digest, entry count and total bytes equal the declared content manifest.")
+     "The staged tree digest, entry count and total bytes equal the declared content manifest.")
 
-case("A-input-readonly",
+case("A-input-is-read-only",
      invariant(false("input_write_succeeded"), non_empty("input_write_denied_by")),
      stim(PROBE, [], [], "Probe attempts a write into a declared input path."),
      ["log", "trace"],
-     "A write into a declared input path does not succeed; inputs are read-only to the worker.")
+     "A write into a declared input path does not succeed; /input/ is read-only to the worker.")
+
+# THE WORKER PUBLISHES `output.json`, and these three cases say so with their
+# STIMULUS rather than in prose. W14251 second review [P1]: they were driven by
+# a manager `output.freeze`, which made the manager the publisher of a file the
+# pinned ruling gives to the worker -- and the manager cannot author it anyway,
+# because the frozen-result schema requires facts that do not exist until after
+# the worker is quiescent. The publisher is the worker; the manager validates
+# what it finds and then writes its own receipt somewhere the worker cannot see.
+case("A-output-json-published-last",
+     success(true("every_declared_output_written_before_manifest"),
+             true("manifest_visible_after_outputs")),
+     stim(PROBE, [], [], "Probe writes every declared output, then publishes /output/output.json, recording the order entries become visible."),
+     ["manifest", "trace"],
+     "The worker publishes output.json only after every durable result below /output/ is written.")
+
+case("A-interrupted-publish-leaves-no-output-json",
+     invariant(false("output_manifest_present"), false("partial_manifest_observed")),
+     stim(PROBE, [], ["process-kill"], "Stop the worker during its publication of output.json, then read /output/."),
+     ["trace", "log"],
+     "An interrupted publication leaves no output.json at all rather than an empty or truncated one.")
+
+case("A-manager-receipt-is-not-the-worker-envelope",
+     invariant(eq("output_json_schema", "baton.worker-manifest/completion"),
+               eq("frozen_receipt_schema", "baton.worker-manifest/result"),
+               false("frozen_receipt_inside_output"),
+               false("output_json_carries_freeze_operation")),
+     stim(CTRL, ["output.freeze"], [], "Freeze a completed assignment, then read both documents and where each lives."),
+     ["manifest", "diff"],
+     "The worker's completion envelope and the manager's frozen-result receipt are two documents with two authors in two places.")
+
+# THE CROSS-DOCUMENT RELATIONS, W14251 third review. Publication order and the
+# two-author split were covered; whether the envelope actually ANSWERS the
+# assignment was not. These four are §12 rule 15, and each is a comparison no
+# single-document validator can make -- which is exactly why the suite has to
+# carry them.
+case("A-completion-answers-every-declaration-once",
+     success(true("every_declaration_answered"),
+             true("every_answer_declared"),
+             eq("duplicate_answers", 0)),
+     stim(CTRL, ["output.freeze"], [], "Freeze an assignment whose worker answered each declared output exactly once."),
+     ["manifest", "diff"],
+     "Each declared output has exactly one answer in the completion envelope, with no extras and no omissions.")
+
+case("A-completion-with-an-undeclared-answer-refused",
+     refusal(E("integrity", "schema"), false("every_answer_declared")),
+     stim(CTRL, ["output.freeze"], [], "The worker's envelope answers an output the input manifest never declared."),
+     ["log", "manifest"],
+     "An answer naming an output this assignment did not declare is refused.")
+
+case("A-completion-identity-must-match-the-declaration",
+     refusal(E("integrity", "schema"), false("answer_identity_matches")),
+     stim(CTRL, ["output.freeze"], [], "The worker's envelope answers a declared name with a different type and path."),
+     ["log", "manifest"],
+     "An answer's name, type and path equal the declaration's; a differing identity is refused.")
+
+# W19784, approved 2026-08-26. THE CONTRACT WAS UNSATISFIABLE and this suite
+# could not see it, because every case above reads ONE document at a time.
+#
+# §8.7 requires the completion envelope to carry the exact full
+# `assignment_ref` including the authority generation; §8.1 gives `input.json`
+# no generation, because it is minted before any claim exists. Nothing else in
+# the container carried one. A worker obeying the input contract could not
+# obey the output contract, and no case here would have failed.
+#
+# The fix delivers the already-defined assignment manifest, unchanged, at the
+# second fixed read-only name `/input/assignment.json`. These nine cases are
+# what makes that observable rather than asserted: the delivery and its mount
+# mode, the pair bindings, the identity actually reaching the envelope, and
+# each way the delivery can be wrong.
+case("A-assignment-manifest-delivered-read-only-beside-the-input",
+     invariant(true("assignment_manifest_present"),
+               true("assignment_manifest_read_only"),
+               true("input_pair_bindings_agree"),
+               eq("assignment_manifest_path", "/input/assignment.json")),
+     stim(CTRL, ["runtime.start"], [],
+          "Read the execution container's input root after activation."),
+     ["manifest", "trace"],
+     "Both manager-authored input documents are present read-only at their fixed names and bind to one delivery.")
+
+# W19784 second review [P0], 2026-08-27. AUTHORIZING A ROOT AND MOUNTING ONE
+# WERE TWO OPERATIONS. The manager proved a directory named the live
+# assignment, this attempt and the claimed input digest -- and the runtime's
+# mount plan was independent of that value, free to name the sibling workspace,
+# land somewhere other than the fixed path, or mount nothing. Every check said
+# yes because each was about a different value.
+case("A-only-the-authorized-root-is-mounted-at-the-fixed-path",
+     refusal(E("policy", "denied"),
+             false("mounted_source_is_authorized"),
+             eq("runtimes_started", 0)),
+     stim(CTRL, ["runtime.start"], [],
+          "Authorize one input root and start a runtime whose mount plan names another source at /input."),
+     ["trace", "log"],
+     "The root the manager authorized is the root the runtime mounts: exactly that source, read-only, at the fixed /input.")
+
+case("A-execution-without-the-assignment-manifest-refused",
+     refusal(E("refused", "precondition"),
+             false("assignment_manifest_present"),
+             eq("agent_dispatches", 0)),
+     stim(CTRL, ["runtime.start"], [],
+          "Compose an execution container whose input root carries input.json alone."),
+     ["log", "trace"],
+     "An input root missing assignment.json refuses before any agent is dispatched.")
+
+case("A-malformed-assignment-manifest-refused",
+     refusal(E("integrity", "schema"),
+             false("assignment_manifest_valid"),
+             eq("agent_dispatches", 0)),
+     stim(CTRL, ["runtime.start"], [],
+          "Deliver an assignment.json that is not a closed valid assignment manifest."),
+     ["log", "manifest"],
+     "A structurally invalid assignment.json refuses before any agent is dispatched.")
+
+case("A-assignment-minted-against-another-input-refused",
+     refusal(E("integrity", "digest"),
+             false("input_pair_bindings_agree"),
+             eq("agent_dispatches", 0)),
+     stim(CTRL, ["runtime.start"], [],
+          "Deliver an assignment.json whose input_manifest_digest names another input manifest."),
+     ["log", "manifest"],
+     "Two separately valid documents that were not minted for each other refuse as a pair.")
+
+case("A-input-pair-naming-two-work-items-refused",
+     refusal(E("integrity", "schema"),
+             false("input_pair_bindings_agree"),
+             eq("agent_dispatches", 0)),
+     stim(CTRL, ["runtime.start"], [],
+          "Deliver an assignment.json for a different Work than input.json declares."),
+     ["log", "manifest"],
+     "An input pair about two different Work items refuses however valid each document is alone.")
+
+case("A-consent-sees-neither-input-document",
+     invariant(false("assignment_manifest_present"),
+               false("input_manifest_present"),
+               empty("consent_mounts")),
+     stim(CTRL, ["runtime.start"], [],
+          "Enumerate everything mounted into the consent-phase container."),
+     ["trace", "attestation"],
+     "The consent phase mounts neither manager-authored input document, and mounts nothing at all.")
+
+# W19784 second round, 2026-08-27. THE REVIEW FOUND THESE THREE CERTIFYING THE
+# RIGHT RULE AT THE WRONG MOMENT. The two negatives below operated only at
+# `output.freeze`, which is AFTER the agent has run -- so a stale or
+# wrong-attempt root was mounted, an agent worked against material nothing had
+# authorized, and the suite called that conformant because the freeze refused.
+#
+# The approved lifecycle puts the proof before the mount. These three are that
+# moment; the freeze cases stay as defence in depth, which is what they always
+# were and never the only line.
+case("A-input-root-authorized-against-the-owned-assignment",
+     invariant(true("root_authorized_before_exposure"),
+               true("manifest_generation_is_live"),
+               true("attempt_identity_matches")),
+     stim(CTRL, ["runtime.start"], [],
+          "Start a runtime over a root composed for this exact assignment and attempt."),
+     ["manifest", "trace"],
+     "The composed input root is held against the manager's own assignment, generation and runtime attempt before it is exposed.")
+
+case("A-stale-generation-root-refused-before-mount",
+     refusal(E("stale-assignment", "generation"),
+             false("manifest_generation_is_live"),
+             eq("agent_dispatches", 0),
+             eq("durable_effects", 0)),
+     stim(CTRL, ["runtime.start"], [],
+          "Start a runtime over a self-consistent root whose assignment names a superseded generation."),
+     ["log", "manifest"],
+     "A root that agrees with itself but names a superseded generation refuses before mount, with no runtime and no agent.")
+
+case("A-wrong-attempt-root-refused-before-mount",
+     refusal(E("runtime-observation", "identity-mismatch"),
+             false("attempt_identity_matches"),
+             eq("agent_dispatches", 0),
+             eq("durable_effects", 0)),
+     stim(CTRL, ["runtime.start"], [],
+          "Start a runtime over a root composed for a different runtime attempt."),
+     ["log", "trace"],
+     "A root composed for another runtime attempt refuses before mount rather than at the freeze.")
+
+case("A-completion-copies-the-delivered-assignment-identity",
+     success(true("envelope_identity_equals_delivered"),
+             true("manifest_generation_is_live"),
+             eq("durable_effects", 1)),
+     stim(CTRL, ["output.freeze"], [],
+          "Freeze an assignment whose worker copied assignment_ref from /input/assignment.json."),
+     ["manifest", "diff"],
+     "The completion envelope carries the exact identity delivered at /input/assignment.json and the freeze commits.")
+
+case("A-completion-under-a-superseded-generation-refused",
+     refusal(E("stale-assignment", "generation"),
+             false("manifest_generation_is_live"),
+             eq("durable_effects", 0)),
+     stim(CTRL, ["output.freeze"], [],
+          "Freeze after the authority superseded the generation the delivered assignment named."),
+     ["log", "manifest"],
+     "A completion envelope naming a superseded generation refuses and mutates no custody.")
+
+case("A-assignment-manifest-naming-another-runtime-attempt-refused",
+     refusal(E("runtime-observation", "identity-mismatch"),
+             false("attempt_identity_matches"),
+             eq("durable_effects", 0)),
+     stim(CTRL, ["output.freeze"], [],
+          "Freeze where the delivered assignment names a runtime attempt other than the one the manager started."),
+     ["log", "trace"],
+     "An assignment manifest bound to another runtime attempt refuses and mutates no custody.")
+
+case("A-required-declaration-cannot-be-answered-missing",
+     refusal(E("refused", "precondition"), false("required_output_present")),
+     stim(CTRL, ["output.freeze"], ["output-suppress"], "Suppress a REQUIRED output, then have the worker answer it missing-optional."),
+     ["log", "manifest"],
+     "A required declaration answered missing-optional is refused; a worker cannot settle its own attempt.")
+
+case("A-identifier-only-output-refused",
+     refusal(E("integrity", "digest"), false("manager_holds_artifact_bytes")),
+     stim(CTRL, ["output.freeze"], [], "The worker's envelope names an output only by an unresolved identifier; freeze it."),
+     ["log", "manifest"],
+     "An output the manager cannot resolve to bytes it holds is refused as a durable result.")
+
+case("A-output-persists-past-the-runtime",
+     success(true("frozen_tree_readable_after_destroy"),
+             true("output_manifest_readable_after_destroy"),
+             true("digests_unchanged_after_destroy")),
+     stim(CTRL, ["output.freeze", "runtime.destroy"], [], "Freeze, destroy the runtime, then read /output/ again."),
+     ["manifest", "trace"],
+     "A declared output workspace and its manifest outlive the runtime that produced them, with unchanged digests.")
+
+case("A-ephemeral-not-exported-not-collected",
+     invariant(true("wrote_ephemeral_path"),
+               disjoint("collected_paths", ["ephemeral-only.txt"])),
+     stim(PROBE, ["output.collect"], [], "Probe writes into private ephemeral space and does not export, then collect."),
+     ["manifest", "diff"],
+     "Material left in private ephemeral space is not collected; ephemeral space is capacity rather than protocol.")
+
+case("A-ephemeral-exported-is-collected",
+     success(true("exported_before_quiescence"),
+             subset("collected_paths", ["exported.txt"])),
+     stim(CTRL, ["output.collect"], [], "Export ephemeral material into a declared output path before quiescence, then collect."),
+     ["manifest", "diff"],
+     "Ephemeral material becomes a result only by being exported into a declared output path before quiescence.")
+
+case("A-frozen-output-chains-as-read-only-input",
+     success(true("chained_content_manifest_matches_frozen_result"),
+             false("chained_input_write_succeeded"),
+             empty("manager_acquisition_transports")),
+     stim(CTRL, ["assignment.activate"], [], "Stage a previous assignment's frozen output as the next assignment's input, then activate."),
+     ["manifest", "trace"],
+     "A frozen output chains into a later assignment as a read-only staged input, by content manifest and with no re-acquisition.")
 
 case("A-output-traversal-refused",
      refusal(E("integrity", "path")),

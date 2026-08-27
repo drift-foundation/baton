@@ -1,0 +1,87 @@
+W14251 — fourth-review correction. 2026-08-26.
+The escalation is settled: the rule is landed and the fixtures migrated.
+No repository state was mutated.
+
+=== 1. the rule, driven both ways
+test_a_completed_receipt_that_binds_its_envelope_is_accepted ... ok
+test_a_completed_receipt_that_binds_nothing_is_refused (tests.manager.test_manifest_rules.TheReceiptBindsTheEnvelopeItValidated.test_a_completed_receipt_that_binds_nothing_is_refused)
+test_an_unfinished_ending_may_carry_no_envelope (tests.manager.test_manifest_rules.TheReceiptBindsTheEnvelopeItValidated.test_an_unfinished_ending_may_carry_no_envelope)
+test_an_unfinished_ending_still_binds_one_that_was_validated (tests.manager.test_manifest_rules.TheReceiptBindsTheEnvelopeItValidated.test_an_unfinished_ending_still_binds_one_that_was_validated)
+Ran 4 tests in 0.003s
+OK
+
+=== 2. the migration, and what my escalation had missed
+I reported 96 refusals across three Works. Two things were wrong with it:
+  - 92 of the 96 came from ONE shared helper (OutputCase.result);
+  - the aggregate run then turned up 57 MORE in test_boundary_inventory,
+    which builds its own sealed result. One more fixture carried those.
+So the number was the cost of the suites I happened to run rather than
+the cost of the change, and the change itself was two fixtures.
+
+$ PYTHONPATH=src python3 -m unittest test_frozen test_manifest_rules test_output test_secrets test_workspaces
+----------------------------------------------------------------------
+Ran 230 tests in 0.849s
+
+OK
+
+$ PYTHONPATH=src python3 -m unittest test_intake test_sealing
+----------------------------------------------------------------------
+Ran 92 tests in 0.523s
+
+OK
+
+=== 3. the record's own executable contract
+----------------------------------------------------------------------
+Ran 24 tests in 0.109s
+
+OK
+
+=== 4. the conformance suite, unchanged this round
+cases: 123 {'control-success': 27, 'control-refusal': 48, 'invariant': 48}
+----------------------------------------------------------------------
+Ran 74 tests in 4.387s
+
+OK
+
+=== 5. the four schema copies, at the new digest
+copies: 4 distinct digests: 1 | sha256: 22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc
+
+=== 6. the two comments the review named
+Both were claims that would have read as settled to the next reader.
+659:    THIS IS NOT A VERSION BOUNDARY. I proposed one and it was refused, rightly:
+660-    `$defs.version` pins `minor` to `const: 0`, so widening the version
+661-    vocabulary merely to preserve a bypass would be inventing a negotiation
+662-    nothing performs. The rule is the 1.0 rule.
+663-    """
+
+436:    THAT COMPARISON IS A DOWNSTREAM OBLIGATION AND NOT A PRESENT FACT. W6634
+437-    owns the manager side of the freeze and has not implemented envelope intake
+438-    -- measured, nothing under `worker_manager/` reads `/output/output.json` --
+439-    so §12 rule 15 is stated for it to satisfy rather than described as
+440-    something it does. Conformance obligation `A-16` is what will observe it.
+441-    """
+
+=== 7. the aggregate gate
+ERROR: test_a_cleanup_exception_cannot_replace_an_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_cleanup_exception_cannot_replace_an_earlier_failure)
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+FAIL: test_a_started_runtime_with_an_invalid_identity_is_explicitly_unresolved (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_started_runtime_with_an_invalid_identity_is_explicitly_unresolved)
+FAIL: test_a_proved_failed_recovery_removes_its_stale_record (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_a_proved_failed_recovery_removes_its_stale_record)
+FAIL: test_a_refused_cleanup_is_attached_to_the_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_refused_cleanup_is_attached_to_the_earlier_failure)
+Ran 1408 tests in 792.906s
+FAILED (failures=9, errors=1, skipped=6)
+V12_STATUS=1
+
+The inventory is back to its long-standing six; the 57 this change
+briefly added are gone. None of the ten is this Work's:
+  - six are the long-standing boundary-inventory gaps;
+  - two are W6633's test_worker_image_build;
+  - two are additive regressions W6634's own review added to
+    test_credentials while this round ran.
+
+$ diff --check over the working tree
+DIFFCHECK_STATUS=0

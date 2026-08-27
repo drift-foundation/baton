@@ -24,6 +24,20 @@ FROM python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc99
 COPY baton_worker.py /opt/baton/baton_worker.py
 COPY scripted_agent.py /opt/baton/scripted_agent.py
 
+# AND THE FROZEN CONTRACT, AS DATA. W19784 review [P0]: the worker read the
+# manager's two `/input/` documents by picking out the members it wanted, so a
+# false self-digest or an extra top-level member -- a second identity alias,
+# which the ruling rejected -- reached the agent.
+#
+# This is a DATA file, not code, and it is not `baton_v12`. The rule above is
+# that the worker must not be able to import the manager; a schema document is
+# the contract both sides are held to, and shipping it is what lets the worker
+# derive the closed member sets instead of carrying a hand-typed second copy
+# of them. `test_frozen` proves this copy is byte-identical to the other four,
+# so there is one contract with five identical copies rather than five
+# contracts. The image gains no library and no import path it did not have.
+COPY worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+
 # A FIXED NON-ROOT USER, by numeric id so it does not depend on a passwd entry
 # the base image might change. 65532 is the conventional "nonroot" id and is
 # the same one the adapter's `--user` restriction names -- two places agreeing

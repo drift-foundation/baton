@@ -85,12 +85,22 @@ from .interrogation import (INTERROGATION_KINDS, inquire,
 from .manifests import load_manifest, retain_manifest
 from .output import (freeze_operation, frozen_output_of, record_frozen_result,
                      request_freeze)
-from .schema import (DISPOSITIONS, OUTPUT_STATUSES, OUTPUT_TYPES, POSTURES,
-                     SCHEMA_VERSION, SLOT_OCCUPANCY, STORE_KIND, TABLES)
+from .intake import (KEEPS_MATERIAL, authorize_cleanup, collect_operation,
+                     decide_retention, destroy_operation, intake_operation,
+                     intake_receipt_of, record_intake, request_intake,
+                     retain_operation, retentions_of)
+from .schema import (CUSTODY, DISPOSITIONS, OUTPUT_STATUSES, OUTPUT_TYPES,
+                     POSTURES, RETENTION_DISPOSITIONS, SCHEMA_VERSION,
+                     SLOT_OCCUPANCY, STORE_KIND, TABLES)
 from .store import (ControlStore, manager_signature, revive_refusal,
                     seal_refusal)
 
-__all__ = ["ACP_CLIENT_CAPABILITIES", "ACP_CLIENT_CAPABILITY_MEMBERS",
+__all__ = ["CUSTODY", "KEEPS_MATERIAL", "RETENTION_DISPOSITIONS",
+           "authorize_cleanup", "collect_operation", "decide_retention",
+           "destroy_operation", "intake_operation", "intake_receipt_of",
+           "record_intake", "request_intake", "retain_operation",
+           "retentions_of",
+           "ACP_CLIENT_CAPABILITIES", "ACP_CLIENT_CAPABILITY_MEMBERS",
            "AGENT_ADAPTER", "DISPOSITIONS", "INTERROGATION_KINDS",
            "inquire", "interrogation_of", "interrogations_of", "probe",
            "publish_inquiry_answer", "record_inquiry_answer",

@@ -1,0 +1,49 @@
+W6633 — ninth round. 2026-08-26.
+The [P1] cleanup correction, and the blocker revalidated as lifted.
+No repository state was mutated.
+
+=== 1. [P1] cleanup evidence survives an earlier failure
+$ PYTHONPATH=src python3 -m unittest tests.tools.test_worker_image_build
+----------------------------------------------------------------------
+Ran 29 tests in 0.021s
+
+OK
+
+Both additive regressions, and the three guards measured by removal:
+   the earlier failure loses its cleanup evidence
+     -> test_a_refused_cleanup_is_attached_to_the_earlier_failure
+   a cleanup exception replaces the primary failure
+     -> test_a_cleanup_exception_cannot_replace_an_earlier_failure
+   a refused cleanup on the successful path is ignored
+     -> test_a_failed_stage_removal_cannot_report_a_successful_build
+
+=== 2. the blocker, revalidated against the ledger
+  W14251 status: closed
+  W6633 open_blockers: 0 | first_open_blocker: None
+
+=== 3. the revalidation, by measurement
+  PINNED:
+    completionManifest required: ['schema', 'assignment_ref', 'disposition', 'outputs']
+    workerOutput required:       ['name', 'type', 'path', 'status', 'content_manifest', 'result_metadata']
+    outputDescriptor required:   ['name', 'type', 'path', 'required', 'constraints']
+  THIS IMAGE:
+    work request members: "work": COMMON_MEMBERS + ("task",)
+    work answer members:  "work": ("disposition", "workspace", "recap")
+    execution environment carries: ['BATON_WORKER_ASSIGNMENT', 'BATON_WORKER_WORKSPACE', 'BATON_WORKER_OUTPUT']
+    'input.json' occurrences:  0
+    'output.json' occurrences: 0
+    the agent reads an inline task: True
+
+  The exact six-point change is recorded in PROGRESS.md. It is a
+  PROTOCOL change rather than a rename, and it is not started this
+  round: doing it alongside the cleanup fix would have produced a
+  half-rewritten protocol.
+
+=== 4. the focused image gates
+----------------------------------------------------------------------
+Ran 123 tests in 12.715s
+
+OK
+
+$ diff --check over the working tree
+DIFFCHECK_STATUS=0

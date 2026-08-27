@@ -22,6 +22,7 @@ from contract_model import (
     token_verifier,
     validate_envelope,
     validate_manifest,
+    validate_input_pair,
     validate_offer_decide,
 )
 
@@ -137,6 +138,9 @@ def typed_documents() -> list[dict]:
             evidence=[evidence()],
             freeze_operation=OPERATION,
             manager_observed_at="2026-08-21T22:00:03.000Z",
+            # W14251 fourth review: a completed receipt names the worker
+            # completion envelope the manager validated before it froze.
+            completion_manifest_digest=D,
         ),
         manifest(
             "baton.worker-manifest/proposal",
@@ -371,6 +375,103 @@ class SchemaAndVectorTests(unittest.TestCase):
                     document = seal_manifest(document)
                     with self.assertRaisesRegex(ContractError, vector["expected"]):
                         validate_manifest(document)
+
+    def test_the_completed_receipt_vector_reaches_its_named_rule(self) -> None:
+        """W14251 fifth review: prove the new vector omits, rather than
+        mistypes, the completion binding and inspect the result branch alone.
+
+        The top-level schema is a `oneOf` over every document kind. A generic
+        expected word such as `required` can therefore match an unrelated
+        branch even when the intended result-manifest rule was never reached.
+        """
+        valid = {item["name"]: item["document"] for item in VECTORS["valid"]}
+        vector = next(item for item in VECTORS["invalid"] if item["name"] ==
+                      "result-completed-without-its-completion-envelope")
+        document = copy.deepcopy(valid[vector["mutate_valid"]])
+        apply_patch(document, vector["patch"])
+        branch = Draft202012Validator({
+            "$ref": "#/$defs/resultManifest", "$defs": SCHEMA["$defs"]})
+        messages = [error.message for error in branch.iter_errors(document)]
+        self.assertIn("'completion_manifest_digest' is a required property",
+                      messages)
+
+
+class TheInputPairIsOneDelivery(unittest.TestCase):
+    """W19784, approved 2026-08-26.
+
+    THE DEFECT. SPEC 8.7 requires the worker's completion envelope to carry the
+    exact full `assignment_ref` -- Work reference, participant AND authority
+    generation -- and SPEC 8.1 gives `input.json` no generation, because it is
+    minted before any claim exists. Nothing else inside the execution container
+    carried one. A worker that obeyed the input contract could not obey the
+    output contract, so no conformant execution container could be built.
+
+    THE FIX is a path and a lifecycle, not a document: the already-defined
+    assignment manifest, unchanged, at `/input/assignment.json`.
+
+    WHY THESE CASES NEED THEIR OWN VECTOR SHAPE. `test_invalid_vectors` drives
+    one document through one validator. Every document below is separately
+    closed, digest-bound and structurally valid -- `validate_manifest` accepts
+    each one alone -- and what refuses is the RELATIONSHIP. A single-document
+    harness cannot express that, so `vectors.json` gained an `input_pairs`
+    section rather than these being hand-built here.
+    """
+
+    def documents(self):
+        named = {item["name"]: item["document"] for item in VECTORS["valid"]}
+        pair = VECTORS["input_pairs"]["valid"][0]
+        return (copy.deepcopy(named[pair["input"]]),
+                copy.deepcopy(named[pair["assignment"]]))
+
+    def test_the_published_assignment_vector_stands_alone(self):
+        _, assignment = self.documents()
+        VALIDATOR.validate(assignment)
+        validate_manifest(assignment)
+        # The member the input manifest cannot carry and the completion
+        # envelope must: this vector is the only place it enters the container.
+        self.assertEqual(assignment["assignment_ref"]["generation"], 3)
+
+    def test_the_composed_pair_is_accepted(self):
+        validate_input_pair(*self.documents())
+
+    def test_every_published_broken_pair_reaches_its_named_rule(self):
+        for vector in VECTORS["input_pairs"]["invalid"]:
+            with self.subTest(vector=vector["name"]):
+                given, assignment = self.documents()
+                apply_patch(assignment, vector["patch"])
+                assignment = seal_manifest(assignment)
+                # Still perfectly valid ALONE. That is the whole point.
+                VALIDATOR.validate(assignment)
+                validate_manifest(assignment)
+                with self.assertRaisesRegex(ContractError, vector["expected"]):
+                    validate_input_pair(given, assignment)
+
+    def test_neither_document_may_stand_in_for_the_other(self):
+        given, assignment = self.documents()
+        for left, right in ((given, given), (assignment, assignment)):
+            with self.assertRaises(ContractError):
+                validate_input_pair(left, right)
+
+    def test_the_generation_is_deliberately_uncompared(self):
+        """The input manifest has no generation to compare against, and that
+        asymmetry is the defect this Work answers. A pair rule that demanded
+        agreement on it would be unsatisfiable by construction, so the
+        assignment side is the sole source and moving it is not a pair error.
+        """
+        given, assignment = self.documents()
+        self.assertNotIn("generation", given)
+        assignment["assignment_ref"]["generation"] = 99
+        validate_input_pair(given, seal_manifest(assignment))
+
+    def test_the_assignment_contract_is_pinned_by_the_schema_not_the_pair(self):
+        """SPEC 12 rule 16 records this as discharged one layer earlier rather
+        than dropped: both documents pin `assignment_contract` to one const, so
+        a comparison in the pair rule could never own a refusal."""
+        for branch in ("inputManifest", "assignmentManifest"):
+            with self.subTest(branch=branch):
+                member = SCHEMA["$defs"][branch]["allOf"][1]["properties"]
+                self.assertEqual(member["assignment_contract"],
+                                 {"const": "v12-assignment-1"})
 
 
 class SemanticModelTests(unittest.TestCase):

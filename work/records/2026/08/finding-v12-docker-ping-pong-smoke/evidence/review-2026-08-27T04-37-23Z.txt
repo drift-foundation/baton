@@ -1,0 +1,49 @@
+W17110 independent correction re-review, 2026-08-27T04:37:23Z
+Reviewer: baton.codex
+
+=== retained and expanded daemon-free regressions
+test_a_provider_directory_needs_traversal_permission ... FAIL
+test_an_unreadable_nominated_provider_is_not_ready ... FAIL
+test_a_failed_container_cleanup_query_prevents_clean_success ... FAIL
+test_a_failed_image_cleanup_query_prevents_clean_success ... FAIL
+test_a_refused_image_removal_prevents_clean_success ... ok
+test_a_staged_root_that_survives_prevents_clean_success ... ok
+test_an_unexpected_published_member_refuses_the_result_shape ... FAIL
+test_arbitrary_agent_output_is_not_copied_to_the_host_report ... ok
+test_nonzero_malformed_output_cannot_be_a_satisfying_pong ... ok
+
+======================================================================
+FAIL: test_a_provider_directory_needs_traversal_permission
+AssertionError: True is not false
+
+FAIL: test_an_unreadable_nominated_provider_is_not_ready
+AssertionError: 0 == 0
+
+FAIL: test_a_failed_container_cleanup_query_prevents_clean_success
+AssertionError: 0 == 0
+
+FAIL: test_a_failed_image_cleanup_query_prevents_clean_success
+AssertionError: 0 == 0
+
+FAIL: test_an_unexpected_published_member_refuses_the_result_shape
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.005s
+FAILED (failures=5)
+
+=== source observations
+trial.py:85-87 says unknown members are dropped; no exact-set check follows.
+trial.py:255-258 turns docker ps stdout into survivors without checking status.
+trial.py:266-269 does the same for docker image ls.
+trial.py:317-321 clean omits both query statuses and timeout kill/rm statuses.
+preflight.py:88-99 checks read on the provider and execute only on ancestors;
+directory providers need execute on themselves too.
+preflight.py:163-164 gates READY on nominated presence, not reported
+readable_by_container_uid.
+
+=== syntax and whitespace
+node --check v12/spike/ping-pong/trial.mjs: PASS
+git diff --check: clean
+
+No credential was opened or mounted and no live-provider trial was run.

@@ -57,7 +57,14 @@ STANDARD_LIBRARY = {"json", "pathlib", "hashlib", "re", "os", "typing",
                     # single-threaded today" is the kind of assumption this
                     # distribution has been corrected for, and `threading`
                     # costs the locked build nothing.
-                    "threading"}
+                    "threading",
+                    # W6634 seventh review: the completion signal is opened
+                    # with `O_NOFOLLOW` and proved a regular file on the
+                    # OPENED DESCRIPTOR, so nothing can be swapped between the
+                    # check and the read. `stat.S_ISREG` is how that mode is
+                    # read, and it is the standard library's own -- the
+                    # ruled-validator rule is about third-party packages.
+                    "stat"}
 
 # The complete ruled runtime closure, written out. A closure that is merely
 # "whatever pip resolved" is not pinned, and item 4bh named the version.
@@ -388,6 +395,26 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # the injected runtime adapter and provider agent, and what a call
         # says it started
         "adapter", "agent", "minted", "minted_labels",
+        # W6634: the sealing half. `outputs` is the assignment's DECLARED
+        # outputs, owned once at construction -- what may be collected is the
+        # assignment's statement, not a per-call argument. `roots`, `declared`,
+        # `identity` and `input_manifest_digest` are the values the adapter
+        # proved once and hands to a module that is a pure function over them,
+        # which is why that module takes them rather than the adapter itself:
+        # `list` and `observe` are injected capabilities with one crossing
+        # each, and a second module calling them would give one capability two
+        # owners.
+        "outputs", "roots", "declared", "identity", "input_manifest_digest",
+        # W6634 review [P1]: where this manager keeps the bytes it has taken
+        # custody of. A sibling of the assignment's roots and deliberately not
+        # one of them -- `ROOT_NAMES` says what a container may MOUNT, and
+        # custody is what the worker must not reach after the freeze.
+        "custody",
+        # W6629 review [P1]: the two frozen commands this manager issues. The
+        # adapter seam used to take a bare runtime id, so the whole body that
+        # AUTHORIZES a destroy stopped at the boundary; `command` is that body
+        # arriving, and it is an operand rather than bookkeeping.
+        "command",
         "reason", "now", "ttl_seconds", "refused_evidence", "disposition",
         "may_retire",
         # the boundary layer
@@ -399,12 +426,16 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # only thing a handshake has to go on.
         "advertised", "profile", "agent_protocol_version",
         "agent_session_capabilities",
-        # W6631: the source materializer. `root`, `storage`, `origin`,
-        # `inputs` and `git_metadata` are PLACES this component is handed or
-        # creates; `source` is the descriptor being delivered; `ref`,
-        # `revision` and `into` are what the repository port forwards.
-        "root", "storage", "origin", "inputs", "git_metadata", "source",
-        "ref", "revision", "into", "git_dir", "assignment_id", "git",
+        # W6631, narrowed by W15232. The acquisition half is gone from the
+        # core manager, and with it every operand of a duty this manager no
+        # longer performs. This table refuses an entry nothing uses, which is
+        # how it noticed.
+        #
+        # What remains is the generic half: `root` and `storage` are places
+        # this component is handed or creates, `assignment_id` names one
+        # assignment's private tree, and `source` is still an operand of the
+        # contracts layer.
+        "root", "storage", "source", "assignment_id",
         # W6632: the OCI adapter core. `engine` is which of the two runtimes is
         # being spoken to, `labels` is the frozen reconciliation set, `mounts`
         # is what the worker may see, `runtime_id` is one exact identity,
@@ -462,6 +493,92 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # takes would be a permission nobody asked for, which the stale half of
         # this check refuses in the other direction.
         "assignment_roots",
+        # W6629: intake, retention and cleanup. `collected` is what the adapter
+        # reports it took custody of -- compared against the freeze, never
+        # adopted; `artifact_ids` names which of the intaken artifacts a
+        # decision is about; `receipt_digest` is the intake receipt
+        # `runtimeDestroyBody` requires; and `retention_policy_digest` is the
+        # policy a decision was made under.
+        #
+        # `retention_policy_digest` IS AN OPERAND AND NOT INTERNAL STATE, and
+        # that is the whole shape of this slice: the frozen schema states no
+        # shape for the retention policy document -- exactly as it states none
+        # for the nine other `*_policy_digest` members of the assignment
+        # manifest -- so this manager binds the policy by IDENTITY and acts on
+        # the operation that cites it. A component that read the document would
+        # need it; one that binds it needs only its digest, and takes it from
+        # the caller who is citing it.
+        "collected", "artifact_ids", "receipt_digest",
+        "retention_policy_digest",
+        # W14251's split. `completion_manifest_digest` is NOT here and that is
+        # the sixth review's correction: it was a caller-supplied operand, and
+        # a caller's claim that a validation happened is not evidence of one.
+        # `sealing.completion_envelope` opens the worker's document and
+        # recomputes the digest, so nothing hands this manager the answer.
+        # W6634: the credential lifecycle. Every one of these is an operand of
+        # the approved boundary rather than bookkeeping, and the boundary is
+        # what makes each a claim somebody can check:
+        #
+        #   `slots`      the assignment's own closed logical slot names -- the
+        #                ONLY thing an assignment carries about credentials;
+        #   `profile`    the trusted deployment mapping (already declared above
+        #                for the runtime profile, and the same kind of thing);
+        #   `resolution` those slots after the profile has named a provider and
+        #                an opaque reference for each;
+        #   `credential_provider` the injected capability that answers a bearer.
+        #                It is a CAPABILITY the deployment supplies, which is
+        #                the same status as `mint_bearer` and `clock` above;
+        #
+        # WHERE THE CREDENTIAL HOME ITSELF WENT: it is a constructor operand
+        # (`CredentialHome(place)`), and this sweep deliberately does not walk
+        # `__init__` -- so declaring `place` here would be a permission nothing
+        # asks for, which the staleness half of this rule refuses. The boundary
+        # inventory owns that entry instead, where a constructor IS public.
+        #   `delivery`   one materialized delivery, which is what teardown acts
+        #                on;
+        #   `live`       which attempts are still live, so orphan cleanup knows
+        #                what it may not remove;
+        #   `credentials_delivered` the (source, target) pairs a start exposes.
+        #                Named apart from `mounts` deliberately: they are owned
+        #                by a different rule -- the fixed container root -- and
+        #                one name for two contracts is how the wrong one gets
+        #                applied.
+        "slots", "resolution", "credential_provider", "delivery",
+        "live", "credentials_delivered",
+        # W19784: the two manager-authored `/input/` documents, and the root
+        # they are composed into.
+        #
+        # `input_manifest` and `assignment_manifest` are DOCUMENTS the caller
+        # holds, and they are named separately rather than as one `documents`
+        # pair for the reason the whole Work exists: they have different
+        # lifecycles and different authority. `input.json` is pre-claim
+        # evidence whose bytes never change; `assignment.json` is minted after
+        # the claim commits and is the only carrier of the authority
+        # generation. One name for two contracts is how the wrong one gets
+        # applied, and here the wrong one is unsatisfiable.
+        #
+        # `inputs` is the assignment's read-only root -- the place, distinct
+        # from `storage` (the manager's whole workspace area) and from `root`
+        # (whatever a helper was handed). `compose_input_root` acts on exactly
+        # one assignment's inputs tree and nothing else.
+        "input_manifest", "assignment_manifest", "inputs",
+        # W19784 review [P0]: the manager's OWN live identity, as operands of
+        # the composition and launch boundaries. `assignment` is the four-part
+        # identity the attempt activated -- the manager's value, held against
+        # the delivered document rather than read out of it, which is the
+        # whole point: a pair that agrees with itself is not thereby the
+        # delivery that was authorized. It is deliberately NOT called
+        # `assignment_ref`: what crosses is the manager's assignment, and the
+        # member of that name inside a manifest is the thing being checked.
+        "assignment",
+        # W19784 third review [P1]: `place` is one path, at the two canonical-
+        # spelling rules the OCI adapter now exports. It became a public
+        # operand because the manager's pre-journal check was a PARAPHRASE of
+        # those rules and disagreed with them exactly where it cost most --
+        # `/else/../input` normalized onto the fixed path and was accepted.
+        # A rule with two implementations agrees with itself until it doesn't,
+        # so there is one of each and both boundaries call it.
+        "place",
     }
 
     # Names that are BOOKKEEPING whatever they are attached to. This is the

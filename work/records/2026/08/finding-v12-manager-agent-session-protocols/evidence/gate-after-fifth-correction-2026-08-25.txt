@@ -1,0 +1,187 @@
+W6627 — the v12 Python gate after the FIFTH re-review correction.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_interrogation tests.manager.test_sessions
+    # Ran 152 tests -- OK
+    # 79 interrogation, 73 session.
+    # 151 before, plus one of mine for the half the correction had to keep.
+
+    cd v12/python && PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    # Ran 1173 tests -- FAILED (failures=16, errors=1, skipped=6)
+
+    cd v12/python && just build
+    # Ran 1173 tests -- FAILED (failures=14, errors=1, skipped=5)
+    # the locked, hash-enforced install: resolves, builds, installs, imports
+    # from site-packages, and runs the whole suite from outside the tree.
+
+THE TWO RUNS DO NOT AGREE ON THE COUNT, AND THE LIST IS WHY
+
+  14 installed against 16 in source is a difference this file has to explain
+  rather than average. Two fewer failures is not evidence of anything on its
+  own: three container cases passing while one interrogation case failed
+  would also net to minus two, and would be a regression hidden by
+  arithmetic.
+
+  `just build` pipes the suite through `tail -3`, so the recipe cannot answer
+  it. The recipe was reproduced with the same venv, the same
+  `--require-hashes --ignore-installed` resolution and the same empty
+  `PYTHONPATH`, differing only in capturing the WHOLE output:
+
+    /tmp/installed-run.sh -> /tmp/w6627-installed-full.txt
+    # Ran 1173 tests -- FAILED (failures=14, errors=1, skipped=5)
+
+  Compared as sorted lists rather than as totals:
+
+    ONLY IN SOURCE ..... test_the_image_id_is_a_receipt_and_not_the_artefact
+                         test_the_same_context_builds_to_the_same_artefact
+    ONLY IN INSTALLED .. (nothing)
+
+  The installed list is a strict SUBSET of the source list. Both extra cases
+  are `test_worker_container` image-reproducibility cases -- W6633's, in
+  review -- and both are environment-dependent in the way this dossier's
+  fourth-correction note already recorded for concurrent engine activity. The
+  single skip difference (5 against 6) sits in the same suite.
+
+  Nothing appears in the installed layout that did not appear in source, so
+  the packaging boundary introduces no failure of its own, and no
+  interrogation, session, deadline, observation or replay case appears in
+  EITHER list.
+
+THE FAILURE REPRODUCED FIRST, before anything was edited
+
+    # Ran 151 tests -- FAILED (errors=1)
+    # ContractRefusal: the agent adapter's probe is a capability this manager
+    # calls; this is none
+    # raised from interrogation.py:209, the pre-journal check, in the review's
+    # own test_replay_does_not_require_the_adapter_capabilities_to_still_exist.
+    # Exactly what `review-2026-08-25T13-11-30Z.md` reported.
+
+THE BASELINE THIS COMPARES AGAINST IS NOT THE FOURTH CORRECTION'S
+
+  That file recorded 1100 tests and 14 failures. The tree now runs 1173. The
+  73 added cases are other Work's reviewers writing into the same working
+  tree while this correction was made -- W6630, W6632 and W6633 are all in
+  review -- so the recorded number is no longer the thing to subtract from.
+  The delta below is therefore measured against THIS tree with only the
+  correction reverted, which is the comparison that still means something.
+
+ALL 17, ACCOUNTED FOR BY OWNING WORK
+
+  tests.manager.test_boundary_inventory ..... 7   -- pre-existing
+  tests.manager.test_oci .................... 3   -- W6632, in review (1 error)
+  tests.manager.test_oci_engine ............. 2   -- W6632, in review
+  tests.manager.test_secrets ................ 2   -- W6630, in review
+  tests.manager.test_worker_container ....... 3   -- W6633, in review
+
+  Not one of the 17 names an interrogation, a session, a deadline, an
+  observation or a replay.
+
+  `test_secrets` is the one that needs saying out loud, because one of its two
+  doors IS an interrogation door:
+
+      test_a_malformed_public_document_cannot_quote_the_live_bearer_it_is
+          _made_of (door='record_inquiry_answer')
+      test_a_malformed_public_document_cannot_quote_the_live_bearer_it_is
+          _made_of (door='certify_agent_session_profile')
+
+  It is still not this correction's. `record_inquiry_answer` takes no adapter
+  and does not go through `store.transact` at all -- its own comment says so
+  -- so nothing this correction moved can reach it. It is W6630's section-13
+  sweep, reported rather than fixed.
+
+THE DELTA, MEASURED RATHER THAN ASSERTED
+
+  ADDED BY THIS CORRECTION ....................... 0
+  REMOVED BY THIS CORRECTION ..................... 1
+      test_replay_does_not_require_the_adapter_capabilities_to_still_exist
+
+  The one already-red test that could have HIDDEN a new entry was measured
+  directly instead of being counted. `test_every_boundary_call_belongs_to_an
+  _entry_or_is_declared` fails on a list of unowned boundary calls, so a new
+  unowned call would have grown the list while leaving the failure COUNT at
+  seven and the whole comparison looking clean:
+
+    cd v12/python && python3 /tmp/orphans.py   # maxDiff=None on that one case
+
+    WITH the correction ....... 11 orphans
+    WITHOUT the correction .... 11 orphans     byte-identical lists
+
+      interrogation.py:_diagnostics      'a probe diagnostic name'
+      oci.py:EnginePort.__call__         "the engine's answer"
+      oci.py:OciAdapter.list             'a listed runtime id'
+      oci.py:_decoded                    'an engine document'
+      oci.py:_label_value                'a runtime label'
+      oci.py:_mounts                     'a runtime mount'
+      oci.py:_whole                      'a generation label'
+      posture_slots.py:_occupy_slot      'a slot movement instant'
+      posture_slots.py:_release_slot_in  'a slot movement instant'
+      posture_slots.py:_require_slot_recovery_in
+                                         'a slot movement instant'
+      workspaces.py:_advertised          'an advertised git ref'
+
+  `interrogation.py:_ask` appears in NEITHER list. The moved
+  `boundaries.capability` pair did not become an orphan: the inventory
+  attributes a call in the nested action to its enclosing function, which is
+  the entry that already owned it.
+
+THE TWO NEW CASES WERE PROVED TO FAIL AGAINST THE OLD CODE
+
+  A regression that passes before and after proves nothing, so the correction
+  was reverted and the focused suite re-run:
+
+    # Ran 79 tests -- FAILED (failures=1, errors=1)
+    #   FAIL  test_nothing_mutable_is_consulted_before_the_journal_decides
+    #         + [] : the replay path inspected the agent adapter
+    #   ERROR test_replay_does_not_require_the_adapter_capabilities_to_still
+    #         _exist
+
+  `test_a_fresh_request_with_an_unusable_adapter_journals_nothing` passes
+  against BOTH, and that is what it is for: it is the half the correction had
+  to keep, not the half it changed.
+
+WHAT THE CORRECTION CHANGED
+
+  [P1] THE ADAPTER IS THE THIRD MUTABLE INPUT. `_ask` validated `agent.probe`
+  and `agent.inquire` before `store.transact` could decide replay. The adapter
+  is mutable external state and is not a signed operand; replay does not call
+  it and does not need it. An exact retry after a restart that left no
+  reachable adapter was refused over a capability it had promised not to use,
+  with its durable answer sitting in the journal.
+
+  The pair is checked inside the fresh action now, beside the clock and the
+  live authority read that the third and fourth corrections moved for exactly
+  this reason. `store.transact` returns the replayed value from `replay()`
+  BEFORE `BEGIN IMMEDIATE`, so the action -- and therefore the adapter -- is
+  never reached on the replay path. That is the mechanism, read rather than
+  assumed.
+
+  THE NON-DURABLE HALF IS KEPT AND NOW ASSERTED. A `ContractRefusal` with
+  `durable=False` raised inside the action takes `ROLLBACK TO act` and
+  `ROLLBACK`, so a fresh request carrying an unusable adapter journals no
+  operation and leaves its identity free. The new case proves the freedom the
+  way it matters: it re-runs the SAME operation id with a usable adapter and
+  requires a fresh commit rather than a replay.
+
+  THE PROPERTY IS STATED OVER ALL THREE INPUTS.
+  `test_nothing_mutable_is_consulted_before_the_journal_decides` counted the
+  clock and the authority, so its universal name was broader than what it
+  proved -- which is what the review found. It counts adapter INSPECTION too,
+  through a proxy that records attribute access rather than calls, because the
+  protocol check reads the two attributes without calling them and a
+  call-counting proxy would have reported zero however early the check ran.
+
+WHAT MOVED THAT THE REVIEW DID NOT ASK FOR: NOTHING, and one consequence
+
+  `_bound_session` stays before the action. The stable signature is built from
+  the durable binding, so it has to be read to know which operation this is;
+  the fourth correction established that boundary and this one does not
+  reopen it.
+
+  Refusal PRECEDENCE changed for fresh requests as a consequence, and it is
+  recorded in FINDING.md rather than left to be discovered. The adapter check
+  used to run ahead of `_bound_session`; inside the action it necessarily runs
+  after. A fresh call carrying BOTH an unusable adapter and an unbound session
+  now refuses `refused/precondition` where it used to refuse
+  `integrity/schema`. No case asserted the old order and the pairing is closed
+  either way, but a caller diffing refusals across builds would read the
+  change as a regression if nobody had written it down.

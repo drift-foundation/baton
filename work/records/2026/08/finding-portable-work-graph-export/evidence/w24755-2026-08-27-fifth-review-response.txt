@@ -1,0 +1,85 @@
+W24755 — response to the fifth independent review. 2026-08-27.
+
+The finding is correct, and it is a call I made deliberately last round
+and got wrong. No Git history or index was mutated.
+
+=== [P1] A STRUCTURED BOUND WAS NOT REQUIRED TO BE CANONICAL
+
+  _export_scope_document validated each bound with _export_instant and
+  DISCARDED the canonical value, so the renderer emitted whatever the
+  caller spelled. 2026-01-01T01:00:00+01:00 and 2026-01-01T00:00:00Z
+  are one approved lower bound and produced different
+  baton_scope_changed_from bytes.
+
+  I DECIDED THIS ON PURPOSE AND THE REASONING IS IN LAST ROUND'S WORK.
+  I judged that requiring canonical form would be unkind to a structured
+  caller and settled for 'parses as RFC 3339'. That was wrong by an
+  argument I had already made myself: two rounds earlier I added the
+  range to the DOT graph attributes precisely so two different scopes
+  could not produce identical bytes. One scope producing DIFFERENT bytes
+  is the same promise broken from the other side, and I did not connect
+  the two.
+
+  The document rule now requires each non-null bound to EQUAL its
+  canonicalization, symmetrically:
+    4487:		# THE BOUND IS THE CANONICAL INSTANT, not merely a legal spelling of
+    4488-		# it. Fifth review [P1], and I decided this the other way one round
+    4489-		# ago on purpose: I judged that requiring canonical form would be
+    4490-		# unkind to a structured caller, and validated "parses as RFC 3339"
+    4491-		# instead. That was wrong, and by an argument I had already made
+
+  THE OPERAND PATH IS UNTOUCHED and still accepts every legal spelling —
+  it normalizes before building the scope, so the rule it meets here is
+  already satisfied. A canonical rule that leaked into the operand path
+  would turn a determinism guarantee into a usability regression, so
+  that is a case rather than an intention:
+    test_the_operand_path_still_accepts_every_legal_spelling
+    test_one_instant_spelled_two_ways_gives_one_document
+
+  The second of those is the promise itself, end to end: four legal
+  spellings of one instant through the real CLI must give byte-identical
+  DOT. It is the converse of a case this suite has carried since the
+  opening round — two scopes over one snapshot must DIFFER — and neither
+  implies the other. The review found the half that was missing.
+
+=== A FLAKY MUTATION DETECTION, FOUND WHILE MEASURING THIS ROUND
+
+  Not a review finding; found by the harness and worth reporting because
+  it means one guard was weaker than four rounds of evidence claimed.
+
+  The mutation that moves the snapshot-sequence sample OUTSIDE the read
+  transaction came back UNSEEN this round. Run alone, the
+  interleaved-writer case catches it; run beside the others, it does
+  not — because it can only observe the defect when a commit lands in
+  the microseconds between the rollback and the sample. A guard whose
+  detection is a coin flip is not a guard, and it had been reported as
+  caught in every previous round.
+
+  The property is now ALSO observed deterministically, at the
+  connection, the same way the configured-team read is:
+    517:def test_the_snapshot_sequence_is_sampled_inside_the_transaction(world):
+    518-	"""Deterministically, at the connection -- not by winning a race.
+    519-
+    520-	The interleaved-writer case below establishes the same property end to
+    521-	end, but it can only SEE a sequence sampled after the rollback when a
+
+  The end-to-end case stays: it establishes the whole property against a
+  real racing writer, and the new one establishes the exact mechanism
+  reliably. Neither replaces the other.
+
+=== MEASURED BY REMOVAL
+
+             test_the_dot_branch_writes_once_and_only_a_whole_document
+    
+    all 62 mutations caught
+
+    source fingerprint before: 406391c1b28c019ba175176242f1fae162fc90a7695d69c983b9218b659e1308
+    source fingerprint after : 406391c1b28c019ba175176242f1fae162fc90a7695d69c983b9218b659e1308
+    IDENTICAL — every mutation was reverted.
+
+=== GATES
+    this Work        : 95 passed in 2.03s
+    boundaries       : 5 passed in 0.18s
+    v11 parallel     : 3162 passed, 188 warnings in 53.89s
+    v11 serial       : 54 passed, 3162 deselected, 1 warning in 130.01s (0:02:10)
+    ACP bridge       : 77 pass, 0 fail

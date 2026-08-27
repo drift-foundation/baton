@@ -1,0 +1,137 @@
+W6630 — evidence after the EIGHTH review correction, 2026-08-26.
+
+Review answered: review-2026-08-26T03-10-29Z.md
+  [P1] constructor assertions still execute or carry rejected values before §13
+       (three manifestations of one ordering/ownership defect)
+
+And the instruction that shaped the correction: "cover constructor assertions
+BY CONSTRUCTION rather than add one exemption per new reproduction."
+
+
+THE THREE MANIFESTATIONS, AND THEY ARE ONE DEFECT
+
+  1. `category not in _PAIRING` and `code not in _PAIRING[category]` HASHED a
+     rejected operand before the safe renderer ran. `__hash__` is caller code,
+     so the check meant to OWN the operand was executing it, and an unhashable
+     one escaped as a raw `TypeError` — the promised assertion taxonomy never
+     reached.
+  2. `_rejected` proved the operand and NOT the text it composed. Its redaction
+     sentence and the type names it renders are text this build owns, and a
+     live value may equal a substring of any of them. Safe provenance is not
+     safe content — which is the containment error sixth review found in
+     `SECRET_LEAK_MESSAGE`, in a second place.
+  3. The message-type and durability-type assertions still used
+     `type(value).__name__`, consulting a caller-controlled metaclass. This
+     module has owned `type_name_of` since W6782 for exactly that reason.
+
+  So the decision I recorded last round — "every diagnostic in this
+  constructor is now behind the same rule" — was not established. The review
+  is right, and it is right in the way that matters: I had fixed the two
+  reproductions I was shown and written the general claim anyway.
+
+
+THE CORRECTION IS A CONSTRUCTION, NOT THREE PATCHES
+
+  `_defect(text, live)` owns the COMPLETE text of every assertion leaving this
+  constructor, and every `raise AssertionError` in `__init__` passes through
+  it. It composes nothing that re-enters the constructor, so there is nothing
+  to bottom out: the preferred text, then `DEFECT_REDACTED`, then the empty
+  string — each proved against the same snapshot, and the last one terminal
+  because a non-empty value cannot be contained in it.
+
+  THE PER-OPERAND RENDERER STAYS, and the two layers do different jobs.
+  `_rejected` redacts only the operand, so an ordinary misspelled `integrty`
+  is still quoted and the sentence still says what was wrong; `_defect`
+  guarantees the invariant whatever `_rejected` or a type name composed.
+
+  SHAPE BEFORE MEMBERSHIP. Category and code are established as text before
+  any `in` operation can hash them — the rule `is_closed_pair` one screen up
+  has followed since W6782, now applied at the site that raises.
+
+  `type_name_of` at both remaining sites.
+
+
+AND THE PART THAT MAKES IT A CONSTRUCTION RATHER THAN A CLAIM
+
+    test_every_assertion_in_the_constructor_goes_through_the_one_owner
+
+  reads `errors.py` with `ast` and requires every `raise AssertionError` inside
+  `ContractRefusal.__init__` to pass its argument through `_defect`. A
+  diagnostic added tomorrow is proved tomorrow instead of becoming the next
+  reproduction. Its sibling requires no `.__name__` attribute lookup anywhere
+  in the class.
+
+  That is the difference between this correction and the last one: the last
+  one was true when I wrote it and had nothing keeping it true.
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_secrets
+    Ran 90 tests in 0.290s
+    OK
+
+  84 -> 90. The review's three additive regressions are kept as written and
+  pass; six are new:
+
+    every assertion in the constructor goes through the one owner (AST)
+    no assertion in the constructor names a type unsafely (AST)
+    a pair operand with a hostile hash never runs — driven with a raising
+      `__hash__`, an unhashable class, a list and an int
+    the defect text gives way WHOLE when its own words are live
+    a live TYPE NAME cannot leave in an assertion — the review's own example
+    an ordinary defect still reads as one, for all six assertions
+
+  CAN-ACTUALLY-FAIL, measured. With shape-before-membership removed, `_defect`
+  stripped from every raise, and `type_name_of` reverted to `.__name__`:
+
+    Ran 90 tests -- FAILED (failures=7, errors=8)
+
+  including all three of the review's and five of the six new ones. The file
+  was restored byte for byte.
+
+
+ADJACENT
+
+    Ran 682 tests -- OK (skipped=1)
+
+  Sixteen modules including `test_oci`, `test_diagnostic_rendering` and the
+  contracts inventory.
+
+
+FULL SOURCE SUITE AND LOCKED BUILD
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1250 tests in 484.760s
+    FAILED (failures=9, skipped=6)
+
+    $ cd v12/python && just build
+    Ran 1250 tests in 480.831s
+    FAILED (failures=9, skipped=5)
+
+  AND THE TREE DID NOT MOVE UNDER THEM. The previous W6632 evidence recorded a
+  pair of gate numbers taken across a reviewer's edit, so this time the test
+  tree was hashed before the build and again after:
+
+    05be60a0925a859dd2199f13c7a4a3df   before
+    05be60a0925a859dd2199f13c7a4a3df   after
+
+  Two measurements of one thing. `test_secrets` DOES NOT APPEAR in the failure
+  list; nothing was added by this correction.
+
+
+REPORTED AND NOT FIXED
+
+  W6633 — `tests.tools.test_worker_image_build`, already reported on T6633:
+    TwoBuildsReachOneIdentity.test_source_checkout_mtime_is_not_part_of_the_image_identity
+    TheBuildVectorIsClosed.test_a_failed_stage_removal_cannot_report_a_successful_build
+
+  Routed to `baton.feat` and not held by this claim. The remaining seven are
+  the long-standing `test_boundary_inventory` failures.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w6630d_full.txt     the full source-suite log
+    /tmp/w6630d_build.txt    the locked installed-layout log
+    /tmp/w6630d_revert.txt   the can-actually-fail measurement

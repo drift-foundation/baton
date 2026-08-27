@@ -299,3 +299,318 @@ single remaining non-baseline failure is W6633's, in review.
 
 **Awaiting independent re-review.** The claim is not released and no Git
 operation was performed.
+
+## Fifth review correction — 2026-08-25
+
+The review's two doors are corrected as it asked. The **re-audit it asked for
+in the same breath is what changed the shape of the fix**, and it is the part
+worth reading.
+
+**The re-audit was a probe, not a reading.** The previous four corrections were
+each a careful argument about which doors quote their operands, and each
+produced an incomplete answer. So this one drove every callable in
+`worker_manager.__all__` with the live bearer in every operand it takes and
+read what came back. **Thirty public surfaces answered with a refusal whose
+message contained the bearer** — not two. The full list is in the evidence.
+
+**And they are not all shape diagnostics.** `activate_assignment`,
+`settle_claim`, `submit_claim`, `record_frozen_result` and
+`publish_inquiry_answer` leak through `refused.precondition` messages that
+simply NAME the attempt or operation they could not find. There is no walk to
+put earlier at those doors and no shape validator to put it before;
+`name_value` renders a rejected `str` verbatim by design, which is what makes
+every refusal that names what it rejects a §13 surface.
+
+**So the guard is at `ContractRefusal.__init__`.** That is third review [P1]'s
+own lesson — a guard at the one crossing cannot be forgotten by a caller
+written later — applied one layer further out than `boundaries.row`. Every
+diagnostic in this distribution becomes durable and portable at that
+constructor, which already establishes that the message is text, that it is
+encodable and that it is bounded. **The acceptance's fourth line is "bounded
+diagnostics that cannot themselves leak", and it belongs beside those three
+rather than in a list of doors I maintain.** A refusal carrying a live bearer
+is replaced by `integrity.secret-leak` with this build's own constant prose,
+keeping the raising site's durability, because a leak found while composing a
+diagnostic does not un-write what had already been written.
+
+**The door-local walks are kept, and they are not redundant.** The crossing
+catches CONTAINMENT. The walk at a door catches the half no message reveals: a
+member NAMED for a secret is refused by its name whatever it holds. A door that
+walks also answers about its operand rather than about the diagnostic somebody
+tried to build from it.
+
+**The review's refutation was right and I had it backwards.** The fourth
+correction said an unowned caller document cannot be walked safely. `_walk`
+traverses only exact built-in `dict`, `list`, `tuple` and `str` and returns
+without reading anything else, so it runs no caller behaviour at all. Both
+named doors walk the raw operand now, and so does `seal_refusal` — a third door
+the re-audit found, which quoted a live bearer in its own type diagnostic.
+
+**One recursion, found by asking the question rather than by asserting it.**
+The first version raised the substitute through the same constructor. A case
+that registers the substitute's own prose as a secret drove it to
+`RecursionError`. The exemption is on that exact message, and it leaks nothing
+because in the one case it fires the message is a constant containing no caller
+data.
+
+## The gate the probe became
+
+`NoPublicRefusalQuotesALiveBearer` derives the same universe
+`EveryPublicSurfaceIsAccountedFor` does — asserted EQUAL to it, so the two
+cannot drift — drives every surface with the bearer live, and requires the
+sweep to have driven something that refused, because a sweep where everything
+returns `None` proves nothing. `TheRefusalConstructorIsTheOneCrossing` holds
+the crossing itself: the substitution, its durability, the recursion, the
+untouched ordinary refusal, the forgotten value, and the message owner's three
+older rules still firing.
+
+**The gate can fail — measured.** With the crossing disabled and nothing else
+changed, `test_secrets` is `FAILED (failures=31)`.
+
+## One defect of my own, recorded because it was mine
+
+The first version of the handshake change replaced the literal label at
+`boundaries.document(profile, "an agent-session profile")` with the local
+`what`. The boundary inventory attributes an owned entry BY THE LITERAL LABEL
+AT THE SITE — the comment two lines above says exactly that — and it raises
+from inside a helper many cases call. One variable produced **546 failures**.
+The literal is restored. It is here because "546" reads as a catastrophe and
+was one character, and because the next person to tidy that call needs to know.
+
+## Verification
+
+`evidence/gate-after-fifth-correction-2026-08-25.txt`.
+
+- `test_secrets` **70/70**, with the reviewer's additive two-door regression
+  kept and both subcases answering `('secret-leak', False)`.
+- Adjacent handshake, interrogation, store, offers, contracts-inventory, pod,
+  text-sweep, dependencies and diagnostic-rendering: **295, OK**.
+- Full source suite: **1182, 12 failures and 1 error**. Seven are
+  `test_boundary_inventory` and six are the recorded `oci`/`worker_container`
+  engine baseline. **None is this correction's**, and the boundary-inventory
+  seven are proved rather than assumed: a copy of the tree with exactly this
+  correction removed fails the same seven test names.
+- Locked installed-layout build (`just build`): **1182, the same twelve
+  failures and one error**, reproduced from site-packages rather than from
+  `src/`, with the contracts package still exporting exactly 41 names — this
+  correction adds no public name.
+
+Nothing added to the suite's failures; nothing removed from it either. The
+`test_boundary_inventory` seven belong to other in-flight Work that has that
+file modified, and they name `documents.py:freeze_requested`,
+`handshake.py:certified_agent_session_profile` and
+`workspaces.py:materialize_git_source` — three sites this correction does not
+touch. Reported, not fixed.
+
+## State
+
+**Awaiting independent re-review.** The claim is not released and no Git
+operation was performed.
+
+
+## Sixth review correction — 2026-08-25
+
+The review is right, and the mistake was in my own comment rather than only in
+my code. It justified exempting the substitute like this:
+
+    "... which it can, if the live value happens to BE this build's
+     substitute prose."
+
+**BE.** Equality reasoning, three lines beneath a rule whose whole content is
+that the value test is CONTAINMENT and not equality. The registry admits any
+non-empty value and §13's own contract admits a 32-character claim token, so a
+live bearer can be a substring of that constant — and the exempt replacement
+carried the entire live value out.
+
+**The replacement is proved now, not exempted.** It passes the same containment
+test as every other message, and when the prose cannot pass it the message is
+EMPTY. The empty message is safe by construction rather than by inspection: it
+is the one string a non-empty value cannot be contained in, and
+`remember_secret` refuses an empty value. That is also what bottoms the
+recursion — the substitute's own construction re-enters the guard, and a
+substitute of `""` cannot fail it — so the exemption was not even buying
+termination that this does not buy honestly.
+
+**What does not give way is the closed pair.** `integrity.secret-leak` is the
+diagnostic and the raising site's durability still propagates; the readable
+prose is the part that can be spent, and only when it would otherwise leak.
+
+**One snapshot answers both questions.** A refusal asks the registry about two
+strings now — the message and the replacement — and asking twice would let the
+registry move between the answers. One snapshot makes them one decision, which
+is the rule `_walk` already follows for a document.
+
+## One of my own assertions was the defect
+
+`test_the_substitute_is_this_build_s_own_prose_and_cannot_recurse` required a
+refusal whose message IS the substitute prose to be constructed UNCHANGED while
+that prose was live. That is the equality exemption written down as an
+expectation. It is replaced by
+`test_the_substitute_is_proved_by_containment_and_never_exempted`, which
+requires that construction to refuse and the answer not to contain the live
+value. Nothing was weakened; the replacement asserts strictly more.
+
+Four cases are new: the empty fallback keeps the closed pair and the
+durability; an empty message is accepted because it can carry nothing (the
+terminal case, stated as its own fact, because without it the fallback has no
+bottom); the prose is still used when it carries nothing live; and one snapshot
+answers both questions, counted rather than assumed.
+
+## Verification
+
+`evidence/gate-after-sixth-correction-2026-08-25.txt`.
+
+- `test_secrets` **75/75** (71 before), with the reviewer's additive regression
+  kept as written and the full public-surface sweep untouched.
+- **Can-actually-fail, measured**: restoring the equality exemption and the
+  constant replacement fails the reviewer's case and both new ones that bear
+  on it. The file was restored byte for byte.
+- Adjacent twelve modules **485, OK**.
+- Full source suite and locked installed-layout build both **1223, eleven
+  failures**, and **`test_secrets` does not appear in that list**. It was the
+  one W6630 failure the suite carried. Nothing was added; one was removed.
+
+## Reported and not fixed
+
+The eleven are seven long-standing `test_boundary_inventory` failures and four
+reviewer regressions on Work this claim does not hold — two on **W6632**
+(`test_oci`) and two on **W6633** (`tests.tools.test_worker_image_build`).
+Both are routed to `baton.feat`, and each was reported on its own thread when
+it was found.
+
+## State
+
+**Awaiting independent re-review.** The claim is not released and no Git
+operation was performed.
+
+
+## Seventh review correction — 2026-08-26
+
+The review is right, and this is the SIXTH time this Work has been corrected
+for one shape: a diagnostic standing in front of the guard. A manifest door, a
+row boundary, two document owners, thirty public surfaces, the substitute
+message — and now the two checks that run before the message is even looked
+at, inside the very function the crossing lives in.
+
+**The pair assertions rendered the rejected operand with `repr`**, so a live
+bearer supplied as an invalid category or code left in an `AssertionError` the
+crossing never saw. Classifying an invalid pair as a raising-site defect is
+right and I have not changed it; it does not make an assertion carrying a live
+secret safe.
+
+**Proved, not suppressed.** `_rejected` names a rejected category or code from
+what is safe to say: a non-string by its type, a string the registry says is
+live by a sentence explaining why it is not quoted, and anything else
+verbatim. A misspelled `integrty` is still quoted — that is the whole use of
+the message — and only a live value gives way, to an explanation rather than to
+silence, because a reader has to be able to tell a redaction from a missing
+value.
+
+**One snapshot for the whole construction**, so the pair and the message are
+decided against one view of the registry.
+
+## A defect the review did not name, closed by the same change
+
+`{value!r}` runs `__repr__`, which is caller-chosen code, inside a diagnostic.
+This module's own `name_value` has refused to do that since W6782 — "a refusal
+never RUNS the value it refuses" — and these two assertions were doing it. A
+pair operand with a raising `__repr__` replaced the assertion with an exception
+of the caller's choosing. It is named by its type now, read without metaclass
+dispatch, and a case drives it with a hostile `__repr__`.
+
+## Verification
+
+`evidence/gate-after-seventh-correction-2026-08-26.txt`.
+
+- `test_secrets` **81/81** (76 before): the review's regression kept as
+  written, five added.
+- **Measured to fail against the old rendering**: restoring `{category!r}` and
+  `{code!r}` gives four failures and one ERROR, and the error is the hostile
+  `__repr__` escaping the constructor — the unnamed defect showing itself.
+  Restored byte for byte.
+- Adjacent **590**; source suite and locked build both **1239, eleven
+  failures**, and **`test_secrets` is not among them**.
+
+## Reported and not fixed
+
+- **W6632**, two `test_oci` cases, already reported on T6632.
+- **W6633**, two new `tests.tools.test_worker_image_build` cases posted
+  mid-correction. Both are real, and the first **contradicts a decision I
+  wrote and defended**: I kept a regular file's mtime because it "came out of
+  the build context and is content", but the version-control source carries
+  bytes and the executable bit and NOT mtime, so two checkouts of one recipe
+  differ and the reproducible identity depends on when each was populated. The
+  second is a cleanup in a `finally` that discards its result, so a build can
+  return a pinnable digest while its unnormalized image survives. Reported on
+  T6633 with the direction I would take.
+
+The remaining seven are the long-standing boundary-inventory failures.
+
+## State
+
+**Awaiting independent re-review.** The claim is not released and no Git
+operation was performed.
+
+
+## Eighth review correction — 2026-08-26
+
+The review is right, and it is right in the way that matters: last round I
+fixed the two reproductions I was shown and then wrote the general claim
+anyway — "every diagnostic in this constructor is now behind the same rule".
+Three more were standing.
+
+**Membership hashed a rejected operand** before the safe renderer ran, so
+`__hash__` — caller code — executed inside the check meant to own it, and an
+unhashable operand escaped as a raw `TypeError`. **`_rejected` proved the
+operand and not the text it composed**, so a live value equal to a substring of
+its redaction sentence or of a rendered type name left verbatim: safe
+provenance is not safe content, which is the sixth review's containment finding
+in a second place. **And two assertions still used `type(value).__name__`**,
+consulting a caller-controlled metaclass this module has refused to consult
+since W6782.
+
+**So the correction is a construction rather than three patches**, which is
+what the review asked for. `_defect` owns the COMPLETE text of every assertion
+leaving this constructor: preferred text, then a constant, then the empty
+string, each proved against the same snapshot, the last terminal. It composes
+nothing that re-enters the constructor, so there is nothing to bottom out.
+
+The per-operand renderer stays, and the two layers do different jobs:
+`_rejected` keeps an ordinary misspelled `integrty` quoted and the sentence
+readable, `_defect` guarantees the invariant whatever was composed.
+
+## What makes it a construction and not another claim
+
+`test_every_assertion_in_the_constructor_goes_through_the_one_owner` reads the
+source with `ast` and requires every `raise AssertionError` in `__init__` to
+pass its text through `_defect`. Its sibling requires no `.__name__` lookup
+anywhere in the class. **A diagnostic added tomorrow is proved tomorrow
+instead of becoming the next reproduction** — which is the difference between
+this and the decision I recorded last round.
+
+## Verification
+
+`evidence/gate-after-eighth-correction-2026-08-26.txt`.
+
+- `test_secrets` **90/90** (84 before): the review's three kept as written,
+  six added — the two AST gates, a hostile-hash case driven four ways, the
+  whole-text give-way, a live TYPE NAME (the review's own example), and an
+  ordinary-defect case covering all six assertions.
+- **Measured to fail without the correction**: 7 failures and 8 errors,
+  including all three of the review's. Restored byte for byte.
+- Adjacent **682 OK**. Source suite and locked build both **1250, nine
+  failures**, and `test_secrets` is not among them.
+- **The tree was hashed before and after the build and was identical.** The
+  previous W6632 evidence recorded a pair of numbers taken across a reviewer's
+  edit; this pair is two measurements of one thing.
+
+## Reported and not fixed
+
+**W6633**, the two `tests.tools.test_worker_image_build` cases, already
+reported on T6633. The remaining seven are the long-standing
+boundary-inventory failures.
+
+## State
+
+**Awaiting independent re-review.** The claim is not released and no Git
+operation was performed.

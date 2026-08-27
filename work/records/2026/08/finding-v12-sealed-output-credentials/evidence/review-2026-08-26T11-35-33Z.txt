@@ -1,0 +1,28 @@
+Independent-review focused evidence
+UTC: 2026-08-26T11:35:33Z
+
+Command:
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_sealing
+
+Result:
+  Ran 21 tests in 0.008s
+  FAILED (failures=3)
+
+Expected review failures:
+  test_collection_uses_immutable_custody_not_the_live_workspace
+    collection digest after a host-side workspace rewrite:
+      sha256:5053df813b7062fd2100de981ab7d3fa3d8ff729d764639bad3428567910d740
+    frozen digest:
+      sha256:4c0757024ef5f77a51f949bd757a0b06e5c65e4b6f4da90cf96ad00effe274c5
+
+  test_two_names_cannot_alias_or_nest_the_same_output_tree (second='out')
+    ContractRefusal not raised
+
+  test_two_names_cannot_alias_or_nest_the_same_output_tree (second='out/nested')
+    ContractRefusal not raised
+
+Retained baseline:
+  The other 18 focused cases passed. The fixture's obsolete `git` root was
+  removed before this run because the current OciAdapter root contract accepts
+  only `inputs` and `workspace` after W15232.

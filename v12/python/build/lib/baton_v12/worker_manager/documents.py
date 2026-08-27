@@ -103,9 +103,18 @@ CONTRACTS = {
     # parts of the assignment are among them: the frozen host omitted the
     # participant, so two participants' runtimes on one Work and generation were
     # indistinguishable by label.
+    #
+    # W6632 review [P1]: `policy_digest` joins them, and this is the second
+    # time this build has extended these labels past the frozen host's set for
+    # the same reason. Reconciliation after a restart finds a runtime by these
+    # labels and then reasons about WHAT WAS DELIVERED from them, so every
+    # member of the resolved identity that the engine cannot report itself has
+    # to be here or it does not survive the restart. The engine knows the
+    # image it is running and reports it; it has never heard of a policy
+    # digest, so a label is the only carrier there is.
     "runtime.labels": (("runtime_attempt_id", "authority_uuid", "work_id",
                         "participant", "generation", "profile_digest",
-                        "adapter_digest"), ()),
+                        "policy_digest", "adapter_digest"), ()),
     "runtime.start-requested": (("attempt_id", "operation_id"), ()),
     # THREE DECISIONS, THREE DOCUMENTS. A reconciliation answers "attached",
     # "uncertain" or "cancel", and each carries different facts -- one shape

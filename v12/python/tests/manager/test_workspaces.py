@@ -1,37 +1,56 @@
-"""W6631 — exact sources, and one private workspace per assignment.
+"""W6631 — the generic directory measurement and one private workspace per
+assignment, as W15232 left them.
 
-The acceptance this file answers to, from the bound record:
+The acceptance this file answers to, from the bound records:
 
   deterministic manifest/digest vectors; symlink, hard-link/special-file,
-  traversal, replacement-race and limit refusals that leave NO ACCEPTED PARTIAL
-  WORKSPACE; pinned revision/ref mismatch and mutable shared Git metadata
-  refuse; concurrent assignments never share a writable workspace or Git
-  metadata; cleanup concerns only what this component created.
+  traversal, replacement-race and limit refusals that leave NO ACCEPTED
+  PARTIAL WORKSPACE; concurrent assignments never share a writable workspace;
+  cleanup concerns only what this component created, including the read-only
+  trees it made read-only.
 
-WHY THE GIT HALF USES A FAKE REPOSITORY AND NOT A REAL ONE. Two reasons, and
-the second is the one that decides it. The component's own boundary is the
-VERIFICATION -- that the pinned object is what is checked out and that an
-advertised ref still names it -- and a fake answers those questions exactly as
-a real repository does. And the standing role instruction for this deployment
-is "never perform mutating Git operations": building fixture repositories would
-mean running `git init` and `git commit`, which is that, on the letter of it.
-The constraint is reported in the record rather than worked around quietly.
+WHAT THIS FILE NO LONGER COVERS. W6631 also built source ACQUISITION here -- a
+repository port and the operations that delivered a version-controlled or
+copied source -- and W15232 removed it under the 2026-08-25 artifact-neutral
+ruling: the Worker Manager receives an ALREADY STAGED read-only directory and
+does not choose or execute an acquisition operation. Those cases went with the
+behaviour, because a test of behaviour that no longer exists asserts nothing.
+
+What stands in their place is `TheCoreManagerDoesNotAcquireSources`, which
+asserts the ABSENCE: no acquisition operation on the module or the package, no
+acquisition definition named in the module's code or as a string operand, no
+acquisition-specific root, and the generic duties still present and callable.
+
+The reasoning that was superseded lives in
+`work/records/2026/08/finding-v12-artifact-neutral-source-stager/` and in
+W6631's own record; it does not need to survive as this file's contract.
 """
 
 import concurrent.futures
+import json
 import os
+import pathlib
 import tempfile
 import unittest
 
-from baton_v12.contracts import ContractRefusal, check_content_manifest, digest
+# `check_content_manifest` stays in the TEST's imports and left the module's:
+# checking a MEASURED manifest against the frozen `contentManifest` shape is a
+# generic property of what this manager still produces. What went with the
+# acquisition half was the module VALIDATING a claimed one it was handed.
+from baton_v12.contracts import (ContractRefusal, check_content_manifest,
+                                 digest)
 from baton_v12.worker_manager import workspaces
 from baton_v12.worker_manager.workspaces import (
-    MAX_DEPTH, MAX_ENTRIES, READ_ONLY_DIR, READ_ONLY_FILE, GitPort,
-    assignment_workspace, directory_manifest, discard_workspace,
-    materialize_directory_source, materialize_git_source)
+    ASSIGNMENT_MANIFEST, INPUT_MANIFEST, MAX_DEPTH, MAX_ENTRIES,
+    READ_ONLY_DIR, READ_ONLY_FILE, assignment_workspace, compose_input_root,
+    directory_manifest, discard_workspace, read_input_root)
 
-SHA1 = {"algorithm": "sha1", "hex": "a" * 40}
-MOVED = {"algorithm": "sha1", "hex": "b" * 40}
+VECTORS = (pathlib.Path(__file__).resolve().parents[4] / "work" / "records"
+           / "2026" / "08" / "finding-v12-isolated-agent-workers" / "findings"
+           / "finding-v12-worker-contract" / "findings"
+           / "finding-worker-control-api-manifests" / "evidence"
+           / "vectors.json")
+
 
 
 class Workspace(unittest.TestCase):
@@ -62,13 +81,31 @@ class Workspace(unittest.TestCase):
         os.makedirs(place, exist_ok=True)
         return place
 
-    def source(self, origin, **overrides):
-        source = {"name": "src", "type": "directory",
-                  "uri": "file:///origin", "destination": "src",
-                  "required": True,
-                  "content_manifest": directory_manifest(origin)}
-        source.update(overrides)
-        return source
+    def staged(self, origin, roots, destination="src"):
+        """An ALREADY STAGED read-only input tree, put there by nobody.
+
+        W15232: this used to build a `directorySource` descriptor and hand it
+        to `materialize_directory_source`, which is the acquisition duty the
+        artifact-neutral ruling moved out of this manager. What the manager
+        receives now is the RESULT of that duty -- a read-only directory under
+        its inputs root -- so the fixture produces the result directly rather
+        than calling an operation that no longer exists.
+
+        Deliberately not a helper that pretends to be a stager: it copies
+        nothing this component would have to understand, and the tests using it
+        are about cleanup and containment rather than about how bytes arrive.
+        """
+        into = os.path.join(roots["inputs"], destination)
+        os.makedirs(into, exist_ok=True)
+        for name in sorted(os.listdir(origin)):
+            with open(os.path.join(origin, name), "rb") as handle:
+                content = handle.read()
+            place = os.path.join(into, name)
+            with open(place, "wb") as handle:
+                handle.write(content)
+            os.chmod(place, READ_ONLY_FILE)
+        os.chmod(into, READ_ONLY_DIR)
+        return into
 
     def workspace(self, assignment="assignment-1"):
         return assignment_workspace(self.storage, assignment)
@@ -209,410 +246,16 @@ class ALimitIsARefusalRatherThanAWalk(Workspace):
         self.assertLess(workspaces.MAX_BYTES, 9007199254740991)
 
 
-class ADeliveredSourceIsExactAndReadOnly(Workspace):
-
-    def test_the_second_read_closes_every_ancestor_descriptor(self):
-        """Publication reopens each component and must own those handles."""
-        origin = self.origin({"deep/deeper/a.txt": b"one"}, "descriptor-copy")
-        source = self.source(origin)
-        before = self.open_descriptors_below(origin)
-        roots = self.workspace("assignment-descriptor-copy")
-        materialize_directory_source(source, origin=origin,
-                                     inputs=roots["inputs"])
-        self.assertEqual(self.open_descriptors_below(origin), before)
-
-    def test_a_source_descriptor_is_the_frozen_closed_shape(self):
-        """Materialization consumes a sourceDescriptor, not a loose subset."""
-        origin = self.origin({"a.txt": b"one"})
-        source = self.source(origin)
-        malformed = {
-            "missing uri": {name: value for name, value in source.items()
-                            if name != "uri"},
-            "missing required": {name: value for name, value in source.items()
-                                 if name != "required"},
-            "extra member": dict(source, surprise=True),
-        }
-        for index, (what, candidate) in enumerate(malformed.items()):
-            with self.subTest(what=what):
-                roots = self.workspace(f"assignment-shape-{index}")
-                with self.assertRaises(ContractRefusal):
-                    materialize_directory_source(
-                        candidate, origin=origin, inputs=roots["inputs"])
-                self.assertEqual(os.listdir(roots["inputs"]), [])
-
-    def test_a_matching_source_is_delivered_read_only(self):
-        origin = self.origin({"a.txt": b"one", "d/b.txt": b"two"})
-        roots = self.workspace()
-        answer = materialize_directory_source(
-            self.source(origin), origin=origin, inputs=roots["inputs"])
-        self.assertEqual(answer["entry_count"], 2)
-        delivered = answer["destination"]
-        with open(os.path.join(delivered, "d/b.txt"), "rb") as handle:
-            self.assertEqual(handle.read(), b"two")
-        self.assertEqual(
-            os.stat(os.path.join(delivered, "a.txt")).st_mode & 0o777,
-            READ_ONLY_FILE)
-        self.assertEqual(os.stat(delivered).st_mode & 0o777, READ_ONLY_DIR)
-        # And the delivered tree measures back to the manifest that was
-        # declared for it, which is the property the whole component exists for.
-        os.chmod(delivered, 0o700)
-        self.assertEqual(directory_manifest(delivered)["tree_digest"],
-                         answer["tree_digest"])
-
-    def test_a_short_write_cannot_publish_a_truncated_source(self):
-        """One os.write call is not a promise that every byte was written."""
-        content = b"more than one byte"
-        origin = self.origin({"a.txt": content}, "short-write")
-        roots = self.workspace("assignment-short-write")
-        original = os.write
-
-        def short(descriptor, data):
-            return original(descriptor, data[:1])
-
-        os.write = short
-        try:
-            answer = materialize_directory_source(
-                self.source(origin), origin=origin, inputs=roots["inputs"])
-        finally:
-            os.write = original
-        with open(os.path.join(answer["destination"], "a.txt"), "rb") as handle:
-            self.assertEqual(handle.read(), content)
-
-    def test_a_stale_staging_symlink_is_not_cleanup_authority(self):
-        """Recovery may remove only a staging directory this component owns."""
-        origin = self.origin({"a.txt": b"one"}, "staging-origin")
-        roots = self.workspace("assignment-staging-link")
-        target = os.path.join(self.root, "not-staging")
-        os.makedirs(target, mode=0o755)
-        staging = os.path.join(roots["inputs"], "src.materializing")
-        os.symlink(target, staging)
-        with self.assertRaises(ContractRefusal):
-            materialize_directory_source(
-                self.source(origin), origin=origin, inputs=roots["inputs"])
-        self.assertEqual(os.stat(target).st_mode & 0o777, 0o755)
-
-    def test_a_source_whose_digest_disagrees_is_not_delivered(self):
-        origin = self.origin({"a.txt": b"one"})
-        source = self.source(origin)
-        source["content_manifest"] = dict(
-            source["content_manifest"],
-            tree_digest="sha256:" + "0" * 64)
-        roots = self.workspace()
-        with self.assertRaises(ContractRefusal) as caught:
-            materialize_directory_source(source, origin=origin,
-                                         inputs=roots["inputs"])
-        self.assertEqual(caught.exception.code, "digest")
-        self.assertEqual(sorted(os.listdir(roots["inputs"])), [],
-                         "a refused source left something behind")
-
-    def test_a_count_or_byte_disagreement_is_named_before_the_digest(self):
-        """A manifest that is INTERNALLY CONSISTENT and describes another tree.
-
-        Editing one aggregate would be caught by the frozen §12 rule before
-        this component measured anything, which proves the contracts layer
-        rather than this one. So the declared manifest is a real manifest --
-        of a DIFFERENT directory -- and only measuring the origin can tell.
-
-        The digests would differ too. The count and the byte total are compared
-        first and named because a reader of this refusal is trying to find out
-        what is on disk that should not be, and two long hex strings do not say.
-        """
-        origin = self.origin({"a.txt": b"one"}, "small")
-        other = self.origin({"a.txt": b"one", "b.txt": b"twotwo"}, "larger")
-        source = self.source(origin,
-                             content_manifest=directory_manifest(other))
-        self.assertEqual(check_content_manifest(source["content_manifest"]),
-                         source["content_manifest"])
-        roots = self.workspace("assignment-aggregates")
-        with self.assertRaises(ContractRefusal) as caught:
-            materialize_directory_source(source, origin=origin,
-                                         inputs=roots["inputs"])
-        self.assertEqual(caught.exception.code, "digest")
-        self.assertIn("entry_count", caught.exception.message)
-        self.assertEqual(os.listdir(roots["inputs"]), [])
-
-        thinner = self.origin({"a.txt": b"ONE!"}, "same-count")
-        source = self.source(origin,
-                             content_manifest=directory_manifest(thinner))
-        roots = self.workspace("assignment-bytes")
-        with self.assertRaises(ContractRefusal) as caught:
-            materialize_directory_source(source, origin=origin,
-                                         inputs=roots["inputs"])
-        self.assertIn("total_bytes", caught.exception.message)
-
-    def test_a_destination_leaving_the_inputs_root_is_refused(self):
-        """The frozen `relativePath` type catches these BEFORE this component
-        looks at them, which is the right place: the schema owns the path's
-        shape and this owns where the shape may land.
-
-        The containment check remains and is not redundant -- it answers a
-        question the schema cannot, which is whether a well-formed relative
-        path resolves inside THIS assignment's inputs root once symbolic links
-        are followed.
-        """
-        origin = self.origin({"a.txt": b"one"})
-        roots = self.workspace()
-        for destination in ("../escape", "a/../../escape", "/absolute"):
-            with self.subTest(destination=destination):
-                with self.assertRaises(ContractRefusal) as caught:
-                    materialize_directory_source(
-                        self.source(origin, destination=destination),
-                        origin=origin, inputs=roots["inputs"])
-                self.assertEqual(caught.exception.category, "integrity")
-        self.assertEqual(os.listdir(roots["inputs"]), [])
-
-    def test_the_frozen_fragment_owns_the_source_before_anything_is_read(self):
-        """Review [P1]: a hand-written member list is a SECOND contract for a
-        shape the frozen schema already states exactly.
-
-        `directorySource` closes its member set, types every member and
-        carries the content manifest's own rules -- so a malformed source is
-        refused before a member is read or the filesystem is touched, rather
-        than reaching a `realpath` call with nothing having established it was
-        a source at all.
-        """
-        origin = self.origin({"a.txt": b"one"})
-        roots = self.workspace()
-        for what, source in [
-                ("a member the schema does not name",
-                 {**self.source(origin), "unexpected": 1}),
-                ("a missing member",
-                 {name: value for name, value in self.source(origin).items()
-                  if name != "required"}),
-                ("the wrong type", self.source(origin, type="git")),
-                ("a name that is not an opaque id",
-                 self.source(origin, name="")),
-                ("required that is not a boolean",
-                 self.source(origin, required="yes"))]:
-            with self.subTest(what=what):
-                with self.assertRaises(ContractRefusal) as caught:
-                    materialize_directory_source(source, origin=origin,
-                                                 inputs=roots["inputs"])
-                self.assertEqual(caught.exception.category, "integrity")
-        self.assertEqual(os.listdir(roots["inputs"]), [])
-
-    def test_something_already_at_the_staging_name_is_never_taken_over(self):
-        """Review [P1]: this used to REMOVE whatever it found.
-
-        A symbolic link planted at the staging name would have been followed by
-        that removal, deleting somebody else's tree; and even a leftover
-        directory is material this operation did not create. `lstat` asks about
-        the NAME rather than what it points at, so a link is seen as a link and
-        neither followed nor unlinked.
-        """
-        origin = self.origin({"a.txt": b"one"})
-        roots = self.workspace()
-        elsewhere = self.origin({"precious.txt": b"do not delete"}, "elsewhere")
-        staging = os.path.join(roots["inputs"], "src.materializing")
-        for what, plant in [
-                ("a symbolic link to somebody else's tree",
-                 lambda: os.symlink(elsewhere, staging)),
-                ("a leftover directory", lambda: os.makedirs(staging)),
-                ("an ordinary file",
-                 lambda: open(staging, "wb").close())]:
-            with self.subTest(what=what):
-                plant()
-                try:
-                    with self.assertRaises(ContractRefusal) as caught:
-                        materialize_directory_source(
-                            self.source(origin), origin=origin,
-                            inputs=roots["inputs"])
-                    self.assertIn("did not create", caught.exception.message)
-                    # AND THE PLANTED THING IS STILL THERE, unfollowed.
-                    self.assertTrue(os.path.lexists(staging))
-                    self.assertTrue(os.path.exists(
-                        os.path.join(elsewhere, "precious.txt")))
-                finally:
-                    if os.path.islink(staging) or os.path.isfile(staging):
-                        os.unlink(staging)
-                    elif os.path.isdir(staging):
-                        os.rmdir(staging)
-
-    def test_a_short_write_is_not_a_written_file(self):
-        """Review [P1]: `os.write` may write fewer bytes than it was given.
-
-        A truncated delivery would otherwise be published under the digest of
-        the whole file -- the seal describing the wrong tree, by another route.
-        Driven deterministically by making every write move one byte.
-        """
-        origin = self.origin({"a.txt": b"one", "d/b.txt": b"a longer body"})
-        roots = self.workspace()
-        real = os.write
-        self.addCleanup(setattr, os, "write", real)
-        os.write = lambda descriptor, payload: real(descriptor, payload[:1])
-        answer = materialize_directory_source(
-            self.source(origin), origin=origin, inputs=roots["inputs"])
-        os.write = real
-        # THE PUBLISHED TREE IS THE MEASURED TREE, proved by measuring it
-        # again rather than by trusting the copy.
-        delivered = answer["destination"]
-        os.chmod(delivered, 0o700)
-        for current, directories, _ in os.walk(delivered):
-            for name in directories:
-                os.chmod(os.path.join(current, name), 0o700)
-        self.assertEqual(directory_manifest(delivered)["tree_digest"],
-                         answer["tree_digest"])
-
-    def test_an_ancestor_directory_swapped_for_a_link_is_refused(self):
-        """Review [P1]: a no-follow open of the FINAL file does not stop a
-        raced ANCESTOR from becoming a symbolic link.
-
-        The walk descends by opened directory identity -- each directory is
-        opened `O_NOFOLLOW|O_DIRECTORY` and read through that descriptor -- so
-        a component replaced after it was listed is a directory this walk never
-        entered, rather than a door out of the tree that every later path
-        string goes through.
-        """
-        origin = self.origin({"deep/a.txt": b"one"}, "raced")
-        elsewhere = self.origin({"secret.txt": b"not yours"}, "outside")
-        inner = os.path.join(origin, "deep")
-        os.rename(inner, inner + "-gone")
-        os.symlink(elsewhere, inner)
-        with self.assertRaises(ContractRefusal) as caught:
-            directory_manifest(origin)
-        self.assertIn("symbolic link", caught.exception.message)
-
-    def test_a_directory_swapped_after_listing_is_not_followed(self):
-        """The queued child name must not become traversal authority.
-
-        Swap the child only after the root listing has produced its entries,
-        but before `_walk` descends into the queued name. A pathname-based
-        descent follows the replacement link and measures somebody else's
-        tree; descriptor-bound descent refuses or stays on the directory that
-        was actually listed.
-        """
-        origin = self.origin({"deep/a.txt": b"one"}, "raced-after-listing")
-        elsewhere = self.origin({"secret.txt": b"not yours"},
-                                "outside-after-listing")
-        child = os.path.join(origin, "deep")
-        moved = child + "-gone"
-        original = os.scandir
-        swapped = False
-
-        class Listing:
-            def __init__(self, path):
-                self.path = path
-                self.inner = original(path)
-                self.iterator = None
-
-            def __enter__(self):
-                self.iterator = iter(self.inner.__enter__())
-                return self
-
-            def __exit__(self, *args):
-                return self.inner.__exit__(*args)
-
-            def __iter__(self):
-                return self
-
-            def __next__(self):
-                nonlocal swapped
-                try:
-                    return next(self.iterator)
-                except StopIteration:
-                    # TRIGGER ADJUSTED, INTENT UNCHANGED. This matched on the
-                    # scandir PATH being the origin -- which a descriptor-bound
-                    # walk never passes, because it lists an opened directory
-                    # rather than a name. The first listing IS the root's, so
-                    # this fires at exactly the moment the case describes:
-                    # after the root's entries are produced and before the
-                    # queued child name is descended into.
-                    if not swapped:
-                        os.rename(child, moved)
-                        os.symlink(elsewhere, child)
-                        swapped = True
-                    raise
-
-        self.addCleanup(setattr, os, "scandir", original)
-        os.scandir = Listing
-        with self.assertRaises(ContractRefusal):
-            directory_manifest(origin)
-
-    def test_a_source_is_materialized_once(self):
-        origin = self.origin({"a.txt": b"one"})
-        roots = self.workspace()
-        materialize_directory_source(self.source(origin), origin=origin,
-                                     inputs=roots["inputs"])
-        with self.assertRaises(ContractRefusal) as caught:
-            materialize_directory_source(self.source(origin), origin=origin,
-                                         inputs=roots["inputs"])
-        self.assertIn("already delivered", caught.exception.message)
-
-    def test_a_tree_that_changed_before_delivery_is_refused(self):
-        """The swap that happens before the measurement: caught by measuring.
-
-        This is the ordinary case and the outer guard. The one BETWEEN the
-        measurement and the copy is the next case.
-        """
-        origin = self.origin({"a.txt": b"one", "b.txt": b"two"})
-        source = self.source(origin)
-        roots = self.workspace()
-        with open(os.path.join(origin, "b.txt"), "wb") as handle:
-            handle.write(b"SWAPPED")
-        with self.assertRaises(ContractRefusal) as caught:
-            materialize_directory_source(source, origin=origin,
-                                         inputs=roots["inputs"])
-        self.assertEqual(caught.exception.code, "digest")
-        self.assertEqual(sorted(os.listdir(roots["inputs"])), [],
-                         "a refused source left a partial workspace")
-
-    def test_a_file_replaced_between_measuring_and_copying_is_caught(self):
-        """THE RACE THIS COMPONENT READS EVERY FILE TWICE FOR.
-
-        The window is between the measurement and the copy, so it cannot be
-        reached through the public operation without a scheduler that
-        cooperates -- and a test that raced a real writer would pass or fail
-        depending on the machine. So the two halves are driven directly, with
-        the swap in the window: this reaches for a private on purpose, because
-        the window exists only between the two public steps and a witness that
-        cannot see it proves nothing.
-
-        Without the second read, `b.txt` would be delivered under the digest of
-        the version that is gone -- the seal describing the wrong tree, which is
-        the failure the whole component exists to prevent.
-        """
-        origin = self.origin({"a.txt": b"one", "b.txt": b"two"})
-        roots = self.workspace()
-        measured = directory_manifest(origin)
-        with open(os.path.join(origin, "b.txt"), "wb") as handle:
-            handle.write(b"SWAPPED")
-        destination = os.path.join(roots["inputs"], "src")
-        with self.assertRaises(ContractRefusal) as caught:
-            workspaces._publish(origin, destination, measured, "a source")
-        self.assertIn("changed while it was being delivered",
-                      caught.exception.message)
-        self.assertEqual(caught.exception.code, "digest")
-        self.assertEqual(sorted(os.listdir(roots["inputs"])), [],
-                         "a lost race left a staging tree behind")
-
-    def test_no_refusal_leaves_a_staging_tree_behind(self):
-        """Every refusal on the delivery path, and the same assertion each
-        time: nothing under the inputs root that a caller could read."""
-        origin = self.origin({"a.txt": b"one"})
-        cases = {
-            "the wrong type": self.source(origin, type="git"),
-            "a missing member": {member: value
-                                 for member, value in self.source(origin).items()
-                                 if member != "destination"},
-            "an escaping destination": self.source(origin,
-                                                   destination="../out"),
-        }
-        for what, source in cases.items():
-            with self.subTest(what=what):
-                roots = self.workspace(f"assignment-{abs(hash(what))}")
-                with self.assertRaises(ContractRefusal):
-                    materialize_directory_source(source, origin=origin,
-                                                 inputs=roots["inputs"])
-                self.assertEqual(os.listdir(roots["inputs"]), [])
-
-
 class OneAssignmentOneWorkspace(Workspace):
 
-    def test_the_three_roots_are_siblings_and_never_nested(self):
+    def test_the_two_roots_are_siblings_and_never_nested(self):
         """A worker that could write into its own inputs would make the seal
-        over them describe a tree that has since changed."""
+        over them describe a tree that has since changed.
+
+        W15232 review [P1]: there were three. The acquisition-specific one is
+        gone with the operations that consumed it."""
         roots = self.workspace()
-        self.assertEqual(sorted(roots), ["git", "inputs", "workspace"])
+        self.assertEqual(sorted(roots), ["inputs", "workspace"])
         for name, place in roots.items():
             for other, elsewhere in roots.items():
                 if name == other:
@@ -623,7 +266,7 @@ class OneAssignmentOneWorkspace(Workspace):
     def test_two_assignments_share_nothing(self):
         first = self.workspace("assignment-a")
         second = self.workspace("assignment-b")
-        for name in ("inputs", "workspace", "git"):
+        for name in ("inputs", "workspace"):
             with self.subTest(name=name):
                 self.assertNotEqual(first[name], second[name])
                 self.assertFalse(first[name].startswith(second[name] + os.sep))
@@ -640,7 +283,7 @@ class OneAssignmentOneWorkspace(Workspace):
         names = [f"assignment-{index}" for index in range(24)]
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
             answers = list(pool.map(self.workspace, names))
-        for name in ("inputs", "workspace", "git"):
+        for name in ("inputs", "workspace"):
             places = [answer[name] for answer in answers]
             with self.subTest(name=name):
                 self.assertEqual(len(set(places)), len(names))
@@ -666,8 +309,7 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
     def test_a_workspace_is_removed_including_its_read_only_trees(self):
         origin = self.origin({"a.txt": b"one"})
         roots = self.workspace()
-        materialize_directory_source(self.source(origin), origin=origin,
-                                     inputs=roots["inputs"])
+        self.staged(origin, roots)
         self.assertTrue(discard_workspace(self.storage, "assignment-1"))
         self.assertFalse(os.path.exists(os.path.dirname(roots["inputs"])))
         # And the ORIGIN is untouched: cleanup concerns only what this
@@ -682,142 +324,486 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
             discard_workspace(self.storage, "../..")
 
 
-class FakeRepository:
-    """A repository that answers the two questions and records both."""
+class TheInputRootIsComposedOnceAndThenFrozen(Workspace):
+    """W19784, approved 2026-08-26.
 
-    def __init__(self, refs=None, tree=None):
-        self.refs = refs or {}
-        self.tree = tree if tree is not None else {"README": b"hello"}
-        self.calls = []
+    THE DEFECT. `completionManifest` requires the exact full `assignment_ref`
+    including the authority generation; `inputManifest` is minted before any
+    claim exists and carries none; nothing else inside the execution container
+    carried one. So a worker obeying the input contract could not obey the
+    output contract, and this manager had no step that put the missing
+    document where the worker could read it.
 
-    def resolve(self, *, uri, ref):
-        self.calls.append(("resolve", uri, ref))
-        return self.refs.get(ref)
+    THE LIFECYCLE IS THE RULE, not a convenience. `input.json` is pre-claim
+    evidence whose bytes never change; `assignment.json` is materialized after
+    the claim commits; no container observes the root in between; and only
+    then is the whole surface exposed read-only.
+    """
 
-    def checkout(self, *, uri, revision, into, git_dir):
-        self.calls.append(("checkout", uri, revision["hex"], into, git_dir))
-        for path, content in self.tree.items():
-            full = os.path.join(into, path)
-            os.makedirs(os.path.dirname(full), exist_ok=True)
-            with open(full, "wb") as handle:
-                handle.write(content)
+    def documents(self, **spoiled):
+        published = json.loads(VECTORS.read_text(encoding="utf-8"))
+        by_schema = {one["document"].get("schema"): one["document"]
+                     for one in published["valid"]}
+        given = by_schema["baton.worker-manifest/input"]
+        assignment = dict(by_schema["baton.worker-manifest/assignment"])
+        assignment.update(spoiled)
+        assignment.pop("manifest_digest", None)
+        assignment["manifest_digest"] = digest(assignment)
+        return given, assignment
 
+    def inputs(self):
+        return assignment_workspace(self.storage, "assignment-1")["inputs"]
 
-class TheRevisionIsTheContractAndTheRefIsEvidence(Workspace):
+    def owned(self, assignment):
+        """The manager's own copy of the identity it is composing for.
 
-    def git_source(self, **overrides):
-        source = {"name": "repo", "type": "git",
-                  "uri": "https://example.test/repo",
-                  "destination": "repo", "required": True,
-                  "repository_id": "repo-1", "object_format": "sha1",
-                  "base_revision": dict(SHA1),
-                  "source_ref": None, "integration_ref": None,
-                  "acquisition_policy_digest": "sha256:" + "c" * 64}
-        source.update(overrides)
-        return source
+        A SEPARATE VALUE rather than a reference into the document under test:
+        `compose_input_root` compares the delivered manifest with what the
+        manager holds, and a fixture that handed it the same object would be
+        comparing a thing with itself.
+        """
+        return dict(assignment["assignment_ref"])
 
-    def deliver(self, repository, **overrides):
-        roots = self.workspace(overrides.pop("assignment", "assignment-1"))
-        return materialize_git_source(
-            self.git_source(**overrides), git=GitPort(repository),
-            inputs=roots["inputs"], git_metadata=roots["git"]), roots
+    def compose(self, inputs, given, delivered, **override):
+        # `delivered` rather than `assignment`: the keyword operand under test
+        # IS called `assignment`, and a helper whose positional shared the name
+        # could not express "compose this document for a DIFFERENT identity",
+        # which is the whole point of the override.
+        operands = {"assignment": self.owned(delivered),
+                    "runtime_attempt_id": delivered["runtime_attempt_id"]}
+        operands.update(override)
+        return compose_input_root(inputs, given, delivered, **operands)
 
-    def test_the_pinned_revision_is_what_is_checked_out(self):
-        repository = FakeRepository()
-        answer, _ = self.deliver(repository)
-        self.assertEqual(answer["base_revision"], SHA1)
-        self.assertIn(("checkout", "https://example.test/repo", SHA1["hex"],
-                       answer["destination"] + ".materializing",
-                       answer["git_dir"]),
-                      repository.calls)
+    def bytes_under(self, root):
+        found = {}
+        for name in os.listdir(root):
+            with open(os.path.join(root, name), "rb") as one:
+                found[name] = one.read()
+        return found
 
-    def test_an_advertised_ref_that_still_names_the_revision_is_accepted(self):
-        repository = FakeRepository(refs={"refs/heads/main": dict(SHA1)})
-        answer, _ = self.deliver(repository, source_ref="refs/heads/main")
-        self.assertEqual(answer["base_revision"], SHA1)
+    def test_both_documents_land_at_their_fixed_names(self):
+        inputs = self.inputs()
+        given, assignment = self.documents()
+        written = self.compose(inputs, given, assignment)
+        self.assertEqual(
+            [os.path.basename(one) for one in written],
+            [INPUT_MANIFEST, ASSIGNMENT_MANIFEST])
+        self.assertEqual(sorted(os.listdir(inputs)),
+                         sorted([INPUT_MANIFEST, ASSIGNMENT_MANIFEST]))
+        for place in written:
+            with open(place, encoding="utf-8") as one:
+                self.assertIn("schema", json.load(one))
 
-    def test_a_ref_that_moved_refuses_rather_than_being_followed(self):
-        """A source delivered from where the branch is NOW is not the source
-        the assignment was made against."""
-        repository = FakeRepository(refs={"refs/heads/main": dict(MOVED)})
-        for member in ("source_ref", "integration_ref"):
-            with self.subTest(member=member):
-                with self.assertRaises(ContractRefusal) as caught:
-                    self.deliver(repository,
-                                 assignment=f"assignment-{member}",
-                                 **{member: "refs/heads/main"})
-                self.assertEqual(
-                    (caught.exception.category, caught.exception.code),
-                    ("policy", "denied"))
-                self.assertIn("a ref that moved is evidence that it moved",
-                              caught.exception.message)
+    def test_a_composed_document_is_evidence_rather_than_scratch(self):
+        """The mode says on disk what the contract says in prose. A read-only
+        bind protects the CONTAINER's view; it does not protect the host copy
+        from this manager's own later mistake."""
+        inputs = self.inputs()
+        for place in self.compose(inputs, *self.documents()):
+            with self.subTest(place=os.path.basename(place)):
+                self.assertEqual(os.stat(place).st_mode & 0o777,
+                                 READ_ONLY_FILE)
 
-    def test_a_ref_the_repository_does_not_carry_refuses(self):
-        with self.assertRaises(ContractRefusal) as caught:
-            self.deliver(FakeRepository(), source_ref="refs/heads/gone")
-        self.assertIn("does not carry", caught.exception.message)
-
-    def test_a_revision_algorithm_that_is_not_the_object_format_refuses(self):
-        """§12 rule 7: a sha1 revision under a sha256 repository is a different
-        object namespace, not a shorter digest."""
-        with self.assertRaises(ContractRefusal) as caught:
-            self.deliver(FakeRepository(), object_format="sha256")
-        self.assertIn("§12 rule 7", caught.exception.message)
-
-    def test_each_source_gets_git_metadata_of_its_own(self):
-        repository = FakeRepository()
-        first, roots = self.deliver(repository)
-        second = materialize_git_source(
-            self.git_source(name="other", destination="other"),
-            git=GitPort(repository), inputs=roots["inputs"],
-            git_metadata=roots["git"])
-        self.assertNotEqual(first["git_dir"], second["git_dir"])
-        self.assertTrue(os.path.isdir(first["git_dir"]))
-
-    def test_metadata_is_created_once_and_never_reused(self):
-        """Shared Git metadata is one assignment able to move another's refs,
-        prune another's objects, and decide what another's revision
-        resolves to."""
-        repository = FakeRepository()
-        _, roots = self.deliver(repository)
-        with self.assertRaises(ContractRefusal) as caught:
-            materialize_git_source(
-                self.git_source(destination="again"),
-                git=GitPort(repository), inputs=roots["inputs"],
-                git_metadata=roots["git"])
-        self.assertIn("already exists", caught.exception.message)
-
-    def test_what_the_checkout_wrote_is_measured_like_any_other_tree(self):
-        """A checkout is somebody else's process writing into a directory this
-        component owns, so its answer is evidence and the tree is the fact."""
-        repository = FakeRepository(tree={"a.txt": b"one", "d/b.txt": b"two"})
-        answer, _ = self.deliver(repository)
-        self.assertEqual(answer["entry_count"], 2)
-        self.assertEqual(answer["total_bytes"], 6)
-
-    def test_a_checkout_that_writes_a_link_is_refused_and_leaves_nothing(self):
-        class Linking(FakeRepository):
-            def checkout(self, *, uri, revision, into, git_dir):
-                super().checkout(uri=uri, revision=revision, into=into,
-                                 git_dir=git_dir)
-                os.symlink("/etc/hostname", os.path.join(into, "leak"))
-
-        with self.assertRaises(ContractRefusal) as caught:
-            answer, roots = self.deliver(Linking())
-        self.assertIn("symbolic link", caught.exception.message)
-        roots = assignment_workspace(self.storage, "assignment-1")
-        self.assertEqual(os.listdir(roots["inputs"]), [])
-
-    def test_a_repository_that_cannot_answer_is_refused_at_construction(self):
-        class Partial:
-            def resolve(self, **operands):
-                return None
-
-        for what, repository in [("no operations at all", object()),
-                                 ("one operation missing", Partial())]:
+    def test_a_mis_composed_pair_writes_NOTHING(self):
+        """Two documents that are not one delivery must never exist together on
+        disk. A mount is not the last chance to notice -- it is the first
+        moment it is too late, because a worker may already have read them."""
+        inputs = self.inputs()
+        other = "sha256:" + "f" * 64
+        for what, spoiled in (
+                ("another Work",
+                 {"assignment_ref": {
+                     "work_ref": {"authority_uuid": "f" * 32,
+                                  "work_id": "ffffffff-W9"},
+                     "participant": "baton.claude", "generation": 3}}),
+                ("another input manifest", {"input_manifest_digest": other}),
+                ("another policy", {"policy_digest": other}),
+                ("another runtime profile",
+                 {"runtime_profile_digest": other})):
             with self.subTest(what=what):
+                given, assignment = self.documents(**spoiled)
                 with self.assertRaises(ContractRefusal):
-                    GitPort(repository)
+                    self.compose(inputs, given, assignment)
+                self.assertEqual(os.listdir(inputs), [],
+                                 "a refused composition left a document "
+                                 "behind")
+
+    def test_the_root_is_composed_once(self):
+        """Rewriting `input.json` after a claim was made against it would
+        change the evidence the result is measured by; replacing
+        `assignment.json` would move an identity a running worker may already
+        have copied into a durable envelope."""
+        inputs = self.inputs()
+        given, assignment = self.documents()
+        self.compose(inputs, given, assignment)
+        before = self.bytes_under(inputs)
+        with self.assertRaises(ContractRefusal) as caught:
+            self.compose(inputs, given, assignment)
+        self.assertEqual(caught.exception.code, "path")
+        after = self.bytes_under(inputs)
+        self.assertEqual(before, after)
+
+    def test_a_half_composed_root_is_refused_rather_than_completed(self):
+        """The interrupted case, and it is NOT repaired here. A manager that
+        finished somebody else's half-composition would be asserting that the
+        document already on disk is the one this pair belongs to, which is
+        exactly the question `check_input_pair` exists to answer."""
+        inputs = self.inputs()
+        given, assignment = self.documents()
+        with open(os.path.join(inputs, INPUT_MANIFEST), "w") as handle:
+            handle.write("{}")
+        with self.assertRaises(ContractRefusal):
+            self.compose(inputs, given, assignment)
+        self.assertEqual(os.listdir(inputs), [INPUT_MANIFEST])
+
+    def test_no_partial_document_survives_under_a_final_name(self):
+        """Publication is atomic: a half-written protocol document under its
+        final name is indistinguishable from a complete one, and this root is
+        handed to a container that reads exactly these two names."""
+        inputs = self.inputs()
+        for place in self.compose(inputs, *self.documents()):
+            with open(place, "rb") as one:
+                json.loads(one.read().decode("utf-8"))
+        self.assertFalse([name for name in os.listdir(inputs)
+                          if name.endswith(".composing")])
+
+    def test_an_interrupted_write_publishes_no_protocol_document(self):
+        """A half-written protocol document under its final name is
+        indistinguishable from a complete one, and this root is about to be
+        handed to a container that reads exactly these two names. So the bytes
+        become visible under the final name only once they are all there."""
+        inputs = self.inputs()
+        real = workspaces.os.write
+
+        def stops(handle, payload):
+            real(handle, payload[:1])
+            raise OSError(28, "no space left on device")
+
+        workspaces.os.write = stops
+        self.addCleanup(setattr, workspaces.os, "write", real)
+        with self.assertRaises(OSError):
+            self.compose(inputs, *self.documents())
+        self.assertEqual(
+            [name for name in os.listdir(inputs)
+             if not name.endswith(".composing")], [],
+            "an interrupted write left a document under its final name")
+
+    def test_a_root_this_manager_did_not_allocate_is_refused(self):
+        """A refusal rather than an `OSError` out of `os.open`. This boundary's
+        contract is to refuse what it cannot do; a caller that received a raw
+        errno would be reading this manager's implementation."""
+        for what, place in (
+                ("a root that does not exist",
+                 os.path.join(self.storage, "never-allocated", "inputs")),
+                ("a root that is a file", self.a_file())):
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.compose(place, *self.documents())
+                self.assertEqual(caught.exception.category, "integrity")
+
+    def a_file(self):
+        place = os.path.join(self.storage, "not-a-directory")
+        with open(place, "w") as handle:
+            handle.write("x")
+        return place
+
+    def test_a_self_consistent_pair_for_another_delivery_writes_NOTHING(self):
+        """W19784 review [P0]. THE PAIR RULE IS NOT AN AUTHORIZATION.
+
+        Every document below is internally valid and the two agree with each
+        other perfectly -- `check_input_pair` accepts them. What they are not
+        is the delivery THIS manager is composing a root for. A superseded
+        generation, another participant, another Work, another runtime
+        attempt: each agrees with itself, and each would have been written,
+        mounted, and caught only at the freeze, after the agent had already
+        run against material nothing authorized.
+        """
+        inputs = self.inputs()
+        given, assignment = self.documents()
+        mine = self.owned(assignment)
+        for what, override in (
+                ("a superseded generation",
+                 {"assignment": dict(mine, generation=mine["generation"] + 1)}),
+                ("another participant",
+                 {"assignment": dict(mine, participant="baton.someone")}),
+                ("another Work",
+                 {"assignment": dict(mine, work_ref={
+                     "authority_uuid": "f" * 32, "work_id": "ffffffff-W9"})}),
+                ("another runtime attempt",
+                 {"runtime_attempt_id": "attempt-99"})):
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.compose(inputs, given, assignment, **override)
+                self.assertIn(caught.exception.category,
+                              ("stale-assignment", "runtime-observation"))
+                self.assertEqual(os.listdir(inputs), [],
+                                 "an unauthorized pair reached the disk")
+
+    def test_the_composed_root_reads_back_as_the_pair_that_was_written(self):
+        """The launch path proves the root off DISK, because what a runtime
+        mounts is the disk rather than a value threaded down from whoever
+        composed it."""
+        inputs = self.inputs()
+        given, assignment = self.documents()
+        self.compose(inputs, given, assignment)
+        back_input, back_assignment = read_input_root(inputs)
+        self.assertEqual(back_input["manifest_digest"],
+                         given["manifest_digest"])
+        self.assertEqual(back_assignment["assignment_ref"],
+                         assignment["assignment_ref"])
+
+    def test_a_root_edited_after_composition_does_not_read_back_clean(self):
+        """WHY THE READ REVALIDATES. Composition proved the pair; the disk is
+        not the composition. A root whose assignment document was replaced
+        after the fact -- same identity, minted against a DIFFERENT input
+        manifest -- is a delivery no longer describing the material beside it,
+        and the launch path reads the disk rather than a value threaded down
+        from whoever composed it."""
+        inputs = self.inputs()
+        given, assignment = self.documents()
+        self.compose(inputs, given, assignment)
+        replaced = dict(assignment,
+                        input_manifest_digest="sha256:" + "e" * 64)
+        replaced.pop("manifest_digest", None)
+        replaced["manifest_digest"] = digest(replaced)
+        place = os.path.join(inputs, ASSIGNMENT_MANIFEST)
+        os.chmod(place, 0o600)
+        with open(place, "w", encoding="utf-8") as handle:
+            json.dump(replaced, handle)
+        with self.assertRaises(ContractRefusal) as caught:
+            read_input_root(inputs)
+        self.assertEqual(caught.exception.code, "digest")
+
+    def test_a_root_that_is_not_a_composed_pair_cannot_be_read_back(self):
+        inputs = self.inputs()
+        given, assignment = self.documents()
+        def wrote(**named):
+            # Closed handles. The review flagged three leaking here: a
+            # `ResourceWarning` in a suite about filesystem boundaries is
+            # noise in exactly the place a real handle leak would show.
+            for name, payload in named.items():
+                with open(os.path.join(inputs, name), "w",
+                          encoding="utf-8") as handle:
+                    handle.write(payload)
+
+        for what, prepare in (
+                ("nothing composed yet", lambda: None),
+                ("only the input side",
+                 lambda: wrote(**{INPUT_MANIFEST: json.dumps(given)})),
+                ("a document that is not a document",
+                 lambda: wrote(**{INPUT_MANIFEST: "{oops",
+                                  ASSIGNMENT_MANIFEST: "{oops"}))):
+            with self.subTest(what=what):
+                for name in os.listdir(inputs):
+                    os.chmod(os.path.join(inputs, name), 0o600)
+                    os.unlink(os.path.join(inputs, name))
+                prepare()
+                with self.assertRaises(ContractRefusal):
+                    read_input_root(inputs)
+
+    def test_the_generation_reaches_the_root_and_the_input_side_has_none(self):
+        """The member the whole Work is about, observed where it lands."""
+        inputs = self.inputs()
+        self.compose(inputs, *self.documents())
+        with open(os.path.join(inputs, ASSIGNMENT_MANIFEST)) as one:
+            delivered = json.load(one)
+        with open(os.path.join(inputs, INPUT_MANIFEST)) as one:
+            staged = json.load(one)
+        self.assertIn("generation", delivered["assignment_ref"])
+        self.assertNotIn("assignment_ref", staged)
+
+
+
+
+class TheCopyIsTheMeasurement(Workspace):
+    """W26283: `copied_manifest` measures and copies in ONE no-follow pass.
+
+    The defect this exists for was real and was driven before it was fixed:
+    W6634's staging measured with `directory_manifest` -- which descends by
+    opened directory identity and refuses links -- and then copied by
+    REOPENING each path with a plain `open`, resolving every component a second
+    time. That put material from outside the tree into manager custody, and one
+    `mkfifo` blocked the copy forever.
+    """
+
+    def into(self, name="custody"):
+        return os.path.join(self.root, name)
+
+    def test_the_copy_answers_what_a_fresh_measurement_of_it_answers(self):
+        """The one pass and the two passes agree, or the manifest describes
+        something other than what was written."""
+        place = self.origin({"a.txt": b"one", "deep/b.txt": b"two"})
+        into = self.into()
+        written = workspaces.copied_manifest(place, into)
+        self.assertEqual(written, workspaces.directory_manifest(into))
+        self.assertEqual(written["entry_count"], 2)
+        self.assertEqual(written["total_bytes"], 6)
+        with open(os.path.join(into, "deep", "b.txt"), "rb") as reading:
+            self.assertEqual(reading.read(), b"two")
+
+    def test_a_symbolic_link_is_refused_where_it_is_found(self):
+        place = self.origin({"a.txt": b"one"})
+        os.symlink("/etc/hostname", os.path.join(place, "link"))
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into())
+        self.assertIn("symbolic link", str(caught.exception))
+
+    def test_a_directory_replaced_by_a_link_after_listing_is_not_entered(self):
+        """THE HARM, at this boundary. A path-based copy resolves the whole
+        string again, so an ancestor that became a link is a door out of the
+        tree; this descends through the descriptor it opened."""
+        place = self.origin({"deep/a.txt": b"legitimate"})
+        outside = os.path.join(self.root, "elsewhere")
+        os.makedirs(outside)
+        with open(os.path.join(outside, "a.txt"), "wb") as handle:
+            handle.write(b"HOST MATERIAL")
+        os.rename(os.path.join(place, "deep"),
+                  os.path.join(self.root, "deep-real"))
+        os.symlink(outside, os.path.join(place, "deep"))
+        into = self.into()
+        with self.assertRaises(ContractRefusal):
+            workspaces.copied_manifest(place, into)
+        self.assertFalse(os.path.exists(os.path.join(into, "deep", "a.txt")))
+
+    def test_a_named_pipe_is_refused_rather_than_opened(self):
+        """A plain `open` on a FIFO blocks until somebody writes. The walk
+        refuses a non-regular file where it lists it, so the open never
+        happens -- and this case returning at all is half of what it
+        asserts."""
+        place = self.origin({"a.txt": b"one"})
+        os.mkfifo(os.path.join(place, "pipe"))
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into())
+        self.assertIn("neither a regular file nor a directory",
+                      str(caught.exception))
+
+    def test_a_destination_that_is_a_link_is_not_written_through(self):
+        """The copy makes bytes the caller's OWN, so a link left at a
+        destination name must not become the thing written to."""
+        place = self.origin({"a.txt": b"one"})
+        target = os.path.join(self.root, "elsewhere.txt")
+        with open(target, "wb") as handle:
+            handle.write(b"UNTOUCHED")
+        into = self.into()
+        os.makedirs(into)
+        os.symlink(target, os.path.join(into, "a.txt"))
+        with self.assertRaises(OSError):
+            workspaces.copied_manifest(place, into)
+        with open(target, "rb") as reading:
+            self.assertEqual(reading.read(), b"UNTOUCHED")
+
+    def test_a_declared_ceiling_refuses_as_a_limit_not_as_a_denial(self):
+        """TWO CEILINGS, TWO REFUSALS. This module's own MAX_* are policy --
+        what this build will handle at all. A caller's ceiling is part of a
+        delivery's declared contract, and exceeding it is an integrity failure
+        of that delivery. Callers already depend on which one they get."""
+        place = self.origin({"a.txt": b"one", "b.txt": b"two"})
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into(), max_entries=1)
+        self.assertEqual(caught.exception.category, "integrity")
+        self.assertEqual(caught.exception.code, "limit")
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into("c2"), max_bytes=3)
+        self.assertEqual(caught.exception.code, "limit")
+
+    def test_a_ceiling_stops_the_pass_rather_than_the_whole_tree(self):
+        """Enforced AS THE WALK RUNS. A tree copied whole and refused
+        afterwards has already written every byte it was refused for."""
+        place = self.origin({f"{index:03d}.txt": b"x" * 10
+                             for index in range(20)})
+        into = self.into()
+        with self.assertRaises(ContractRefusal):
+            workspaces.copied_manifest(place, into, max_entries=5)
+        written = sum(len(files) for _b, _d, files in os.walk(into))
+        self.assertLessEqual(written, 5)
+        self.assertLess(written, 20)
+
+    def test_the_caller_rule_runs_before_the_write_and_refusing_writes_none(
+            self):
+        """`admits` exists so a caller's own content rule runs at the one
+        moment the content is in hand -- and refusing means the bytes never
+        became the caller's, rather than being taken and then objected to."""
+        place = self.origin({"a.txt": b"harmless", "b.txt": b"FORBIDDEN"})
+        into = self.into()
+        seen = []
+
+        def admits(relative, content):
+            seen.append(relative)
+            if b"FORBIDDEN" in content:
+                raise ContractRefusal("policy", "denied", "not this one")
+
+        with self.assertRaises(ContractRefusal):
+            workspaces.copied_manifest(place, into, admits=admits)
+        self.assertIn("b.txt", seen)
+        self.assertFalse(os.path.exists(os.path.join(into, "b.txt")))
+
+    def test_a_hard_link_is_refused(self):
+        """A second name for one inode delivers content the caller was never
+        given, with nothing on the directory entry to see."""
+        place = self.origin({"a.txt": b"one"})
+        outside = os.path.join(self.root, "outside.txt")
+        with open(outside, "wb") as handle:
+            handle.write(b"HOST MATERIAL")
+        os.link(outside, os.path.join(place, "linked.txt"))
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into())
+        self.assertIn("hard link", str(caught.exception))
+
+    def test_an_entry_already_at_the_destination_refuses(self):
+        """`O_EXCL`, and the reason is ownership rather than tidiness.
+
+        This pass is what makes bytes the caller's own, so every entry it
+        writes must be one it CREATED. A destination file already there is
+        somebody else's -- an interrupted attempt's prefix, or another writer
+        -- and overwriting it would publish a tree assembled from two passes.
+        Callers clear custody first; this refuses if that did not happen.
+        """
+        place = self.origin({"a.txt": b"one"})
+        into = self.into()
+        os.makedirs(into)
+        with open(os.path.join(into, "a.txt"), "wb") as handle:
+            handle.write(b"SOMEBODY ELSE'S")
+        with self.assertRaises(OSError):
+            workspaces.copied_manifest(place, into)
+        with open(os.path.join(into, "a.txt"), "rb") as reading:
+            self.assertEqual(reading.read(), b"SOMEBODY ELSE'S")
+
+    def test_this_builds_own_ceilings_refuse_as_policy(self):
+        """The OTHER half of the two-ceilings rule.
+
+        `MAX_ENTRIES` and `MAX_BYTES` are what this build will handle at all,
+        whoever asked, and they refuse as `policy/denied` rather than as a
+        delivery's integrity failure. Driven by lowering the module's own
+        constants, because a case that wrote a hundred thousand files would
+        be a case nobody runs.
+        """
+        place = self.origin({"a.txt": b"one", "b.txt": b"two"})
+        original_entries = workspaces.MAX_ENTRIES
+        original_bytes = workspaces.MAX_BYTES
+        try:
+            workspaces.MAX_ENTRIES = 1
+            with self.assertRaises(ContractRefusal) as caught:
+                workspaces.copied_manifest(place, self.into())
+            self.assertEqual(caught.exception.category, "policy")
+            self.assertEqual(caught.exception.code, "denied")
+            workspaces.MAX_ENTRIES = original_entries
+            workspaces.MAX_BYTES = 3
+            with self.assertRaises(ContractRefusal) as caught:
+                workspaces.copied_manifest(place, self.into("c2"))
+            self.assertEqual(caught.exception.category, "policy")
+        finally:
+            workspaces.MAX_ENTRIES = original_entries
+            workspaces.MAX_BYTES = original_bytes
+
+    def test_an_empty_tree_copies_to_an_empty_manifest(self):
+        place = self.origin({})
+        into = self.into()
+        written = workspaces.copied_manifest(place, into)
+        self.assertEqual(written["entry_count"], 0)
+        self.assertEqual(written["total_bytes"], 0)
+        self.assertTrue(os.path.isdir(into))
+
+
 
 
 class TheComponentIsOnThePublicSurface(Workspace):
@@ -826,6 +812,127 @@ class TheComponentIsOnThePublicSurface(Workspace):
         for name in workspaces.__all__:
             with self.subTest(name=name):
                 self.assertTrue(hasattr(workspaces, name))
+
+
+class TheCoreManagerDoesNotAcquireSources(Workspace):
+    """W15232, and the whole point of this Work.
+
+    The 2026-08-25 ruling removed source ACQUISITION from the core Worker
+    Manager: it receives an already staged read-only directory and its generic
+    integrity envelope, and it does not understand where the bytes came from or
+    choose an operation to fetch them.
+
+    W6631's `GitPort`, `materialize_git_source` and
+    `materialize_directory_source` performed exactly that duty here. They are
+    gone rather than re-homed, because the assignment permits re-homing only
+    behind an ALREADY PINNED stager or driver owner and there is none -- the
+    ledger has no such Work and the records name no such boundary. Inventing
+    one to keep the code would have been the second acquisition contract this
+    Work exists to avoid.
+
+    The cases they had are gone with them: a test of behaviour that no longer
+    exists asserts nothing. What replaces them is this -- the ABSENCE, stated
+    so that re-adding an acquisition operation to this manager has to fail
+    here first.
+    """
+
+    def test_no_acquisition_operation_survives_on_the_manager(self):
+        import baton_v12.worker_manager as manager
+        for name in ("GitPort", "materialize_git_source",
+                     "materialize_directory_source"):
+            with self.subTest(name=name):
+                self.assertNotIn(name, workspaces.__all__)
+                self.assertFalse(hasattr(workspaces, name),
+                                 f"{name} is still on the workspace module")
+                self.assertNotIn(name, manager.__all__)
+                self.assertFalse(hasattr(manager, name),
+                                 f"{name} is still on the manager package")
+
+    def test_no_acquisition_descriptor_is_interpreted_here(self):
+        """The other half, and the one a re-added helper would trip.
+
+        An operation could be spelled differently and still READ a `gitSource`
+        or `directorySource` -- which is the coupling that made W14251's
+        neutral schema refuse every request through this module. The module
+        names neither definition now, and nothing in it reaches the fragment
+        validator that would.
+        """
+        import ast
+        import inspect
+        # THE CODE, NOT THE PROSE. My first version read the raw source and
+        # failed on the module's own comment explaining why these names are
+        # gone -- a case that cannot tell an explanation from a use is a case
+        # that punishes writing the explanation down.
+        tree = ast.parse(inspect.getsource(workspaces))
+        reached = {node.id for node in ast.walk(tree)
+                   if isinstance(node, ast.Name)}
+        reached |= {node.attr for node in ast.walk(tree)
+                    if isinstance(node, ast.Attribute)}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Constant) and type(node.value) is str:
+                # A definition NAME reaching the fragment validator is a
+                # string operand, so string literals count -- except the ones
+                # that are documentation, which `ast` hands back as the body's
+                # first statement rather than as an expression operand.
+                continue
+        for named in ("gitSource", "directorySource", "validate_fragment",
+                      "check_content_manifest"):
+            with self.subTest(named=named):
+                self.assertNotIn(named, reached)
+        # And no string operand names a removed definition either.
+        literals = {node.value for node in ast.walk(tree)
+                    if isinstance(node, ast.Constant)
+                    and type(node.value) is str}
+        self.assertEqual(
+            sorted(literals & {"gitSource", "directorySource"}), [],
+            "an acquisition definition is still named as an operand")
+
+    def test_no_surface_still_describes_the_acquisition_specific_root(self):
+        """W15232 review [P2], and the second time this campaign that I
+        corrected code and left the prose beside it describing what was
+        removed. A reader -- and a generated test description -- sees the old
+        ownership after the executable boundary was corrected.
+
+        Checked as a STRING OPERAND rather than as a word, which is the
+        distinction that matters: a root name is a literal these modules act
+        on, while an explanation of why that root is gone is prose which
+        should be free to say so. An earlier attempt at this kind of case
+        failed on the module's own comment, punishing the explanation it
+        wanted written down.
+        """
+        import ast
+        import inspect
+        from baton_v12.worker_manager import oci
+        removed = "git"
+        for named, module in (("workspaces", workspaces), ("oci", oci)):
+            tree = ast.parse(inspect.getsource(module))
+            literals = {node.value for node in ast.walk(tree)
+                        if isinstance(node, ast.Constant)
+                        and type(node.value) is str}
+            with self.subTest(module=named):
+                self.assertNotIn(
+                    removed, literals,
+                    f"{named} still names the acquisition-specific root as an "
+                    f"operand")
+        self.assertEqual(oci.ROOT_NAMES, ("inputs", "workspace"))
+
+    def test_the_generic_duties_this_manager_keeps_are_still_here(self):
+        """Removal, not amputation. Assignment-private paths, the measured
+        manifest over an already staged tree, and cleanup are the manager's
+        own and say nothing about where bytes came from."""
+        for name in ("assignment_workspace", "compose_input_root",
+                     "directory_manifest", "discard_workspace"):
+            with self.subTest(name=name):
+                self.assertIn(name, workspaces.__all__)
+                self.assertTrue(callable(getattr(workspaces, name)))
+
+    def test_no_git_metadata_root_survives_the_acquisition_cut(self):
+        """A retained helper cannot keep provisioning an acquisition-specific
+        root after the core manager has stopped understanding Git."""
+        roots = self.workspace("artifact-neutral")
+        self.assertEqual(sorted(roots), ["inputs", "workspace"])
+        self.assertFalse(os.path.exists(os.path.join(
+            self.storage, "artifact-neutral", "git")))
 
 
 if __name__ == "__main__":

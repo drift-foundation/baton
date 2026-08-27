@@ -1,0 +1,143 @@
+W19784 — corrections for the independent review of 2026-08-27T00:40:45Z.
+Three P0s and one P1. No repository state was mutated.
+
+=== 1. THE ORDINARY COMMAND, which is what [P1] was about
+  No -B, no cache clearing by hand, nothing but the command itself:
+
+  $ PYTHONPATH=src python3 -m unittest tests.manager.test_worker_image
+    FAIL: test_the_correlated_work_answer_names_outputs_only 
+    FAIL: test_declared_output_limits_hold_before_completion_publication 
+    Ran 75 tests in 0.154s
+    FAILED (failures=2)
+  Both remaining failures are W6633's, independently owned and unchanged.
+  All four of the review's additive regressions pass.
+
+=== 2. [P1] PROVED, by manufacturing the exact defect
+  bytecode cached for a worker whose closed-set refusal was removed: True
+  source restored with the same mtime and the same size, so CPython's
+  own invalidation cannot tell the two apart.
+  
+  ORDINARY COMMAND, no -B: FAILED (failures=2)
+      FAIL: test_the_correlated_work_answer_names_outputs_only
+      FAIL: test_declared_output_limits_hold_before_completion_publication
+  
+  Before the fix this reported the mutation's failures instead. The suite
+  now drops the cache BEFORE importing the worker, so the result is the
+  tree's rather than the last harness run's.
+  source restored byte-identical
+
+=== 3. [P0-1] the worker validates both delivered documents
+  The fix is NOT a hand-typed member list -- that would be a second copy
+  of the contract. The frozen schema travels with the image as DATA and
+  the closed member sets are derived from it:
+    205:CONTRACT_SCHEMA = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+    Dockerfile:39:COPY worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+
+  A FIFTH copy, held to the same digest as the other four:
+      22caa60ae0aab610d93d9c67 (5 copies)
+         v12/python/build/lib/baton_v12/contracts/schema/worker-control-1.0.schema.json
+         v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json
+         v12/src/worker_manager/schema/worker-control-1.0.schema.json
+         v12/worker/worker-control-1.0.schema.json
+         work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json
+      DISTINCT CONTENTS: 1 (1 is the requirement)
+
+  Proved through the BUILT IMAGE too, which the review could not run
+  (its managed turn had no Docker socket):
+    Ran 35 tests in 28.007s
+    OK
+    including a container-level negative for each spoiling, and the
+    artefact's own copy of the contract compared byte for byte.
+
+=== 4. [P0-2] the manager authenticates the root it exposes
+  compose_input_root gained REQUIRED identity operands:
+    377:def compose_input_root(inputs, input_manifest, assignment_manifest, *,
+    378-                       assignment, runtime_attempt_id):
+  and the launch path authorizes before it journals a start:
+    673:def authorize_input_root(store, *, attempt_id, inputs):
+    674-    """Prove the composed `/input/` root belongs to THIS attempt, before the
+    783:        authorize_input_root(store, attempt_id=attempt_id, inputs=inputs)
+
+  THE REQUIREMENT IS DERIVED, NOT OPTIONAL, and that distinction is the
+  design. `inputs=None` is reachable only when the attempt records no
+  input digest -- meaning this manager has nothing a root could be bound
+  to and no root to expose. Every real delivery is offered and claimed
+  against an input manifest and records that digest, so from that moment
+  a start without an authorized root is refused. An optional operand
+  would have been the hole: a caller that could pass nothing would start
+  a runtime over a directory nothing established.
+
+=== 5. [P0-3] conformance certifies the identity at the RIGHT MOMENT
+      A-18 now names 6 cases at TWO moments:
+        ['runtime.start'] A-input-root-authorized-against-the-owned-assignment
+        ['runtime.start'] A-stale-generation-root-refused-before-mount
+        ['runtime.start'] A-wrong-attempt-root-refused-before-mount
+        ['output.freeze'] A-completion-copies-the-delivered-assignment-identity
+        ['output.freeze'] A-completion-under-a-superseded-generation-refused
+        ['output.freeze'] A-assignment-manifest-naming-another-runtime-attempt-refused
+      matrix 135 (was 132) {'invariant': 51, 'control-refusal': 56, 'control-success': 28}
+      register 79 (unchanged)
+  The freeze cases are KEPT as defence in depth, which is what they
+  always were and never the only line. SPEC 12 gained rule 17: the pair
+  rule is not an authorization, and the moment is normative.
+
+=== 6. every guard this round added, measured by REMOVAL
+  Each harness drops the matching __pycache__ with every write.
+=== baseline: FAILED (failures=2)
+    standing: FAIL: test_declared_output_limits_hold_before_completion_publication
+    standing: FAIL: test_the_correlated_work_answer_names_outputs_only
+=== REMOVE: the delivered document is held to a closed member set
+    FAILED (failures=8)  (6 NEW case(s))
+=== REMOVE: the closed set is DERIVED from the shipped contract
+    FAILED (failures=24, errors=2)  (25 NEW case(s))
+=== REMOVE: each document is the kind it is delivered as
+    FAILED (failures=3)  (1 NEW case(s))
+=== REMOVE: the document's own digest describes its own bytes
+    FAILED (failures=4)  (2 NEW case(s))
+=== REMOVE: composition holds the pair to the manager's own assignment
+    FAILED (failures=6)  (4 NEW case(s))
+=== REMOVE: composition holds the pair to this runtime attempt
+    FAILED (failures=3)  (1 NEW case(s))
+=== REMOVE: the root is read back off disk and revalidated
+    FAILED (failures=3)  (1 NEW case(s))
+=== REMOVE: the launch authorizes the root before journalling a start
+    FAILED (failures=6)  (4 NEW case(s))
+=== REMOVE: a claimed attempt cannot start without a root
+    FAILED (failures=3)  (1 NEW case(s))
+=== REMOVE: the root names the assignment this attempt activated
+    FAILED (failures=5)  (3 NEW case(s))
+=== REMOVE: the root was composed for this runtime attempt
+    FAILED (failures=3)  (1 NEW case(s))
+=== REMOVE: the root carries the input manifest this attempt was claimed against
+    FAILED (failures=3)  (1 NEW case(s))
+all three sources restored
+
+  Two came back vacuous on the first pass and are now DRIVEN rather than
+  deleted: the schema-const check (a document carrying exactly the input
+  manifest's members while declaring itself something else) and the
+  read-back revalidation (a root edited after composition).
+
+=== 7. the focused manager gate
+    FAIL: test_the_correlated_work_answer_names_outputs_only 
+    FAIL: test_declared_output_limits_hold_before_completion_publication 
+    Ran 878 tests in 2.861s
+    FAILED (failures=2, skipped=1)
+
+=== 8. the record models
+    Ran 31 tests in 0.120s
+    
+    OK
+    Ran 74 tests in 4.868s
+    
+    OK
+
+=== 9. the boundary inventory
+    FAIL: test_every_declared_probe_reaches_its_named_boundary  (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+    FAIL: test_every_owned_entry_has_exactly_one_probe 
+    FAIL: test_the_missing_probe_check_can_actually_fail 
+    FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared 
+    FAIL: test_every_receiving_entry_has_an_owning_validator 
+    FAIL: test_the_universe_sees_every_persisted_column_that_is_read 
+    Ran 93 tests in 793.200s
+    FAILED (failures=6)
+    (done)

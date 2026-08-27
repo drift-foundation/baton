@@ -66,9 +66,12 @@ stderr. A `print` in an agent would otherwise corrupt a frame, which is the
 kind of failure that looks like a protocol bug for a week.
 """
 
+import hashlib
 import json
 import os
+import re
 import sys
+import time
 
 PROTOCOL = "baton.worker-entry/1"
 
@@ -108,7 +111,12 @@ COMMON_MEMBERS = ("protocol", "session", "operation_id", "operation")
 REQUEST_MEMBERS = {
     "describe": COMMON_MEMBERS,
     "consider": COMMON_MEMBERS,
-    "work": COMMON_MEMBERS + ("task",),
+    # W14251, closed: A WORK REQUEST CARRIES NO TASK. The assignment is read
+    # from `/input/input.json`, which is the manager-authored document at a
+    # path that is a CONSTANT of the contract rather than an operand. An
+    # inline task was the superseded shape and is not kept as an alias: two
+    # live contracts for one operation is what a supersession exists to end.
+    "work": COMMON_MEMBERS,
 }
 
 # What each answer is, exactly. Validated before it is framed, because an
@@ -118,20 +126,127 @@ REQUEST_MEMBERS = {
 ANSWER_MEMBERS = {
     "describe": ("protocol", "posture", "operations", "environment"),
     "consider": ("contract_digest", "decision", "reason"),
-    "work": ("disposition", "workspace", "recap"),
+    # `workspace` IS GONE ENTIRELY rather than renamed. A workspace path is a
+    # HOST fact and the Worker Manager is artifact-neutral: what it needs from
+    # a worker is which declared outputs were produced, and it learns where
+    # they are from the declarations it wrote.
+    "work": ("disposition", "outputs", "recap"),
 }
 
 # Environment a worker is allowed to see. Anything else in the image's
 # environment is not this program's business, and naming the set is what makes
 # "the assignment did not reach the consent container" checkable.
+# THE TWO POSTURES SEE THE SAME FOUR MEMBERS NOW, and that is the whole of
+# W14251's environment consequence. `BATON_WORKER_ASSIGNMENT`,
+# `BATON_WORKER_WORKSPACE` and `BATON_WORKER_OUTPUT` are REMOVED rather than
+# renamed: with two fixed paths there is nothing left for them to say, and the
+# assignment itself arrives as a document under one of them.
+#
+# The posture difference did not go with them -- it moved to where it always
+# belonged. A consent container has no `/input/` and no `/output/`, so what it
+# lacks is the two roots rather than three strings about them, and `visible`
+# still refuses a `BATON_WORKER_*` member outside the set because a container
+# carrying one was built wrong.
 ENVIRONMENT = {
     "consent": ("BATON_WORKER_POSTURE", "BATON_WORKER_SESSION",
                 "BATON_WORKER_CONTRACT", "BATON_WORKER_ROLE"),
     "execution": ("BATON_WORKER_POSTURE", "BATON_WORKER_SESSION",
-                  "BATON_WORKER_CONTRACT", "BATON_WORKER_ROLE",
-                  "BATON_WORKER_ASSIGNMENT", "BATON_WORKER_WORKSPACE",
-                  "BATON_WORKER_OUTPUT"),
+                  "BATON_WORKER_CONTRACT", "BATON_WORKER_ROLE"),
 }
+
+# THE TWO FILESYSTEM ROLES, as constants of the contract. W14251 §7.0: a path
+# a manifest could vary is a path a runtime can be pointed at wrongly, so the
+# worker is told where to look by the contract rather than by a payload.
+INPUT_ROOT = "/input"
+OUTPUT_ROOT = "/output"
+INPUT_MANIFEST = "input.json"
+# W19784, approved 2026-08-26: THE SECOND MANAGER-AUTHORED INPUT DOCUMENT.
+#
+# The frozen `completionManifest` requires the exact full `assignment_ref` --
+# Work reference, participant AND authority generation. `input.json` is minted
+# before any claim exists and carries no generation, the `work` frame carries
+# only the common worker-entry identity, and the execution environment
+# deliberately carries no assignment value. So until this path existed there
+# was NOWHERE inside the container to learn who this assignment is, and the
+# only way to publish a valid envelope was to put `assignment_ref` into a
+# document whose schema forbids it -- which is what this file used to do.
+#
+# The manager materializes this after the claim commits and before the input
+# root is mounted. It is the ONE source of the identity below.
+ASSIGNMENT_MANIFEST = "assignment.json"
+OUTPUT_MANIFEST = "output.json"
+COMPLETION_SCHEMA = "baton.worker-manifest/completion"
+
+# THE FROZEN CONTRACT ITSELF, shipped beside this program as DATA.
+#
+# W19784 review [P0]: this worker read the two manager-authored documents by
+# picking out the members it wanted. So a document with a false
+# `manifest_digest`, or one carrying an extra top-level member -- a second
+# identity alias, exactly what the ruling rejected -- passed straight through
+# to agent dispatch. Shallow extraction is not validation.
+#
+# The fix could not be a hand-written member list. A list typed here is a
+# SECOND COPY of the contract, and a second copy is a second thing to keep
+# true; the campaign has been corrected for that before. So the schema travels
+# with the image and the closed member sets are DERIVED from it at startup.
+# `test_frozen` proves this copy is byte-identical to the other four, so there
+# is one contract with five identical copies rather than five contracts.
+#
+# WHAT THIS DELIBERATELY IS NOT: a JSON Schema implementation. The image
+# carries no validator library and must not grow one -- "no build toolchain, no
+# package manager state" is a decision of the recipe, and a schema interpreter
+# inside the worker would be a second validator to keep true anyway. What is
+# proved here is the part a mis-composed or edited delivery breaks and that
+# this program can prove ALONE: the document is the manager's closed document,
+# it carries every member that definition requires, and its bytes are the ones
+# its own digest describes. The manager proves the whole schema before it
+# mounts the root (`workspaces.compose_input_root`, which calls the shipped
+# `check_input_pair`), and `test_worker_image` pins that the two agree about
+# what "closed" means.
+CONTRACT_SCHEMA = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "worker-control-1.0.schema.json")
+
+# How much of the manager's input manifest this worker will read. It is a
+# document from outside the container and its size is not this program's
+# decision, so the bound has to be.
+MAX_INPUT_BYTES = 4 * 1024 * 1024
+
+# W6633 eleventh review [P1]: the declared-output shape and the path grammar
+# are DERIVED from the shipped contract, exactly as the manifest member sets
+# are. A list typed here would be a paraphrase, and W19784's third review is
+# the standing lesson about paraphrased rules: they agree with the original
+# until they don't, and they stop agreeing where it costs most.
+#
+# `DECLARATION_MEMBERS` used to be four names with `constraints` missing, so
+# the ceilings a declaration states were not merely unenforced -- they were not
+# even required to be present.
+DECLARATION_DEFINITION = "outputDescriptor"
+CONSTRAINT_DEFINITION = "outputConstraints"
+RELATIVE_PATH = "relativePath"
+
+# What an `assignment_ref` is, exactly. The worker COPIES this value into the
+# envelope rather than rebuilding it, so what it checks is that the delivered
+# document carries the whole thing and nothing else -- an envelope carrying a
+# reconstructed or widened identity would be this worker's invention.
+ASSIGNMENT_REF_MEMBERS = ("work_ref", "participant", "generation")
+
+# `ASSIGNMENT_MEMBERS` and the two manifest-schema constants are GONE with the
+# W19784 review's correction rather than kept beside it. They were this
+# program's own list of what a delivered document must carry and be, and the
+# closed set is now derived from the frozen contract -- so keeping them would
+# be exactly the second copy the derivation exists to avoid, differing from the
+# real definition the first time either moves.
+
+# What an agent says about ONE declared output. The bytes are deliberately not
+# in it: the worker MEASURES them, because the agent is the least trusted thing
+# in this container and a content manifest is a claim about a tree.
+AGENT_OUTPUT_MEMBERS = ("name", "status", "result_metadata")
+OUTPUT_STATUSES = ("present", "missing-optional")
+
+# What a worker may say it did. The frozen `completionManifest`'s own set, and
+# a worker's disposition is a CLAIM about its work rather than a settlement --
+# the manager records it and settles the attempt itself.
+DISPOSITIONS = ("completed", "unable", "plan-rejected", "cancelled")
 
 
 class WorkerFault(Exception):
@@ -291,6 +406,638 @@ def visible(environment, posture):
     return {name: environment[name] for name in allowed if name in environment}
 
 
+def canonical(value):
+    """RFC 8785-equivalent bytes for the documents this worker writes.
+
+    Member names here are ASCII, so sorting them lexically is the UTF-16 order
+    the frozen contract requires; `ensure_ascii=False` and no whitespace are
+    the other two halves. A digest two readers compute differently is not an
+    identity, and the manager recomputes this one.
+    """
+    return json.dumps(value, ensure_ascii=False, sort_keys=True,
+                      separators=(",", ":")).encode("utf-8")
+
+
+def digest(value):
+    return "sha256:" + hashlib.sha256(canonical(value)).hexdigest()
+
+
+def _frozen_contract():
+    """The shipped `worker-control-1.0` document, read once per call.
+
+    A schema this program cannot read is an operational fault rather than a
+    reason to validate less: without it there is no closed set and no path
+    grammar, and a worker that carried on would be back to the shallow
+    extraction W19784's review replaced.
+    """
+    try:
+        with open(CONTRACT_SCHEMA, "rb") as reading:
+            return json.loads(reading.read().decode("utf-8"))
+    except (OSError, UnicodeDecodeError, ValueError):
+        raise WorkerFault(
+            "input",
+            f"this image carries no readable {CONTRACT_SCHEMA}; without the "
+            f"frozen contract there is no closed member set to hold a "
+            f"manager document to")
+
+
+def _plain(frozen, named):
+    """The closed member set and required set of a NON-composed definition.
+
+    `outputDescriptor` and `outputConstraints` are plain objects with
+    `additionalProperties: false` rather than the `allOf` composition the
+    manifests use, so they are read directly.
+    """
+    definition = frozen["$defs"][named]
+    return set(definition.get("properties", ())), set(
+        definition.get("required", ()))
+
+
+def _resolved(frozen, rule):
+    """One property rule with its `$ref` followed, if it has one."""
+    while "$ref" in rule:
+        rule = frozen["$defs"][rule["$ref"].rsplit("/", 1)[-1]]
+    return rule
+
+
+def _held(frozen, rule, value, what):
+    """One value, against the frozen rule that describes it.
+
+    W6633 twelfth review [P1]: deriving the member NAMES and then checking two
+    integers was mistaken for validation. `name` and `type` are used for
+    lookup and for authoring the completion envelope, `required` decides
+    control flow, and a ceiling above the frozen maximum weakens the resource
+    bound the schema pins -- so every one of them was consumed unvalidated.
+
+    THIS IS NOT A JSON SCHEMA ENGINE AND MUST NOT BECOME ONE. It is the closed,
+    bounded keyword set that `outputDescriptor` and `outputConstraints`
+    actually use, and nothing else: an unrecognised keyword is a FAULT rather
+    than a value this function passes over, because silently skipping one is
+    how a derived check becomes a paraphrase again. If a later version of those
+    two definitions uses a keyword this does not implement, the worker refuses
+    and says so instead of validating less than it claims.
+    """
+    rule = _resolved(frozen, rule)
+    if "oneOf" in rule:
+        for branch in rule["oneOf"]:
+            try:
+                return _held(frozen, branch, value, what)
+            except WorkerFault:
+                continue
+        raise WorkerFault("input", f"{what} matches none of its frozen forms")
+    for keyword, expected in rule.items():
+        if keyword in ("description", "title"):
+            continue
+        if keyword == "const":
+            if value != expected:
+                raise WorkerFault(
+                    "input", f"{what} is {value!r} and the contract pins "
+                             f"{expected!r}")
+        elif keyword == "type":
+            if not _is_type(value, expected):
+                raise WorkerFault(
+                    "input", f"{what} is not the frozen {expected}")
+        elif keyword == "pattern":
+            if not re.match(expected, value):
+                raise WorkerFault(
+                    "input", f"{what} does not match its frozen grammar")
+        elif keyword == "minLength":
+            if len(value) < expected:
+                raise WorkerFault("input", f"{what} is shorter than {expected}")
+        elif keyword == "maxLength":
+            if len(value) > expected:
+                raise WorkerFault("input", f"{what} is longer than {expected}")
+        elif keyword == "minimum":
+            if value < expected:
+                raise WorkerFault("input", f"{what} is below {expected}")
+        elif keyword == "maximum":
+            if value > expected:
+                raise WorkerFault("input", f"{what} is above {expected}")
+        elif keyword == "uniqueItems":
+            if expected and len(set(map(repr, value))) != len(value):
+                raise WorkerFault("input", f"{what} repeats an entry")
+        elif keyword == "items":
+            for entry in value:
+                _held(frozen, expected, entry, f"an entry of {what}")
+        else:
+            raise WorkerFault(
+                "input",
+                f"the frozen rule for {what} uses {keyword!r}, which this "
+                f"worker does not implement; it refuses rather than validate "
+                f"less than it says it does")
+    return value
+
+
+def _is_type(value, expected):
+    """JSON's own types, and BOOLEANS ARE NOT INTEGERS.
+
+    `isinstance(True, int)` is true in Python and false in JSON, and a
+    `required` flag arriving where a ceiling belongs would otherwise pass a
+    `minimum: 0` check as the number one.
+    """
+    if expected == "string":
+        return type(value) is str
+    if expected == "integer":
+        return type(value) is int
+    if expected == "boolean":
+        return type(value) is bool
+    if expected == "array":
+        return type(value) is list
+    if expected == "object":
+        return type(value) is dict
+    if expected == "null":
+        return value is None
+    raise WorkerFault(
+        "input", f"the frozen rule names the type {expected!r}, which this "
+                 f"worker does not implement")
+
+
+def _definition(named):
+    """The closed member set and the required set of one frozen definition.
+
+    DERIVED FROM THE SHIPPED SCHEMA, never typed here. A definition in this
+    contract is `allOf: [manifestHeader, {...}]` with
+    `unevaluatedProperties: false`, so its closed set is the union of the two
+    property maps and nothing else may appear beside them.
+
+    A schema this program cannot read is an operational fault rather than a
+    reason to validate less: without it there is no closed set, and a worker
+    that carried on would be back to the shallow extraction this replaced.
+    """
+    frozen = _frozen_contract()
+    definition = frozen["$defs"][named]
+    closed, required, names = set(), set(), None
+    for part in definition["allOf"]:
+        if "$ref" in part:
+            part = frozen["$defs"][part["$ref"].rsplit("/", 1)[-1]]
+        properties = part.get("properties", {})
+        closed |= set(properties)
+        required |= set(part.get("required", ()))
+        # WHICH DOCUMENT THIS IS, taken from the contract rather than from a
+        # constant. Without it the closed set alone would accept the two
+        # `/input/` documents SWAPPED: they share the header, and a delivery
+        # that put the assignment manifest at `input.json` would fail later,
+        # somewhere less clear, or not at all.
+        if "schema" in properties and "const" in properties["schema"]:
+            names = properties["schema"]["const"]
+    return closed, required, names
+
+
+def _closed_manifest(place, document, named):
+    """One manager-authored document, held to its own frozen definition.
+
+    THREE QUESTIONS, and each is a different way a delivery is wrong:
+
+      EVERY REQUIRED MEMBER IS PRESENT -- a document short a member is one
+      this worker would have to guess the rest of;
+      NOTHING ELSE IS -- `unevaluatedProperties: false` is the contract's own
+      word, and an extra top-level member is how a second identity alias would
+      arrive. W19784's ruling rejected compatibility aliases explicitly, so
+      one appearing in a delivered document is refused rather than ignored;
+      THE BYTES ARE THE ONES THE DIGEST DESCRIBES -- recomputed over this
+      document's own canonical form with the digest member removed, which is
+      how the frozen contract defines it. Comparing the two documents' digest
+      STRINGS with each other, as this used to, proves they were minted
+      together and says nothing about whether either still is what it was.
+    """
+    closed, required, names = _definition(named)
+    missing = sorted(required - set(document))
+    extra = sorted(set(document) - closed)
+    if missing or extra:
+        raise WorkerFault(
+            "input",
+            f"{place} is not a closed {named}"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    if document["schema"] != names:
+        raise WorkerFault(
+            "input",
+            f"{place} says it is {document['schema']} and this delivery reads "
+            f"it as {names}; the two documents in this root are not "
+            f"interchangeable")
+    body = {name: value for name, value in document.items()
+            if name != "manifest_digest"}
+    if document["manifest_digest"] != digest(body):
+        raise WorkerFault(
+            "input",
+            f"{place} does not identify itself; its manifest_digest describes "
+            f"other bytes than the ones this worker read")
+    return document
+
+
+def _document(name, named):
+    """One manager-authored document out of `/input/`, read once and bounded.
+
+    W19784 review [P0]: this used to say the worker does not validate the
+    manager's documents, and that was the defect. The manager DOES own the
+    full boundary, and a worker that took a document on that basis had no way
+    to tell a correctly delivered one from an edited or mis-composed one --
+    which is precisely what a two-root delivery can get wrong.
+    """
+    place = os.path.join(INPUT_ROOT, name)
+    try:
+        with open(place, "rb") as reading:
+            raw = reading.read(MAX_INPUT_BYTES + 1)
+    except OSError:
+        raise WorkerFault(
+            "input",
+            f"this assignment has no readable {place}; it is one of the two "
+            f"documents a worker is told what it was asked for by")
+    if len(raw) > MAX_INPUT_BYTES:
+        raise WorkerFault(
+            "input",
+            f"{place} is wider than {MAX_INPUT_BYTES} bytes")
+    try:
+        document = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        raise WorkerFault("input", f"{place} is not a readable document")
+    if type(document) is not dict:
+        raise WorkerFault("input", f"{place} is one JSON object")
+    return place, _closed_manifest(place, document, named)
+
+
+def input_manifest():
+    """The manager's `/input/input.json`: what this assignment declared.
+
+    IT NO LONGER NAMES THE ASSIGNMENT, and it never legitimately could.
+    W19784: this used to read `assignment_ref` from here, which made the whole
+    worker depend on a member the frozen `inputManifest` schema forbids -- the
+    document is minted before any claim exists. The identity now comes from
+    `assignment_manifest()` and the schema and this reader finally agree.
+    """
+    place, document = _document(INPUT_MANIFEST, "inputManifest")
+    declared = document["outputs"]
+    if type(declared) is not list or not declared:
+        raise WorkerFault(
+            "input", f"{place} declares at least one output")
+    return document, _declarations(place, declared)
+
+
+def _declarations(place, declared):
+    """Every declared output, proved BEFORE an agent is dispatched.
+
+    W6633 eleventh review [P1], and the order is the whole content. This used
+    to check that four member names were present and then hand the
+    declarations straight to the agent, which wrote under
+    `os.path.join(OUTPUT_ROOT, path)`. A declaration spelling `../tmp/escaped`
+    therefore had the agent writing OUTSIDE the output root -- into the
+    writable private ephemeral space, where the read-only input mount does not
+    contain it -- and this worker then measured that escaped tree, published a
+    completion envelope describing it, and answered success.
+
+    Everything below runs before `agent.work`, so a declaration this worker
+    cannot honour never becomes bytes anywhere.
+
+    THE RULES ARE THE CONTRACT'S OWN, not a paraphrase of them: the closed
+    descriptor and constraint member sets and the `relativePath` grammar are
+    read out of the shipped schema.
+    """
+    frozen = _frozen_contract()
+    descriptor = frozen["$defs"][DECLARATION_DEFINITION]
+    constraint = frozen["$defs"][CONSTRAINT_DEFINITION]
+    closed, required = _plain(frozen, DECLARATION_DEFINITION)
+    limits, limited = _plain(frozen, CONSTRAINT_DEFINITION)
+    root = os.path.realpath(OUTPUT_ROOT)
+    seen, taken = set(), []
+    for one in declared:
+        if type(one) is not dict or set(one) != closed | required:
+            raise WorkerFault(
+                "input",
+                f"a declared output in {place} is exactly "
+                f"{', '.join(sorted(closed | required))}")
+        constraints = one["constraints"]
+        if type(constraints) is not dict \
+                or set(constraints) != limits | limited:
+            raise WorkerFault(
+                "input",
+                f"a declared output in {place} declares constraints that are "
+                f"exactly {', '.join(sorted(limits | limited))}")
+        # EVERY VALUE, against the frozen rule that describes it. The member
+        # set alone said only that the right NAMES were present -- W6633's
+        # twelfth review, and the same shape of mistake as proving two
+        # documents agree with each other and calling it authorization.
+        for member, rule in descriptor["properties"].items():
+            if member == "constraints":
+                continue
+            _held(frozen, rule, one[member],
+                  f"a declared output's {member}")
+        for member, rule in constraint["properties"].items():
+            _held(frozen, rule, constraints[member],
+                  f"output {one['name']!r}'s {member}")
+        _limits(one["name"], constraints)
+        path = one["path"]
+        # AND THEN CONTAINMENT, resolved. The grammar refuses the spellings;
+        # this refuses a path that resolves out of the root anyway, which is
+        # what a symlinked component would do.
+        landing = os.path.realpath(os.path.join(root, path))
+        if landing != root and not landing.startswith(root + os.sep):
+            raise WorkerFault(
+                "input",
+                f"output {one['name']!r} resolves outside {OUTPUT_ROOT}")
+        if path == OUTPUT_MANIFEST or path.startswith(OUTPUT_MANIFEST + "/"):
+            raise WorkerFault(
+                "input",
+                f"output {one['name']!r} is declared at "
+                f"{OUTPUT_MANIFEST!r}, which is this root's protocol manifest")
+        if one["name"] in seen:
+            raise WorkerFault(
+                "input", f"output {one['name']!r} is declared twice")
+        seen.add(one["name"])
+        for before in taken:
+            if landing == before[1] \
+                    or landing.startswith(before[1] + os.sep) \
+                    or before[1].startswith(landing + os.sep):
+                # §7.2: the same bytes under two names are two artifacts with
+                # two identities, and retention would decide twice about
+                # material that is once.
+                raise WorkerFault(
+                    "input",
+                    f"outputs {before[0]!r} and {one['name']!r} name the same "
+                    f"tree or one inside the other")
+        taken.append((one["name"], landing))
+    return declared
+
+
+def _limits(name, constraints):
+    """What the frozen VALUE rules cannot say, plus the account of each member.
+
+    `_held` above proves every member against the contract -- types, patterns,
+    lengths, the `link_policy` const and the schema's own maxima on both
+    ceilings. What is left here is the one decision the schema does not make.
+
+    ENFORCED WHILE MEASURING: `max_bytes` and `max_entries`.
+
+    `link_policy` is `const: "forbid"` in 1.0 and is enforced BY CONSTRUCTION
+    rather than by comparison -- `measured` admits regular files only, so a
+    link is refused whatever the policy said. A comparison against a one-value
+    const could never fail, and writing one would be a guard no removal can
+    measure.
+
+    `allowed_media_types` is CARRIED AND NOT ENFORCED HERE, deliberately. A
+    frozen `contentManifest` entry is a path, a byte count and a digest -- this
+    worker has no media type for anything it measures. The value is enforced
+    where a media type exists, on the collected artifact in the manager's
+    `output.py`. Saying so is the difference between a split boundary and a
+    dropped rule.
+
+    `validator_digest` REFUSES the assignment when it is not null, and that is
+    fail-closed rather than unimplemented. §7.2 makes `type` opaque and says
+    the manager never branches on it; a worker that ran a type-specific
+    validator would be branching on exactly that. Nothing else in 1.0 runs it
+    either, so accepting a declaration that states one would be publishing a
+    result while ignoring a constraint the manager wrote down.
+    """
+    if constraints["validator_digest"] is not None:
+        raise WorkerFault(
+            "input",
+            f"output {name!r} declares a type-specific validator digest and "
+            f"this worker runs none; a result published while ignoring a "
+            f"stated constraint would be a result nobody checked")
+
+
+def assignment_manifest():
+    """The manager's `/input/assignment.json`: WHO this assignment is.
+
+    W19784, approved 2026-08-26. This is the only source of the participant and
+    authority generation inside the container, and the value it returns is
+    copied into the completion envelope unchanged. So what it refuses is a
+    document that could not be copied from: an `assignment_ref` that is not
+    exactly the frozen three members is either short of the generation the
+    envelope requires or carrying something this worker would be inventing.
+    """
+    place, document = _document(ASSIGNMENT_MANIFEST, "assignmentManifest")
+    assignment = document["assignment_ref"]
+    if type(assignment) is not dict \
+            or sorted(assignment) != sorted(ASSIGNMENT_REF_MEMBERS):
+        raise WorkerFault(
+            "input",
+            f"{place} names an assignment by exactly "
+            f"{', '.join(ASSIGNMENT_REF_MEMBERS)}; the completion envelope "
+            f"carries this value unchanged")
+    return document
+
+
+def one_delivery(given, delivered):
+    """The two `/input/` documents, held against each other before dispatch.
+
+    §12 rule 16. Each document is separately readable and separately
+    plausible, and that says nothing about whether they are ABOUT ONE THING. A
+    container composed from one delivery's input and another's assignment
+    would run the agent against the wrong material and then publish an
+    envelope naming the wrong Work -- and every single-document check above
+    would have passed.
+
+    The manager performs the same comparison before it mounts the root. This is
+    not redundancy: the worker is the party that COPIES the identity into a
+    durable document, and a party that copies an identity proves the identity
+    belongs to the material it is describing. It also runs before the agent, so
+    a mis-composed container writes nothing at all.
+
+    THE GENERATION IS NOT COMPARED and cannot be: `input.json` has none. That
+    asymmetry is the whole reason this Work exists, and the assignment side is
+    the sole source.
+    """
+    assignment = delivered["assignment_ref"]
+    if assignment["work_ref"] != given.get("work_ref"):
+        raise WorkerFault(
+            "input",
+            f"{INPUT_ROOT}/{ASSIGNMENT_MANIFEST} names another Work than "
+            f"{INPUT_ROOT}/{INPUT_MANIFEST} declares")
+    if delivered["input_manifest_digest"] != given.get("manifest_digest"):
+        raise WorkerFault(
+            "input",
+            f"{INPUT_ROOT}/{ASSIGNMENT_MANIFEST} was minted against another "
+            f"input manifest than the one beside it; the pair in one root is "
+            f"one pair or it is two halves of two deliveries")
+    for name in ("policy_digest", "runtime_profile_digest"):
+        if delivered[name] != given.get(name):
+            raise WorkerFault(
+                "input",
+                f"the two documents in {INPUT_ROOT}/ declare different "
+                f"{name} values; one delivery carries one identity")
+    return assignment
+
+
+def measured(place, constraints):
+    """One declared output tree, as the frozen `contentManifest`.
+
+    THE WORKER MEASURES AND THE AGENT DOES NOT. A content manifest is a claim
+    about bytes, and the agent is the least trusted thing inside this
+    container -- so it says WHICH outputs it produced and this says what is in
+    them. Sorted bytewise, aggregates computed rather than declared, and the
+    tree digest over the canonical ordered entry array, which is §3.3's own
+    rule and what makes two manifests over one tree the same manifest.
+    """
+    # W6633 eleventh review [P1]: THE CEILINGS ARE ENFORCED WHILE MEASURING,
+    # not afterwards. A declaration's limits are the manager's statement about
+    # what this assignment may produce, and a worker that measured a whole
+    # oversized tree and then compared totals would already have read it all
+    # into this process -- so the refusal arrives as the bound is crossed,
+    # before the next file is accumulated and long before anything is
+    # published.
+    ceiling_entries = constraints["max_entries"]
+    ceiling_bytes = constraints["max_bytes"]
+    entries, total = [], 0
+    for base, directories, files in os.walk(place):
+        # EVERY ENTRY THE TRAVERSAL MEETS, not only the ones in `files`.
+        #
+        # W6633 twelfth review [P1]: this walked `files` alone, and
+        # `os.walk(..., followlinks=False)` puts a symlink TO A DIRECTORY in
+        # `directories` -- where it was then skipped in silence. So a declared
+        # tree containing `linked-directory -> /output` measured as empty, the
+        # worker answered success, and the completion manifest claimed a tree
+        # with nothing in it while the link was still there.
+        #
+        # I had written that `link_policy: forbid` is enforced BY
+        # CONSTRUCTION. That claim is only true when every entry the traversal
+        # encounters takes part in the construction, and one whole list of
+        # them did not. The claim is now true.
+        for one in directories:
+            full = os.path.join(base, one)
+            if os.path.islink(full):
+                raise WorkerFault(
+                    "output",
+                    f"{full} is a link; a declared output carries regular "
+                    f"files in 1.0 and `link_policy` is `forbid`")
+        for one in files:
+            full = os.path.join(base, one)
+            if not os.path.isfile(full) or os.path.islink(full):
+                # REGULAR FILES ONLY, like the manager's own measurement. A
+                # link is not material this worker can describe by content;
+                # a socket, a device or a fifo is not either.
+                raise WorkerFault(
+                    "output",
+                    f"{full} is not a regular file; a declared output carries "
+                    f"regular files in 1.0")
+            if len(entries) + 1 > ceiling_entries:
+                raise WorkerFault(
+                    "output",
+                    f"this output declares at most {ceiling_entries} "
+                    f"entries and carries more")
+            size = os.path.getsize(full)
+            if total + size > ceiling_bytes:
+                raise WorkerFault(
+                    "output",
+                    f"this output declares at most {ceiling_bytes} bytes and "
+                    f"carries more")
+            with open(full, "rb") as reading:
+                content = reading.read()
+            total += len(content)
+            entries.append({
+                "path": os.path.relpath(full, place).replace(os.sep, "/"),
+                "bytes": len(content),
+                "content_digest": "sha256:" + hashlib.sha256(
+                    content).hexdigest()})
+    entries.sort(key=lambda entry: entry["path"].encode("utf-8"))
+    return {"entries": entries, "entry_count": len(entries),
+            "total_bytes": sum(one["bytes"] for one in entries),
+            "tree_digest": digest(entries)}
+
+
+def answered(declared, reported):
+    """The agent's per-output answers, held against the declarations.
+
+    The agent names outputs and says whether it produced them; everything else
+    in the published answer comes from the DECLARATION or from this worker's
+    own measurement. So an agent cannot rename an output, move it, invent one,
+    or describe bytes it did not write.
+    """
+    if type(reported) is not list:
+        raise WorkerFault("answer", "a work answer's outputs are a list")
+    said = {}
+    for one in reported:
+        if type(one) is not dict \
+                or sorted(one) != sorted(AGENT_OUTPUT_MEMBERS):
+            raise WorkerFault(
+                "answer",
+                f"an output answer is exactly "
+                f"{', '.join(AGENT_OUTPUT_MEMBERS)}")
+        if one["status"] not in OUTPUT_STATUSES:
+            raise WorkerFault(
+                "answer",
+                f"an output status is one of {', '.join(OUTPUT_STATUSES)}")
+        if type(one["result_metadata"]) is not dict:
+            raise WorkerFault("answer",
+                              "an output's result metadata is one object")
+        if one["name"] in said:
+            raise WorkerFault(
+                "answer", f"output {one['name']!r} is answered twice")
+        said[one["name"]] = one
+    names = sorted(one["name"] for one in declared)
+    if sorted(said) != names:
+        raise WorkerFault(
+            "answer",
+            f"a work answer answers exactly {', '.join(names)}")
+    published = []
+    for declaration in declared:
+        one = said[declaration["name"]]
+        place = os.path.join(OUTPUT_ROOT, declaration["path"])
+        status = one["status"]
+        if status == "present" and not os.path.isdir(place):
+            raise WorkerFault(
+                "answer",
+                f"output {declaration['name']!r} is answered present and "
+                f"{place} is not there")
+        if declaration["required"] and status != "present":
+            # WHETHER AN OUTPUT WAS REQUIRED IS THE MANAGER'S DECLARATION. An
+            # agent that could answer a required output away would be settling
+            # its own attempt, and the manager refuses this too -- refusing it
+            # here as well is the worker declining to publish a document it
+            # knows is wrong.
+            raise WorkerFault(
+                "answer",
+                f"output {declaration['name']!r} is required and is answered "
+                f"{status}")
+        published.append({
+            "name": declaration["name"], "type": declaration["type"],
+            "path": declaration["path"], "status": status,
+            "content_manifest": (measured(place, declaration["constraints"])
+                                 if status == "present" else None),
+            "result_metadata": one["result_metadata"]})
+    return published
+
+
+def publish_completion(assignment, disposition, outputs):
+    """`/output/output.json`, published LAST and ATOMICALLY.
+
+    LAST, because its presence under its final name is the completion signal:
+    it exists only if everything it describes was already written, so no
+    separate signal is needed and none is invented.
+
+    ATOMICALLY, because writing bytes into the final name is not publication.
+    A process stopped inside that write leaves the name existing and empty,
+    and a manager cannot tell that from a settled answer -- so the bytes
+    become visible under the final name only once they are complete.
+    """
+    body = {"version": {"major": 1, "minor": 0},
+            "manifest_id": f"completion-{disposition}",
+            "created_at": _instant(),
+            "extensions": {},
+            "schema": COMPLETION_SCHEMA,
+            "assignment_ref": assignment,
+            "disposition": disposition,
+            "outputs": outputs}
+    body["manifest_digest"] = digest(body)
+    place = os.path.join(OUTPUT_ROOT, OUTPUT_MANIFEST)
+    staged = place + ".publishing"
+    with open(staged, "wb") as writing:
+        writing.write(canonical(body))
+        writing.flush()
+        os.fsync(writing.fileno())
+    os.replace(staged, place)
+    return body
+
+
+def _instant():
+    """This worker's own clock, in the frozen grammar.
+
+    The manager does not take its ordering from this -- it has its own clock
+    and its own observation -- so what this needs to be is well formed rather
+    than authoritative.
+    """
+    return time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()) + ".000Z"
+
+
 def check_answer(operation, answer):
     """The agent's answer, against the closed set the contract pins.
 
@@ -312,15 +1059,23 @@ def check_answer(operation, answer):
             + (f"; missing {', '.join(missing)}" if missing else "")
             + (f"; unexpected {', '.join(extra)}" if extra else ""))
     for name, value in answer.items():
-        # `workspace` is the one member a posture may legitimately not have,
-        # and null is how it says so rather than by omitting the member --
-        # absent and null are different documents and only one of them is an
-        # answer to the question.
-        if value is None and name == "workspace":
-            continue
+        # ONE RULE, AND NO EXEMPTION. W6633 eleventh review [P1]: `outputs`
+        # used to be skipped here, on the reasoning that `answered` had
+        # already built it -- and that reasoning was about the wrong document.
+        # `answered` builds the records the COMPLETION ENVELOPE carries, which
+        # is where they belong; the framed answer is a different surface and
+        # is pinned to the bounded names of the outputs produced. Skipping the
+        # member meant the whole record set crossed the channel, and the rule
+        # that was supposed to stop a shape the manager would have to
+        # interpret was not applied to the one member most able to carry one.
+        #
+        # `MAX_FRAME` bounds the entries too. A list of unbounded strings is
+        # unbounded text with extra steps.
         if type(value) is str and len(value) <= MAX_FRAME:
             continue
-        if type(value) is list and all(type(entry) is str for entry in value):
+        if type(value) is list \
+                and all(type(entry) is str and len(entry) <= MAX_FRAME
+                        for entry in value):
             continue
         raise WorkerFault(
             "answer",
@@ -382,8 +1137,10 @@ def handle(request, identity, posture, environment, agent, spent):
             f"a {operation} request is exactly {', '.join(wanted)}"
             + (f"; missing {', '.join(missing)}" if missing else "")
             + (f"; unexpected {', '.join(extra)}" if extra else ""))
-    if operation == "work" and type(request["task"]) is not str:
-        raise WorkerFault("protocol", "a work request names one text task")
+    # NO PER-OPERATION MEMBER CHECK REMAINS. `work` used to name an inline
+    # task and this typed it; W14251 closed replaced that with
+    # `/input/input.json`, so the closed member set above is the whole of what
+    # a request carries and there is nothing left here to type.
     # ONE USE PER SESSION, CONSUMED BEFORE DISPATCH. An id that reached the
     # agent is spent whatever the outcome, because this program cannot know
     # whether the first attempt's side effects happened -- and "it failed, so
@@ -403,7 +1160,55 @@ def handle(request, identity, posture, environment, agent, spent):
                              "environment": sorted(seen)})
     if operation == "consider":
         return check_answer(operation, agent.consider(seen, request))
-    return check_answer(operation, agent.work(seen, request))
+    # W14251, closed: THE WORK OF AN EXECUTION WORKER, IN ORDER.
+    #
+    #   read `/input/input.json`  -- the manager's declaration of what was
+    #                                asked for, at a path this contract fixes;
+    #   read `/input/assignment.json`
+    #                             -- WHO this assignment is, at the other fixed
+    #                                path (W19784);
+    #   hold the pair             -- one Work, one input digest, one policy and
+    #                                profile: two documents that are not one
+    #                                delivery are refused BEFORE the agent runs
+    #                                and therefore before anything is written;
+    #   run the agent             -- which writes its material under the
+    #                                declared output paths and says which of
+    #                                them it produced;
+    #   hold its answer           -- against those declarations, and measure
+    #                                the bytes rather than believe them;
+    #   publish `output.json`     -- LAST and atomically, which is what makes
+    #                                its presence the completion signal.
+    #
+    # The manager then validates that envelope, holds it against the same
+    # input manifest and its own assignment, and freezes. Nothing here decides
+    # settlement: a worker reports what it produced and the manager settles.
+    given, declared = input_manifest()
+    delivered = assignment_manifest()
+    assignment = one_delivery(given, delivered)
+    reported = agent.work(seen, declared)
+    if type(reported) is not dict:
+        raise WorkerFault("answer", "a work answer is one JSON object")
+    published = answered(declared, reported.get("outputs"))
+    disposition = reported.get("disposition")
+    if disposition not in DISPOSITIONS:
+        raise WorkerFault(
+            "answer",
+            f"a work disposition is one of {', '.join(DISPOSITIONS)}")
+    publish_completion(assignment, disposition, published)
+    # TWO SURFACES, AND THEY CARRY DIFFERENT THINGS. The completion envelope
+    # above is the durable document and holds the whole record for each output
+    # -- name, type, path, status, the measured content manifest and the
+    # opaque metadata. The framed answer is the correlated reply on the
+    # worker-entry channel and carries the bounded NAMES of what was produced.
+    #
+    # W6633 eleventh review [P1]: it used to carry the records themselves, so
+    # the manager received one document twice by two routes, one of them the
+    # transport it is supposed to be able to read without interpreting.
+    return check_answer(operation, {
+        "disposition": disposition,
+        "outputs": [one["name"] for one in published
+                    if one["status"] == "present"],
+        "recap": reported.get("recap")})
 
 
 def serve(stdin, stdout, environment, agent):

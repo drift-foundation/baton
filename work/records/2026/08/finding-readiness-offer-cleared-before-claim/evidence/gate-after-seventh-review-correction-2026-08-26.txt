@@ -1,0 +1,99 @@
+W11910 -- evidence for the seventh review's [P1], and one thing left uncovered.
+
+
+THE DEFECT
+
+  The sixth correction let a live non-Work action pass a deferred Work at the
+  queue head, and `#drain` starts THAT candidate's turn. If its `turn/start`
+  loses its response the catch marks that candidate ambiguous -- correctly --
+  but every reconciliation path then looked at `queue[0]`, which is the
+  retained Work, and `#pastTheClaimSlot` skips ambiguous candidates on every
+  later retry.
+
+  So a turn the server actually created was never bound to this dispatcher:
+  completion could not be correlated through `activeTurn`, the delivery could
+  not settle through its normal path, and the lane sat behind an active server
+  status and a retained event.
+
+
+THE CORRECTION: AMBIGUITY FOLLOWS THE CANDIDATE, NOT THE QUEUE POSITION
+
+  Two sites assumed the ambiguous delivery was the head.
+
+    #reconcileTarget   `state.queue[0]?.ambiguous` -> the first ambiguous
+                       entry, wherever it sits
+    #drain             the head -> the first ambiguous entry if there is one,
+                       reconciled BEFORE any replay; if it turns out not to
+                       have been delivered it becomes an ordinary queued event
+                       again and the head decides as usual
+
+  B keeps the head and its original in-flight identity throughout.
+
+
+MEASURED, AND THE TWO HALVES ARE NOT EQUAL
+
+  This is the part worth reading carefully, because my first summary of it
+  would have been wrong.
+
+    both halves present                 43 tests, 43 pass, status 0
+    #reconcileTarget reverted only      43 tests, 41 pass, status 1
+      FAIL an ambiguous obligation behind a deferred Work is reconciled
+      FAIL the deferred Work keeps the head and its in-flight identity ...
+    #drain selection reverted only      43 tests, 43 pass, status 0
+
+  So `#reconcileTarget` is what carries the fix for both cases, and the drain
+  selection is NOT measured by either of them. Source restored byte for byte
+  after each mutation, md5 93b8cdc4dc630eaaa6c55787ad4f655f.
+
+
+THE ADDITIVE CASE
+
+  The review's own regression is kept exactly as written. Beside it, the half
+  the review REQUIRED and nothing asserted -- "preserve B at the head with its
+  original in-flight identity":
+
+    the deferred Work keeps the head and its in-flight identity throughout a
+    passing action's ambiguity
+
+  It re-enqueues B's unchanged offer afterwards and requires `in-flight`. If B
+  had lost that identity, the producer's next level-triggered re-send would be
+  accepted as a NEW delivery and B would queue behind itself -- the duplicate
+  the retention exists to stop, reached by a path the sixth correction opened.
+
+
+AND ONE THING IS LEFT UNCOVERED, DELIBERATELY NAMED
+
+  The drain-selection half covers a real path the reconcile half does not.
+  `turn/start` failing while the client is still CONNECTED reconciles
+  immediately in the catch; if the transport dropped with the response, that
+  branch is skipped by its own `client.connected` guard and the next ordinary
+  drain is the only thing that runs. With the head-only selection that drain
+  looked at B and skipped the ambiguous candidate behind it on every retry.
+
+  I WROTE A CASE FOR IT AND IT HUNG. Constructing the disconnect mid-`turn/
+  start` left the suite unable to terminate -- a pending reconnect or an
+  un-stoppable bridge -- and a hanging test is worse than an uncovered path, so
+  it was removed rather than shipped.
+
+  So the drain change is reasoned, not measured, and this says so rather than
+  letting the green suite imply otherwise. Two ways to settle it, and the
+  choice is the reviewer's: cover that path with a construction that
+  terminates, or remove the drain selection as unreachable-in-practice and
+  accept that a disconnect-ambiguous non-head waits for the next reconnect.
+
+
+GATES, STATUS PRESERVED AND NEVER PIPED
+
+    tools/codex-event-bridge   npm test   CODEX_STATUS=0   415 pass, 0 fail
+    tools/acp-baton-bridge     npm test   ACP_STATUS=0      77 pass, 0 fail
+    git diff --check                      DIFFCHECK_STATUS=0
+
+  Codex focused 413 -> 415: the review's case, plus the in-flight-identity one.
+  The review noted the ACP tree at 68/70 from W14828's launcher block; that
+  Work has since corrected those two anchors and ACP is 77/77.
+
+
+STILL THE OPERATOR'S
+
+  PLAN item 9's live smoke and item 10's deploy. Nothing here was verified
+  against the running deployment, and no repository state was mutated.

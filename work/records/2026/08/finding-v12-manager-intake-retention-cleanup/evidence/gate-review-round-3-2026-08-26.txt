@@ -1,0 +1,116 @@
+W6629 -- evidence for the correction review's [P1], and for an honest gate.
+
+
+THE [P1], AND IT WAS TWO OF MY OWN RULES CONTRADICTING EACH OTHER
+
+  `_retain` deliberately stores ONE CURRENT DECISION PER ARTIFACT, and its
+  conflict update lets a later policy replace one artifact without touching its
+  peers. `retentions_of`, as I wrote it in the previous round, grouped the rows
+  that are current NOW by their operation id, derived a command from each
+  group, and required that derived artifact set to equal the historical
+  committed one.
+
+  Those cannot both hold. One valid command decides A and B; a later valid
+  command replaces B alone; A still names the authentic A+B act while the
+  current group for that act contains only A. The reader derived an A-only
+  operation, found the journal carrying the A+B one, and reported a forgery --
+  blocking retention reads and cleanup over a row nobody had touched.
+
+  I introduced the grouping in the previous round to make the reconstruction
+  match a command that decides a SET. That was the right instinct about the
+  COMMAND and the wrong question to ask of a ROW.
+
+
+THE CORRECTION
+
+  Per surviving row. For each row, load the committed `output.retain` result
+  the row's own stored operation id names, and require that result to include
+  THIS artifact under THIS disposition and THIS policy digest. A historical
+  peer that has since been re-decided is irrelevant to whether this row is
+  authentic, and a deleted decision leaves its artifact undecided for cleanup
+  rather than making a different, still-authentic row invalid.
+
+  The forged-row property is unchanged and is what the same comparison
+  enforces: an edit to `disposition` or `retention_policy_digest` makes the row
+  disagree with the committed act it names.
+
+
+MEASURED
+
+  Restoring the previous round's grouping:
+
+    $ python3 -m unittest tests.manager.test_intake   (redirected, not piped)
+    exit=1
+    ERROR test_a_later_policy_can_replace_part_of_a_grouped_decision
+    FAIL  test_a_retention_row_edit_cannot_authorize_cleanup
+    Ran 59 tests -- FAILED (failures=1, errors=1)
+
+  Both are the correction's: the review's new case, and the forged-row case
+  that the per-row comparison is what now enforces. Source restored byte for
+  byte, md5 5cc0d651f45eff7caf743b9bc4e52313.
+
+    $ python3 -m unittest tests.manager.test_intake
+    exit=0
+    Ran 59 tests -- OK
+
+
+AND THE GATE ITSELF, WHICH THE POKE WAS RIGHT ABOUT
+
+  `baton.prompt` observed that a tail/grep pipeline had masked a non-zero
+  runner status. That is correct and it is worth stating plainly rather than
+  explaining away: I had been reading verdicts off the unittest summary line
+  after piping through `grep` or `tail`, which discards the runner's status,
+  and my backgrounded runs ended in `echo`, so the exit codes reported back to
+  me were the WRAPPER's status and not the gate's.
+
+  The verdicts I reported were accurate, because the summary line is. The
+  practice was not evidence, and a green wrapper around a red gate is exactly
+  the failure mode this repository builds its gates against.
+
+  So this round's gate never pipes the runner. Each stage redirects to a file
+  and its status is captured on its own line, and the file is read afterwards:
+
+    PYTHONPATH=src python3 -m unittest discover -s tests -t . > FILE 2>&1
+    echo "V12_STATUS=$?"        ->  V12_STATUS=1
+      Ran 1290 tests -- FAILED (failures=8, errors=1, skipped=6)
+
+    just test-v11 > FILE 2>&1
+    echo "V11_STATUS=$?"        ->  V11_STATUS=0
+      3067 parallel passed; 52 serial passed; 77 ACP passed
+
+    git diff --check            ->  DIFFCHECK_STATUS=0
+
+  The v12 status is HONESTLY 1, and none of what makes it 1 is W6629's:
+
+    6  the boundary inventory's long-standing gaps -- 21 receiving entries with
+       no owner in `documents.py` and `sessions.py`, eight handshake/sessions
+       entries owned but never probed, the shared orphan-resolver gap across
+       four modules, and two untracked `operations` column names. Measured:
+       zero unowned entries, zero orphans and zero witness gaps name
+       `intake.py` or any surface this Work changed.
+    2  `tests.tools.test_worker_image_build`, which is W6633's.
+    1  `test_no_git_metadata_root_survives_the_acquisition_cut`, which
+       W15232's own review added at 09:47 while this round ran. W15232 is
+       routed back to impl and unclaimed; it is the next Work to take, and its
+       assignment root still provisioning a `git` directory after the
+       acquisition cut is a real gap in what I removed there.
+
+  `tests.manager.test_intake` is 59/59 with exit status 0.
+
+
+ALSO CORRECTED, AND IT WAS MINE
+
+  `git diff --check` was red on a new blank line at EOF in
+  `worker_manager/workspaces.py`. The correction review recorded it as
+  unrelated; it was not -- it was my W15232 removal leaving a trailing blank
+  line. Clean now, status 0.
+
+
+THE TWO ASSERTION CHANGES ARE APPROVED
+
+  The review explicitly approved changing `caught.exception.code` to
+  `.category` in the two durability cases, on the grounds I gave: the frozen
+  pairing defines `integrity` as a category, so the original assertions were
+  unsatisfiable and stated no valid product contract.
+
+  No repository state was mutated.

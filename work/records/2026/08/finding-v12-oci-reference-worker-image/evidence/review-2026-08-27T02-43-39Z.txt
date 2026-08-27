@@ -1,0 +1,63 @@
+Independent eleventh-review evidence — 2026-08-27T02:43:39Z
+
+Accepted dependency
+===================
+
+W19784 is closed satisfying. Its independent sign-off is:
+  work/records/2026/08/finding-worker-completion-assignment-identity/
+  review-2026-08-27T02-39-25Z.md
+
+The canonical inputManifest plus assignmentManifest pair reaches the agent,
+and the retained W19784 direct/schema/model gates are green as recorded there.
+
+Focused daemon-free gate
+========================
+
+Command (cwd v12/python):
+  env PYTHONPATH=src python3 -B -m unittest \
+    tests.manager.test_worker_image \
+    tests.tools.test_worker_image_build \
+    tests.tools.test_parallel_runner \
+    tests.manager.test_worker_container.TheDaemonGateExercisesWhatTheManagerWillRun
+
+Result:
+  Ran 144 tests in 12.634s
+  FAILED (failures=3)
+
+Failures:
+  test_the_correlated_work_answer_names_outputs_only
+    expected ["proposal"]
+    received the complete workerOutput record
+
+  test_declared_output_limits_hold_before_completion_publication
+    expected a refusal for max_bytes=1
+    received ok=true and output.json was published
+
+  test_a_declared_output_path_cannot_escape_the_output_root
+    declared ../tmp/escaped
+    result.txt existed outside the staged output root
+
+Source observations
+===================
+
+  v12/worker/baton_worker.py
+    DECLARATION_MEMBERS omits constraints.
+    input_manifest() checks only four members are present.
+    measured() reads complete files without entry/byte ceilings.
+    answered() joins OUTPUT_ROOT and declaration["path"] without validating
+      normalized relative syntax or containment.
+    handle() uses the complete `published` records in both output.json and the
+      correlated answer.
+    check_answer() skips value validation for every work outputs list.
+
+  v12/worker/scripted_agent.py
+    work() joins OUTPUT_ROOT and each declaration path before the worker has
+      established path safety, so ../tmp/escaped writes private ephemeral
+      material outside /output.
+
+Docker-backed gate
+==================
+
+Not rerun. This managed reviewer cannot open /var/run/docker.sock and policy
+forbids escalation. The existing W19784 37/37 evidence covers assignment
+delivery, not the three failures above.

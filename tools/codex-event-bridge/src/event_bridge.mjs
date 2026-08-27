@@ -5,6 +5,7 @@ import net from "node:net";
 import { dirname } from "node:path";
 import { CodexClient, CodexProtocolError } from "./codex_client.mjs";
 import { classifyFailure, makeRuntimePublisher, silentPublisher } from "./runtime_publisher.mjs";
+import { validateEnvelope } from "./codex_baton_bridge.mjs";
 import { eventFingerprint, formatEventMessage, normalizeEvent } from "./event_types.mjs";
 import { assertInspectionProvisioned, assertPolicyProvisioned } from "./exec_policy.mjs";
 import { QuarantineStore } from "./quarantine_store.mjs";
@@ -117,6 +118,18 @@ export class EventBridge extends EventEmitter {
         developerInstructions: target.developerInstructions,
         queue: [],
         recent: new Map(),
+        // W11910: the exact v11 event ids this target is currently
+        // holding — admitted and queued, starting, awaiting ambiguous
+        // reconciliation, or actively running. The generic fingerprint
+        // window above is a TIMER and cannot answer this: a model turn
+        // routinely outlives `dedupWindowMs`, and a producer that keeps
+        // an unclaimed offer armed will re-forward the same id while
+        // the first delivery is still being worked. Retaining the
+        // identity for the whole delivery lifetime is what stops the
+        // same action queueing behind itself. Released on withdrawal or
+        // terminal settlement, so a later bounded retry becomes a new
+        // turn rather than being suppressed forever.
+        inFlight: new Set(),
         status: { type: "notLoaded" },
         activeTurn: null,
         completedTurns: new Map(),
@@ -277,6 +290,16 @@ export class EventBridge extends EventEmitter {
       return { accepted: false, reason: "event-too-large", target: event.target, globalQueueDepth: this.globalQueueDepth };
     }
 
+    // W11910: identity retention comes BEFORE the fingerprint timer and
+    // is independent of it. It applies only to v11 readiness events,
+    // which are the ones carrying an action key and the ones a
+    // level-triggered producer deliberately re-sends; a generic event
+    // from any other source keeps exactly its old dedup rule.
+    if (event.action?.key && state.inFlight.has(event.id)) {
+      this.logger.info(`[${event.target}] ${event.action.key} is already in flight here; the retry is refused rather than queued behind itself`);
+      return { accepted: false, reason: "in-flight", target: event.target, eventId: event.id, queueDepth: state.queue.length, globalQueueDepth: this.globalQueueDepth };
+    }
+
     const now = Date.now();
     for (const [fingerprint, seenAt] of state.recent) {
       if (now - seenAt > this.config.dedupWindowMs) state.recent.delete(fingerprint);
@@ -299,6 +322,7 @@ export class EventBridge extends EventEmitter {
     // stuck" answerable. 24 events queued behind one turn was the
     // incident, and the depth alone did not say for how long.
     this.#admit(state, { event, ambiguous: false, queuedAt: now });
+    if (event.action?.key) state.inFlight.add(event.id);
     this.globalQueueDepth += 1;
     this.logger.info(`[${event.target}] event received: ${event.type}`);
     if (state.tainted) this.logger.warn(`[${event.target}] context is quarantined; retained (${state.queue.length}) for the fresh context a full managed-stack start mints`);
@@ -522,11 +546,28 @@ export class EventBridge extends EventEmitter {
     }
 
     state.draining = true;
-    const queued = state.queue[0];
+    // W11910 review [P1], seventh round: AMBIGUITY FOLLOWS THE CANDIDATE, not
+    // the queue position.
+    //
+    // The sixth correction let a live non-Work action pass a deferred Work at
+    // the head, and `#drain` starts THAT candidate's turn. If its `turn/start`
+    // loses its response, the catch marks that candidate ambiguous -- and
+    // every reconciliation path then looked at `queue[0]`, which is the
+    // retained Work, and the scan skips ambiguous candidates on every later
+    // retry. So a turn the server actually created was never bound: completion
+    // could not be correlated through `activeTurn`, the delivery could not
+    // settle, and the lane sat behind an active server status forever.
+    //
+    // The ambiguous one is reconciled FIRST, wherever it sits, and B keeps the
+    // head and its original in-flight identity throughout.
+    let queued = state.queue.find((entry) => entry.ambiguous) ?? state.queue[0];
     try {
       if (queued.ambiguous) {
         const delivered = await this.#reconcileAmbiguous(state, queued);
         if (delivered) return;
+        // Not delivered: the turn was never created, so this candidate is an
+        // ordinary queued event again and the head decides as usual.
+        queued = state.queue[0];
       }
       // W1224: the LAST thing before a model turn is spent. A v11
       // readiness event can sit in this queue behind a running turn,
@@ -541,11 +582,58 @@ export class EventBridge extends EventEmitter {
       // mutation can still land between the read and the turn — so
       // the agent's atomic claim remains the final authority. What it
       // removes is the misleading wake, not the refusal behind it.
-      if (await this.#episodeIsOver(state, queued.event)) {
+      const verdict = await this.#revalidate(state, queued.event);
+      if (verdict === "over") {
         this.#dequeue(state, queued);
+        // W11910: canonical WITHDRAWAL — this dispatcher is no longer
+        // holding the delivery, and a genuinely new offer for the same
+        // Work must not be refused as a duplicate of one that is gone.
+        this.#releaseDelivery(state, queued.event.id);
         this.logger.info(`[${state.name}] ${queued.event.action.key} is no longer actionable for ${queued.event.action.participant}; dropped without spending a turn`);
         this.emit("actionDropped", { target: state.name, event: queued.event });
         if (state.queue.length > 0) this.#scheduleDrain(state, 0);
+        return;
+      }
+      // W11910 review [P1]: the claim slot is occupied. RETAINED at the
+      // head, and retried on the ordinary drain cadence — the claim it
+      // waits behind is somebody's live turn, and when that Work passes
+      // or closes this same read answers `live` and the offer is spent
+      // then. Nothing is dropped and no turn is spent meanwhile.
+      if (verdict === "deferred") {
+        this.logger.info(`[${state.name}] ${queued.event.action.key} waits: ${queued.event.action.participant} already holds a claim, and one participant claims one Work`);
+        this.emit("actionDeferred", { target: state.name, event: queued.event });
+        // W11910 review [P1], sixth round: THE CLAIM SLOT IS A WORK-ONLY GATE,
+        // and holding the FIFO head with it made it govern everything behind
+        // it by queue position. That is not a preference about ordering: the
+        // directed obligation a participant must answer to FINISH the very
+        // Work whose claim B is waiting behind can queue behind B, so A waits
+        // on an answer that waits on A. An indefinite managed-lane stall,
+        // built out of two rules that are each correct alone.
+        //
+        // So B stays exactly where it is — retained at the head, its v11
+        // in-flight identity unreleased, no turn spent, same bounded retry —
+        // and the queue behind it is offered the barrier ONE action at a time.
+        const passing = await this.#pastTheClaimSlot(state, queued);
+        if (!passing) {
+          this.#scheduleDrain(state, jitter(this.config.claimSlotRetryMs));
+          return;
+        }
+        // The retry for B still stands: what happened here is that somebody
+        // else took the turn, not that B's slot became free.
+        this.#scheduleDrain(state, jitter(this.config.claimSlotRetryMs));
+        queued = passing;
+      }
+      // W11910 review [P1]: the authority could not be read, so the claim
+      // slot is UNKNOWN. Held exactly as a deferred offer is — the event
+      // stays at the head, its v11 in-flight identity is not released, and no
+      // turn is spent — and re-asked on the same bounded cadence, because
+      // "come back and ask again" is the same act whichever of the two
+      // questions went unanswered.
+      if (verdict === "uncertain") {
+        this.logger.info(`[${state.name}] ${queued.event.action.key} waits: this dispatcher could not read the authority, and an unread claim slot is not a free one`);
+        this.emit("actionDeferred", { target: state.name, event: queued.event,
+                                      reason: "unreadable" });
+        this.#scheduleDrain(state, jitter(this.config.claimSlotRetryMs));
         return;
       }
       // W99 review P1: the attempt is recorded BEFORE the call that can
@@ -625,8 +713,23 @@ export class EventBridge extends EventEmitter {
    *  retained and the ordinary retry decides. Only a SUCCESSFUL read
    *  that does not list the key drops it. */
   async #episodeIsOver(state, event) {
+    return await this.#revalidate(state, event) === "over";
+  }
+
+  /** W11910 review [P1]: the same canonical read, answering BOTH
+   *  questions this dispatcher has to settle before spending a turn.
+   *
+   *  `"over"`     the episode is gone; drop it.
+   *  `"deferred"` the participant already holds a claim, so this
+   *               unclaimed offer cannot be taken yet; hold it.
+   *  `"live"`     deliver it.
+   *
+   *  One read rather than two: which participant holds which claim and
+   *  whether this episode still exists are the same projection, and
+   *  asking twice would let the two answers disagree. */
+  async #revalidate(state, event) {
     const action = event.action;
-    if (!action) return false;
+    if (!action) return "live";
     // W1224 review: the canonical read proves the episode is live for
     // the participant the EVENT names — and says nothing about whether
     // that participant is the identity this target runs as. A valid
@@ -642,9 +745,9 @@ export class EventBridge extends EventEmitter {
     const mine = state.identity?.participant;
     if (mine && action.participant !== mine) {
       this.logger.warn(`[${state.name}] ${action.key} is addressed to ${action.participant}; this target runs as ${mine}. Dropped.`);
-      return true;
+      return "over";
     }
-    if (!this.config.roleInstructions) return false;
+    if (!this.config.roleInstructions) return "live";
     const argv = ["--config", this.config.roleInstructions.config,
                   "--participant", action.participant, "wait", "timeout=0"];
     let payload;
@@ -652,15 +755,156 @@ export class EventBridge extends EventEmitter {
       const result = await this.revalidate(this.config.roleInstructions.binary, argv);
       payload = JSON.parse(result.stdout);
     } catch (error) {
-      this.logger.warn(`[${state.name}] could not revalidate ${action.key}: ${error.message}; the event is retained`);
-      return false;
+      // W11910 review [P1]: UNKNOWN IS NOT LIVE, and this branch used to say
+      // "the event is retained" while returning the verdict that starts a
+      // turn immediately and dequeues it.
+      //
+      // Before the claim-slot correction, not DROPPING an uncertain event was
+      // the whole of retention and delivering it was harmless. It is not any
+      // more: this read has two jobs now — prove the exact episode still
+      // exists, and prove an unclaimed Work is not waiting behind another
+      // claim — and a read that failed proves neither. Starting anyway spends
+      // a model turn against a slot this dispatcher has not established is
+      // free, which is the thing the whole gate exists to stop.
+      this.logger.warn(`[${state.name}] could not revalidate ${action.key}: ${error.message}; the event is retained and no turn is spent until the authority answers`);
+      return "uncertain";
     }
-    const live = payload?.result?.actionable;
-    if (!Array.isArray(live)) {
-      this.logger.warn(`[${state.name}] revalidation of ${action.key} returned no actionable set; the event is retained`);
-      return false;
+    // THE READ IS TYPED BEFORE ANY FIELD OF IT IS CONSUMED.
+    //
+    // W11910 review [P1]: this used to accept any reply carrying an
+    // actionable ARRAY and then schedule from the matching entry's `kind`
+    // and `claimed`. A present array says nothing about the entries in it,
+    // so an entry carrying this episode's Work key while claiming the
+    // `obligation` kind — a shape the contract rejects, because its own
+    // structured locator contradicts that key — was read as an ordinary
+    // non-Work action and started a turn against an occupied claim slot.
+    //
+    // Both readiness PRODUCERS have applied this contract to exactly this
+    // command's output since W148; this canonical read is the third consumer
+    // of the same envelope and had been consuming it untyped. The contract
+    // is the same one, applied at the same boundary, for the same reason:
+    // every field a decision rests on is proved before the decision.
+    //
+    // A validation failure is the same fact as a read that never returned —
+    // it proves neither that the episode still exists nor that the slot is
+    // free — so it takes the identical bounded `uncertain` path and the
+    // offer waits for an authority answer this build can actually read.
+    try {
+      validateEnvelope(payload, action.participant);
+    } catch (error) {
+      this.logger.warn(`[${state.name}] revalidation of ${action.key} did not answer with a readable v11 envelope: ${error.message}; the event is retained and no turn is spent until the authority answers`);
+      return "uncertain";
     }
-    return !live.some((entry) => entry.action_key === action.key);
+    const live = payload.result.actionable;
+    // THE CURRENT MATCHING ENTRY DECIDES, not the event.
+    //
+    // Review [P1]: the gate read `claimed` off the QUEUED EVENT, which
+    // describes the world when the producer emitted it, and it had no
+    // action-kind test at all. Two live states failed because of that. An
+    // unclaimed offer that was CLAIMED while it waited here still said
+    // `claimed:false` in the event, so the delivery was deferred behind the
+    // very claim it now exists to recover. And a non-Work obligation carries
+    // no `claimed` field, so `undefined !== true` read as unclaimed and the
+    // Work-only claim-slot rule swallowed it.
+    //
+    // Nothing has to be parsed or added to the event to fix that: this read
+    // already returns the exact matching action, with its kind and its
+    // CURRENT claimed state.
+    const matched = live.find((entry) => entry.action_key === action.key);
+    if (!matched) {
+      // ABSENT FROM WHAT WAS KEPT IS NOT THE SAME AS WITHDRAWN.
+      //
+      // The contract is deliberately liberal about kinds this build does not
+      // know: it drops them from the actionable set and records them under
+      // `ignored_actions` so a newer authority can add a primitive without
+      // breaking an older bridge. That tolerance is about DELIVERY — this
+      // build cannot act on a kind it has never heard of — and it says
+      // nothing at all about whether the episode is over. An entry carrying
+      // the exact key is the authority still naming it; reading its removal
+      // as withdrawal would drop a live offer on a compatibility rule, which
+      // is this Work's own defect (a level cleared by something that is not a
+      // claim) reappearing one layer down.
+      if (payload.result.ignored_actions?.some(
+            (entry) => entry.action_key === action.key)) {
+        this.logger.warn(`[${state.name}] revalidation of ${action.key} answered with a kind this build does not know (${payload.result.ignored_actions.find((entry) => entry.action_key === action.key).kind}); the event is retained and no turn is spent until the authority answers`);
+        return "uncertain";
+      }
+      return "over";
+    }
+    // A non-Work action is not governed by the one-claim Work slot at all --
+    // obligations, trials, pokes and refreshes keep their own rule -- and a
+    // Work that IS claimed is the participant's own live assignment being
+    // recovered, which is the one delivery that must never wait.
+    if (matched.kind !== "work" || matched.claimed === true) return "live";
+    // THE CLAIM SLOT, asked of the authority in the read this event was
+    // already performing.
+    //
+    // The producer marks an event presented the instant the socket
+    // accepts it -- before the turn starts -- so it cannot know the
+    // first offer's claim-slot outcome, and its rotation admits the
+    // next unclaimed Work on the very next unchanged poll. That second
+    // Work queues behind the first, and when the first turn CLAIMS, the
+    // second starts against a slot already spoken for and spends a
+    // model turn reaching a refusal.
+    //
+    // HELD, NOT DROPPED. The offer is still perfectly good and becomes
+    // deliverable the moment the claim it waits behind passes, closes
+    // or is released. Dropping it here would be this Work's own defect
+    // one layer down: a level cleared by something that is not a claim.
+    //
+    // ASKED OF THE AUTHORITY RATHER THAN TRACKED LOCALLY, because a
+    // claim taken by an interactive turn, by another adapter, or by an
+    // operator at a terminal is invisible to this dispatcher's own
+    // bookkeeping and is exactly as occupying.
+    // `matched` is a current unclaimed Work, so any claimed Work here is
+    // necessarily another one and the slot is spoken for.
+    if (live.some((entry) => entry.kind === "work"
+                  && entry.claimed === true)) {
+      return "deferred";
+    }
+    return "live";
+  }
+
+  /** W11910 review [P1], sixth round: the first queued action BEHIND a
+   *  deferred Work that the Work-only claim slot does not govern, or null.
+   *
+   *  THE VERDICT DECIDES, not the queued event's own `action` block. That
+   *  block is a historical bit from producer time, and scheduling from it is
+   *  the defect the third review found one layer up; the same read every
+   *  drain already performs is what answers here too. `live` is exactly the
+   *  set that may pass, and it falls out rather than being enumerated:
+   *
+   *    - a current non-Work action — obligation, trial, poke, refresh —
+   *      answers `live`, because the one-claim Work slot governs Work;
+   *    - a current CLAIMED Work answers `live`, which is the participant's
+   *      own assignment being recovered and is the one delivery that must
+   *      never wait. Promotion is preserved rather than special-cased;
+   *    - another current UNCLAIMED Work answers `deferred` against the same
+   *      occupied slot, so it cannot rotate past the head — which is the
+   *      review's requirement and needs no rule of its own;
+   *    - an unreadable or withdrawn answer is `uncertain` or `over` and
+   *      passes nothing.
+   *
+   *  Two candidates are skipped before the read rather than after it. An
+   *  event with NO action block is a generic non-readiness delivery, and
+   *  `#revalidate` answers `live` for those by construction — it has nothing
+   *  to ask about — so reading it would rotate exactly what the review says
+   *  must not rotate. An ambiguous one needs `#reconcileAmbiguous`, which is
+   *  the head's own path and not this one's.
+   *
+   *  It stops at the first that may pass, so the ordinary case where nothing
+   *  is queued behind the head costs no read at all. */
+  async #pastTheClaimSlot(state, deferred) {
+    for (const candidate of state.queue) {
+      if (candidate === deferred) continue;
+      if (candidate.ambiguous) continue;
+      if (!candidate.event.action) continue;
+      const verdict = await this.#revalidate(state, candidate.event);
+      if (verdict !== "live") continue;
+      this.logger.info(`[${state.name}] ${candidate.event.action.key} passes the claim slot behind ${deferred.event.action.key}: the one-claim rule governs Work, and this action is not held by it`);
+      return candidate;
+    }
+    return null;
   }
 
   async #reconcileAmbiguous(state, queued) {
@@ -682,7 +926,10 @@ export class EventBridge extends EventEmitter {
     // same settlement. `#drain` reached here because a `turn/start` was
     // ambiguous; if the delivery landed and has already ended, its claim
     // needs reconciling before this target drains anything else.
-    if (!live) await this.#settleTurn(state, delivered.turn, state.threadId);
+    if (!live) {
+      this.#releaseDelivery(state, queued.event.id);
+      await this.#settleTurn(state, delivered.turn, state.threadId);
+    }
     return true;
   }
 
@@ -693,8 +940,11 @@ export class EventBridge extends EventEmitter {
     });
     state.status = response.thread.status;
 
-    if (state.queue[0]?.ambiguous) {
-      const head = state.queue[0];
+    // W11910 review [P1], seventh round: the same rule here. This path also
+    // assumed the ambiguous delivery was the head, which it is not once a
+    // non-Work action has passed a deferred Work.
+    if (state.queue.some((entry) => entry.ambiguous)) {
+      const head = state.queue.find((entry) => entry.ambiguous);
       const delivered = findClientMessage(response.thread, head.event.id);
       if (delivered) {
         const event = head.event;
@@ -702,6 +952,7 @@ export class EventBridge extends EventEmitter {
         this.#bindDelivered(state, event.id, delivered.turn.id);
         const live = delivered.turn.status === "inProgress";
         state.activeTurn = live ? { id: delivered.turn.id, event } : null;
+        if (!live) this.#releaseDelivery(state, event.id);
         this.logger.warn(`[${state.name}] reconciled ambiguous turn/start as delivered: ${delivered.turn.id} (${delivered.turn.status})`);
         // An ambiguous delivery that turns out to have ALREADY ENDED is a
         // terminal managed turn this dispatcher is observing for the first
@@ -722,6 +973,7 @@ export class EventBridge extends EventEmitter {
         // delivered into a lane the participant's one claim slot occupies.
         // Reconnect reconciliation exists precisely because notifications
         // can be missed, so this is an ordinary path, not an exotic one.
+        this.#releaseDelivery(state, state.activeTurn.event?.id);
         await this.#settleTurn(state, persisted, state.threadId);
         state.activeTurn = null;
       } else if (!persisted && response.thread.status.type === "idle") {
@@ -733,6 +985,7 @@ export class EventBridge extends EventEmitter {
         // reads the authority, finds nothing in the ordinary case and
         // returns without fencing, and fences only when the claim really
         // did survive.
+        this.#releaseDelivery(state, state.activeTurn.event?.id);
         await this.#settleTurn(state, { id: state.activeTurn.id, status: null },
                                state.threadId);
         state.activeTurn = null;
@@ -778,6 +1031,17 @@ export class EventBridge extends EventEmitter {
       + `${entry.event.action.participant}; delivered ahead of `
       + `${state.queue.length - at - 1} unclaimed event(s) it would `
       + `otherwise wait behind`);
+  }
+
+  /** W11910: this target is no longer holding that exact v11 delivery.
+   *
+   *  Called on canonical withdrawal and on terminal settlement, and on
+   *  nothing else — an event that is queued, starting, awaiting
+   *  ambiguous reconciliation, or actively running is still held, and a
+   *  producer retry of it must be refused rather than queued behind
+   *  itself. */
+  #releaseDelivery(state, eventId) {
+    if (eventId) state.inFlight.delete(eventId);
   }
 
   #dequeue(state, entry) {
@@ -1603,6 +1867,13 @@ export class EventBridge extends EventEmitter {
     const id = EventBridge.#liveTurnId(turn?.id);
     const attempt = id === null ? null : state.attempts.get(id) ?? null;
     const action = attempt?.action ?? null;
+    // W11910: the delivery is TERMINAL here whatever its status, so the
+    // exact v11 event id is released before anything else is decided.
+    // The producer only retries an offer canonical state still reports
+    // ready and unclaimed, and that retry has to be able to become a new
+    // turn — a turn that ended without claiming is precisely the case
+    // this Work exists to recover from.
+    if (attempt?.eventId) this.#releaseDelivery(state, attempt.eventId);
     // `completed` is the app-server's one success terminal. Everything
     // else that ends a turn — failed, aborted, whatever a later build
     // adds — is settled, because the question is whether the promised
@@ -2068,7 +2339,15 @@ export class EventBridge extends EventEmitter {
     const isExternal = state.activeTurn?.id === params.turn.id;
     this.logger.info(`[${state.name}] turn completed: ${params.turn.id} (${params.turn.status})${isExternal ? "" : " [interactive]"}`);
     this.#clearBlocked(state);
-    if (isExternal) state.activeTurn = null;
+    if (isExternal) {
+      // W11910: released from the ACTIVE TURN, which names its event
+      // directly. `#settleTurn` releases from the bound attempt and
+      // covers the orderings that have no live `activeTurn`; this one
+      // does not depend on the binding having succeeded, so a turn id
+      // the attempt could not bind cannot strand the identity.
+      this.#releaseDelivery(state, state.activeTurn.event?.id);
+      state.activeTurn = null;
+    }
     else {
       state.completedTurns.set(params.turn.id, params.turn);
       while (state.completedTurns.size > 20) state.completedTurns.delete(state.completedTurns.keys().next().value);

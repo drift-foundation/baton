@@ -54,7 +54,6 @@
         },
         "manifest_id": "input-manifest-1",
         "created_at": "2026-08-21T22:00:00.000Z",
-        "manifest_digest": "sha256:45656c6c2a3d283a634aa83bdde60ed0ba596c0f637c111d6564f4133ccf215f",
         "extensions": {},
         "schema": "baton.worker-manifest/input",
         "work_ref": {
@@ -72,8 +71,6 @@
         "sources": [
           {
             "name": "source",
-            "type": "directory",
-            "uri": "artifact://inputs/source-1",
             "destination": "workspace/source",
             "required": true,
             "content_manifest": {
@@ -87,6 +84,11 @@
               "entry_count": 1,
               "total_bytes": 4,
               "tree_digest": "sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"
+            },
+            "consumption": {
+              "baton.directory/1": {
+                "layout": "flat"
+              }
             }
           }
         ],
@@ -124,7 +126,8 @@
           "path": "work/records/2026/08/finding-v12-isolated-agent-workers",
           "finding_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
           "plan_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-        }
+        },
+        "manifest_digest": "sha256:54e2d991886699043c8a32666c32de50718c2f965329616f61a63d33fa20204c"
       }
     },
     {
@@ -162,25 +165,199 @@
         },
         "extensions": {}
       }
+    },
+    {
+      "name": "completion-manifest-two-outputs",
+      "document": {
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "manifest_id": "completion-manifest-1",
+        "created_at": "2026-08-21T22:00:00.000Z",
+        "extensions": {},
+        "schema": "baton.worker-manifest/completion",
+        "assignment_ref": {
+          "work_ref": {
+            "authority_uuid": "43c55d4b1234567890abcdef12345678",
+            "work_id": "43c55d4b-W1439"
+          },
+          "generation": 1,
+          "participant": "baton.claude"
+        },
+        "disposition": "completed",
+        "outputs": [
+          {
+            "name": "proposal",
+            "type": "directory-result",
+            "path": "workspace/output",
+            "status": "present",
+            "content_manifest": {
+              "entries": [
+                {
+                  "path": "README.md",
+                  "bytes": 4,
+                  "content_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+                }
+              ],
+              "entry_count": 1,
+              "total_bytes": 4,
+              "tree_digest": "sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"
+            },
+            "result_metadata": {}
+          },
+          {
+            "name": "notes",
+            "type": "record-output",
+            "path": "workspace/notes",
+            "status": "missing-optional",
+            "content_manifest": null,
+            "result_metadata": {}
+          }
+        ],
+        "manifest_digest": "sha256:3b0880c635f1e716d680e2587fe3e793812c33a265891c991fafde84df2a380d"
+      }
+    },
+    {
+      "name": "result-receipt-binds-its-completion-envelope",
+      "document": {
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "manifest_id": "result-manifest-1",
+        "created_at": "2026-08-21T22:00:00.000Z",
+        "extensions": {},
+        "schema": "baton.worker-manifest/result",
+        "result_id": "result-1",
+        "assignment_ref": {
+          "work_ref": {
+            "authority_uuid": "43c55d4b1234567890abcdef12345678",
+            "work_id": "43c55d4b-W1439"
+          },
+          "generation": 1,
+          "participant": "baton.claude"
+        },
+        "input_manifest_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "disposition": "completed",
+        "outputs": [],
+        "evidence": [],
+        "freeze_operation": {
+          "operation_id": "output.freeze:1",
+          "signature_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "manager_observed_at": "2026-08-21T22:00:00.000Z",
+        "completion_manifest_digest": "sha256:3b0880c635f1e716d680e2587fe3e793812c33a265891c991fafde84df2a380d",
+        "manifest_digest": "sha256:44362bc408877e664c54fb859eaa400436fb90066e37140971b35de6db88c2a2"
+      }
+    },
+    {
+      "name": "result-receipt-unfinished-without-an-envelope",
+      "document": {
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "manifest_id": "result-manifest-unfinished",
+        "created_at": "2026-08-21T22:00:00.000Z",
+        "extensions": {},
+        "schema": "baton.worker-manifest/result",
+        "result_id": "result-unfinished",
+        "assignment_ref": {
+          "work_ref": {
+            "authority_uuid": "43c55d4b1234567890abcdef12345678",
+            "work_id": "43c55d4b-W1439"
+          },
+          "generation": 1,
+          "participant": "baton.claude"
+        },
+        "input_manifest_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "disposition": "unable",
+        "outputs": [],
+        "evidence": [],
+        "freeze_operation": {
+          "operation_id": "output.freeze:1",
+          "signature_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "manager_observed_at": "2026-08-21T22:00:00.000Z",
+        "manifest_digest": "sha256:2203c457a7f98fc3542c57ed0a1a3d0730b95295df873fe850ed3b08271f926a"
+      }
+    },
+    {
+      "name": "assignment-manifest-delivered-beside-its-input",
+      "document": {
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "manifest_id": "assignment-manifest-1",
+        "created_at": "2026-08-21T22:05:00.000Z",
+        "extensions": {},
+        "schema": "baton.worker-manifest/assignment",
+        "assignment_ref": {
+          "work_ref": {
+            "authority_uuid": "43c55d4b1234567890abcdef12345678",
+            "work_id": "43c55d4b-W1439"
+          },
+          "participant": "baton.claude",
+          "generation": 3
+        },
+        "assignment_contract": "v12-assignment-1",
+        "offer_id": "offer-1",
+        "runtime_attempt_id": "attempt-1",
+        "input_manifest_digest": "sha256:54e2d991886699043c8a32666c32de50718c2f965329616f61a63d33fa20204c",
+        "policy_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "runtime_profile_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+        "claim_receipt_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "claim_event_seq": 44,
+        "activated_at": "2026-08-21T22:05:00.000Z",
+        "manifest_digest": "sha256:0de542f9c49e5f90f21597fabf8db5a455e3c16ad09ac6ed917e48aa857964ad"
+      }
     }
   ],
   "invalid": [
     {
-      "name": "manifest-overlapping-input-and-output",
+      "name": "manifest-overlapping-outputs-in-one-root",
       "layer": "semantic",
-      "expected": "destinations overlap",
+      "expected": "destinations overlap within one root",
       "mutate_valid": "input-manifest-directory-and-declared-output",
       "patch": {
-        "outputs.0.path": "workspace/source/generated"
-      }
-    },
-    {
-      "name": "durable-source-query-refused",
-      "layer": "semantic",
-      "expected": "URI contains a query",
-      "mutate_valid": "input-manifest-directory-and-declared-output",
-      "patch": {
-        "sources.0.uri": "https://source.invalid/archive?token=secret"
+        "outputs": [
+          {
+            "name": "proposal",
+            "type": "directory-result",
+            "path": "workspace/output",
+            "required": true,
+            "constraints": {
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "allowed_media_types": [
+                "application/octet-stream",
+                "text/plain"
+              ],
+              "link_policy": "forbid",
+              "validator_digest": null
+            }
+          },
+          {
+            "name": "nested",
+            "type": "directory-result",
+            "path": "workspace/output/nested",
+            "required": false,
+            "constraints": {
+              "max_bytes": 1048576,
+              "max_entries": 100,
+              "allowed_media_types": [
+                "application/octet-stream",
+                "text/plain"
+              ],
+              "link_policy": "forbid",
+              "validator_digest": null
+            }
+          }
+        ]
       }
     },
     {
@@ -228,6 +405,138 @@
         "body.reason": "the worker endpoint declines because the contract summary is out of date",
         "body_digest": "sha256:78ac1220d03292b4b20a5e4cf781c2ccff86c7fe1d5b3a52ec31602fe3d1b517"
       }
+    },
+    {
+      "name": "completion-outputs-overlap-in-one-root",
+      "layer": "semantic",
+      "expected": "destinations overlap within one root",
+      "mutate_valid": "completion-manifest-two-outputs",
+      "patch": {
+        "outputs.1.path": "workspace/output/notes"
+      }
+    },
+    {
+      "name": "completion-present-output-without-integrity",
+      "layer": "semantic",
+      "expected": "a present output carries a content manifest",
+      "mutate_valid": "completion-manifest-two-outputs",
+      "patch": {
+        "outputs.0.content_manifest": null
+      }
+    },
+    {
+      "name": "completion-carries-a-manager-only-fact",
+      "layer": "schema",
+      "expected": "Unevaluated properties are not allowed",
+      "mutate_valid": "completion-manifest-two-outputs",
+      "patch": {
+        "freeze_operation": {
+          "operation_id": "output.freeze:1",
+          "signature_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    {
+      "name": "manifest-source-takes-the-input-manifest-name",
+      "layer": "semantic",
+      "expected": "a source takes the reserved manifest name",
+      "mutate_valid": "input-manifest-directory-and-declared-output",
+      "patch": {
+        "sources.0.destination": "input.json"
+      }
+    },
+    {
+      "name": "manifest-output-nests-under-the-output-manifest-name",
+      "layer": "semantic",
+      "expected": "an output takes the reserved manifest name",
+      "mutate_valid": "input-manifest-directory-and-declared-output",
+      "patch": {
+        "outputs.0.path": "output.json/tree"
+      }
+    },
+    {
+      "name": "completion-answers-at-the-output-manifest-name",
+      "layer": "semantic",
+      "expected": "an output takes the reserved manifest name",
+      "mutate_valid": "completion-manifest-two-outputs",
+      "patch": {
+        "outputs.0.path": "output.json"
+      }
+    },
+    {
+      "name": "completion-answers-one-name-twice",
+      "layer": "semantic",
+      "expected": "completion output names are not unique",
+      "mutate_valid": "completion-manifest-two-outputs",
+      "patch": {
+        "outputs.1.name": "proposal"
+      }
+    },
+    {
+      "name": "result-completed-without-its-completion-envelope",
+      "layer": "schema",
+      "expected": "'completion_manifest_digest' is a required property",
+      "mutate_valid": "result-receipt-unfinished-without-an-envelope",
+      "patch": {
+        "disposition": "completed"
+      }
+    },
+    {
+      "name": "manifest-source-takes-the-assignment-manifest-name",
+      "layer": "semantic",
+      "expected": "a source takes the reserved manifest name",
+      "mutate_valid": "input-manifest-directory-and-declared-output",
+      "patch": {
+        "sources.0.destination": "assignment.json"
+      }
+    },
+    {
+      "name": "manifest-source-nests-under-the-assignment-manifest-name",
+      "layer": "semantic",
+      "expected": "a source takes the reserved manifest name",
+      "mutate_valid": "input-manifest-directory-and-declared-output",
+      "patch": {
+        "sources.0.destination": "assignment.json/tree"
+      }
     }
-  ]
+  ],
+  "input_pairs": {
+    "valid": [
+      {
+        "name": "the-pair-the-manager-composed",
+        "input": "input-manifest-directory-and-declared-output",
+        "assignment": "assignment-manifest-delivered-beside-its-input"
+      }
+    ],
+    "invalid": [
+      {
+        "name": "pair-names-two-different-work-items",
+        "expected": "two different Work items",
+        "patch": {
+          "assignment_ref.work_ref.work_id": "43c55d4b-W9999"
+        }
+      },
+      {
+        "name": "assignment-minted-against-another-input-manifest",
+        "expected": "minted against another input manifest",
+        "patch": {
+          "input_manifest_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        }
+      },
+      {
+        "name": "pair-declares-two-policies",
+        "expected": "two policy_digest values",
+        "patch": {
+          "policy_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        }
+      },
+      {
+        "name": "pair-declares-two-runtime-profiles",
+        "expected": "two runtime_profile_digest values",
+        "patch": {
+          "runtime_profile_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        }
+      }
+    ]
+  }
 }

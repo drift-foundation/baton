@@ -1,0 +1,70 @@
+W6629 -- evidence for review round 4's [P1].
+
+
+THE DEFECT
+
+  My per-surviving-row authentication loaded the committed `output.retain`
+  result a row names, then compared artifact id, disposition and policy digest.
+  Those three are LOCAL DECISION DATA rather than identities: two attempts can
+  each hold an artifact called `artifact-1` and decide it `retain` under the
+  same policy, entirely legitimately.
+
+  So a row whose `retain_operation_id` was edited to name the OTHER attempt's
+  authentic committed act matched on all three and was accepted. Cleanup for
+  one attempt could draw its authorization from a decision made about another,
+  and no journal row had to be forged anywhere -- the act it borrowed was real.
+
+
+THE CORRECTION
+
+  The committed act names the attempt it was made about, so that is the
+  binding. `retentions_of` requires
+
+      committed["attempt_id"] == attempt_id
+
+  before it will return the decision, and reports a mismatch as integrity
+  rather than as a value disagreement -- nobody's values disagree in this
+  failure, which is what made it hard to see.
+
+  The per-row membership model is unchanged, so a later policy replacing part
+  of an earlier grouped decision still passes and a forged disposition or
+  policy still fails.
+
+
+MEASURED
+
+    binding removed    Ran 60 tests -- FAILED (failures=1)
+      FAIL test_a_retention_cannot_borrow_another_attempts_committed_act
+    binding present    Ran 60 tests -- OK, exit status 0
+
+  One case, and only that case. Source restored byte for byte, md5
+  05a78fb562ead052dfd31a181347e569.
+
+
+THE SIBLING DOOR DOES NOT HAVE THIS HOLE
+
+  Worth stating rather than leaving a reviewer to check.
+
+  `intake_receipt_of` DERIVES its operation from the attempt --
+  `intake_operation(attempt)` -- and compares the derived id against the stored
+  one, refusing when they differ. The act is bound to the attempt by
+  construction: there is no stored identity to edit into pointing elsewhere,
+  because a receipt whose act does not derive from its own attempt is not that
+  attempt's receipt.
+
+  Retention rows are the other shape. They STORE the operation id, because one
+  command decides a SET of artifacts and a later policy may replace part of it,
+  so the identity cannot be re-derived from any single row. Storing an identity
+  is what created the room for it to point somewhere else -- which is the
+  difference this finding turns on, and the reason the same argument does not
+  transfer to intake.
+
+
+STILL NOT THIS WORK'S
+
+  The remaining suite failures are the long-standing boundary-inventory gaps in
+  `documents.py` and `sessions.py`, W6633's `test_worker_image_build`, and
+  W6634's own review cases. Measured previously and unchanged: zero unowned
+  boundary entries and zero witness-table gaps name `intake.py`.
+
+  No repository state was mutated.

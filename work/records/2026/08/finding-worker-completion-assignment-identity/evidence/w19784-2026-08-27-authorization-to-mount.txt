@@ -1,0 +1,126 @@
+W19784 — the second review's [P0]: authorizing a root and mounting one
+were two operations. 2026-08-27. No repository state was mutated.
+
+=== 1. the reviewer's own regression, preserved and passing
+    Ran 1 test in 0.007s
+    
+    OK
+
+=== 2. BOTH halves, because neither subsumes the other
+  The finding offered a choice -- carry the source across the seam OR
+  compare with the adapter's plan. Both are here, and they answer at two
+  different moments:
+
+  (a) the manager holds an adapter's DECLARED plan to the proved root
+      BEFORE journalling, so a refusal leaves no start operation to
+      settle and nothing to reconcile:
+      674:def _plan_agrees(adapter, attempt_id, inputs):
+      675-    """An adapter's DECLARED mount plan, held to the root this manager proved.
+      817:    _plan_agrees(adapter, attempt_id, inputs)
+
+  (b) the authenticated source CROSSES THE SEAM and the adapter requires
+      it itself, so an adapter reached by any other path -- or one whose
+      plan is not declarable -- still fails closed:
+      868:                                      "input_root": inputs}))
+      902:    def _mounts_the_authorized_root(self, authorized):
+      903-        """The one input bind this delivery may carry, and it is the proved one.
+
+  (a) alone cannot be the boundary: it reads an attribute an adapter may
+  not have. (b) alone cannot either: its refusal arrives after the start
+  operation is committed. The split is stated at both sites.
+
+=== 3. THE BYTES THE ENGINE WAS TOLD, which is what [P0] asked for
+      type=bind,source=/srv/a-1/inputs,target=/input,readonly=true
+
+  And each way the plan can disagree, refused BEFORE the engine is
+  reached -- the sibling workspace, another target, writable, two binds
+  on the fixed path, none at all, and one claimed with nothing proved:
+    Ran 8 tests in 0.001s
+    
+    OK
+
+=== 4. and at the ARTEFACT, which the review could not run
+  (its managed turn had no Docker socket; mine does)
+    Ran 37 tests in 28.283s
+    OK
+    including a real container proving it cannot write the input root
+    it was given, and a real worker publishing the identity it read
+    out of that exact mount.
+
+=== 5. every guard this round added, measured by REMOVAL
+=== baseline: FAILED (failures=2)
+    standing: FAIL: test_declared_output_limits_hold_before_completion_publication
+    standing: FAIL: test_the_correlated_work_answer_names_outputs_only
+=== REMOVE: the authenticated source crosses the adapter seam
+    FAILED (failures=3)  (1 NEW case(s))
+       FAIL: test_the_authorized_root_crosses_the_adapter_seam
+=== REMOVE: the adapter's declared plan is held to the proved root
+    FAILED (failures=3)  (1 NEW case(s))
+       FAIL: test_authorizing_one_root_cannot_start_an_adapter_mounting_another
+=== REMOVE: the adapter requires the authorized root at all
+    FAILED (failures=8)  (6 NEW case(s))
+       FAIL: test_a_plan_naming_the_sibling_workspace_never_reaches_the_engine
+       FAIL: test_a_plan_that_mounts_no_input_root_never_reaches_the_engine
+       FAIL: test_the_authorized_root_at_another_target_is_not_the_input_root
+       FAIL: test_the_authorized_root_is_never_mounted_writable
+       FAIL: test_two_binds_on_the_fixed_path_leave_the_engine_deciding
+       FAIL: test_without_an_authorized_root_nothing_may_claim_the_fixed_path
+=== REMOVE: exactly one bind lands on the fixed input path
+    FAILED (failures=3, errors=2)  (3 NEW case(s))
+       ERROR: test_a_plan_that_mounts_no_input_root_never_reaches_the_engine
+       ERROR: test_the_authorized_root_at_another_target_is_not_the_input_root
+       FAIL: test_two_binds_on_the_fixed_path_leave_the_engine_deciding
+=== REMOVE: the mounted source IS the proved one
+    FAILED (failures=3)  (1 NEW case(s))
+       FAIL: test_a_plan_naming_the_sibling_workspace_never_reaches_the_engine
+=== REMOVE: the authorized root is mounted read-only
+    FAILED (failures=3)  (1 NEW case(s))
+       FAIL: test_the_authorized_root_is_never_mounted_writable
+=== REMOVE: with nothing proved, nothing may claim the fixed path
+    FAILED (failures=3)  (1 NEW case(s))
+       FAIL: test_without_an_authorized_root_nothing_may_claim_the_fixed_path
+sources restored
+
+  One came back vacuous on the first pass -- the seam-carrying itself,
+  masked by the manager's earlier refusal -- and is now driven by a case
+  that observes the value ARRIVING at the adapter, in both the present
+  and the absent form.
+
+=== 6. the conformance register saw none of this
+      A-17 now names 7 cases, the new one being
+        A-only-the-authorized-root-is-mounted-at-the-fixed-path
+      matrix 136 (was 135); register 79
+  SPEC 12 rule 17 gained the paragraph: a proof about one value is not a
+  proof about another, and two boundaries that never compare their
+  operands are two that can both pass while the container is wrong.
+
+=== 7. the ResourceWarnings the review noted, closed
+    Ran 37 tests in 0.051s
+    
+    OK
+
+=== 8. the focused manager gate
+    FAIL: test_the_correlated_work_answer_names_outputs_only 
+    FAIL: test_declared_output_limits_hold_before_completion_publication 
+    Ran 889 tests in 2.876s
+    FAILED (failures=2, skipped=1)
+    Both remaining are W6633's own open contradiction, unchanged.
+
+=== 9. the record models
+    Ran 31 tests in 0.119s
+    
+    OK
+    Ran 74 tests in 4.817s
+    
+    OK
+
+=== 10. the boundary inventory
+    FAIL: test_every_declared_probe_reaches_its_named_boundary  (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+    FAIL: test_every_owned_entry_has_exactly_one_probe 
+    FAIL: test_the_missing_probe_check_can_actually_fail 
+    FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared 
+    FAIL: test_every_receiving_entry_has_an_owning_validator 
+    FAIL: test_the_universe_sees_every_persisted_column_that_is_read 
+    Ran 93 tests in 801.775s
+    FAILED (failures=6)
+    (done)

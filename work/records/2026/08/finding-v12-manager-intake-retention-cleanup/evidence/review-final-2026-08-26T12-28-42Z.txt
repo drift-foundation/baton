@@ -1,0 +1,37 @@
+W6629 independent final re-review
+UTC: 2026-08-26T12:28:42Z
+
+Focused intake gate:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_intake
+
+  Ran 60 tests in 0.502s
+  OK
+
+Manager package surface gates:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_secrets tests.manager.test_dependencies \
+    tests.manager.test_text_sweep
+
+  Ran 114 tests in 0.560s
+  OK (skipped=1)
+
+  The run also emitted pre-existing ResourceWarnings for a temporary directory
+  and an unclosed SQLite connection; neither changes the passing verdict or
+  names W6629's correction.
+
+Whitespace:
+
+  git diff --check
+  clean
+
+Reviewed binding:
+
+  retentions_of loads the committed output.retain result named by each row and
+  refuses unless committed["attempt_id"] equals the selected attempt_id before
+  checking artifact, disposition and retention_policy_digest membership.
+
+Result: signed off with no open implementation finding.

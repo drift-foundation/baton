@@ -1,0 +1,106 @@
+W11910 -- evidence for the sixth review's [P1].
+
+The review: `EventBridge.#drain` selects only `state.queue[0]`. When that head
+is a deferred Work, the branch retains it and returns, so nothing behind it
+drains. A Work-only gate was governing the whole FIFO by queue position -- and
+the directed obligation a participant must answer to FINISH the very Work whose
+claim B waits behind can be the thing queued behind B. A waits on an answer
+that waits on A.
+
+
+THE CORRECTION
+
+  tools/codex-event-bridge/src/event_bridge.mjs
+
+  B stays exactly where it is: retained at the head, v11 in-flight identity
+  unreleased, no turn spent, same bounded retry. What changes is that the queue
+  behind it is offered the barrier one action at a time, by `#pastTheClaimSlot`.
+
+  THE VERDICT DECIDES, not the queued event's own `action` block. That block is
+  a historical bit from producer time, and scheduling from it is the defect the
+  THIRD review found one layer up; the same read every drain already performs
+  is what answers here. `live` is exactly the set that may pass, and the
+  review's four requirements fall out of it rather than being enumerated:
+
+    a current non-Work action        live      -> passes; the one-claim slot
+                                                 governs Work
+    a current CLAIMED Work           live      -> passes; the participant's own
+                                                 assignment being recovered,
+                                                 which preserves promotion
+    another current UNCLAIMED Work   deferred  -> cannot pass, against the same
+                                                 occupied slot
+    unreadable / withdrawn           uncertain -> passes nothing
+                                     / over
+
+  Two candidates are skipped BEFORE the read rather than after it. An event
+  with no action block is a generic non-readiness delivery and `#revalidate`
+  answers `live` for one by construction -- it has nothing to ask about -- so
+  reading it would rotate exactly what the review says must not rotate. An
+  ambiguous one belongs to `#reconcileAmbiguous`, which is the head's path.
+
+  The scan stops at the first candidate that may pass, so the ordinary case
+  with nothing queued behind the head costs no read at all.
+
+
+MEASURED
+
+  The review's own case, against the pre-change head-only drain:
+
+    $ node test/claim_slot.test.mjs        tests 38; pass 37; fail 1
+      FAIL a deferred Work at the queue head does not hold a later obligation
+
+  THREE ADDITIVE CASES, because a rule that holds by CONSEQUENCE is a rule
+  nothing would notice losing. Each proves one of the review's other three
+  requirements:
+
+    a second unclaimed Work does not rotate past a deferred one
+    a generic non-readiness event does not rotate past a deferred Work
+    a claimed Work behind a deferred one is its own recovery and passes
+
+
+AND THE SECOND MEASUREMENT CORRECTED THE THIRD CASE
+
+  The generic-event case first asserted only that no turn started, and it
+  passed WITH the pre-read guard removed. That did not prove the guard; it
+  proved the assertion could not see what the guard does.
+
+  Removing the guard does not produce a rotation. The scan reaches an event
+  with no action block, faults composing a log line about a key that is not
+  there, the head is marked ambiguous by the drain's own catch, and every
+  bounded retry repeats it. Turn ORDER survives that, so an order-only
+  assertion passed either way -- which is the vacuous-probe shape this
+  repository keeps correcting, found here in my own added case.
+
+  The case now records the warning channel and requires it EMPTY, and that is
+  what discriminates:
+
+    guard present   tests 41; pass 41; fail 0
+    guard removed   tests 41; pass 40; fail 1
+      FAIL a generic non-readiness event does not rotate past a deferred Work
+           "the claim-slot scan faulted on an event carrying no action"
+
+  So the honest statement of what that guard does is: it prevents a FAULT
+  LOOP, not a rotation. The review asked that a generic event not pass the
+  barrier, and it does not -- but the reason is the guard, and without it the
+  barrier breaks rather than leaks.
+
+  Source restored byte for byte after every mutation, md5
+  a350f4d6ab59446abad6149c7ddc30dd.
+
+
+GREEN
+
+    tools/codex-event-bridge   npm test    tests 413; pass 413; fail 0
+    tools/acp-baton-bridge     npm test    tests 70;  pass 70;  fail 0
+    the whitespace check                   clean
+
+  Codex focused 410 -> 413 (the review's case, plus the three above).
+  ACP is unchanged at 70: this defect is the dispatcher's queue discipline and
+  the ACP loop already continues after a deferred Work, which the review
+  itself notes.
+
+
+STILL THE OPERATOR'S
+
+  PLAN item 9's live smoke and item 10's deploy. Nothing here was verified
+  against the running deployment, and no repository state was mutated.

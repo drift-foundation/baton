@@ -1,0 +1,58 @@
+W6634 seventh independent review evidence — 2026-08-26T22:22:53Z
+
+Accepted baseline before additive regressions
+=============================================
+
+Command (cwd v12/python):
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_sealing tests.manager.test_credentials tests.manager.test_oci tests.manager.test_output tests.manager.test_intake tests.manager.test_dependencies tests.manager.test_workspaces tests.manager.test_secrets
+
+Result:
+  Ran 432 tests in 1.568s
+  OK (skipped=1)
+
+This includes the pre-review 36 sealing and 69 credential cases.
+
+Four additive regressions
+=========================
+
+Command (cwd v12/python):
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_sealing tests.manager.test_credentials
+
+Result:
+  Ran 109 tests in 0.055s
+  FAILED (failures=3, errors=1)
+
+1. test_an_exact_retry_does_not_need_the_worker_envelope_again
+   First seal succeeds. The exact retry after removing only output.json raises
+   refused/precondition because _completion_envelope runs before committed
+   receipt replay.
+
+2. test_the_completion_signal_is_a_regular_file_in_the_output_root
+   A valid completion document outside the writable root is linked from
+   workspace/output.json. The manager follows the link and seals instead of
+   raising ContractRefusal.
+
+3. test_the_envelope_answers_this_exact_assignment
+   A structurally valid completion envelope naming generation 2 is accepted
+   by a generation-1 freeze request.
+
+4. test_a_stale_record_with_no_runtime_converges_to_absence
+   An exact engine query returns zero candidates. Recovery reports UNRESOLVED,
+   discards zero roots, and leaves the stale lifecycle record.
+
+Source observations
+===================
+
+  sealing.py:657 calls _completion_envelope before _committed_result.
+  sealing.py:542-553 checks and opens output.json with link-following path
+  operations.
+  sealing.py:591-635 compares completion output declarations but not the
+  envelope assignment_ref with the freeze request assignment.
+  oci.py:1093-1108 computes proved absence as bool(stopped) and all(stopped),
+  which cannot be true for a successful zero-candidate query.
+
+Repository hygiene
+==================
+
+  git diff --check
+  no output (clean)

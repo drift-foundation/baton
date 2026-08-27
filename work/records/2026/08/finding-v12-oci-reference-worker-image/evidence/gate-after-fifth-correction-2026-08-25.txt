@@ -1,0 +1,190 @@
+W6633 — evidence after the correction answering the 12:19:50Z review.
+
+Review answered: review-2026-08-25T12-19-50Z.md
+  [P1] independent builds deliberately have different immutable identities
+
+The review offered two ways out: a deterministic image-output path, or an
+approver supersession of the confirmed acceptance. THE FIRST ONE WORKS ON THIS
+DEPLOYMENT, so no supersession is asked for.
+
+
+WHAT IS ACTUALLY VOLATILE — THE RECORD'S MEASUREMENT WAS INCOMPLETE
+
+  The record said two `--no-cache` builds differ only in the config's wall
+  clock, with "all six RootFS layers identical". Measured again here on docker
+  29.1.3 with no buildx, two builds differ in FOUR places:
+
+    1. config `created`                    the build clock
+    2. `container`, `container_config`     the intermediate container id
+    3. `config.Image`                      the parent chain id
+    4. THE RECIPE'S OWN LAYERS
+
+  (4) is the one the record missed. `COPY x /opt/baton/x` writes a tar
+  carrying the DIRECTORY ENTRIES the copy created, and their mtime is the
+  build clock:
+
+    == build a
+       4125fffca90e 'opt'                        mtime=1787702374
+       4125fffca90e 'opt/baton'                  mtime=1787702374
+       4125fffca90e 'opt/baton/baton_worker.py'  mtime=1787650104
+    == build b
+       93ab6c47621e 'opt'                        mtime=1787702375
+       93ab6c47621e 'opt/baton'                  mtime=1787702375
+       93ab6c47621e 'opt/baton/baton_worker.py'  mtime=1787650104
+
+  The copied FILE keeps its source mtime. The two directories do not, and the
+  resolution is ONE SECOND.
+
+  SO THE EARLIER READING WAS AN ACCIDENT OF TIMING: two builds that start
+  inside one wall-clock second have identical layers, and two that straddle a
+  second do not. That also explains the interaction the previous correction
+  reported and could not attribute — two container cases passing alone, in the
+  locked build and beside the engine gate, and failing in a full source run.
+  A full run is slower, so the two builds straddle a second more often.
+
+
+THE CORRECTION: THE RECIPE HAS A DETERMINISTIC OUTPUT STEP
+
+  `v12/python/tools/worker_image.py`. The engine builds with `--no-cache`; the
+  saved OCI layout is normalized; the normalized layout is loaded back, and
+  the identity of THAT image is the one the manager pins.
+
+  ONLY THIS RECIPE'S OWN WORK IS TOUCHED, and the boundary is DERIVED from the
+  pinned base rather than counted:
+
+    a layer is the recipe's when its diff id is not one of the base's;
+    a history entry is the recipe's when it is newer than the base's Created.
+
+  So the base image's layers and provenance travel byte for byte. A normalizer
+  that rewrote them would describe a different base from the one the recipe
+  pins, which is what the digest pin exists to protect.
+
+  INSIDE A REWRITTEN LAYER, ONLY DIRECTORY MTIMES MOVE. A regular file keeps
+  the mtime it had in the build context, because that is content the recipe
+  carries rather than a clock reading.
+
+
+THE MEASUREMENT THAT MATTERS
+
+    $ env PYTHONPATH=src python3 -m tools.worker_image --tag baton-w6633-cli:probe
+    sha256:55335c89f26bcc3b31d211ad9d1c8f17654677e159f4e85101496a10fc6a6de9
+
+  The same digest from every independent execution taken during this
+  correction — the two prototype runs, the two builds the daemon gate makes,
+  and the operator CLI above — and the engine's own `image inspect` agrees
+  with the digest the tool computed before loading it.
+
+    identity computed sha256:55335c89f26bcc3b3
+    engine reports    sha256:55335c89f26bcc3b3   match: True
+
+
+THE REVIEW'S ADDITIVE REGRESSION
+
+  `test_two_independent_builds_have_one_pinnable_image_identity` is kept as
+  written and PASSES. It was the acceptance stated at the consumer boundary
+  and it is now simply true.
+
+  `test_the_image_id_is_a_receipt_and_not_the_artefact` is REPLACED rather
+  than deleted. It required the two identities to remain DIFFERENT, which is
+  the weakening the review refused; but the fact underneath it is real and
+  worth keeping, so
+  `test_a_bare_engine_build_is_why_the_output_step_exists` holds it: two bare
+  `docker build` executions, deliberately more than a second apart, must
+  differ in BOTH id and layers — and then the output step must turn exactly
+  that into one identity. If a future engine makes bare builds reproducible,
+  that case fails and says so.
+
+  `test_the_same_context_builds_to_the_same_artefact` keeps its layer and
+  configuration comparison and loses its argument for comparing them INSTEAD
+  of the identity. An identity that matched while the layers differed would be
+  a normalizer that had erased a real difference rather than a receipt.
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_worker_image
+    Ran 58 tests -- OK
+
+    $ env PYTHONPATH=src python3 -m unittest tests.tools.test_worker_image_build
+    Ran 18 tests -- OK
+
+  The new daemon-free module owns the RULE: which layers are rewritten and
+  which must not be, what leaves the config, that two layouts differing only
+  in receipts reach one digest — and the other half, that two layouts
+  differing in their PROGRAM still reach two. Both degenerate classifications
+  refuse: a layout whose layers are all the base's has nothing this recipe
+  added, and one sharing no layer with the base is not the image the base
+  facts describe.
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_worker_container
+    Ran 31 tests in 26.561s -- OK
+
+  Daemon-backed, against docker 29.1.3 on linux/amd64, and the engine holds
+  nothing afterwards. 30 -> 31: the cache case moved to a golden vector and a
+  second vector case was added.
+
+  TWO DAEMON-FREE CASES REPLACED A REAL BUILD. `test_the_reproducibility_
+  build_does_not_reuse_builder_cache` used to patch this module's `engine`
+  helper and call `ContainerCase.build`. Once the build moved into the tool
+  that patch reached nothing, so the case ran a REAL build against the daemon
+  and left `baton-w6633-test:cache-probe` behind — which the residual sweep
+  caught, correctly. It reads `build_vector` now: no daemon, nothing created.
+
+    $ env PYTHONPATH=src python3 -m unittest tests.tools.test_parallel_runner
+    Ran 36 tests -- OK
+
+  The new module is registered in `PARALLEL_MODULES`. It is daemon-free and
+  writes only temporary directories, so it is parallel-safe; the registry is
+  exhaustive and an unregistered module fails that gate.
+
+
+FULL SOURCE SUITE
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1210 tests in 464.225s
+    FAILED (failures=10, skipped=6)
+
+    7  test_boundary_inventory  — the same seven this campaign has carried,
+                                  naming documents.py, sessions.py,
+                                  handshake.py and workspaces.py sites
+    2  test_oci                 — REPORTED, NOT FIXED (W6632)
+    1  test_secrets             — REPORTED, NOT FIXED (W6630)
+
+  W6633's own daemon-backed failure is gone and nothing was added.
+
+
+LOCKED INSTALLED-LAYOUT BUILD
+
+    $ cd v12/python && just build
+    Ran 1210 tests in 459.767s
+    FAILED (failures=10, skipped=5)
+
+  The same ten, from site-packages.
+
+
+REPORTED AND NOT FIXED
+
+  Both belong to Work this claim does not hold, and both are reviewer
+  regressions posted after this participant passed that Work back.
+
+  W6632 — `tests.manager.test_oci`:
+    test_a_target_traversal_is_not_normalized_into_another_location
+    test_a_stale_policy_runtime_is_not_filtered_into_a_duplicate_start
+  posted with `review-2026-08-26T00-03-30Z.md`, which arrived while this
+  correction was in progress. The second one is about the identity comparison
+  this participant added under W6632 and looks right on its face: the
+  candidate listing query has to be broader than the identity comparison, or a
+  stale-policy runtime is filtered out of the duplicate-start check instead of
+  refusing it.
+
+  W6630 — `tests.manager.test_secrets`:
+    test_the_substitute_cannot_quote_a_live_bearer_substring
+  already reported on T6630.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w6633_full2.txt   the full source-suite log
+    /tmp/w6633_build.txt   the locked installed-layout log
+    /tmp/w6633_gate2.txt   the daemon-backed image gate log
+    /tmp/w6633probe/       the prototype that established the normalization

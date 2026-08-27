@@ -1,0 +1,141 @@
+W6629 — evidence for the intake, retention and cleanup implementation.
+
+Claimed 2026-08-26 with PLAN item 2 open ("needs a ruling") and items 3-6
+blocked. Both conditions had changed and the revalidation is why.
+
+
+THE BLOCKERS ARE GONE
+
+    W6627  closed     manager agent-session and runtime adapter protocol
+    W6628  closed     manager output freeze and artifact receiver
+    W6630  closed     worker-control section 13 security surfaces
+    W6592  closed     manager contracts inventory and public composition
+
+  All four were open when this dossier was written. Nothing was blocked.
+
+
+THE OPEN QUESTION ANSWERED ITSELF, AND COUNTING IS WHAT ANSWERED IT
+
+  The dossier recorded that the frozen schema states no shape for the
+  retention policy document, so "retention policy" named nothing that was a
+  contract anywhere, and implementing it meant either naming another Work to
+  wait for or inventing the document here.
+
+  THE PREMISE IS RIGHT AND THE CONCLUSION WAS WRONG.
+
+    $ python3 -c "import json; d=json.load(open(SCHEMA))['$defs']; \
+                  print([k for k in d if 'olicy' in k])"
+    []
+
+  `retention_policy_digest` is one of TEN `*_policy_digest` members of the
+  assignment manifest -- policy, toolchain, resource, network, mount, tool,
+  credential, runtime_profile, worker_image and retention -- and the frozen
+  schema defines the document behind NOT ONE of them.
+
+  So the absence is not about retention. It is how this contract treats policy
+  documents uniformly: a manager binds a policy by IDENTITY and acts on the
+  operation that cites it. INTERPRETING ONE HERE WOULD BE THE BOUNDARY
+  VIOLATION, NOT THE FIX. There is no third Work to name and nothing to wait
+  for.
+
+  The intake receipt is the same silence read from the other end.
+  `runtimeDestroyBody` requires `intake_receipt_digest` and shapes nothing --
+  but a receipt is PRODUCED here, and a producer owns the shape of what it
+  produces. Consumed by digest, produced by construction.
+
+
+WHAT THE FROZEN CONTRACT DECIDED AND THIS SLICE CONSUMED
+
+  `sealed` IS INTAKE'S. W6628's own module docstring: "FREEZING IS NOT
+  ACCEPTING [...] this module ends at `frozen` and never writes `sealed`", and
+  it lists "retention and cleanup, and the `sealed` transition itself" among
+  what is not there.
+
+  QUARANTINE AT INTAKE WAS PINNED BY W6628 TOO, in the sentence explaining why
+  its liveness window cannot be zero: "material from an assignment that ended
+  anyway is quarantined at intake rather than trusted here". Refusing would
+  destroy the evidence of what a worker produced; leaving it unsealed would
+  invite a second collection of bytes already taken.
+
+  `uncertain` MAY NEVER BECOME `destroyed`. So an attempt observed uncertain
+  cannot have its cleanup settled even when the engine answers positive
+  absence. It is REFUSED with the reason stated rather than reached by writing
+  the terminal value another way -- a consequence of the frozen axis and not a
+  choice made here.
+
+
+THE ORDERING DEFECT I WROTE AND THEN FOUND
+
+  `record_intake` read the output axis BEFORE consulting the journal -- the
+  exact defect W6628's receiver was corrected for twice, reproduced in the
+  module that consumes its output. An exact retry after a successful intake
+  refused with "output is sealed" instead of replaying.
+
+  My own effectively-once case caught it. `decide_retention` and
+  `authorize_cleanup` had the same shape and were reordered with it, and that
+  is what made the terminal-cleanup refusal correct rather than approximate:
+  an exact retry of a settled destroy REPLAYS, and only a different act --
+  another policy, another receipt -- is refused for arriving after an ending.
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_intake
+    Ran 47 tests -- OK
+
+  The fixture attaches a REAL RUNTIME rather than inheriting W6628's, whose
+  attempt observes quiescence without ever starting anything. Proving cleanup
+  against that state would have been proving it against a fixture -- and the
+  state itself now has its own case, because cleanup refuses it instead of
+  assuming absence.
+
+  CAN-ACTUALLY-FAIL, measured. Three rules mutated at once -- the
+  retained/complete distinction forced to `complete`, the quarantine decision
+  forced to `accepted`, and the replay moved back below the axis read:
+
+    x  test_a_retry_of_intake_replays_after_the_axis_moved
+    x  test_an_exact_retry_replays_the_receipt_it_already_produced
+    x  test_different_material_under_the_same_identity_refuses
+    x  test_material_from_an_ended_assignment_is_quarantined
+    x  test_material_kept_by_policy_ends_retained
+    x  test_quarantined_custody_ends_retained_whatever_the_disposition
+    x  test_quarantined_material_ends_retained_too
+    Ran 47 tests -- FAILED (failures=5, errors=2)
+
+  Restored byte for byte.
+
+
+THE PACKAGE-SURFACE GATES
+
+  A new public surface is not finished when its own suite passes. Three gates
+  own the whole package and each was extended:
+
+    test_text_sweep         the completeness table now names all 14 new
+                            exported callables and the 3 new constants
+    test_dependencies       four new operand names DECLARED, with
+                            `retention_policy_digest` explained: it is an
+                            operand and not internal state precisely because
+                            this manager binds the policy rather than reading
+                            it
+    test_boundary_inventory 78 new receiving entries, 64 probes, 2 written
+                            exemptions
+
+  THE INVENTORY IS THE EXPENSIVE ONE AND THE POINT OF IT SHOWED. Nine entries
+  had no owner, and fixing them improved the code rather than the table:
+
+    the destroy answer's `state` was compared against strings with nothing
+      owning it -- an adapter answering a fifth state would have fallen into
+      the "still there" branch by accident. It is a closed set now, and the
+      four the OCI core documents are named
+    `runtime_id` and `why` in that answer were read from an envelope owner
+      that proves members are PRESENT and says nothing about what they are
+    two digests that ride a durable operation identity were never owned as
+      durable text -- a digest that cannot be stored cannot be part of an
+      operation id a restart has to reproduce
+    the retention disposition got the shared private owner the worker
+      disposition already has, so one question stays one question
+
+  AND FOUR PROBES WERE VACUOUS AND WERE FIXED. Spoiling an injected answer's
+  member with an unencodable surrogate is refused by the ENVELOPE owner, which
+  takes a deep copy -- so the member's own rule was never reached. Each is
+  spoiled now with a value the envelope accepts and the member's rule refuses.

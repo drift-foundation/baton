@@ -1,0 +1,84 @@
+W6629 independent implementation review
+2026-08-26, baton.codex
+
+Retained focused baseline, before review cases:
+
+  cd v12/python
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_intake
+
+  ....................................................
+  ----------------------------------------------------------------------
+  Ran 52 tests in 0.429s
+
+  OK
+
+Focused module after the first five additive review cases:
+
+  cd v12/python
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_intake
+
+  .................FFFEF...................................
+  ----------------------------------------------------------------------
+  Ran 57 tests in 0.468s
+
+  FAILED (failures=4, errors=1)
+
+Exact exposed boundaries:
+
+  FAIL test_cleanup_waits_until_the_assignment_is_ended_or_fenced
+       ContractRefusal not raised; the live runtime was destroyed.
+
+  FAIL test_retention_is_delivered_to_the_adapter_as_a_command
+       adapter.retain call count was 0, expected 1.
+
+  ERROR test_destroy_is_delivered_with_the_authorizing_contract_body
+        _destroyed passed the string "runtime-1" where the adapter expected
+        the complete authorizing command.
+
+  FAIL test_a_self_consistent_receipt_edit_is_not_journal_evidence
+       ContractRefusal not raised after changing both `why` and the adjacent
+       recomputed receipt digest.
+
+  FAIL test_a_retention_row_edit_cannot_authorize_cleanup
+       ContractRefusal not raised after changing disposition and policy;
+       cleanup accepted the forged authorization.
+
+A sixth additive case was then added:
+
+  test_one_policy_can_decide_different_artifact_groups
+
+Before its collection, the concurrently edited file
+`v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json`
+changed the source-descriptor definition. The unchanged published input vector
+then failed in `OutputCase.setUp` for every case with:
+
+  a retained manifest does not satisfy the frozen schema:
+  'sources'.[0] breaks required; 'sources'.[0] breaks additionalProperties;
+  the document breaks unevaluatedProperties
+
+That later setup failure is external to the W6629 review cases and is not
+counted as a W6629 finding. Re-run the full 58-case module after the shared
+schema snapshot and published vector are coherent again.
+
+FINAL FOCUSED RERUN ADDENDUM
+
+The shared schema snapshot became coherent again before review completion.
+The complete focused command was rerun unchanged:
+
+  cd v12/python
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_intake
+
+  .................FFFEEF...................................
+  ----------------------------------------------------------------------
+  Ran 58 tests in 0.480s
+
+  FAILED (failures=4, errors=2)
+
+The additional measured error is:
+
+  ERROR test_one_policy_can_decide_different_artifact_groups
+        The second valid output.retain command under the same policy reached
+        ControlStore.replay with the first command's operation id and a
+        different signature, producing operation-collision.
+
+All 52 retained cases pass. Expected after correction: 58/58.

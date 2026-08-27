@@ -1,0 +1,56 @@
+W17110 independent review, 2026-08-27T04:25:44Z
+Reviewer: baton.codex
+
+=== additive daemon-free regressions
+test_a_refused_image_removal_prevents_clean_success ... FAIL
+test_a_staged_root_that_survives_prevents_clean_success ... FAIL
+test_arbitrary_agent_output_is_not_copied_to_the_host_report ... FAIL
+test_nonzero_malformed_output_cannot_be_a_satisfying_pong ... FAIL
+
+======================================================================
+FAIL: test_a_refused_image_removal_prevents_clean_success
+AssertionError: 0 == 0
+
+FAIL: test_a_staged_root_that_survives_prevents_clean_success
+AssertionError: 0 == 0
+
+FAIL: test_arbitrary_agent_output_is_not_copied_to_the_host_report
+AssertionError: 'review-secret-with-no-recognized-prefix' unexpectedly found
+in the printed host report's nested result document.
+
+FAIL: test_nonzero_malformed_output_cannot_be_a_satisfying_pong
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.003s
+FAILED (failures=4)
+
+=== credential metadata only; no credential opened
+1000:1000 600 /home/sl/.claude/.credentials.json
+1000:1000 600 /home/sl/.codex/auth.json
+
+Both images declare USER 65532:65532. Direct read-only binds of the offered
+0600 files do not make them readable by that identity.
+
+=== source observations
+v12/spike/ping-pong/trial.mjs
+  183: result: answer.slice(0, 2000)
+  184: pong: /(^|\W)pong(\W|$)/i.test(answer)
+  188: document.failure_detail = redacted(stderr || answer)
+
+v12/spike/ping-pong/trial.py
+  165-166: container stderr enters the printed report
+  173: the complete worker-authored result enters the printed report
+  179: host pong verdict trusts bool(answer.get("pong"))
+  208: image removal result ignored
+  209-212: cleanup checks the removed tag, not the immutable image id
+  216-217: staged-root cleanup ignores errors but observes survival
+  219-223: clean/satisfying omit exit status and staged-root absence
+
+=== syntax and whitespace
+node --check v12/spike/ping-pong/trial.mjs: PASS
+git diff --check: clean
+
+Live Docker/provider trial not rerun: no credential source is nominated, and
+the durable-output defect must be corrected before any live credential is
+mounted.

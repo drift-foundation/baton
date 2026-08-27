@@ -26,6 +26,7 @@ from baton_v12.contracts import manifest
 
 from baton_v12.contracts import (DEFINITIONS, ContractRefusal,
                                  check_content_manifest,
+                                 check_input_pair,
                                  check_manifest_structure, check_relative_path,
                                  check_uri, check_work_ref, digest,
                                  validate_fragment,
@@ -435,6 +436,37 @@ class TheCanonicalVectorIsTheBaseline(unittest.TestCase):
         self.assertEqual(owned["schema"], "baton.worker-manifest/input")
         self.assertGreaterEqual(len(owned["sources"]), 1)
 
+    def test_no_source_rule_reads_an_acquisition_member(self):
+        """W14251. Two §12 rules over a source are gone with the members they
+        read: a `uri` grammar check, and rule 7's object-namespace comparison
+        between an object format and a base revision.
+
+        The 2026-08-25 supersession says this manager receives an ALREADY
+        STAGED read-only directory and that how it was populated is outside
+        the Worker Manager. Their cases went with them, because a test of a
+        rule that no longer exists asserts nothing; this stands in their place.
+
+        `check_uri` is deliberately NOT gone. It still guards artifact
+        locators, and `fixtures/uri-vectors.json` is still the authority for
+        that grammar -- what ended is this manager reading a SOURCE's
+        acquisition locator, not the grammar for locators it still receives.
+        """
+        import inspect
+        from baton_v12.contracts import manifest
+        composite = inspect.getsource(manifest)
+        rules = composite.split("def check_manifest_structure")[0]
+        for gone in ('source["uri"]', 'source["type"]',
+                     'source["object_format"]', 'source["base_revision"]'):
+            with self.subTest(member=gone):
+                self.assertNotIn(gone, rules,
+                                 "a source rule still reads an acquisition "
+                                 "member")
+        # And the grammar itself is still here, still exercised, still applied
+        # to what this manager does receive.
+        self.assertIn("check_uri(artifact[", composite)
+        self.assertEqual(check_uri("https://host.test/x"),
+                         "https://host.test/x")
+
     def test_a_work_id_must_carry_its_authoritys_prefix(self):
         vector = self.vector()
         work_ref = dict(vector["work_ref"], work_id="ffffffff-W1")
@@ -476,15 +508,65 @@ class TheCanonicalVectorIsTheBaseline(unittest.TestCase):
         self.assertEqual(check_relative_path("out/report.md", "a path"),
                          "out/report.md")
 
-    def test_overlapping_destinations_are_refused(self):
-        """A declared output inside a source directory would have the worker
-        writing into material the manifest also says was delivered."""
+    def test_overlapping_destinations_are_refused_within_each_root(self):
+        """W14251 second review: the rule is unchanged and the SET it ranges
+        over is not.
+
+        This case used to nest a declared output inside a source destination
+        and call that aliasing, on the old shared-workspace rationale. Under
+        the two fixed roots that pair is `/output/x` against `/input/x`, which
+        are disjoint -- so the case was asserting a rule the contract no longer
+        has. What still aliases is two declarations of the SAME role: two
+        staged inputs over one tree deliver the same material twice, and one
+        declared output inside another has the worker writing into a tree the
+        seal also describes.
+        """
         vector = self.vector()
         source = vector["sources"][0]
+        output = vector["outputs"][0]
+        for role, members in (
+                ("staged input", {"sources": [
+                    source,
+                    dict(source, name="second",
+                         destination=source["destination"] + "/nested")]}),
+                ("declared output", {"outputs": [
+                    output,
+                    dict(output, name="second",
+                         path=output["path"] + "/nested")]})):
+            with self.subTest(role=role):
+                failure = self.refusing(f"{role} destinations",
+                                        self.resealed(**members))
+                self.assertEqual(failure.code, "path")
+
+    def test_equal_relative_paths_in_the_two_fixed_roots_do_not_overlap(self):
+        """`repo` below `/input/` and `repo` below `/output/` name disjoint
+        trees. The artifact-neutral ruling replaced the old shared workspace
+        with these two fixed roots, so lexical equality is not aliasing."""
+        vector = self.vector()
         outputs = [dict(vector["outputs"][0],
-                        path=source["destination"] + "/report.md")]
-        failure = self.refusing("overlap", self.resealed(outputs=outputs))
-        self.assertEqual(failure.code, "path")
+                        path=vector["sources"][0]["destination"])]
+        manifest.check_manifest_structure(
+            self.resealed(outputs=outputs), "inputManifest")
+
+    def test_payload_paths_cannot_take_the_fixed_manifest_names(self):
+        """The two fixed roots reserve one filename each for their protocol
+        manifests. A staged tree at `/input/input.json` would replace the
+        manager-authored input envelope; a declared result at
+        `/output/output.json` would replace the worker's completion envelope.
+        Both are containment collisions even though each spelling is a valid
+        relative path in isolation.
+        """
+        vector = self.vector()
+        for what, members in (
+                ("input manifest", {"sources": [dict(
+                    vector["sources"][0], destination="input.json")]}),
+                ("output manifest", {"outputs": [dict(
+                    vector["outputs"][0], path="output.json")]})):
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal) as caught:
+                    check_manifest_structure(self.resealed(**members),
+                                             "inputManifest")
+                self.assertEqual(caught.exception.code, "path")
 
     def test_a_name_reused_across_sources_and_outputs_is_refused(self):
         vector = self.vector()
@@ -492,63 +574,6 @@ class TheCanonicalVectorIsTheBaseline(unittest.TestCase):
                         name=vector["sources"][0]["name"])]
         self.refusing("reuses an input/output name",
                       self.resealed(outputs=outputs))
-
-    def test_a_source_uri_is_absolute_readable_and_bare(self):
-        """§12 rule 4, on the member the schema does NOT decide.
-
-        `artifactRef.locator` carries a pattern that forbids a query and a
-        fragment; a SOURCE uri is only `format: uri`, and this build keeps
-        format assertion off -- so for sources this rule is the owner, and each
-        clause needs its own case. Three of the five measured zero until they
-        had one, because every case I had written spoiled the same clause.
-        """
-        vector = self.vector()
-        for what, uri, phrase in [
-                ("a query", "https://example.test/tree?token=abc",
-                 "forbid queries"),
-                ("a fragment", "https://example.test/tree#part", "fragment"),
-                # MIGRATED: the grammar refuses these earlier and names the
-                # exact fault, where the parser could only say "not absolute"
-                # or "not parseable". The refusals themselves are retained.
-                ("a relative locator", "//example.test/tree",
-                 "canonical locator"),
-                ("no scheme at all", "example.test/tree",
-                 "canonical locator"),
-                ("a locator no parser can read", "https://[",
-                 "does not close it")]:
-            with self.subTest(what=what):
-                sources = [dict(vector["sources"][0], uri=uri)]
-                self.refusing(phrase, self.resealed(sources=sources))
-
-    def test_a_versioned_source_declares_one_object_namespace(self):
-        """§12 rule 7: a sha1 base revision under a sha256 repository is not a
-        shorter digest, it is a different object namespace.
-
-        The published vector carries a DIRECTORY source, so this branch measured
-        zero -- a rule nothing drives. The versioned source is built here from
-        the schema's own required members rather than lifted from a vector that
-        does not exist.
-        """
-        vector = self.vector()
-        source = {
-            "name": "repo", "type": "%s" % VERSIONED,
-            "uri": "https://vcs.example.test/tree",
-            "destination": "repo", "required": True,
-            "repository_id": "r" * 32, "object_format": "sha256",
-            "base_revision": {"algorithm": "sha256", "hex": "a" * 64},
-            "source_ref": "refs/heads/main",
-            "integration_ref": "refs/heads/main",
-            "acquisition_policy_digest": "sha256:" + "b" * 64,
-        }
-        outputs = [dict(vector["outputs"][0], path="out/report.md")]
-        accepted = check_manifest_structure(
-            self.resealed(sources=[source], outputs=outputs), "inputManifest",
-            what="an input manifest")
-        self.assertEqual(accepted["sources"][0]["object_format"], "sha256")
-        crossed = dict(source, base_revision={"algorithm": "sha1",
-                                              "hex": "c" * 40})
-        self.refusing("rule 7",
-                      self.resealed(sources=[crossed], outputs=outputs))
 
     def test_the_schema_owns_the_generation_bound(self):
         """The other reliance, pinned.
@@ -615,3 +640,283 @@ class TheCanonicalVectorIsTheBaseline(unittest.TestCase):
             if source.get("content_manifest") is not None:
                 return source["content_manifest"]
         return None
+
+
+class TheReceiptBindsTheEnvelopeItValidated(unittest.TestCase):
+    """W14251, third review [P1] and settled by the fourth.
+
+    §7.3 makes the manager validate `/output/output.json` and hold it against
+    the exact input manifest before it freezes. A receipt that then names no
+    envelope leaves the contract giving two answers about one completed
+    result: either no worker envelope existed, or the manager declined to bind
+    the one it validated, and nothing durable told them apart.
+
+    So under 1.0 a COMPLETED receipt must carry `completion_manifest_digest`.
+    The other three dispositions may omit it -- `unable`, `plan-rejected` and
+    `cancelled` are exactly the endings where the worker may have died before
+    publishing anything, and requiring an envelope there would require the
+    worker to have succeeded in order to be recorded as having failed.
+
+    THIS IS NOT A VERSION BOUNDARY. I proposed one and it was refused, rightly:
+    `$defs.version` pins `minor` to `const: 0`, so widening the version
+    vocabulary merely to preserve a bypass would be inventing a negotiation
+    nothing performs. The rule is the 1.0 rule.
+    """
+
+    def receipt(self, **members):
+        body = {
+            "version": {"major": 1, "minor": 0},
+            "manifest_id": "result-1",
+            "created_at": "2026-08-26T00:00:00.000Z",
+            "extensions": {},
+            "schema": "baton.worker-manifest/result",
+            "result_id": "result-1",
+            "assignment_ref": {
+                "work_ref": {"authority_uuid": "43c55d4b1234567890abcdef12345678",
+                             "work_id": "43c55d4b-W1439"},
+                "participant": "baton.claude", "generation": 1},
+            "input_manifest_digest": "sha256:" + "a" * 64,
+            "policy_digest": "sha256:" + "b" * 64,
+            "disposition": "completed",
+            "outputs": [], "evidence": [],
+            "freeze_operation": {"operation_id": "output.freeze:1",
+                                 "signature_digest": "sha256:" + "c" * 64},
+            "manager_observed_at": "2026-08-26T00:00:00.000Z",
+        }
+        body.update(members)
+        body["manifest_digest"] = digest(body)
+        return body
+
+    def test_a_completed_receipt_that_binds_nothing_is_refused(self):
+        """The negative the fourth review required kept."""
+        with self.assertRaises(ContractRefusal) as caught:
+            check_manifest_structure(self.receipt(), "resultManifest")
+        self.assertEqual(caught.exception.code, "schema")
+        # The refusal names the RULE rather than the member: this boundary
+        # bounds what a schema failure may say, so it reports which keyword
+        # broke and not the caller's whole document. What makes the case
+        # non-vacuous is the pair beside it -- the same receipt with the digest
+        # is accepted, so `required` is the keyword that refused this one.
+        self.assertIn("required", caught.exception.message)
+
+    def test_a_completed_receipt_that_binds_its_envelope_is_accepted(self):
+        envelope = "sha256:" + "e" * 64
+        owned = check_manifest_structure(
+            self.receipt(completion_manifest_digest=envelope),
+            "resultManifest")
+        self.assertEqual(owned["completion_manifest_digest"], envelope)
+
+    def test_an_unfinished_ending_may_carry_no_envelope(self):
+        """A worker that died before publishing published nothing to bind.
+        Requiring one here would require it to have succeeded in order to be
+        recorded as having failed."""
+        for disposition in ("unable", "plan-rejected", "cancelled"):
+            with self.subTest(disposition=disposition):
+                owned = check_manifest_structure(
+                    self.receipt(disposition=disposition), "resultManifest")
+                self.assertNotIn("completion_manifest_digest", owned)
+
+    def test_an_unfinished_ending_still_binds_one_that_was_validated(self):
+        """§8.4: whenever an envelope WAS validated, the receipt names it
+        whatever the disposition became. The schema requires it only for
+        `completed`, because only there can its absence be told from a worker
+        that never published -- so this pins that the shape admits it."""
+        envelope = "sha256:" + "e" * 64
+        owned = check_manifest_structure(
+            self.receipt(disposition="unable",
+                         completion_manifest_digest=envelope),
+            "resultManifest")
+        self.assertEqual(owned["completion_manifest_digest"], envelope)
+
+
+class TheTwoInputDocumentsAreOnePair(unittest.TestCase):
+    """W19784, approved 2026-08-26.
+
+    THE DEFECT THIS ANSWERS. The frozen `completionManifest` requires the
+    worker to publish the exact full `assignment_ref` -- Work reference,
+    participant and authority generation -- and no frozen input surface
+    delivered it. `inputManifest` is PRE-CLAIM and deliberately carries no
+    generation; `assignmentManifest` has always carried the whole identity but
+    had no path inside the execution container. A worker consuming a valid
+    input manifest therefore could not author a valid completion envelope at
+    all.
+
+    The approved answer delivers the EXISTING canonical assignment manifest at
+    `/input/assignment.json`. What is new is a path and a lifecycle, not a
+    document -- no environment string, no framed-request member, no alias.
+    """
+
+    def given(self):
+        published = json.loads(VECTORS.read_text(encoding="utf-8"))
+        for case in published["valid"]:
+            document = case["document"]
+            if document.get("schema") == "baton.worker-manifest/input":
+                return document
+        raise AssertionError("the published vectors carry no input manifest")
+
+    def minted(self, given, **spoiled):
+        """An assignment manifest minted against THAT exact input manifest."""
+        assignment = {
+            "version": given["version"],
+            "manifest_id": "assignment-1",
+            "created_at": given["created_at"],
+            "extensions": {},
+            "schema": "baton.worker-manifest/assignment",
+            "assignment_ref": {"work_ref": given["work_ref"],
+                               "participant": "baton.claude", "generation": 3},
+            "assignment_contract": given["assignment_contract"],
+            "offer_id": "offer-1",
+            "runtime_attempt_id": "attempt-1",
+            "input_manifest_digest": given["manifest_digest"],
+            "policy_digest": given["policy_digest"],
+            "runtime_profile_digest": given["runtime_profile_digest"],
+            "claim_receipt_digest": "sha256:" + "d" * 64,
+            "claim_event_seq": 44,
+            "activated_at": given["created_at"]}
+        assignment.update(spoiled)
+        assignment.pop("manifest_digest", None)
+        assignment["manifest_digest"] = digest(assignment)
+        return assignment
+
+    def resealed(self, given, **members):
+        document = dict(given, **members)
+        document.pop("manifest_digest", None)
+        document["manifest_digest"] = digest(document)
+        return document
+
+    def test_the_canonical_pair_is_accepted(self):
+        given = self.given()
+        owned_input, owned_assignment = check_input_pair(
+            given, self.minted(given))
+        self.assertEqual(owned_input["schema"], "baton.worker-manifest/input")
+        # THE GENERATION IS THE POINT. It is the member `inputManifest`
+        # deliberately does not carry and `completionManifest` requires, and
+        # this pair is the only place inside the container that supplies it.
+        self.assertEqual(owned_assignment["assignment_ref"]["generation"], 3)
+
+    def test_two_halves_of_two_deliveries_are_refused(self):
+        """Each document below is internally perfect and would pass its own
+        structural rule alone. What refuses is the RELATIONSHIP, which no
+        single-document validator can see -- which is why this rule exists.
+        """
+        given = self.given()
+        other = "sha256:" + "f" * 64
+        for what, spoiled in (
+                ("another Work",
+                 {"assignment_ref": {
+                     "work_ref": {"authority_uuid": "f" * 32,
+                                  "work_id": "ffffffff-W9"},
+                     "participant": "baton.claude", "generation": 3}}),
+                ("another input manifest", {"input_manifest_digest": other}),
+                ("another policy", {"policy_digest": other}),
+                ("another runtime profile",
+                 {"runtime_profile_digest": other})):
+            with self.subTest(what=what):
+                assignment = self.minted(given, **spoiled)
+                # Structurally valid on its own -- so the refusal below is the
+                # comparison and not the shape.
+                check_manifest_structure(assignment, "assignmentManifest")
+                with self.assertRaises(ContractRefusal):
+                    check_input_pair(given, assignment)
+
+    def test_a_repinned_input_manifest_no_longer_matches_its_assignment(self):
+        """The other direction of the same binding: `input.json` is immutable
+        after claim, and an assignment minted against the original does not
+        follow an input that was rewritten and resealed."""
+        given = self.given()
+        assignment = self.minted(given)
+        moved = self.resealed(given, manifest_id="input-2")
+        with self.assertRaises(ContractRefusal) as caught:
+            check_input_pair(moved, assignment)
+        self.assertEqual(caught.exception.code, "digest")
+
+    def test_neither_document_may_stand_in_for_the_other(self):
+        given = self.given()
+        assignment = self.minted(given)
+        for pair in ((given, given), (assignment, assignment)):
+            with self.subTest(pair=pair[0]["schema"]):
+                with self.assertRaises(ContractRefusal):
+                    check_input_pair(*pair)
+
+    def test_the_input_root_reserves_both_manager_authored_documents(self):
+        """`assignment.json` joins `input.json` under `/input/`. A staged
+        payload at either name would replace a document the MANAGER authored,
+        and the nested spelling counts because a protocol document is a file.
+        """
+        given = self.given()
+        source = given["sources"][0]
+        for spelling in ("assignment.json", "assignment.json/tree",
+                         "input.json", "input.json/tree"):
+            with self.subTest(spelling=spelling):
+                document = self.resealed(
+                    given,
+                    sources=[dict(source, destination=spelling)])
+                with self.assertRaises(ContractRefusal) as caught:
+                    check_manifest_structure(document, "inputManifest")
+                self.assertEqual(caught.exception.code, "path")
+                self.assertIn(spelling, caught.exception.message)
+
+    def test_the_output_root_reserves_only_its_own_document(self):
+        """A DECLARED OUTPUT called `assignment.json` lands at
+        `/output/assignment.json` and collides with nothing. Reserving every
+        protocol name in every root would be forbidding a SPELLING rather than
+        protecting a document, so this pins that the reservation is per-root.
+        """
+        given = self.given()
+        document = self.resealed(
+            given,
+            outputs=[dict(given["outputs"][0], path="assignment.json")])
+        owned = check_manifest_structure(document, "inputManifest")
+        self.assertEqual(owned["outputs"][0]["path"], "assignment.json")
+
+
+class ACompletionManifestIsTheWorkersAnswer(unittest.TestCase):
+
+    def vector(self):
+        published = json.loads(VECTORS.read_text(encoding="utf-8"))
+        for case in published["valid"]:
+            document = case["document"]
+            if document.get("schema") == "baton.worker-manifest/completion":
+                return document
+        raise AssertionError("the published vectors carry no completion manifest")
+
+    def resealed(self, outputs):
+        document = dict(self.vector(), outputs=outputs)
+        document.pop("manifest_digest", None)
+        document["manifest_digest"] = digest(document)
+        return document
+
+    def test_the_shipped_validator_enforces_completion_status_integrity(self):
+        """The record's executable model already refuses both combinations.
+        The validator W6634 will call must enforce the same contract rather
+        than accepting a schema-valid lie about whether bytes exist.
+        """
+        vector = self.vector()
+        for what, outputs in (
+                ("present without integrity", [dict(
+                    vector["outputs"][0], content_manifest=None),
+                    vector["outputs"][1]]),
+                ("missing with integrity", [vector["outputs"][0], dict(
+                    vector["outputs"][1], status="missing-optional",
+                    content_manifest=vector["outputs"][0]["content_manifest"])])):
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal):
+                    check_manifest_structure(self.resealed(outputs),
+                                             "completionManifest")
+
+    def test_the_shipped_validator_enforces_completion_identity_and_containment(self):
+        """Names identify declarations and paths identify trees. Duplicating
+        either cannot become acceptable merely because the manager is not yet
+        comparing the envelope with its input manifest.
+        """
+        vector = self.vector()
+        first, second = vector["outputs"]
+        for what, spoiled in (
+                ("duplicate name", dict(second, name=first["name"])),
+                ("overlapping path", dict(
+                    second, path=first["path"] + "/nested"))):
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal):
+                    check_manifest_structure(
+                        self.resealed([first, spoiled]),
+                        "completionManifest")

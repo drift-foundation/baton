@@ -831,24 +831,70 @@ class ATimeoutIsAnObservationAndNotACancellation(InterrogationCase):
         self.assertEqual(again["deadline_at"], first["deadline_at"])
 
     def test_nothing_mutable_is_consulted_before_the_journal_decides(self):
-        """The property behind both of the last two corrections, stated once.
+        """The property behind the last three corrections, stated once.
 
         A replay must depend on the journal and on durable state alone. The
-        clock was the first mutable input to be moved inside the fresh act;
-        the AUTHORITY was the second, and this counts BOTH — a replay reads
-        neither.
+        clock was the first mutable input to be moved inside the fresh act,
+        the AUTHORITY was the second and the ADAPTER was the third. This
+        counts all three, because a universal name that omits one of them is
+        a claim about "nothing" proved against a list.
         """
         self.probing()
-        clock_reads, authority_reads = [], []
+        clock_reads, authority_reads, adapter_reads = [], [], []
         original_clock = self.store._clock
         original_of = self.session.assignment_of
         self.store._clock = lambda: (clock_reads.append(1) or original_clock())
         self.session.assignment_of = (
             lambda *a, **k: (authority_reads.append(1) or original_of(*a, **k)))
+
+        class Watched:
+            """Counts INSPECTION, not calls. The protocol check reads the two
+            attributes without calling them, so a proxy that only counted
+            calls would report zero however early the check ran."""
+
+            def __init__(self, agent):
+                self._agent = agent
+
+            def __getattr__(self, name):
+                if name in ("probe", "inquire"):
+                    adapter_reads.append(name)
+                return getattr(self._agent, name)
+
+        self.agent = Watched(self.agent)
         self.probing()
         self.assertEqual(clock_reads, [], "the replay path read the clock")
         self.assertEqual(authority_reads, [],
                          "the replay path asked Baton to re-decide")
+        self.assertEqual(adapter_reads, [],
+                         "the replay path inspected the agent adapter")
+
+    def test_a_fresh_request_with_an_unusable_adapter_journals_nothing(self):
+        """The half the correction had to KEEP.
+
+        Moving the protocol check inside the fresh act must not make its
+        refusal durable. A fresh request carrying an adapter this manager
+        cannot call is still refused in this build's own vocabulary, the
+        rollback leaves no journalled operation behind, and the identity is
+        therefore still free — which is the difference between a refusal and
+        a committed request that happens to have failed.
+        """
+
+        class Gone:
+            pass
+
+        usable, self.agent = self.agent, Gone()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.probing("probe-unusable")
+        self.assertEqual(caught.exception.category, "integrity")
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertFalse(caught.exception.durable,
+                         "a rolled-back protocol refusal claimed durability")
+        self.assertIsNone(self.row("probe-unusable"),
+                          "a refused fresh request was journalled anyway")
+        self.agent = usable
+        answered = self.probing("probe-unusable")
+        self.assertEqual(answered["outcome"], "observed")
+        self.assertEqual(len(self.agent.probed), 1)
 
     def test_replay_does_not_require_the_adapter_capabilities_to_still_exist(
             self):

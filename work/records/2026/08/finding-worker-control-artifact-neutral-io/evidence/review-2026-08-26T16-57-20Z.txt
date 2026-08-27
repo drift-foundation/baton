@@ -1,0 +1,96 @@
+W14251 second independent implementation review
+UTC: 2026-08-26T16:57:20Z
+
+Corrected prior gates
+=====================
+
+Canonical contract model:
+
+  python3 -m unittest test_contract_model
+  Ran 24 tests in 0.092s — OK
+
+Runtime conformance model:
+
+  python3 -m unittest test_conformance_model
+  Ran 74 tests in 4.043s — OK
+
+Four worker-control schema accounts:
+
+  v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json
+  v12/python/build/lib/baton_v12/contracts/schema/worker-control-1.0.schema.json
+  v12/src/worker_manager/schema/worker-control-1.0.schema.json
+  work/.../finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json
+
+All four SHA-256:
+  cfeb8db50f667b10205cb73e3509c07a3589e98731727c03539366e75e682bd5
+
+Focused shipped-Python baseline before the review regression:
+
+  tests.manager.test_frozen tests.manager.test_manifest_rules
+  tests.manager.test_output tests.manager.test_secrets
+  tests.manager.test_workspaces
+
+  Ran 222 tests in 0.806s — OK
+
+P1: output.json has no possible publisher under the revised contract
+====================================================================
+
+The owning umbrella ruling at FINDING.md:1753-1755 says the WORKER writes every
+durable result below /output/ and publishes output.json last.
+
+The revised control SPEC §8.4 identifies that file with
+baton.worker-manifest/result. The resultManifest schema requires, among other
+members:
+
+  freeze_operation
+  manager_observed_at
+  artifact references carrying manager-custody locator/digest/length
+
+Those facts are created by the manager's output.freeze after the worker is
+quiescent. The worker cannot publish them before quiescence. The current
+manager sealing path demonstrates the ownership: sealing.sealed_result
+composes freeze_operation and manager_observed_at and publishes sealed.json in
+manager custody.
+
+The conformance revision chooses the opposite publisher from the pinned
+ruling: A-output-json-published-last stimulates control operation output.freeze,
+and A-interrupted-publish-leaves-no-output-json explicitly stops the manager
+during publication. PROGRESS then tells W6633 that the worker must publish the
+same file while also populating manager-owned artifact references. These three
+accounts cannot all be true.
+
+P1: the old shared-root overlap rule survived the two-root supersession
+=======================================================================
+
+Both manifest.py:_check_input_manifest and the canonical contract model append
+source.destination and output.path into one list and reject lexical overlap.
+SPEC §12 rule 3 repeats that rule. With fixed disjoint roots, however,
+/input/repo and /output/repo cannot alias.
+
+Added regression:
+
+  test_equal_relative_paths_in_the_two_fixed_roots_do_not_overlap
+
+It sets an output path equal to the canonical source destination. The schema
+accepts both relative members, but the shipped semantic validator errors:
+
+  ContractRefusal: a manifest destinations 'workspace/source' and
+  'workspace/source' overlap (§12 rule 3)
+
+Focused set after the additive regression:
+
+  Ran 223 tests in 0.810s — FAILED (errors=1)
+
+Within-root source/source and output/output overlap remain real containment
+violations. Cross-root equality or nesting is not overlap.
+
+Downstream revalidation gap
+===========================
+
+W6634 owns sealing and currently atomically publishes manager-custody
+sealed.json, not /output/output.json. It is directly affected by the new
+publication contract but is omitted from item 7's claim that W6633 is the only
+affected downstream Work. This must be reconciled together with publisher
+ownership rather than silently assigned to the reference worker.
+
+git diff --check: status 0

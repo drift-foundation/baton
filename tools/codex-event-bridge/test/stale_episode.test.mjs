@@ -84,8 +84,11 @@ class FakeClient extends EventEmitter {
 	}
 }
 
-function config(socket = "/tmp/codex-w1224-unused.sock") {
+function config(socket = "/tmp/codex-w1224-unused.sock",
+                { dedupWindowMs, claimSlotRetryMs } = {}) {
 	return validateConfig({
+		...(dedupWindowMs === undefined ? {} : { dedupWindowMs }),
+		...(claimSlotRetryMs === undefined ? {} : { claimSlotRetryMs }),
 		servers: { local: { endpoint: "ws://127.0.0.1:4500" } },
 		targets: {
 			tuner: { server: "local", threadId: "thread-a",
@@ -110,10 +113,11 @@ function readinessEvent(key = "work:7ba67cb8-W1224:4:g1",
 	return actionEvent(envelope, action, { target: "tuner" });
 }
 
-function bridge({ revalidate, socket } = {}) {
+function bridge({ revalidate, socket, dedupWindowMs, claimSlotRetryMs } = {}) {
 	const fake = new FakeClient();
 	const dispatcher = new EventBridge({
-		config: config(socket), logger: quiet,
+		config: config(socket, { dedupWindowMs, claimSlotRetryMs }),
+		logger: quiet,
 		clientFactory: () => fake,
 		runtimeFactory: () => ({
 			incarnation: "run-1", async start() {}, async state() {},
@@ -125,18 +129,37 @@ function bridge({ revalidate, socket } = {}) {
 	return { dispatcher, fake };
 }
 
-function answering(keys, { fail = false } = {}) {
+/** The canonical `wait timeout=0` answer, whole rather than abbreviated.
+ *
+ *  W11910 review [P1]: the dispatcher's revalidation applies the same typed
+ *  v11 contract both readiness producers apply to this command's output, so a
+ *  fixture missing the protocol fields — or naming a key whose structured
+ *  locator does not agree with it — is a reply the real authority never
+ *  emits, and scheduling from one would prove nothing about the code that
+ *  runs. Each key is expanded into the locator the contract requires. */
+function answering(keys, { fail = false, participant = "baton.tuner" } = {}) {
 	const calls = [];
 	return {
 		calls,
 		revalidate: async (file, args) => {
 			calls.push({ file, args });
 			if (fail) throw new Error("baton unreachable");
-			return { stdout: JSON.stringify({
-				result: { actionable: keys.map((key) => ({
-					kind: "work", action_key: key })) } }) };
+			return { stdout: JSON.stringify(canonical(keys, participant)) };
 		},
 	};
+}
+
+function canonical(keys, participant = "baton.tuner") {
+	return { protocol_version: 11, projection_version: "12.4",
+		authority_uuid: UUID, participant, snapshot_seq: 1,
+		result: { timed_out: false, actionable: keys.map(workAction) } };
+}
+
+function workAction(key) {
+	const [, work, episode, generation] =
+		/^work:([^:]+):([0-9]+):g([0-9]+)$/.exec(key);
+	return { kind: "work", action_key: key, work, claimed: false,
+		episode_seq: Number(episode), config_generation: Number(generation) };
 }
 
 async function settle(times = 6) {
@@ -298,14 +321,28 @@ test("an ordinary event is never revalidated", async () => {
 
 test("a failed revalidation retains the event rather than dropping it",
 	async () => {
+		// W11910 review [P1] REVISED THE EXPECTATION, under its explicit
+		// case-specific confirmation, and kept the requirement.
+		//
+		// This case has always been about RETENTION — an unreachable
+		// authority must not silently discard a wake — and it used to
+		// establish that by requiring the event to become a turn, because
+		// before the claim-slot rule delivering an uncertain event was
+		// harmless. It is not any more: the immediate read has two jobs now,
+		// and a read that failed does neither, so starting the turn would
+		// spend it against a slot nobody proved free. Retention is asserted
+		// where it actually lives — the event is still queued — and the turn
+		// is required NOT to have been spent.
 		const answer = answering([], { fail: true });
 		const { dispatcher, fake } = bridge({ revalidate: answer.revalidate });
 		try {
 			await ready(dispatcher, fake);
 			dispatcher.enqueue(readinessEvent());
 			await settle();
-			// retained: it became a turn rather than vanishing
-			assert.equal(fake.starts.length, 1,
+			assert.equal(fake.starts.length, 0,
+				"an unread authority was treated as a free claim slot");
+			assert.equal(dispatcher.handleRequest({ control: "status" })
+				.targets.tuner.queueDepth, 1,
 				"an unreachable authority silently discarded a wake");
 		} finally {
 			await dispatcher.stop();
@@ -313,6 +350,9 @@ test("a failed revalidation retains the event rather than dropping it",
 	});
 
 test("a reply with no actionable set retains the event", async () => {
+	// The same revision for the same reason: an envelope this build cannot
+	// read answers neither question, which is the same fact as a reply that
+	// never arrived.
 	const { dispatcher, fake } = bridge({
 		revalidate: async () => ({ stdout: JSON.stringify({ result: {} }) }),
 	});
@@ -320,7 +360,40 @@ test("a reply with no actionable set retains the event", async () => {
 		await ready(dispatcher, fake);
 		dispatcher.enqueue(readinessEvent());
 		await settle();
-		assert.equal(fake.starts.length, 1);
+		assert.equal(fake.starts.length, 0,
+			"an unreadable envelope was treated as a free claim slot");
+		assert.equal(dispatcher.handleRequest({ control: "status" })
+			.targets.tuner.queueDepth, 1,
+			"the retained event was dropped instead");
+	} finally {
+		await dispatcher.stop();
+	}
+});
+
+test("an unreadable authority is re-asked and delivers once it answers",
+	async () => {
+	// Retention that never retries is a queue nobody drains. The bounded
+	// re-read is what makes "held" different from "stuck", and it needs no
+	// new event and no restart.
+	let readable = false;
+	const { dispatcher, fake } = bridge({
+		claimSlotRetryMs: 5,
+		revalidate: async () => {
+			if (!readable) throw new Error("baton unavailable");
+			return { stdout: JSON.stringify(
+				canonical(["work:7ba67cb8-W1224:4:g1"])) };
+		},
+	});
+	try {
+		await ready(dispatcher, fake);
+		dispatcher.enqueue(readinessEvent());
+		await settle();
+		assert.equal(fake.starts.length, 0);
+		readable = true;
+		await new Promise((resolve) => setTimeout(resolve, 60));
+		await settle(20);
+		assert.equal(fake.starts.length, 1,
+			"the held event was never re-asked after the authority came back");
 	} finally {
 		await dispatcher.stop();
 	}
@@ -422,3 +495,174 @@ test("a malformed action block refuses the event outright", async () => {
 		await dispatcher.stop();
 	}
 });
+
+// -- W11910: the delivery identity outlives the dedup TIMER -------------
+//
+// `work/records/2026/08/finding-readiness-offer-cleared-before-claim/`.
+//
+// Readiness is a level and clears on the canonical claim, so a producer
+// that keeps an unclaimed offer armed re-forwards the SAME v11 event id
+// under a bounded retry. `dedupWindowMs` cannot decide those: it is a
+// short fingerprint timer and a model turn routinely outlives it, so the
+// same action could be queued behind itself and spend a second turn on
+// Work the first turn is still holding. The exact event id is therefore
+// retained for the whole queued/starting/ambiguous/active lifetime and
+// released only on withdrawal or terminal settlement.
+
+test("a retry is refused while this target is still holding the delivery",
+	async () => {
+		// STARTING: `turn/start` has been sent and has not answered, so
+		// the entry is still in the queue and the dispatcher is holding
+		// exactly this delivery.
+		const answer = answering(["work:7ba67cb8-W1224:4:g1"]);
+		const { dispatcher, fake } = bridge({ revalidate: answer.revalidate,
+		                                      dedupWindowMs: 1 });
+		let release;
+		fake.startTurn = async (threadId, text, clientId) => {
+			fake.starts.push({ threadId, text, clientId });
+			return await new Promise((resolve) => {
+				release = () => resolve({ id: "turn-1", status: "inProgress" });
+			});
+		};
+		try {
+			await ready(dispatcher, fake);
+			assert.equal(dispatcher.enqueue(readinessEvent()).accepted, true);
+			await settle();
+			assert.equal(fake.starts.length, 1);
+			// past the fingerprint window, so only the retained identity
+			// can refuse this
+			await new Promise((resolve) => setTimeout(resolve, 15));
+			const retry = dispatcher.enqueue(readinessEvent());
+			assert.equal(retry.accepted, false);
+			assert.equal(retry.reason, "in-flight");
+			assert.equal(dispatcher.globalQueueDepth, 1,
+				"the retry queued the same action behind itself");
+			assert.equal(fake.starts.length, 1,
+				"the retry raced a second turn/start for the same delivery");
+		} finally {
+			release?.();
+			await settle();
+			await dispatcher.stop();
+		}
+	});
+
+test("a retry is refused while the delivered turn is still running",
+	async () => {
+		// The case the timer cannot cover: the turn is longer than
+		// `dedupWindowMs`, which is exactly when a bounded producer retry
+		// arrives.
+		const answer = answering(["work:7ba67cb8-W1224:4:g1"]);
+		const { dispatcher, fake } = bridge({ revalidate: answer.revalidate,
+		                                      dedupWindowMs: 1 });
+		try {
+			await ready(dispatcher, fake);
+			dispatcher.enqueue(readinessEvent());
+			await settle();
+			assert.equal(fake.starts.length, 1);
+			assert.equal(dispatcher.globalQueueDepth, 0);
+			await new Promise((resolve) => setTimeout(resolve, 15));
+			const retry = dispatcher.enqueue(readinessEvent());
+			assert.equal(retry.reason, "in-flight");
+			assert.equal(fake.starts.length, 1,
+				"a retry spent a second turn on a delivery already running");
+		} finally {
+			await dispatcher.stop();
+		}
+	});
+
+test("a terminal turn releases the identity so a later retry is a new turn",
+	async () => {
+		// The recovery half. A turn that ended without claiming leaves the
+		// Work ready and unclaimed, the producer offers it again after its
+		// backoff, and that offer must be able to become a turn.
+		const answer = answering(["work:7ba67cb8-W1224:4:g1"]);
+		const { dispatcher, fake } = bridge({ revalidate: answer.revalidate,
+		                                      dedupWindowMs: 1 });
+		try {
+			await ready(dispatcher, fake);
+			dispatcher.enqueue(readinessEvent());
+			await settle();
+			assert.equal(fake.starts.length, 1);
+			fake.emit("turnCompleted", { threadId: "thread-a",
+				turn: { id: "turn-1", status: "completed" } });
+			await settle();
+			await new Promise((resolve) => setTimeout(resolve, 15));
+			assert.equal(dispatcher.enqueue(readinessEvent()).accepted, true,
+				"the offer could never be retried without a restart");
+			await settle();
+			assert.equal(fake.starts.length, 2);
+		} finally {
+			await dispatcher.stop();
+		}
+	});
+
+test("a withdrawn delivery releases the identity it was holding", async () => {
+	// The episode ended, so the queued event is dropped. Nothing is being
+	// delivered any more, and a genuinely new offer must not be refused as
+	// a duplicate of one that is gone.
+	const answer = answering([]);
+	const { dispatcher, fake } = bridge({ revalidate: answer.revalidate,
+	                                      dedupWindowMs: 1 });
+	try {
+		await ready(dispatcher, fake);
+		dispatcher.enqueue(readinessEvent());
+		await settle();
+		assert.equal(dispatcher.globalQueueDepth, 0);
+		await new Promise((resolve) => setTimeout(resolve, 15));
+		assert.equal(dispatcher.enqueue(readinessEvent()).accepted, true);
+	} finally {
+		await dispatcher.stop();
+	}
+});
+
+test("an event carrying no v11 action keeps exactly its old dedup rule",
+	async () => {
+		// The retention is scoped to readiness identities. A generic
+		// producer's event is deduplicated by the fingerprint timer and by
+		// nothing else, which is what it has always been.
+		const answer = answering(["work:7ba67cb8-W1224:4:g1"]);
+		const { dispatcher } = bridge({ revalidate: answer.revalidate,
+		                                dedupWindowMs: 1 });
+		try {
+			await dispatcher.start({ listen: false });
+			const plain = { target: "tuner", source: "build",
+			                type: "build-failed", summary: "failed" };
+			assert.equal(dispatcher.enqueue(plain).accepted, true);
+			assert.equal(dispatcher.enqueue(plain).reason, "duplicate");
+			await new Promise((resolve) => setTimeout(resolve, 15));
+			assert.equal(dispatcher.enqueue(plain).accepted, true,
+				"a generic event was retained by readiness identity");
+		} finally {
+			await dispatcher.stop();
+		}
+	});
+
+test("a completion whose turn id never bound still releases the identity",
+	async () => {
+		// The retention is released from the ACTIVE TURN as well as from
+		// the bound attempt. A turn id the attempt could not bind — an
+		// empty one here — would otherwise strand the identity, and a
+		// stranded identity is this Work's own defect one layer down: the
+		// offer could never be delivered again without a restart.
+		const answer = answering(["work:7ba67cb8-W1224:4:g1"]);
+		const { dispatcher, fake } = bridge({ revalidate: answer.revalidate,
+		                                      dedupWindowMs: 1 });
+		fake.startTurn = async (threadId, text, clientId) => {
+			fake.starts.push({ threadId, text, clientId });
+			return { id: "", status: "inProgress" };
+		};
+		try {
+			await ready(dispatcher, fake);
+			dispatcher.enqueue(readinessEvent());
+			await settle();
+			assert.equal(fake.starts.length, 1);
+			fake.emit("turnCompleted", { threadId: "thread-a",
+				turn: { id: "", status: "completed" } });
+			await settle();
+			await new Promise((resolve) => setTimeout(resolve, 15));
+			assert.equal(dispatcher.enqueue(readinessEvent()).accepted, true,
+				"an unbindable turn id stranded the delivery identity");
+		} finally {
+			await dispatcher.stop();
+		}
+	});

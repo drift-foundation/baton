@@ -163,24 +163,34 @@ def certify_agent_session_profile(store, profile):
     canonical BYTES -- not just the digest. A session must pin the per-posture
     policy this profile carries, and a digest cannot be read for it.
     """
+    what = "an agent-session profile"
+    # §13 (W6630) BEFORE THE OWNER ITSELF. Fifth review [P1]: the walk was
+    # after `boundaries.document`, and that owner NAMES the value it rejects --
+    # so a raw operand that IS the live bearer was rendered into a public
+    # `integrity.schema` diagnostic and §13 was never reached.
+    #
+    # SAFE ON THE RAW OPERAND, which is what the fourth correction got wrong
+    # here: `_walk` traverses only exact built-in `dict`, `list`, `tuple` and
+    # `str`, and returns without reading anything else. A behaviour-bearing
+    # value is refused by the owner below, unexamined by this rule.
+    check_no_durable_secret(profile, what=what)
     # 1. SHAPE. Owned first, so nothing the validator or any later rule reads
     # can be a live reference back into the caller's object -- and owned by the
     # layer with a LITERAL label, so the inventory can attribute it.
     owned = boundaries.document(profile, "an agent-session profile")
-    what = "an agent-session profile"
-    # §13 (W6630) BEFORE THE SHAPE AND THE SEAL. An agent-session document does
-    # NOT go through the manifest composite -- it is a different frozen family
-    # with its own validator -- so the durable-secret walk has to be here or
-    # this build would file profile bytes nothing had ever walked.
+    # THE OWNED COPY IS WALKED TOO, and the second walk is not redundant. An
+    # agent-session document does NOT go through the manifest composite -- it
+    # is a different frozen family with its own validator -- so this is the
+    # walk that establishes §13 for the bytes actually filed, over the inert
+    # copy rather than over an object the caller still holds a reference to.
     #
-    # First rather than between, which fourth review [P1] established for the
-    # row boundary and which applies verbatim here: the schema and the seal
+    # First among the content rules, which fourth review [P1] established for
+    # the row boundary and which applies verbatim here: the schema and the seal
     # both NAME the value they reject, so a secret in a malformed member would
     # be quoted into a diagnostic before the walk could answer instead. A
     # document carrying a secret is refused AS SUCH rather than as whatever
     # structural fault is also in it, and the two answers send a caller to
-    # different places. `boundaries.document` has already made this exact
-    # built-in data, so the walk traverses plain values and runs nothing.
+    # different places.
     check_no_durable_secret(owned, what=what)
     validate_agent_session_fragment(owned, "sessionProfile", what=what)
     # 2. THE DOCUMENT SEAL, over the document with `document_digest` OMITTED --

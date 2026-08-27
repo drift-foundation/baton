@@ -1,3 +1,4 @@
+import { isAbsolute } from "node:path";
 // acp-baton-bridge configuration (W163, finding-v11-acp-agent-bridge):
 // EVERYTHING is explicit deployment configuration — agent command,
 // arguments, environment, cwd, participant, session policy, permission
@@ -25,6 +26,29 @@ export function validateConfig(raw) {
 	const baton = raw.baton ?? fail("baton section missing");
 	requiredString(baton, "binary", "baton");
 	requiredString(baton, "config", "baton");
+	// W12229: AND BOTH PATHS ARE ABSOLUTE.
+	//
+	// These two are this family's half of the Baton launcher contract —
+	// they become `BATON_BIN` and `BATON_CONFIG` in the agent's own
+	// environment — and the confirmed boundary is that a context must not
+	// infer them from a repository path, a deployment symlink, or
+	// filesystem context. A relative executable is resolved by whatever
+	// launch context the process happens to have and a relative config is
+	// read from whatever working directory it inherits, so accepting one
+	// hands the agent an inferred location labelled authoritative.
+	//
+	// The Codex dispatcher has always required this of its own
+	// `roleInstructions` paths, and review [P1] required the Codex
+	// bootstrap to refuse the same shape. This is the third door into one
+	// contract; it refuses for the same reason as the other two.
+	for (const key of ["binary", "config"]) {
+		if (!isAbsolute(baton[key])) {
+			fail(`baton.${key} must be an absolute path; a relative one is `
+				+ "resolved from whatever context this process happens to "
+				+ "have, which is the inference the launcher contract "
+				+ "exists to remove");
+		}
+	}
 	requiredString(baton, "participant", "baton");
 	if (!/^[^.\s]+\.[^.\s]+$/.test(baton.participant)) {
 		fail("baton.participant must be team.member");
@@ -41,6 +65,46 @@ export function validateConfig(raw) {
 	const waitTimeout = baton.waitTimeoutSeconds ?? 60;
 	if (!Number.isSafeInteger(waitTimeout) || waitTimeout < 1) {
 		fail("baton.waitTimeoutSeconds must be a positive integer");
+	}
+
+	// W14828: THE SPAWNED ENVIRONMENT IS DERIVED FROM `baton`, NOT SUPPLIED
+	// BESIDE IT.
+	//
+	// The incident: a managed restart rendered the correct executable, config,
+	// participant and role into the runtime context, `agent.env` carried none
+	// of them, and the fresh model went looking — found a persistent
+	// participant `load.json` still pinned to a retired deployment, and made
+	// its first `claim` through an executable that refused the live authority.
+	// The claim failed while the authority still showed Work claimed by that
+	// participant.
+	//
+	// So the four values have ONE source and two carriers that cannot
+	// disagree: this environment, and the prompt block beside it. An operator
+	// may still spell them, because existing templates do — but only to the
+	// same values, and a conflict refuses BY KEY before anything is read,
+	// waited on, spawned or prompted. Silently preferring either side would
+	// rebuild the split this Work exists to remove.
+	function launcherEnvironment(source, supplied) {
+		const derived = {
+			BATON_BIN: source.binary,
+			BATON_CONFIG: source.config,
+			BATON_PARTICIPANT: source.participant,
+			BATON_ROLE: source.role,
+		};
+		for (const [key, value] of Object.entries(derived)) {
+			if (supplied[key] !== undefined && supplied[key] !== value) {
+				fail(`agent.env.${key} is ${JSON.stringify(supplied[key])} and `
+					+ `the accepted baton section says ${JSON.stringify(value)}; `
+					+ `the launcher contract has one source, and a second `
+					+ `spelling of it is the drift this refuses rather than `
+					+ `resolves`);
+			}
+		}
+		// DERIVED LAST, so they also override whatever the PARENT process
+		// happened to export: the session spawns with `{...process.env,
+		// ...config.agent.env}`, and a stale inherited `BATON_BIN` is exactly
+		// the ambient carrier the confirmed boundary refuses to trust.
+		return { ...supplied, ...derived };
 	}
 
 	const agent = raw.agent ?? fail("agent section missing");
@@ -158,7 +222,7 @@ export function validateConfig(raw) {
 		agent: {
 			command: agent.command,
 			args: agent.args ?? [],
-			env: agent.env ?? {},
+			env: launcherEnvironment(baton, agent.env ?? {}),
 			cwd: agent.cwd,
 		},
 		session: { mode: session.mode, cwd: session.cwd },

@@ -549,6 +549,19 @@ A depth-frontier token is opened with `+`, not Enter, because widening a
 branch page and lifting the depth bound are different acts; pressing
 Enter on one says so rather than doing the other.
 
+**The console graph is a view, not an export.** Every bound above exists
+because a screen is small and an operator is looking for one thing. When
+you want the WHOLE graph — all four relation families, no depth, no
+occurrence cap, and one snapshot you can name — that is the `work-graph`
+command rather than this screen:
+
+    baton --config ... --participant ... work-graph format=dot > work.dot
+
+It writes Graphviz DOT text; Baton does not render images and does not
+require Graphviz. Rendering is a separate tool on your own machine.
+`work-graph` with no operands answers every team's open Work as JSON.
+See "Exporting the Work graph" in `docs/EFFECTIVE-BATON.md`.
+
 **Narrow terminals lose layout, never a relationship.** The wide form
 places each Work in its shortest-path column; when that will not fit,
 the graph falls back to one edge per row, and then to source, arrow and

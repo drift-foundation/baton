@@ -1,0 +1,158 @@
+W11910 — evidence after the correction answering the 22:04:16Z review.
+
+Review answered: review-2026-08-25T22-04-16Z.md
+  [P1] the Codex producer admits Work B while Work A's turn is in flight
+  [P1] a failed claimed-Work recovery delivery is acknowledged without delivery
+
+Both reproduce from the current tree, both are corrected, and both now have
+regressions that were MEASURED to fail without the correction.
+
+
+[P1] A FAILED CLAIMED-WORK RECOVERY WAKE IS NOT A CLAIMED OFFER
+
+  `pending` was carrying two unrelated meanings:
+
+    "an offer this adapter made that nobody has answered yet", and
+    "a recovery wake for an already-claimed Work that nobody received".
+
+  A claim answers the first. Nothing about it answers the second — and the
+  `claimed:true` branch acknowledged both, so a participant whose one recovery
+  wake failed sat on a live claim with no wake and no retry until a restart.
+
+  The correction is a fourth status, `recovering`, created for a Work first
+  seen ALREADY claimed and cleared only by its own successful delivery.
+  `claimed:true` still acknowledges `pending` and `presented` — the
+  acknowledgement this whole Work turns on is untouched.
+
+
+[P1] ONE UNCLAIMED WORK BECOMES A TURN AT A TIME
+
+  The review is exactly right about the asymmetry. In the ACP bridge
+  `markPresented` runs AFTER `promptText` returns, so the head's claim-slot
+  outcome is known and rotation is sound. In `codexBatonBridge` it runs when
+  the socket accepts the event, before the dispatcher has started the turn.
+
+  THE FIRST ATTEMPT WAS AT `enqueue`, AND IT WAS WRONG. Refusing a second
+  unclaimed Work with `in-flight` while the target held one broke three
+  existing retention cases:
+
+    x  W99: Work B never starts on the context W A was interrupted in
+           (completion-then-idle)  "the later Work was dropped rather than retained"
+    x  W99: Work B never starts on the context W A was interrupted in
+           (idle-then-completion)  "the later Work was dropped rather than retained"
+    x  W99: an unrelated target keeps draining, for its own participant
+
+  W99 requires the later Work to be QUEUED and held for a fresh context. The
+  same review says not to weaken the quarantine retention paths, so refusing
+  at the socket is the wrong boundary: it conflates "must not become a turn"
+  with "must not be retained", and retention is what keeps the offer alive.
+
+  SO THE GATE IS WHERE A DELIVERY BECOMES A TURN. The pre-turn revalidation
+  each queued readiness event already performs answers a second question from
+  the SAME canonical read:
+
+    "over"      the episode is gone            -> dropped, as before
+    "deferred"  the participant holds a claim  -> HELD at the queue head
+    "live"      deliver it
+
+  A deferred delivery is re-asked every `claimSlotRetryMs` (default 15s, a new
+  config key). It is held and never dropped: a dropped offer would need a new
+  episode to come back, which is this Work's own defect one layer down. A
+  CLAIMED Work's own recovery delivery is never deferred, because it IS the
+  claim.
+
+  ASKED OF THE AUTHORITY RATHER THAN TRACKED LOCALLY, and that is the reason
+  this is better than the socket refusal quite apart from W99: a claim taken by
+  an interactive turn, by another adapter, or by an operator at a terminal is
+  invisible to the dispatcher's own bookkeeping and exactly as occupying.
+
+  ONE DIFFERENCE FROM THE REVIEW'S WORDING, STATED PLAINLY. It asks that B be
+  "neither queued nor started". B may be queued here; it provably never starts.
+  The harm the review names — "B can therefore spend a model turn against an
+  occupied claim slot" — is closed, and the retention the same review protects
+  is intact. If the reviewer wants socket-level refusal as well, that is a
+  ruling about W99's retention contract and is theirs to make.
+
+
+THE REGRESSIONS, AND THEY WERE MEASURED TO FAIL
+
+  `tools/codex-event-bridge/test/claim_slot.test.mjs` is new and crosses the
+  producer/dispatcher boundary the review named: the producer's own emissions
+  are fed to a real `EventBridge` and what is asserted is which deliveries
+  become TURNS.
+
+    B never becomes a turn while A's delivery is in flight, however often the
+      unchanged level is polled
+        — A's turn is opened and held; the unchanged [A, B] level is polled
+          four times; the producer rotates and emits both; exactly one turn
+          starts. Then A claims and its turn completes: B still does not
+          start. Then the claim disappears and the SAME retained delivery is
+          spent, with no restart and no new event.
+    a deferred delivery is held, never dropped, and needs no new event
+    a claimed Work's own recovery delivery is never deferred
+    a claimed-Work recovery wake whose delivery failed is offered again
+    a delivered recovery wake is not repeated on any later poll
+    an offer this adapter MADE is still acknowledged by the claim
+
+  `tools/acp-baton-bridge/test/acp_baton_bridge.test.mjs` gains the end-to-end
+  pair for the other delivery boundary:
+
+    a claimed-Work recovery prompt that FAILED is delivered again
+    a claimed-Work recovery prompt that SUCCEEDED is never repeated
+
+  CAN-ACTUALLY-FAIL, measured rather than asserted. With the `deferred` verdict
+  and the `recovering` status reverted and nothing else changed:
+
+    $ node --test test/claim_slot.test.mjs
+    x  B never becomes a turn while A's delivery is in flight, ...
+    x  a deferred delivery is held, never dropped, and needs no new event
+    x  a claimed-Work recovery wake whose delivery failed is offered again
+    i  pass 24   i  fail 3
+
+    $ npm test        # tools/acp-baton-bridge, with `recovering` reverted
+    x  a claimed-Work recovery prompt that FAILED is delivered again
+    i  pass 63   i  fail 1
+
+  Both files were restored byte for byte afterwards.
+
+
+ONE EXISTING FIXTURE MOVED, AND WHY
+
+  `failed_turn_settlement.test.mjs`'s "promotion never displaces a delivery
+  already in flight" scripted its canonical read as
+  `[W2928 unclaimed, W2907 CLAIMED]` — a projection in which, under the
+  confirmed ruling, the unclaimed offer must not start at all. Its subject is
+  queue-position safety during an in-flight delivery, not the claim slot, so
+  the read is now scripted in the realistic order: W2928 revalidates while
+  nothing is claimed, and the promotion arrives after, exactly as the case is
+  about. NO ASSERTION CHANGED.
+
+  And one test NAME changed. The producer's `two unclaimed Works yield only the
+  canonical head until its outcome is known` asserts one-per-poll in canonical
+  order, which is true and worth keeping — but this file cannot observe an
+  outcome, because `markPresented` runs on socket acceptance. It is
+  `the producer admits one unclaimed Work per poll, in canonical order` now,
+  with a comment pointing at the cross test that does prove the boundary.
+
+
+GATES
+
+    $ npm test        # tools/acp-baton-bridge
+    i  tests 64    i  pass 64    i  fail 0        (62 before this correction)
+
+    $ npm test        # tools/codex-event-bridge
+    i  tests 382   i  pass 382   i  fail 0        (355 before this correction)
+
+    whitespace check over the diff: clean
+
+  Nothing was removed from either suite. Every stale-episode, cross-Work
+  fence, quarantine, ambiguous-start, overload, orphan-claim, runtime-refresh,
+  obligation, poke, trial, `--once` and transport-failure case is green
+  unchanged.
+
+
+NOT DONE, AND NAMED RATHER THAN ROUNDED UP
+
+  PLAN item 9's live smoke and item 10's deploy still need the operator: this
+  correction cannot prove the live queue advances without being deployed to
+  it. Nothing here was verified against the running deployment.

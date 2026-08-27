@@ -1,0 +1,109 @@
+W11910 -- evidence for the fifth review's remaining [P1].
+
+The review: `validateEnvelope` rejects a `claimed` field that is present with a
+non-Boolean value and ACCEPTS its absence, while both consumers decide the
+claim slot with `claimed === true`. So a Work that IS claimed but does not say
+so answers "the slot is free" about a slot it holds itself.
+
+
+REVALIDATED BEFORE EDITING
+
+  src/baton_work/projection.py:2799
+
+      "claimed": row["handler_team"] is not None})
+
+  `participant_actions` emits a Boolean for every Work action unconditionally.
+  Omission is not a canonical variant this build has to tolerate, so the field
+  can be required rather than defaulted. The review's premise holds.
+
+
+THE CORRECTION
+
+  tools/codex-event-bridge/src/codex_baton_bridge.mjs
+
+  The guard was
+
+      if (action.claimed !== undefined && typeof action.claimed !== "boolean")
+
+  and is now two guards rather than one, because these are two different
+  authority faults and the older one already had a name:
+
+      if (action.claimed === undefined)          -> "carries no claimed verdict"
+      if (typeof action.claimed !== "boolean")   -> "claimed is not a boolean"
+
+  A WRONG type is an answer this build cannot read; an ABSENT field is an
+  answer the authority did not give. Both take the bounded `uncertain` path
+  that the third and fourth reviews established, so nothing new was invented
+  for this: an envelope that cannot be typed proves neither that the episode
+  still exists nor that the claim slot is free.
+
+  ONE EDIT, BOTH FAMILIES. The ACP bridge imports and re-exports this exact
+  validator (`baton_readiness.mjs:13-21`) and validates through `waitOnce`
+  before `episodeVerdict` reads `entry.claimed === true` at
+  `baton_readiness.mjs:133,137`. The finding's "one implementation, imported by
+  both families" decision is why this is one guard and not two.
+
+
+THE ASSERTION THE REVIEW AUTHORIZED REVISING
+
+  tools/codex-event-bridge/test/codex_baton_bridge.test.mjs
+
+  The optional-descriptive-fields case described a bare Work with no `claimed`
+  as valid. The review gave explicit case-specific confirmation to revise it,
+  and the rule the set is drawn on is unchanged: a field this build SCHEDULES
+  on is not descriptive. `local_id`, `title` and `phase` still are, nothing
+  reads them to decide anything, and the same case still proves they may be
+  absent. The required half is asserted beside it.
+
+
+BOTH ADAPTERS, AND THE ACP HALF IS ADDITIVE
+
+  The review's own dispatcher regression is kept exactly as written. The same
+  defect reached the ACP side by the same route and the review did not name a
+  case for it, so one was added:
+
+    tools/acp-baton-bridge/test/acp_baton_bridge.test.mjs
+      "a Work neighbour with no claim verdict cannot answer that the slot is
+       free"
+
+  It asserts the envelope never reaches the verdict at all, and asserts beside
+  it that a neighbour which DOES carry the verdict still defers the offer --
+  so what the case rejects is the missing verdict rather than the shape.
+
+
+MEASURED, AND THE FIRST MEASUREMENT WAS WRONG
+
+  The first mutation removed only the new `=== undefined` branch and both
+  suites stayed green. That did not prove the correction was unnecessary; it
+  proved the mutation was not one. `typeof undefined !== "boolean"` is true, so
+  the remaining branch still caught absence and only the message changed.
+
+  Re-measured against the GENUINE pre-change guard
+  (`action.claimed !== undefined && typeof action.claimed !== "boolean"`):
+
+    node test/claim_slot.test.mjs            tests 37; pass 36; fail 1
+      FAIL a Work neighbour with no claimed verdict cannot answer that the
+           slot is free
+    npm test  # tools/acp-baton-bridge      tests 70; pass 69; fail 1
+      FAIL a Work neighbour with no claim verdict cannot answer that the
+           slot is free
+
+  One failure on each side of the shared validator, which is the cross-adapter
+  claim this correction makes. Source restored byte for byte, md5
+  5c826002e110ee2f30ed09ec0216ee50.
+
+
+GREEN
+
+    tools/codex-event-bridge   npm test    tests 409; pass 409; fail 0
+    tools/acp-baton-bridge     npm test    tests 70;  pass 70;  fail 0
+    git diff --check                       clean
+
+  Codex focused 408 -> 409 (the review's case now passes rather than failing),
+  ACP 69 -> 70 (the added cross-adapter case).
+
+
+STILL THE OPERATOR'S
+
+  PLAN item 9's live smoke and item 10's deploy. Nothing here was verified
+  against the running deployment, and no repository state was mutated.

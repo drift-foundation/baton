@@ -1,0 +1,247 @@
+W17110 — the exact safe reports from both successful trials.
+2026-08-27. SPIKE ONLY.
+
+The live trials did not alter tracked source; no Git history or index
+was mutated.
+
+=== WHY THIS FILE EXISTS
+  The previous transcript rendered each success as a list of true
+  booleans and an abbreviated image id. Those are CLAIMS ABOUT the
+  proof; the proof is the values. 'correlation_matches: true' asks a
+  reviewer to take my word for a comparison they could have made
+  themselves from two strings I did not print.
+
+  The harness was built so its stdout carries no provider text — that is
+  the whole point of the allowlist and the digest. So the exact stdout
+  is safe to persist, and persisting it is what makes the result
+  independently recomputable. Not reconstructed: both trials were rerun
+  while the approved provider is staged, and what follows is verbatim.
+
+  The expected answer digest, derivable by anyone:
+      sha256("pong") = sha256:9795c5ff8937f23526ccb207a5684c1fc94a7854e19c021b39d944e51f5baef2
+
+  The live preflight, before either run:
+    exit=0
+
+=== THE EXACT claude REPORT, verbatim from trial.py stdout
+  {
+   "spike": "w17110-ping-pong",
+   "provider": "claude",
+   "correlation_id": "w17110-eb769e1e-26e0-4788-aae0-f0667bfd68b4",
+   "image_tag": "baton-w17110-spike-claude:97d2d81b0589",
+   "container_name": "baton-w17110-spike-claude-cad08b3de021",
+   "credential_provider": {
+    "source": "/run/baton/credentials/claude",
+    "shape": "file",
+    "mounted_read_only": true,
+    "copied_into_image": false,
+    "target": "/home/nonroot/.claude/.credentials.json"
+   },
+   "image_id": "sha256:7b33e5355f1c8f4fc9797feb56e6ae3d141fb2f5a2f2ca49fb6aabe64ee2b682",
+   "mounts": [
+    {
+     "source": "/tmp/v12-spike-ping-pong-94rnzlgq/input",
+     "target": "/input",
+     "readonly": true
+    },
+    {
+     "source": "/tmp/v12-spike-ping-pong-94rnzlgq/output",
+     "target": "/output",
+     "readonly": false
+    },
+    {
+     "source": "/run/baton/credentials/claude",
+     "target": "/home/nonroot/.claude/.credentials.json",
+     "readonly": true
+    }
+   ],
+   "exit_status": 0,
+   "container_stderr_bytes": 54,
+   "completion_signal_present": true,
+   "published": {
+    "spike": "w17110-ping-pong",
+    "provider": "claude",
+    "correlation_id": "w17110-eb769e1e-26e0-4788-aae0-f0667bfd68b4",
+    "started_at": "2026-08-27T13:39:19.632Z",
+    "finished_at": "2026-08-27T13:39:22.307Z",
+    "exit_status": 0,
+    "result_digest": "sha256:9795c5ff8937f23526ccb207a5684c1fc94a7854e19c021b39d944e51f5baef2",
+    "result_bytes": 4,
+    "stderr_bytes": 0
+   },
+   "published_shape_closed": true,
+   "container_query_ok": true,
+   "containers_surviving": [],
+   "image_removed": true,
+   "image_query_ok": true,
+   "image_identity_query_ok": true,
+   "images_surviving": [],
+   "staged_root_removed": true,
+   "verdict": {
+    "expected_spike": true,
+    "expected_provider": true,
+    "correlation_matches": true,
+    "provider_exit_zero": true,
+    "container_exit_zero": true,
+    "answer_is_exactly_pong": true,
+    "closed_result_shape": true
+   },
+   "pong": true,
+   "correlation_matches": true,
+   "clean": true,
+   "satisfying": true
+  }
+  (trial.py exit=0)
+
+=== THE EXACT codex REPORT, verbatim from trial.py stdout
+  {
+   "spike": "w17110-ping-pong",
+   "provider": "codex",
+   "correlation_id": "w17110-b26dba4f-0c7a-4bc2-967a-6d16cbb3f320",
+   "image_tag": "baton-w17110-spike-codex:2d5c358d2a5f",
+   "container_name": "baton-w17110-spike-codex-76366c6e291a",
+   "credential_provider": {
+    "source": "/run/baton/credentials/codex",
+    "shape": "file",
+    "mounted_read_only": true,
+    "copied_into_image": false,
+    "target": "/home/nonroot/.codex/auth.json"
+   },
+   "image_id": "sha256:e1e36cdf7a3581b104610af878c95b8eb0f282e51a0b50525b5a8ab3cb3c201c",
+   "mounts": [
+    {
+     "source": "/tmp/v12-spike-ping-pong-jnaumzqu/input",
+     "target": "/input",
+     "readonly": true
+    },
+    {
+     "source": "/tmp/v12-spike-ping-pong-jnaumzqu/output",
+     "target": "/output",
+     "readonly": false
+    },
+    {
+     "source": "/run/baton/credentials/codex",
+     "target": "/home/nonroot/.codex/auth.json",
+     "readonly": true
+    }
+   ],
+   "exit_status": 0,
+   "container_stderr_bytes": 53,
+   "completion_signal_present": true,
+   "published": {
+    "spike": "w17110-ping-pong",
+    "provider": "codex",
+    "correlation_id": "w17110-b26dba4f-0c7a-4bc2-967a-6d16cbb3f320",
+    "started_at": "2026-08-27T13:39:26.202Z",
+    "finished_at": "2026-08-27T13:39:32.412Z",
+    "exit_status": 0,
+    "result_digest": "sha256:9795c5ff8937f23526ccb207a5684c1fc94a7854e19c021b39d944e51f5baef2",
+    "result_bytes": 4,
+    "stderr_bytes": 613
+   },
+   "published_shape_closed": true,
+   "container_query_ok": true,
+   "containers_surviving": [],
+   "image_removed": true,
+   "image_query_ok": true,
+   "image_identity_query_ok": true,
+   "images_surviving": [],
+   "staged_root_removed": true,
+   "verdict": {
+    "expected_spike": true,
+    "expected_provider": true,
+    "correlation_matches": true,
+    "provider_exit_zero": true,
+    "container_exit_zero": true,
+    "answer_is_exactly_pong": true,
+    "closed_result_shape": true
+   },
+   "pong": true,
+   "correlation_matches": true,
+   "clean": true,
+   "satisfying": true
+  }
+  (trial.py exit=0)
+
+=== WHAT A REVIEWER CAN NOW RECOMPUTE WITHOUT TRUSTING ME
+  correlation      the host's correlation_id and the published one are
+                   both printed above; they are the same string or they
+                   are not.
+  the answer       published result_digest against sha256('pong'), which
+                   is printed above and derivable independently.
+  both exits       the published exit_status is the provider's as the
+                   container observed it; the report's exit_status is
+                   the container's.
+  the shape        the complete allowlisted publication is printed, so
+                   its members can be checked against the closed set.
+  the signal       completion_signal_present, and the full image id
+                   rather than an abbreviation.
+  cleanup          image_removed, image_identity_query_ok,
+                   container_query_ok, image_query_ok, both survivor
+                   lists, staged_root_removed — every command and query
+                   outcome, not a summary of them.
+
+  And nothing above is provider text: identities this manager chose,
+  exit states, a digest, byte counts, and a category vocabulary.
+
+=== [P1] THE CLASSIFIER MATCHED ACROSS DIAGNOSTICS, NOT WITHIN ONE
+  writeDeniedCategory tested stdout and stderr joined together, so a
+  credential path in ONE line and an unrelated write denial in ANOTHER
+  combined into a causal claim neither line makes. Two facts that never
+  met, read as one.
+    54:  // PER DIAGNOSTIC, NOT PER RUN. W17110's tenth review [P1]: this tested the
+    55-  // whole of stdout and stderr joined together, so a credential path mentioned
+    56-  // in ONE line and an unrelated write denial in ANOTHER combined into a
+    57-  // causal claim neither line makes. Two facts that never met still read as
+    58-  // one.
+    59-  //
+    60-  // A message is the unit that carries a claim. The denial and the path have
+    61-  // to be in the same one, and anything else is the conservative category.
+    62-  let denied = false;
+
+  Cross-line negative controls, and the positive beside them so the rule
+  is not merely a way of never concluding:
+    440:    def test_a_path_on_one_line_and_a_denial_on_another_is_not_causal(self):
+    462:    def test_a_denial_naming_the_credential_on_its_own_line_still_is(self):
+
+=== [P1] OPERATOR.md TRAILED THE WORK A SECOND TIME
+  It directed two retries after both had already returned the pong. It
+  now names one remaining operator action and says the sign-off and the
+  closure are not its business. The staging instructions are kept below
+  a heading that says they are not a current instruction.
+    # W17110 — one operator action remains
+    
+    **Updated 2026-08-27, after both trials succeeded.** This file has trailed the
+    Work twice now: it said no provider had been nominated after one was staged,
+    and then directed two retries after both had already returned the pong. Each
+    time an operator reading it would have acted on a state that no longer existed.
+    
+    ## Where it stands
+    
+    **Both real agents returned the correlated exact `pong`**, in a real container
+    each, against the staged read-only credential, with enforced clean teardown and
+    no provider text in either report.
+    
+        Claude   satisfying
+        Codex    satisfying
+    
+    Independent proof sign-off is the reviewer's; terminal closure is not this
+    file's business either.
+    
+    ## The one thing left, and it is yours
+
+=== THE SUITES
+    Ran 18 tests in 0.008s
+    
+    OK
+    Ran 26 tests in 0.111s
+    
+    OK
+
+=== THE ENGINE, ASKED WHETHER ANYTHING SURVIVED
+    containers: (nothing listed = none)
+    images    : (nothing listed = none)
+
+  The reviewer's own engine queries were denied at the socket, so this
+  is my observation and not theirs. The per-trial cleanup fields in the
+  reports above are the part that does not depend on my running this.

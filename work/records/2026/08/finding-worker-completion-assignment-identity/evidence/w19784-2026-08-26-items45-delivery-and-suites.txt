@@ -1,0 +1,199 @@
+W19784 — CORRECTION NOTICE, added 2026-08-27 by the implementer after the
+independent review of 2026-08-27T00:40:45Z.
+
+SECTION 5 OF THIS TRANSCRIPT IS WRONG AND MUST NOT BE READ AS A RESULT.
+
+It records a run of seven failures, lists five of them by name, and then
+concludes that "the two that remain" are W6633's. Those are not consistent with
+each other, and the review was right to say so. What happened: `v12/worker/` is
+rewritten in place by the mutation harnesses inside a single filesystem
+timestamp tick, and CPython invalidates a cached `.pyc` by mtime AND SIZE --
+both of which can be unchanged across two different sources written that fast.
+So the ordinary command executed a previous mutation's bytecode against
+restored source. Five of the seven failures were phantoms of that mutation; the
+real tree at that moment had two, and the four W19784 regressions the reviewer
+then added made it six.
+
+The measurement claims elsewhere in this file were run through harnesses that
+DID clear the cache and are not affected. Section 5's ordinary-command run is
+the one that was not, and it is the one being retracted.
+
+THIS IS FIXED IN THE GATE RATHER THAN IN A NOTE.
+`tests/manager/test_worker_image.py` now removes `v12/worker/__pycache__`
+BEFORE it imports the worker, so the suite cannot be run against a stale cache
+even by a caller who has never heard of the harnesses, and two cases pin both
+the ordering and that the loaded module is the file on disk. Proved by
+manufacturing the exact defect -- bytecode cached for a mutated worker, source
+restored with identical mtime and size -- and confirming the ORDINARY command
+(no `-B`) still reports the correct result.
+
+The corrected result and the second round's work are in
+`w19784-2026-08-27-review-corrections.txt`.
+
+----------------------------------------------------------------------
+
+W19784 — PLAN items 4 and 5: the delivery itself, both worker paths,
+and the manager's composition boundary. 2026-08-26.
+No repository state was mutated.
+
+=== 1. the focused manager gate
+FAIL: test_the_correlated_work_answer_names_outputs_only 
+FAIL: test_declared_output_limits_hold_before_completion_publication 
+FAIL: test_a_mis_composed_pair_refuses_before_the_agent  (what='another Work')
+FAIL: test_a_mis_composed_pair_refuses_before_the_agent  (what='another input manifest')
+FAIL: test_a_mis_composed_pair_refuses_before_the_agent  (what='another policy')
+FAIL: test_a_mis_composed_pair_refuses_before_the_agent  (what='another runtime profile')
+FAIL: test_a_missing_assignment_document_refuses_before_the_agent 
+Ran 692 tests in 2.086s
+FAILED (failures=7, skipped=1)
+
+  The two failures are W6633's own open contradiction, NOT this Work's.
+  Section 5 states them exactly.
+
+=== 2. the DAEMON-BACKED gate, which had never delivered an input root
+  Before this round: 29 of 31, and the two failures were the only two
+  cases that ask the built image to WORK. They asked for a 'task' operand
+  and read a 'workspace' answer member -- both removed by W14251 -- and
+  mounted nothing, so the artefact had never once been asked to do the
+  thing it exists for.
+Ran 33 tests in 27.391s
+OK
+  Now 33 of 33, running the real two-root, two-document delivery.
+
+=== 3. the WORKER's guards, measured by REMOVAL
+=== baseline: FAILED (failures=2)
+=== REMOVE: the assignment document is read at all
+    FAILED (failures=18, errors=2)  (19 NEW case(s))
+       ERROR: test_the_scripted_work_answer_is_exactly_the_pinned_set 
+       ERROR: test_execution_completes_and_recaps 
+       FAIL: test_a_delivery_missing_a_binding_member_refuses 
+       FAIL: test_a_delivery_missing_a_binding_member_refuses 
+       FAIL: test_a_delivery_missing_a_binding_member_refuses 
+       FAIL: test_a_delivery_missing_a_binding_member_refuses 
+=== REMOVE: the delivered document carries its binding members
+    FAILED (failures=6)  (4 NEW case(s))
+       FAIL: test_a_delivery_missing_a_binding_member_refuses 
+       FAIL: test_a_delivery_missing_a_binding_member_refuses 
+       FAIL: test_a_delivery_missing_a_binding_member_refuses 
+       FAIL: test_a_delivery_missing_a_binding_member_refuses 
+=== REMOVE: `assignment_ref` is exactly the frozen three members
+    FAILED (failures=5)  (3 NEW case(s))
+       FAIL: test_an_identity_this_worker_would_have_to_invent_refuses 
+       FAIL: test_an_identity_this_worker_would_have_to_invent_refuses 
+       FAIL: test_an_identity_this_worker_would_have_to_invent_refuses 
+=== REMOVE: the pair is about one Work
+    FAILED (failures=4)  (2 NEW case(s))
+       FAIL: test_a_mis_composed_pair_refuses_before_the_agent 
+       FAIL: test_the_identity_is_not_taken_from_the_input_manifest 
+=== REMOVE: the assignment was minted against THIS input manifest
+    FAILED (failures=3)  (1 NEW case(s))
+       FAIL: test_a_mis_composed_pair_refuses_before_the_agent 
+=== REMOVE: one policy and one runtime profile
+    FAILED (failures=4)  (2 NEW case(s))
+       FAIL: test_a_mis_composed_pair_refuses_before_the_agent 
+       FAIL: test_a_mis_composed_pair_refuses_before_the_agent 
+=== REMOVE: the pair is held BEFORE the agent is dispatched
+    FAILED (failures=7)  (5 NEW case(s))
+       FAIL: test_a_mis_composed_pair_refuses_before_the_agent 
+       FAIL: test_a_mis_composed_pair_refuses_before_the_agent 
+       FAIL: test_a_mis_composed_pair_refuses_before_the_agent 
+       FAIL: test_a_mis_composed_pair_refuses_before_the_agent 
+       FAIL: test_a_missing_assignment_document_refuses_before_the_agent 
+source restored byte-identical
+
+=== 4. the MANAGER's composition guards, likewise
+=== baseline: OK
+=== REMOVE: the pair is validated BEFORE anything is written
+    FAILED (failures=4)  (4 NEW case(s))
+       FAIL: test_a_mis_composed_pair_writes_NOTHING 
+       FAIL: test_a_mis_composed_pair_writes_NOTHING 
+       FAIL: test_a_mis_composed_pair_writes_NOTHING 
+       FAIL: test_a_mis_composed_pair_writes_NOTHING 
+=== REMOVE: the root is composed once and then frozen
+    FAILED (failures=2)  (2 NEW case(s))
+       FAIL: test_a_half_composed_root_is_refused_rather_than_completed 
+       FAIL: test_the_root_is_composed_once 
+=== REMOVE: a composed document is evidence rather than scratch
+    FAILED (failures=2)  (2 NEW case(s))
+       FAIL: test_a_composed_document_is_evidence_rather_than_scratch 
+       FAIL: test_a_composed_document_is_evidence_rather_than_scratch 
+=== REMOVE: publication is atomic
+    FAILED (failures=1)  (1 NEW case(s))
+       FAIL: test_an_interrupted_write_publishes_no_protocol_document 
+=== REMOVE: the inputs root is a directory this manager owns
+    FAILED (errors=2)  (2 NEW case(s))
+       ERROR: test_a_root_this_manager_did_not_allocate_is_refused 
+       ERROR: test_a_root_this_manager_did_not_allocate_is_refused 
+source restored byte-identical
+
+=== 5. TWO FAILURES THIS WORK DID NOT CAUSE AND DID NOT FIX
+
+  Measured baseline. Reconstructing the pre-W19784 worker and running
+  test_worker_image gave 9 failures of 61. After this round it is 2 of
+  69 -- the 7 that went were stale W6633 fixtures this Work had to
+  migrate to run at all, and 8 new cases are this Work's own.
+
+  The two that remain are ONE contradiction inside W6633's slice:
+    test_the_correlated_work_answer_names_outputs_only requires the
+      framed 'work' answer to carry bounded output NAMES;
+    baton_worker.check_answer explicitly EXEMPTS 'outputs' from the
+      bounded-text rule and 'handle' frames the whole published
+      documents.
+  One of those is wrong and deciding which is W6633's, not mine. My own
+  migrated case asserts only what both readings agree on.
+
+    test_declared_output_limits_hold_before_completion_publication
+      requires a declared output's 'constraints' to be enforced before
+      publication, and nothing in the worker reads them:
+      occurrences of `constraints` in baton_worker.py: 0
+  Also W6633's implementation gap. W6633 is with its reviewer.
+
+=== 6. what the MANAGER side needed, and what it did not
+  NEW: workspaces.compose_input_root -- materializes both documents in
+  the ruled order, validating the pair BEFORE anything is written, once
+  and then frozen, read-only on disk, atomic per document.
+371:def compose_input_root(inputs, input_manifest, assignment_manifest):
+372-    """Materialize BOTH `/input/` documents, in the order the ruling fixes.
+373-
+
+  UNCHANGED, and that is the finding: W6634's receipt comparison was
+  already right and had no satisfiable other side until now.
+625-    if owned["assignment_ref"] != assignment:
+626-        raise ContractRefusal(
+627-            "stale-assignment", "generation",
+628:            f"the worker's {name_value(COMPLETION_MANIFEST)} answers another "
+
+  NOT INVENTED: nothing in this package calls compose_input_root, for
+  the same reason nothing calls its sibling assignment_workspace -- the
+  launch sequencer that ties workspace allocation to run_vector has not
+  been built by any Work yet. Adding an orchestrator to give my own
+  function a caller would be building an unassigned slice.
+
+=== 7. the operand table grew by exactly three, each justified at the site
+Ran 21 tests in 0.265s
+
+OK (skipped=1)
+564:        "input_manifest", "assignment_manifest", "inputs",
+
+=== 8. the boundary inventory
+  Three entries were added and each is a claim this suite checks:
+    the input root, DELEGATED to workspaces._real -- the one owner of
+      every path this component is handed -- with its own probe;
+    the two documents, STATED as owned by contracts.check_input_pair,
+      with a witness that drives the real operation.
+  An intermediate run failed a SEVENTH case,
+  test_every_stated_owner_names_a_witness_that_exists: a stated owner is
+  a claim until something exercises it, and mine had none yet. That is
+  the check doing its job, and the witness below is the answer.
+    5710:    def test_the_input_pair_is_owned_by_the_contracts_own_composite(self):
+    FAIL: test_every_declared_probe_reaches_its_named_boundary  (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+    FAIL: test_every_owned_entry_has_exactly_one_probe 
+    FAIL: test_the_missing_probe_check_can_actually_fail 
+    FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared 
+    FAIL: test_every_receiving_entry_has_an_owning_validator 
+    FAIL: test_the_universe_sees_every_persisted_column_that_is_read 
+    Ran 93 tests in 779.700s
+    FAILED (failures=6)
+    (final full-suite run, after the W19784 inventory entries)
+    Six is the accepted long-standing baseline, and 93 tests rather
+    than 92 is the new witness.

@@ -1,0 +1,78 @@
+Independent tenth-review evidence, 2026-08-26 UTC
+
+Initial direct gate
+===================
+
+Command:
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_worker_image
+
+Result before reviewer additions:
+  Ran 58 tests
+  FAILED (failures=2, errors=4)
+
+The six existing red cases are still-migrating inline-task/workspace fixtures:
+  - test_the_scripted_work_answer_is_exactly_the_pinned_set (KeyError: answer)
+  - test_a_missing_operation_member_is_named (KeyError: code)
+  - test_a_frame_refused_for_its_shape_never_spends_its_id (KeyError: code)
+  - test_execution_completes_and_recaps (KeyError: answer)
+  - test_an_id_that_reached_the_agent_is_spent_whatever_the_outcome
+    (protocol instead of agent)
+  - test_an_agent_fault_is_a_frame_and_carries_no_traceback
+    (protocol instead of agent)
+
+Additive reviewer regressions
+=============================
+
+Three additive cases were added to
+v12/python/tests/manager/test_worker_image.py:
+
+  test_the_correlated_work_answer_names_outputs_only
+    FAIL: response outputs is a list of full workerOutput records, not
+    ["proposal"].
+
+  test_a_contract_valid_input_manifest_reaches_the_agent
+    FAIL: the canonical valid W14251 vector
+    input-manifest-directory-and-declared-output is refused with code "input"
+    before the test agent can return its bounded "agent" fault.
+
+  test_declared_output_limits_hold_before_completion_publication
+    FAIL: a result beyond the declaration's one-byte ceiling succeeds and
+    /output/output.json is published.
+
+Result after reviewer additions:
+  Ran 61 tests in 0.148s
+  FAILED (failures=5, errors=4)
+
+Contract comparison
+===================
+
+  - The canonical inputManifest schema requires work_ref and carries no
+    assignment_ref or generation.
+  - SPEC.md section 8.1 explicitly describes that input manifest; section 8.2
+    assigns the full identity to the separate assignmentManifest.
+  - The completionManifest requires the exact assignment_ref.
+  - SPEC.md section 7.0 standardizes /input/input.json and
+    /output/output.json, but no assignment-manifest path.
+  - The revised work request has only the common envelope, and the obsolete
+    assignment environment member was correctly removed. Those remaining
+    surfaces cannot supply participant plus generation.
+
+Source observations
+===================
+
+  - v12/worker/baton_worker.py input_manifest() requires assignment_ref and
+    outputs inside input.json instead of accepting the canonical input schema.
+  - handle() returns the complete published output records in the correlated
+    answer's outputs member instead of only their names.
+  - DECLARATION_MEMBERS omits constraints, and measured() does not enforce
+    max_bytes or max_entries before publication.
+  - v12/python/tests/manager/test_worker_container.py was not changed or run in
+    the submitted round, so there is no built-container proof for the new I/O
+    topology or publication contract.
+
+Durable dependency
+==================
+
+The upstream assignment-identity contradiction is recorded at
+work/records/2026/08/finding-worker-completion-assignment-identity/ and bound
+to ledger Work W19784. W6633 is explicitly blocked on W19784.

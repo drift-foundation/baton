@@ -1,0 +1,39 @@
+{
+  "//": "Pushcoin pc.code Claude ACP input; deployment-owned values stay explicit.",
+  "baton": {
+    "binary": "/home/sl/opt/baton/v11/14aecfb/bin/baton",
+    "config": "/home/sl/baton-v11.14aecfb/baton.json",
+    "participant": "pc.code",
+    "role": "impl",
+    "waitTimeoutSeconds": 60
+  },
+  "agent": {
+    "command": "/home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh",
+    "args": [],
+    "env": {
+      "AGENT_REAL": "/home/sl/opt/acp/claude-agent-acp/0.69.0/node_modules/.bin/claude-agent-acp",
+      "PROTECTED_PATHS_FILE": "/home/sl/.config/baton/acp/pc.code/policy/protected-paths.txt",
+      "CLAUDE_CONFIG_DIR": "/home/sl/.local/state/acp-baton-bridge/pc.code/claude",
+      "BATON_BIN": "/home/sl/opt/baton/v11/14aecfb/bin/baton",
+      "BATON_CONFIG": "/home/sl/baton-v11.14aecfb/baton.json",
+      "BATON_PARTICIPANT": "pc.code",
+      "BATON_ROLE": "impl"
+    },
+    "cwd": "/home/sl/src/pushcoin"
+  },
+  "session": {
+    "mode": "new",
+    "cwd": "/home/sl/src/pushcoin"
+  },
+  "permissionMode": "bypassPermissions",
+  "policyResources": [
+    "/home/sl/.config/baton/acp/pc.code/policy/claude/settings.json",
+    "/home/sl/.config/baton/acp/pc.code/policy/block-git-commit.sh",
+    "/home/sl/.config/baton/acp/pc.code/policy/git_guard.py",
+    "/home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh",
+    "/home/sl/.config/baton/acp/pc.code/policy/protected-paths.txt"
+  ],
+  "stateDir": "/home/sl/baton-v11.14aecfb/run/acp/{{start.id}}/pc.code",
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000
+}

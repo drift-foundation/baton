@@ -105,6 +105,10 @@ _PHASES = ("queued", "active", "block", "parked")
 _SETTABLE_PHASES = ("queued", "block", "parked")
 _OUTCOMES = ("satisfying", "non-satisfying", "rejected", "cancelled")
 _PRIORITIES = ("high", "normal", "low")
+# W24755: JSON stays the default so existing automation keeps reading the
+# ordinary envelope; DOT is the ONE deliberate raw-stdout exception and has to
+# be asked for by name.
+_GRAPH_FORMATS = ("json", "dot")
 
 
 def _filter_keys():
@@ -893,6 +897,34 @@ GRAMMAR = {
 	                         help="page after this seq"),
 	                    _key("limit", kind="int", default=1000,
 	                         help="page size"))},
+	# W24755: the portable Work-graph export. `team=` and `status=` here are
+	# GRAPH SCOPE, not the participant-relative `home`/`tree` filter grammar --
+	# they are deliberately not `_filter_keys()`, because this verb answers a
+	# question about the authority's graph rather than about one viewer's
+	# view, and reusing that grammar would import `route=me` and the rest of a
+	# vocabulary that has no meaning for an export.
+	"work-graph": {"help": "the complete current Work graph, one snapshot, "
+	                       "as JSON or portable Graphviz DOT",
+	               "keys": (_key("format", default="json",
+	                             values=_GRAPH_FORMATS,
+	                             help="json (the ordinary envelope) or dot "
+	                                  "(raw DOT on stdout, for `> work.dot`)"),
+	                        _key("status", default="open",
+	                             values=projection.GRAPH_STATUSES,
+	                             help="graph scope by Work status; the "
+	                                  "default is the current operational "
+	                                  "graph"),
+	                        _key("team",
+	                             help="graph scope by owning team; the "
+	                                  "default is every team"),
+	                        _key("changed-from",
+	                             help="inclusive RFC 3339 lower bound on "
+	                                  "last_changed_at; required with "
+	                                  "status=all"),
+	                        _key("changed-until",
+	                             help="exclusive RFC 3339 upper bound on "
+	                                  "last_changed_at; required with "
+	                                  "status=all"))},
 	"tui": {"help": "the curses console on this instance",
 	        "keys": (_key("refresh", kind="float", default=2.0,
 	                      help="auto-refresh seconds (positive)"),)
@@ -1747,11 +1779,28 @@ def main(argv=None) -> int:
 			if snapshot_seq is None and \
 					isinstance(result, projection.Snapshotted):
 				snapshot_seq = result.snapshot_seq
-			print(json.dumps(jsonapi.envelope(store,
-			                                  participant=args.participant,
-			                                  result=result,
-			                                  snapshot_seq=snapshot_seq),
-			                 indent=2, sort_keys=True))
+			envelope = jsonapi.envelope(store,
+			                            participant=args.participant,
+			                            result=result,
+			                            snapshot_seq=snapshot_seq)
+			# W24755: THE ONE RAW-OUTPUT BRANCH, and it is reached only
+			# here -- after the projection-version check, the --config
+			# requirement, the participant validation and the dispatch
+			# that every other command passes through. A portable export
+			# is not a way around identity; it is a different rendering
+			# of the same authorized answer.
+			#
+			# THE WHOLE DOCUMENT IS COMPOSED BEFORE ANYTHING IS WRITTEN.
+			# `render_work_graph_dot` returns a complete string or
+			# raises, so a refusal leaves stdout untouched and the
+			# operator's `> work.dot` is empty rather than holding a
+			# half-graph that happens to parse.
+			if args.command == "work-graph" and args.format == "dot":
+				from baton_work import dot as dot_render
+				document = dot_render.render_work_graph_dot(envelope)
+				sys.stdout.write(document)
+				return 0
+			print(json.dumps(envelope, indent=2, sort_keys=True))
 		finally:
 			store.close()
 		return 0
@@ -2248,6 +2297,11 @@ def _dispatch(store: Authority, args):
 		team, member = _need_participant(args)
 		return projection.new_count(store, args.work, viewer_team=team,
 		                            viewer_member=member)
+	if command == "work-graph":
+		return projection.work_graph(store, team=args.team,
+		                             status=args.status,
+		                             changed_from=args.changed_from,
+		                             changed_until=args.changed_until)
 	if command == "links":
 		return projection.links(store, args.work)
 	if command == "breadcrumb":

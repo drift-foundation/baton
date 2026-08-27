@@ -15,9 +15,10 @@
 
 import { loadConfig } from "./config.mjs";
 import {
-	DeliveryMemory,
 	episodeStillLive,
+	episodeVerdict,
 	promptText,
+	ReadinessOffers,
 	validateEnvelope,
 	waitOnce,
 } from "./baton_readiness.mjs";
@@ -26,7 +27,10 @@ import {
 	SessionStateError,
 	preflightSessionSelection,
 } from "./acp_agent_session.mjs";
-import { readRoleInstructions } from "../../codex-event-bridge/src/role_instructions.mjs";
+import {
+	launcherContract,
+	readRoleInstructions,
+} from "../../codex-event-bridge/src/role_instructions.mjs";
 import { classifyFailure, makeRuntimePublisher }
 	from "../../codex-event-bridge/src/runtime_publisher.mjs";
 
@@ -41,12 +45,18 @@ Reads the explicit deployment configuration (agent command/args/env/
 cwd, baton binary/config/participant, session policy, the exact
 required permission mode, policy resources, state directory), starts
 the configured ACP agent, negotiates capabilities before any session
-use, and forwards one compact trusted prompt per previously unseen
-v11 action key into the configured session. Level-triggered: a key is
-suppressed while present, forgotten when it disappears, and delivered
-again if it returns. Failures (agent exit, malformed JSON-RPC,
-unsupported capability, session-load trouble) are visible and retried
-without discarding current readiness.`;
+use, and forwards one compact trusted prompt per actionable v11 key
+into the configured session. Level-triggered against CANONICAL state:
+an obligation, trial or poke is suppressed while present, forgotten
+when it disappears, and delivered again if it returns; a ready
+unclaimed Work is an OFFER that stays armed until the authority
+reports the claim, is retried with bounded backoff meanwhile, and
+waits while the participant's one claim slot is occupied. A returned
+prompt is transport acknowledgement and never clears an offer — so
+--once proves the agent path, not the claim loop. Failures (agent
+exit, malformed JSON-RPC, unsupported capability, session-load
+trouble) are visible and retried without discarding current
+readiness.`;
 }
 
 function delay(ms, signal) {
@@ -71,6 +81,10 @@ export async function runBridge(config, {
 	onUpdate,
 	revalidate,
 	loadInstructions = readRoleInstructions,
+	// W11910: the offer clock. Production reads the wall clock; a focused
+	// test advances it deliberately so a retry deadline is an assertion
+	// rather than a sleep.
+	now = () => Date.now(),
 	// W93 slice 4: the runtime lease publisher. Injectable so tests pin
 	// the exact transitions and argv, and defaulted so a deployment gets
 	// it without configuration.
@@ -85,6 +99,23 @@ export async function runBridge(config, {
 	// Missing and ambiguous configuration is a launch refusal, never a prompt
 	// an operator must remember to paste into an already-running agent.
 	const role = await loadInstructions(config.baton, config.baton, { signal });
+	// W14828: THE LAUNCHER CONTRACT, RENDERED ONCE FOR THE RUN, here — after
+	// the configuration is accepted and before the first wait, the first
+	// spawn, the first session or the first prompt.
+	//
+	// Once, because the alternative is rendering it per prompt from state that
+	// could have moved; here, because a contract with a hole in it must refuse
+	// the LAUNCH rather than produce a partial prompt some turn then acts on.
+	// `launcherContract` throws on a missing or blank field and this is the
+	// line that lets it: nothing downstream has to check again.
+	//
+	// The SHARED renderer, imported rather than re-spelled. A second textual
+	// format for the same four values is how the two adapters would drift into
+	// telling their contexts different things, and drift between two accounts
+	// of one launcher is precisely this Work's incident.
+	const launcher = launcherContract({
+		binary: config.baton.binary, config: config.baton.config,
+		participant: config.baton.participant, role: config.baton.role });
 	// W49: the pre-turn episode revalidation is a SECOND read of the
 	// same participant projection. In production that is a real
 	// `timeout=0` wait against the authority. A scripted `runWait` feed
@@ -93,8 +124,7 @@ export async function runBridge(config, {
 	// a test injects `revalidate` to exercise the drop path deliberately.
 	const stillLive = revalidate
 		?? (runWait
-			? async (action, envelope) => envelope.result.actionable.some(
-				(live) => live.action_key === action.action_key)
+			? async (action, envelope) => episodeVerdict(envelope, action)
 			: (action) => episodeStillLive(config, action, { signal }));
 	// One selection record for the whole run, shared by every session
 	// object this bridge builds: a `load` run has it settled by the
@@ -126,7 +156,12 @@ export async function runBridge(config, {
 		readiness: config.baton.config,
 	}, { source: "configured" });
 
-	const memory = new DeliveryMemory();
+	// W11910: the readiness LEVEL, cleared by the canonical claim and by
+	// nothing this bridge does. A completed prompt is transport
+	// acknowledgement; only `claimed:true` on a later poll answers the
+	// offer. The clock is injectable so the bounded retry is pinned in
+	// tests rather than slept through.
+	const memory = new ReadinessOffers({ now, retryMs: config.retryMs });
 	// W5: reported once per unknown kind, not once per poll — see the
 	// same rule in the sibling Codex bridge.
 	const reportedUnknown = new Set();
@@ -224,11 +259,45 @@ export async function runBridge(config, {
 				// dropped, never presented as current work. It is
 				// marked delivered so this dead episode is not retried;
 				// a genuinely new assignment arrives under a new key.
-				if (!await stillLive(action, envelope)) {
-					memory.markDelivered(envelope, action);
+				const verdict = await stillLive(action, envelope);
+				if (verdict === "over") {
+					memory.markWithdrawn(envelope, action);
 					logger.info(
 						`v11 action ${action.action_key} is no longer `
 						+ `actionable; dropped without invoking the agent`);
+					continue;
+				}
+				// W11910 review [P1]: the authority says another Work
+				// holds this participant's one claim. The outer snapshot
+				// saw a free slot and something took it in between — an
+				// interactive turn, another adapter, an operator — and
+				// this read is the only place that can still know.
+				//
+				// NEITHER DELIVERY NOR WITHDRAWAL. The offer is still
+				// good, so it is retained exactly as it is: no prompt,
+				// no `markWithdrawn`, and no `markPresented`, because a
+				// turn nobody spent is not an attempt. It is admitted
+				// again on the next poll, and the loop's own backoff is
+				// what keeps that from spinning.
+				if (verdict === "deferred") {
+					logger.info(
+						`v11 action ${action.action_key} waits: `
+						+ `${config.baton.participant} already holds a `
+						+ `claim, and one participant claims one Work`);
+					continue;
+				}
+				// W11910 re-review [P1]: the authority still names this
+				// key, under a kind this build cannot act on. RETAINED
+				// exactly like a deferred offer — no prompt, no
+				// `markWithdrawn`, no `markPresented` — because an
+				// entry this build cannot read is not an episode that
+				// ended, and dropping it would clear a live level with
+				// something that is not a claim.
+				if (verdict === "uncertain") {
+					logger.warn(
+						`v11 action ${action.action_key} was answered `
+						+ `under a kind this build does not know; the `
+						+ `offer is retained and no turn is spent`);
 					continue;
 				}
 				const live = await ensureSession();
@@ -240,13 +309,20 @@ export async function runBridge(config, {
 					work: action.work, episode: action.episode_seq,
 					session: live.sessionId ?? undefined });
 				await live.promptText(promptText(envelope, action,
-				                              role.instructions));
+				                              role.instructions, launcher));
 				// The turn returned. `idle` is the honest state for a
 				// runner between turns; silence past the lease deadline
 				// is what becomes `unknown`, and only the authority
 				// derives that.
 				await runtime.state("idle");
-				memory.markDelivered(envelope, action);
+				// W11910: PRESENTED, not acknowledged. A turn that
+				// returned without claiming leaves the Work ready and
+				// unclaimed, and suppressing it here is exactly how
+				// W6630, W6632, W6633 and W10265 sat overdue against an
+				// idle runner until somebody restarted this process.
+				// The offer stays armed; canonical `claimed:true` is
+				// what clears it.
+				memory.markPresented(envelope, action);
 				deliveredNow += 1;
 				deliveredTotal += 1;
 				logger.info(

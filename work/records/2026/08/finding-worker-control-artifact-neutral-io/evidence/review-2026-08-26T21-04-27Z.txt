@@ -1,0 +1,54 @@
+W14251 sixth independent implementation review
+UTC: 2026-08-26T21:04:27Z
+
+Shipped focused and migrated gate
+=================================
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_frozen tests.manager.test_manifest_rules \
+    tests.manager.test_output tests.manager.test_secrets \
+    tests.manager.test_workspaces tests.manager.test_intake \
+    tests.manager.test_sealing
+
+  Ran 322 tests in 1.393s — OK
+
+Canonical worker-control model
+==============================
+
+  python3 -m unittest test_contract_model.py
+  Ran 25 tests in 0.112s — OK
+
+The fifth-review direct-result-branch regression is included. The invalid
+vector's base is `result-receipt-unfinished-without-an-envelope`, its only
+patch is `disposition = completed`, and its exact expected message is:
+
+  'completion_manifest_digest' is a required property
+
+Runtime conformance
+===================
+
+  python3 -m unittest test_conformance_model.py
+  Ran 74 tests in 4.361s — OK
+
+  python3 -B build_cases.py
+  cases: 123 {'control-success': 27, 'control-refusal': 48,
+              'invariant': 48}
+
+Frozen schemas
+==============
+
+All four copies have SHA-256:
+
+  22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc
+
+Copies checked: Python source package, tracked build shadow, retired-Node
+worker-manager copy and canonical contract-record copy.
+
+Whitespace gate
+===============
+
+  git diff --check
+  status 0
+
+Result: signed off; no remaining W14251 finding.

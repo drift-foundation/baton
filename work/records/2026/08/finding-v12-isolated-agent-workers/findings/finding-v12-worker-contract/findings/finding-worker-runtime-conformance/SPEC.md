@@ -23,6 +23,89 @@ first decline. The register gained obligation `E-11` and two cases. The
 matrix is 112 cases, up from 110, and the register 70 obligations, up from 69.
 Nothing else in this contract changed.
 
+**Amended 2026-08-26 by the artifact-neutral Worker Manager ruling (W14251).**
+Worker-control 1.0 §7 no longer describes how input is acquired: the manager
+receives a read-only `/input/` holding `input.json` and writes an `/output/`
+holding an `output.json` published last, and it interprets neither payload.
+
+Family A opened with two acquisition cases — an exact base revision, and a
+moved-ref refusal — plus a directory-source materialization. Those are REMOVED
+rather than renamed. A case that tests a rule which no longer exists asserts
+nothing, and keeping it under a new name would make this matrix claim coverage
+it does not have.
+
+Eight cases replace them, for the rules the ruling introduces: the manager
+acquires nothing and reads no consumption payload; `output.json` is published
+last and atomically; an identifier-only output is refused as a durable result;
+a declared output workspace persists past its runtime; ephemeral material
+becomes a result only by export before quiescence; and a frozen output chains
+into a later assignment as read-only staged input.
+
+Obligations `A-01` and `A-02` are restated over the staged-input contract,
+`A-03`, `A-07` and `A-08` re-cite the sections that moved, and `A-10` through
+`A-14` are new. The matrix is **118 cases**, up from 112, and the register
+**75 obligations**, up from 70. See
+`work/records/2026/08/finding-worker-control-artifact-neutral-io/`.
+
+**Amended again 2026-08-26 by that Work's second review.** Three family-A
+cases made the MANAGER the publisher of `/output/output.json` — they were
+driven by a manager `output.freeze` — while the pinned ruling gives that file
+to the worker, and the manager cannot author it anyway. The publication cases
+are driven by the worker now, and `A-15` with
+`A-manager-receipt-is-not-the-worker-envelope` covers the split itself: two
+documents, two authors, two places. The matrix is **119 cases**, up from 118,
+and the register **76 obligations**, up from 75.
+
+**Amended a third time 2026-08-26 by that Work's third review.** Publication
+order and the two-author split were covered, but nothing asked whether the
+worker's envelope actually ANSWERS the assignment. `A-16` and four cases carry
+§12 rule 15's identity relations — one answer per declaration, no extras or
+omissions, exact `name`/`type`/`path`, and no `missing-optional` answer for a
+required declaration. Each is a comparison between two documents, which no
+single-document validator can make and is why this suite has to carry them.
+The matrix is **123 cases**, up from 119, and the register **77 obligations**,
+up from 76.
+
+**Amended 2026-08-26 by W19784, and this amendment is about a hole in THIS
+suite.** The contract the 123 cases above certified was unsatisfiable, and not
+one of them failed. `worker-control` §8.7 requires the worker's completion
+envelope to carry the exact full `assignment_ref` including the authority
+generation; §8.1 gives `/input/input.json` no generation, because it is minted
+before any claim exists; and nothing else inside the execution container
+carried one. A worker that obeyed the input contract could not obey the output
+contract.
+
+Every case in family A read ONE document at a time, so the gap BETWEEN two
+documents was precisely the shape this suite could not see. The fix delivers
+the already-defined assignment manifest, unchanged, at the second fixed
+read-only name `/input/assignment.json`; `A-17` and `A-18` and nine cases make
+that observable — the delivery and its mount mode, the pair's bindings, the
+consent phase seeing neither document, the identity actually reaching the
+envelope, and the missing, malformed, wrong-input, wrong-Work, stale-generation
+and wrong-attempt failures. The matrix is **132 cases**, up from 123, and the
+register **79 obligations**, up from 77.
+
+**Amended again 2026-08-27 by W19784's own review, and this one is about WHEN.**
+The three cases above that certified stale-generation and wrong-attempt refusal
+all operated at `output.freeze` — which is AFTER the agent has run. So a root
+nothing had authorized could be mounted, an agent could work against it, and
+this suite called that conformant because the freeze refused afterwards.
+Certifying the right rule at the wrong moment is a hole of exactly the shape
+this register exists to close. `A-18` now states the identity as proved TWICE,
+before mount and again before custody, and three cases carry the earlier
+moment. The freeze cases stay as defence in depth, which is what they always
+were and never the only line. The matrix is **135 cases** and the register is
+unchanged at **79 obligations**.
+
+**And a second round of that review, same day.** Authorizing a root and
+mounting one were TWO OPERATIONS: the manager proved a directory named the live
+assignment, and the runtime's mount plan was independent of that value — free
+to name the sibling workspace, land somewhere other than the fixed `/input`, or
+mount nothing at all. Every check said yes because each was about a different
+value, and this suite had no case that asked what was actually mounted. `A-17`
+now states that the root authorized is the root mounted, and carries a case
+that reads the engine's own argv. The matrix is **136 cases**.
+
 ## 0. Scope and precedence
 
 This contract specifies how a runtime is CERTIFIED against the two approved
@@ -95,7 +178,7 @@ green result:
 
 ## 2. The obligation register
 
-`evidence/obligations.json` is the register: **70 obligations** across eight
+`evidence/obligations.json` is the register: **79 obligations** across eight
 families, each carrying
 
 - `source` — the exact clause of W151, W1439 or W1440 it comes from;
@@ -288,7 +371,7 @@ rather than merely discouraging it.
 This is the single most important rule in the document, so it is stated
 flatly.
 
-**43 of the 110 cases are `control-refusal`.** Such a case passes when the
+**57 of the 136 cases are `control-refusal`.** Such a case passes when the
 implementation REFUSED, with the exact category/code pair from W1439's closed
 taxonomy that the case names. It does not pass because the operation "did not
 succeed".
@@ -367,8 +450,8 @@ do.
 
 ### 6.4 Counts and elapsed time certify nothing
 
-"107 of 110 passed" is not a partial certification; it is `not-certified` with
-three named cases. Elapsed time is not evidence at all: a runtime that
+"133 of 136 passed" is not a partial certification; it is `not-certified`
+with three named cases. Elapsed time is not evidence at all: a runtime that
 finished quickly and a runtime that finished quickly because it did nothing
 produce the same duration.
 
@@ -400,8 +483,8 @@ portable core case (`G-verdict-is-not-policy`).
 
 ## 7. The portable case matrix
 
-**110 portable core cases** in eight families: 23 `control-success`,
-43 `control-refusal` and 44 `invariant`. All 110 apply to `remote`; 109 apply
+**136 portable core cases** in eight families: 28 `control-success`,
+57 `control-refusal` and 51 `invariant`. All 136 apply to `remote`; 135 apply
 to `local-oci` (§8.3). Every one is a sealed document in
 `evidence/cases.json` naming its obligations, its machine-readable stimulus
 and expectation, the facts that expectation reads, its required faults, and
@@ -409,11 +492,11 @@ the evidence purposes that decide it.
 
 | Family | Cases | Covers |
 | --- | --- | --- |
-| **A** source and output | 15 (7 success, 5 refusal, 3 invariant) | exact base revision, moved-ref refusal, exact directory tree, read-only inputs, traversal/symlink/overlap refusal, freeze after quiescence, digest recomputation, exact replay and changed-byte refusal, undeclared paths uncollected, missing required output, proposal is not a push, ambiguous collection |
+| **A** staged input and frozen output | 39 (12 success, 17 refusal, 10 invariant) | **the manager acquires nothing and reads no consumption payload**, staged tree matches its content manifest, read-only `/input/`, traversal/symlink/overlap refusal, freeze after quiescence, digest recomputation, exact replay and changed-byte refusal, undeclared paths uncollected, missing required output, **the WORKER publishes `output.json` last**, **an interrupted publish leaves no `output.json`**, **the manager's receipt is a different document in a different place**, **one answer per declaration with exact identity**, **an undeclared answer refused**, **a required declaration cannot be answered missing**, **the assignment manifest delivered read-only beside the input**, **the two input documents bind as one delivery**, **consent sees neither**, **the envelope copies the delivered identity**, **missing, malformed, wrong-input, wrong-Work, stale-generation and wrong-attempt deliveries refused**, **the root authorized against the manager's own assignment BEFORE mount**, **a stale-generation or wrong-attempt root refused before any agent runs**, **only the authorized root mounted at the fixed path**, **identifier-only output refused**, **output persists past the runtime**, **ephemeral material collected only when exported**, **frozen output chains as read-only input**, proposal is not a push, ambiguous collection |
 | **B** isolation | 8 (8 invariant) | no authority capability, no Baton executable, no canonical repository, private Git metadata, cross-worker isolation, network, resource and tool policy |
 | **C** claim and authority | 16 (2 success, 8 refusal, 6 invariant) | pre-claim metadata only, no pre-claim execution, token expiry/replay/binding, **decline carries no bearer**, **a bearer-carrying decline refused**, **a differently bound decline terminates nothing**, ambiguous claim grants nothing, settlement by exact operation, nothing writable before activation, assignment manifest after claim, stale-generation activity/result/proposal, activity changes no state |
 | **D** cancellation and quiescence | 12 (4 success, 4 refusal, 4 invariant) | fence before stop, cancel reply is not death, quiescent is not destroyed, destroyed clears the gate, uncertain quiescence, replacement gated, late publication refused, output sealed, discard needs policy, slot freed immediately, agent quiescence is not runtime quiescence, retention policy |
-| **E** restart, retry and partition | 13 (8 success, 4 refusal, 1 invariant) | manager restart reconciliation, **adapter restart**, **remote host restart**, exact replay, operation collision, duplicate observation, observation regression, duplicate frame, partition reattachment proof, reachability is not identity, duplicate runtime start, agent transport loss, cleanup blocked on intake |
+| **E** restart, retry and partition | 15 (8 success, 6 refusal, 1 invariant) | manager restart reconciliation, **adapter restart**, **remote host restart**, exact replay, operation collision, duplicate observation, observation regression, duplicate frame, partition reattachment proof, reachability is not identity, duplicate runtime start, agent transport loss, cleanup blocked on intake, **the operation signature covers the kind**, **a stale operation signature refused** |
 | **F** credentials and leakage | 9 (1 success, 2 refusal, 6 invariant) | no credential in manifests or events, a canary in every named surface, leak refuses publication, credential lifetime, **assignment-scoped delivery**, **no cross-assignment reuse**, **expiry mid-run**, residual risk reported |
 | **G** policy and integrity | 22 (1 success, 15 refusal, 6 invariant) | mode unavailable, policy drift, approval refusal and race, provider-valid denial payloads, untrusted output, prose decides nothing, proposal integrity, receipt immutability, version/capability/extension refusal, uncertified profile, plan rejection, typed error frames, three unavailable dependencies, stale contract, stale target, verdict is not policy, **profile failure signal** |
 | **H** agent session | 15 (5 refusal, 10 invariant) | capability withheld, unadvertised method refused, fresh sessions, history methods refused, consent then execution, all eight turn outcomes, disposition gating, event normalization, event integrity, overflow counted, cancellation observed, drain unknown, monotonic axis, provider id is not identity, agent holds no capability |
@@ -421,6 +504,14 @@ the evidence purposes that decide it.
 The per-case detail lives in `evidence/cases.json` rather than here, because a
 matrix duplicated in prose is a matrix that will disagree with itself. §12.2
 requires the two to agree in both directions, and a test enforces it.
+
+**And this table proved the point about itself.** W19784 recounted every family
+against `cases.json` while updating family A and found row **E** reading 13
+when the data held 15: W4487's re-review added
+`E-operation-signature-covers-kind` and `E-operation-signature-mismatch-refused`
+and did not touch this prose, because nothing makes it. The row is corrected
+above. The counts here are a reading of `cases.json`, and `cases.json` is the
+authority whenever they differ.
 
 ### 7.1 The isolation family needs a probe, and the probe is ordinary
 
@@ -478,7 +569,7 @@ otherwise be certifying local behaviour under a remote name.
 
 ### 8.3 A profile may not narrow its own core
 
-`local-oci` runs 109 portable core cases and `remote` runs all 110. That is
+`local-oci` runs 135 portable core cases and `remote` runs all 136. That is
 not an exemption, and the one-case difference is the only one the contract
 permits.
 
@@ -594,7 +685,7 @@ noting that nothing above a failing or undecided case is established.
 Collected in one place, because each is something a reader might otherwise
 take a green run to mean:
 
-- **A count.** 107 of 110 is `not-certified` with three named cases.
+- **A count.** 133 of 136 is `not-certified` with three named cases.
 - **Elapsed time.** It distinguishes nothing, least of all a runtime that did
   nothing quickly.
 - **A provider's claim.** A vendor attestation is supplemental evidence, never
@@ -667,9 +758,9 @@ A conforming harness proves all of these:
 
 - `schema/conformance-1.0.schema.json` — the shape contract for the fixture,
   case, observation and run documents.
-- `evidence/obligations.json` — the 69-obligation register and the two profile
+- `evidence/obligations.json` — the 79-obligation register and the two profile
   definitions.
-- `evidence/cases.json` — the 110 sealed portable core cases, each with its
+- `evidence/cases.json` — the 136 sealed portable core cases, each with its
   machine-readable stimulus, executable expectation and profile applicability.
 - `evidence/build_cases.py` — the one place the matrix is authored, so no prose
   copy of it can disagree with it.

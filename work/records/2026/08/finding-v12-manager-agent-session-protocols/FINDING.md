@@ -327,3 +327,29 @@ does not prove its own stated property.
 
 The additive restart-style regression and correction boundary are in
 `review-2026-08-25T13-11-30Z.md`.
+
+## Decision taken correcting the fifth review — 2026-08-25
+
+**Refusal PRECEDENCE moved for fresh requests, and this is the cost of the
+correction rather than an incidental edit.** The adapter protocol check used
+to run first in `_ask`, ahead of `_bound_session`. Inside the fresh action it
+necessarily runs after it. So a fresh call that carries BOTH an unusable
+adapter and an unbound or wrongly-bound session now refuses with the session's
+`refused/precondition` where it used to refuse with `integrity/schema`.
+
+Both orders are defensible and nothing depends on the old one: the pairing is
+closed either way, and no case asserted the precedence. It is recorded because
+a caller comparing refusals across builds would otherwise read the change as a
+regression, and because the alternative — keeping the check first by leaving
+it outside the act — is exactly the defect the review named.
+
+**What did NOT move.** `_bound_session` stays before the act. The signature is
+built from the durable binding, so it has to be read to know which operation
+this even is; the fourth correction established that boundary and this one
+does not revisit it. The three mutable inputs — clock, authority, adapter —
+are now all inside.
+
+**The refusal stays non-durable, and that half is now asserted rather than
+implied.** A fresh request with an unusable adapter journals nothing and
+leaves its operation identity free, proved by re-running the same identity
+with a usable adapter and getting a fresh commit rather than a replay.

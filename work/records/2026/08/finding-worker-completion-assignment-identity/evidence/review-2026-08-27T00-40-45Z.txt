@@ -1,0 +1,109 @@
+W19784 independent review evidence — 2026-08-27T00:40:45Z
+
+1. Shared validators and executable models
+
+  env PYTHONPATH=src python3 -B -m unittest \
+    tests.manager.test_manifest_rules tests.manager.test_workspaces
+  Ran 80 tests in 0.084s — OK
+
+  python3 -B -m unittest test_contract_model
+  Ran 31 tests in 0.119s — OK
+
+  python3 -B -m unittest test_conformance_model
+  Ran 74 tests in 4.738s — OK
+
+These green gates prove that the pair rules exist in shared validation and in
+the record models. They do not prove that the execution worker calls that
+validation or that the manager compares the pair with manager-owned live
+identity before mount.
+
+2. Direct execution-worker reproduction
+
+Added four additive subcases to
+v12/python/tests/manager/test_worker_image.py:
+
+  test_both_delivered_manifests_prove_their_own_digest_before_dispatch
+    input: false manifest_digest while cross-document digest agrees
+    assignment: false manifest_digest
+
+  test_both_delivered_manifests_are_closed_before_dispatch
+    input: extra top-level member with recomputed self-digest
+    assignment: extra top-level member with recomputed self-digest
+
+Each case expects an input refusal before the scripted agent and no output
+publication. The worker instead dispatches the agent in all four cases.
+
+  env PYTHONPATH=src python3 -B -m unittest tests.manager.test_worker_image
+  Ran 71 tests
+  FAILED (failures=6)
+
+Four failures are the W19784 regressions above. The other two are the already
+recorded W6633 response/constraint failures:
+
+  test_work_returns_only_output_names_not_private_records
+  test_request_constraints_are_checked_before_the_agent
+
+Source inspection explains the W19784 failures:
+
+  v12/worker/baton_worker.py:388  _document only JSON-decodes
+  v12/worker/baton_worker.py:391  explicitly disclaims document validation
+  v12/worker/baton_worker.py:418  input_manifest shallowly selects members
+  v12/worker/baton_worker.py:442  assignment_manifest shallowly selects members
+  v12/worker/baton_worker.py:468  one_delivery checks only pair equalities
+
+The complete schema/self-digest validator is
+v12/python/src/baton_v12/contracts/manifest.py:502 check_input_pair, but the
+standalone worker does not use it or an equivalent implementation.
+
+3. Manager-owned identity is absent at composition
+
+  v12/python/src/baton_v12/worker_manager/workspaces.py:371
+    def compose_input_root(inputs, input_manifest, assignment_manifest)
+
+The helper has no expected assignment/generation or expected runtime-attempt
+operand. It can validate only the pair's internal agreement. Searching
+production sources finds no caller beyond its definition/export. Therefore no
+production launch boundary currently proves that assignment.json names the
+manager-owned live assignment and attempt before exposing the input root.
+
+The conformance register also proves the wrong lifecycle point. A-18 says the
+manager compares live generation/runtime attempt before custody mutation, and
+both named negative cases use only output.freeze:
+
+  A-completion-under-a-superseded-generation-refused
+  A-assignment-manifest-naming-another-runtime-attempt-refused
+
+Those are valuable completion defenses, but occur after agent dispatch. The
+approved W19784 ruling additionally requires the manager to validate the
+minted assignment generation and runtime attempt before mount.
+
+4. Built-image gate unavailable to this managed reviewer
+
+  env PYTHONPATH=src python3 -B -m unittest tests.manager.test_worker_container
+  Ran 3 tests — FAILED (errors=4)
+
+Every affected setUpClass reported:
+
+  W6633's image gate requires a reachable docker daemon and there is none:
+  permission denied while trying to connect to the docker API at
+  unix:///var/run/docker.sock
+
+Per managed-turn policy no escalation was requested. The implementation's
+recorded daemon-backed result was therefore not independently reproduced, and
+its current container negatives do not cover closedness or self-digests.
+
+5. Evidence/bytecode hygiene
+
+Before using -B, the ordinary direct command ran 69 tests with seven failures:
+the two W6633 failures plus five W19784 failures. The corresponding -B command
+ran the current source and had only the two W6633 failures before the four new
+regressions were added. At observation time
+v12/worker/__pycache__/baton_worker.cpython-313.pyc was newer than
+v12/worker/baton_worker.py, consistent with the mutation harness restoring
+source bytes while leaving mutated bytecode loadable.
+
+The implementer transcript
+evidence/w19784-2026-08-26-items45-delivery-and-suites.txt likewise records a
+seven-failure run, lists five W19784 failures, and then incorrectly describes
+the result as only the two W6633 failures. The gate must restore/invalidate
+bytecode and produce a self-consistent ordinary-command transcript.

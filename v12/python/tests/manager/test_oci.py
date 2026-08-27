@@ -35,11 +35,12 @@ IMAGE = "sha256:" + "a" * 64
 # the posture that decides which of them a container may see. Both are REQUIRED
 # inputs since the 2026-08-25 ruling: roots alone cannot choose the topology.
 ROOTS = {"inputs": "/srv/a-1/inputs", "workspace": "/srv/a-1/workspace",
-         "git": "/srv/a-1/git"}
+         }
 LABELS = {"runtime_attempt_id": "attempt-1",
           "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
           "work_id": "2b077949-W4", "participant": "baton.claude",
           "generation": 1, "profile_digest": "sha256:" + "b" * 64,
+          "policy_digest": "sha256:" + "d" * 64,
           "adapter_digest": "sha256:" + "c" * 64}
 
 
@@ -61,15 +62,25 @@ def answer(status=0, stdout="", stderr=""):
     return {"status": status, "stdout": stdout, "stderr": stderr}
 
 
-def listing(runtime_id="runtime-1", labels=None, engine="docker"):
+def listing(runtime_id="runtime-1", labels=None, engine="docker",
+            image=None):
+    """One engine listing entry.
+
+    IT NAMES THE IMAGE, because the engine does. Review [P1] required the
+    running image to survive restart reconciliation, and it is read from the
+    listing rather than from a label -- so a fixture without one is a listing
+    no real engine produces.
+    """
     labels = LABELS if labels is None else labels
+    image = IMAGE if image is None else image
     reported = {f"{LABEL_PREFIX}{name}": str(value)
                 for name, value in labels.items()}
     if engine == "podman":
-        return json.dumps({"Id": runtime_id,
+        return json.dumps({"Id": runtime_id, "ImageID": image,
                            "Labels": ",".join(f"{key}={value}" for key, value
                                               in reported.items())})
-    return json.dumps({"ID": runtime_id, "Labels": reported})
+    return json.dumps({"ID": runtime_id, "Image": image,
+                       "Labels": reported})
 
 
 def inspection(running, runtime_id="runtime-1"):
@@ -91,10 +102,14 @@ class TheVectorsAreClosedAndOrdered(unittest.TestCase):
                 # THE IMAGE IS LAST and is a digest, so no caller value can be
                 # read as an argument to the engine itself.
                 self.assertEqual(argv[-1], IMAGE)
-                # 5 for the head, 20 for the restrictions, 14 for the seven
+                # 5 for the head, 20 for the restrictions, 16 for the EIGHT
                 # labels, 1 for the image and 1 for `--read-only`, which is the
-                # only flag carrying no value.
-                self.assertEqual(len(argv), 41)
+                # only flag carrying no value. Eight since review [P1] put the
+                # policy digest among them: the engine reports the image it is
+                # running and has never heard of a policy, so a label is the
+                # only way that half of the resolved identity survives a
+                # restart.
+                self.assertEqual(len(argv), 43)
 
     def test_every_restriction_is_present_and_unconditional(self):
         """A policy a caller can turn off is a default."""
@@ -174,13 +189,61 @@ class TheVectorsAreClosedAndOrdered(unittest.TestCase):
         self.assertEqual(destroy_vector("docker", runtime_id="r-1"),
                          ["docker", "rm", "--force", "--volumes", "r-1"])
 
-    def test_the_listing_filters_on_every_label(self):
+    def test_the_listing_selects_candidates_and_never_pre_compares_identity(
+            self):
+        """REVISED under review [P0]'s explicit case-specific confirmation.
+
+        It used to require a filter for EVERY label, which pinned the defect:
+        a real engine applies every filter before returning a row, so a
+        runtime from this exact attempt under an old policy never reached the
+        adapter at all, and `start` read the empty result as "nothing exists".
+
+        Discovery has to be broader than comparison. The engine answers which
+        runtimes belong to this ATTEMPT; the adapter decides in process
+        whether each one is this delivery's.
+        """
         argv = list_vector("docker", labels=LABELS)
         filters = [argv[at + 1] for at, piece in enumerate(argv)
                    if piece == "--filter"]
-        self.assertEqual(len(filters), len(documents.RUNTIME_LABELS))
-        self.assertTrue(all(piece.startswith(f"label={LABEL_PREFIX}")
-                            for piece in filters))
+        # REVISED A SECOND TIME under review [P0]'s explicit confirmation, and
+        # the second revision is the general rule the first one missed. It
+        # required the attempt AND the four parts of the assignment, which
+        # still let the engine pre-compare `generation` — so a runtime under
+        # an old generation was hidden exactly as the digests had been.
+        #
+        # ANY assignment fact used as a filter hides a runtime that
+        # contradicts it, and a contradictory runtime is what this adapter
+        # exists to refuse. The one label that selects is the one that answers
+        # "is this runtime this attempt's".
+        self.assertEqual(
+            filters,
+            [f"label={LABEL_PREFIX}runtime_attempt_id="
+             f"{LABELS['runtime_attempt_id']}"],
+            "the candidate selector is the attempt id and nothing else")
+        # NOTHING ELSE IS AMONG THEM — not the digests, and not the four
+        # assignment parts either. A label used as a filter is a runtime the
+        # engine hides rather than one this adapter refuses.
+        for name in documents.RUNTIME_LABELS:
+            if name == "runtime_attempt_id":
+                continue
+            with self.subTest(label=name):
+                self.assertNotIn(f"label={LABEL_PREFIX}{name}={LABELS[name]}",
+                                 filters)
+
+    def test_the_whole_label_set_is_still_owned_before_the_engine_is_asked(
+            self):
+        """Narrowing the FILTERS did not narrow the ownership. An invented or
+        malformed label still refuses before anything is listed."""
+        for what, labels in (("an invented member",
+                              {**LABELS, "bearer": "secret"}),
+                             ("a missing member",
+                              {name: value for name, value in LABELS.items()
+                               if name != "policy_digest"}),
+                             ("a text-shaped digest",
+                              dict(LABELS, policy_digest="policy-latest"))):
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal):
+                    list_vector("docker", labels=labels)
 
     def test_digest_and_generation_labels_keep_their_semantic_types(self):
         """The adapter reconciles these values, so text-shaped substitutes
@@ -205,6 +268,16 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
         return run_vector("docker", image_digest=IMAGE, labels=LABELS,
                           assignment_roots=ROOTS, posture="execution",
                           name="baton-op-1", mounts=[one])
+
+    def test_the_assignment_root_contract_is_artifact_neutral(self):
+        """The core adapter may know generic input and workspace roots, but
+        must not require a Git-specific root from every assignment."""
+        self.assertEqual(ROOT_NAMES, ("inputs", "workspace"))
+        run_vector(
+            "docker", image_digest=IMAGE, labels=LABELS,
+            assignment_roots={"inputs": "/srv/a-1/inputs",
+                              "workspace": "/srv/a-1/workspace"},
+            posture="execution", name="baton-op-1")
 
     def test_a_writable_and_a_read_only_mount_are_spelled_apart(self):
         self.assertIn("type=bind,source=/srv/a-1/workspace,"
@@ -250,6 +323,16 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
                 with self.assertRaises(ContractRefusal):
                     self.mount(**one)
 
+    def test_a_target_traversal_is_not_normalized_into_another_location(self):
+        """The spelling is checked before `normpath` erases the traversal.
+
+        Accepting `/workspace/../etc` and emitting `/etc` silently moves the
+        assignment's writable bind over the image filesystem rather than the
+        target the topology named.
+        """
+        with self.assertRaises(ContractRefusal):
+            self.mount(target="/workspace/../etc")
+
     def test_a_mount_reaches_the_engine_only_in_canonical_spelling(self):
         argv = self.mount(source="/srv/a-1//workspace/./",
                           target="/workspace/./")
@@ -281,13 +364,6 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
                     ("policy", "denied"))
                 self.assertIn("not this assignment's material",
                               caught.exception.message)
-
-    def test_the_private_metadata_root_is_never_mountable(self):
-        """A worker that could reach it could move another assignment's
-        refs."""
-        with self.assertRaises(ContractRefusal) as caught:
-            self.mount(source=ROOTS["git"])
-        self.assertEqual(caught.exception.code, "denied")
 
     def test_delivered_inputs_are_evidence_rather_than_scratch(self):
         """Read-only under `inputs`, read/write only under `workspace`."""
@@ -345,7 +421,7 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
         first matching root and silently changes whether it may be writable.
         """
         overlapping = {"inputs": "/srv/a-1", "workspace": "/srv/a-1/workspace",
-                       "git": "/srv/a-1/git"}
+                       }
         with self.assertRaises(ContractRefusal):
             run_vector("docker", image_digest=IMAGE, labels=LABELS,
                        assignment_roots=overlapping, posture="execution",
@@ -360,7 +436,7 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
         """
         with tempfile.TemporaryDirectory() as root:
             roots = {name: os.path.join(root, name)
-                     for name in ("inputs", "workspace", "git")}
+                     for name in ("inputs", "workspace")}
             for place in roots.values():
                 os.mkdir(place)
             outside = os.path.join(root, "outside")
@@ -472,6 +548,7 @@ class Adapting(unittest.TestCase):
     # disagreed would make every case here refuse for the mismatch.
     IDENTITY = {"image_digest": IMAGE,
                 "profile_digest": LABELS["profile_digest"],
+                "policy_digest": LABELS["policy_digest"],
                 "adapter_digest": LABELS["adapter_digest"]}
 
     def adapter(self, *answers, engine="docker", identity=None):
@@ -484,6 +561,136 @@ class Adapting(unittest.TestCase):
                           else identity,
                           assignment_roots=ROOTS,
                           posture="execution")
+
+
+class TheRootThatWasProvedIsTheRootThatIsMounted(Adapting):
+    """W19784 second review [P0], 2026-08-27.
+
+    THE AUTHORIZATION AND THE MOUNT WERE TWO OPERATIONS. The manager proved
+    one directory named the live assignment, this attempt and the claimed
+    input digest -- and then called an adapter whose mount plan is owned at
+    CONSTRUCTION and independent of that value. `_mounts` proves containment
+    and writability, and none of that says WHICH of an assignment's two roots
+    a bind names or where it lands: the sibling workspace is contained and
+    readable too, and `/inputs` is a target this manager never fixes.
+
+    So a worker could be started over material nothing had authorized, and
+    every check that ran said yes, because each was about a different value.
+    """
+
+    def mounted(self, source, target="/input", writable=False):
+        return {"source": source, "target": target, "writable": writable}
+
+    def started(self, mounts, authorized=ROOTS["inputs"], answers=None):
+        # The duplicate probe runs FIRST and answers an empty listing, then the
+        # run itself. Both are the ordinary shape; this rule sits before both,
+        # so the refusing cases never consume either.
+        engine = Engine(answers or [answer(stdout=""),
+                                    answer(stdout="runtime-1\n")])
+        self.engine = engine
+        adapter = OciAdapter("docker", engine, identity=self.IDENTITY,
+                             assignment_roots=ROOTS, posture="execution",
+                             mounts=mounts)
+        request = {"labels": LABELS, "operation_id": "runtime.start:1"}
+        if authorized is not None:
+            request["input_root"] = authorized
+        return adapter.start(request)
+
+    def test_the_authorized_root_reaches_the_engine_argv_exactly(self):
+        """The bytes, not the intention. This is the integration half the
+        review asked for: what the engine is actually told."""
+        self.started([self.mounted(ROOTS["inputs"])])
+        argv = self.engine.vectors[-1]
+        binds = [argv[at + 1] for at, flag in enumerate(argv)
+                 if flag == "--mount"]
+        self.assertIn(
+            f"type=bind,source={ROOTS['inputs']},target=/input,readonly=true",
+            binds)
+        # AND EXACTLY ONE lands there, so the engine is never the party
+        # deciding which of two the worker reads.
+        self.assertEqual([one for one in binds if ",target=/input," in one],
+                         [f"type=bind,source={ROOTS['inputs']},"
+                          f"target=/input,readonly=true"])
+
+    def test_a_plan_naming_the_sibling_workspace_never_reaches_the_engine(
+            self):
+        """The exact defect. `workspace` is this assignment's own root and
+        passes containment; it is not the directory that was proved."""
+        with self.assertRaises(ContractRefusal) as caught:
+            self.started([self.mounted(ROOTS["workspace"])])
+        self.assertEqual(caught.exception.category, "policy")
+        self.assertEqual(self.engine.vectors, [],
+                         "a refused plan still reached the engine")
+
+    def test_a_plan_that_mounts_no_input_root_never_reaches_the_engine(self):
+        """Omission is a way to be wrong too: a container with nothing at
+        `/input` is one whose worker cannot read the assignment it was proved
+        against, and the manager authorized a root that went nowhere."""
+        with self.assertRaises(ContractRefusal):
+            self.started([self.mounted(ROOTS["workspace"],
+                                       target="/workspace", writable=True)])
+        self.assertEqual(self.engine.vectors, [])
+
+    def test_the_authorized_root_at_another_target_is_not_the_input_root(self):
+        """`/inputs` is a path this manager never fixes and the worker never
+        reads. A plan that lands the proved source there has mounted nothing
+        at `/input`, whatever it looks like."""
+        with self.assertRaises(ContractRefusal):
+            self.started([self.mounted(ROOTS["inputs"], target="/inputs")])
+        self.assertEqual(self.engine.vectors, [])
+
+    def test_the_authorized_root_is_never_mounted_writable(self):
+        """The input is the evidence the result is measured against, so a
+        runtime that could edit it could edit what it is judged by."""
+        with self.assertRaises(ContractRefusal):
+            self.started([self.mounted(ROOTS["inputs"], writable=True)])
+        self.assertEqual(self.engine.vectors, [])
+
+    def test_a_spelling_that_normalizes_onto_the_fixed_path_is_not_it(self):
+        """W19784 third review [P1], at this boundary too.
+
+        `/else/../input` normalizes to `/input`, so a rule that normalized
+        FIRST would accept a plan naming a path this manager never fixed and
+        call it the fixed one. The spelling is refused before normalization can
+        erase it, on both sides of the bind -- a caller writing `..` is asking
+        this adapter to compute a path rather than name one.
+        """
+        for what, mount in (
+                ("a target that traverses onto the fixed path",
+                 self.mounted(ROOTS["inputs"], target="/else/../input")),
+                ("a source that traverses onto the proved root",
+                 self.mounted(ROOTS["inputs"] + "/../inputs")),
+                ("a target carrying the engine's own separator",
+                 self.mounted(ROOTS["inputs"], target="/input:2"))):
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.started([mount])
+                self.assertEqual(caught.exception.code, "path")
+                self.assertEqual(self.engine.vectors, [])
+
+    def test_two_binds_on_the_fixed_path_leave_the_engine_deciding(self):
+        with self.assertRaises(ContractRefusal):
+            self.started([self.mounted(ROOTS["inputs"]),
+                          self.mounted(ROOTS["inputs"] + "/nested")])
+        self.assertEqual(self.engine.vectors, [])
+
+    def test_without_an_authorized_root_nothing_may_claim_the_fixed_path(self):
+        """ABSENCE IS DECIDED TOO. With nothing proved there is nothing a
+        `/input` bind could be, and "the manager did not say" is not a reason
+        to expose an unproved directory at the path the worker trusts."""
+        with self.assertRaises(ContractRefusal) as caught:
+            self.started([self.mounted(ROOTS["inputs"])], authorized=None)
+        self.assertEqual(caught.exception.category, "policy")
+        self.assertEqual(self.engine.vectors, [])
+
+    def test_a_delivery_with_neither_starts_normally(self):
+        """The runtime half of this adapter is constructible and startable
+        without an input delivery at all -- that is what a consent container
+        and every pre-W19784 case are -- so the new rule must not have made an
+        empty plan unstartable."""
+        started = self.started([], authorized=None)
+        self.assertEqual(started["runtime_id"], "runtime-1")
+        self.assertNotIn("/input", " ".join(self.engine.vectors[-1]))
 
 
 class OneDeliveryCarriesOneResolvedIdentity(Adapting):
@@ -548,7 +755,7 @@ class OneDeliveryCarriesOneResolvedIdentity(Adapting):
         started = first.start({"labels": dict(LABELS),
                                "operation_id": "runtime.start:1"})
         listing = json.dumps({
-            "ID": "runtime-1",
+            "ID": "runtime-1", "Image": IMAGE,
             "Labels": ",".join(f"{LABEL_PREFIX}{name}={LABELS[name]}"
                                for name in documents.RUNTIME_LABELS)})
         again = self.adapter(answer(stdout=listing))
@@ -560,10 +767,269 @@ class OneDeliveryCarriesOneResolvedIdentity(Adapting):
         self.assertEqual(found[0]["labels"]["adapter_digest"],
                          again.identity["adapter_digest"])
 
-    def test_a_resolved_identity_is_three_digests_and_nothing_else(self):
+    def test_a_restart_refuses_a_runtime_from_another_resolved_image(self):
+        """Labels alone cannot make a stale image this adapter's runtime.
+
+        The dossier requires the exact image identity to survive restart
+        reconciliation.  A new adapter resolved to another image must not
+        adopt a listed runtime merely because its profile/adapter labels still
+        match.
+        """
+        listing = json.dumps({
+            "ID": "runtime-1", "ImageID": IMAGE,
+            "Labels": ",".join(f"{LABEL_PREFIX}{name}={LABELS[name]}"
+                               for name in documents.RUNTIME_LABELS)})
+        identity = dict(self.IDENTITY,
+                        image_digest="sha256:" + "9" * 64)
+        again = self.adapter(answer(stdout=listing), identity=identity)
+        with self.assertRaises(ContractRefusal):
+            again.list({"labels": dict(LABELS)})
+
+    def test_a_restart_refuses_a_runtime_labelled_for_another_policy(self):
+        """The labelled half of the identity, for the member no engine
+        reports. A runtime running the right image under the wrong policy is
+        not this delivery's, and nothing but the label can say so."""
+        other = dict(LABELS, policy_digest="sha256:" + "e" * 64)
+        again = self.adapter(answer(stdout=listing(labels=other)))
+        with self.assertRaises(ContractRefusal) as caught:
+            again.list({"labels": dict(LABELS)})
+        self.assertIn("one delivery carries one identity",
+                      caught.exception.message)
+
+    def test_a_listing_that_names_no_image_is_refused(self):
+        """An engine that will not say which image is running has not proved
+        the identity; the adapter refuses rather than adopting on the labels
+        alone, which is the state review [P1] found."""
+        entry = json.dumps({"ID": "runtime-1",
+                            "Labels": {f"{LABEL_PREFIX}{name}": str(value)
+                                       for name, value in LABELS.items()}})
+        adapter = self.adapter(answer(stdout=entry))
+        with self.assertRaises(ContractRefusal):
+            adapter.list({"labels": dict(LABELS)})
+
+    def test_a_tag_is_not_an_image_identity(self):
+        """A tag is a pointer that was true when somebody last pushed. The
+        comparison this feeds decides whether a restarted manager adopts a
+        worker, so it is made against a digest or not at all."""
+        adapter = self.adapter(answer(stdout=listing(image="worker:latest")))
+        with self.assertRaises(ContractRefusal) as caught:
+            adapter.list({"labels": dict(LABELS)})
+        self.assertEqual(caught.exception.code, "digest")
+
+    def test_the_engines_two_spellings_of_the_image_are_one_fact(self):
+        """Docker answers `Image` and Podman answers `ImageID`, and the id may
+        arrive with or without the `sha256:` prefix. One vocabulary for the
+        manager, every spelling read here."""
+        for what, entry in (
+                ("docker", listing()),
+                ("podman", listing(engine="podman")),
+                ("a bare id", listing(image=IMAGE[len("sha256:"):]))):
+            with self.subTest(spelling=what):
+                adapter = self.adapter(answer(stdout=entry))
+                found = adapter.list({"labels": dict(LABELS)})
+                self.assertEqual([one["runtime_id"] for one in found],
+                                 ["runtime-1"])
+
+    def test_a_start_labelled_for_another_policy_is_refused(self):
+        """The mismatch probe, extended to the member review [P1] restored."""
+        adapter = self.adapter(answer(stdout=""))
+        with self.assertRaises(ContractRefusal) as caught:
+            adapter.start({
+                "labels": dict(LABELS, policy_digest="sha256:" + "9" * 64),
+                "operation_id": "runtime.start:1"})
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+        self.assertIn("one delivery carries one identity",
+                      caught.exception.message)
+
+    def test_a_stale_policy_runtime_is_not_filtered_into_a_duplicate_start(
+            self):
+        """The candidate query must be broader than the identity comparison.
+
+        A real engine applies every label filter before returning a row. If
+        the query includes `policy_digest`, a runtime from this exact attempt
+        under the old policy is invisible to the later mismatch check and the
+        adapter proceeds to create a second runtime for one attempt.
+        """
+        stale = dict(LABELS, policy_digest="sha256:" + "e" * 64)
+
+        class FilteringEngine:
+            def __init__(self):
+                self.vectors = []
+
+            def __call__(self, argv):
+                self.vectors.append(list(argv))
+                if argv[1] == "ps":
+                    exact_policy = (
+                        f"label={LABEL_PREFIX}policy_digest="
+                        f"{LABELS['policy_digest']}")
+                    if exact_policy in argv:
+                        return answer(stdout="")
+                    return answer(stdout=listing(labels=stale))
+                if argv[1] == "run":
+                    return answer(stdout="runtime-new\n")
+                return answer()
+
+        engine = FilteringEngine()
+        adapter = OciAdapter(
+            "docker", engine, identity=self.IDENTITY,
+            assignment_roots=ROOTS, posture="execution")
+        with self.assertRaises(ContractRefusal):
+            adapter.start({"labels": dict(LABELS),
+                           "operation_id": "runtime.start:1"})
+        self.assertFalse(any(vector[1] == "run" for vector in engine.vectors),
+                         engine.vectors)
+
+    def test_a_stale_assignment_runtime_is_not_filtered_into_a_duplicate_start(
+            self):
+        """Candidate discovery cannot pre-compare mutable assignment facts.
+
+        A runtime carrying this exact attempt id but a stale generation is
+        still a runtime for this attempt.  If the engine filters on the
+        requested generation first, that runtime disappears before the
+        adapter can refuse it and `start` creates the forbidden duplicate.
+        """
+        stale = dict(LABELS, generation=0)
+
+        class FilteringEngine:
+            def __init__(self):
+                self.vectors = []
+
+            def __call__(self, argv):
+                self.vectors.append(list(argv))
+                if argv[1] == "ps":
+                    exact_generation = (
+                        f"label={LABEL_PREFIX}generation="
+                        f"{LABELS['generation']}")
+                    if exact_generation in argv:
+                        return answer(stdout="")
+                    return answer(stdout=listing(labels=stale))
+                if argv[1] == "run":
+                    return answer(stdout="runtime-new\n")
+                return answer()
+
+        engine = FilteringEngine()
+        adapter = OciAdapter(
+            "docker", engine, identity=self.IDENTITY,
+            assignment_roots=ROOTS, posture="execution")
+        with self.assertRaises(ContractRefusal):
+            adapter.start({"labels": dict(LABELS),
+                           "operation_id": "runtime.start:1"})
+        self.assertFalse(any(vector[1] == "run" for vector in engine.vectors),
+                         engine.vectors)
+
+    def test_a_returned_candidate_must_match_the_requested_assignment(self):
+        """Engine filters select candidates; they do not prove their labels.
+
+        A compatible engine may ignore a filter, and engine state may be
+        stale or corrupted.  The complete returned label record therefore
+        has to be compared in process before the runtime is adopted.
+        """
+        stale = dict(LABELS, generation=0)
+        adapter = self.adapter(answer(stdout=listing(labels=stale)))
+        with self.assertRaises(ContractRefusal) as caught:
+            adapter.list({"labels": dict(LABELS)})
+        self.assertIn("one delivery carries one identity",
+                      caught.exception.message)
+
+    def test_every_label_that_contradicts_the_request_is_refused(self):
+        """The complete returned record, member by member. Engine-side
+        selection is not proof that a returned row has the values requested:
+        a compatible engine may ignore a filter and engine state may be stale
+        or hand-edited."""
+        for name in documents.RUNTIME_LABELS:
+            if name == "runtime_attempt_id":
+                continue
+            other = 0 if name == "generation" else "sha256:" + "e" * 64
+            if name in ("authority_uuid", "work_id", "participant"):
+                other = "somebody-else"
+            with self.subTest(label=name):
+                stale = dict(LABELS, **{name: other})
+                adapter = self.adapter(answer(stdout=listing(labels=stale)))
+                with self.assertRaises(ContractRefusal) as caught:
+                    adapter.list({"labels": dict(LABELS)})
+                self.assertIn("one delivery carries one identity",
+                              caught.exception.message)
+
+    def test_a_contradictory_candidate_stops_a_start_before_the_engine_creates(
+            self):
+        """The reason the whole-record comparison matters: a candidate this
+        adapter cannot own has to refuse at the duplicate check rather than
+        read as an empty set."""
+        stale = dict(LABELS, generation=0)
+        adapter = self.adapter(answer(stdout=listing(labels=stale)))
+        with self.assertRaises(ContractRefusal):
+            adapter.start({"labels": dict(LABELS),
+                           "operation_id": "runtime.start:1"})
+        self.assertTrue(all("run" not in vector
+                            for vector in self.engine.vectors),
+                        self.engine.vectors)
+
+    def test_a_stale_candidate_is_refused_rather_than_filtered_away(self):
+        """The module's own sentence, now true of the listing too: a stale
+        identity is not ABSENT, it is WRONG, and dropping it leaves a
+        mislabelled runtime running for this attempt."""
+        for name in ("profile_digest", "policy_digest", "adapter_digest"):
+            with self.subTest(stale=name):
+                stale = dict(LABELS, **{name: "sha256:" + "e" * 64})
+                adapter = self.adapter(answer(stdout=listing(labels=stale)))
+                with self.assertRaises(ContractRefusal) as caught:
+                    adapter.list({"labels": dict(LABELS)})
+                self.assertIn("one delivery carries one identity",
+                              caught.exception.message)
+
+    def test_a_stale_candidate_stops_a_start_before_the_engine_creates(self):
+        """The reason the discovery half matters at all. `start` asks what
+        already carries this attempt's labels BEFORE it creates anything, so a
+        candidate it cannot own has to refuse there rather than read as an
+        empty set."""
+        stale = dict(LABELS, policy_digest="sha256:" + "e" * 64)
+        adapter = self.adapter(answer(stdout=listing(labels=stale)))
+        with self.assertRaises(ContractRefusal):
+            adapter.start({"labels": dict(LABELS),
+                           "operation_id": "runtime.start:1"})
+        self.assertTrue(all("run" not in vector
+                            for vector in self.engine.vectors),
+                        self.engine.vectors)
+
+    def test_an_ordinary_start_still_finds_no_candidate_and_creates(self):
+        """The other half. Broadening discovery must not make every start
+        refuse: an attempt with no runtime yet still creates one."""
+        adapter = self.adapter(answer(stdout=""), answer(stdout="runtime-1\n"))
+        started = adapter.start({"labels": dict(LABELS),
+                                 "operation_id": "runtime.start:1"})
+        self.assertEqual(started["runtime_id"], "runtime-1")
+        self.assertTrue(any(vector[1] == "run"
+                            for vector in self.engine.vectors))
+
+    def test_the_resolved_identity_includes_the_assignment_policy(self):
+        """Image/profile/adapter is not the dossier's four-digest identity."""
+        identity = dict(self.IDENTITY,
+                        policy_digest="sha256:" + "d" * 64)
+        adapter = self.adapter(identity=identity)
+        self.assertEqual(adapter.identity["policy_digest"],
+                         identity["policy_digest"])
+
+    def test_a_resolved_identity_is_four_digests_and_nothing_else(self):
+        """FOUR, and the count is the case.
+
+        This method asserted THREE, and review [P1] was right that the number
+        was a silent narrowing of a confirmed contract rather than a finding:
+        the record says image, profile, policy and adapter, and a green test
+        naming three is how a narrowing stops looking like one. The member
+        list is asserted here so the next change to it has to come through
+        this case.
+        """
+        self.assertEqual(
+            tuple(oci.RESOLVED_IDENTITY),
+            ("image_digest", "profile_digest", "policy_digest",
+             "adapter_digest"))
         for spoiled in ({"image_digest": IMAGE},
+                        {name: value for name, value in
+                         Adapting.IDENTITY.items() if name != "policy_digest"},
                         dict(Adapting.IDENTITY, extra="x"),
                         dict(Adapting.IDENTITY, image_digest="latest"),
+                        dict(Adapting.IDENTITY, policy_digest="latest"),
                         dict(Adapting.IDENTITY, profile_digest=""),
                         "not a document"):
             with self.subTest(identity=spoiled):
@@ -610,9 +1076,15 @@ class TheEngineReportsFactsAndDecidesNothing(Adapting):
         into an identity, and inventing one makes every later comparison
         meaningless."""
         adapter = self.adapter(answer(stdout=""), answer(stdout="  \n"))
+        # W6634: the answer gained a `credentials` member, because a start that
+        # produced no runtime id is a FAILURE ENDING for the delivery too --
+        # nothing later could adopt or tear down a delivery it cannot name.
+        # This adapter was built without one, so it says so.
         self.assertEqual(adapter.start({"labels": LABELS,
                                         "operation_id": "op-1"}),
-                         {"runtime_id": None, "labels": None})
+                         {"runtime_id": None, "labels": None,
+                          "credentials": {"lifecycle_state":
+                                          "not-delivered"}})
 
     def test_a_refused_start_is_reported_with_bounded_prose(self):
         adapter = self.adapter(answer(stdout=""),
@@ -732,6 +1204,19 @@ class AbsenceIsProvedRatherThanInferred(Adapting):
             stderr="inspection helper not found while daemon is unavailable"))
         self.assertEqual(adapter.observe("runtime-1")["state"], "uncertain")
 
+    def test_an_absence_sentence_for_another_runtime_is_not_this_one_absent(
+            self):
+        """The requested identity elsewhere in stderr is not association.
+
+        Only the engine sentence that states absence may name the identity;
+        two unrelated fragments cannot be combined into death evidence.
+        """
+        adapter = self.adapter(answer(
+            status=1,
+            stderr=("Error: No such container: runtime-2; "
+                    "request was for runtime-1")))
+        self.assertEqual(adapter.observe("runtime-1")["state"], "uncertain")
+
     def test_an_empty_listing_is_never_death(self):
         """It is one question answered about a filter. Absence is a question
         about an exact identity, and only the engine can answer it."""
@@ -780,12 +1265,31 @@ class AbsenceIsProvedRatherThanInferred(Adapting):
         self.assertEqual(settled["ordered"], False)
         self.assertEqual(settled["state"], "running")
 
+    @staticmethod
+    def destroy_command(runtime_id="runtime-1"):
+        """W6629 review [P1]: this core is handed `runtimeDestroyBody` now.
+
+        The manager's authorization -- the assignment, the attempt, the intake
+        receipt digest and the retention policy digest -- travels WITH the
+        command instead of stopping at the boundary. Nothing here interprets
+        it; the identity is what this core acts on."""
+        return {"assignment_ref": {"work_ref": {"authority_uuid": "u" * 32,
+                                                "work_id": "u" * 32 + "-W1"},
+                                   "participant": "baton.claude",
+                                   "generation": 1},
+                "runtime_attempt_id": "attempt-1",
+                "runtime_id": runtime_id,
+                "intake_receipt_digest": "sha256:" + "6" * 64,
+                "retention_policy_digest": "sha256:" + "7" * 64}
+
     def test_destruction_proves_absence_rather_than_assuming_it(self):
         adapter = self.adapter(answer(),
                                answer(status=1, stderr="Error: No such container: runtime-1"))
-        self.assertEqual(adapter.destroy("runtime-1")["state"], "absent")
+        self.assertEqual(
+            adapter.destroy(self.destroy_command())["state"], "absent")
         adapter = self.adapter(answer(), answer(stdout=inspection(True)))
-        self.assertEqual(adapter.destroy("runtime-1")["state"], "running")
+        self.assertEqual(
+            adapter.destroy(self.destroy_command())["state"], "running")
 
     def test_the_diagnostic_is_bounded_however_loud_the_engine_is(self):
         adapter = self.adapter(answer(status=1, stderr="e" * 100_000))

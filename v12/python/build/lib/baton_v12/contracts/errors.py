@@ -39,6 +39,17 @@ __all__ = ["ContractRefusal", "ERROR_CODES", "is_closed_pair", "name_value",
 # The bound on any caller-controlled text this module puts into a message.
 _NAME_LIMIT = 60
 
+# §13 (W6630): the message a refusal that quoted a live bearer is replaced by
+# WHEN IT CAN BE. It is this module's own constant prose and names nothing it
+# was handed -- but naming nothing is not the same as containing nothing, and
+# sixth review [P1] is the difference: a live value may be a SUBSTRING of it.
+# `ContractRefusal.__init__` therefore proves this string against the live
+# registry like any other, and falls back to an empty message when it cannot.
+SECRET_LEAK_MESSAGE = (
+    "a refusal quoted a live bearer value; §13 keeps the one deliberate "
+    "secret off every durable surface, and a diagnostic that names the "
+    "operand it rejects is one")
+
 # The bound on a whole refusal message. Large enough for this package's own
 # composed prose plus several bounded operands, and small enough that a durable
 # row's size is this contract's decision rather than a raising site's.
@@ -144,6 +155,74 @@ def is_closed_pair(category, code):
             and category in _PAIRING and code in _PAIRING[category])
 
 
+# §13 (W6630): the fallback text for an assertion whose own words would carry
+# a live value. Proved like everything else, and terminal because the empty
+# string is the one text a non-empty value cannot be contained in.
+DEFECT_REDACTED = ("this build raised a refusal it cannot describe without "
+                   "quoting a live value; §13 keeps the one deliberate secret "
+                   "off every durable surface")
+
+
+def _defect(text, live):
+    """The COMPLETE text of an assertion leaving this constructor, proved.
+
+    Eighth review [P1] asked for the correction to cover constructor
+    assertions BY CONSTRUCTION rather than one exemption per reproduction,
+    and this is that construction: every `raise AssertionError` in
+    `ContractRefusal.__init__` passes its text through here, and a case
+    asserts that by reading the source rather than by trusting this comment.
+
+    WHY THE PER-OPERAND RENDERER IS NOT ENOUGH ON ITS OWN. `_rejected` keeps
+    the sentence readable by redacting only the operand, but its redaction
+    sentence and the type names it composes are TEXT THIS BUILD OWNS -- and a
+    live value may equal a substring of any of them, which is exactly the
+    containment error sixth review found in the substitute message. Safe
+    provenance is not safe content. So the operand renderer keeps the
+    diagnostic worth reading and this proves the result.
+
+    NO RECURSION TO BOTTOM OUT. It composes nothing that re-enters the
+    constructor: the preferred text, then a constant, then the empty string,
+    each proved against the same snapshot.
+    """
+    if not _carries_live_secret_at(text, live):
+        return text
+    if not _carries_live_secret_at(DEFECT_REDACTED, live):
+        return DEFECT_REDACTED
+    return ""
+
+
+def _rejected(value, live):
+    """Name a rejected category or code, never carrying a live value.
+
+    §13's rule applies to a raising-site assertion exactly as it applies to a
+    refusal message: both are public text, and a claim token pasted where a
+    category belongs is as durable in one as in the other.
+
+    PROVED RATHER THAN SUPPRESSED, which is what keeps the diagnostic worth
+    reading. An ordinary build defect -- a misspelled `integrty` -- is still
+    quoted verbatim, because that is the whole use of this message. Only a
+    value the registry says is live gives way, and it gives way to a sentence
+    that says so rather than to silence.
+    """
+    if type(value) is not str:
+        return f"a {type_name_of(value)}"
+    if _carries_live_secret_at(value, live):
+        return ("a string §13 will not let this build quote, because the "
+                "registry says it is live")
+    return repr(value)
+
+
+def _carries_live_secret_at(value, live):
+    """The containment question, asked without importing at module scope.
+
+    §13 lives one module out and imports this one for `ContractRefusal`
+    itself, so the import is deferred for the reason recorded in
+    `ContractRefusal.__init__`.
+    """
+    from .secrets import _carries_live_secret
+    return _carries_live_secret(value, live)
+
+
 class ContractRefusal(Exception):
     """An ordinary manager refusal, carrying its closed wire pair.
 
@@ -155,12 +234,49 @@ class ContractRefusal(Exception):
 
     def __init__(self, category, code, message, *, durable=False):
         super().__init__(message)
+        # §13 (W6630), and the snapshot is taken HERE because the pair
+        # assertions below are diagnostics too.
+        #
+        # Seventh review [P1]: those two assertions run before the message
+        # guard and rendered the rejected operand with `repr`, so a live
+        # bearer supplied as an invalid category or code left in an
+        # `AssertionError` the crossing never saw. Classifying an invalid pair
+        # as a raising-site defect is right and unchanged; it does not make an
+        # assertion carrying a live secret safe. This Work has now been
+        # corrected for the same shape at a manifest door, a row boundary, two
+        # document owners, thirty public surfaces and the substitute itself --
+        # and this is the last diagnostic in this constructor that ran in
+        # front of the guard.
+        #
+        # ONE SNAPSHOT for every question this construction asks, so the pair
+        # and the message are decided against one view of the registry.
+        from .secrets import _carries_live_secret, _live_values
+        live = _live_values()
+        # SHAPE BEFORE MEMBERSHIP, because `x in mapping` HASHES x and
+        # `__hash__` is caller code. Eighth review [P1]: the membership tests
+        # ran first, so a rejected operand with a hostile hash executed inside
+        # the check meant to own it -- and could raise an exception carrying
+        # the live bearer -- while an unhashable one escaped as a raw
+        # `TypeError`, so the promised assertion taxonomy was never reached.
+        # `is_closed_pair` one screen up has established the types before
+        # hashing since W6782 for this exact reason; this is the same rule at
+        # the site that raises.
+        for name, value in (("category", category), ("code", code)):
+            if type(value) is not str:
+                raise AssertionError(_defect(
+                    f"this build raised a refusal whose {name} is a "
+                    f"{type_name_of(value)}; a category and a code are text "
+                    f"chosen from closed vocabularies", live))
         if category not in _PAIRING:
-            raise AssertionError(
-                f"{category!r} is not one of the frozen error categories")
+            raise AssertionError(_defect(
+                f"this build raised a refusal whose category is "
+                f"{_rejected(category, live)}, which is not one of the "
+                f"frozen error categories", live))
         if code not in _PAIRING[category]:
-            raise AssertionError(
-                f"{code!r} is not a {category} code; the pairing is closed")
+            raise AssertionError(_defect(
+                f"this build raised a refusal whose code is "
+                f"{_rejected(code, live)}, which is not a {category} code; "
+                f"the pairing is closed", live))
         self.category = category
         self.code = code
         # W7079: THE MESSAGE IS DURABLE TEXT AND IS OWNED AS SUCH. W6782's
@@ -176,14 +292,19 @@ class ContractRefusal(Exception):
         # a ContractRefusal here would also be a refusal whose own message is
         # the thing under suspicion.
         if type(message) is not str:
-            raise AssertionError(
-                f"a refusal message is text; this is {type(message).__name__}")
+            # `type_name_of` rather than `.__name__`: eighth review [P1]. This
+            # module has owned that helper since W6782 because ordinary
+            # attribute lookup consults a caller-controlled METACLASS, and
+            # these two sites were still doing exactly that.
+            raise AssertionError(_defect(
+                f"a refusal message is text; this is "
+                f"{type_name_of(message)}", live))
         try:
             message.encode("utf-8")
         except UnicodeEncodeError:
-            raise AssertionError(
+            raise AssertionError(_defect(
                 "a refusal message must be encodable; a refusal that cannot "
-                "be stored is one nobody can read back") from None
+                "be stored is one nobody can read back", live)) from None
         # AND IT IS BOUNDED. Encodable was not enough: a refusal is journalled,
         # logged and carried onto a wire, and an unbounded one is a durable row
         # whose size a raising site decides by accident -- the same rule W1593
@@ -191,10 +312,9 @@ class ContractRefusal(Exception):
         # carries them all. SCALARS rather than bytes, because that is the
         # length a reader and a `maxLength` both count in.
         if len(message) > MESSAGE_LIMIT:
-            raise AssertionError(
+            raise AssertionError(_defect(
                 f"a refusal message is at most {MESSAGE_LIMIT} characters; "
-                f"this is {len(message)}")
-        self.message = message
+                f"this is {len(message)}", live))
         # `durable` is a property of the RAISING SITE, not of the calling
         # transition: only the site knows whether it had already written
         # something it must keep.
@@ -205,10 +325,76 @@ class ContractRefusal(Exception):
         # already failing and least able to survive a caller's code. `is not
         # True and is not False` rather than `isinstance(bool)`, because that
         # admits nothing else at all.
+        #
+        # OWNED BEFORE THE MESSAGE IS ACCEPTED, so that the §13 rule below can
+        # carry this exact durability into the refusal it substitutes: a leak
+        # discovered while composing a diagnostic does not un-write whatever
+        # the raising site had already written.
         if durable is not True and durable is not False:
-            raise AssertionError(
+            raise AssertionError(_defect(
                 f"a refusal's durability is a Boolean; this is "
-                f"{type(durable).__name__}")
+                f"{type_name_of(durable)}", live))
+        # §13 (W6630): AND IT CARRIES NO LIVE BEARER.
+        #
+        # Fifth review [P1] named two public doors whose shape diagnostic
+        # quoted a live bearer before their secret walk could answer, and asked
+        # for a re-audit of the other public document owners. The re-audit was
+        # done by MEASUREMENT rather than by reading, driving every callable in
+        # `worker_manager.__all__` with a spoiled operand while the bearer was
+        # live: THIRTY of them answered with a refusal whose message contained
+        # it. Ordering the walk at each door would have corrected two of those
+        # and left twenty-eight, and the next door written would join them --
+        # which is the shape this Work has now been corrected for five times.
+        #
+        # So the guard is at the ONE CROSSING, which is the lesson third review
+        # [P1] established for `boundaries.row` applied one layer further out.
+        # Every diagnostic in this distribution becomes durable and portable
+        # HERE: a refusal is journalled, sealed, logged and carried onto a
+        # wire, and this constructor is already the owner that decides its
+        # message is text, encodable and bounded. "A bounded diagnostic cannot
+        # itself leak" is the same kind of rule as those three, and it belongs
+        # beside them rather than in a list of doors somebody maintains.
+        #
+        # CONTAINMENT, not equality, for the reason `secrets` gives: an
+        # interpolated bearer is as durable as a bare one.
+        #
+        # DEFERRED IMPORT, and it is a cycle rather than an accident: §13 lives
+        # one module out and imports this one for `ContractRefusal` itself. The
+        # rule stays whole in `secrets` rather than being split across two
+        # files to satisfy an import order, and the cost is a `sys.modules`
+        # lookup on a path that is already raising.
+        #
+        # THE REPLACEMENT IS PROVED, NOT EXEMPTED. Sixth review [P1]: this
+        # used to skip the check when the message EQUALLED the substitute
+        # prose, so that raising the substitute could not recurse. Equality is
+        # the wrong test for a containment rule and the reviewer was right
+        # about the consequence: the registry accepts any non-empty value and
+        # §13's own contract admits a claim token of 32 characters, so a live
+        # bearer can be a SUBSTRING of that constant -- and the exempt
+        # replacement then carried the whole live value out. My own comment
+        # here said "if the live value happens to BE this build's substitute
+        # prose", which is exactly the equality reasoning the rule forbids one
+        # line above.
+        #
+        # So the replacement passes the same containment test as everything
+        # else, and when the prose cannot pass it the message is EMPTY. That
+        # is the one string a non-empty value cannot be contained in, and
+        # `remember_secret` refuses an empty value, so the fallback is safe by
+        # construction rather than by inspection. The closed pair survives
+        # either way: `integrity.secret-leak` is the diagnostic, and the prose
+        # is the part that has to give way.
+        #
+        # ONE SNAPSHOT FOR BOTH QUESTIONS, for the reason `_walk` takes one
+        # per document: asking about the message and about the replacement
+        # separately would let the registry move between the two answers, and
+        # a replacement proved clean under a view nobody used is not proved.
+        if _carries_live_secret(message, live):
+            raise ContractRefusal(
+                "integrity", "secret-leak",
+                "" if _carries_live_secret(SECRET_LEAK_MESSAGE, live)
+                else SECRET_LEAK_MESSAGE,
+                durable=durable)
+        self.message = message
         self.durable = durable
 
     def __str__(self):

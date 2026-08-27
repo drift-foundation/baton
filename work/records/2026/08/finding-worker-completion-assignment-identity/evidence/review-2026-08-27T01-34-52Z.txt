@@ -1,0 +1,111 @@
+W19784 second independent review evidence — 2026-08-27T01:34:52Z
+
+1. First-review corrections independently confirmed
+
+Ordinary direct-worker command (no -B, no manual cache cleanup):
+
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_worker_image
+  Ran 75 tests in 0.154s
+  FAILED (failures=2)
+
+Only the two already recorded W6633 failures remain:
+
+  test_the_correlated_work_answer_names_outputs_only
+  test_declared_output_limits_hold_before_completion_publication
+
+All four additive W19784 closedness/self-digest regressions pass.
+
+Manager manifest/workspace/attempt/OCI suites before the new regression:
+
+  env PYTHONPATH=src python3 -B -m unittest \
+    tests.manager.test_manifest_rules tests.manager.test_workspaces \
+    tests.manager.test_attempts tests.manager.test_oci
+  Ran 215 tests in 0.274s — OK
+
+The run emitted ResourceWarnings for three unclosed write handles in
+test_workspaces.py's mutation lambdas. They did not change verdicts and are not
+the W19784 boundary finding.
+
+Record models:
+
+  python3 -B -m unittest test_contract_model
+  Ran 31 tests in 0.119s — OK
+
+  python3 -B -m unittest test_conformance_model
+  Ran 74 tests in 4.814s — OK
+
+Source inspection also confirms:
+
+- the worker derives top-level closed/required sets and schema constants from
+  its frozen fifth schema copy, recomputes both self-digests, and performs the
+  pair comparison before dispatch;
+- compose_input_root requires manager-owned assignment and attempt operands;
+- authorize_input_root reads the on-disk pair and compares assignment,
+  runtime attempt and the attempt's recorded input digest;
+- the conformance register now has three runtime.start cases before the three
+  output.freeze cases in A-18;
+- the ordinary direct suite removes stale worker bytecode before import.
+
+2. Remaining authorization-to-mount split
+
+Relevant production flow:
+
+  attempts.py:736  request_runtime_start(..., inputs=None)
+  attempts.py:783  authorize_input_root(..., inputs=inputs)
+  attempts.py:800  adapter.start({labels, operation_id})
+
+The authenticated input path is absent from the adapter request.
+
+The OCI adapter owns and uses a separate value:
+
+  oci.py:846  OciAdapter.__init__(..., mounts=(), ...)
+  oci.py:861  self.mounts = tuple(mounts)
+  oci.py:898  OciAdapter.start(request)
+  oci.py:967  run_vector(..., mounts=self.mounts, ...)
+
+`_mounts` validates containment and writability but does not require an input
+mount, require the authenticated source, or require target `/input`.
+Therefore authorization of root A says nothing about whether the runtime
+mounts A, B, nothing, or an allowed source at `/inputs`.
+
+3. Additive reproduction
+
+Added:
+
+  tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.
+    test_authorizing_one_root_cannot_start_an_adapter_mounting_another
+
+The case composes and authorizes the valid input root, gives the adapter an
+independent mount plan exposing the sibling workspace at `/input`, and
+requires refusal before adapter invocation or start journalling.
+
+Focused result:
+
+  env PYTHONPATH=src python3 -B -m unittest \
+    tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled.\
+test_authorizing_one_root_cannot_start_an_adapter_mounting_another
+  Ran 1 test in 0.009s
+  FAILED (failures=1)
+  AssertionError: ContractRefusal not raised
+
+Combined attempt/OCI result after the regression:
+
+  env PYTHONPATH=src python3 -B -m unittest \
+    tests.manager.test_attempts tests.manager.test_oci
+  Ran 132 tests in 0.178s
+  FAILED (failures=1)
+
+This is not a theoretical missing caller: the tested call validates one real
+composed root, invokes the adapter configured for another root, and commits a
+successful start.
+
+4. Built-image gate
+
+  env PYTHONPATH=src python3 -B -m unittest tests.manager.test_worker_container
+  Ran 3 tests — FAILED (errors=4)
+
+Each affected setUpClass reports Docker socket permission denied. Per managed
+turn policy no escalation was requested. The implementer's recorded 35/35
+result is therefore not independently reproduced in this turn. Independently
+of daemon availability, those tests mount roots directly and do not exercise
+the attempts-to-OciAdapter seam above.

@@ -1,0 +1,76 @@
+W14251 — second-review corrections. 2026-08-26.
+No repository state was mutated.
+
+=== 1. [P1] the two documents, and the two authors
+$ python3 -c <read the schema and name each document's author-only members>
+definitions: 53
+completionManifest required: ['schema', 'assignment_ref', 'disposition', 'outputs']
+workerOutput required: ['name', 'type', 'path', 'status', 'content_manifest', 'result_metadata']
+resultManifest MANAGER-only required members: ['freeze_operation', 'manager_observed_at']
+resultManifest optional link: ['completion_manifest_digest']
+
+the worker envelope carries none of these: correct - none
+
+=== 2. all four schema copies agree on the new bytes
+copies: 4 distinct digests: 1
+sha256: bc2675fb7fa0428c500c7450805e49e4e1e132901d610d4ed2c7622c7281f5f4
+
+=== 3. [P1] overlap is compared within a root, not across the two
+$ PYTHONPATH=src python3 -m unittest test_frozen test_manifest_rules test_output test_secrets test_workspaces
+----------------------------------------------------------------------
+Ran 223 tests in 0.841s
+
+OK
+
+=== 4. the record's own executable contract
+$ python3 -m unittest test_contract_model
+----------------------------------------------------------------------
+Ran 24 tests in 0.105s
+
+OK
+
+=== 5. the revised conformance contract
+$ python3 -B build_cases.py && python3 -m unittest test_conformance_model
+cases: 119 {'control-success': 26, 'invariant': 48, 'control-refusal': 45}
+----------------------------------------------------------------------
+Ran 74 tests in 4.254s
+
+OK
+
+=== 6. item 7 — W6634 revalidated by measurement
+The manager's receipt: name, location and schema.
+332:_COMMITTED = "sealed.json"
+1291:        return os.path.join(self._home(), "custody", attempt_id)
+563:        "schema": "baton.worker-manifest/result",
+occurrences of output.json anywhere in worker_manager/: 1
+  ^ zero: nothing in the manager yet READS the worker's envelope, which
+    is the second of the two obligations recorded in PROGRESS.md.
+
+=== 7. the aggregate gate
+ERROR: test_a_cleanup_exception_cannot_replace_an_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_cleanup_exception_cannot_replace_an_earlier_failure)
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+FAIL: test_a_delivery_cannot_start_under_another_attempts_labels (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_delivery_cannot_start_under_another_attempts_labels)
+FAIL: test_a_pre_engine_vector_refusal_settles_the_credential (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_pre_engine_vector_refusal_settles_the_credential)
+FAIL: test_a_bind_shadowing_the_fixed_root_is_not_exact_agreement (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_a_bind_shadowing_the_fixed_root_is_not_exact_agreement)
+FAIL: test_no_record_for_one_attempt_does_not_discard_another_attempt (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_no_record_for_one_attempt_does_not_discard_another_attempt)
+FAIL: test_two_live_binds_cannot_satisfy_one_recorded_slot (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_two_live_binds_cannot_satisfy_one_recorded_slot)
+FAIL: test_a_refused_cleanup_is_attached_to_the_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_refused_cleanup_is_attached_to_the_earlier_failure)
+Ran 1395 tests in 789.112s
+FAILED (failures=12, errors=1, skipped=6)
+V12_STATUS=1
+
+The review's additive two-root regression is GREEN and no longer appears.
+None of the thirteen is this Work's:
+  - six are the long-standing boundary-inventory gaps;
+  - two are W6633's test_worker_image_build;
+  - five are additive regressions W6634's own review added to
+    test_credentials while this round ran. They are that Work's files
+    and that Work is with its reviewer.
+
+$ diff --check over the working tree
+DIFFCHECK_STATUS=0

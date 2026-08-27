@@ -1,0 +1,4 @@
+/home/sl/src/pushcoin/.git
+/home/sl/.config/baton/acp/pc.code/policy
+/home/sl/.claude/.credentials.json
+/home/sl/.local/state/acp-baton-bridge/pc.code/claude/settings.json

@@ -205,9 +205,6 @@ def _ask(store, port, agent, *, kind, attempt_id, posture, session_epoch,
     posture_slots._posture(posture)
     posture_slots._epoch(session_epoch)
     boundaries.identity(operation_id, "an interrogation operation id")
-    for operation in ("probe", "inquire"):
-        boundaries.capability(getattr(agent, operation, None),
-                              f"the agent adapter's {operation}")
     if question is not None:
         boundaries.text(question, "an inquiry question")
         if len(question) > MAX_QUESTION:
@@ -253,6 +250,23 @@ def _ask(store, port, agent, *, kind, attempt_id, posture, session_epoch,
         # second caller's clock decides nothing, which is what the previous
         # correction claimed and this makes true.
         committed.append("ours")
+        # THE ADAPTER IS MUTABLE TOO, and this is the third input to move in
+        # for the reason the clock and the authority did. Fifth review [P1]:
+        # the protocol was inspected before `store.transact` could decide
+        # replay, so an exact retry after a restart that left no reachable
+        # adapter refused -- a request whose durable answer was sitting in the
+        # journal, rejected over a capability the replay does not call and
+        # does not need. The adapter is not a signed operand; today's one
+        # decides today's requests and not yesterday's answered one.
+        #
+        # THE REFUSAL STAYS NON-DURABLE, which is the half that had to be
+        # KEPT. It raises inside the action, so `transact` rolls back and a
+        # fresh request carrying an invalid adapter journals no operation at
+        # all -- the same outcome the pre-journal check gave, reached without
+        # making replay depend on it.
+        for operation in ("probe", "inquire"):
+            boundaries.capability(getattr(agent, operation, None),
+                                  f"the agent adapter's {operation}")
         # THE MUTABLE EXTERNAL READ, HERE AND NOWHERE EARLIER, for the same
         # reason the clock is: `transact` runs this only when it did not
         # replay, so what Baton says today decides today's requests and not
@@ -593,13 +607,6 @@ def record_inquiry_answer(store, *, operation_id, answer):
     never a statement that the turn ended.
     """
     boundaries.identity(operation_id, "an interrogation operation id")
-    boundaries.document(answer, "an inquiry answer",
-                        required=("body",), optional=("diagnostics",))
-    boundaries.text(answer["body"], "an inquiry answer body")
-    if len(answer["body"]) > MAX_ANSWER:
-        raise ContractRefusal(
-            "integrity", "limit",
-            f"an inquiry answer body is at most {MAX_ANSWER} characters")
     # §13 BEFORE THE ROW, because this act does NOT go through `transact`.
     # Found re-auditing the prose-only classifications re-review [P1] asked
     # for: the sweep entry excused this writer on the grounds that the answer
@@ -608,7 +615,21 @@ def record_inquiry_answer(store, *, operation_id, answer):
     # UPDATE below is a direct one. So an answer body carrying a live bearer
     # reached durable storage with no walk at all, which is the plain §13
     # durable rule and not a subtle case of it.
+    #
+    # AND BEFORE THE OWNER, not merely before the row. Fifth review [P1]:
+    # `boundaries.document` NAMES the value it rejects, so a raw `answer` that
+    # IS the live bearer was rendered into a public `integrity.schema`
+    # diagnostic before this walk could answer with the bounded refusal. The
+    # walk traverses only exact built-ins and runs nothing, so it is safe on
+    # the operand exactly as it arrived — the ordering is free.
     check_no_durable_secret(answer, what="an inquiry answer")
+    boundaries.document(answer, "an inquiry answer",
+                        required=("body",), optional=("diagnostics",))
+    boundaries.text(answer["body"], "an inquiry answer body")
+    if len(answer["body"]) > MAX_ANSWER:
+        raise ContractRefusal(
+            "integrity", "limit",
+            f"an inquiry answer body is at most {MAX_ANSWER} characters")
     connection = store._connection
     connection.execute("BEGIN IMMEDIATE")
     try:

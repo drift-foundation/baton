@@ -1,0 +1,167 @@
+W6633 — evidence after the correction answering the 00:41:16Z review.
+
+Review answered: review-2026-08-26T00-41-16Z.md
+  [P1] base-layer set overlap is accepted as pinned-base ancestry
+  [P1] concurrent builds for one destination share and delete one stage
+
+Both are trust-boundary defects in the transformer the fifth correction added,
+and both are mine.
+
+
+[P1] ANCESTRY IS AN ORDERED PREFIX, NOT SET MEMBERSHIP
+
+  `_base_facts` returned a `frozenset` of the base's diff ids and
+  `normalize_layout` called every diff id found in that set a base layer. A
+  built layout carrying ONE of two claimed base layers and not the other was
+  accepted, its remaining layers rewritten, and a digest returned as though
+  the pinned base had been established.
+
+  That contradicted the correction's own central claim. An image descends from
+  a base by carrying that base's layers, in that base's order, at the FRONT;
+  anything else is a different image that happens to share bytes.
+
+  So the base's layers come back as an ORDERED SEQUENCE — the engine already
+  reports them in order, and keeping that order is the whole of the fix — and
+  the built image must begin with that exact sequence, with at least one
+  recipe-owned suffix layer, before anything is rewritten:
+
+      base = tuple(base_layers)
+      if not base:                              -> refuse
+      if tuple(diffs_now[:len(base)]) != base:  -> refuse
+      if len(diffs_now) <= len(base):           -> refuse
+
+  The recipe's layers are then the SUFFIX, taken by position. That is stricter
+  than set membership in a way membership could never be: a recipe layer whose
+  digest happened to equal a base layer's is still the recipe's, because of
+  where it is.
+
+
+[P1] THE STAGE IS ALLOCATED, NOT DERIVED
+
+  `staging_tag` returned `<target>-unnormalized` from the destination alone,
+  so two simultaneous builds for one destination shared one mutable tag:
+  either could save the other's un-normalized image, and either `finally`
+  could delete the tag before the other had saved it.
+
+  The docstring claimed the opposite — "so two builds running at once do not
+  stage over each other" — and the claim is what made it easy to miss. It is
+  unique per invocation now, with the destination still in the readable prefix
+  so a leftover stage says which artefact it was on its way to being.
+
+  AND IT IS THREADED, which is what the uniqueness is for. `build_vector` takes
+  the stage as an OPERAND rather than deriving it: a vector that allocated its
+  own would name a reference its caller could not save, remove or read back,
+  which is the shared-tag defect wearing a different hat.
+  `build_worker_image` allocates once and uses that exact value for build,
+  save and cleanup.
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_worker_image tests.tools.test_worker_image_build \
+        tests.manager.test_worker_container.TheDaemonGateExercisesWhatTheManagerWillRun
+    Ran 83 tests in 0.023s
+    OK
+
+  `test_worker_image_build` 18 -> 22. The review's two additive methods are
+  kept as written and pass; three of mine are new:
+
+    an allocated stage still names its destination — unique, and still
+      readable
+    one invocation builds, saves and removes ONE stage — the thread-through,
+      asserted by requiring every stage reference inside one invocation to be
+      the same string
+    the vector takes the stage as an operand
+
+  CAN-ACTUALLY-FAIL, measured twice and honestly the second time. The first
+  revert of the ancestry check left the two degenerate guards in place, so
+  `test_a_partial_base_layer_match_refuses` still raised — for the WRONG
+  reason — and the measurement said nothing. Reverted faithfully to the
+  original set-membership shape:
+
+    x  test_a_partial_base_layer_match_refuses
+    Ran 22 tests -- FAILED (failures=1)
+
+  and with the derived stage restored:
+
+    x  test_concurrent_builds_for_one_destination_have_distinct_stages
+    x  test_one_invocation_builds_saves_and_removes_ONE_stage
+    Ran 22 tests -- FAILED (failures=2)
+
+  The file was restored byte for byte after each.
+
+  ONE EXISTING FIXTURE MOVED. Cases that passed the base layers as a
+  `frozenset` now pass an ordered sequence, because the parameter is ordered:
+  a `frozenset` of two digests would have made those cases depend on set
+  iteration order the moment ancestry became a prefix — passing for one
+  arrangement of the same two values and not the other. No assertion changed.
+
+
+AGAINST A REAL ENGINE
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_worker_container
+    Ran 31 tests in 26.699s
+    OK
+
+  Docker 29.1.3 on linux/amd64, including
+  `test_two_independent_builds_have_one_pinnable_image_identity` — so the
+  ordered-prefix check accepts the real base and the allocated stage still
+  builds, saves, loads and is removed.
+
+    $ docker images --format '{{.Repository}}:{{.Tag}}' | grep -c unnormalized
+    0
+
+  No stage survived the run, which is the property the unique reference could
+  most easily have broken.
+
+    $ env PYTHONPATH=src python3 -m unittest tests.tools.test_parallel_runner
+    Ran 36 tests -- OK
+
+
+FULL SOURCE SUITE AND LOCKED BUILD
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1232 tests in 478.634s
+    FAILED (failures=11, skipped=6)
+
+    $ cd v12/python && just build
+    Ran 1232 tests in 481.234s
+    FAILED (failures=11, skipped=5)
+
+  1228 -> 1232 is this correction's four added cases.
+
+  `tests.tools.test_worker_image_build` DOES NOT APPEAR in the failure list.
+  Both W6633 failures the suite carried are gone and nothing was added.
+
+
+REPORTED AND NOT FIXED
+
+  W6632 — `tests.manager.test_oci`, posted with
+  `review-2026-08-26T02-14-24Z.md` while this correction was in progress:
+    test_a_stale_assignment_runtime_is_not_filtered_into_a_duplicate_start
+    test_a_returned_candidate_must_match_the_requested_assignment
+
+  Both are real defects in that Work's own last correction — mine. It moved
+  the three resolved digests out of the engine filters and stopped, leaving
+  the attempt id, authority, work, participant and generation as exact
+  filters; so a runtime carrying the requested attempt id under a
+  contradictory generation is still hidden, and `start` reaches `run`. The
+  post-read half is incomplete too: `list` parses the whole label record and
+  compares only the engine image and the three digests. Reported on T6632 with
+  the direction I would take.
+
+  W6630 — `tests.manager.test_secrets`:
+    test_the_pair_assertions_cannot_quote_a_live_bearer  (two subcases)
+
+  Already reported on T6630.
+
+  Both are routed to `baton.feat`. The remaining seven are the long-standing
+  `test_boundary_inventory` failures.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w6633b_full.txt   the full source-suite log
+    /tmp/w6633b_build.txt  the locked installed-layout log
+    /tmp/w6633b_gate.txt   the daemon-backed image gate log

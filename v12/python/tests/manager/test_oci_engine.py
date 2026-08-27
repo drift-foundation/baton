@@ -33,22 +33,32 @@ import subprocess
 import tempfile
 import unittest
 import uuid
+from unittest import mock
 
 from baton_v12.contracts import ContractRefusal
-from baton_v12.worker_manager.oci import (ENGINES, EnginePort, OciAdapter,
-                                          ROOT_NAMES)
+from baton_v12.worker_manager.oci import (ENGINES, LABEL_PREFIX, EnginePort,
+                                          OciAdapter, ROOT_NAMES)
 
 # The pinned base the reference worker is built from, already named by digest
 # in `v12/worker/Dockerfile`. Reused rather than re-resolved so this module and
 # that recipe cannot drift into two opinions about which image they mean.
 WORKER = pathlib.Path(__file__).resolve().parents[3] / "worker"
+# THE MARK IS A LABEL AND NEVER A NAME, and the distinction is the whole of
+# review [P1]'s second half. A runtime's NAME is derived from the manager's
+# `runtime.start:<digest>` operation identity, so nothing this module creates
+# is named for this Work -- and a cleanup proof that filtered on the name
+# selected none of them. Every created runtime does carry this Work's label,
+# so the label namespace is the selector, and `WORK` is the exact value the
+# final query asks for.
 MARK = "baton-w6632-engine"
+WORK = "2b077949-W6632"
 
 LABELS = {"runtime_attempt_id": "attempt-w6632",
           "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
-          "work_id": "2b077949-W6632", "participant": "baton.claude",
+          "work_id": WORK, "participant": "baton.claude",
           "generation": 1,
           "profile_digest": "sha256:" + "b" * 64,
+          "policy_digest": "sha256:" + "d" * 64,
           "adapter_digest": "sha256:" + "c" * 64}
 
 
@@ -110,9 +120,35 @@ class EngineCycle:
                 "stderr": finished.stderr.decode("utf-8", "replace")}
 
     def remove_everything(self):
+        """Remove what this case made, and SURFACE a removal that did not.
+
+        Review [P1]: the return code was discarded here as well as in the
+        final proof, so a removal the daemon refused was indistinguishable
+        from one it performed. A cleanup that cannot fail is a cleanup whose
+        success is an assumption.
+
+        A refused `rm` is not by itself a failure: a name is registered the
+        instant it CAN exist, so some were never created and the engine
+        rightly says so. What makes it a failure is the container still being
+        there afterwards, which is a question for the engine rather than for
+        its prose.
+        """
+        survived = []
         for name in self.made:
-            subprocess.run([self.engine, "rm", "--force", name],
-                           capture_output=True, timeout=120)
+            removed = subprocess.run([self.engine, "rm", "--force", name],
+                                     capture_output=True, timeout=120)
+            if removed.returncode == 0:
+                continue
+            found = subprocess.run(
+                [self.engine, "ps", "--all", "--filter", f"name={name}",
+                 "--format", "{{.Names}}"],
+                capture_output=True, timeout=120)
+            if found.returncode != 0 or found.stdout.decode(
+                    "utf-8", "replace").strip():
+                survived.append(
+                    (name, removed.stderr.decode("utf-8", "replace")[:200]))
+        assert not survived, (
+            f"{self.engine} did not remove {survived}")
 
     def resolved_image(self):
         """The pinned base, PULLED and then named by its local image id.
@@ -150,6 +186,7 @@ class EngineCycle:
     def identity(self):
         return {"image_digest": self.image,
                 "profile_digest": LABELS["profile_digest"],
+                "policy_digest": LABELS["policy_digest"],
                 "adapter_digest": LABELS["adapter_digest"]}
 
     def adapter(self, mounts=()):
@@ -198,7 +235,19 @@ class EngineCycle:
         self.assertTrue(settled["ordered"])
         self.assertIn(settled["state"], ("quiescent", "absent"), settled)
 
-        gone = adapter.destroy(answer["runtime_id"])
+        # W6629 review [P1]: the seam receives `runtimeDestroyBody` now, so
+        # the manager's authorization travels with the command instead of
+        # stopping at the boundary. Against a REAL engine the only member that
+        # changes behaviour is still the identity; the rest is carried.
+        gone = adapter.destroy({
+            "assignment_ref": {
+                "work_ref": {"authority_uuid": "u" * 32,
+                             "work_id": "u" * 32 + "-W1"},
+                "participant": "baton.claude", "generation": 1},
+            "runtime_attempt_id": "attempt-1",
+            "runtime_id": answer["runtime_id"],
+            "intake_receipt_digest": "sha256:" + "6" * 64,
+            "retention_policy_digest": "sha256:" + "7" * 64})
         self.assertEqual(gone["state"], "absent", gone)
 
     def test_a_second_start_under_one_identity_is_refused(self):
@@ -269,9 +318,54 @@ class PodmanRunsWhatTheAdapterComposes(EngineCycle, unittest.TestCase):
 
 class TheEngineGateLeavesNothingBehind(unittest.TestCase):
 
+    def test_cleanup_queries_the_label_namespace_the_tests_create(self):
+        """The final proof must select the runtimes this module actually made.
+
+        Runtime names are derived from `runtime.start:<digest>` and do not
+        contain MARK.  Every runtime does carry this Work label, so that is the
+        stable selector a positive cleanup query can use.
+        """
+        finished = subprocess.CompletedProcess([], 0, stdout=b"", stderr=b"")
+        with mock.patch(__name__ + ".reachable", return_value=(True, "ok")):
+            with mock.patch(__name__ + ".subprocess.run",
+                            return_value=finished) as run:
+                case = TheEngineGateLeavesNothingBehind(
+                    "test_no_runtime_of_this_module_survives_it")
+                case.test_no_runtime_of_this_module_survives_it()
+        filters = [call.args[0][call.args[0].index("--filter") + 1]
+                   for call in run.call_args_list]
+        self.assertEqual(filters,
+                         [f"label=baton.v12.work_id={LABELS['work_id']}"] *
+                         len(ENGINES))
+
+    def test_a_failed_cleanup_query_is_not_positive_absence(self):
+        """Empty stdout from a refused engine query proves nothing."""
+        refused = subprocess.CompletedProcess(
+            [], 1, stdout=b"", stderr=b"daemon query failed")
+        with mock.patch(__name__ + ".reachable", return_value=(True, "ok")):
+            with mock.patch(__name__ + ".subprocess.run",
+                            return_value=refused):
+                case = TheEngineGateLeavesNothingBehind(
+                    "test_no_runtime_of_this_module_survives_it")
+                with self.assertRaises(AssertionError):
+                    case.test_no_runtime_of_this_module_survives_it()
+
     def test_no_runtime_of_this_module_survives_it(self):
         """Asked of every engine that is present, and of the ENGINE rather
-        than of a bookkeeping list."""
+        than of a bookkeeping list.
+
+        Review [P1], twice over. It filtered on `name=baton-w6632-engine`, and
+        NO runtime this module creates carries that in its name: every name is
+        derived from `runtime.start:<digest>`, so the query selected nothing
+        this suite had ever made and reported an empty list whatever survived.
+        MARK lives in a LABEL, and the label namespace is the one selector the
+        created runtimes actually share.
+
+        And the query's own return code was ignored, so a refused `ps` — a
+        daemon that went away between the cycle and this proof — produced
+        empty stdout and passed as absence. A query that did not run is not
+        evidence that nothing is there.
+        """
         asked = 0
         for engine in ENGINES:
             usable, _why = reachable(engine)
@@ -279,9 +373,14 @@ class TheEngineGateLeavesNothingBehind(unittest.TestCase):
                 continue
             asked += 1
             found = subprocess.run(
-                [engine, "ps", "--all", "--filter", f"name={MARK}",
+                [engine, "ps", "--all",
+                 "--filter", f"label={LABEL_PREFIX}work_id={WORK}",
                  "--format", "{{.Names}}"],
                 capture_output=True, timeout=120)
+            self.assertEqual(
+                found.returncode, 0,
+                f"{engine} could not be asked what this module left: "
+                f"{found.stderr.decode('utf-8', 'replace')[:200]}")
             left = [line.strip()
                     for line in found.stdout.decode("utf-8").splitlines()
                     if line.strip()]

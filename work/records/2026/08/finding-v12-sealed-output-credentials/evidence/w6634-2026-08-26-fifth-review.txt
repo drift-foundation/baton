@@ -1,0 +1,166 @@
+W6634 — fifth-review corrections. 2026-08-26.
+No repository state was mutated.
+
+=== 1. the four defects, and the five additive regressions kept
+$ PYTHONPATH=src python3 -m unittest tests.manager.test_credentials -v
+test_a_slot_cannot_name_something_outside_the_fixed_root ... ok
+test_a_slot_that_is_not_a_name_is_refused (tests.manager.test_credentials.AnAssignmentNamesSlotsAndNothingElse.test_a_slot_that_is_not_a_name_is_refused)
+test_one_slot_is_authorized_once ... ok
+test_the_number_of_slots_is_bounded ... ok
+test_a_record_that_would_carry_a_live_bearer_refuses (tests.manager.test_credentials.DurableStateNamesTheSlotAndNeverTheBearer.test_a_record_that_would_carry_a_live_bearer_refuses)
+test_an_unreadable_record_refuses_rather_than_faulting ... ok
+test_the_lifecycle_record_carries_slot_provider_and_state ... ok
+test_the_record_is_published_atomically ... ok
+test_a_credential_home_is_an_absolute_canonical_path ... ok
+test_a_delivery_owns_its_own_members ... ok
+test_materialize_owns_a_resolution_it_did_not_compose ... ok
+test_the_durable_write_owns_the_record_before_it_writes_it (tests.manager.test_credentials.EveryPublicDoorOwnsWhatItIsHanded.test_the_durable_write_owns_the_record_before_it_writes_it)
+test_a_credential_wider_than_the_bound_is_refused ... ok
+test_a_failed_materialization_leaves_no_root_and_no_live_bearer (tests.manager.test_credentials.MaterializationArmsTheRegistryFirst.test_a_failed_materialization_leaves_no_root_and_no_live_bearer)
+test_a_provider_that_is_not_a_capability_refuses_before_anything ... ok
+test_a_short_file_write_does_not_truncate_the_credential (tests.manager.test_credentials.MaterializationArmsTheRegistryFirst.test_a_short_file_write_does_not_truncate_the_credential)
+test_a_writer_that_makes_no_progress_refuses_rather_than_spins (tests.manager.test_credentials.MaterializationArmsTheRegistryFirst.test_a_writer_that_makes_no_progress_refuses_rather_than_spins)
+test_an_assignment_that_authorizes_no_slot_has_no_delivery (tests.manager.test_credentials.MaterializationArmsTheRegistryFirst.test_an_assignment_that_authorizes_no_slot_has_no_delivery)
+test_an_existing_root_is_never_written_into (tests.manager.test_credentials.MaterializationArmsTheRegistryFirst.test_an_existing_root_is_never_written_into)
+test_one_private_file_per_slot ... ok
+test_the_bearer_is_live_before_its_bytes_reach_a_file (tests.manager.test_credentials.MaterializationArmsTheRegistryFirst.test_the_bearer_is_live_before_its_bytes_reach_a_file)
+test_a_cancelled_attempt_settles_through_the_same_act (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_cancelled_attempt_settles_through_the_same_act)
+test_a_declined_start_with_a_surviving_runtime_stays_unresolved (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_declined_start_with_a_surviving_runtime_stays_unresolved)
+test_a_delivery_cannot_start_under_another_attempts_labels (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_delivery_cannot_start_under_another_attempts_labels)
+test_a_failure_ending_settles_through_the_same_act (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_failure_ending_settles_through_the_same_act)
+test_a_pre_engine_vector_refusal_settles_the_credential (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_pre_engine_vector_refusal_settles_the_credential)
+test_a_removal_that_did_not_happen_is_not_a_teardown (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_removal_that_did_not_happen_is_not_a_teardown)
+test_a_runtime_not_proved_gone_leaves_the_lifecycle_unresolved (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_runtime_not_proved_gone_leaves_the_lifecycle_unresolved)
+test_a_start_the_engine_never_named_settles_the_credential (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_start_the_engine_never_named_settles_the_credential)
+test_an_engine_declined_start_releases_the_undelivered_credential (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_an_engine_declined_start_releases_the_undelivered_credential)
+test_an_unprovable_removal_refuses_and_keeps_the_bearer_live (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_an_unprovable_removal_refuses_and_keeps_the_bearer_live)
+test_destroy_tears_down_once_the_runtime_is_proved_gone ... ok
+test_teardown_removes_everything_and_then_forgets ... ok
+test_a_root_no_live_attempt_owns_is_discarded ... ok
+test_cleanup_never_reads_what_it_removes (tests.manager.test_credentials.OrphanCleanupIsBoundedAndSaysSo.test_cleanup_never_reads_what_it_removes)
+test_cleanup_stops_at_its_bound_and_reports_the_remainder (tests.manager.test_credentials.OrphanCleanupIsBoundedAndSaysSo.test_cleanup_stops_at_its_bound_and_reports_the_remainder)
+test_nothing_to_clean_is_an_ordinary_answer ... ok
+test_a_bind_shadowing_the_fixed_root_is_not_exact_agreement ... ok
+test_a_failed_recovery_does_not_discard_a_sibling_attempt (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_a_failed_recovery_does_not_discard_a_sibling_attempt)
+test_a_failed_recovery_stops_the_worker_and_cleans_up (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_a_failed_recovery_stops_the_worker_and_cleans_up)
+test_a_multi_slot_recovery_adopts_every_slot ... ok
+test_a_proved_stop_lets_cleanup_discard_the_root ... ok
+test_a_record_naming_another_container_is_not_this_one (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_a_record_naming_another_container_is_not_this_one)
+test_a_recovery_that_cannot_identify_one_container_fails_closed ... ok
+test_an_exactly_agreeing_runtime_is_adopted ... ok
+test_no_record_for_one_attempt_does_not_discard_another_attempt (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_no_record_for_one_attempt_does_not_discard_another_attempt)
+test_no_record_is_an_ordinary_answer_that_still_cleans_up ... ok
+test_the_live_binds_decide_and_not_the_record (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_the_live_binds_decide_and_not_the_record)
+test_two_live_binds_cannot_satisfy_one_recorded_slot ... ok
+test_a_partial_adoption_does_not_leave_an_unowned_live_bearer (tests.manager.test_credentials.RestartAdoptsOnlyAnExactAgreement.test_a_partial_adoption_does_not_leave_an_unowned_live_bearer)
+test_a_record_whose_volatile_file_is_gone_is_not_adoptable ... ok
+test_a_registration_that_cannot_finish_unwinds_completely (tests.manager.test_credentials.RestartAdoptsOnlyAnExactAgreement.test_a_registration_that_cannot_finish_unwinds_completely)
+test_a_volatile_file_wider_than_the_bound_is_not_adoptable (tests.manager.test_credentials.RestartAdoptsOnlyAnExactAgreement.test_a_volatile_file_wider_than_the_bound_is_not_adoptable)
+test_an_exact_record_is_adopted_and_the_bearer_re_registered (tests.manager.test_credentials.RestartAdoptsOnlyAnExactAgreement.test_an_exact_record_is_adopted_and_the_bearer_re_registered)
+test_any_disagreement_fails_closed ... ok
+test_a_worker_that_writes_its_credential_into_the_output_refuses (tests.manager.test_credentials.TheRegistrySpansTheOutputLeakChecks.test_a_worker_that_writes_its_credential_into_the_output_refuses)
+test_the_same_output_seals_once_the_bearer_is_gone (tests.manager.test_credentials.TheRegistrySpansTheOutputLeakChecks.test_the_same_output_seals_once_the_bearer_is_gone)
+test_a_mapping_missing_its_members_is_refused ... ok
+test_a_profile_entry_the_assignment_did_not_authorize_is_not_delivered (tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_a_profile_entry_the_assignment_did_not_authorize_is_not_delivered)
+test_an_unmapped_slot_is_denied (tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_an_unmapped_slot_is_denied)
+test_the_reference_is_opaque (tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque)
+test_a_delivery_becomes_one_read_only_bind_per_slot ... ok
+test_a_slot_delivered_under_another_name_is_refused (tests.manager.test_credentials.TheWorkerSeesOnlyTheFixedRoot.test_a_slot_delivered_under_another_name_is_refused)
+test_a_target_outside_the_fixed_root_is_refused ... ok
+test_an_assignment_mount_may_not_contain_the_credential_root (tests.manager.test_credentials.TheWorkerSeesOnlyTheFixedRoot.test_an_assignment_mount_may_not_contain_the_credential_root)
+test_no_bearer_reaches_the_argv (tests.manager.test_credentials.TheWorkerSeesOnlyTheFixedRoot.test_no_bearer_reaches_the_argv)
+test_two_deliveries_cannot_land_on_one_entry ... ok
+Ran 67 tests in 0.014s
+OK
+
+=== 2. the W14251 dependency, settled rather than deferred
+The two documents, and which one this Work writes.
+332:_COMMITTED = "sealed.json"
+573:        "schema": "baton.worker-manifest/result",
+1349:        return os.path.join(self._home(), "custody", attempt_id)
+occurrences of output.json anywhere in worker_manager/: 2
+  ^ zero. Reading the worker's envelope is the named remaining duty; it
+    belongs with W6633 actually publishing one, and building a consumer
+    for a document nothing writes would be an unexercised path.
+
+$ PYTHONPATH=src python3 -m unittest tests.manager.test_sealing
+----------------------------------------------------------------------
+Ran 32 tests in 0.012s
+
+OK
+
+=== 3. the adjacent surfaces
+----------------------------------------------------------------------
+Ran 327 tests in 1.508s
+
+OK (skipped=1)
+
+=== 4. every guard this round added, measured by REMOVING it
+   a delivery may start under another attempt's labels -> 1 case(s), first: test_a_delivery_cannot_start_under_another_attempts_labels
+   a pre-engine vector refusal bypasses the settlement -> 1 case(s), first: test_a_pre_engine_vector_refusal_settles_the_credential
+   one recorded slot may be satisfied by two live binds -> 1 case(s), first: test_two_live_binds_cannot_satisfy_one_recorded_slot
+   a bind ON the fixed root is not noticed -> 1 case(s), first: test_a_bind_shadowing_the_fixed_root_is_not_exact_agreement
+   recovery discards every sibling attempt's root -> 1 case(s), first: test_no_record_for_one_attempt_does_not_discard_another_attempt
+   a failed recovery discards siblings too -> 1 case(s), first: test_a_failed_recovery_does_not_discard_a_sibling_attempt
+   the receipt does not name the worker envelope -> 1 case(s), first: test_the_receipt_names_the_worker_envelope_when_there_is_one
+   the envelope is not part of the replay binding -> 1 case(s), first: test_a_replay_under_another_worker_envelope_is_refused
+
+UNMEASURED: none
+
+=== 5. the boundary inventory, over the derived universe
+UNOWNED 21
+ORPHANS 23 | mine: [('sealing.py:_relative', 'text', 'a declared output path'), ('sealing.py:collected_result', 'identity', 'a collected output name'), ('sealing.py:declared_outputs', 'document', 'a declared output'), ('sealing.py:declared_outputs', 'document', "a declared output's constraints"), ('sealing.py:declared_outputs', 'identity', 'a declared output name'), ('sealing.py:declared_outputs', 'identity', 'a declared output type')]
+OWNED NEVER PROBED 11 | mine: []
+PROBED NEVER OWNED 8 | mine: []
+WITNESSES == STATED_OWNERS: True
+
+  Every gate is at its long-standing baseline and none of W6634's own
+  entries is outstanding. NAMED RATHER THAN LEFT: six of the 23 standing
+  orphan-owner entries are sealing.py's, from an earlier round of this
+  Work -- declared_outputs and _relative own boundaries the derivation
+  cannot attribute, because their subjects are members of a list the
+  tracker loses through a helper call. Inside the standing failure
+  rather than new, and still this Work's files.
+
+=== 6. the aggregate gate
+ERROR: test_a_cleanup_exception_cannot_replace_an_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_cleanup_exception_cannot_replace_an_earlier_failure)
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='sealing.py:sealed_result', parameter='completion_manifest_digest')
+FAIL: test_the_shipped_validator_enforces_completion_identity_and_containment (tests.manager.test_manifest_rules.ACompletionManifestIsTheWorkersAnswer.test_the_shipped_validator_enforces_completion_identity_and_containment) (what='duplicate name')
+FAIL: test_the_shipped_validator_enforces_completion_identity_and_containment (tests.manager.test_manifest_rules.ACompletionManifestIsTheWorkersAnswer.test_the_shipped_validator_enforces_completion_identity_and_containment) (what='overlapping path')
+FAIL: test_the_shipped_validator_enforces_completion_status_integrity (tests.manager.test_manifest_rules.ACompletionManifestIsTheWorkersAnswer.test_the_shipped_validator_enforces_completion_status_integrity) (what='present without integrity')
+FAIL: test_the_shipped_validator_enforces_completion_status_integrity (tests.manager.test_manifest_rules.ACompletionManifestIsTheWorkersAnswer.test_the_shipped_validator_enforces_completion_status_integrity) (what='missing with integrity')
+FAIL: test_payload_paths_cannot_take_the_fixed_manifest_names (tests.manager.test_manifest_rules.TheCanonicalVectorIsTheBaseline.test_payload_paths_cannot_take_the_fixed_manifest_names) (what='input manifest')
+FAIL: test_payload_paths_cannot_take_the_fixed_manifest_names (tests.manager.test_manifest_rules.TheCanonicalVectorIsTheBaseline.test_payload_paths_cannot_take_the_fixed_manifest_names) (what='output manifest')
+FAIL: test_a_refused_cleanup_is_attached_to_the_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_refused_cleanup_is_attached_to_the_earlier_failure)
+Ran 1402 tests in 789.884s
+FAILED (failures=14, errors=1, skipped=6)
+V12_STATUS=1
+
+All five credential regressions this review added are GREEN and gone.
+Of the fifteen above, ONE was this Work's and is fixed after that run:
+  test_dependencies ... parameter='completion_manifest_digest' --
+  the new operand needed declaring. Re-run below.
+
+Ran 21 tests in 0.253s
+
+OK (skipped=1)
+
+The rest are not this Work's:
+  - six are the long-standing boundary-inventory gaps;
+  - two are W6633's test_worker_image_build;
+  - SIX ARE W14251's, added by that Work's own review while this round
+    ran: ACompletionManifestIsTheWorkersAnswer (4) and
+    test_payload_paths_cannot_take_the_fixed_manifest_names (2). They
+    require contracts/manifest.py to enforce the completion envelope's
+    rules and to reserve /input/input.json and /output/output.json as
+    protocol names. That is W14251's file and W14251 is with its
+    reviewer, so they are reported rather than fixed under this claim.
+
+$ diff --check over the working tree
+DIFFCHECK_STATUS=0

@@ -1,0 +1,171 @@
+diff --git a/v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json b/v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json
+index 32b9270..7699089 100644
+--- a/v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json
++++ b/v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json
+@@ -333,85 +333,12 @@
+       ],
+       "additionalProperties": false
+     },
+-    "gitSource": {
+-      "type": "object",
+-      "properties": {
+-        "name": {
+-          "$ref": "#/$defs/opaqueId"
+-        },
+-        "type": {
+-          "const": "git"
+-        },
+-        "uri": {
+-          "type": "string",
+-          "format": "uri",
+-          "maxLength": 2048
+-        },
+-        "destination": {
+-          "$ref": "#/$defs/relativePath"
+-        },
+-        "required": {
+-          "type": "boolean"
+-        },
+-        "repository_id": {
+-          "$ref": "#/$defs/opaqueId"
+-        },
+-        "object_format": {
+-          "enum": [
+-            "sha1",
+-            "sha256"
+-          ]
+-        },
+-        "base_revision": {
+-          "$ref": "#/$defs/gitObject"
+-        },
+-        "source_ref": {
+-          "type": [
+-            "string",
+-            "null"
+-          ],
+-          "maxLength": 1024
+-        },
+-        "integration_ref": {
+-          "type": [
+-            "string",
+-            "null"
+-          ],
+-          "maxLength": 1024
+-        },
+-        "acquisition_policy_digest": {
+-          "$ref": "#/$defs/digest"
+-        }
+-      },
+-      "required": [
+-        "name",
+-        "type",
+-        "uri",
+-        "destination",
+-        "required",
+-        "repository_id",
+-        "object_format",
+-        "base_revision",
+-        "source_ref",
+-        "integration_ref",
+-        "acquisition_policy_digest"
+-      ],
+-      "additionalProperties": false
+-    },
+-    "directorySource": {
++    "sourceDescriptor": {
+       "type": "object",
+       "properties": {
+         "name": {
+           "$ref": "#/$defs/opaqueId"
+         },
+-        "type": {
+-          "const": "directory"
+-        },
+-        "uri": {
+-          "type": "string",
+-          "format": "uri",
+-          "maxLength": 2048
+-        },
+         "destination": {
+           "$ref": "#/$defs/relativePath"
+         },
+@@ -420,28 +347,20 @@
+         },
+         "content_manifest": {
+           "$ref": "#/$defs/contentManifest"
++        },
++        "consumption": {
++          "$ref": "#/$defs/extensions"
+         }
+       },
+       "required": [
+         "name",
+-        "type",
+-        "uri",
+         "destination",
+         "required",
+-        "content_manifest"
++        "content_manifest",
++        "consumption"
+       ],
+       "additionalProperties": false
+     },
+-    "sourceDescriptor": {
+-      "oneOf": [
+-        {
+-          "$ref": "#/$defs/gitSource"
+-        },
+-        {
+-          "$ref": "#/$defs/directorySource"
+-        }
+-      ]
+-    },
+     "outputConstraints": {
+       "type": "object",
+       "properties": {
+@@ -494,11 +413,7 @@
+           "$ref": "#/$defs/opaqueId"
+         },
+         "type": {
+-          "enum": [
+-            "git-change-proposal",
+-            "directory-result",
+-            "record-output"
+-          ]
++          "$ref": "#/$defs/opaqueId"
+         },
+         "path": {
+           "$ref": "#/$defs/relativePath"
+@@ -526,11 +441,7 @@
+           "$ref": "#/$defs/opaqueId"
+         },
+         "type": {
+-          "enum": [
+-            "git-change-proposal",
+-            "directory-result",
+-            "record-output"
+-          ]
++          "$ref": "#/$defs/opaqueId"
+         },
+         "status": {
+           "enum": [
+@@ -557,6 +468,9 @@
+               "type": "null"
+             }
+           ]
++        },
++        "result_metadata": {
++          "$ref": "#/$defs/extensions"
+         }
+       },
+       "required": [
+@@ -564,7 +478,8 @@
+         "type",
+         "status",
+         "content_manifest",
+-        "artifact"
++        "artifact",
++        "result_metadata"
+       ],
+       "additionalProperties": false
+     },

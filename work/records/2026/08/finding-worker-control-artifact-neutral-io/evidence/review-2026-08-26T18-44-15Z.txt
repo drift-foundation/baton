@@ -1,0 +1,57 @@
+W14251 third independent implementation review
+UTC: 2026-08-26T18:44:15Z
+
+Accepted corrected gates
+========================
+
+Focused shipped gate before new review regressions:
+  Ran 223 tests in 0.847s — OK
+
+Canonical contract model:
+  Ran 24 tests in 0.104s — OK
+
+Conformance builder and model:
+  cases: 119 {'control-success': 26, 'invariant': 48, 'control-refusal': 45}
+  Ran 74 tests in 4.279s — OK
+
+Four schema copies:
+  bc2675fb7fa0428c500c7450805e49e4e1e132901d610d4ed2c7622c7281f5f4
+  (all four byte-identical)
+
+New shipped regressions
+=======================
+
+Command:
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_frozen tests.manager.test_manifest_rules \
+    tests.manager.test_output tests.manager.test_secrets \
+    tests.manager.test_workspaces
+
+Result:
+  Ran 226 tests in 0.843s
+  FAILED (failures=6)
+
+Accepted when each must refuse:
+  1. input source destination == input.json
+  2. declared output path == output.json
+  3. completion carries duplicate output names
+  4. completion carries overlapping output paths
+  5. completion says present with content_manifest null
+  6. completion says missing-optional with a non-null content_manifest
+
+The first pair proves the fixed protocol filenames are not reserved. The
+second four prove that evidence/contract_model.py's completion semantics were
+not delivered to baton_v12.contracts.manifest.check_manifest_structure, which
+dispatches semantic validation only for baton.worker-manifest/input.
+
+Additional direct observations
+==============================
+
+  - SPEC §7.1 still says staged-input destinations cannot overlap “any output”.
+  - SPEC §12 rule 3 correctly says the two sets are not compared across roots.
+  - resultManifest.required omits completion_manifest_digest.
+  - No conformance case compares completion entries against the exact output
+    declarations in input.json.
+
+git diff --check: status 0

@@ -1,0 +1,72 @@
+W6634 fifth independent re-review evidence — 2026-08-26T18:20:01Z
+
+Confirmed corrected
+===================
+
+Before this review's additions:
+
+  PYTHONPATH=src python3 -m unittest tests.manager.test_credentials
+  Ran 61 tests in 0.013s — OK
+
+The three prior additive regressions are green. Short writes are completed,
+partial adoption is transactional with respect to registry ownership, and an
+engine-declined start with no surviving candidate tears down the delivery.
+
+Adjacent focused set:
+
+  tests.manager.test_oci tests.manager.test_sealing tests.manager.test_output
+  tests.manager.test_intake tests.manager.test_dependencies
+  tests.manager.test_workspaces tests.manager.test_secrets
+
+  Ran 357 tests in 1.517s — OK (skipped=1)
+
+Five new independently derived regressions
+===========================================
+
+After adding five cases:
+
+  PYTHONPATH=src python3 -m unittest tests.manager.test_credentials
+  Ran 66 tests in 0.015s — FAILED (failures=5)
+
+1. test_a_delivery_cannot_start_under_another_attempts_labels
+
+   A Delivery owns attempt-1, but OciAdapter.start checks only profile,
+   policy and adapter identity. A request labelled runtime_attempt_id=attempt-2
+   starts successfully while mounting attempt-1's root, then writes attempt-1
+   lifecycle state naming the attempt-2-labelled runtime.
+
+2. test_a_pre_engine_vector_refusal_settles_the_credential
+
+   The duplicate probe proves no runtime exists. run_vector then refuses a
+   mount collision before the engine is called, but this ContractRefusal
+   bypasses _refused_start. The credential root and live registry entry remain.
+
+3. test_a_bind_shadowing_the_fixed_root_is_not_exact_agreement
+
+   The observed runtime contains the expected per-slot bind plus another bind
+   directly on /run/baton/credentials. _mounts_disagree checks only unexpected
+   descendants of root + '/', so it adopts the shadowed delivery.
+
+4. test_two_live_binds_cannot_satisfy_one_recorded_slot
+
+   _mounts_disagree builds a dict keyed by target. Two engine-reported binds to
+   one recorded target collapse into one and are accepted as exact agreement.
+
+5. test_no_record_for_one_attempt_does_not_discard_another_attempt
+
+   Recovery of attempt-1 finds no record and calls discard_orphans(live=[]).
+   That pass deletes attempt-2's materialized root even though attempt-2 has a
+   lifecycle record and its bearer is still live. Recovery has not acquired a
+   complete live-attempt set and cannot classify every sibling root as stale.
+
+Cross-Work publication contract
+===============================
+
+W14251's second review is still open. The pinned umbrella says the worker
+publishes /output/output.json; its revised schema currently aliases that file
+to manager-authored resultManifest, while W6634 publishes sealed.json in
+manager custody. W14251 now requires explicit revalidation of W6634's exact
+writer, name/location, completion signal and custody receipt. W6634 cannot be
+signed off as a completed sealing contract while those accounts conflict.
+
+git diff --check — status 0

@@ -28,15 +28,22 @@ settlement recorded. An empty stdin proves the manager closed a pipe; it proves
 nothing about intent.
 """
 
+import copy
+import hashlib
 import json
 import os
 import pathlib
+import shutil
+import tempfile
 import subprocess
+import time
 import unittest
 import uuid
 from unittest.mock import patch
 
 from baton_v12.worker_manager.oci import RESTRICTIONS
+from tools.worker_image import (build_vector, build_worker_image,
+                                staging_tag)
 
 WORKER = (pathlib.Path(__file__).resolve().parents[3] / "worker")
 ENGINE = os.environ.get("BATON_TEST_ENGINE", "docker")
@@ -142,19 +149,43 @@ class TheDaemonGateExercisesWhatTheManagerWillRun(unittest.TestCase):
                          "restrictions")
 
     def test_the_reproducibility_build_does_not_reuse_builder_cache(self):
-        calls = []
-        with patch(f"{__name__}.engine", self.recording_engine(calls)):
-            original = getattr(ContainerCase, "platform", None)
-            ContainerCase.platform = "linux/amd64"
-            try:
-                ContainerCase.build("baton-w6633-test:cache-probe")
-            finally:
-                if original is None:
-                    del ContainerCase.platform
-                else:
-                    ContainerCase.platform = original
-        self.assertIn("--no-cache", calls[0],
+        """Read from the build's own vector rather than by driving a build.
+
+        It used to patch this module's `engine` helper and call
+        `ContainerCase.build`. Once the build moved into `tools/
+        worker_image.py` that patch reached nothing — and the case then ran a
+        REAL build against the daemon and left its tag behind, which the
+        residual sweep correctly caught. A golden vector is the right shape
+        for a flag that is a decision: no daemon, and nothing created.
+        """
+        argv = build_vector(ENGINE, WORKER, WORKER / "Dockerfile",
+                            f"{MARK}:cache-probe-unnormalized-probe",
+                            "linux/amd64")
+        self.assertIn("--no-cache", argv,
                       "the alleged independent rebuild can be a cache hit")
+        self.assertEqual(argv[:2], [ENGINE, "build"])
+        self.assertEqual(argv[argv.index("--platform") + 1], "linux/amd64")
+
+    def test_the_normalized_tag_is_not_what_the_engine_built(self):
+        """The staging reference is the tool's own and never the artefact.
+
+        An image nobody normalized is not what the manager pins, so the two
+        must not be able to collide — and a leftover stage has to be readable
+        as one rather than mistaken for the result.
+
+        Review [P1] made the stage an ALLOCATION rather than a derivation, so
+        this asserts the two properties that still hold of every one: it
+        names its destination and it is not its destination. Two calls
+        answering two references is `test_concurrent_builds_for_one_
+        destination_have_distinct_stages`, in the tool's own suite.
+        """
+        stage = staging_tag(f"{MARK}:probe")
+        argv = build_vector(ENGINE, WORKER, WORKER / "Dockerfile", stage,
+                            "linux/amd64")
+        built = argv[argv.index("--tag") + 1]
+        self.assertEqual(built, stage)
+        self.assertTrue(built.startswith(f"{MARK}:probe-"), built)
+        self.assertNotEqual(built, f"{MARK}:probe")
 
 
 class ContainerCase(unittest.TestCase):
@@ -216,20 +247,22 @@ class ContainerCase(unittest.TestCase):
 
     @classmethod
     def build(cls, tag):
-        """One EXECUTION of the pinned recipe for the named platform.
+        """One EXECUTION of the pinned recipe, through the recipe's own
+        deterministic output step.
 
-        Fourth review [P1]: the "independent" rebuild reused the builder
-        cache, so equal image ids proved cache reuse rather than two
-        executions arriving at one artefact. `--no-cache` is unconditional
-        rather than a keyword a caller may relax — the same reasoning the
-        adapter's restriction table gives for its own flags, and it means
-        every image this gate inspects was built rather than attached to
-        somebody's earlier result. The recipe is a pinned base plus two
-        `COPY`s, so an uncached build costs seconds.
+        Fifth review [P1]: the acceptance names an immutable IMAGE digest and
+        `docker build` alone cannot produce one, so the previous correction
+        redefined the artefact as equal layers plus a chosen subset of the
+        config. That was the wrong move and the review said so. `tools/
+        worker_image.py` is the right one: the engine builds with `--no-cache`
+        and the volatile receipt metadata is normalized out of the result,
+        which two independent executions then agree on exactly.
+
+        The staging tag the tool builds under is its own and is removed on
+        every path; what this gate inspects is the loaded, normalized image.
         """
-        engine("build", "--no-cache", "--platform", cls.platform,
-               "--tag", tag, "--file", str(WORKER / "Dockerfile"),
-               str(WORKER), timeout=900)
+        build_worker_image(ENGINE, WORKER, WORKER / "Dockerfile", tag,
+                           cls.platform)
 
     def setUp(self):
         self.made = []
@@ -248,11 +281,54 @@ class ContainerCase(unittest.TestCase):
         found = engine("image", "inspect", self.image)
         return json.loads(found.stdout.decode("utf-8"))[0]
 
-    def talk(self, environment, *requests, timeout=120):
-        """Run one container, speak the framed channel, read what it says."""
+    def roots(self, given=None, assignment=None):
+        """A host `/input/` carrying BOTH manager-authored documents, and a
+        writable `/output/`, as mount triples for `talk`.
+
+        W19784: the assignment identity is a DOCUMENT under a fixed read-only
+        path, so this is what an execution container's delivery actually looks
+        like. `assignment=None` leaves it out, which is the missing-delivery
+        case.
+
+        The output tree is world-writable because the image runs as an
+        unprivileged uid the host does not have; the container's own posture is
+        what makes that safe, and it is the manager's bind that decides the
+        input side is read-only.
+        """
+        home = tempfile.mkdtemp(prefix="v12-worker-roots-")
+        self.addCleanup(shutil.rmtree, home, True)
+        inputs = os.path.join(home, "input")
+        outputs = os.path.join(home, "output")
+        os.makedirs(inputs)
+        os.makedirs(outputs)
+        os.chmod(outputs, 0o777)
+        if given is None and assignment is None:
+            given, assignment = input_pair()
+        for name, document in (("input.json", given),
+                               ("assignment.json", assignment)):
+            if document is None:
+                continue
+            with open(os.path.join(inputs, name), "w",
+                      encoding="utf-8") as handle:
+                json.dump(document, handle)
+        return outputs, ((inputs, "/input", False), (outputs, "/output", True))
+
+    def talk(self, environment, *requests, timeout=120, mounts=()):
+        """Run one container, speak the framed channel, read what it says.
+
+        W19784: `mounts` exists because an EXECUTION container now has two
+        filesystem roles and three protocol documents, and a suite that spoke
+        only through the environment could not deliver any of them. A consent
+        container passes none, which is the topology rather than the default:
+        §7.0 says consent mounts nothing.
+        """
         name = self.container()
         arguments = restricted("run", "--interactive", "--rm",
                                "--name", name)
+        for source, target, writable in mounts:
+            arguments += ["--mount", f"type=bind,source={source},"
+                          f"target={target},readonly="
+                          f"{'false' if writable else 'true'}"]
         for key, value in environment.items():
             arguments += ["--env", f"{key}={value}"]
         arguments.append(self.image)
@@ -275,13 +351,82 @@ CONSENT = {"BATON_WORKER_POSTURE": "consent",
            "BATON_WORKER_SESSION": CONSENT_SESSION,
            "BATON_WORKER_CONTRACT": "do the thing",
            "BATON_WORKER_ROLE": "implementer"}
+# W14251, closed, and this suite is where it was still unclosed. The two
+# postures carry THE SAME FOUR MEMBERS: `BATON_WORKER_ASSIGNMENT`,
+# `_WORKSPACE` and `_OUTPUT` are REMOVED rather than renamed, because with two
+# fixed filesystem roots there is nothing left for them to say -- and the
+# worker refuses a `BATON_WORKER_*` member outside the set, so a container
+# built with one of them is a container built wrong.
+#
+# The posture difference did not go with them. It moved to where it belongs:
+# an execution container HAS the two roots and a consent container does not.
 EXECUTION = {"BATON_WORKER_POSTURE": "execution",
              "BATON_WORKER_SESSION": EXECUTION_SESSION,
              "BATON_WORKER_CONTRACT": "do the thing",
-             "BATON_WORKER_ROLE": "implementer",
-             "BATON_WORKER_ASSIGNMENT": "assignment-1",
-             "BATON_WORKER_WORKSPACE": "/workspace",
-             "BATON_WORKER_OUTPUT": "/workspace/out"}
+             "BATON_WORKER_ROLE": "implementer"}
+
+# The WHOLE frozen `outputDescriptor`. W6633 eleventh review [P1]: the
+# constraints were absent here as well as in the worker, so a declaration this
+# suite handed a real container was one the contract would refuse.
+UNBOUNDED = {"max_bytes": 1048576, "max_entries": 100,
+             "allowed_media_types": ["text/plain"],
+             "link_policy": "forbid", "validator_digest": None}
+DECLARATION = {"name": "proposal", "type": "directory-result",
+               "path": "out", "required": True,
+               "constraints": dict(UNBOUNDED)}
+WORK_REF = {"authority_uuid": "0123456789abcdef0123456789abcdef",
+            "work_id": "01234567-W1"}
+ASSIGNMENT_REF = {"work_ref": WORK_REF,
+                  "participant": "baton.claude", "generation": 1}
+
+VECTORS = (pathlib.Path(__file__).resolve().parents[4] / "work" / "records"
+           / "2026" / "08" / "finding-v12-isolated-agent-workers" / "findings"
+           / "finding-v12-worker-contract" / "findings"
+           / "finding-worker-control-api-manifests" / "evidence"
+           / "vectors.json")
+
+
+def _resealed(document):
+    """A document whose own digest describes its own (spoiled) bytes, so what
+    refuses it is the closed-set rule rather than the digest rule."""
+    document.pop("manifest_digest", None)
+    document["manifest_digest"] = _digest(document)
+    return document
+
+
+def _digest(value):
+    body = json.dumps(value, ensure_ascii=False, sort_keys=True,
+                      separators=(",", ":")).encode("utf-8")
+    return "sha256:" + hashlib.sha256(body).hexdigest()
+
+
+def input_pair(declarations=None, **spoiled):
+    """The record's own input manifest and an assignment minted against it."""
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+    given = next(one["document"] for one in corpus["valid"]
+                 if one["name"] ==
+                 "input-manifest-directory-and-declared-output")
+    given = dict(given, work_ref=dict(WORK_REF),
+                 outputs=[dict(DECLARATION)] if declarations is None
+                 else declarations)
+    given.pop("manifest_digest", None)
+    given["manifest_digest"] = _digest(given)
+    assignment = {"version": given["version"], "manifest_id": "assignment-1",
+                  "created_at": given["created_at"], "extensions": {},
+                  "schema": "baton.worker-manifest/assignment",
+                  "assignment_ref": copy.deepcopy(ASSIGNMENT_REF),
+                  "assignment_contract": given["assignment_contract"],
+                  "offer_id": "offer-1", "runtime_attempt_id": "attempt-1",
+                  "input_manifest_digest": given["manifest_digest"],
+                  "policy_digest": given["policy_digest"],
+                  "runtime_profile_digest": given["runtime_profile_digest"],
+                  "claim_receipt_digest": "sha256:" + "c" * 64,
+                  "claim_event_seq": 7,
+                  "activated_at": given["created_at"]}
+    assignment.update(spoiled)
+    assignment.pop("manifest_digest", None)
+    assignment["manifest_digest"] = _digest(assignment)
+    return given, assignment
 
 
 class TheBuiltImageIsWhatTheRecipeSaid(ContainerCase):
@@ -308,32 +453,26 @@ class TheBuiltImageIsWhatTheRecipeSaid(ContainerCase):
                          "for")
 
     def test_the_same_context_builds_to_the_same_artefact(self):
-        """REPRODUCIBLE, and what is compared is measured rather than assumed.
+        """REPRODUCIBLE, and now the whole artefact rather than a subset.
 
-        Re-review [P1] asked for a rebuild; fourth review [P1] observed that
-        the rebuild reused the builder cache, so equal ids proved cache reuse.
-        `--no-cache` fixes that and CHANGES WHAT CAN BE COMPARED, which is
-        worth stating plainly rather than working around:
+        This case used to carry a long argument for comparing layers and five
+        config members INSTEAD of the image identity, on the reading that two
+        independent builds have two ids by construction. Fifth review [P1]
+        refused that as a weaker, contradictory contract, and it was right:
+        the acceptance names an immutable image digest and a manager pins that
+        digest, so reproducibility has to reach it.
 
-          the image ID is the digest of the image CONFIG, and the config
-          carries a `Created` timestamp the classic builder stamps from the
-          wall clock. Two genuinely independent builds therefore have two ids
-          BY CONSTRUCTION. Measured on docker 29.1.3: with `--no-cache` the
-          ids differ and every `RootFS` layer is identical, and neither
-          `SOURCE_DATE_EPOCH` nor a build-arg changes that on this engine,
-          which has no buildx.
+        It does now. `tools/worker_image.py` normalizes the build's receipt
+        metadata — the wall clock, the intermediate container ids, the parent
+        chain id, and the build-time mtimes on the directories the `COPY`
+        created — and two executions of the recipe reach one identity, which
+        `test_two_independent_builds_have_one_pinnable_image_identity` states
+        directly.
 
-        So this compares the artefact rather than the receipt: every layer
-        digest -- content-addressed, and the actual bytes a worker runs -- and
-        the applied configuration. That is the property the acceptance needs
-        (two executions of the recipe produce one worker) and it is one this
-        engine can actually establish. `test_the_reproducibility_build_does_
-        not_reuse_builder_cache` holds the cache isolation itself.
-
-        The claim stays available because the recipe is a pinned base plus two
-        `COPY`s and metadata, with deliberately no package manager and no
-        network client. A recipe that installed anything could not make it,
-        and this is where that would show up.
+        What is left here is the FILESYSTEM and the applied configuration,
+        which are worth their own case: an identity that matched while the
+        layers differed would be a normalizer that had erased a real
+        difference rather than a receipt.
         """
         again = self.rebuild()
         first = self.inspected()
@@ -363,21 +502,48 @@ class TheBuiltImageIsWhatTheRecipeSaid(ContainerCase):
                          "independent builds have no single image digest to "
                          "pin")
 
-    def test_the_image_id_is_a_receipt_and_not_the_artefact(self):
-        """The measurement the case above rests on, kept as its own case so a
-        reader does not have to take the docstring's word for it.
+    def test_a_bare_engine_build_is_why_the_output_step_exists(self):
+        """The measurement that motivates the normalizer, kept as a case.
 
-        If a later engine DOES make ids reproducible, this fails and the
-        comparison above can be strengthened -- which is the right way round
-        for a claim that is currently limited by the tooling.
+        This replaces `test_the_image_id_is_a_receipt_and_not_the_artefact`,
+        which required the two identities to REMAIN different and was the
+        weakening fifth review [P1] refused. The fact it was built on is still
+        true and still worth holding: a bare `docker build` on this engine
+        cannot produce one identity. What was wrong was concluding that the
+        acceptance had to give way.
+
+        It also corrects that measurement. The record said the LAYERS were
+        identical and only the config timestamp moved. They are not: the two
+        `COPY` layers carry the directory entries the copy created, and their
+        mtime is the build clock. Two builds a second apart differ in their
+        layers too — which is why the previous reading found them equal, and
+        why the same-artefact case above used to pass or fail depending on
+        whether two builds landed inside one wall-clock second.
         """
-        again = self.rebuild()
-        first = self.inspected()
-        self.assertNotEqual(again["Id"], first["Id"])
-        self.assertNotEqual(again["Created"], first["Created"])
-        self.assertEqual(again["RootFS"]["Layers"],
-                         first["RootFS"]["Layers"],
-                         "the ids differ for a reason other than the clock")
+        raw = []
+        for _ in range(2):
+            tag = f"{MARK}:{uuid.uuid4().hex[:12]}"
+            self.addCleanup(lambda name=tag: subprocess.run(
+                [ENGINE, "image", "rm", "--force", name],
+                capture_output=True, timeout=120))
+            engine("build", "--no-cache", "--platform", self.platform,
+                   "--tag", tag, "--file", str(WORKER / "Dockerfile"),
+                   str(WORKER), timeout=900)
+            raw.append(json.loads(
+                engine("image", "inspect", tag).stdout.decode("utf-8"))[0])
+            # A SECOND APART ON PURPOSE. The directory mtime has one-second
+            # resolution, so two builds inside one second agree by accident —
+            # and an accident is exactly what the earlier measurement caught.
+            time.sleep(1.1)
+        self.assertNotEqual(raw[0]["Id"], raw[1]["Id"],
+                            "a bare build is reproducible on this engine and "
+                            "the normalizing output step is unnecessary")
+        self.assertNotEqual(raw[0]["RootFS"]["Layers"],
+                            raw[1]["RootFS"]["Layers"],
+                            "only the config moved; the recorded reading that "
+                            "the layers are stable would then be right")
+        # AND THE OUTPUT STEP TURNS EXACTLY THAT INTO ONE IDENTITY.
+        self.assertEqual(self.rebuild()["Id"], self.inspected()["Id"])
 
     def observed_inside(self, probe):
         """Run one Python expression INSIDE a restricted container and read
@@ -485,11 +651,35 @@ class TheBuiltImageIsWhatTheRecipeSaid(ContainerCase):
                        " for p in sys.path if p and os.path.isdir(p)),"
                        "'uid': os.getuid(), 'gid': os.getgid()}))")
         seen = json.loads(found.stdout.decode("utf-8"))
+        # W19784 review [P0], 2026-08-27: three entries now. The worker derives
+        # the closed member sets of the manager's two `/input/` documents from
+        # the frozen contract, so the contract travels with the image. Still
+        # EXHAUSTIVE, and the case below proves the third is the same bytes as
+        # the repository's -- an image validating against a drifted contract
+        # would drift silently, because it validates against what it was
+        # shipped.
         self.assertEqual(seen["opt"],
-                         ["baton_worker.py", "scripted_agent.py"])
+                         ["baton_worker.py", "scripted_agent.py",
+                          "worker-control-1.0.schema.json"])
         self.assertIs(seen["manager"], False,
                       "the manager package is importable inside the worker")
         self.assertEqual((seen["uid"], seen["gid"]), (65532, 65532))
+
+    def test_the_image_carries_the_frozen_contract_byte_for_byte(self):
+        """Asked of the ARTEFACT. `test_frozen` proves the repository's five
+        copies agree; this proves the one that actually reached the image is
+        that same document, which is the only copy the running worker reads."""
+        name = self.container()
+        found = engine(*restricted("run", "--name", name,
+                                   "--entrypoint", "python3"),
+                       self.image, "-c",
+                       "import hashlib,sys;"
+                       "sys.stdout.write(hashlib.sha256(open("
+                       "'/opt/baton/worker-control-1.0.schema.json','rb')"
+                       ".read()).hexdigest())")
+        here = (WORKER / "worker-control-1.0.schema.json").read_bytes()
+        self.assertEqual(found.stdout.decode("utf-8").strip(),
+                         hashlib.sha256(here).hexdigest())
 
     def test_no_assignment_or_secret_material_is_in_any_layer(self):
         """Asked of the image's own history rather than of the recipe: a
@@ -523,13 +713,267 @@ class RealContainersHoldTheTopology(ContainerCase):
         self.assertEqual(given[0]["code"], "posture")
 
     def test_an_execution_container_completes_and_recaps(self):
-        status, given = self.talk(EXECUTION,
-                                  ask("work", EXECUTION_SESSION, task="build"))
+        """W19784, migrating what W14251 left behind here. This asked for a
+        `task` and read a `workspace` back -- an operand and an answer member
+        the artifact-neutral ruling removed -- and it delivered no `/input/`
+        at all, so the built image had never once been asked to do the work it
+        is for. It now runs against the real two-root delivery."""
+        outputs, mounts = self.roots()
+        status, given = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+                                  mounts=mounts)
         self.assertEqual(status, 0)
         answer = given[0]["answer"]
-        self.assertEqual(sorted(answer),
-                         ["disposition", "recap", "workspace"])
+        self.assertEqual(sorted(answer), ["disposition", "outputs", "recap"])
         self.assertEqual(answer["disposition"], "completed")
+        with open(os.path.join(outputs, "output.json"),
+                  encoding="utf-8") as one:
+            published = json.load(one)
+        self.assertEqual(published["schema"],
+                         "baton.worker-manifest/completion")
+        # THE WHOLE POINT, observed in a real container: the identity the
+        # envelope carries is the one the second input document delivered,
+        # generation included.
+        self.assertEqual(published["assignment_ref"], ASSIGNMENT_REF)
+
+    def test_a_real_container_refuses_a_delivery_it_cannot_be_sure_of(self):
+        """The negatives, at the ARTEFACT rather than the function. Each runs
+        the built image against a real `/input/` and each must refuse before
+        anything is published."""
+        given, _ = input_pair()
+        other = "sha256:" + "9" * 64
+        for what, spoiled in (
+                ("no assignment document", None),
+                ("another Work",
+                 {"assignment_ref": {
+                     "work_ref": {"authority_uuid": "f" * 32,
+                                  "work_id": "ffffffff-W9"},
+                     "participant": "baton.claude", "generation": 1}}),
+                ("another input manifest", {"input_manifest_digest": other}),
+                ("another policy", {"policy_digest": other})):
+            with self.subTest(what=what):
+                assignment = (None if spoiled is None
+                              else input_pair(**spoiled)[1])
+                outputs, mounts = self.roots(given=given,
+                                             assignment=assignment)
+                status, seen = self.talk(
+                    EXECUTION, ask("work", EXECUTION_SESSION), mounts=mounts)
+                self.assertIs(seen[0]["ok"], False)
+                self.assertEqual(seen[0]["code"], "input")
+                self.assertEqual(os.listdir(outputs), [])
+
+    def test_a_real_container_refuses_a_document_that_is_not_the_managers(self):
+        """W19784 review [P0], through the BUILT IMAGE. The direct suite proves
+        the worker refuses a false self-digest and an extra top-level member;
+        this proves the artefact does, because the validation is derived from a
+        contract that has to have reached the image for it to work at all.
+
+        A recipe that forgot the third COPY would fail exactly here, and the
+        refusal would be the worker saying it has no contract to hold anything
+        to rather than an agent running on an unvalidated document.
+        """
+        given, assignment = input_pair()
+        for what, spoil in (
+                ("a false self-digest on the input side",
+                 lambda g, a: (dict(g, manifest_digest="sha256:" + "0" * 64),
+                               a)),
+                ("a false self-digest on the assignment side",
+                 lambda g, a: (g, dict(a, manifest_digest="sha256:" + "0" * 64))),
+                ("a second identity alias on the input side",
+                 lambda g, a: (_resealed(dict(
+                     g, compatibility_assignment=copy.deepcopy(
+                         ASSIGNMENT_REF))), a)),
+                ("a second identity alias on the assignment side",
+                 lambda g, a: (g, _resealed(dict(
+                     a, compatibility_assignment=copy.deepcopy(
+                         ASSIGNMENT_REF)))))):
+            with self.subTest(what=what):
+                spoiled_input, spoiled_assignment = spoil(
+                    copy.deepcopy(given), copy.deepcopy(assignment))
+                outputs, mounts = self.roots(given=spoiled_input,
+                                             assignment=spoiled_assignment)
+                status, seen = self.talk(
+                    EXECUTION, ask("work", EXECUTION_SESSION), mounts=mounts)
+                self.assertIs(seen[0]["ok"], False)
+                self.assertEqual(seen[0]["code"], "input")
+                self.assertEqual(os.listdir(outputs), [])
+
+    def test_the_authorized_root_is_what_the_engine_was_actually_told(self):
+        """W19784 second review [P0], at the ARTEFACT. The unit cases prove the
+        adapter refuses a plan that does not name the proved root; this proves
+        that what a real engine received was that root, read-only, at the
+        worker's fixed path -- and that a real worker read its two documents
+        out of it."""
+        outputs, mounts = self.roots()
+        inputs = mounts[0][0]
+        status, given = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+                                  mounts=mounts)
+        self.assertEqual(status, 0)
+        self.assertIs(given[0]["ok"], True)
+        # The argv this suite handed the engine, read back rather than
+        # described: the source is the composed root and the bind is read-only
+        # at the one fixed target.
+        self.assertEqual(mounts[0][1], "/input")
+        self.assertIs(mounts[0][2], False)
+        self.assertTrue(os.path.isfile(os.path.join(inputs, "assignment.json")))
+        with open(os.path.join(outputs, "output.json"),
+                  encoding="utf-8") as one:
+            self.assertEqual(json.load(one)["assignment_ref"], ASSIGNMENT_REF)
+
+    def test_a_container_cannot_write_the_input_root_it_was_given(self):
+        """The read-only half, asked of the artefact. The input is the evidence
+        the result is measured against, so a runtime that could edit it could
+        edit what it is judged by."""
+        _outputs, mounts = self.roots()
+        name = self.container()
+        found = engine(*restricted("run", "--name", name,
+                                   "--mount", f"type=bind,source={mounts[0][0]},"
+                                              f"target=/input,readonly=true",
+                                   "--entrypoint", "python3"),
+                       self.image, "-c",
+                       "import json;"
+                       "\ntry:\n open('/input/assignment.json','a')"
+                       "\n print(json.dumps({'wrote': True}))"
+                       "\nexcept OSError as e:\n"
+                       " print(json.dumps({'wrote': False}))",
+                       check=False)
+        self.assertEqual(json.loads(found.stdout.decode("utf-8"))["wrote"],
+                         False)
+
+    def test_a_real_container_answers_with_names_and_publishes_records(self):
+        """W6633 eleventh review [P1], at the ARTEFACT. Two surfaces carrying
+        different things: the framed answer names what was produced, and the
+        published envelope holds the whole record for each output."""
+        outputs, mounts = self.roots()
+        status, given = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+                                  mounts=mounts)
+        self.assertEqual(status, 0)
+        self.assertEqual(given[0]["answer"]["outputs"], ["proposal"])
+        with open(os.path.join(outputs, "output.json"),
+                  encoding="utf-8") as one:
+            published = json.load(one)
+        record = published["outputs"][0]
+        self.assertEqual(sorted(record),
+                         ["content_manifest", "name", "path",
+                          "result_metadata", "status", "type"])
+        self.assertEqual(record["content_manifest"]["entry_count"], 1)
+
+    def test_a_real_container_refuses_an_oversized_declared_output(self):
+        """A one-byte ceiling against the scripted worker's 34-byte result.
+        No success frame, and NO COMPLETION SIGNAL -- the manager reconciles a
+        runtime that published nothing, not one that published a lie."""
+        bounded = {**DECLARATION, "constraints": {**UNBOUNDED, "max_bytes": 1}}
+        given, assignment = input_pair(declarations=[bounded])
+        outputs, mounts = self.roots(given=given, assignment=assignment)
+        status, seen = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+                                 mounts=mounts)
+        self.assertIs(seen[0]["ok"], False)
+        # THE MATERIAL IS THERE AND THE SIGNAL IS NOT, and that distinction is
+        # the point rather than a weaker assertion. This declaration is valid,
+        # so the agent runs and writes; the ceiling is crossed at measurement.
+        # What must not exist is `output.json` -- its presence under its final
+        # name is the completion signal, and the manager reconciles a runtime
+        # that published nothing rather than one that published a lie.
+        self.assertIn("out", os.listdir(outputs))
+        self.assertNotIn("output.json", os.listdir(outputs))
+
+    def test_a_real_container_cannot_be_declared_out_of_its_output_root(self):
+        """THE CASE THE READ-ONLY INPUT MOUNT DOES NOT COVER. `../tmp/escaped`
+        targets the writable private ephemeral space, so nothing about the
+        input root's mode contains it -- only the worker's own containment
+        rule does, and it runs before the agent."""
+        escaped = {**DECLARATION, "path": "../tmp/escaped"}
+        given, assignment = input_pair(declarations=[escaped])
+        outputs, mounts = self.roots(given=given, assignment=assignment)
+        status, seen = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+                                 mounts=mounts)
+        self.assertIs(seen[0]["ok"], False)
+        self.assertEqual(seen[0]["code"], "input")
+        self.assertEqual(os.listdir(outputs), [])
+
+    def test_a_real_container_refuses_the_reserved_output_manifest_name(self):
+        """A declared output at `output.json` would have the agent writing the
+        completion signal itself."""
+        reserved = {**DECLARATION, "path": "output.json"}
+        given, assignment = input_pair(declarations=[reserved])
+        outputs, mounts = self.roots(given=given, assignment=assignment)
+        status, seen = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+                                 mounts=mounts)
+        self.assertIs(seen[0]["ok"], False)
+        self.assertEqual(os.listdir(outputs), [])
+
+    def test_a_real_container_refuses_a_descriptor_value_it_consumes(self):
+        """W6633 twelfth review [P1], at the ARTEFACT. A numeric `name` is
+        contract-invalid and is a value the worker uses for lookup and for
+        authoring the completion envelope -- so it must never reach the
+        agent."""
+        for what, spoiled in (
+                ("a numeric name", {**DECLARATION, "name": 7}),
+                ("a link policy outside the frozen const",
+                 {**DECLARATION, "constraints": {**UNBOUNDED,
+                                                 "link_policy": "allow"}}),
+                ("an entry ceiling above the frozen maximum",
+                 {**DECLARATION, "constraints": {**UNBOUNDED,
+                                                 "max_entries": 100001}})):
+            with self.subTest(what=what):
+                given, assignment = input_pair(declarations=[spoiled])
+                outputs, mounts = self.roots(given=given,
+                                             assignment=assignment)
+                status, seen = self.talk(
+                    EXECUTION, ask("work", EXECUTION_SESSION), mounts=mounts)
+                self.assertIs(seen[0]["ok"], False)
+                self.assertEqual(seen[0]["code"], "input")
+                self.assertEqual(os.listdir(outputs), [])
+
+    def test_a_real_container_publishes_nothing_for_a_directory_link(self):
+        """The link the traversal used to walk straight past. Proved against
+        the built image because `os.walk`'s directory/file split is a property
+        of the runtime the artefact actually has, not of the recipe.
+
+        The scripted agent cannot make a link, so this drives the entrypoint
+        with a one-line agent supplied through the image's own module path.
+        """
+        outputs, mounts = self.roots()
+        name = self.container()
+        found = engine(
+            *restricted("run", "--interactive", "--name", name),
+            *[arg for source, target, writable in mounts
+              for arg in ("--mount", f"type=bind,source={source},"
+                                     f"target={target},readonly="
+                                     f"{'false' if writable else 'true'}")],
+            *[arg for key, value in EXECUTION.items()
+              for arg in ("--env", f"{key}={value}")],
+            "--entrypoint", "python3", self.image, "-c",
+            "import os, sys;"
+            "sys.path.insert(0, '/opt/baton');"
+            "import baton_worker as w;"
+            "\nclass Linking:\n"
+            " def work(self, seen, declared):\n"
+            "  place = os.path.join(w.OUTPUT_ROOT, declared[0]['path'])\n"
+            "  os.makedirs(place)\n"
+            "  os.symlink(w.OUTPUT_ROOT, os.path.join(place, 'linked'))\n"
+            "  return {'disposition': 'completed', 'recap': 'linked',"
+            " 'outputs': [{'name': declared[0]['name'], 'status': 'present',"
+            " 'result_metadata': {}}]}\n"
+            "\nsys.exit(w.main(agent=Linking()))",
+            stdin=frame(ask("work", EXECUTION_SESSION)), check=False)
+        answered = unframe(found.stdout)
+        self.assertIs(answered[0]["ok"], False)
+        self.assertNotIn("output.json", os.listdir(outputs))
+
+    def test_a_real_consent_container_mounts_neither_input_document(self):
+        """§7.0: consent mounts nothing. The posture boundary is the
+        filesystem rather than a rule about a string, and this asks the
+        ARTEFACT."""
+        status, given = self.talk(CONSENT, ask("consider", CONSENT_SESSION))
+        self.assertIs(given[0]["ok"], True)
+        found = engine(*restricted("run", "--rm", "--name", self.container()),
+                       *[arg for key, value in CONSENT.items()
+                         for arg in ("--env", f"{key}={value}")],
+                       "--entrypoint", "/bin/sh", self.image,
+                       "-c", "ls /input /output 2>&1 || true", check=False)
+        told = found.stdout.decode("utf-8", "replace")
+        self.assertNotIn("input.json", told)
+        self.assertNotIn("assignment.json", told)
 
     def test_a_real_container_refuses_the_other_postures_session(self):
         status, given = self.talk(CONSENT,
@@ -622,7 +1066,8 @@ class CancellationIsTheManagersRuntimeStopPath(ContainerCase):
         """The distinction, asserted rather than asserted-about: closing the
         channel is an ORDINARY end and exits zero, which is exactly why it
         cannot stand in for a stop."""
-        status, given = self.talk(EXECUTION)
+        _outputs, mounts = self.roots()
+        status, given = self.talk(EXECUTION, mounts=mounts)
         self.assertEqual((status, given), (0, []))
 
 

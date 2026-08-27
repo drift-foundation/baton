@@ -1,0 +1,126 @@
+W6633 — the twelfth review's two [P1]s. 2026-08-27.
+No repository state was mutated.
+
+=== 1. THE REVIEWER'S OWN COMMAND, verbatim
+    Ran 162 tests in 12.640s
+    OK
+  158 at the review with eight failures. 162 now, none: the eight are
+  fixed and four more cases separate guards that were masking others.
+
+=== 2. [P1] I DERIVED THE NAMES AND CALLED IT VALIDATION
+  That is the finding, and it is the third time this campaign has caught
+  the same shape: proving one thing and claiming another. Two documents
+  agreeing with each other was not authorization; a normalized target
+  was not a canonical one; and a member SET is not a member's VALUE.
+
+  New '_held' holds every consumed value to the frozen rule that
+  describes it -- types, patterns, lengths, the link_policy const, the
+  schema's own maxima on both ceilings, item rules and uniqueness:
+    456:def _resolved(frozen, rule):
+    463:def _held(frozen, rule, value, what):
+    531:def _is_type(value, expected):
+
+  IT IS NOT A JSON SCHEMA ENGINE AND MUST NOT BECOME ONE. It is the
+  closed keyword set those two definitions actually use, and an
+  UNRECOGNISED KEYWORD IS A FAULT rather than a value it passes over --
+  because silently skipping one is exactly how a derived check becomes a
+  paraphrase again. A case drives that directly.
+
+  Two subtleties worth naming:
+    booleans are not integers. isinstance(True, int) is true in Python
+    and false in JSON, so a required flag arriving where a ceiling
+    belongs would have passed minimum:0 as the number one.
+    the oneOf branch is exercised DIRECTLY rather than through a
+    declaration, and the reason is a measurement: _limits refuses every
+    non-null validator digest immediately afterwards, so a declaration
+    carrying 7 is refused whether that branch fires or not. A case that
+    cannot fail for the reason it names is not evidence about it.
+
+=== 3. [P1] MY OWN CLAIM WAS FALSE, and now it is true
+  I wrote that link_policy: forbid is enforced BY CONSTRUCTION. That is
+  only true when EVERY entry the traversal meets takes part in the
+  construction, and one whole list of them did not: os.walk with
+  followlinks=False puts a symlink to a directory in 'directories',
+  where it was skipped in silence. A declared tree containing
+  linked-directory -> /output measured as empty and published.
+    895:        for one in directories:
+    896-            full = os.path.join(base, one)
+    897-            if os.path.islink(full):
+  Both halves are separate lines and each is measured on its own.
+
+=== 4. every guard, measured by REMOVAL, each failing INDEPENDENTLY
+  which is what the finding asked for: the mutations take out one
+  keyword's enforcement at a time rather than the dispatch that reaches
+  them, and every case below is chosen so exactly ONE keyword rejects it
+  -- a 161-character name still matches the opaqueId pattern, a
+  two-character media type has no pattern at all.
+=== baseline: OK
+=== REMOVE: values are held to the frozen rules at all
+    FAILED (failures=20)  (20 NEW case(s))
+=== REMOVE: the DESCRIPTOR's values are held
+    FAILED (failures=9)  (9 NEW case(s))
+=== REMOVE: the CONSTRAINTS' values are held
+    FAILED (failures=11)  (11 NEW case(s))
+=== REMOVE: `type` is enforced
+    FAILED (failures=36, errors=3)  (39 NEW case(s))
+=== REMOVE: `const` is enforced
+    FAILED (failures=1)  (1 NEW case(s))
+=== REMOVE: `maximum` is enforced
+    FAILED (failures=2)  (2 NEW case(s))
+=== REMOVE: `minimum` is enforced
+    FAILED (failures=1)  (1 NEW case(s))
+=== REMOVE: `pattern` is enforced
+    FAILED (failures=5)  (5 NEW case(s))
+=== REMOVE: `minLength` is enforced
+    FAILED (failures=1)  (1 NEW case(s))
+=== REMOVE: a boolean is not an integer
+    FAILED (failures=1)  (1 NEW case(s))
+=== REMOVE: an unimplemented keyword is a fault rather than a skip
+    FAILED (failures=1)  (1 NEW case(s))
+=== REMOVE: maxLength is enforced
+    FAILED (failures=2)  (2 NEW case(s))
+=== REMOVE: uniqueItems is enforced
+    FAILED (failures=1)  (1 NEW case(s))
+=== REMOVE: items are held to their own rule
+    FAILED (failures=3)  (3 NEW case(s))
+=== REMOVE: a value matching no oneOf branch is refused
+    FAILED (failures=3)  (3 NEW case(s))
+=== REMOVE: a DIRECTORY link is refused
+    FAILED (failures=1)  (1 NEW case(s))
+=== REMOVE: a FILE link is refused
+    FAILED (failures=1)  (1 NEW case(s))
+the worker is restored
+
+  The first pass had three vacuous and one bad anchor; the cases that
+  separate them are new.
+
+=== 5. and the DIRECTORY-LINK guard measured through the BUILT IMAGE
+      with the guard present: OK
+      with the guard removed: FAILED (failures=1)
+      the worker is restored
+  os.walk's directory/file split is a property of the runtime the
+  ARTEFACT has, not of the recipe, so it is worth proving there.
+
+=== 6. the built-container negatives the handoff asked for
+    Ran 43 tests in 29.237s
+    OK
+    a contract-invalid consumed descriptor value refused before the
+    agent -- a numeric name, a link policy outside the const, and a
+    ceiling above the frozen maximum -- and a directory symlink
+    producing NO completion signal.
+
+=== 7. the whole focused manager gate
+    Ran 911 tests in 2.905s
+    OK (skipped=1)
+
+=== 8. the boundary inventory
+    FAIL: test_every_declared_probe_reaches_its_named_boundary  (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+    FAIL: test_every_owned_entry_has_exactly_one_probe 
+    FAIL: test_the_missing_probe_check_can_actually_fail 
+    FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared 
+    FAIL: test_every_receiving_entry_has_an_owning_validator 
+    FAIL: test_the_universe_sees_every_persisted_column_that_is_read 
+    Ran 93 tests in 836.604s
+    FAILED (failures=6)
+    (done)
+  Six is the accepted long-standing baseline.

@@ -1,0 +1,210 @@
+W6630 — evidence after the FIFTH review correction, 2026-08-25.
+
+Review answered: review-2026-08-25T13-19-17Z.md ([P1], changes requested).
+
+
+THE RE-AUDIT THE REVIEW ASKED FOR, DONE BY MEASUREMENT
+
+  The review named two public doors and asked for a re-audit of the other
+  public document owners. The re-audit was a probe rather than a reading:
+  every callable in `worker_manager.__all__` was driven with the live bearer
+  in every operand it takes, and the refusal that came back was searched for
+  the bearer.
+
+    $ env PYTHONPATH=src python3 /tmp/w6630_probe.py      # before the fix
+    accept_offer LEAK integrity.schema
+    activate_assignment LEAK refused.precondition
+    adopt_provider_session LEAK integrity.schema
+    certify_agent_session_profile LEAK integrity.schema
+    check_client_capabilities LEAK policy.denied
+    close_agent_session LEAK integrity.schema
+    expire_overdue LEAK integrity.schema
+    freeze_operation LEAK integrity.schema
+    handle_transport_loss LEAK integrity.schema
+    inquire LEAK integrity.schema
+    interrogations_of LEAK integrity.schema
+    issue_offer LEAK integrity.schema
+    negotiate_acp LEAK policy.profile-uncertified
+    observe LEAK integrity.schema
+    observe_session_state LEAK integrity.schema
+    open_agent_session LEAK integrity.schema
+    permits_session_transition LEAK integrity.schema
+    posture_slot LEAK integrity.schema
+    probe LEAK integrity.schema
+    publish_inquiry_answer LEAK refused.precondition
+    reconcile_agent_session LEAK integrity.schema
+    record_frozen_result LEAK refused.precondition
+    record_inquiry_answer LEAK integrity.schema
+    recover_on_restart LEAK integrity.schema
+    release_slot LEAK integrity.schema
+    request_freeze LEAK integrity.schema
+    require_slot_recovery LEAK integrity.schema
+    retain_manifest LEAK integrity.schema
+    satisfies_runtime_quiescence_gate LEAK integrity.schema
+    seal_refusal LEAK integrity.schema
+    settle_claim LEAK refused.precondition
+    settle_interrogation LEAK integrity.schema
+    submit_claim LEAK refused.precondition
+
+  THIRTY, not two. The review's ordering fix corrects two of them. The finding
+  is therefore not that two doors ordered their walk late; it is that ANY
+  refusal naming a caller operand is a §13 surface, and door-local ordering
+  cannot converge on that.
+
+    $ env PYTHONPATH=src python3 /tmp/w6630_probe.py      # after the fix
+    agent_sessions_of NO REFUSAL
+    certified_agent_session_profile NO REFUSAL
+    claim_operation_id NO REFUSAL
+    claimed_offers_for NO REFUSAL
+    frozen_output_of NO REFUSAL
+    interrogation_of NO REFUSAL
+    load_manifest NO REFUSAL
+    transport_reachability_reidentifies NO REFUSAL
+
+  No leaks. The eight rows are surfaces that answered normally rather than
+  refusing (a reader answering absence, a predicate answering a boolean); the
+  probe prints them so a silent no-op cannot be read as a clean refusal.
+
+  The probe is kept as a case rather than as a script:
+  `NoPublicRefusalQuotesALiveBearer` derives the same universe, drives it the
+  same way, and requires the sweep to have driven something that refuses.
+
+
+THE CORRECTION
+
+  contracts/errors.py   ContractRefusal.__init__ refuses a message carrying a
+                        live bearer, substituting SECRET_LEAK_MESSAGE and
+                        keeping the raising site's durability.
+  contracts/secrets.py  _carries_live_secret: the containment half over one
+                        composed string.
+  handshake.py          certify_agent_session_profile walks the RAW operand
+                        before boundaries.document.
+  interrogation.py      record_inquiry_answer walks the RAW operand before
+                        boundaries.document; the later pre-transaction walk is
+                        the same walk moved, not a second one.
+  store.py              seal_refusal walks before its type diagnostic (found
+                        by the re-audit, not named by the review).
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_secrets
+    Ran 70 tests in 0.266s
+    OK
+
+  61 before this correction (60 + the reviewer's additive two-door case), 70
+  after. The reviewer's case is kept and green.
+
+  THE GATE CAN FAIL — measured, not asserted. With the one crossing disabled
+  (`if False and ...`) and nothing else changed:
+
+    Ran 70 tests -- FAILED (failures=31)
+
+  Thirty-one: the twenty-eight surfaces the sweep drives that leak without it,
+  plus the three cases about the crossing itself.
+
+
+ADJACENT
+
+    $ env PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_handshake tests.manager.test_interrogation \
+        tests.manager.test_store tests.manager.test_offers \
+        tests.manager.test_contracts_inventory tests.manager.test_pod \
+        tests.manager.test_text_sweep tests.manager.test_dependencies \
+        tests.manager.test_diagnostic_rendering
+    Ran 295 tests in 0.951s
+    OK (skipped=1)
+
+
+FULL SOURCE SUITE
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1182 tests in 469.117s
+    FAILED (failures=12, errors=1, skipped=6)
+
+  Thirteen, and NONE of them is this correction's:
+
+    7  test_boundary_inventory  — proved pre-existing below
+    3  test_oci                 — the recorded engine/docker baseline
+    2  test_oci_engine          — the same
+    1  test_worker_container    — the same
+
+  THE BOUNDARY-INVENTORY SEVEN, PROVED RATHER THAN ASSUMED. A copy of `src`
+  and `tests` was taken, the four files this correction touches that were
+  clean at HEAD were restored from HEAD, and the one moved call in the
+  already-modified `interrogation.py` was reverted by hand — so the copy is
+  this tree with exactly this correction removed:
+
+    $ cd /tmp/w6630_base && env PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_boundary_inventory
+    Ran 86 tests -- FAILED (failures=30, errors=2)
+
+    $ env PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_boundary_inventory     # this tree
+    Ran 86 tests -- FAILED (failures=7)
+
+  The seven failing test names are IDENTICAL in both runs:
+
+    test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    test_every_owned_entry_has_exactly_one_probe
+    test_every_receiving_entry_has_an_owning_validator
+    test_no_declared_owner_is_stale                    (two subtests)
+    test_the_missing_probe_check_can_actually_fail
+    test_the_universe_sees_every_persisted_column_that_is_read
+
+  They name `documents.py:freeze_requested`,
+  `handshake.py:certified_agent_session_profile` and
+  `workspaces.py:materialize_git_source` — three sites this correction does
+  not touch. `test_boundary_inventory.py` is modified in this tree by other
+  in-flight Work; these belong to it and are reported, not fixed.
+
+  The extra 23 failures and 2 errors in the /tmp copy are the copy's own:
+  it has no sibling `v12/` tree, so the cases that read the frozen host and
+  the schema alongside the package cannot find them. The comparison that is
+  sound is the one made above — the identity of the seven.
+
+
+ONE DEFECT OF MY OWN, RECORDED BECAUSE IT WAS MINE
+
+  The first version of the handshake change replaced the literal label at
+  `boundaries.document(profile, "an agent-session profile")` with the local
+  `what`. The boundary inventory attributes an owned entry BY THE LITERAL
+  LABEL WRITTEN AT THE SITE — the comment two lines above says so — and the
+  assertion it raises is inside a helper many cases call, so one variable
+  cost 546 failures:
+
+    AssertionError: handshake.py:certify_agent_session_profile:180 owns a
+    boundary with no literal label; the inventory cannot attribute it
+
+  The literal is restored. The measurement is here because "546 failures"
+  read as a catastrophe and was one character.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w6630_probe.py      the standalone sweep, superseded by the case
+    /tmp/w6630_base/         the reverted copy the baseline above was run in
+    /tmp/w6630_full2.txt     the full source-suite log
+    /tmp/w6630_bi.txt        this tree's boundary-inventory log
+    /tmp/w6630_bi_base.txt   the baseline boundary-inventory log
+
+
+LOCKED INSTALLED-LAYOUT BUILD
+
+    $ cd v12/python && just build
+    [build] imported the INSTALLED contracts from
+            /tmp/tmp.AlB41e9e6g/env/lib/python3.13/site-packages/baton_v12/contracts
+    [build] 41 exported names in contracts
+    [build] the frozen schema assets travelled: 2
+    Ran 1182 tests in 456.340s
+    FAILED (failures=12, errors=1, skipped=5)
+
+  The same twelve-and-one verdict the source run reports, reproduced from
+  site-packages rather than from `src/`. `skipped=5` against the source run's
+  6 is an environment-dependent skip and not a case this correction touches.
+
+  FORTY-ONE EXPORTED NAMES IN CONTRACTS, unchanged. This correction adds no
+  public name: `_carries_live_secret` is private to the package, and
+  `SECRET_LEAK_MESSAGE` is a module attribute deliberately kept out of
+  `__all__` so the contracts inventory's ownership table is not widened for a
+  constant nothing outside this rule reads.

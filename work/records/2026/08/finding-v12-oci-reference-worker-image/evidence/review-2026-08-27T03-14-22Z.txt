@@ -1,0 +1,67 @@
+Independent twelfth-review evidence — 2026-08-27T03:14:22Z
+
+Accepted correction baseline
+============================
+
+Command (cwd v12/python):
+  env PYTHONPATH=src python3 -B -m unittest \
+    tests.manager.test_worker_image \
+    tests.tools.test_worker_image_build \
+    tests.tools.test_parallel_runner \
+    tests.manager.test_worker_container.TheDaemonGateExercisesWhatTheManagerWillRun
+
+Result before reviewer additions:
+  Ran 156 tests in 12.639s
+  OK
+
+Implementer Docker evidence:
+  evidence/w6633-2026-08-27-output-boundary.txt
+  Ran 41 tests in 28.751s
+  OK
+
+Additive reviewer regressions
+=============================
+
+test_descriptor_values_are_the_frozen_types_and_bounds has seven subcases:
+  numeric output name                         reached the agent
+  numeric output type                         reached the agent
+  textual required flag                       reached the agent
+  allowed_media_types that is not an array    reached the agent
+  link_policy outside the frozen const        reached the agent
+  max_entries above 100000                    reached the agent
+  max_bytes above 9007199254740991             reached the agent
+
+Each expected an `input` refusal before dispatch. The sentinel agent ran and
+the channel consequently returned `code: agent`.
+
+test_a_directory_link_is_not_silently_omitted_from_measurement:
+  the agent created out/linked-directory as a symlink to the output root;
+  the worker returned ok=true and published output.json instead of refusing
+  the link.
+
+Focused result after reviewer additions:
+  Ran 158 tests in 12.648s
+  FAILED (failures=8)
+
+Source observations
+===================
+
+v12/worker/baton_worker.py:
+  _declarations() compares descriptor and constraint member sets but does not
+  validate name/type/required value types, allowed_media_types, link_policy,
+  or the schema maximum values of the two ceilings.
+
+  _limits() checks only that max_bytes and max_entries are nonnegative ints
+  and that validator_digest is null.
+
+  measured() iterates `for base, _directories, files in os.walk(place)` and
+  inspects symlinks only among `files`. Directory symlinks are ignored by the
+  traversal and absent from the authored content manifest.
+
+Repository hygiene
+==================
+
+git diff --check: clean.
+
+Docker was not rerun from the managed reviewer context: daemon socket access
+is denied and escalation is forbidden.

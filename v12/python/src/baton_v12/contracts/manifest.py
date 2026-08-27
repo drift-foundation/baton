@@ -31,7 +31,8 @@ from .errors import ContractRefusal, label_of, name_value
 from .secrets import check_no_durable_secret
 from .validate import validate_fragment, verify_manifest_digest
 
-__all__ = ["check_manifest_structure", "check_work_ref", "check_uri",
+__all__ = ["check_manifest_structure", "check_input_pair",
+           "check_work_ref", "check_uri",
            "check_relative_path", "check_content_manifest",
            "ARTIFACT_REF_MEMBERS", "CONTENT_MANIFEST_MEMBERS"]
 
@@ -384,6 +385,180 @@ def _overlap(left, right):
             or right.startswith(left + "/"))
 
 
+# THE TWO FIXED ROOTS EACH RESERVE ONE FILENAME, per the 2026-08-25 ruling as
+# revised by W14251. `/input/input.json` is the manager-authored input manifest
+# and `/output/output.json` is the worker-authored completion envelope, so a
+# payload declared at either name would REPLACE the protocol document in its
+# own root.
+#
+# Each name is reserved in ITS OWN ROOT and nowhere else: an output at
+# `input.json` is a file called `input.json` under `/output/`, which collides
+# with nothing. Reserving both names in both roots would be forbidding a
+# spelling rather than protecting a document.
+# W19784, approved 2026-08-26: `/input/` now reserves TWO names, because it
+# now carries two manager-authored documents. `input.json` is the pre-claim
+# input declaration and `assignment.json` is the post-claim assignment
+# manifest that delivers the exact live identity a completion envelope has to
+# carry. A staged payload at either name would replace one of them.
+#
+# The output root still reserves one, because the worker authors one document
+# there.
+_RESERVED = {"staged input": ("input.json", "assignment.json"),
+             "declared output": ("output.json",)}
+
+
+def _check_reserved(role, path, what):
+    """A payload path that would take, or sit under, a protocol manifest name.
+
+    NESTED COUNTS. `input.json/data` requires `input.json` to be a DIRECTORY,
+    and the protocol document is a file -- so the collision is the same one
+    whether the payload replaces the name or occupies it as a tree. A rule that
+    compared only equality would let the nested spelling through.
+    """
+    for reserved in _RESERVED[role]:
+        if path == reserved or path.startswith(reserved + "/"):
+            raise ContractRefusal(
+                "integrity", "path",
+                f"{what} declares a {role} at {name_value(path)}, and "
+                f"{name_value(reserved)} is a protocol manifest of that "
+                f"root; a payload there would replace the document it is "
+                f"declared in (§12 rule 3)")
+
+
+def _check_completion_manifest(owned, what):
+    """The WORKER's `/output/output.json`, standing alone.
+
+    W14251 third review [P1]: these rules lived only in the record's executable
+    model, and `check_manifest_structure` dispatched semantics for the input
+    manifest alone -- so the validator W6634 will call when it begins reading
+    the worker's envelope accepted every malformed one after the schema, digest
+    and secret walks passed. Leaving a rule in design evidence makes the
+    downstream instruction incomplete, which is the same defect as writing it
+    in prose.
+
+    WHAT IS HERE IS WHAT THE DOCUMENT DECIDES ALONE. The cross-document
+    relations -- exactly one answer per declared output, exact name/type/path,
+    no `missing-optional` for a required declaration -- are comparisons against
+    the INPUT manifest and belong to whoever holds both. §12 rule 15 states
+    them; a rule needing two documents cannot be checked by a function handed
+    one.
+
+    THAT COMPARISON IS A DOWNSTREAM OBLIGATION AND NOT A PRESENT FACT. W6634
+    owns the manager side of the freeze and has not implemented envelope intake
+    -- measured, nothing under `worker_manager/` reads `/output/output.json` --
+    so §12 rule 15 is stated for it to satisfy rather than described as
+    something it does. Conformance obligation `A-16` is what will observe it.
+    """
+    outputs = owned["outputs"]
+    names = [one["name"] for one in outputs]
+    if len(set(names)) != len(names):
+        _refuse(f"{what} answers one output name twice; a name identifies a "
+                f"declaration and two answers to one is not one answer "
+                f"(§12 rule 3)")
+    paths = [one["path"] for one in outputs]
+    for path in paths:
+        _check_reserved("declared output", path, what)
+    for left in range(len(paths)):
+        for right in range(left + 1, len(paths)):
+            if _overlap(paths[left], paths[right]):
+                raise ContractRefusal(
+                    "integrity", "path",
+                    f"{what} answers {name_value(paths[left])} and "
+                    f"{name_value(paths[right])}, which are the same tree or "
+                    f"one inside the other (§12 rule 3)")
+    for one in outputs:
+        # A STATUS IS A CLAIM ABOUT BYTES, and the integrity evidence is what
+        # makes it checkable. `present` with nothing to check and
+        # `missing-optional` with something to check are both a document
+        # disagreeing with itself.
+        if one["status"] == "present" and one["content_manifest"] is None:
+            _refuse(f"{what} answers output {name_value(one['name'])} present "
+                    f"and carries no content manifest for it")
+        if one["status"] == "missing-optional" \
+                and one["content_manifest"] is not None:
+            _refuse(f"{what} answers output {name_value(one['name'])} missing "
+                    f"and carries a content manifest for it")
+    return owned
+
+
+# W19784, approved 2026-08-26: the two manager-authored input documents, held
+# against each other.
+#
+# THE DEFECT THIS ANSWERS. The frozen `completionManifest` requires the worker
+# to publish the exact full `assignment_ref` -- Work reference, participant and
+# authority generation -- and no frozen input surface delivered it. The input
+# manifest is PRE-CLAIM and deliberately carries no generation; the assignment
+# manifest has always carried the whole identity but had no path inside the
+# execution container. So a worker consuming a valid `inputManifest` could not
+# author a valid completion envelope at all.
+#
+# The approved answer delivers the EXISTING canonical `assignmentManifest` at
+# `/input/assignment.json` rather than inventing a third identity shape: no
+# environment string, no framed-request member, no compatibility alias. What is
+# new is a path and a lifecycle, not a document.
+_ASSIGNMENT_BINDING = ("policy_digest", "runtime_profile_digest")
+
+
+def check_input_pair(input_manifest, assignment_manifest,
+                     what="an execution input"):
+    """PUBLIC: the two `/input/` documents, and the bindings between them.
+
+    Neither document can be checked into agreement alone, which is the whole
+    reason this exists as its own rule: `input.json` says what was asked for
+    before a claim, `assignment.json` says which live assignment is now
+    executing it, and only a comparison says they are about one thing.
+
+    WHAT IS COMPARED, and each is a different way for a container to be wrong:
+
+      the WORK -- two documents about different Work is a mis-composed
+      container, whatever else agrees;
+      the INPUT DIGEST -- the assignment names the exact input it was minted
+      against, so this proves the two files in this root are that pair rather
+      than one of them and a newer other;
+      and the POLICY and RUNTIME PROFILE digests -- the same delivery, or two.
+
+    THE GENERATION IS NOT COMPARED HERE and that is deliberate: the input
+    manifest has none. That is the asymmetry the whole defect came from, and
+    the assignment manifest is the only side that can carry it.
+
+    THE ASSIGNMENT CONTRACT IS NOT COMPARED HERE EITHER, and that is not a
+    dropped obligation. The 2026-08-26 recommendation names it among the
+    cross-checks, and under 1.0 the frozen schema pins `assignment_contract` to
+    `const: "v12-assignment-1"` on BOTH documents -- so two structurally valid
+    manifests cannot disagree about it, and a branch comparing them could never
+    execute. The obligation is discharged by the schema, one layer earlier;
+    writing it again here would be a guard that no removal can measure, which
+    is the shape this dossier has already been corrected for. If a later
+    version widens that vocabulary, the comparison becomes reachable and
+    belongs here.
+    """
+    what = label_of(what)
+    owned_input = check_manifest_structure(
+        input_manifest, "inputManifest", what=f"{what} input manifest")
+    owned_assignment = check_manifest_structure(
+        assignment_manifest, "assignmentManifest",
+        what=f"{what} assignment manifest")
+    return _relate_input_pair(owned_input, owned_assignment, what)
+
+
+def _relate_input_pair(owned_input, owned_assignment, what):
+    if owned_assignment["assignment_ref"]["work_ref"] != owned_input["work_ref"]:
+        _refuse(f"{what} carries an assignment manifest for another Work than "
+                f"its input manifest declares", code="schema")
+    if owned_assignment["input_manifest_digest"] \
+            != owned_input["manifest_digest"]:
+        raise ContractRefusal(
+            "integrity", "digest",
+            f"{what} assignment manifest was minted against another input "
+            f"manifest than the one beside it; the pair in one root is one "
+            f"pair or it is two halves of two deliveries")
+    for member in _ASSIGNMENT_BINDING:
+        if owned_assignment[member] != owned_input[member]:
+            _refuse(f"{what} input and assignment manifests declare different "
+                    f"{member} values; one delivery carries one identity")
+    return owned_input, owned_assignment
+
+
 def _check_input_manifest(owned, what):
     """§12 rule 3 and rule 7, which are about an input manifest alone."""
     sources = owned["sources"]
@@ -393,28 +568,55 @@ def _check_input_manifest(owned, what):
     if len(set(names)) != len(names):
         _refuse(f"{what} reuses an input/output name; names are unique across "
                 f"both (§12 rule 3)")
-    destinations = ([source["destination"] for source in sources]
-                    + [output["path"] for output in outputs])
-    # The schema owns each destination's SHAPE, as above. What it cannot see is
-    # the relationship BETWEEN two of them, which is the rule below.
-    for left in range(len(destinations)):
-        for right in range(left + 1, len(destinations)):
-            if _overlap(destinations[left], destinations[right]):
-                raise ContractRefusal(
-                    "integrity", "path",
-                    f"{what} destinations {name_value(destinations[left])} "
-                    f"and {name_value(destinations[right])} overlap "
-                    f"(§12 rule 3)")
-    for source in sources:
-        check_uri(source["uri"], f"{what} source {source['name']} uri")
-        # §12 rule 7: a sha1 base revision under a sha256 repository is not a
-        # shorter digest, it is a different object namespace.
-        if source["type"] == "git" \
-                and source["object_format"] != source["base_revision"]["algorithm"]:
-            _refuse(f"{what} source {source['name']} declares object format "
-                    f"{name_value(source['object_format'])} and a "
-                    f"{name_value(source['base_revision']['algorithm'])} base "
-                    f"revision (§12 rule 7)")
+    # OVERLAP IS COMPARED WITHIN A ROOT, NOT ACROSS THE TWO.
+    #
+    # W14251 second review [P1]: these were concatenated into one list, so a
+    # source staged at `repo` and an output written at `repo` were refused as
+    # aliasing. Under the 2026-08-25 ruling they are `/input/repo` and
+    # `/output/repo` -- two fixed roots, disjoint by construction -- and equal
+    # or nested RELATIVE spellings across them cannot name the same bytes.
+    #
+    # The rule itself is unchanged and still load-bearing: two sources over one
+    # tree deliver the same material twice, and a declared output inside
+    # another has the worker writing into a tree the seal also describes.
+    # What changed is the SET each comparison ranges over.
+    #
+    # Names stay unique across BOTH, and that is deliberately not the same
+    # rule: a name is how one manifest's declarations are told apart, and two
+    # roles sharing one name is ambiguous wherever the name is used, whatever
+    # root the material sits under.
+    for role, paths in (
+            ("staged input", [source["destination"] for source in sources]),
+            ("declared output", [output["path"] for output in outputs])):
+        for path in paths:
+            _check_reserved(role, path, what)
+        for left in range(len(paths)):
+            for right in range(left + 1, len(paths)):
+                if _overlap(paths[left], paths[right]):
+                    raise ContractRefusal(
+                        "integrity", "path",
+                        f"{what} {role} destinations "
+                        f"{name_value(paths[left])} and "
+                        f"{name_value(paths[right])} overlap (§12 rule 3)")
+    # W14251: THE SOURCE'S OWN ACQUISITION RULES ARE GONE WITH THE MEMBERS
+    # THEY READ.
+    #
+    # Two rules stood here. A `uri` grammar check, and §12 rule 7 -- a sha1
+    # base revision under a sha256 repository is a different object namespace
+    # rather than a shorter digest. Both read members the neutral staged-input
+    # descriptor does not have: the 2026-08-25 supersession says the manager
+    # receives an ALREADY STAGED read-only directory and its generic integrity
+    # envelope, and that "how that directory was populated is outside the
+    # Worker Manager".
+    #
+    # The rules above this line stay, because they are about the STAGING and
+    # not about acquisition: names are unique across sources and outputs, and
+    # destinations do not overlap.
+    #
+    # `check_uri` itself is untouched and still guards artifact locators below,
+    # so `fixtures/uri-vectors.json` remains the authority for that grammar.
+    # What ended is this manager reading a source's acquisition locator, not
+    # the grammar for locators it still receives.
     return owned
 
 
@@ -468,4 +670,11 @@ def check_manifest_structure(document, definition, *, what="a manifest"):
         _check_content_manifest(content, f"{what} content manifest")
     if owned.get("schema") == "baton.worker-manifest/input":
         _check_input_manifest(owned, what)
+    # THE WORKER'S ANSWER GETS ITS OWN DISPATCH. W14251 third review [P1]:
+    # semantics were dispatched for the input manifest ALONE, so this composite
+    # -- the validator W6634 will call when it begins reading
+    # `/output/output.json` -- accepted every malformed completion envelope
+    # once the schema, digest, secret and content-manifest walks passed.
+    if owned.get("schema") == "baton.worker-manifest/completion":
+        _check_completion_manifest(owned, what)
     return owned

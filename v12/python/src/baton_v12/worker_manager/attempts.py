@@ -32,7 +32,7 @@ from types import MappingProxyType
 
 from ..contracts import ContractRefusal, digest
 from ..contracts.errors import name_value
-from . import boundaries, documents, schema, sessions
+from . import boundaries, documents, oci, schema, sessions, workspaces
 from .store import manager_signature
 
 # `_fixed_assignment` is PRIVATE until something outside this module needs it.
@@ -625,7 +625,27 @@ def _runtime_labels(attempt):
     so two participants' runtimes on one Work and generation were
     indistinguishable by label -- and the whole reconciliation below decides by
     comparing labels.
+
+    AND THE POLICY THE DELIVERY IS MADE UNDER. W6632 review [P1]: the resolved
+    identity is image, profile, policy and adapter, and reconciliation has to
+    be able to prove all four of a runtime it adopts. The engine reports the
+    image itself; the policy digest exists nowhere but here.
+
+    A CONSEQUENCE WORTH NAMING: `policy_digest` is nullable on the attempt row,
+    so an attempt recorded without one can no longer start a runtime. That is
+    the right answer rather than an accident -- a delivery whose policy this
+    manager cannot name exactly is one no later reconciliation can describe --
+    but it is a lifecycle rule this Job reached rather than one it owns, and it
+    is refused HERE with a message that says so instead of surfacing as a
+    digest complaint about `None` from two layers down.
     """
+    if attempt["policy_digest"] is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt['runtime_attempt_id'])} records no "
+            f"policy digest; a runtime is labelled with the policy its "
+            f"delivery is made under, and reconciliation after a restart has "
+            f"no other way to learn what this worker was started to obey")
     return documents.runtime_labels(
         runtime_attempt_id=attempt["runtime_attempt_id"],
         authority_uuid=attempt["authority_uuid"],
@@ -633,6 +653,7 @@ def _runtime_labels(attempt):
         participant=attempt["assignment_participant"],
         generation=attempt["assignment_generation"],
         profile_digest=attempt["profile_digest"],
+        policy_digest=attempt["policy_digest"],
         adapter_digest=attempt["adapter_digest"])
 
 
@@ -649,7 +670,127 @@ def _start_operation_id(attempt):
     })[len("sha256:"):]
 
 
-def request_runtime_start(store, adapter, *, attempt_id):
+def _plan_agrees(adapter, attempt_id, inputs):
+    """An adapter's DECLARED mount plan, held to the root this manager proved.
+
+    A plan is read only where one is declared. `mounts` is an attribute of the
+    OCI adapter's assignment-scoped construction rather than a method of the
+    seam, so an adapter that has none is not a mount planner and there is
+    nothing here to compare -- and requiring the attribute would make every
+    narrow adapter declare a plan it does not have. That is why the adapter's
+    own refusal is the boundary and this one is the earlier moment: this saves
+    a journalled operation, and cannot be the thing that makes the manager
+    safe.
+    """
+    plan = getattr(adapter, "mounts", None)
+    if plan is None:
+        return
+    # THE ADAPTER'S OWN SPELLING RULES, CALLED rather than reimplemented.
+    #
+    # W19784 third review [P1]: this normalized the target and resolved the
+    # source before comparing them, so `/else/../input` arrived here already
+    # collapsed to `/input` and `<inputs>/../inputs` already collapsed to the
+    # proved source. Both were accepted, the start was journalled, the adapter
+    # was invoked -- and only then did the adapter refuse them, correctly,
+    # leaving this manager an operation to settle for a plan that could never
+    # have been mounted.
+    #
+    # A guard written as a paraphrase of another guard agrees with it until it
+    # doesn't, and the difference shows up exactly where it costs most. These
+    # are `oci.canonical_target` and `oci.canonical_source` themselves, so the
+    # earlier moment and the boundary cannot drift apart.
+    landing = []
+    for mount in plan:
+        one = boundaries.document(mount, "a declared runtime mount",
+                                  required=("source", "target", "writable"))
+        if oci.canonical_target(one["target"],
+                                "a declared mount target") == oci.INPUT_TARGET:
+            landing.append(one)
+    if inputs is None:
+        if landing:
+            raise ContractRefusal(
+                "policy", "denied",
+                f"the adapter for attempt {name_value(attempt_id)} mounts "
+                f"{name_value(oci.INPUT_TARGET)} and no input root was "
+                f"authorized; a worker reads its assignment from that path")
+        return
+    proved = oci.canonical_source(inputs, "an authorized input root")
+    if len(landing) != 1 \
+            or oci.canonical_source(landing[0]["source"],
+                                    "a declared mount source") != proved \
+            or landing[0]["writable"] is not False:
+        raise ContractRefusal(
+            "policy", "denied",
+            f"the adapter for attempt {name_value(attempt_id)} does not mount "
+            f"the authorized input root {name_value(proved)} read-only at "
+            f"{name_value(oci.INPUT_TARGET)}; the root that was proved is the "
+            f"root that is mounted")
+
+
+def authorize_input_root(store, *, attempt_id, inputs):
+    """Prove the composed `/input/` root belongs to THIS attempt, before the
+    runtime that will mount it is started.
+
+    W19784 review [P0], 2026-08-27. `workspaces.compose_input_root` writes the
+    root and now holds the pair to a manager-owned assignment and attempt --
+    but nothing in the LAUNCH path proved that the root a runtime is about to
+    mount is the one that was composed for it. A root composed correctly for
+    attempt 1 and then started under attempt 2's labels would have been caught
+    only at the freeze, after the agent had run.
+
+    This reads the two documents back OFF DISK rather than trusting a value
+    passed down from the composition, because what the runtime mounts is the
+    disk. Three manager-owned facts decide it, and each is a different way to
+    be wrong:
+
+      the ASSIGNMENT this attempt activated -- all four parts, never a subset;
+      the RUNTIME ATTEMPT, so one attempt's root cannot be started under
+      another's labels; and
+      the INPUT DIGEST the attempt was recorded with, which is the manager's
+      own record of what this attempt was offered and claimed against.
+
+    A root this manager cannot read is a refusal rather than a start: the
+    alternative is exposing a directory whose contents nothing has established.
+    """
+    attempt = _require_attempt(store, attempt_id)
+    expected = _fixed_assignment(attempt)
+    if expected is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} is not activated; there is no "
+            f"live assignment to hold an input root against")
+    given, delivered = workspaces.read_input_root(inputs)
+    if delivered["assignment_ref"] != expected:
+        raise ContractRefusal(
+            "stale-assignment", "generation",
+            f"the input root at {name_value(inputs)} names "
+            f"{name_value(delivered['assignment_ref'])} and attempt "
+            f"{name_value(attempt_id)} activated {name_value(expected)}")
+    if delivered["runtime_attempt_id"] != attempt["runtime_attempt_id"]:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"the input root at {name_value(inputs)} was composed for runtime "
+            f"attempt {name_value(delivered['runtime_attempt_id'])} and this "
+            f"start is {name_value(attempt['runtime_attempt_id'])}")
+    # THE ATTEMPT'S OWN RECORD OF WHAT IT WAS CLAIMED AGAINST. Nullable on the
+    # row, and an attempt that records none cannot have this proved -- which is
+    # refused here rather than skipped, because "no recorded input" and "the
+    # recorded input agrees" are not the same answer.
+    if attempt["input_digest"] is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} records no input digest; a "
+            f"root this manager cannot tie to what the attempt was claimed "
+            f"against is one it will not expose")
+    if given["manifest_digest"] != attempt["input_digest"]:
+        raise ContractRefusal(
+            "integrity", "digest",
+            f"the input root at {name_value(inputs)} carries an input "
+            f"manifest this attempt was not claimed against")
+    return given, delivered
+
+
+def request_runtime_start(store, adapter, *, attempt_id, inputs=None):
     """Commit a signed start operation, THEN call the adapter with it.
 
     Review [P1] in the frozen host: an axis label is not an effectively-once
@@ -672,6 +813,48 @@ def request_runtime_start(store, adapter, *, attempt_id):
             "refused", "already-terminal",
             f"attempt {name_value(attempt_id)} execution is "
             f"{name_value(attempt['execution_runtime'])}")
+    # AND THE ADAPTER'S OWN PLAN AGREES, BEFORE ANYTHING IS JOURNALLED.
+    #
+    # W19784 second review [P0]. Carrying the authenticated source across the
+    # seam makes the adapter refuse a plan that does not name it -- but that
+    # refusal arrives INSIDE the adapter, after this manager has already
+    # committed a start operation it now has to settle. An adapter that
+    # declares its mount plan is one this manager can hold to the root it just
+    # proved, and refusing here means no operation was journalled and there is
+    # nothing to reconcile.
+    #
+    # BOTH, rather than either. This check cannot be the only one: an adapter
+    # reached by any other path, or one whose plan is not declarable, still has
+    # to fail closed on its own. And the adapter's check cannot be the only one
+    # either, for the journalling reason above. They answer at two different
+    # moments and neither subsumes the other.
+    _plan_agrees(adapter, attempt_id, inputs)
+
+    # THE ROOT IS AUTHORIZED BEFORE THE OPERATION IS JOURNALLED.
+    #
+    # W19784 review [P0]: nothing in the launch path proved that the root a
+    # runtime is about to mount is the one composed for this attempt.
+    #
+    # THE REQUIREMENT IS DERIVED, NOT OPTIONAL, and the distinction is the
+    # whole design. `inputs=None` is not "skip the check": it is only
+    # reachable when the attempt records NO input digest, which means this
+    # manager has nothing an input root could be bound to and therefore no
+    # root to expose. Every real delivery is offered and claimed against an
+    # input manifest, so every real delivery records that digest -- and from
+    # that moment a start without an authorized root is refused.
+    #
+    # An optional operand would have been the hole: a caller that could pass
+    # nothing would start a runtime over a directory nothing established. A
+    # derived one cannot be omitted by the callers that matter.
+    if attempt["input_digest"] is not None or inputs is not None:
+        if inputs is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"attempt {name_value(attempt_id)} was claimed against an "
+                f"input manifest and no input root was named; a runtime is "
+                f"not started over a directory this manager has not held "
+                f"against its own assignment")
+        authorize_input_root(store, attempt_id=attempt_id, inputs=inputs)
     labels = _runtime_labels(attempt)
     operation_id = _start_operation_id(attempt)
     signature = manager_signature("runtime.start",
@@ -688,8 +871,15 @@ def request_runtime_start(store, adapter, *, attempt_id):
     # AND ONLY THEN THE ADAPTER. A crash between the two boundaries is
     # answerable because the journal row exists; a crash before it leaves
     # nothing to answer for.
+    # THE AUTHENTICATED SOURCE CROSSES THE SEAM. W19784 second review [P0]:
+    # this manager proved one directory and then called an adapter whose mount
+    # plan is independent of it, so the authorization and the mount were two
+    # operations. The adapter requires this exact source, read-only, at the
+    # worker's fixed `/input` -- and refuses a `/input` bind at all when there
+    # is none to require.
     started = _started(adapter.start({"labels": labels,
-                                      "operation_id": operation_id}))
+                                      "operation_id": operation_id,
+                                      "input_root": inputs}))
     return reconcile_runtime(store, adapter, attempt_id=attempt_id,
                              minted=started["runtime_id"],
                              minted_labels=started["labels"])

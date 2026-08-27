@@ -1,0 +1,64 @@
+W14251 independent implementation review
+UTC: 2026-08-26T14:49:21Z
+
+Focused shipped-Python gate after the additive copy regression:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_frozen tests.manager.test_manifest_rules \
+    tests.manager.test_output tests.manager.test_secrets \
+    tests.manager.test_workspaces
+
+  Ran 222 tests in 0.797s
+  FAILED (failures=1)
+
+  Failure:
+    TheSchemaTravelsWithTheDistribution.
+      test_the_tracked_build_copy_is_not_a_fourth_contract
+
+  Source package bytes contain the neutral `sourceDescriptor`; tracked
+  build/lib bytes still begin that section with `gitSource` and contain the
+  superseded acquisition union. The other 221 cases pass.
+
+Canonical contract-model gate:
+
+  cd work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence
+  python3 -m unittest test_contract_model.py
+
+  Ran 24 tests in 0.091s
+  FAILED (errors=1)
+
+  SchemaAndVectorTests.test_canonical_valid_vectors
+    vector='input-manifest-directory-and-declared-output'
+
+  contract_model.py:_validate_input_manifest indexes source["uri"] and raises
+  KeyError: 'uri'. The other 23 cases pass.
+
+Tracked build-shadow reproduction:
+
+  cd v12/python
+  PYTHONPATH=build/lib python3 -c <import schema and workspaces probe>
+
+  ['directorySource', 'gitSource']
+  True True True
+
+The booleans are `hasattr` for `GitPort`, `materialize_git_source` and
+`materialize_directory_source`.
+
+Unfinished control contract:
+
+  Control SPEC.md §§7.1–7.4 still names source `type`, acquisition `uri`, Git
+  and directory source variants, plus the three closed output kinds.
+
+Unfinished conformance contract:
+
+  No diff exists for runtime-conformance SPEC.md,
+  schema/conformance-1.0.schema.json, evidence/cases.json or
+  evidence/obligations.json. Focused search finds none of the required
+  input.json/output.json publication/chaining revision.
+
+Whitespace gate:
+
+  git diff --check -- <reviewed W14251 source, vector, test and dossier paths>
+
+  clean

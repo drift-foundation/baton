@@ -30,7 +30,15 @@ __all__ = ["STORE_KIND", "SCHEMA_VERSION", "SCHEMA", "TABLES",
            "OUTPUT_STATUSES", "OUTPUT_TYPES", "DISPOSITIONS",
            "MANIFEST_COLUMNS", "OUTPUT_COLUMNS", "OUTPUT_ARTIFACT_COLUMNS",
            "INTERROGATION_KINDS", "INTERROGATION_OUTCOMES",
-           "INTERROGATION_COLUMNS"]
+           "INTERROGATION_COLUMNS",
+           # W6629. Every other table's column contract and closed vocabulary
+           # is declared here, and intake's four were reachable only as module
+           # attributes -- which is a different promise from the one this list
+           # makes. Nothing failed because of it, and that is the observation
+           # worth keeping: this module has no gate comparing what it defines
+           # to what it declares, so the omission was invisible.
+           "CUSTODY", "RETENTION_DISPOSITIONS", "INTAKE_COLUMNS",
+           "INTAKE_ARTIFACT_COLUMNS", "RETENTION_COLUMNS"]
 
 STORE_KIND = "baton.v12.python.worker-manager"
 
@@ -46,11 +54,14 @@ STORE_KIND = "baton.v12.python.worker-manager"
 # eight, because W6628 added the retained manifests a declaration is compared
 # against and the frozen result those declarations answer; nine, because
 # W6627's confirmed interrogation split needs a durable lifecycle of its own.
-SCHEMA_VERSION = 10
+# Eleven, because W6629 added the intake receipt, the artifacts this manager
+# took custody of, and the retention decisions cleanup is authorized by.
+SCHEMA_VERSION = 11
 
 TABLES = ("meta", "operations", "offers", "attempts", "observations",
           "profiles", "agent_sessions", "posture_slots", "manifests",
-          "outputs", "output_artifacts", "interrogations")
+          "outputs", "output_artifacts", "interrogations", "intakes",
+          "intake_artifacts", "retentions")
 
 # THE TWO OPERATOR INTERROGATIONS, and they are two because v11's `poke`
 # conflated two facts: whether the adapter and session can be OBSERVED now,
@@ -135,6 +146,22 @@ SESSION_STATES = ("not-started", "initializing", "ready", "prompting",
 # only whether the posture may be used again, which nobody has to observe a
 # provider to know.
 SLOT_OCCUPANCY = ("available", "occupied", "recovery-required")
+
+# WHAT INTAKE DID WITH THE MATERIAL, and it is two answers rather than one.
+#
+# W6628 pinned the reason in the module that hands intake its work: the
+# liveness read before a freeze "is inside the write and is still only a read",
+# so the window cannot be zero, and "material from an assignment that ended
+# anyway is QUARANTINED AT INTAKE rather than trusted here". Intake is
+# therefore the boundary that decides custody, and refusing would be the wrong
+# answer -- the bytes exist, somebody produced them, and losing them because
+# their assignment ended is how evidence disappears.
+CUSTODY = ("accepted", "quarantined")
+
+# THE FROZEN CONTRACT'S OWN retention vocabulary, from `outputRetainBody`. It
+# is the operation's answer and never this manager's invention: a disposition
+# arrives on the command and is recorded.
+RETENTION_DISPOSITIONS = ("retain", "quarantine", "discard-after-intake")
 
 SCHEMA = """
 CREATE TABLE meta (
@@ -509,6 +536,67 @@ CREATE TABLE output_artifacts (
     PRIMARY KEY (runtime_attempt_id, output_name)
 ) STRICT;
 
+-- THE INTAKE RECEIPT: this manager's own record that it has taken custody.
+--
+-- `runtime_attempt_id` IS THE PRIMARY KEY, so "this attempt was intaken once"
+-- is the table's invariant rather than a convention, and the receipt digest
+-- `runtimeDestroyBody.intake_receipt_digest` carries is derived from the
+-- document rather than stored beside an unrelated one.
+--
+-- THE RECEIPT IS THE MANAGER'S DOCUMENT, and that is why its shape is written
+-- down here. The frozen contract names `intake_receipt_digest` and states no
+-- shape for what it digests -- exactly as it names ten `*_policy_digest`
+-- fields and states the shape of none of them. The difference is direction: a
+-- policy is CONSUMED, so this manager binds it by digest and never interprets
+-- it; a receipt is PRODUCED here, so the producer owns its shape.
+CREATE TABLE intakes (
+    runtime_attempt_id  TEXT PRIMARY KEY,
+    receipt_digest      TEXT NOT NULL,
+    result_id           TEXT NOT NULL,
+    manifest_digest     TEXT NOT NULL,
+    custody             TEXT NOT NULL CHECK (
+        custody IN ('accepted', 'quarantined')),
+    why                 TEXT NOT NULL,
+    recoverable         INTEGER NOT NULL CHECK (recoverable IN (0, 1)),
+    collect_operation_id TEXT NOT NULL,
+    intake_operation_id TEXT NOT NULL,
+    sealed_at           TEXT NOT NULL
+) STRICT;
+
+-- WHAT THIS MANAGER NOW HOLDS, one row per artifact taken into custody.
+--
+-- Deliberately NOT a copy of `output_artifacts`: that table records what the
+-- frozen result DECLARED and where the worker left it, and this one records
+-- what intake proved it received and where the manager put it. Conflating them
+-- would make "the manager holds this" indistinguishable from "the worker said
+-- this existed", which is the whole difference intake makes.
+CREATE TABLE intake_artifacts (
+    runtime_attempt_id TEXT NOT NULL,
+    artifact_id        TEXT NOT NULL,
+    content_digest     TEXT NOT NULL,
+    bytes              INTEGER NOT NULL CHECK (bytes >= 0),
+    custody_locator    TEXT NOT NULL,
+    PRIMARY KEY (runtime_attempt_id, artifact_id)
+) STRICT;
+
+-- THE RETENTION DECISION, one row per artifact, under the policy that decided
+-- it -- BY DIGEST.
+--
+-- The policy document's shape is stated nowhere in the frozen contract and is
+-- not needed here. What cleanup authorization requires is that the digest the
+-- destroy command carries is the SAME one every retention decision was made
+-- under, and identity is a question a digest answers exactly.
+CREATE TABLE retentions (
+    runtime_attempt_id      TEXT NOT NULL,
+    artifact_id             TEXT NOT NULL,
+    disposition             TEXT NOT NULL CHECK (
+        disposition IN ('retain', 'quarantine', 'discard-after-intake')),
+    retention_policy_digest TEXT NOT NULL,
+    retain_operation_id     TEXT NOT NULL,
+    decided_at              TEXT NOT NULL,
+    PRIMARY KEY (runtime_attempt_id, artifact_id)
+) STRICT;
+
 -- THE OPERATOR INTERROGATION, journalled as its own durable lifecycle.
 --
 -- W6627's confirmed split. The row binds all four things an interrogation is
@@ -776,6 +864,36 @@ INTERROGATION_COLUMNS = {
     "answer": Column("json", nullable=True),
     "published_at": Column("instant", nullable=True),
     "observation": Column("json", nullable=True),
+}
+
+INTAKE_COLUMNS = {
+    "runtime_attempt_id": Column("identity"),
+    "receipt_digest": Column("text"),
+    "result_id": Column("identity"),
+    "manifest_digest": Column("text"),
+    "custody": Column("text", allowed=CUSTODY),
+    "why": Column("text"),
+    "recoverable": Column("flag"),
+    "collect_operation_id": Column("identity"),
+    "intake_operation_id": Column("identity"),
+    "sealed_at": Column("instant"),
+}
+
+INTAKE_ARTIFACT_COLUMNS = {
+    "runtime_attempt_id": Column("identity"),
+    "artifact_id": Column("identity"),
+    "content_digest": Column("text"),
+    "bytes": Column("count"),
+    "custody_locator": Column("text"),
+}
+
+RETENTION_COLUMNS = {
+    "runtime_attempt_id": Column("identity"),
+    "artifact_id": Column("identity"),
+    "disposition": Column("text", allowed=RETENTION_DISPOSITIONS),
+    "retention_policy_digest": Column("text"),
+    "retain_operation_id": Column("identity"),
+    "decided_at": Column("instant"),
 }
 
 OUTPUT_ARTIFACT_COLUMNS = {

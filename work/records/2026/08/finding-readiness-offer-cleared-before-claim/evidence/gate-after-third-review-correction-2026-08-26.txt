@@ -1,0 +1,110 @@
+W11910 — evidence after the correction answering the 02:42:43Z re-review.
+
+Review answered: review-2026-08-26T02-42-43Z.md
+  [P1] failed revalidation is called retained but is delivered as live
+
+
+THE FINDING, AND THE PROSE WAS ALREADY RIGHT
+
+  `#revalidate`'s catch branch logged "the event is retained" and returned
+  `live` — and `live` is the verdict that opens the model turn immediately and
+  dequeues the event. The reply-with-no-actionable-set branch did the same.
+  The sentence in the log had been true of the behaviour it described before
+  the claim-slot correction, and stopped being true when that correction gave
+  this read a second job.
+
+  Because that is what changed. The immediate read now has to prove two
+  things: that the exact episode still exists, and that an unclaimed Work is
+  not waiting behind another claim. A READ THAT FAILED PROVES NEITHER.
+  Delivering anyway spends a model turn against a slot this dispatcher never
+  established was free — the exact thing the gate exists to stop — while ACP's
+  equivalent failed read throws into its delivery boundary and retries without
+  prompting.
+
+
+THE CORRECTION: A FOURTH VERDICT, NOT A MAPPING ONTO AN EXISTING ONE
+
+  `over` / `deferred` / `uncertain` / `live`. A failed invocation, unreadable
+  JSON, or an envelope with no actionable set all answer `uncertain`, and the
+  drain holds an uncertain event exactly as it holds a deferred one: the event
+  stays at the queue head, its v11 in-flight identity is NOT released, no turn
+  is spent, and it is re-asked on the same bounded cadence.
+
+  ONE CADENCE FOR BOTH, and that is deliberate rather than lazy: "come back
+  and ask again" is the same act whichever of the two questions went
+  unanswered, and a second interval would be a second thing to tune for one
+  behaviour.
+
+  `actionDeferred` carries `reason: "unreadable"` for this branch, so an
+  operator reading events can tell a slot that is occupied from an authority
+  that could not be reached. They call for different actions.
+
+  A deployment with no `roleInstructions` still answers `live` and is
+  untouched: that is a deployment that never revalidates at all, not a read
+  that failed, and the review scoped this to failed reads and malformed
+  envelopes.
+
+
+FOCUSED
+
+    $ node --test test/claim_slot.test.mjs
+    i  tests 30   i  pass 30   i  fail 0
+
+    $ node --test test/stale_episode.test.mjs
+    i  tests 22   i  pass 22   i  fail 0
+
+  The review's additive cross-boundary regression is kept as written and
+  passes. One case is new:
+
+    an unreadable authority is re-asked and delivers once it answers —
+      because retention that never retries is a queue nobody drains. The
+      bounded re-read is what makes "held" different from "stuck", and it
+      needs no new event and no restart.
+
+
+TWO EXISTING ASSERTIONS REVISED, UNDER EXPLICIT CONFIRMATION
+
+  `a failed revalidation retains the event rather than dropping it` and
+  `a reply with no actionable set retains the event` both established
+  retention by requiring the event to BECOME A TURN — which was a fair proxy
+  before the claim-slot rule, when delivering an uncertain event was harmless.
+
+  The review gives explicit case-specific confirmation to change those
+  expectations while preserving the actual requirement, and that is what was
+  done: retention is now asserted where it actually lives — the event is still
+  queued — and the turn is required NOT to have been spent. Their subject is
+  unchanged and each asserts strictly more than before.
+
+  One test helper gained a `claimSlotRetryMs` passthrough so the new re-ask
+  case need not wait fifteen seconds. Additive; no assertion touched.
+
+
+CAN-ACTUALLY-FAIL, MEASURED
+
+  With both catch branches returning `live` again and nothing else changed:
+
+    x  a failed revalidation retains the event rather than dropping it
+    x  a reply with no actionable set retains the event
+    x  an unreadable authority is re-asked and delivers once it answers
+    x  an unreadable claim-slot projection is retained without spending a turn
+
+  The file was restored byte for byte afterwards.
+
+
+GATES
+
+    $ npm test        # tools/codex-event-bridge
+    i  tests 403   i  pass 403   i  fail 0
+
+    $ npm test        # tools/acp-baton-bridge
+    i  tests 67    i  pass 67    i  fail 0
+
+  BOTH NODE SUITES FULLY GREEN, and nothing is reported as another Work's
+  because there is nothing left to report on this side.
+
+
+STILL THE OPERATOR'S
+
+  PLAN item 9's live smoke and item 10's deploy. This correction cannot prove
+  the live queue advances without being deployed to it, and nothing here was
+  verified against the running deployment.

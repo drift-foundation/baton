@@ -1,0 +1,143 @@
+W19784 — the third review's [P1]: normalization erased the spellings the
+pre-journal check was supposed to refuse. 2026-08-27.
+No repository state was mutated.
+
+=== 1. the reviewer's two regressions, preserved and passing
+    Ran 2 tests in 0.011s
+    
+    OK
+
+=== 2. THE FIX IS ONE RULE, NOT A CORRECTED SECOND COPY
+  The defect was not that my check normalized -- it was that it was a
+  PARAPHRASE of the adapter's rule. A paraphrase agrees with the original
+  until it doesn't, and here it stopped agreeing exactly where it cost
+  most: /else/../input collapsed onto the fixed path, the start was
+  journalled, and the adapter then refused a plan that could never have
+  been mounted.
+
+  So the target rule LEFT _mounts and became a named owner beside the
+  source rule it had always been the twin of:
+    359:def canonical_target(place, what):
+    360-    """One CONTAINER path, canonical as text and never resolved here.
+    387:def canonical_source(place, what):
+    388-    """One host path, as the KERNEL would resolve it.
+
+  and BOTH boundaries now call them rather than restating them:
+    src/baton_v12/worker_manager/oci.py:485:        target = canonical_target(one["target"], "a mount target")
+    src/baton_v12/worker_manager/oci.py:947:            if canonical_target(one["target"], "a mount target") \
+    src/baton_v12/worker_manager/attempts.py:706:        if oci.canonical_target(one["target"],
+    717:    proved = oci.canonical_source(inputs, "an authorized input root")
+    719:            or oci.canonical_source(landing[0]["source"],
+
+  TWO FUNCTIONS RATHER THAN ONE WITH A FLAG, and the reason is in them:
+  a source is a HOST path the engine will resolve, so it is realpath'd;
+  a target names a path inside a container that does not exist yet, so
+  resolving it against THIS host would be asking the wrong machine.
+
+=== 3. the spellings, refused at both moments now
+    Ran 9 tests in 0.001s
+    
+    OK
+    (nine cases: the six from the second round, plus a target that
+     traverses onto the fixed path, a source that traverses onto the
+     proved root, and a target carrying the engine's own separator)
+
+=== 4. every guard this round added, measured by REMOVAL
+=== baseline: FAILED (failures=2)
+    standing: FAIL: test_declared_output_limits_hold_before_completion_publication
+    standing: FAIL: test_the_correlated_work_answer_names_outputs_only
+=== REMOVE: a container target's spelling is checked before normalization
+    FAILED (failures=6)  (4 NEW case(s))
+       FAIL: test_a_target_traversal_is_not_normalized_into_another_location 
+       FAIL: test_a_spelling_that_normalizes_onto_the_fixed_path_is_not_it 
+       FAIL: test_a_spelling_that_normalizes_onto_the_fixed_path_is_not_it 
+       FAIL: test_a_noncanonical_input_target_refuses_before_start_is_journalled 
+=== REMOVE: a container target is absolute
+    FAILED (failures=3)  (1 NEW case(s))
+       FAIL: test_a_path_that_is_not_canonical_is_refused 
+=== REMOVE: the pre-journal check uses the adapter's own TARGET rule
+    FAILED (failures=3)  (1 NEW case(s))
+       FAIL: test_a_noncanonical_input_target_refuses_before_start_is_journalled 
+=== REMOVE: the pre-journal check uses the adapter's own SOURCE rule
+    FAILED (failures=3)  (1 NEW case(s))
+       FAIL: test_a_noncanonical_input_source_refuses_before_start_is_journalled 
+sources restored
+
+  Note what the FIRST removal takes with it: four cases across both
+  boundaries and both spellings. That is the single-owner property
+  showing up as a measurement rather than as a claim.
+
+=== 5. the suites this Work touches, WARNINGS FATAL, three times
+  DETERMINISTIC: the same two failures every time, and both are W6633's
+  own open contradiction. No ResourceWarning from any suite this Work
+  touches. The review's 179 under the same flags are a subset of these.
+    FAIL: test_the_correlated_work_answer_names_outputs_only 
+    FAIL: test_declared_output_limits_hold_before_completion_publication 
+    Ran 257 tests in 0.272s
+    FAILED (failures=2)
+    FAIL: test_the_correlated_work_answer_names_outputs_only 
+    FAIL: test_declared_output_limits_hold_before_completion_publication 
+    Ran 257 tests in 0.270s
+    FAILED (failures=2)
+    FAIL: test_the_correlated_work_answer_names_outputs_only 
+    FAIL: test_declared_output_limits_hold_before_completion_publication 
+    Ran 257 tests in 0.272s
+    FAILED (failures=2)
+
+=== 5b. AND AN OPERATIONAL FINDING, because the transcript disagreed
+  with its own prose and I will not ship that twice.
+
+  Under -W error::ResourceWarning the WHOLE 18-module gate is
+  NON-DETERMINISTIC. tests/manager/test_store.py opens three sqlite3
+  connections in fixtures and closes none:
+    56:        connection = sqlite3.connect(path, isolation_level=None)
+    82:        objects = {row[0] for row in sqlite3.connect(self.path).execute(
+    652:        competitor = sqlite3.connect(self.path, isolation_level=None)
+  Run alone, test_store is OK -- the warnings arrive at interpreter
+  shutdown, after the run. Run with the other seventeen, the garbage
+  collector fires DURING the suite and the warning becomes an error
+  attributed to whichever case happens to be executing. My first
+  generation of this file caught
+    ERROR: test_concurrent_first_openers_adopt_one_initialized_store
+  which is a concurrency case that has nothing to do with it.
+
+  NOT MINE AND NOT FIXED HERE: it is another suite's fixture, it
+  predates this Work, and no gate of mine touches it. Recorded rather
+  than repaired -- but a reviewer running warnings-fatal over the whole
+  gate will keep seeing a different case fail each time, so it is worth
+  somebody's Work.
+
+=== 5c. the focused manager gate, ordinary flags and deterministic
+    FAIL: test_the_correlated_work_answer_names_outputs_only 
+    FAIL: test_declared_output_limits_hold_before_completion_publication 
+    Ran 892 tests in 2.884s
+    FAILED (failures=2, skipped=1)
+    Both remaining are W6633's own open contradiction, unchanged.
+
+=== 6. the built-image gate, which the review still could not reach
+    Ran 37 tests in 28.292s
+    OK
+
+=== 7. the record models
+    Ran 31 tests in 0.119s
+    
+    OK
+    Ran 74 tests in 4.897s
+    
+    OK
+
+=== 8. the boundary inventory
+  Moving the rule moved its OWNER, and the inventory said so: an
+  intermediate run failed a seventh case because the probe for
+  run_vector's mount target still expected the old label. The entry now
+  names canonical_target and the literal label it writes.
+    FAIL: test_every_declared_probe_reaches_its_named_boundary  (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+    FAIL: test_every_owned_entry_has_exactly_one_probe 
+    FAIL: test_the_missing_probe_check_can_actually_fail 
+    FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared 
+    FAIL: test_every_receiving_entry_has_an_owning_validator 
+    FAIL: test_the_universe_sees_every_persisted_column_that_is_read 
+    Ran 93 tests in 816.401s
+    FAILED (failures=6)
+    (done)
+  Six is the accepted long-standing baseline.

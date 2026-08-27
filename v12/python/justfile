@@ -141,3 +141,53 @@ build:
 # This paragraph used to say the runtime dependency set was empty. It stopped
 # being empty when the validator was ruled, and a comment that restates a
 # superseded state is exactly the drift the paragraph warns about.
+
+# W9707 — THE SAME PROOF, ACROSS THE HOST'S CPUs.
+#
+# `work/records/2026/08/finding-v12-parallel-test-runner/`.
+#
+# The `test` stage above runs one `unittest` process over the whole tree. That
+# measured 423.54s elapsed against 422.65s user on the 16-core/32-CPU
+# development host: one CPU, all of it, while thirty-one idled.
+#
+# THESE RECIPES DO NOT REPLACE `gate`, AND THAT IS DELIBERATE. `gate` stays the
+# canonical, reviewed proof until parity and cleanup have been independently
+# signed off; replacing it is a separate recorded decision, not a side effect of
+# adding a faster way to run the same tests. Two entry points that disagree
+# would be worse than a slow one, so the runner's registry completeness case
+# fails the moment a v12 test module belongs to neither of its phases.
+#
+# `tools/parallel_test.py` owns the split: pure shards concurrently, then the
+# explicit serial registry — the worker image gate and the real-engine gate —
+# one at a time, never beside the parallel phase.
+# Run source tests safely across the host's available CPUs.
+parallel-test JOBS='':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "$(dirname "{{justfile()}}")"
+    # An empty JOBS means "every available CPU". The override may only LOWER
+    # that, and the runner refuses anything that is not a whole number within
+    # the host's count rather than clamping it quietly.
+    if [[ -n "{{JOBS}}" ]]; then
+        "{{PY}}" tools/parallel_test.py --jobs "{{JOBS}}"
+    else
+        "{{PY}}" tools/parallel_test.py
+    fi
+
+# The complete parallel gate, in the SAME ORDER `gate` uses and with the same
+# fail-fast: the interpreter it claims, then the source phases, then the locked
+# build that proves the distribution installs and passes from site-packages.
+#
+# `just parallel-gate 8` is the documented way to lower the worker count.
+# Run the complete parallel source and locked installed-layout gate.
+parallel-gate JOBS='': version
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "$(dirname "{{justfile()}}")"
+    "{{just_executable()}}" --justfile "{{justfile()}}" parallel-test "{{JOBS}}"
+    "{{just_executable()}}" --justfile "{{justfile()}}" build
+    # Named phases rather than one word, because "it passed" hides WHICH proof
+    # ran. The source lines come from the runner's own summary above; this line
+    # is what records that the installed-layout replay ran too, since `build`
+    # reports its own tail and `set -e` means nothing reaches here otherwise.
+    echo "[parallel-gate] version, parallel source, serial source and the locked installed layout all ran"

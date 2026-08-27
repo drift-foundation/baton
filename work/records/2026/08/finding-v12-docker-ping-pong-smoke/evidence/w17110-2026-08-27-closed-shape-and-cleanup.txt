@@ -1,0 +1,327 @@
+W17110 — the re-review's three P1s. 2026-08-27.
+SPIKE ONLY. Not a v12 contract, not production implementation, not
+conformance evidence. No repository state was mutated.
+
+=== 1. THE REVIEWER'S NINE REGRESSIONS, and my four separations
+    ----------------------------------------------------------------------
+    Ran 9 tests in 0.004s
+    
+    OK
+    Ran 6 tests in 0.004s
+    
+    OK
+    Ran 6 tests in 0.004s
+    
+    OK
+  Five failures at the re-review. Nine green now, plus six of mine.
+
+=== 2. [P1] ALLOWLISTING IS NOT VALIDATING, and they are two boundaries
+  The finding is exact. Filtering to an allowlist keeps unknown material
+  out of the printed report and says NOTHING about whether the document
+  is this harness's own: a file carrying every valid fact PLUS raw
+  provider text was still accepted, because the extras were quietly
+  dropped rather than refused.
+
+  The two are separated now. 'allowlisted' is the DURABLE-REPORT
+  boundary -- what may be copied. '_closed_shape' is the DOCUMENT
+  boundary -- what this harness will accept as its own at all, exactly
+  the required members plus a failure category only when something
+  failed. Missing, unknown and extra all refuse.
+    98:def _closed_shape(document):
+    99-    """Whether a published document is exactly one of the two shapes.
+    100-
+    101-    Missing, unknown and extra members all refuse. A document that is not this
+    102-    program's own is not made into one by dropping the parts it did not
+    103-    expect.
+    104-    """
+    105-    if type(document) is not dict:
+    106-        return False
+    107-    present = set(document)
+    108-    required = set(REQUIRED_FACTS)
+    109-    if not required <= present:
+    110-        return False
+    111-    extra = present - required
+    112-    if extra - {"failure_category"}:
+    113-        return False
+    114-    if "failure_category" in extra:
+    115-        return document["failure_category"] in CATEGORIES
+    116-    # No category means nothing failed, and the exit states have to agree.
+    117-    return document.get("exit_status") == 0
+    118-
+
+=== 2b. THE EARLIER P0 STANDS, and this is what it looks like now
+  The finding is right in a way the old code could not be patched into.
+  The rule is not 'remove the token spellings I recognise'. A real agent
+  HOLDS the mounted credential and can emit arbitrary stdout, and a
+  prompt asking for one word is not a non-disclosure boundary — so a
+  heuristic over text somebody else chooses is a guess.
+
+  Nothing is redacted now, because nothing that could carry provider
+  text is read. The container publishes only facts it COMPUTED:
+
+  and the host copies only from a closed allowlist:
+    72:PUBLISHED_FACTS = ("spike", "provider", "correlation_id", "started_at",
+    73-                   "finished_at", "exit_status", "result_digest",
+    74-                   "result_bytes", "stderr_bytes", "failure_category")
+    75-
+
+  The raw answer never leaves the container. What crosses is its DIGEST,
+  which is what lets the host decide an exact match without ever seeing
+  the plaintext — and the reviewer's sentinel, shaped like no known
+  token, no longer appears anywhere in the report.
+
+=== 3. THE HOST-RECOMPUTED VERDICT, now with the shape clause
+  It used to accept the truthiness of the document's own 'pong' member,
+  so a container claiming pong:true beside the text 'not pong', exiting
+  9, was reported satisfying. A worker-authored success bit is a claim,
+  and the party that has to be convinced is the host.
+    342:    report["verdict"] = {
+    343-        # The document is the one this trial asked for, not some other run's
+    344-        # left in the output root.
+    345-        "expected_spike": published.get("spike") == "w17110-ping-pong",
+    346-        "expected_provider": published.get("provider") == provider,
+    347-        "correlation_matches": published.get("correlation_id") == correlation,
+    348-        # BOTH exit states. The provider's, as the container observed it, and
+    349-        # the container's own.
+    350-        "provider_exit_zero": published.get("exit_status") == 0,
+    351-        "container_exit_zero": report.get("exit_status") == 0,
+    352-        # AN EXACT ANSWER. `sha256("pong")` is derived here, so this is a
+    353-        # comparison rather than a belief -- and "not pong" has a different
+    354-        # digest, which a substring test could never have told apart.
+    355-        "answer_is_exactly_pong":
+    356-            published.get("result_digest") == EXPECTED_DIGEST,
+    357-        # THE DOCUMENT IS THIS HARNESS'S OWN, exactly. Not "contains the facts
+    358-        # I wanted after I dropped the rest".
+    359-        "closed_result_shape": bool(report.get("published_shape_closed")),
+    360-    }
+    361-    report["pong"] = report["verdict"]["answer_is_exactly_pong"]
+    362-    report["correlation_matches"] = report["verdict"]["correlation_matches"]
+    363-
+    364-    # AND CLEANUP IS ENFORCED RATHER THAN OBSERVED. Every removal reports
+
+=== 4. [P1] A FAILED OBSERVATION IS NOT AN OBSERVATION OF ABSENCE
+  The removal's answer was enforced; the QUERIES intended to prove
+  absence were not. A failed docker ps or image ls returns empty stdout,
+  which became an empty survivor list and then 'nothing survived'.
+
+  Every outcome now participates:
+    371:    report["clean"] = bool(
+    372-        not report.get("containers_surviving")
+    373-        and not report.get("images_surviving")
+    374-        and report.get("image_removed")
+    375-        and report.get("container_query_ok")
+    376-        and report.get("image_query_ok")
+    377-        and report.get("staged_root_removed")
+    378-        # On the timeout path these exist and must have succeeded; off it they
+    379-        # are absent, and absent is not a failure.
+    380-        and report.get("timeout_kill_status", 0) == 0
+    381-        and report.get("timeout_remove_status", 0) == 0)
+    382-    report["satisfying"] = bool(all(report["verdict"].values())
+    383-                                and report["completion_signal_present"]
+    384-                                and report["clean"])
+    385-    print(json.dumps(report, indent=1))
+
+  AND A CORRECTION TO MY OWN PROSE. The last round called the fallback
+  an immutable-id query. It is not one: the lookup above is a TAG
+  lookup, and a refused removal is treated as a surviving image by its
+  recorded id because that is fail-closed, not because anything asked
+  the engine about the id. The comment says so at the site.
+sed: -e expression #1, char 10: unknown option to `s'
+
+=== 5. [P1] REPORTING READABILITY IS NOT GATING ON IT
+  Preflight reported readable_by_container_uid and then ignored it, so
+  a nominated provider the container cannot open still printed READY --
+  the preflight telling the operator to proceed into the one failure it
+  exists to catch. Readiness now requires it.
+
+  And a DIRECTORY needs its own execute bit, not only its read bit:
+  'r' on a directory is permission to read the NAMES, 'x' is permission
+  to reach what they name, and a credential provider is used for the
+  second. A 0444 provider was reported usable.
+
+  The exact paths each trial mounts are assessed too, because a generic
+  root cannot prove the provider-specific file beneath it is readable.
+
+  Still opening nothing:
+    
+    NOT READY: /run/baton/credentials does not exist, and no provider has been nominated in its place. The operator supplies the credential source; this preflight will not choose one.
+    
+    AND NOTE, for claude, codex: those files exist but uid 65532 cannot read them. A bind mount preserves host ownership, so nominating one as-is would hand the runtime a credential it cannot open. A provider for these trials needs ownership or a mode that admits the container identity — or an explicit ruling giving the container a different one.
+    {
+     "spike": "w17110-ping-pong",
+     "engine": {
+      "present": true,
+      "server": "29.1.3",
+      "client": "/usr/bin/docker"
+     },
+     "credential_providers": {
+      "nominated": {
+       "path": "/run/baton/credentials",
+       "present": false
+      },
+      "nominated_per_provider": {},
+      "known_operator_runtimes": {
+       "claude": {
+        "path": "/home/sl/.claude/.credentials.json",
+        "present": true,
+        "mode": "0o600",
+        "uid": 1000,
+        "gid": 1000,
+        "bytes": 281,
+        "owner_only": true,
+        "readable_by_container_uid": false,
+        "container_identity": "65532:65532"
+       },
+       "codex": {
+        "path": "/home/sl/.codex/auth.json",
+        "present": true,
+        "mode": "0o600",
+        "uid": 1000,
+        "gid": 1000,
+        "bytes": 3973,
+        "owner_only": true,
+        "readable_by_container_uid": false,
+        "container_identity": "65532:65532"
+       }
+      }
+     },
+     "host_runtimes": {
+      "claude": "/home/sl/.local/bin/claude",
+      "codex": "/home/sl/.nvm/versions/node/v24.14.0/bin/codex"
+     },
+     "container_reachability": {
+      "anthropic": "405",
+      "openai": "401"
+     }
+    }
+
+  The decision itself, controlled in both directions:
+      a world-readable file under a traversable directory  -> True (expect True)
+      an owner-only file                                   -> False (expect False)
+      a readable file under a 0700 directory               -> False (expect False)
+
+  I did NOT nominate or mount those personal files, on this claim or
+  any other. The reviewer said not to; the ruling says the operator
+  supplies the source; and they would not work as they stand.
+
+=== 5b. EVERY GUARD THIS ROUND ADDED, MEASURED BY REMOVAL
+=== baseline: ['OK']
+=== REMOVE: the published document is exactly one closed shape
+    ['FAILED (failures=1)']  (5 NEW case(s))
+=== REMOVE: an unknown member refuses the document
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: a missing member refuses the document
+    ['OK']  (3 NEW case(s))
+=== REMOVE: the container cleanup QUERY answered
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: the image cleanup QUERY answered
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: the image removal succeeded
+    ['OK']  (1 NEW case(s))
+=== REMOVE: the staged root is gone
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: the timeout kill and removal succeeded
+    ['OK']  (2 NEW case(s))
+=== REMOVE: readiness requires readability
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: a directory provider needs its own traversal bit
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: every ancestor is traversable
+    ['OK']  (1 NEW case(s))
+both sources restored
+
+  FOUR CAME BACK VACUOUS against the reviewer's nine, because another
+  guard reached the same verdict first -- a missing member masked by the
+  unknown-member rule, a refused removal masked by the surviving-id
+  fallback, the timeout cleanup statuses, and an unreachable ancestor.
+  A guard nothing can observe is a guard nobody has established, so
+  test_harness.py separates each with a case that can only fail for its
+  own reason. The reviewer's file is theirs and was not edited.
+
+=== 6. BOTH TRIALS RE-RUN UNDER THE CORRECTED HARNESS
+  Against a provider file carrying no credential, so what is shown is
+  everything except the authentication itself.
+
+  --- claude
+    image id                 sha256:5c4ae65e90af21810e0
+    mount                    /input readonly
+    mount                    /output WRITABLE
+    mount                    /home/nonroot/.claude/.credentials.json readonly
+    credential provider      file -> /home/nonroot/.claude/.credentials.json (read-only, never copied)
+    published facts          ['correlation_id', 'exit_status', 'failure_category', 'finished_at', 'provider', 'result_bytes', 'result_digest', 'spike', 'started_at', 'stderr_bytes']
+    failure category         authentication
+    verdict.expected_spike          True
+    verdict.expected_provider       True
+    verdict.correlation_matches     True
+    verdict.provider_exit_zero      False
+    verdict.container_exit_zero     False
+    verdict.answer_is_exactly_pong  False
+    verdict.closed_result_shape     True
+    completion signal last   True
+    image removed            True
+    containers surviving     []
+    images surviving         []
+    staged root removed      True
+    clean                    True
+    satisfying               False
+    published shape closed   True
+    container query ok       True
+    image query ok           True
+    provider text anywhere?  False
+
+  --- codex
+    image id                 sha256:686f45377ea746ea3e4
+    mount                    /input readonly
+    mount                    /output WRITABLE
+    mount                    /home/nonroot/.codex/auth.json readonly
+    credential provider      file -> /home/nonroot/.codex/auth.json (read-only, never copied)
+    published facts          ['correlation_id', 'exit_status', 'failure_category', 'finished_at', 'provider', 'result_bytes', 'result_digest', 'spike', 'started_at', 'stderr_bytes']
+    failure category         network
+    verdict.expected_spike          True
+    verdict.expected_provider       True
+    verdict.correlation_matches     True
+    verdict.provider_exit_zero      False
+    verdict.container_exit_zero     False
+    verdict.answer_is_exactly_pong  False
+    verdict.closed_result_shape     True
+    completion signal last   True
+    image removed            True
+    containers surviving     []
+    images surviving         []
+    staged root removed      True
+    clean                    True
+    satisfying               False
+    published shape closed   True
+    container query ok       True
+    image query ok           True
+    provider text anywhere?  False
+
+  Everything but authentication is proved for both: read-only input,
+  one correlation identity carried from ping to result, output.json
+  published last, a host-recomputed verdict, and enforced cleanup.
+
+=== 7. THE WRAPPER-BOUNDARY COMPARISON, unchanged by these corrections
+  CLAUDE reads a read-only credential provider and reaches an
+  AUTHENTICATION decision. CODEX will not start with its state
+  directory read-only — it writes beside its credential — so the
+  provider must be a FILE over auth.json with the directory writable.
+  Codex also refuses a HOME under /tmp outright. And BOTH need their
+  state directory pre-created and owned IN THE IMAGE, because Docker
+  creates a missing bind-mount parent as root.
+
+  All of that is input to W6634, whose credential delivery mounts 0600
+  files read-only at a fixed root: that shape works for a Claude-like
+  runtime, does not work for a Codex-like one, and the mode has to
+  admit the CONTAINER's uid — which is the same defect the reviewer
+  found in the offered personal files, one layer up.
+
+=== 8. THE ENGINE, ASKED WHETHER ANYTHING SURVIVED
+    containers named baton-w17110-spike*: (nothing listed = none)
+    images     named baton-w17110-spike*: (nothing listed = none)
+
+=== 9. STILL NOT PROVED
+  NEITHER TRIAL RETURNED A PONG, so this Work remains non-satisfying
+  under the pinned ruling. The harness is now ready to receive a real
+  credential — which was the reviewer's own precondition — but the
+  provider is still the operator's to nominate, and it needs ownership
+  or a mode that admits uid 65532.

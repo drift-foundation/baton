@@ -1,0 +1,94 @@
+W15232 independent implementation review
+2026-08-26, baton.codex
+
+Focused baseline reported by the implementation evidence:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_workspaces
+
+  Ran 22 tests
+  OK
+
+Independent focused run after the additive review case:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_workspaces
+
+  .....................F.
+  ======================================================================
+  FAIL: test_no_git_metadata_root_survives_the_acquisition_cut
+  ----------------------------------------------------------------------
+  AssertionError: Lists differ:
+  ['git', 'inputs', 'workspace'] != ['inputs', 'workspace']
+
+  Ran 23 tests in 0.015s
+  FAILED (failures=1)
+
+Direct reproduction:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_workspaces.TheCoreManagerDoesNotAcquireSources.test_no_git_metadata_root_survives_the_acquisition_cut
+
+  Ran 1 test in 0.001s
+  FAILED (failures=1)
+
+Independent OCI root-contract reproduction:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_the_assignment_root_contract_is_artifact_neutral
+
+  AssertionError: Tuples differ:
+  ('inputs', 'workspace', 'git') != ('inputs', 'workspace')
+
+  Ran 1 test in 0.000s
+  FAILED (failures=1)
+
+Independent focused OCI module after the additive case:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_oci
+
+  Ran 75 tests in 0.007s
+  FAILED (failures=1)
+
+All 74 retained cases pass; the only failure is the additive root-contract
+case above.
+
+Exact retained implementation:
+
+  v12/python/src/baton_v12/worker_manager/workspaces.py:323-343
+
+  assignment_workspace documents THREE ROOTS and loops over
+  ("inputs", "workspace", "git"). The `git` result is created on disk and
+  returned to every caller.
+
+  v12/python/src/baton_v12/worker_manager/oci.py:107-127
+
+  ROOT_NAMES independently requires the same three roots. The private `git`
+  root is deliberately unmountable at both postures, but an assignment without
+  it is still rejected before the run vector can be built.
+
+Stale live module contract:
+
+  v12/python/src/baton_v12/worker_manager/workspaces.py:1-45
+  v12/python/src/baton_v12/worker_manager/workspaces.py:382
+
+  The module still claims source rebuilding/delivery, injected GitPort
+  transport, and private Git metadata, then ends under an empty source-delivery
+  section.
+
+Source search:
+
+  rg -n "workspaces\\.(GitPort|materialize_)|GitPort|materialize_(git|directory)_source|git_metadata" \
+    v12/python/src --glob '*.py'
+
+  No executable source references remain. The only matches are the stale
+  module docstring and historical explanatory comments in workspaces.py.
+
+Whitespace gate:
+
+  git diff --check
+
+  clean

@@ -41,6 +41,7 @@ import ast
 import json
 import os
 import pathlib
+import shutil
 import sqlite3
 import tempfile
 import unittest
@@ -54,12 +55,32 @@ from baton_v12.worker_manager import (AuthorityPort, ControlStore, boundaries,
 from baton_v12.worker_manager import workspaces
 
 from .test_handshake import acp_profile
-from .test_output import AUTHORITY, JOB, POLICY, OutputCase
+from .test_output import (AUTHORITY, COMPLETION, JOB, POLICY, OutputCase)
 from .test_offers import (FakeSession, PROFILE, UUID, WHO, WORK,
                           fake_claim_signature)
 
 NOW = "2026-08-24T00:00:00.000Z"
 SURROGATE = "\ud800"
+# W19784: the contract record's own published vectors, so the input pair a
+# witness composes is the one the finding published rather than one written to
+# pass this file's own rules.
+CONTRACT_VECTORS = (pathlib.Path(__file__).resolve().parents[4] / "work"
+                    / "records" / "2026" / "08"
+                    / "finding-v12-isolated-agent-workers" / "findings"
+                    / "finding-v12-worker-contract" / "findings"
+                    / "finding-worker-control-api-manifests" / "evidence"
+                    / "vectors.json")
+# W6629: two digests the intake probes carry, and neither is ever dereferenced
+# -- which is the point of a policy consumed by identity.
+# W19784 review [P0]: `compose_input_root` now takes the manager's OWN live
+# identity. A probe drives it with the surrogate path, so these two only have
+# to be well formed -- `_real` refuses the path as text before either is read.
+OWNED_ASSIGNMENT = {"work_ref": {"authority_uuid": "43c55d4b1234567890abcdef12345678",
+                                 "work_id": "43c55d4b-W1439"},
+                    "participant": "baton.claude", "generation": 1}
+
+RETENTION_POLICY = "sha256:" + "7" * 64
+RECEIPT = "sha256:" + "6" * 64
 
 
 class _Raising:
@@ -112,6 +133,36 @@ class _Interrogating:
 
     def inquire(self, request):
         return self._inquiry or {"kind": "queued"}
+
+
+class _Collecting:
+    """The runtime adapter's collect, answering nothing.
+
+    Every probe using it spoils an operand read BEFORE the adapter is called,
+    so the answer never matters -- but an adapter missing the operation would
+    be refused at the capability check and make the probe prove the wrong
+    thing.
+    """
+
+    def collect(self, operands):
+        return None
+
+
+class _Custodian:
+    """collect, retain and destroy, each answering what a probe needs."""
+
+    def __init__(self, collected=None, destroyed=None):
+        self._collected = collected
+        self._destroyed = destroyed
+
+    def collect(self, operands):
+        return self._collected
+
+    def retain(self, operands):
+        return True
+
+    def destroy(self, command):
+        return self._destroyed
 
 
 class _Sealing:
@@ -182,7 +233,12 @@ NOT_INPUTS = {"self", "cls"}
 # The capabilities this package calls THROUGH. A call on one of these is a
 # crossing into the injected domain, whatever the call is named.
 CAPABILITIES = {"_session", "session", "_clock", "clock", "mint_bearer",
-                "_claim_signature", "adapter", "agent"}
+                "_claim_signature", "adapter", "agent",
+                # W6634: the credential provider. Trusted to be the
+                # deployment's and NOT trusted to be correct, exactly like
+                # `mint_bearer` -- so what it ANSWERS is an injected crossing
+                # and gets an owner and a probe like any other.
+                "credential_provider"}
 
 # Capabilities whose MEMBER NAME is not enough to identify a crossing. `cancel`
 # exists on the authority session AND on the provider agent, so for these the
@@ -961,31 +1017,11 @@ STATED_OWNERS = {
     # operands -- the same shape `AuthorityPort` uses. What comes BACK is owned
     # at `_resolved`, because that is a value arriving FROM the injected domain
     # rather than one leaving for it.
-    ("caller", "workspaces.py:GitPort.resolve", "uri"):
-        "forwarded to the deployment's repository, which owns its own operands",
-    ("caller", "workspaces.py:GitPort.resolve", "ref"): "the same",
-    ("caller", "workspaces.py:GitPort.checkout", "uri"): "the same",
-    ("caller", "workspaces.py:GitPort.checkout", "revision"):
-        "the same, and already owned as a pinned base revision before this "
-        "port is reached",
-    ("caller", "workspaces.py:GitPort.checkout", "into"):
-        "a directory THIS component created under a root it owns; the port "
-        "hands out a place rather than accepting one",
-    ("caller", "workspaces.py:GitPort.checkout", "git_dir"): "the same",
-    ("caller", "workspaces.py:materialize_git_source", "git"):
-        "typed at GitPort construction, where each operation it must carry is "
-        "proved callable before a delivery can spend anything on one missing",
     # DIAGNOSED, not assumed: these two are owned by the FROZEN gitSource
     # FRAGMENT, which item 2's correction put ahead of every member read. A
     # malformed revision refuses with "'base_revision'.'hex' breaks pattern"
     # before `_pinned` is reached, so delegating them there named an owner that
     # never sees them.
-    ("caller", "workspaces.py:materialize_git_source",
-     "base_revision.algorithm"):
-        "the frozen gitSource fragment, which types the revision as a "
-        "gitObject before any member of the source is read",
-    ("caller", "workspaces.py:materialize_git_source", "base_revision.hex"):
-        "the same fragment, same reason",
     # W7079 [P1]: the PUBLIC sealing door owns its operand BEFORE reading a
     # member. The message sub-boundary that used to sit inside it became
     # unreachable when `ContractRefusal` began owning its own message at
@@ -1132,6 +1168,121 @@ STATED_OWNERS = {
         "OBSERVATION or not at all",
     ("injected", "attempts.py:_order_quiescence", "adapter.stop"):
         "the same: ORDERED, not done",
+    # -- W6629: intake, retention and cleanup --------------------------------
+    #
+    # The same rule the other closed constructors follow: `**members` is not a
+    # caller's document to own, it is the member SET this build states, and
+    # `_emit` refuses one that does not match the contract.
+    # -- W6634: the sealing half, called by the adapter that owns its operands
+    #
+    # `sealing.py` is a PURE FUNCTION OVER DATA and its caller is the adapter
+    # in the same package. Every operand here is a value that adapter proved
+    # ONCE and holds: `roots` was resolved by `_roots` at construction,
+    # `declared` by `sealing.declared_outputs` at construction, `identity` by
+    # `_identity`, and the request's members by the document owner inside
+    # `sealed_result` itself. Re-proving them at this internal call is the
+    # blanket revalidation 4bz forbids -- the crossing already happened, once,
+    # where the value entered the adapter.
+    # -- W6634: the assignment-scoped credential lifecycle -------------------
+    #
+    # THE THREE SHAPES BELOW ARE NOT BOUNDARY KINDS, which is exactly why they
+    # are stated rather than probed. A LIST is not a crossing -- what crosses
+    # is its members, and each has its own owner one line down. A CLOSED
+    # VOCABULARY is a comparison against this module's own constant. And a
+    # DELIVERY is an object this manager built: what proves it is that it IS
+    # one, because everything inside it was owned when it was constructed.
+    ("caller", "credentials.py:resolved_delivery", "slots"):
+        "credentials.py:_authorized_slots for the shape and the bound, then "
+        "credentials.slot_name for every member -- a slot name becomes both a "
+        "filename and a container path segment, so its grammar is a "
+        "containment rule rather than a style",
+    ("caller", "credentials.py:Delivery.__init__", "state"):
+        "credentials.LIFECYCLE_STATES, the module's own closed vocabulary; a "
+        "delivery is live, adopted or torn-down and nothing else",
+    ("caller", "credentials.py:Delivery.__init__", "bearers"):
+        "the KEYS by credentials.slot_name and the whole by shape. The VALUES "
+        "are deliberately not named in any refusal: they are the one thing "
+        "§13 exists to keep off a durable surface, and a diagnostic is one",
+    ("caller", "credentials.py:CredentialHome.tear_down", "delivery"):
+        "proved to BE a credentials.Delivery, whose constructor owned every "
+        "member; teardown acts on an object this manager materialized rather "
+        "than on a document a caller composed",
+    ("caller", "oci.py:OciAdapter.__init__", "credential_delivery"):
+        "the same -- and this adapter deliberately does not resolve "
+        "credentials at all: the assignment names slots, the trusted profile "
+        "maps them, and the MANAGER materializes. An adapter that called the "
+        "provider itself would put a credential decision inside the component "
+        "whose whole contract is that it decides nothing",
+    ("caller", "sealing.py:sealed_result", "roots"):
+        "resolved by oci.py:_roots at adapter construction",
+    ("caller", "sealing.py:sealed_result", "roots.workspace"): "the same",
+    ("caller", "sealing.py:sealed_result", "declared"):
+        "proved by sealing.declared_outputs at adapter construction",
+    ("caller", "sealing.py:sealed_result", "identity"):
+        "resolved by oci.py:_identity at adapter construction",
+    ("caller", "sealing.py:sealed_result", "identity.policy_digest"):
+        "the same",
+    ("caller", "sealing.py:sealed_result", "input_manifest_digest"):
+        "the assignment's own input manifest digest, held by the adapter and "
+        "carried into the result unread",
+    ("caller", "sealing.py:collected_result", "custody"):
+        "derived by the adapter from its own assignment roots; collection "
+        "reads what this manager took custody OF rather than the workspace, "
+        "which is the worker's and may have moved",
+    ("caller", "sealing.py:sealed_result", "custody"): "the same",
+    ("caller", "oci.py:OciAdapter.collect", "operands.attempt_id"):
+        "owned by the collect-request document owner in "
+        "sealing.collected_result",
+    ("caller", "sealing.py:collected_result", "declared"): "the same",
+    ("caller", "oci.py:OciAdapter.seal", "request.attempt_id"):
+        "owned by the freeze-request document owner in sealing.sealed_result",
+    ("caller", "oci.py:OciAdapter.seal", "request"):
+        "owned by the freeze-request document owner in sealing.sealed_result, "
+        "which is the one place this request's members are proved",
+    ("caller", "oci.py:OciAdapter.seal", "request.assignment"): "the same",
+    ("caller", "oci.py:OciAdapter.seal", "request.assignment.generation"):
+        "the same",
+    ("caller", "oci.py:OciAdapter.seal", "request.assignment.participant"):
+        "the same",
+    ("caller", "oci.py:OciAdapter.seal", "request.assignment.work_ref"):
+        "the same",
+    ("caller", "oci.py:OciAdapter.seal",
+     "request.assignment.work_ref.authority_uuid"): "the same",
+    ("caller", "oci.py:OciAdapter.seal",
+     "request.assignment.work_ref.work_id"): "the same",
+    ("caller", "oci.py:OciAdapter.collect", "operands"):
+        "owned by the collect-request document owner in "
+        "sealing.collected_result",
+    ("caller", "oci.py:OciAdapter.__init__", "outputs"):
+        "sealing.declared_outputs, at construction -- which is the point: "
+        "what may be collected is the assignment's statement rather than a "
+        "per-call argument",
+    ("caller", "oci.py:OciAdapter.__init__", "input_manifest_digest"):
+        "carried into the sealed result unread; the manifest it names is the "
+        "manager's to validate and this adapter never opens it",
+    # W6634 fifth review: `start` compares the mounted delivery's attempt with
+    # the runtime's own label. The label document is owned one line earlier by
+    # `documents.runtime_labels` through `oci._labels`, so this member arrives
+    # proved; what the comparison adds is a RELATIONSHIP between two already
+    # owned values, which is a semantic rule rather than a second crossing.
+    ("caller", "oci.py:OciAdapter.start", "labels.runtime_attempt_id"):
+        "oci._labels -> documents.runtime_labels, at the top of the same "
+        "operation; the comparison against the delivery's attempt is a rule "
+        "over two owned values",
+    ("caller", "documents.py:collect_requested", "members"):
+        "documents._emit against this document's own contract: exactly these "
+        "members, and nothing about their values",
+    ("caller", "documents.py:intake_artifact", "members"): "the same",
+    ("caller", "documents.py:intake_receipt", "members"): "the same",
+    ("caller", "documents.py:retention", "members"): "the same",
+    ("caller", "documents.py:retention_decided", "members"): "the same",
+    ("caller", "documents.py:cleanup_blocked", "members"): "the same",
+    ("caller", "documents.py:cleanup_unsettled", "members"): "the same",
+    ("caller", "documents.py:cleanup_settled", "members"): "the same",
+    # W6629 review [P1]: the two frozen COMMANDS this manager issues, closed
+    # by the same `_emit` rule as every other outbound constructor.
+    ("caller", "documents.py:retain_command", "members"): "the same",
+    ("caller", "documents.py:destroy_command", "members"): "the same",
     ("caller", "documents.py:runtime_labels", "members"):
         "documents.py:_emit, against this document's entry in CONTRACTS",
     ("caller", "documents.py:runtime_start_requested", "members"): "the same",
@@ -1224,10 +1375,58 @@ STATED_OWNERS = {
     ("caller", "output.py:record_frozen_result", "sealed"):
         "the same, against resultManifest -- and then bound to THIS attempt, "
         "which is the half a validator cannot know",
+    # -- W19784: the two manager-authored `/input/` documents ----------------
+    #
+    # THE SAME OWNER, and here it answers a question no single-document
+    # validator can: `contracts.check_input_pair` proves each document against
+    # its own definition AND then holds the two against each other -- one
+    # Work, the assignment minted against that exact input digest, one policy
+    # and one runtime profile. Owning either envelope again here would be the
+    # blanket revalidation 4bz forbids, and it would answer the weaker of the
+    # two questions.
+    ("caller", "workspaces.py:compose_input_root", "input_manifest"):
+        "contracts.check_input_pair, against inputManifest and then against "
+        "the assignment manifest beside it",
+    ("caller", "workspaces.py:compose_input_root", "assignment_manifest"):
+        "contracts.check_input_pair, against assignmentManifest and then "
+        "against the input manifest beside it",
     ("injected", "output.py:request_freeze", "adapter.seal"):
         "what the adapter answers is a sealed result and is owned as one where "
         "it arrives, by `record_frozen_result`; an adapter's account of its "
         "own success decides nothing here",
+    # -- W6629: intake, retention and cleanup --------------------------------
+    ("injected", "intake.py:request_intake", "adapter.collect"):
+        "what the adapter answers is a collection observation and is owned as "
+        "one where it arrives, by `record_intake` -- which then compares every "
+        "artifact against what the freeze recorded, so nothing in the "
+        "adapter's account of its own success is adopted",
+    # A LIST, and `boundaries` has no list kind because a list is not a
+    # boundary: what crosses is the MEMBERS. The contracts layer's `own` takes
+    # the fresh built-in copy, the shape is proved here, and every member is
+    # owned as an identity -- which is what the entries below `chosen` prove
+    # one at a time.
+    ("caller", "intake.py:decide_retention", "artifact_ids"):
+        "contracts.own for the fresh copy and the shape, then "
+        "boundaries.identity on every member",
+    # W6629 review [P1]: the artifact set and the disposition became part of
+    # the RETAIN IDENTITY, so this exported derivation receives them too and
+    # owns them by the same rules as the door above -- `intake.py:_chosen` for
+    # the set, written once because the identity and the command body must
+    # name the same canonical answer, and `intake.py:_disposition` for the
+    # closed three.
+    ("caller", "intake.py:retain_operation", "artifact_ids"):
+        "intake.py:_chosen -- contracts.own for the fresh copy and the shape, "
+        "then boundaries.identity on every member",
+    ("caller", "intake.py:retain_operation", "disposition"):
+        "intake.py:_disposition, the frozen three established as text in the "
+        "same expression",
+    # AND THE COMMAND THIS MANAGER NOW ISSUES. The adapter's answer to
+    # `output.retain` is DISCARDED: what the material's disposition is was
+    # decided here and committed to the journal, so there is nothing in the
+    # reply to own.
+    ("injected", "intake.py:decide_retention", "adapter.retain"):
+        "nothing is read from it -- the answer is discarded, and the decision "
+        "this command carries is the manager's own committed one",
     # A POSITIVE EPOCH, refused by `posture_slots._epoch` and not by the layer.
     # `boundaries.generation` is the ASSIGNMENT generation's rule and counts
     # from zero; epoch zero is a session nobody allocated, and a query for one
@@ -1321,6 +1520,13 @@ NO_PROBE = {
         "the same: a generation column SQLite will not let a writer spoil",
     ("adopted", "interrogation.py:_row", "interrogations.session_epoch"):
         "the same: a session epoch column SQLite will not let a writer spoil",
+    # -- W6629: intake, retention and cleanup --------------------------------
+    ("adopted", "intake.py:intake_receipt_of", "intake_artifacts.bytes"):
+        "the same: an artifact byte count SQLite will not let a writer spoil",
+    ("adopted", "intake.py:intake_receipt_of", "intakes.runtime_attempt_id"):
+        "the one read of this table SELECTS BY this column, so a spoiled value "
+        "makes the row unfindable and a probe would prove absence rather than "
+        "the rule; the contract still owns it for any later reader",
 }
 
 DELEGATED = {
@@ -1357,9 +1563,24 @@ DELEGATED = {
     ("caller", "oci.py:OciAdapter.__init__", "posture"):
         ("oci.py:_roots", "caller:posture"),
     ("caller", "oci.py:run_vector", "mounts.source"):
-        ("oci.py:_canonical", "caller:place"),
+        ("oci.py:canonical_source", "caller:place"),
+    # W19784 third review [P1]: a target's spelling rule left `_mounts` and
+    # became `canonical_target`, beside the source rule it had always been the
+    # twin of. It moved because the manager's pre-journal check was a
+    # PARAPHRASE of it and disagreed exactly where it cost most; one rule with
+    # one owner is what stops that recurring. The label the entry answers to
+    # moves with the owner -- `a container path`, which is what the site now
+    # writes, and which says the thing the rule is actually about: a target is
+    # never resolved against THIS host.
     ("caller", "oci.py:run_vector", "mounts.target"):
-        ("oci.py:_mounts", "caller:mounts[target]"),
+        ("oci.py:canonical_target", "caller:place"),
+    # W6634: the credential mounts, whose owner is SEPARATE from `_mounts` on
+    # purpose. `_mounts` admits a source because this manager created the
+    # assignment root it lives under, and a credential is not assignment
+    # material -- so every target is proved an entry of the fixed
+    # `/run/baton/credentials` root instead.
+    ("caller", "oci.py:run_vector", "credentials_delivered"):
+        ("oci.py:_credential_mounts", "caller:pairs"),
     ("caller", "oci.py:OciAdapter.__init__", "run"):
         ("oci.py:EnginePort.__init__", "caller:run"),
     # The ONE resolved identity a delivery is made under, owned once at
@@ -1413,6 +1634,11 @@ DELEGATED = {
         ("manifests.py:_definition", "caller:definition"),
     ("caller", "output.py:request_freeze", "disposition"):
         ("output.py:_disposition", "caller:disposition"),
+    # W6629: the same shape one axis over. A retention disposition is the same
+    # question wherever it is asked, and a local copy of a question is how two
+    # sites come to disagree about one string.
+    ("caller", "intake.py:decide_retention", "disposition"):
+        ("intake.py:_disposition", "caller:disposition"),
     # -- W6627: the agent session -------------------------------------------
     #
     # THREE SHARED OWNERS, each written once. `_posture`, `_epoch` and
@@ -1493,21 +1719,12 @@ DELEGATED = {
         ("workspaces.py:_real", "caller:path"),
     ("caller", "workspaces.py:discard_workspace", "storage"):
         ("workspaces.py:_real", "caller:path"),
-    ("caller", "workspaces.py:materialize_directory_source", "origin"):
+    # W19784: the assignment's own read-only root, delegated to the same one
+    # owner as every other path this component is handed.
+    ("caller", "workspaces.py:compose_input_root", "inputs"):
         ("workspaces.py:_real", "caller:path"),
-    ("caller", "workspaces.py:materialize_directory_source", "inputs"):
-        ("workspaces.py:_real", "caller:path"),
-    ("caller", "workspaces.py:materialize_git_source", "inputs"):
-        ("workspaces.py:_real", "caller:path"),
-    ("caller", "workspaces.py:materialize_git_source", "git_metadata"):
-        ("workspaces.py:_real", "caller:path"),
-    # The git half at its single-owner helpers. These four subjects are NEWER
-    # than the block that was lost: they appeared when the review's [P1] split
-    # three owner calls out of `materialize_git_source`.
-    ("caller", "workspaces.py:materialize_git_source", "found.algorithm"):
-        ("workspaces.py:_resolved", "caller:found"),
-    ("caller", "workspaces.py:materialize_git_source", "found.hex"):
-        ("workspaces.py:_resolved", "caller:found"),
+    # W15232 removed the acquisition half's delegations with the operations
+    # that had them.
     ("caller", "offers.py:accept_offer", "offer_id"):
         ("offers.py:_offer_row", "caller:offer_id"),
     ("caller", "offers.py:submit_claim", "offer_id"):
@@ -1602,7 +1819,8 @@ class BoundaryCase(unittest.TestCase):
             work_ref={"authority_uuid": UUID, "work_id": WORK})
         worker_manager.record_attempt(
             self.store, attempt_id=attempt_id, adapter_name="acp",
-            adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE)
+            adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE,
+            policy_digest="sha256:" + "d" * 64)
         worker_manager.submit_claim(self.store, self.port, offer_id=offer_id)
         return attempt_id
 
@@ -1620,7 +1838,8 @@ class BoundaryCase(unittest.TestCase):
         def run():
             worker_manager.record_attempt(
                 self.store, attempt_id="attempt-1", adapter_name="acp",
-                adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE)
+                adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE,
+                policy_digest="sha256:" + "d" * 64)
             self.corrupt(f"UPDATE attempts SET {column} = ?",
                          self.SPOILED[schema.ATTEMPT_COLUMNS[column].kind])
             worker_manager.observe(self.store, attempt_id="attempt-1",
@@ -1631,7 +1850,8 @@ class BoundaryCase(unittest.TestCase):
         def run():
             worker_manager.record_attempt(
                 self.store, attempt_id="attempt-1", adapter_name="acp",
-                adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE)
+                adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE,
+                policy_digest="sha256:" + "d" * 64)
             worker_manager.observe(self.store, attempt_id="attempt-1",
                                    axis="consent_runtime", value="running",
                                    source={"incarnation": "worker", "seq": 1})
@@ -1973,12 +2193,14 @@ class BoundaryCase(unittest.TestCase):
 
     # -- W6632: the constrained OCI adapter core -----------------------------
 
+    # W15232 review [P1]: TWO generic roots. The third was acquisition-specific
+    # capacity this manager provisioned for every assignment.
     OCI_ROOTS = {"inputs": "/srv/a-1/inputs",
-                 "workspace": "/srv/a-1/workspace",
-                 "g" + "it": "/srv/a-1/private"}
+                 "workspace": "/srv/a-1/workspace"}
     OCI_LABELS = {"runtime_attempt_id": "attempt-1", "authority_uuid": UUID,
                   "work_id": WORK, "participant": WHO, "generation": 1,
                   "profile_digest": "sha256:" + "b" * 64,
+                  "policy_digest": "sha256:" + "d" * 64,
                   "adapter_digest": "sha256:" + "c" * 64}
     OCI_IMAGE = "sha256:" + "e" * 64
     # AGREEING with OCI_LABELS, because that is the contract: a fixture whose
@@ -1986,6 +2208,7 @@ class BoundaryCase(unittest.TestCase):
     # mismatch instead of for its own operand.
     OCI_IDENTITY = {"image_digest": OCI_IMAGE,
                     "profile_digest": "sha256:" + "b" * 64,
+                    "policy_digest": "sha256:" + "d" * 64,
                     "adapter_digest": "sha256:" + "c" * 64}
 
     def running_vector(self, **spoiled):
@@ -2077,9 +2300,19 @@ class BoundaryCase(unittest.TestCase):
         found[(at(f"{A}:OciAdapter.observe", "runtime_id"),
                "a runtime id")] = (
             "a runtime id", self.seam("observe", SURROGATE))
+        # W6629 review [P1]: this seam receives `runtimeDestroyBody` now, so
+        # the identity is spoiled INSIDE the command rather than instead of it.
         found[(at(f"{A}:OciAdapter.destroy", "runtime_id"),
                "a runtime id")] = (
-            "a runtime id", self.seam("destroy", SURROGATE))
+            "a runtime id", self.seam("destroy", {
+                "assignment_ref": {
+                    "work_ref": {"authority_uuid": "u" * 32,
+                                 "work_id": "u" * 32 + "-W1"},
+                    "participant": "baton.claude", "generation": 1},
+                "runtime_attempt_id": "attempt-1",
+                "runtime_id": SURROGATE,
+                "intake_receipt_digest": RECEIPT,
+                "retention_policy_digest": RETENTION_POLICY}))
         # The frozen label document, at both vectors that carry one.
         found[(at(f"{A}:run_vector", "labels"), "a runtime's labels")] = (
             "a runtime's labels", self.running_vector(labels="not a document"))
@@ -2108,6 +2341,22 @@ class BoundaryCase(unittest.TestCase):
                "a resolved runtime identity")] = (
             "a resolved runtime identity",
             self.adapter(identity="not a document"))
+        # THE ENVELOPE AND THE MEMBERS ARE TWO RULES AND TWO DOORS. The
+        # document owner above proves the shape; each digest inside it is
+        # owned as durable text by its own boundary, and an identity is what a
+        # restart compares a running worker against -- so a member that is not
+        # durable text has to be refused there rather than reaching the digest
+        # pattern that assumes it is.
+        #
+        # THE EMPTY STRING RATHER THAN THE SURROGATE, for the reason stated
+        # below about members inside an owned envelope: `own` walks the
+        # document for encodability first, so a surrogate proves the
+        # envelope's rule and never reaches this one.
+        found[(at(f"{A}:OciAdapter.__init__", "identity"),
+               "a resolved identity digest")] = (
+            "a resolved identity digest",
+            self.adapter(identity=dict(self.OCI_IDENTITY,
+                                       image_digest="")))
         found[(at(f"{A}:run_vector", "name"), "a runtime name")] = (
             "a runtime name", self.running_vector(name=SURROGATE))
         found[(at(f"{A}:OciAdapter.__init__", "run"),
@@ -2127,8 +2376,8 @@ class BoundaryCase(unittest.TestCase):
         # still not a path.
         found[(at(f"{A}:run_vector", "mounts.source"), "a host path")] = (
             "a host path", self.mounting(source=""))
-        found[(at(f"{A}:run_vector", "mounts.target"), "a mount target")] = (
-            "a mount target", self.mounting(target=""))
+        found[(at(f"{A}:run_vector", "mounts.target"), "a container path")] = (
+            "a container path", self.mounting(target=""))
         # The seam's own requests, envelope and member by member.
         found[(at(f"{A}:OciAdapter.start", "request"), "a start request")] = (
             "a start request", self.seam("start", "not a document"))
@@ -2513,6 +2762,11 @@ class BoundaryCase(unittest.TestCase):
             "freeze_operation": dict(
                 worker_manager.freeze_operation(self.attempt_row())),
             "manager_observed_at": NOW,
+            # W14251 fourth review: a COMPLETED receipt binds the worker
+            # completion envelope the manager validated before freezing. These
+            # probes are about the receiving rules rather than about which
+            # envelope was validated, so the value is a fixture.
+            "completion_manifest_digest": COMPLETION,
         }
         body.update(members)
         rest = {name: value for name, value in body.items()
@@ -2580,6 +2834,756 @@ class BoundaryCase(unittest.TestCase):
                 **{k: v for k, v in operands.items() if k != "adapter"})
         return run
 
+    # -- W6629: intake, retention and cleanup --------------------------------
+
+    def collection(self, attempt_id="attempt-1"):
+        """What a collection ANSWERING this attempt's freeze looks like."""
+        frozen = worker_manager.frozen_output_of(self.store, attempt_id)
+        return {"result_id": frozen["result_id"],
+                "artifacts": [{"artifact_id": one["artifact_id"],
+                               "content_digest": one["content_digest"],
+                               "bytes": one["bytes"],
+                               "custody_locator":
+                                   "file:///var/lib/baton/custody/"
+                                   + one["artifact_id"]}
+                              for one in frozen["artifacts"]]}
+
+    def intaken(self):
+        """Frozen, taken into custody, and a runtime attached.
+
+        The runtime id is written behind this build's back for the same reason
+        every other probe here corrupts a row: `output_world` never starts one,
+        and a cleanup probe that stopped at "nothing is attached" would prove an
+        earlier precondition rather than the boundary it names.
+        """
+        attempt_id = self.froze()
+        self.corrupt("UPDATE attempts SET runtime_id = ?", "runtime-1")
+        worker_manager.request_intake(
+            self.store, self.port, _Custodian(self.collection()),
+            attempt_id=attempt_id)
+        return attempt_id
+
+    def decided(self, disposition="discard-after-intake"):
+        attempt_id = self.intaken()
+        worker_manager.decide_retention(
+            self.store, self.port, _Custodian(), attempt_id=attempt_id,
+            artifact_ids=["artifact-1"], disposition=disposition,
+            retention_policy_digest=RETENTION_POLICY)
+        return attempt_id
+
+    def spoiling_intake_attempt(self, column):
+        def run():
+            self.froze()
+            self.corrupt(f"UPDATE attempts SET {column} = ?",
+                         self.SPOILED[schema.ATTEMPT_COLUMNS[column].kind])
+            worker_manager.request_intake(self.store, self.port, _Collecting(),
+                                          attempt_id="attempt-1")
+        return run
+
+    def spoiling_intake(self, column):
+        def run():
+            self.intaken()
+            self.corrupt(f"UPDATE intakes SET {column} = ?",
+                         self.SPOILED[schema.INTAKE_COLUMNS[column].kind])
+            worker_manager.intake_receipt_of(self.store, "attempt-1")
+        return run
+
+    def spoiling_custody(self, column):
+        def run():
+            self.intaken()
+            self.corrupt(f"UPDATE intake_artifacts SET {column} = ?",
+                         self.SPOILED[
+                             schema.INTAKE_ARTIFACT_COLUMNS[column].kind])
+            worker_manager.intake_receipt_of(self.store, "attempt-1")
+        return run
+
+    def spoiling_retention(self, column="disposition"):
+        def run():
+            self.decided()
+            self.corrupt(f"UPDATE retentions SET {column} = ?",
+                         self.SPOILED[schema.RETENTION_COLUMNS[column].kind])
+            worker_manager.retentions_of(self.store, "attempt-1")
+        return run
+
+    def collecting(self, **spoiled):
+        def run():
+            attempt_id = self.froze()
+            worker_manager.record_intake(
+                self.store, self.port, attempt_id=attempt_id,
+                collected=dict(self.collection(), **spoiled))
+        return run
+
+    def collecting_with(self, collected):
+        """A collection that is not a document at all, over a real attempt.
+
+        The attempt has to EXIST or the probe stops at "no runtime attempt" and
+        proves an earlier precondition instead of the envelope rule it names.
+        """
+        def run():
+            attempt_id = self.froze()
+            worker_manager.record_intake(self.store, self.port,
+                                         attempt_id=attempt_id,
+                                         collected=collected)
+        return run
+
+    def spoiled_artifact(self, member):
+        def run():
+            attempt_id = self.froze()
+            collected = self.collection()
+            collected["artifacts"][0][member] = SURROGATE
+            worker_manager.record_intake(self.store, self.port,
+                                         attempt_id=attempt_id,
+                                         collected=collected)
+        return run
+
+    def destroying(self, **answer):
+        def run():
+            attempt_id = self.decided()
+            # W6629 review [P1]: cleanup refuses while the fixed assignment is
+            # still the live one, so a probe aimed at the ADAPTER boundary has
+            # to get past that gate to reach it.
+            self.session.live_assignment = None
+            worker_manager.authorize_cleanup(
+                self.store, self.port, _Custodian(destroyed=answer),
+                attempt_id=attempt_id,
+                retention_policy_digest=RETENTION_POLICY)
+        return run
+
+    def sealing_probes(self):
+        """One probe per (entry, label) W6634 added.
+
+        The two requests are DOCUMENTS, so the envelope owner answers for the
+        whole and for each member it names -- which is why every subject here
+        carries the same label. Each drives the real exported operation with
+        one operand spoiled, and the spoiling value is one the enclosing owner
+        ACCEPTS: `boundaries.document` takes a deep built-in copy and refuses
+        unencodable text anywhere inside it, so a surrogate would be caught by
+        the envelope and the member's own rule would never be reached. That is
+        the vacuous-probe shape this file exists to catch.
+        """
+        from baton_v12.worker_manager import sealing
+        S = "sealing.py"
+
+        def at(site, subject):
+            return ("caller", site, subject)
+
+        roots = {"inputs": "/srv/a-1/inputs", "workspace": "/srv/a-1/workspace"}
+        declared = {"proposal": {
+            "name": "proposal", "type": "directory-result", "path": "out",
+            "required": True,
+            "constraints": {"max_bytes": 1024, "max_entries": 8,
+                            "allowed_media_types": ["text/plain"],
+                            "link_policy": "forbid",
+                            "validator_digest": None}}}
+        assignment = {"work_ref": {"authority_uuid": AUTHORITY,
+                                   "work_id": JOB},
+                      "participant": WHO, "generation": 1}
+        operation = {"operation_id": "output.freeze:1",
+                     "signature_digest": RETENTION_POLICY}
+
+        def freeze(drop=None, **spoiled):
+            body = {"attempt_id": "attempt-1", "assignment": assignment,
+                    "disposition": "completed", "now": NOW,
+                    "operation": operation}
+            body.update(spoiled)
+            # REMOVED rather than nulled, for the member probes. The envelope
+            # owner's rule is PRESENCE, so a member set to `None` is present
+            # and the probe never reaches what it names -- measured: those
+            # subcases were reported as not reaching their boundary.
+            if drop is not None:
+                body.pop(drop)
+            return lambda: sealing.sealed_result(
+                body, roots=roots, declared=declared,
+                identity={"policy_digest": RETENTION_POLICY},
+                custody="/srv/a-1/custody",
+                input_manifest_digest=RETENTION_POLICY)
+
+        def collect(drop=None, **spoiled):
+            body = {"attempt_id": "attempt-1", "assignment": assignment,
+                    "result_id": "result-1",
+                    "result_manifest_digest": RETENTION_POLICY,
+                    "output_names": ["proposal"], "operation": operation}
+            body.update(spoiled)
+            if drop is not None:
+                body.pop(drop)
+            return lambda: sealing.collected_result(
+                body, custody="/srv/a-1/custody", declared=declared)
+
+        found = {}
+        # THE ENVELOPE ITSELF, then each member the owner names.
+        found[(at(f"{S}:sealed_result", "request"), "a freeze request")] = (
+            "a freeze request", lambda: sealing.sealed_result(
+                "not a document", roots=roots, declared=declared,
+                identity={"policy_digest": RETENTION_POLICY},
+                custody="/srv/a-1/custody",
+                input_manifest_digest=RETENTION_POLICY))
+        for member in ("attempt_id", "assignment", "disposition", "operation"):
+            found[(at(f"{S}:sealed_result", f"request.{member}"),
+                   "a freeze request")] = (
+                "a freeze request", freeze(drop=member))
+        # `now` has its own rule and therefore its own label.
+        found[(at(f"{S}:sealed_result", "request.now"),
+               "a freeze instant")] = (
+            "a freeze instant", freeze(now="not an instant"))
+        found[(at(f"{S}:collected_result", "operands"),
+               "a collect request")] = (
+            "a collect request", lambda: sealing.collected_result(
+                "not a document", custody="/srv/a-1/custody",
+                declared=declared))
+        for member in ("attempt_id", "result_id"):
+            found[(at(f"{S}:collected_result", f"operands.{member}"),
+                   "a collect request")] = (
+                "a collect request", collect(drop=member))
+        # `output_names` IS OWNED BY THE PER-NAME RULE NOW, not by the
+        # envelope. W6634 sixth review [P1]: the collection iterated
+        # `sorted(...)`, a call the derivation cannot follow, so the identity
+        # rule below owned a value nothing could attribute to this operand.
+        # Iterating the member in place made it attributable and moved the
+        # label with it.
+        found[(at(f"{S}:collected_result", "operands.output_names"),
+               "a collected output name")] = (
+            "a collected output name", collect(output_names=[7]))
+        # THE DECLARATION'S OWN MEMBERS. W6634 sixth review [P1]: these six
+        # boundaries were owners the derivation could not attribute, because
+        # `declared_outputs` iterated the copy `_list` returns rather than the
+        # caller's own sequence. They are attributable now, so each gets the
+        # probe it always needed.
+        def declaring(drop=None, **spoiled):
+            one = {"name": "proposal", "type": "directory-result",
+                   "path": "out", "required": True,
+                   "constraints": {"max_bytes": 1024, "max_entries": 8,
+                                   "allowed_media_types": ["text/plain"],
+                                   "link_policy": "forbid",
+                                   "validator_digest": None}}
+            one.update(spoiled)
+            if drop is not None:
+                one.pop(drop)
+            return lambda: sealing.declared_outputs([one])
+
+        for subject, label, drive in (
+                ("outputs", "a declared output", declaring(drop="required")),
+                ("outputs.required", "a declared output",
+                 declaring(drop="required")),
+                ("outputs.name", "a declared output name",
+                 declaring(name=7)),
+                ("outputs.type", "a declared output type",
+                 declaring(type=7)),
+                ("outputs.path", "a declared output path",
+                 declaring(path=7)),
+                ("outputs.constraints", "a declared output's constraints",
+                 declaring(constraints="not a document"))):
+            found[(at(f"{S}:declared_outputs", subject), label)] = (
+                label, drive)
+
+        return found
+
+    def credential_probes(self):
+        """One probe per (entry, label) W6634's credential lifecycle added.
+
+        THE HOME IS A FIXED PATH AND NOTHING HERE TOUCHES A FILESYSTEM. Every
+        rule below refuses before any of these operations reaches disk, which
+        is itself part of what is being asserted: a delivery whose operands
+        this module cannot read is refused before a bearer is anywhere.
+
+        Two entries carry TWO labels each -- the recorded slot's `slot` and
+        `target` are owned by the lifecycle-record envelope AND by the
+        per-slot document -- so each gets two probes that reach different
+        owners. The envelope's is driven with an unencodable value, because
+        `boundaries.document` takes a deep built-in copy and refuses one
+        anywhere inside; the slot document's is driven by removing the member.
+        """
+        from baton_v12.worker_manager import credentials
+        C = "credentials.py"
+        HOME = "/srv/a-1"
+        SURROGATE = "\ud800"
+
+        def at(site, subject):
+            return ("caller", site, subject)
+
+        home = credentials.CredentialHome(HOME)
+        root = home.volatile_root("attempt-1")
+        mapping = {"api": {"provider": "vault", "reference": "kv/one"}}
+
+        def slot(**spoiled):
+            body = {"slot": "api", "provider": "vault",
+                    "target": "/run/baton/credentials/api"}
+            body.update(spoiled)
+            return body
+
+        def record(drop=None, slots=None, **spoiled):
+            body = {"attempt_id": "attempt-1", "runtime_id": "runtime-1",
+                    "credential_root": root,
+                    "container_root": credentials.CREDENTIAL_ROOT,
+                    "slots": [slot()] if slots is None else slots,
+                    "lifecycle_state": "live"}
+            body.update(spoiled)
+            if drop is not None:
+                body.pop(drop)
+            return body
+
+        def adopting(**overrides):
+            body = {"record": record(), "attempt_id": "attempt-1",
+                    "runtime_id": "runtime-1"}
+            body.update(overrides)
+            return lambda: home.adopt(
+                body["record"], attempt_id=body["attempt_id"],
+                runtime_id=body["runtime_id"])
+
+        def delivery(**spoiled):
+            body = {"attempt_id": "attempt-1", "root": root,
+                    "slots": [slot()], "state": "live",
+                    "bearers": {"api": "a" * 40}}
+            body.update(spoiled)
+            return credentials.Delivery(**body)
+
+        found = {}
+
+        # -- the home, and every identity named under it ---------------------
+        found[(at(f"{C}:CredentialHome.__init__", "place"),
+               "a manager credential home")] = (
+            "a manager credential home",
+            lambda: credentials.CredentialHome(7))
+        for site, call in (
+                ("volatile_root", lambda: home.volatile_root(7)),
+                ("state_path", lambda: home.state_path(7)),
+                ("read_state", lambda: home.read_state(7)),
+                ("discard_orphan", lambda: home.discard_orphan(7)),
+                ("written_state", lambda: home.written_state(7, record())),
+                ("materialize", lambda: home.materialize(
+                    [{"slot": "api", "provider": "vault",
+                      "reference": "kv/one"}], attempt_id=7,
+                    credential_provider=lambda one, two: "x" * 40)),
+                ("adopt", adopting(attempt_id=7))):
+            found[(at(f"{C}:CredentialHome.{site}", "attempt_id"),
+                   "a credential attempt id")] = (
+                "a credential attempt id", call)
+
+        found[(at(f"{C}:CredentialHome.materialize", "credential_provider"),
+               "a credential provider")] = (
+            "a credential provider",
+            lambda: home.materialize([], attempt_id="attempt-1",
+                                     credential_provider="not a capability"))
+        found[(at(f"{C}:CredentialHome.discard_orphans", "live"),
+               "a live attempt id")] = (
+            "a live attempt id", lambda: home.discard_orphans(live=[7]))
+        found[(at(f"{C}:CredentialHome.written_state", "body"),
+               "a credential lifecycle record")] = (
+            "a credential lifecycle record",
+            lambda: home.written_state("attempt-1", "not a document"))
+
+        # -- the lifecycle record, and the slots inside it -------------------
+        found[(at(f"{C}:CredentialHome.adopt", "record"),
+               "a credential lifecycle record")] = (
+            "a credential lifecycle record",
+            adopting(record="not a document"))
+        found[(at(f"{C}:CredentialHome.adopt", "record.lifecycle_state"),
+               "a credential lifecycle record")] = (
+            "a credential lifecycle record",
+            adopting(record=record(drop="lifecycle_state")))
+        found[(at(f"{C}:CredentialHome.adopt", "record.slots"),
+               "a recorded credential slot")] = (
+            "a recorded credential slot",
+            adopting(record=record(slots=["not a document"])))
+        found[(at(f"{C}:CredentialHome.adopt", "record.slots.provider"),
+               "a credential provider identity")] = (
+            "a credential provider identity",
+            adopting(record=record(slots=[slot(provider=7)])))
+        for member in ("slot", "target"):
+            # The ENVELOPE's own rule: an unencodable value anywhere inside
+            # the record refuses as the record rather than as the member.
+            found[(at(f"{C}:CredentialHome.adopt", f"record.slots.{member}"),
+                   "a credential lifecycle record")] = (
+                "a credential lifecycle record",
+                adopting(record=record(slots=[slot(**{member: SURROGATE})])))
+            # And the per-slot document's, reached by REMOVING the member --
+            # the owner's rule there is presence, so a spoiled value would be
+            # present and this probe would never arrive.
+            missing = slot()
+            missing.pop(member)
+            found[(at(f"{C}:CredentialHome.adopt", f"record.slots.{member}"),
+                   "a recorded credential slot")] = (
+                "a recorded credential slot",
+                adopting(record=record(slots=[missing])))
+        found[(at(f"{C}:CredentialHome.adopt", "runtime_id"),
+               "a credential runtime id")] = (
+            "a credential runtime id", adopting(runtime_id=7))
+
+        # -- the delivery ----------------------------------------------------
+        found[(at(f"{C}:Delivery.__init__", "attempt_id"),
+               "a credential attempt id")] = (
+            "a credential attempt id", lambda: delivery(attempt_id=7))
+        found[(at(f"{C}:Delivery.__init__", "root"),
+               "a credential root")] = (
+            "a credential root", lambda: delivery(root=7))
+        found[(at(f"{C}:Delivery.record", "runtime_id"),
+               "a credential runtime id")] = (
+            "a credential runtime id",
+            lambda: delivery().record(runtime_id=7))
+
+        # -- the trusted profile ---------------------------------------------
+        found[(at(f"{C}:resolved_delivery", "profile"),
+               "a credential slot's provider mapping")] = (
+            "a credential slot's provider mapping",
+            lambda: credentials.resolved_delivery(
+                ["api"], profile={"api": "not a document"}))
+        found[(at(f"{C}:resolved_delivery", "profile.provider"),
+               "a credential provider identity")] = (
+            "a credential provider identity",
+            lambda: credentials.resolved_delivery(
+                ["api"], profile={"api": {"provider": 7,
+                                          "reference": "kv/one"}}))
+        found[(at(f"{C}:resolved_delivery", "profile.reference"),
+               "a credential provider reference")] = (
+            "a credential provider reference",
+            lambda: credentials.resolved_delivery(
+                ["api"], profile={"api": {"provider": "vault",
+                                          "reference": 7}}))
+        # -- the resolution, and the provider's own answer -------------------
+        def materializing(resolution, mint=None):
+            return lambda: home.materialize(
+                resolution, attempt_id="attempt-1",
+                credential_provider=mint or (lambda one, two: "x" * 40))
+
+        def resolved(**spoiled):
+            body = {"slot": "api", "provider": "vault",
+                    "reference": "kv/one"}
+            body.update(spoiled)
+            return body
+
+        found[(at(f"{C}:CredentialHome.materialize", "resolution"),
+               "a resolved credential slot")] = (
+            "a resolved credential slot",
+            materializing(["not a document"]))
+        found[(at(f"{C}:CredentialHome.materialize", "resolution.slot"),
+               "a resolved credential slot")] = (
+            "a resolved credential slot",
+            materializing([{"provider": "vault", "reference": "kv/one"}]))
+        found[(at(f"{C}:CredentialHome.materialize", "resolution.provider"),
+               "a credential provider identity")] = (
+            "a credential provider identity",
+            materializing([resolved(provider=7)]))
+        found[(at(f"{C}:CredentialHome.materialize", "resolution.reference"),
+               "a credential provider reference")] = (
+            "a credential provider reference",
+            materializing([resolved(reference=7)]))
+        # THE PROVIDER'S ANSWER, which is an INJECTED crossing rather than a
+        # caller's operand: trusted to be the deployment's and not trusted to
+        # be correct, exactly like the bearer mint.
+        # ON A REAL HOME, because this is the ONE probe here that reaches
+        # disk: everything above refuses before a directory exists, which is
+        # itself part of what those probes assert. This one has to get as far
+        # as calling the provider.
+        writable = credentials.CredentialHome(self.root)
+        found[(("injected", f"{C}:CredentialHome.materialize",
+                "credential_provider"), "a materialized credential")] = (
+            "a materialized credential",
+            lambda: writable.materialize(
+                [resolved()], attempt_id="attempt-1",
+                credential_provider=lambda one, two: 7))
+        found[(at(f"{C}:Delivery.__init__", "slots"),
+               "a delivered credential slot")] = (
+            "a delivered credential slot",
+            lambda: delivery(slots=[{"slot": "api"}]))
+        # -- the credential mounts, at the vector that composes them ---------
+        found[(("caller", "oci.py:run_vector", "credentials_delivered"),
+               "a credential mount target")] = (
+            "a credential mount target",
+            self.running_vector(credentials_delivered=(
+                ("/srv/a-1/credentials/attempt-1/api", 7),)))
+        # -- the restart recovery path, on the adapter ----------------------
+        #
+        # THE ENVELOPE OWNS THE NESTED MEMBERS, so each of these is driven with
+        # an unencodable value rather than a missing one: `boundaries.document`
+        # takes a deep built-in copy and refuses a surrogate anywhere inside,
+        # which is the rule that actually covers them.
+        recovering = self.adapter()
+
+        def recovery(**spoiled):
+            body = {"attempt_id": "attempt-1",
+                    "assignment": {"work_ref": {"authority_uuid": AUTHORITY,
+                                                "work_id": JOB},
+                                   "participant": WHO, "generation": 1}}
+            for path, value in spoiled.items():
+                at_document = body
+                pieces = path.split(".")
+                for piece in pieces[:-1]:
+                    at_document = at_document[piece]
+                at_document[pieces[-1]] = value
+            return lambda: recovering().recover_credentials(body)
+
+        found[(("caller", "oci.py:OciAdapter.recover_credentials", "request"),
+               "a credential recovery request")] = (
+            "a credential recovery request",
+            lambda: recovering().recover_credentials("not a document"))
+        # THE ENVELOPE still covers the leaf members, and it is reached with an
+        # unencodable value because that is what `own` refuses anywhere inside
+        # the document it copies.
+        for member in ("assignment.work_ref.authority_uuid",
+                       "assignment.work_ref.work_id",
+                       "assignment.participant", "assignment.generation"):
+            found[(("caller", "oci.py:OciAdapter.recover_credentials",
+                    f"request.{member}"),
+                   "a credential recovery request")] = (
+                "a credential recovery request",
+                recovery(**{member: SURROGATE}))
+
+        # AND THE TWO DOCUMENT OWNERS INSIDE IT, which the envelope cannot
+        # stand in for: a value the envelope happily copies can still be the
+        # wrong SHAPE for the assignment or the work reference. Each is driven
+        # by a shape fault rather than by an unencodable value, because an
+        # unencodable one never gets past the envelope.
+        def without(path):
+            body = {"work_ref": {"authority_uuid": AUTHORITY, "work_id": JOB},
+                    "participant": WHO, "generation": 1}
+            pieces = path.split(".")
+            at_document = body
+            for piece in pieces[:-1]:
+                at_document = at_document[piece]
+            at_document.pop(pieces[-1])
+            return recovery(assignment=body)
+
+        R = ("caller", "oci.py:OciAdapter.recover_credentials")
+        for entry, label, drive in (
+                ("request.assignment", "a recovery assignment",
+                 recovery(assignment="not a document")),
+                ("request.assignment.participant", "a recovery assignment",
+                 without("participant")),
+                ("request.assignment.generation", "a recovery assignment",
+                 without("generation")),
+                ("request.assignment.work_ref.authority_uuid",
+                 "a recovery assignment", without("work_ref")),
+                ("request.assignment.work_ref.work_id",
+                 "a recovery assignment", without("work_ref")),
+                ("request.assignment.work_ref", "a recovery work ref",
+                 recovery(**{"assignment.work_ref": "not a document"})),
+                ("request.assignment.work_ref.authority_uuid",
+                 "a recovery work ref", without("work_ref.authority_uuid")),
+                ("request.assignment.work_ref.work_id",
+                 "a recovery work ref", without("work_ref.work_id"))):
+            found[((R[0], R[1], entry), label)] = (label, drive)
+        found[(("caller", "oci.py:OciAdapter.recover_credentials",
+                "request.attempt_id"), "a credential attempt id")] = (
+            "a credential attempt id", recovery(attempt_id=7))
+
+        found[(at(f"{C}:slot_name", "value"), "a credential slot name")] = (
+            "a credential slot name", lambda: credentials.slot_name(7))
+        return found
+
+    def intake_probes(self):
+        """One probe per (entry, label) W6629 added."""
+        I = "intake.py"
+
+        def at(site, subject, domain="caller"):
+            return (domain, site, subject)
+
+        row = {"runtime_attempt_id": "attempt-1", "adapter_name": "acp",
+               "adapter_digest": "sha256:" + "a" * 64,
+               "profile_digest": PROFILE, "input_digest": None,
+               "policy_digest": "sha256:" + "d" * 64, "image_digest": None,
+               "toolchain_digest": None, "created_at": NOW,
+               "work_id": JOB, "authority_uuid": AUTHORITY,
+               "assignment_participant": WHO, "assignment_generation": 1,
+               "runtime_id": "runtime-1", "observation_seq": 0,
+               "observed_at": None}
+        for axis in schema.ATTEMPT_AXES:
+            row[axis] = next(iter(schema.ATTEMPT_COLUMNS[axis].allowed))
+
+        derive = {
+            "collect_operation": lambda one: worker_manager.collect_operation(
+                one),
+            "intake_operation": lambda one: worker_manager.intake_operation(
+                one),
+            # W6629 review [P1]: the artifact set and disposition joined this
+            # identity, because one policy deciding differently about two
+            # artifacts produced one operation id and two signatures.
+            "retain_operation": lambda one: worker_manager.retain_operation(
+                one, RETENTION_POLICY, ["artifact-1"], "retain"),
+            "destroy_operation": lambda one: worker_manager.destroy_operation(
+                one, RECEIPT, RETENTION_POLICY),
+        }
+        found = {}
+        # THE DERIVED IDENTITIES. Each takes a persisted row back IN as a
+        # caller operand, and each member it reads is its own entry -- an
+        # envelope owner answering for six members would demand one probe
+        # prove six things.
+        for name, call in derive.items():
+            found[(at(f"{I}:{name}", "attempt"), "a persisted attempt")] = (
+                "a persisted attempt", lambda call=call: call("not a row"))
+        for name in ("collect_operation", "intake_operation"):
+            found[(at(f"{I}:{name}", "attempt.runtime_attempt_id"),
+                   "a persisted attempt")] = (
+                "a persisted attempt",
+                lambda name=name: derive[name](
+                    dict(row, runtime_attempt_id=SURROGATE)))
+        for name in ("retain_operation", "destroy_operation"):
+            members = ("runtime_attempt_id", "work_id", "authority_uuid",
+                       "assignment_participant", "assignment_generation")
+            if name == "destroy_operation":
+                members = members + ("runtime_id",)
+            for member in members:
+                found[(at(f"{I}:{name}", f"attempt.{member}"),
+                       "a persisted attempt")] = (
+                    "a persisted attempt",
+                    lambda name=name, member=member: derive[name](
+                        dict(row, **{member: SURROGATE})))
+        found[(at(f"{I}:retain_operation", "retention_policy_digest"),
+               "a retention policy digest")] = (
+            "a retention policy digest",
+            lambda: worker_manager.retain_operation(
+                dict(row), SURROGATE, ["artifact-1"], "retain"))
+        found[(at(f"{I}:destroy_operation", "retention_policy_digest"),
+               "a retention policy digest")] = (
+            "a retention policy digest",
+            lambda: worker_manager.destroy_operation(dict(row), RECEIPT,
+                                                     SURROGATE))
+        found[(at(f"{I}:destroy_operation", "receipt_digest"),
+               "an intake receipt digest")] = (
+            "an intake receipt digest",
+            lambda: worker_manager.destroy_operation(dict(row), SURROGATE,
+                                                     RETENTION_POLICY))
+        # THE OPERATIONS, each with the operand it names spoiled.
+        found[(at(f"{I}:request_intake", "attempt_id"),
+               "a runtime attempt id")] = (
+            "a runtime attempt id",
+            lambda: worker_manager.request_intake(
+                self.store, self.port, _Collecting(), attempt_id=SURROGATE))
+        found[(at(f"{I}:request_intake", "adapter"),
+               "the runtime adapter's collect")] = (
+            "the runtime adapter's collect",
+            lambda: worker_manager.request_intake(
+                self.store, self.port, object(), attempt_id="attempt-1"))
+        found[(at(f"{I}:record_intake", "attempt_id"),
+               "a runtime attempt id")] = (
+            "a runtime attempt id",
+            lambda: worker_manager.record_intake(
+                self.store, self.port, attempt_id=SURROGATE, collected={}))
+        found[(at(f"{I}:record_intake", "collected"),
+               "a collection observation")] = (
+            "a collection observation", self.collecting_with(SURROGATE))
+        found[(at(f"{I}:record_intake", "collected.result_id"),
+               "a collection observation")] = (
+            "a collection observation", self.collecting(result_id=SURROGATE))
+        found[(at(f"{I}:record_intake", "collected.artifacts"),
+               "a collection observation")] = (
+            "a collection observation", self.collecting(artifacts=SURROGATE))
+        for member in ("artifact_id", "content_digest", "custody_locator",
+                       "bytes"):
+            found[(at(f"{I}:record_intake", f"collected.artifacts.{member}"),
+                   "a collection observation")] = (
+                "a collection observation", self.spoiled_artifact(member))
+        found[(at(f"{I}:intake_receipt_of", "attempt_id"),
+               "a runtime attempt id")] = (
+            "a runtime attempt id",
+            lambda: worker_manager.intake_receipt_of(self.store, SURROGATE))
+        found[(at(f"{I}:retentions_of", "attempt_id"),
+               "a runtime attempt id")] = (
+            "a runtime attempt id",
+            lambda: worker_manager.retentions_of(self.store, SURROGATE))
+        found[(at(f"{I}:decide_retention", "attempt_id"),
+               "a runtime attempt id")] = (
+            "a runtime attempt id",
+            lambda: worker_manager.decide_retention(
+                self.store, self.port, _Custodian(), attempt_id=SURROGATE,
+                artifact_ids=["artifact-1"], disposition="retain",
+                retention_policy_digest=RETENTION_POLICY))
+        found[(at(f"{I}:decide_retention", "adapter"),
+               "the runtime adapter's retain")] = (
+            "the runtime adapter's retain",
+            lambda: worker_manager.decide_retention(
+                self.store, self.port, object(), attempt_id="attempt-1",
+                artifact_ids=["artifact-1"], disposition="retain",
+                retention_policy_digest=RETENTION_POLICY))
+        found[(at(f"{I}:decide_retention", "retention_policy_digest"),
+               "a retention policy digest")] = (
+            "a retention policy digest",
+            lambda: worker_manager.decide_retention(
+                self.store, self.port, _Custodian(), attempt_id="attempt-1",
+                artifact_ids=["artifact-1"], disposition="retain",
+                retention_policy_digest=SURROGATE))
+        found[(at(f"{I}:decide_retention", "disposition"),
+               "a retention disposition")] = (
+            "a retention disposition",
+            lambda: worker_manager.decide_retention(
+                self.store, self.port, _Custodian(), attempt_id="attempt-1",
+                artifact_ids=["artifact-1"], disposition=SURROGATE,
+                retention_policy_digest=RETENTION_POLICY))
+        found[(at(f"{I}:authorize_cleanup", "attempt_id"),
+               "a runtime attempt id")] = (
+            "a runtime attempt id",
+            lambda: worker_manager.authorize_cleanup(
+                self.store, self.port, _Custodian(), attempt_id=SURROGATE,
+                retention_policy_digest=RETENTION_POLICY))
+        found[(at(f"{I}:authorize_cleanup", "adapter"),
+               "the runtime adapter's destroy")] = (
+            "the runtime adapter's destroy",
+            lambda: worker_manager.authorize_cleanup(
+                self.store, self.port, object(), attempt_id="attempt-1",
+                retention_policy_digest=RETENTION_POLICY))
+        found[(at(f"{I}:authorize_cleanup", "retention_policy_digest"),
+               "a retention policy digest")] = (
+            "a retention policy digest",
+            lambda: worker_manager.authorize_cleanup(
+                self.store, self.port, _Custodian(), attempt_id="attempt-1",
+                retention_policy_digest=SURROGATE))
+        # WHAT THE ADAPTER ANSWERED, envelope and members.
+        #
+        # A MEMBER IS SPOILED WITH SOMETHING THE ENVELOPE OWNER ACCEPTS. The
+        # document owner takes a deep built-in copy and refuses unencodable
+        # text anywhere inside it, so a surrogate here would be refused by the
+        # envelope and the member's own rule would never be reached -- which is
+        # the vacuous-probe shape this file exists to catch.
+        found[(at(f"{I}:_destroyed", "adapter.destroy", "injected"),
+               "a destroy observation")] = (
+            "a destroy observation", self.destroying())
+        found[(at(f"{I}:_destroyed", "adapter.destroy.runtime_id", "injected"),
+               "an observed runtime id")] = (
+            "an observed runtime id",
+            self.destroying(runtime_id=5, state="absent", why="gone"))
+        found[(at(f"{I}:_destroyed", "adapter.destroy.state", "injected"),
+               "a destroy observation's state")] = (
+            "a destroy observation's state",
+            self.destroying(runtime_id="runtime-1", state=5, why="gone"))
+        found[(at(f"{I}:_destroyed", "adapter.destroy.why", "injected"),
+               "a destroy observation's reason")] = (
+            "a destroy observation's reason",
+            self.destroying(runtime_id="runtime-1", state="absent", why=5))
+        # THE PERSISTED ROWS CROSSING BACK IN.
+        for column in ("cleanup", "execution_runtime", "input_digest",
+                       "output", "policy_digest", "runtime_id",
+                       "worker_disposition"):
+            found[(at(f"{I}:_attempt_of", f"attempts.{column}", "adopted"),
+                   "a persisted attempt")] = (
+                "a persisted attempt", self.spoiling_intake_attempt(column))
+        found[(at(f"{I}:_attempt_of", "attempts", "adopted"),
+               "a persisted attempt")] = (
+            "a persisted attempt", self.spoiling_intake_attempt("output"))
+        for column in ("custody", "intake_operation_id", "manifest_digest",
+                       "receipt_digest", "recoverable", "result_id", "why"):
+            found[(at(f"{I}:intake_receipt_of", f"intakes.{column}",
+                      "adopted"), "a persisted intake")] = (
+                "a persisted intake", self.spoiling_intake(column))
+        found[(at(f"{I}:intake_receipt_of", "intakes", "adopted"),
+               "a persisted intake")] = (
+            "a persisted intake", self.spoiling_intake("custody"))
+        for column in ("artifact_id", "content_digest", "custody_locator"):
+            found[(at(f"{I}:intake_receipt_of",
+                      f"intake_artifacts.{column}", "adopted"),
+                   "a persisted intake artifact")] = (
+                "a persisted intake artifact", self.spoiling_custody(column))
+        found[(at(f"{I}:intake_receipt_of", "intake_artifacts", "adopted"),
+               "a persisted intake artifact")] = (
+            "a persisted intake artifact",
+            self.spoiling_custody("custody_locator"))
+        for column in ("artifact_id", "decided_at", "disposition",
+                       "retention_policy_digest"):
+            found[(at(f"{I}:retentions_of", f"retentions.{column}",
+                      "adopted"), "a persisted retention")] = (
+                "a persisted retention", self.spoiling_retention(column))
+        found[(at(f"{I}:retentions_of", "retentions", "adopted"),
+               "a persisted retention")] = (
+            "a persisted retention", self.spoiling_retention())
+        return found
+
     def output_probes(self):
         """One probe per (entry, label) W6628 added."""
         M, O = "manifests.py", "output.py"
@@ -2590,7 +3594,7 @@ class BoundaryCase(unittest.TestCase):
         row = {"runtime_attempt_id": "attempt-1", "adapter_name": "acp",
                "adapter_digest": "sha256:" + "a" * 64,
                "profile_digest": PROFILE, "input_digest": None,
-               "policy_digest": None, "image_digest": None,
+               "policy_digest": "sha256:" + "d" * 64, "image_digest": None,
                "toolchain_digest": None, "created_at": NOW,
                "work_id": JOB, "authority_uuid": AUTHORITY,
                "assignment_participant": WHO, "assignment_generation": 1,
@@ -2829,8 +3833,12 @@ class BoundaryCase(unittest.TestCase):
         return run
 
     def recorded(self, attempt_id="attempt-1", **spoiled):
+        # THE POLICY DIGEST IS RECORDED. W6632 review [P1] made it a
+        # reconciliation label, so a runtime start needs an attempt that can
+        # name the policy its delivery is made under; without it these probes
+        # refuse before reaching the operand they are aimed at.
         operands = dict(adapter_name="acp", adapter_digest="sha256:" + "a" * 64,
-                        profile_digest=PROFILE)
+                        profile_digest=PROFILE, policy_digest="sha256:" + "d" * 64)
         operands.update(spoiled)
         return lambda: worker_manager.record_attempt(
             self.store, attempt_id=attempt_id, **operands)
@@ -2916,51 +3924,6 @@ class BoundaryCase(unittest.TestCase):
             worker_manager.request_cancellation(
                 self.store, self.port, FakeAgent(), FakeAdapter(self),
                 attempt_id="attempt-1")
-        return run
-
-    def materializing(self, **overrides):
-        """One directory delivery, with one operand spoiled."""
-        def run():
-            storage = os.path.join(self.root, "probe-storage")
-            os.makedirs(storage, exist_ok=True)
-            roots = workspaces.assignment_workspace(storage, "a-probe")
-            origin = os.path.join(self.root, "probe-origin")
-            os.makedirs(origin, exist_ok=True)
-            # A DESTINATION THIS DELIVERY HAS NOT USED. Diagnosed: the helper
-            # reused one name, so the second probe refused with "already
-            # delivered" before its spoiled operand was read -- a probe that
-            # fails for an earlier reason proves the earlier reason.
-            call = {"origin": origin, "inputs": roots["inputs"]}
-            call.update(overrides)
-            workspaces.materialize_directory_source(
-                {"name": "src", "type": "directory",
-                 "uri": "file:///origin", "destination": "src",
-                 "required": True,
-                 "content_manifest": workspaces.directory_manifest(origin)},
-                **call)
-        return run
-
-    def revising(self, *, answers=None, base_revision=None, **overrides):
-        """One revision delivery, with one operand spoiled."""
-        def run():
-            storage = os.path.join(self.root, "probe-storage")
-            os.makedirs(storage, exist_ok=True)
-            roots = workspaces.assignment_workspace(storage, "a-probe")
-            source = {"name": "repo", "type": "git",
-                      "uri": "https://example.test/repo",
-                      "destination": "repo", "required": True,
-                      "repository_id": "repo-1", "object_format": "sha1",
-                      "base_revision": (dict(GIT_REVISION)
-                                        if base_revision is None
-                                        else base_revision),
-                      "source_ref": overrides.pop("source_ref", None),
-                      "integration_ref": None,
-                      "acquisition_policy_digest": "sha256:" + "c" * 64}
-            call = {"inputs": roots["inputs"], "git_metadata": roots["git"]}
-            call.update(overrides)
-            workspaces.materialize_git_source(
-                source, git=workspaces.GitPort(RecordingRepository(answers)),
-                **call)
         return run
 
     def probes(self):
@@ -3051,18 +4014,6 @@ class BoundaryCase(unittest.TestCase):
 
         return {
             # -- W6631: the six focused gaps left after its declarations -----
-            (at("workspaces.py:GitPort.__init__", "repository"),
-             "the git repository's resolve operation"):
-                ("the git repository's resolve operation",
-                 lambda: workspaces.GitPort(type(
-                     "MissingResolve", (),
-                     {"checkout": lambda *args, **kwargs: None})())),
-            (at("workspaces.py:GitPort.__init__", "repository"),
-             "the git repository's checkout operation"):
-                ("the git repository's checkout operation",
-                 lambda: workspaces.GitPort(type(
-                     "MissingCheckout", (),
-                     {"resolve": lambda *args, **kwargs: None})())),
             (at("workspaces.py:assignment_workspace", "assignment_id"),
              "an assignment identity"):
                 ("an assignment identity",
@@ -3073,16 +4024,6 @@ class BoundaryCase(unittest.TestCase):
                 ("an assignment identity",
                  lambda: workspaces.discard_workspace(
                      self.root, SURROGATE)),
-            (at("workspaces.py:materialize_directory_source", "source"),
-             "a directory source"):
-                ("a directory source",
-                 lambda: workspaces.materialize_directory_source(
-                     7, origin=self.root, inputs=self.root)),
-            (at("workspaces.py:materialize_git_source", "source"),
-             "a git source"):
-                ("a git source",
-                 lambda: workspaces.materialize_git_source(
-                     7, git=None, inputs=self.root, git_metadata=self.root)),
             # -- W6592 cut A: the composition's own operands ------------------
             (at(f"{H}:certify_agent_session_profile", "profile"),
              "an agent-session profile"): ("an agent-session profile",
@@ -3172,27 +4113,15 @@ class BoundaryCase(unittest.TestCase):
             (at("workspaces.py:discard_workspace", "storage"),
              "a filesystem root"): ("a filesystem root",
                 lambda: workspaces.discard_workspace(SURROGATE, "a-1")),
-            (at("workspaces.py:materialize_directory_source", "origin"),
+            # W19784: the input root, at the same single owner. `_real`
+            # refuses the surrogate as TEXT, before the pair is validated and
+            # before anything reaches the filesystem -- so this probe proves
+            # the path boundary and not the document one.
+            (at("workspaces.py:compose_input_root", "inputs"),
              "a filesystem root"): ("a filesystem root",
-                self.materializing(origin=SURROGATE)),
-            (at("workspaces.py:materialize_directory_source", "inputs"),
-             "a filesystem root"): ("a filesystem root",
-                self.materializing(inputs=SURROGATE)),
-            (at("workspaces.py:materialize_git_source", "inputs"),
-             "a filesystem root"): ("a filesystem root",
-                self.revising(inputs=SURROGATE)),
-            (at("workspaces.py:materialize_git_source", "git_metadata"),
-             "a filesystem root"): ("a filesystem root",
-                self.revising(git_metadata=SURROGATE)),
-            (at("workspaces.py:materialize_git_source", "found.algorithm"),
-             "a resolved git object"): ("a resolved git object",
-                self.revising(source_ref="refs/heads/main",
-                              answers={"refs/heads/main": {"hex": "b" * 40}})),
-            (at("workspaces.py:materialize_git_source", "found.hex"),
-             "a resolved git object"): ("a resolved git object",
-                self.revising(source_ref="refs/heads/main",
-                              answers={"refs/heads/main":
-                                       {"algorithm": "sha1"}})),
+                lambda: workspaces.compose_input_root(
+                    SURROGATE, {}, {}, assignment=OWNED_ASSIGNMENT,
+                    runtime_attempt_id="attempt-1")),
             # -- caller operands the layer owns at their own site -------------
             (at(f"{offers}:certify_profile", "kind"),
              "a certified profile kind"): ("a certified profile kind",
@@ -3745,23 +4674,6 @@ class BoundaryCase(unittest.TestCase):
 GIT_REVISION = {"algorithm": "sha1", "hex": "a" * 40}
 
 
-class RecordingRepository:
-    """A repository that answers the two questions and records both."""
-
-    def __init__(self, refs=None):
-        self.refs = refs or {}
-        self.calls = []
-
-    def resolve(self, *, uri, ref):
-        self.calls.append(("resolve", uri, ref))
-        return self.refs.get(ref)
-
-    def checkout(self, *, uri, revision, into, git_dir):
-        self.calls.append(("checkout", uri, revision, into, git_dir))
-        with open(os.path.join(into, "README"), "wb") as handle:
-            handle.write(b"hello")
-
-
 class FakeAdapter:
     """The narrow runtime adapter this slice calls through.
 
@@ -3789,6 +4701,7 @@ class FakeAdapter:
                 "participant": row["assignment_participant"],
                 "generation": row["assignment_generation"],
                 "profile_digest": row["profile_digest"],
+                "policy_digest": row["policy_digest"],
                 "adapter_digest": row["adapter_digest"]}
 
     def start(self, operands):
@@ -3812,27 +4725,6 @@ class FakeAgent:
     def cancel(self, operands):
         self.cancelled.append(operands)
         return {"acknowledged": True}
-
-
-class SourceMaterializerCase(BoundaryCase):
-    """W6631's revision half, driven through the public operation."""
-
-    def deliver_revision(self, repository, **overrides):
-        self.storage = os.path.join(self.root, "storage")
-        os.makedirs(self.storage, exist_ok=True)
-        roots = workspaces.assignment_workspace(self.storage,
-                                                    "assignment-repo")
-        source = {"name": "repo", "type": "git",
-                  "uri": "https://example.test/repo",
-                  "destination": "repo", "required": True,
-                  "repository_id": "repo-1", "object_format": "sha1",
-                  "base_revision": dict(GIT_REVISION),
-                  "source_ref": None, "integration_ref": None,
-                  "acquisition_policy_digest": "sha256:" + "c" * 64}
-        source.update(overrides)
-        return workspaces.materialize_git_source(
-            source, git=workspaces.GitPort(repository),
-            inputs=roots["inputs"], git_metadata=roots["git"])
 
 
 class EveryReceivingEntryHasOneOwner(BoundaryCase):
@@ -3912,11 +4804,17 @@ class EveryReceivingEntryHasOneOwner(BoundaryCase):
                          "columns this build reads that the universe cannot see")
 
     def test_no_declared_owner_is_stale(self):
+        # W10265: the container is SORTED so that this assertion's failure text
+        # is the same bytes on every run. `entries` is a set, and `assertIn`
+        # renders the whole container when membership fails, so an unsorted one
+        # reported the same stale entry in a different order every time and
+        # made "did this change?" unanswerable by diff. Membership in a sorted
+        # list is the same question as membership in the set it came from.
         entries = receiving_entries()
         for table, what in ((STATED_OWNERS, "stated"), (DELEGATED, "delegated")):
             for entry in sorted(table):
                 with self.subTest(table=what, entry=entry):
-                    self.assertIn(entry, entries)
+                    self.assertIn(entry, sorted(entries))
 
     def test_every_named_constructor_exists_and_owns_what_it_holds(self):
         """An exception has to point at a constructor that is THERE.
@@ -4008,7 +4906,9 @@ class EveryProbeProvesItArrived(BoundaryCase):
     def all_probes(self):
         return {**self.probes(), **self.column_probes(),
                 **self.session_probes(), **self.output_probes(),
-                **self.interrogation_probes(), **self.oci_probes()}
+                **self.interrogation_probes(), **self.oci_probes(),
+                **self.intake_probes(), **self.sealing_probes(),
+                **self.credential_probes()}
 
     def expected(self):
         """(entry, label) for every entry the LAYER or a DELEGATE owns.
@@ -4066,7 +4966,23 @@ class EveryProbeProvesItArrived(BoundaryCase):
         """
         declared = set(self.all_probes())
         wanted = self.expected()
-        self.assertEqual(wanted - declared, set())
+        # W10265: `sorted(...)` against `[]` rather than the set against
+        # `set()`, matching the already-stable form two tests above. The
+        # emptiness verdict is identical; what changes is that a NONEMPTY
+        # difference lists its entries in one fixed order instead of hash
+        # order, which is the only reason this line was reordering run to run.
+        #
+        # AND THE WHOLE LIST, which the first correction cost and review R1
+        # caught. `assertEqual` over two lists dispatches to unittest's list
+        # comparison, and its default `maxDiff` replaced eight of the nine
+        # missing entries with a truncation notice -- so the diagnostic became
+        # deterministic and stopped saying what was missing, which is the
+        # failure-context half of this record's own acceptance. Approved as a
+        # test-local assignment (T10265, message 11462): it changes what THIS
+        # diagnostic prints and nothing else, where a global setting would be
+        # the output normalization the same ruling excludes.
+        self.maxDiff = None
+        self.assertEqual(sorted(wanted - declared), [])
         dropped = sorted(declared)[0]
         self.assertEqual(wanted - (declared - {dropped}), {dropped})
 
@@ -4117,6 +5033,11 @@ WITNESSES = {
         "test_a_manifest_is_owned_by_the_contracts_own_composite",
     ("injected", "output.py:request_freeze", "adapter.seal"):
         "test_what_the_adapter_seals_is_owned_where_it_arrives",
+    # -- W19784: the two manager-authored `/input/` documents ----------------
+    ("caller", "workspaces.py:compose_input_root", "input_manifest"):
+        "test_the_input_pair_is_owned_by_the_contracts_own_composite",
+    ("caller", "workspaces.py:compose_input_root", "assignment_manifest"):
+        "test_the_input_pair_is_owned_by_the_contracts_own_composite",
     # -- W6627: the agent session -------------------------------------------
     ("caller", "sessions.py:permits_session_transition", "from_state"):
         "test_the_nine_frozen_states_are_a_closed_vocabulary",
@@ -4141,25 +5062,6 @@ WITNESSES = {
         "test_the_observation_discriminator_decides_before_anything_is_read",
     ("adopted", "sessions.py:_next_epoch", "agent_sessions"):
         "test_the_next_epoch_is_a_whole_number_by_construction",
-    ("caller", "workspaces.py:GitPort.resolve", "uri"):
-        "test_a_git_operand_reaches_the_repository_unchanged",
-    ("caller", "workspaces.py:GitPort.resolve", "ref"):
-        "test_a_git_operand_reaches_the_repository_unchanged",
-    ("caller", "workspaces.py:GitPort.checkout", "uri"):
-        "test_a_git_operand_reaches_the_repository_unchanged",
-    ("caller", "workspaces.py:GitPort.checkout", "revision"):
-        "test_a_git_operand_reaches_the_repository_unchanged",
-    ("caller", "workspaces.py:GitPort.checkout", "into"):
-        "test_a_checkout_is_given_places_this_component_created",
-    ("caller", "workspaces.py:GitPort.checkout", "git_dir"):
-        "test_a_checkout_is_given_places_this_component_created",
-    ("caller", "workspaces.py:materialize_git_source", "git"):
-        "test_a_repository_missing_an_operation_is_refused_at_construction",
-    ("caller", "workspaces.py:materialize_git_source",
-     "base_revision.algorithm"):
-        "test_the_frozen_fragment_owns_the_revision_before_pinned_sees_it",
-    ("caller", "workspaces.py:materialize_git_source", "base_revision.hex"):
-        "test_the_frozen_fragment_owns_the_revision_before_pinned_sees_it",
     ("caller", "store.py:seal_refusal", "refusal"):
         "test_public_sealing_owns_the_refusal_before_reading_it",
     # -- W6592 cut A --------------------------------------------------------
@@ -4358,6 +5260,98 @@ WITNESSES = {
         "test_a_minted_sequence_is_whole_because_the_column_is",
     ("adopted", "store.py:ControlStore._objects", "sqlite_master"):
         "test_the_catalogue_decides_one_membership_question",
+    # -- W6629: intake, retention and cleanup --------------------------------
+    #
+    # Eight of these ten are the closed outbound constructors, and their
+    # witness is DERIVED from `documents.CONTRACTS` rather than listed -- so a
+    # constructor added tomorrow is exercised tomorrow, which is the property
+    # that made these eight arrive with the gate already able to see them.
+    # -- W6634: the assignment-scoped credential lifecycle -------------------
+    ("caller", "credentials.py:resolved_delivery", "slots"):
+        "test_a_credential_sequence_is_a_list_of_owned_members",
+    ("caller", "credentials.py:Delivery.__init__", "state"):
+        "test_a_delivery_is_one_of_the_closed_lifecycle_states",
+    ("caller", "credentials.py:Delivery.__init__", "bearers"):
+        "test_a_deliverys_bearers_are_keyed_by_a_proved_slot",
+    ("caller", "credentials.py:CredentialHome.tear_down", "delivery"):
+        "test_a_teardown_acts_on_a_delivery_this_manager_materialized",
+    ("caller", "oci.py:OciAdapter.__init__", "credential_delivery"):
+        "test_a_teardown_acts_on_a_delivery_this_manager_materialized",
+    ("caller", "sealing.py:sealed_result", "roots"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "sealing.py:sealed_result", "roots.workspace"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "sealing.py:sealed_result", "declared"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "sealing.py:sealed_result", "identity"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "sealing.py:sealed_result", "identity.policy_digest"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "sealing.py:sealed_result", "input_manifest_digest"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "sealing.py:collected_result", "custody"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "sealing.py:sealed_result", "custody"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.collect", "operands.attempt_id"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "sealing.py:collected_result", "declared"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.seal", "request.attempt_id"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.seal", "request"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.seal", "request.assignment"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.seal", "request.assignment.generation"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.seal", "request.assignment.participant"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.seal", "request.assignment.work_ref"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.seal", "request.assignment.work_ref.authority_uuid"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.seal", "request.assignment.work_ref.work_id"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.collect", "operands"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.__init__", "outputs"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.__init__", "input_manifest_digest"):
+        "test_a_declaration_is_owned_once_at_construction",
+    ("caller", "oci.py:OciAdapter.start", "labels.runtime_attempt_id"):
+        "test_one_delivery_belongs_to_one_attempt",
+    ("caller", "documents.py:collect_requested", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:intake_artifact", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:intake_receipt", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:retention", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:retention_decided", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:cleanup_blocked", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:cleanup_unsettled", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:cleanup_settled", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:retain_command", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:destroy_command", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    # And the two that state a rule of their own.
+    ("injected", "intake.py:request_intake", "adapter.collect"):
+        "test_what_the_adapter_collects_is_owned_where_it_arrives",
+    ("caller", "intake.py:decide_retention", "artifact_ids"):
+        "test_a_retention_names_artifacts_and_owns_every_one_of_them",
+    ("caller", "intake.py:retain_operation", "artifact_ids"):
+        "test_a_retention_names_artifacts_and_owns_every_one_of_them",
+    ("caller", "intake.py:retain_operation", "disposition"):
+        "test_a_retention_names_artifacts_and_owns_every_one_of_them",
+    ("injected", "intake.py:decide_retention", "adapter.retain"):
+        "test_what_the_retain_adapter_answers_decides_nothing",
 }
 
 
@@ -4374,7 +5368,7 @@ class EveryStatedOwnerHasAWitness(BoundaryCase):
                                 f"{name} would never run")
 
 
-class StatedRules(SourceMaterializerCase):
+class StatedRules(BoundaryCase):
     """The witnesses themselves. Each exercises one stated rule."""
 
     # -- W6627's stated owners, exercised through the public operation -------
@@ -4405,14 +5399,14 @@ class StatedRules(SourceMaterializerCase):
     # -- W6632's stated owners, exercised through the public operation ------
 
     OCI_ROOTS = {"inputs": "/srv/a-1/inputs",
-                 "workspace": "/srv/a-1/workspace",
-                 "git": "/srv/a-1/git"}
+                 "workspace": "/srv/a-1/workspace"}
     # EXACTLY the frozen `runtime.labels` member set, taken from the contract
     # rather than retyped: a fixture with an invented member would make every
     # case here refuse for the label document's reason instead of its own.
     OCI_LABELS = {"runtime_attempt_id": "attempt-1", "authority_uuid": UUID,
                   "work_id": WORK, "participant": WHO, "generation": 1,
                   "profile_digest": "sha256:" + "b" * 64,
+                  "policy_digest": "sha256:" + "d" * 64,
                   "adapter_digest": "sha256:" + "c" * 64}
 
     def vector(self, **overrides):
@@ -4423,6 +5417,153 @@ class StatedRules(SourceMaterializerCase):
                         posture="execution", name="baton-op-1")
         operands.update(overrides)
         return oci.run_vector("docker", **operands)
+
+    # -- W6634: the assignment-scoped credential lifecycle -------------------
+
+    def credentials(self):
+        from baton_v12.worker_manager import credentials
+        return credentials
+
+    def a_delivery(self, **spoiled):
+        credentials = self.credentials()
+        body = {"attempt_id": "attempt-1",
+                "root": "/srv/a-1/credentials/attempt-1",
+                "slots": [{"slot": "api", "provider": "vault",
+                           "target": "/run/baton/credentials/api"}],
+                "state": "live", "bearers": {"api": "a" * 40}}
+        body.update(spoiled)
+        return credentials.Delivery(**body)
+
+    def test_a_credential_sequence_is_a_list_of_owned_members(self):
+        """A LIST IS NOT A CROSSING; its members are.
+
+        Each of the three sequences this lifecycle takes proves the shape and
+        then hands every member to the rule that owns it -- and the member
+        rules are the ones the probe table exercises. What this asserts is the
+        half a probe cannot: that something other than a list refuses, and
+        that a well-shaped list of ill-formed members refuses too.
+        """
+        credentials = self.credentials()
+        home = credentials.CredentialHome("/srv/a-1")
+        for spoiled in ("not a list", 7, None, {"api": "yes"}):
+            with self.subTest(spoiled=spoiled, door="resolved_delivery"):
+                with self.assertRaises(ContractRefusal):
+                    credentials.resolved_delivery(spoiled, profile={})
+            with self.subTest(spoiled=spoiled, door="materialize"):
+                with self.assertRaises(ContractRefusal):
+                    home.materialize(spoiled, attempt_id="attempt-1",
+                                     credential_provider=lambda a, b: "x" * 40)
+            with self.subTest(spoiled=spoiled, door="Delivery"):
+                with self.assertRaises(ContractRefusal):
+                    self.a_delivery(slots=spoiled)
+        # AND A LIST WHOSE MEMBERS ARE WRONG, which is the half that says the
+        # sequence rule did not stop at the shape.
+        with self.assertRaises(ContractRefusal):
+            credentials.resolved_delivery(["../escape"], profile={})
+        with self.assertRaises(ContractRefusal):
+            self.a_delivery(slots=[{"slot": "api"}])
+
+    def test_a_delivery_is_one_of_the_closed_lifecycle_states(self):
+        """A comparison against this module's own constant, not a boundary."""
+        credentials = self.credentials()
+        for state in credentials.LIFECYCLE_STATES:
+            with self.subTest(state=state):
+                self.assertEqual(self.a_delivery(state=state).state, state)
+        for spoiled in ("invented", "", None, 7, "LIVE"):
+            with self.subTest(spoiled=spoiled):
+                with self.assertRaises(ContractRefusal):
+                    self.a_delivery(state=spoiled)
+
+    def test_a_deliverys_bearers_are_keyed_by_a_proved_slot(self):
+        """The keys are owned; the VALUES are never named in a refusal.
+
+        Every other rule in this package puts the value it rejected into its
+        diagnostic. Here that would be the one thing §13 exists to keep off a
+        durable surface -- and a refusal is a durable surface, which is what
+        `errors.py` established for §13 in the first place.
+        """
+        from baton_v12.contracts import held_secret
+        bearer = "b" * 40
+        with held_secret(bearer):
+            with self.assertRaises(ContractRefusal) as caught:
+                self.a_delivery(bearers={"../escape": bearer})
+            self.assertNotIn(bearer, caught.exception.message)
+            for spoiled in (["api"], "api", None):
+                with self.subTest(spoiled=spoiled):
+                    with self.assertRaises(ContractRefusal):
+                        self.a_delivery(bearers=spoiled)
+
+    def test_a_teardown_acts_on_a_delivery_this_manager_materialized(self):
+        """What proves a delivery is that it IS one.
+
+        Everything inside it was owned when it was constructed, so the rule at
+        these two doors is identity of kind rather than a re-walk of members a
+        constructor already proved.
+        """
+        credentials = self.credentials()
+        home = credentials.CredentialHome("/srv/a-1")
+        composed = {"attempt_id": "attempt-1", "root": "/srv/a-1",
+                    "slots": [], "state": "live", "bearers": {}}
+        for spoiled in (composed, "a delivery", None, 7):
+            with self.subTest(spoiled=type(spoiled).__name__):
+                with self.assertRaises(ContractRefusal):
+                    home.tear_down(spoiled)
+        # `None` IS AN ANSWER AT THE ADAPTER and not at teardown, because an
+        # assignment that authorizes no slot has no delivery to expose -- and
+        # one that reached teardown with nothing to tear down would be an
+        # ending nobody asked for.
+        for spoiled in (composed, "a delivery", 7):
+            with self.subTest(spoiled=type(spoiled).__name__):
+                with self.assertRaises(ContractRefusal):
+                    self.adapter(credential_delivery=spoiled)()
+
+    def test_one_delivery_belongs_to_one_attempt(self):
+        """A mounted credential root is keyed by attempt, and so is the runtime
+        that mounts it. Labelling the container with a different attempt would
+        make reconciliation and restart look for that delivery under an
+        identity it was never recorded against.
+
+        The label document is owned before this comparison happens; what this
+        witnesses is the RELATIONSHIP, which no document owner can see.
+        """
+        import tempfile
+        from baton_v12.worker_manager import credentials
+        home = credentials.CredentialHome(self.root)
+        delivered = home.materialize(
+            credentials.resolved_delivery(
+                ["api"], profile={"api": {"provider": "vault",
+                                          "reference": "kv/one"}}),
+            attempt_id="attempt-1",
+            credential_provider=lambda one, two: "z" * 40)
+        try:
+            built = self.adapter(credential_delivery=delivered)()
+            labels = dict(self.OCI_LABELS, runtime_attempt_id="attempt-2")
+            with self.assertRaises(ContractRefusal) as caught:
+                built.start({"labels": labels, "operation_id": "op-1"})
+            self.assertIn("attempt-2", caught.exception.message)
+            self.assertIn("attempt-1", caught.exception.message)
+        finally:
+            home.tear_down(delivered)
+
+    def test_a_credential_mount_is_an_entry_of_the_fixed_root(self):
+        """A SEPARATE OWNER FROM `_mounts`, and the separation is the point.
+
+        `_mounts` admits a source because this manager created the assignment
+        root it lives under; a credential is not assignment material and must
+        not become a third mountable root. So the rule here is the fixed
+        container root instead, applied to every pair.
+        """
+        source = "/srv/a-1/credentials/attempt-1/api"
+        for spoiled in ("not a sequence of pairs",
+                        [(source,)],
+                        [(source, "/etc/api")],
+                        [(source, "/run/baton/credentials/sub/api")],
+                        [(source, "/run/baton/credentials/other")],
+                        [(source, "/run/baton/credentials/api"),
+                         (source, "/run/baton/credentials/api")]):
+            with self.subTest(spoiled=spoiled):
+                with self.assertRaises(ContractRefusal):
+                    self.running_vector(credentials_delivered=spoiled)()
 
     def test_a_mount_sequence_is_iterated_and_never_read(self):
         """The container is walked; every mount inside it is owned. Any
@@ -4484,6 +5625,7 @@ class StatedRules(SourceMaterializerCase):
                     "docker", engine_saying({"Running": running}),
                     identity={"image_digest": "sha256:" + "e" * 64,
                               "profile_digest": "sha256:" + "b" * 64,
+                              "policy_digest": "sha256:" + "d" * 64,
                               "adapter_digest": "sha256:" + "c" * 64},
                     assignment_roots=dict(self.OCI_ROOTS),
                     posture="execution")
@@ -4582,6 +5724,58 @@ class StatedRules(SourceMaterializerCase):
                               else "a retained manifest",
                               caught.exception.message)
 
+    def test_the_input_pair_is_owned_by_the_contracts_own_composite(self):
+        """W19784. The same owner as a retained manifest, answering a question
+        no single-document validator can: `check_input_pair` proves each
+        document against its own definition AND THEN holds the two against
+        each other.
+
+        So the cases below split deliberately. The first two are documents
+        that are not what they are delivered as, which the composite refuses
+        on its own; the last is TWO STRUCTURALLY PERFECT DOCUMENTS that are
+        not one delivery -- and that one is the whole reason this owner is the
+        composite rather than the boundary layer, because `boundaries` has
+        nothing that could see it.
+        """
+        home = tempfile.mkdtemp(prefix="v12-input-pair-")
+        self.addCleanup(shutil.rmtree, home, True)
+        given, assignment = self.canonical_input_pair()
+        # The manager's own identity operands are supplied and CORRECT in every
+        # case below, so what refuses is the composite's document rule rather
+        # than the authorization beside it. `test_workspaces` owns the
+        # authorization's own cases.
+        for what, pair in [
+                ("neither document is a document", ("not a manifest", {})),
+                ("the assignment side is the input side again",
+                 (given, given)),
+                ("two documents that are not one delivery",
+                 (given, self.canonical_input_pair(
+                     policy_digest="sha256:" + "f" * 64)[1]))]:
+            with self.subTest(what=what):
+                root = os.path.join(home, what.replace(" ", "-"))
+                os.makedirs(root)
+                with self.assertRaises(ContractRefusal) as caught:
+                    workspaces.compose_input_root(
+                        root, *pair,
+                        assignment=dict(
+                            assignment["assignment_ref"]),
+                        runtime_attempt_id=assignment["runtime_attempt_id"])
+                self.assertIn("execution input", caught.exception.message)
+                self.assertEqual(os.listdir(root), [],
+                                 "a refused pair reached the filesystem")
+
+    def canonical_input_pair(self, **spoiled):
+        """The record's own input manifest and an assignment minted for it."""
+        corpus = json.loads(CONTRACT_VECTORS.read_text(encoding="utf-8"))
+        by_schema = {one["document"].get("schema"): one["document"]
+                     for one in corpus["valid"]}
+        given = by_schema["baton.worker-manifest/input"]
+        assignment = dict(by_schema["baton.worker-manifest/assignment"])
+        assignment.update(spoiled)
+        assignment.pop("manifest_digest", None)
+        assignment["manifest_digest"] = _contracts_digest(assignment)
+        return given, assignment
+
     def test_what_the_adapter_seals_is_owned_where_it_arrives(self):
         """An adapter's account of its own success decides NOTHING here.
 
@@ -4606,6 +5800,122 @@ class StatedRules(SourceMaterializerCase):
         self.assertIn("a sealed result", caught.exception.message)
         self.assertIsNone(worker_manager.frozen_output_of(self.store,
                                                           attempt_id))
+
+    # -- W6629's stated owners, exercised through the public operation -------
+
+    def test_what_the_adapter_collects_is_owned_where_it_arrives(self):
+        """The same rule as the seal above, one boundary later.
+
+        `request_intake` journals its `output.collect` request BEFORE the
+        adapter is called, and what comes back is a COLLECTION OBSERVATION
+        owned by `record_intake`, which is where it arrives. So an adapter that
+        reports success and answers with something that is not a collection is
+        refused there -- and custody is not taken, because taking custody is
+        what the answer was supposed to establish.
+        """
+        attempt_id = self.froze()
+
+        class Confident:
+            """Reports success and answers with nothing that is a collection."""
+
+            def collect(self, operands):
+                return {"ok": True, "collected": True}
+
+        with self.assertRaises(ContractRefusal) as caught:
+            worker_manager.request_intake(self.store, self.port, Confident(),
+                                          attempt_id=attempt_id)
+        self.assertIn("a collection observation", caught.exception.message)
+        self.assertIsNone(worker_manager.intake_receipt_of(self.store,
+                                                           attempt_id))
+        self.assertEqual(self.attempt_row()["output"], "frozen",
+                         "the axis moved on an answer nobody could read")
+
+    def test_what_the_retain_adapter_answers_decides_nothing(self):
+        """The command is DELIVERED and its reply is discarded.
+
+        W6629 review [P1] required the manager to stop typing `adapter.retain`
+        without calling it. It did not make the adapter an authority: what the
+        material's disposition IS was decided here, committed to the journal,
+        and read back from this manager's own rows. So an adapter that answers
+        with nonsense changes nothing, which is what makes there be nothing in
+        the reply to own.
+        """
+        attempt_id = self.intaken()
+
+        class Contradicting:
+            def retain(self, command):
+                self.command = command
+                return {"accepted": False, "disposition": "quarantine"}
+
+        adapter = Contradicting()
+        decided = worker_manager.decide_retention(
+            self.store, self.port, adapter, attempt_id=attempt_id,
+            artifact_ids=["artifact-1"], disposition="retain",
+            retention_policy_digest=RETENTION_POLICY)
+        assert decided["disposition"] == "retain"
+        # The command still crossed, whole.
+        assert adapter.command["retention_policy_digest"] == RETENTION_POLICY
+        assert adapter.command["artifact_ids"] == ["artifact-1"]
+        self.assertEqual(
+            [one["disposition"]
+             for one in worker_manager.retentions_of(self.store, attempt_id)],
+            ["retain"], "the adapter's opinion reached the record")
+
+    def test_a_declaration_is_owned_once_at_construction(self):
+        """W6634. `sealing.py` is a pure function over data whose caller is the
+        adapter in the same package, so its operands are proved ONCE -- where
+        they enter that adapter -- and used afterwards.
+
+        This drives the one place that proving happens for the declarations. A
+        declaration the adapter cannot read refuses at CONSTRUCTION, before any
+        freeze, because by freeze time a worker has already done the work
+        against limits nobody could state.
+        """
+        from baton_v12.worker_manager import sealing
+        whole = {"name": "proposal", "type": "directory-result", "path": "out",
+                 "required": True,
+                 "constraints": {"max_bytes": 1024, "max_entries": 8,
+                                 "allowed_media_types": ["text/plain"],
+                                 "link_policy": "forbid",
+                                 "validator_digest": None}}
+        self.assertEqual(sorted(sealing.declared_outputs([whole])),
+                         ["proposal"])
+        for spoiled in ("not a list", [], [{"name": "x"}],
+                        [dict(whole, required="yes")],
+                        [dict(whole, constraints=dict(whole["constraints"],
+                                                      max_entries="lots"))],
+                        [whole, whole]):
+            with self.subTest(spoiled=spoiled):
+                with self.assertRaises(ContractRefusal):
+                    sealing.declared_outputs(spoiled)
+
+    def test_a_retention_names_artifacts_and_owns_every_one_of_them(self):
+        """A LIST IS NOT A BOUNDARY -- what crosses is the members.
+
+        `boundaries` has no list kind for that reason, so this operand is owned
+        in three parts and each part is a different mistake: `contracts.own`
+        takes the fresh built-in copy and refuses what is not JSON data, the
+        shape is refused here because a decision naming no artifact decides
+        nothing, and every member is owned as an identity.
+
+        All three are driven, because an operand owned in parts is owned only
+        as well as its weakest part.
+        """
+        attempt_id = self.intaken()
+        for artifact_ids, expect in (
+                (("artifact-1",), "not JSON data"),
+                ([], "names at least one artifact"),
+                ([7], "an artifact id is durable text")):
+            with self.subTest(artifact_ids=artifact_ids):
+                with self.assertRaises(ContractRefusal) as caught:
+                    worker_manager.decide_retention(
+                        self.store, self.port, _Custodian(),
+                        attempt_id=attempt_id, artifact_ids=artifact_ids,
+                        disposition="retain",
+                        retention_policy_digest=RETENTION_POLICY)
+                self.assertIn(expect, caught.exception.message)
+        self.assertEqual(worker_manager.retentions_of(self.store, attempt_id),
+                         (), "a refused decision left one behind")
 
     # -- W6627's stated owners, exercised through the public operation -------
 
@@ -4723,89 +6033,6 @@ class StatedRules(SourceMaterializerCase):
             [1, 2])
 
     # -- W6631's stated owners, exercised through the public operation -------
-
-    def deliver_revision(self, repository, **overrides):
-        storage = os.path.join(self.root, "storage")
-        os.makedirs(storage, exist_ok=True)
-        roots = workspaces.assignment_workspace(storage,
-                                                    "assignment-repo")
-        source = {"name": "repo", "type": "git",
-                  "uri": "https://example.test/repo",
-                  "destination": "repo", "required": True,
-                  "repository_id": "repo-1", "object_format": "sha1",
-                  "base_revision": dict(GIT_REVISION),
-                  "source_ref": None, "integration_ref": None,
-                  "acquisition_policy_digest": "sha256:" + "c" * 64}
-        source.update(overrides)
-        self.storage = storage
-        return workspaces.materialize_git_source(
-            source, git=workspaces.GitPort(repository),
-            inputs=roots["inputs"], git_metadata=roots["git"])
-
-    def test_a_git_operand_reaches_the_repository_unchanged(self):
-        """The port forwards; the repository owns.
-
-        What these entries state is that this component does not own what it
-        forwards -- so what has to be true is that the operand ARRIVES exactly
-        as it was given. A port that quietly rewrote one would leave the
-        repository answering about something nobody asked for.
-        """
-        repository = RecordingRepository(refs={"refs/heads/main":
-                                               dict(GIT_REVISION)})
-        answer = self.deliver_revision(repository, source_ref="refs/heads/main")
-        self.assertIn(("resolve", "https://example.test/repo",
-                       "refs/heads/main"), repository.calls)
-        checkout = [call for call in repository.calls if call[0] == "checkout"]
-        self.assertEqual(len(checkout), 1)
-        self.assertEqual(checkout[0][1], "https://example.test/repo")
-        self.assertEqual(checkout[0][2], dict(GIT_REVISION))
-        self.assertEqual(answer["base_revision"], dict(GIT_REVISION))
-
-    def test_a_checkout_is_given_places_this_component_created(self):
-        """The port hands out a place rather than accepting one.
-
-        A caller that could name the checkout directory or the metadata
-        directory would decide where somebody else's process writes, which is
-        the private-metadata rule and the containment rule at once.
-        """
-        repository = RecordingRepository()
-        answer = self.deliver_revision(repository)
-        checkout = [call for call in repository.calls
-                    if call[0] == "checkout"][0]
-        into, git_dir = checkout[3], checkout[4]
-        roots = workspaces.assignment_workspace(self.storage,
-                                                    "assignment-repo")
-        self.assertTrue(into.startswith(roots["inputs"] + os.sep))
-        self.assertTrue(git_dir.startswith(roots["git"] + os.sep))
-        self.assertEqual(answer["git_dir"], git_dir)
-
-    def test_the_frozen_fragment_owns_the_revision_before_pinned_sees_it(self):
-        """DIAGNOSED, not assumed. Item 2 put the frozen closed fragment ahead
-        of every member read, so a malformed `base_revision` is refused as
-        SHAPE -- "'base_revision'.'hex' breaks pattern" -- and never reaches
-        `_pinned`. The declaration follows the code rather than the reverse.
-        """
-        for what, revision in [("no algorithm", {"hex": "a" * 40}),
-                               ("no hex", {"algorithm": "sha1"}),
-                               ("a hex that is not one",
-                                {"algorithm": "sha1", "hex": "nope"})]:
-            with self.subTest(what=what):
-                with self.assertRaises(ContractRefusal) as caught:
-                    self.deliver_revision(RecordingRepository(),
-                                          base_revision=revision)
-                self.assertIn("frozen schema", caught.exception.message)
-
-    def test_a_repository_missing_an_operation_is_refused_at_construction(self):
-        """Typing a capability is cheap and happens before anything is spent."""
-        class Partial:
-            def resolve(self, **operands):
-                return None
-
-        for what, repository in [("nothing at all", object()),
-                                 ("one operation missing", Partial())]:
-            with self.subTest(what=what):
-                with self.assertRaises(ContractRefusal):
-                    workspaces.GitPort(repository)
 
     def test_public_sealing_owns_the_refusal_before_reading_it(self):
         """The public sealing door types its operand BEFORE reading a member.
@@ -5339,7 +6566,8 @@ class StatedRules(SourceMaterializerCase):
         """
         worker_manager.record_attempt(
             self.store, attempt_id="attempt-1", adapter_name="acp",
-            adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE)
+            adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE,
+            policy_digest="sha256:" + "d" * 64)
         worker_manager.observe(self.store, attempt_id="attempt-1",
                                axis="consent_runtime", value="running",
                                source={"incarnation": "worker", "seq": 1})

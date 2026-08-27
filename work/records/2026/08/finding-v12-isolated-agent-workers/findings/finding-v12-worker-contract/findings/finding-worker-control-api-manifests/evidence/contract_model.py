@@ -250,8 +250,137 @@ def validate_manifest(document: dict, *, verify_digest: bool = True) -> None:
 
     if document.get("schema") == "baton.worker-manifest/input":
         _validate_input_manifest(document)
+    if document.get("schema") == "baton.worker-manifest/completion":
+        _validate_completion_manifest(document)
     for content in _content_manifests(document):
         _validate_content_manifest(content)
+
+
+# W14251 third review, 2026-08-26.  A fixed root reserves the filenames of the
+# protocol documents that live in it.  A payload declared at one of those names
+# replaces the document it is declared in.
+#
+# W19784, 2026-08-26: `/input/` now reserves TWO, because it now carries two
+# manager-authored documents -- `input.json`, the pre-claim input declaration,
+# and `assignment.json`, the post-claim assignment manifest that delivers the
+# exact live identity a completion envelope has to carry.  `/output/` still
+# reserves one, because the worker authors one document there.
+#
+# Reserved in its OWN root and nowhere else -- an output called `input.json`
+# sits under `/output/` and collides with nothing -- and nesting counts, because
+# `input.json/data` requires that name to be a directory while the protocol
+# document is a file.
+RESERVED = {"source": ("a source", ("input.json", "assignment.json")),
+            "output": ("an output", ("output.json",))}
+
+
+def _check_reserved(role: str, path: str) -> None:
+    noun, names = RESERVED[role]
+    for name in names:
+        if path == name or path.startswith(name + "/"):
+            raise ContractError(f"{noun} takes the reserved manifest name")
+
+
+# W19784, approved 2026-08-26: THE TWO `/input/` DOCUMENTS ARE ONE PAIR.
+#
+# The defect this answers.  SPEC 8.7 requires the worker's completion envelope
+# to carry the exact full `assignment_ref` -- Work reference, participant AND
+# authority generation -- and SPEC 8.1 gives `input.json` no generation,
+# because it is minted before any claim exists.  Nothing else in the execution
+# container carried one.  So a worker obeying the input contract could not obey
+# the output contract, and no conformant execution container could be built.
+#
+# The fix delivers the already-defined assignment manifest, unchanged, at the
+# second fixed read-only name `/input/assignment.json`.  What is new is a path
+# and a lifecycle, not a document.
+#
+# WHY THIS IS HERE AND NOT IN `validate_manifest`.  This module models the
+# invariants JSON Schema cannot express, and a two-document relation is the
+# clearest case of that: each manifest below is separately closed, digest-bound
+# and structurally perfect, and none of that says they are about one thing.
+# A function handed one document cannot see this at all.
+_PAIR_BINDING = ("policy_digest", "runtime_profile_digest")
+
+
+def validate_input_pair(input_manifest: dict, assignment_manifest: dict,
+                        *, verify_digest: bool = True) -> None:
+    """Hold the two manager-authored `/input/` documents against each other."""
+    validate_manifest(input_manifest, verify_digest=verify_digest)
+    validate_manifest(assignment_manifest, verify_digest=verify_digest)
+    if input_manifest.get("schema") != "baton.worker-manifest/input":
+        raise ContractError("the input document is not an input manifest")
+    if assignment_manifest.get("schema") != "baton.worker-manifest/assignment":
+        raise ContractError("the assignment document is not an assignment manifest")
+    if assignment_manifest["assignment_ref"]["work_ref"] != input_manifest["work_ref"]:
+        raise ContractError("the input pair names two different Work items")
+    if assignment_manifest["input_manifest_digest"] != input_manifest["manifest_digest"]:
+        raise ContractError("the assignment was minted against another input manifest")
+    for member in _PAIR_BINDING:
+        if assignment_manifest[member] != input_manifest[member]:
+            raise ContractError(f"the input pair declares two {member} values")
+    # THE GENERATION IS DELIBERATELY NOT COMPARED: the input manifest has none,
+    # and that asymmetry is the whole defect.  `assignment.json` is the ONE
+    # source of the participant and generation the completion envelope carries.
+    #
+    # `assignment_contract` is deliberately not compared either.  Under 1.0 the
+    # frozen schema pins it to `const: "v12-assignment-1"` on both documents, so
+    # two schema-valid manifests cannot disagree; under a schema-first harness a
+    # comparison here could never be the owner of a refusal.  SPEC 12 rule 16
+    # records that the obligation is discharged one layer earlier.
+
+
+# WHY THERE IS NO `_validate_result_manifest` HERE.
+#
+# W14251 fifth review [P2].  I wrote one: it repeated the conditional
+# requirement that a `completed` receipt carries `completion_manifest_digest`.
+# This module says at the top that it models only the invariants JSON Schema
+# CANNOT express, and that one it can -- the frozen schema carries it as
+# `if disposition == completed then required`.
+#
+# Under a schema-first harness the duplicate could never be the owner of a
+# missing-member refusal: the schema had already refused the document before
+# this function saw it.  So it was a second statement of one rule, unreachable
+# by construction, and the kind of thing that later drifts from the rule it
+# copies.
+#
+# The part that genuinely cannot be expressed locally stays normative in
+# SPEC 8.4 and observable in conformance: an envelope that WAS validated is
+# bound whatever the disposition became.  That is a fact about an act, not
+# about the document, and it is W6634's to satisfy.
+
+
+def _validate_completion_manifest(document: dict) -> None:
+    """The WORKER's `/output/output.json`.
+
+    W14251 second review, 2026-08-26.  Its rules are the ones a worker can
+    actually satisfy before quiescence: the declared output paths are canonical
+    relative paths that do not overlap each other, names are unique, and a
+    `present` answer carries the integrity evidence a `missing-optional` one
+    cannot.
+
+    NOTHING HERE IS ABOUT CUSTODY.  A freeze operation, a manager observation
+    and an artifact locator are facts about an act that has not happened when
+    this file is published, which is precisely why this document is not the
+    manager's `baton.worker-manifest/result`.
+    """
+    outputs = document["outputs"]
+    names = [item["name"] for item in outputs]
+    if len(names) != len(set(names)):
+        raise ContractError("completion output names are not unique")
+    paths = [item["path"] for item in outputs]
+    for path in paths:
+        validate_relative_path(path)
+        _check_reserved("output", path)
+    for index, left in enumerate(paths):
+        for right in paths[index + 1 :]:
+            if _paths_overlap(left, right):
+                raise ContractError("destinations overlap within one root")
+    for item in outputs:
+        if item["status"] == "present" and item["content_manifest"] is None:
+            raise ContractError("a present output carries a content manifest")
+        if item["status"] == "missing-optional" \
+                and item["content_manifest"] is not None:
+            raise ContractError("a missing output carries no content manifest")
 
 
 def _validate_input_manifest(document: dict) -> None:
@@ -260,17 +389,41 @@ def _validate_input_manifest(document: dict) -> None:
     names = [item["name"] for item in sources + outputs]
     if len(names) != len(set(names)):
         raise ContractError("input/output names are not unique")
-    destinations = [item["destination"] for item in sources] + [item["path"] for item in outputs]
-    for path in destinations:
+    staged = [item["destination"] for item in sources]
+    declared = [item["path"] for item in outputs]
+    for path in staged + declared:
         validate_relative_path(path)
-    for index, left in enumerate(destinations):
-        for right in destinations[index + 1 :]:
-            if _paths_overlap(left, right):
-                raise ContractError("input/output destinations overlap")
-    for source in sources:
-        validate_uri(source["uri"])
-        if source["type"] == "git" and source["object_format"] != source["base_revision"]["algorithm"]:
-            raise ContractError("git object format mismatch")
+    for role, paths in (("source", staged), ("output", declared)):
+        for path in paths:
+            _check_reserved(role, path)
+    # W14251 second review, 2026-08-26: OVERLAP IS COMPARED WITHIN A ROOT.
+    # These were one concatenated list, so `repo` staged under `/input/` and
+    # `repo` written under `/output/` were refused as aliasing -- and the two
+    # fixed roots make them disjoint by construction.  Two declarations of the
+    # SAME role still alias, which is what the rule was always about.
+    for role in (staged, declared):
+        for index, left in enumerate(role):
+            for right in role[index + 1 :]:
+                if _paths_overlap(left, right):
+                    raise ContractError("destinations overlap within one root")
+    # W14251, 2026-08-26: THE SOURCE'S OWN ACQUISITION RULES ARE GONE WITH THE
+    # MEMBERS THEY READ.  Two §12 rules stood over a source -- a `uri` grammar
+    # check, and the object-format/base-revision comparison of the version-
+    # control variant.  Both indexed members the artifact-neutral
+    # `sourceDescriptor` does not have, so this function raised `KeyError:
+    # 'uri'` on its own canonical vector the moment the schema moved.  The
+    # review found it; the progress note claiming item 5 had landed was wrong.
+    #
+    # The rules ABOVE this point stay, because they are about STAGING rather
+    # than acquisition: names unique across sources and outputs, every
+    # destination a canonical relative path, and no two destinations
+    # overlapping.  Each is true of an already-staged tree and says nothing
+    # about how it got there.
+    #
+    # `validate_uri` is deliberately untouched.  It still guards artifact
+    # locators above, and the invalid-locator vectors still exercise it; what
+    # ended is this contract reading a SOURCE's acquisition locator, not the
+    # grammar for the locators it still receives.
 
 
 def _artifact_refs(value: object):

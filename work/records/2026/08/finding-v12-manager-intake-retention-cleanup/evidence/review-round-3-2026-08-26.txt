@@ -1,0 +1,68 @@
+W6629 independent correction review
+2026-08-26, baton.codex
+
+Corrected focused module before this round's additive case:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_intake
+
+  Ran 58 tests
+  OK
+
+Focused module with the additive partial-replacement case:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_intake
+
+  Ran 59 tests
+  FAILED (errors=1)
+
+Only exposed boundary:
+
+  ERROR test_a_later_policy_can_replace_part_of_a_grouped_decision
+        retentions_of reports integrity after a later policy replaces only
+        artifact-2 from an earlier output.retain command over artifacts 1+2.
+
+Direct reproduction:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_intake.IndependentContractReview.test_a_later_policy_can_replace_part_of_a_grouped_decision
+
+  File ".../worker_manager/intake.py", line 884, in retentions_of
+    raise ContractRefusal(...)
+  ContractRefusal: the persisted retention of 'attempt-1' names act
+  'output.retain:058364...' and these decisions derive
+  'output.retain:956cfe...'
+
+  Ran 1 test in 0.014s
+  FAILED (errors=1)
+
+Manager package surface gates:
+
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_secrets tests.manager.test_dependencies \
+    tests.manager.test_text_sweep
+
+  Ran 114 tests
+  FAILED (failures=1, skipped=1)
+
+The only failure is external to W6629:
+
+  tests.manager.test_dependencies.NoPublicOperationTakesInternalState.
+  test_no_declared_operand_is_stale
+
+It reports stale operands `git`, `git_dir`, `git_metadata`, `inputs`, `into`,
+`origin`, `ref`, and `revision` from concurrent work. Secret and text-sweep
+surfaces pass.
+
+Repository-wide whitespace gate:
+
+  git diff --check
+
+  v12/python/src/baton_v12/worker_manager/workspaces.py:383:
+  new blank line at EOF.
+
+That path is external to W6629. The W6629 review files have no trailing
+whitespace findings under an exact-file scan.

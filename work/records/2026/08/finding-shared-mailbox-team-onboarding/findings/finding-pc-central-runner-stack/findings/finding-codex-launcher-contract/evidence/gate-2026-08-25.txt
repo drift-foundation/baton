@@ -1,0 +1,161 @@
+W12229 — evidence for PLAN items 2-4.
+
+Ruling implemented: T12229 message 12229 (Slawomir) with the reviewer's
+implementation-ready boundary in FINDING.md.
+
+
+REVALIDATION BEFORE EDITING
+
+  Every confirmed fact in the research still describes the tree:
+
+    bootstrapThread            held all four values, passed prose only
+    resolveTargetInstructions  stored resolved.instructions as the whole of
+                               target.developerInstructions
+    readRoleInstructions       imported by BOTH adapters — the ACP bridge
+                               reaches across for it, so a change to the
+                               shared projection would land in ACP prompts
+    --start-thread             required five operands; --role was refused
+                               only indirectly, inside the instruction reader
+
+
+WHAT THE CONTEXT NOW RECEIVES
+
+    You are the tuner for baton.
+
+    Baton launcher contract (authoritative; do not infer):
+    BATON_BIN="/opt/baton/bin/baton"
+    BATON_CONFIG="/home/op/baton.json"
+    BATON_PARTICIPANT="baton.tuner"
+    BATON_ROLE="tuner"
+    Invoke BATON_BIN with --config BATON_CONFIG and --participant
+    BATON_PARTICIPANT for every Baton operation.
+
+  Composed on `thread/start` and on every `thread/resume`, from the configured
+  source and the participant and role the instruction read already PROVED.
+
+
+TWO EXISTING ASSERTIONS REPLACED, AND THEY WERE THE DEFECT
+
+  Both required `developerInstructions` to be role prose and nothing else —
+  which is exactly the fresh `pc.plan` context that reached W12181 over and
+  over and could not claim it:
+
+    test/bootstrap_thread.test.mjs
+      "the accepted role instructions still reach thread/start"
+      -> "the accepted role instructions AND the launcher contract reach
+          thread/start"
+
+    test/role_instructions.test.mjs
+      the dispatcher-resume assertion's expected value is now the composed
+      text
+
+  NEITHER WAS WEAKENED. Each asserts strictly more than before.
+
+
+THE FOCUSED MATRIX
+
+    $ node --test test/bootstrap_thread.test.mjs
+    i  tests 18   i  pass 18   i  fail 0        (12 before)
+
+    $ node --test test/role_instructions.test.mjs
+    i  tests 13   i  pass 13   i  fail 0        (8 before)
+
+  Covering, in the finding's own order:
+
+    exact presence          all four values on thread/start
+    four and no fifth       counted by BATON_ lines; no actionOwner, no
+                            execPolicy path
+    missing fields          each of the six operands refuses with nothing
+                            read and no Codex connection opened
+    blank fields            a blank or absent contract field refuses rather
+                            than rendering a hole
+    quoting                 a spaced or quoted path stays data
+    no inference            conflicting BATON_* values in process.env do not
+                            reach the block
+    non-crossing            two targets sharing one binary and one config,
+                            naming different participants and roles, each
+                            receive only their own and neither text contains
+                            the other's identity
+    restart recomposition   a changed configured binary produces a changed
+                            block; nothing remembered is authoritative
+    mismatch refusal        the participant/role refusal above the
+                            composition is untouched
+    no source               a deployment without roleInstructions keeps its
+                            old shape rather than gaining an invented block
+    ACP compatibility       the shared reader still returns prose with no
+                            BATON_BIN in it
+
+
+GATES
+
+    $ npm test        # tools/codex-event-bridge
+    i  tests 395   i  pass 393   i  fail 2
+
+    $ npm test        # tools/acp-baton-bridge
+    i  tests 64    i  pass 64    i  fail 0
+
+    whitespace check over the diff: clean
+
+
+THE TWO FAILURES ARE W11910'S, AND THAT WAS MEASURED
+
+    tests/claim_slot.test.mjs
+      an unclaimed delivery promoted to claimed while queued becomes its own
+        recovery turn
+      a non-Work obligation is not held behind the participant's claim
+
+  Both are reviewer regressions on W11910, added after this participant passed
+  that Work back, and both are real defects in that correction:
+
+    - the claim-slot gate reads `claimed` from the QUEUED EVENT, so when the
+      claimed Work in the live projection is that same Work, the delivery is
+      held behind its own claim instead of becoming the recovery turn;
+    - the gate tests `claimed !== true`, and a non-Work obligation carries no
+      `claimed` field at all, so it is deferred — although the confirmed
+      ruling keeps obligations, trials, pokes and refreshes on their existing
+      delivery rule.
+
+  MEASURED RATHER THAN ASSUMED. A copy of `tools/codex-event-bridge` was taken
+  and the four files this Work touches were restored from HEAD:
+
+    $ cd /tmp/w12229_base && node --test test/claim_slot.test.mjs
+    x  an unclaimed delivery promoted to claimed while queued becomes its own
+       recovery turn
+    x  a non-Work obligation is not held behind the participant's claim
+    i  pass 27   i  fail 2
+
+  So neither is caused by W12229. W11910 is routed to `baton.feat` and is not
+  held by this claim; fixing them here would be executing Work nobody claimed.
+  Reported on T11910, with the correction I would make: decide both questions
+  from the live projection entry for the exact action key — deliver when THAT
+  entry is claimed (it is the recovery turn), defer only when some OTHER Work
+  is claimed, and apply the gate only to `kind === "work"`.
+
+
+DOCUMENTATION
+
+  Codex README gains `The Baton launcher contract`: the four values, why
+  developer instructions are the carrier for this family (no per-thread
+  environment on start/resume, the generic config override is W415-ruled-out,
+  and one app-server process hosts every target so process environment would
+  cross participants), and that the labels make the two families' vocabulary
+  agree without claiming Codex has real environment variables. The
+  `--start-thread` section records that all six operands are required.
+
+  ACP README records that the same contract lives in `agent.env` there, and
+  both say the shared reader returns prose alone so neither family's carrier
+  appears in the other's.
+
+
+NOT DONE, AND IT IS THE OPERATOR'S
+
+  PLAN item 6: drain, deploy, restart with fresh contexts, complete W12181
+  through `pc.rsrch -> pc.impl -> pc.rsrch -> pc.ops`, and return W10198. A
+  live smoke on an existing thread does not satisfy the fresh-context
+  acceptance, and nothing here was verified against the running deployment.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w12229_base/   the copy with every W12229 change reverted to HEAD,
+                        used for the measurement above

@@ -8,6 +8,182 @@
     "minor": 0
    },
    "document": "case",
+   "case_id": "A-assignment-manifest-delivered-read-only-beside-the-input",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-17"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [],
+    "detail": "Read the execution container's input root after activation."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "assignment_manifest_present",
+      "op": "is-true"
+     },
+     {
+      "fact": "assignment_manifest_read_only",
+      "op": "is-true"
+     },
+     {
+      "fact": "input_pair_bindings_agree",
+      "op": "is-true"
+     },
+     {
+      "fact": "assignment_manifest_path",
+      "op": "equals",
+      "value": "/input/assignment.json"
+     }
+    ]
+   },
+   "required_facts": [
+    "assignment_manifest_path",
+    "assignment_manifest_present",
+    "assignment_manifest_read_only",
+    "input_pair_bindings_agree"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "trace"
+   ],
+   "statement": "Both manager-authored input documents are present read-only at their fixed names and bind to one delivery.",
+   "document_digest": "sha256:9c53db259aab4d0a9b85322f417a1c190ae39b5242e0073738aa6cd71ca73eb1"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-assignment-manifest-naming-another-runtime-attempt-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-18"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "Freeze where the delivered assignment names a runtime attempt other than the one the manager started."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "runtime-observation",
+     "code": "identity-mismatch"
+    },
+    "requires": [
+     {
+      "fact": "attempt_identity_matches",
+      "op": "is-false"
+     },
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "attempt_identity_matches",
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "An assignment manifest bound to another runtime attempt refuses and mutates no custody.",
+   "document_digest": "sha256:59737349d1a23df36c01a9b0c0c807dca6a816f26a0ac0251a35a816519a8939"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-assignment-minted-against-another-input-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-17"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [],
+    "detail": "Deliver an assignment.json whose input_manifest_digest names another input manifest."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "digest"
+    },
+    "requires": [
+     {
+      "fact": "input_pair_bindings_agree",
+      "op": "is-false"
+     },
+     {
+      "fact": "agent_dispatches",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "agent_dispatches",
+    "input_pair_bindings_agree",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "Two separately valid documents that were not minted for each other refuse as a pair.",
+   "document_digest": "sha256:55b3e058cde384c5bcf6170535362042905a9bed28733310d8033b55de8bae34"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
    "case_id": "A-collection-ambiguous",
    "family": "A",
    "scope": "portable-core",
@@ -69,7 +245,7 @@
     "minor": 0
    },
    "document": "case",
-   "case_id": "A-directory-exact-tree",
+   "case_id": "A-completion-answers-every-declaration-once",
    "family": "A",
    "scope": "portable-core",
    "applies_to": [
@@ -77,46 +253,484 @@
     "remote"
    ],
    "obligations": [
-    "A-02"
+    "A-16"
    ],
    "supplemental_source": null,
    "required_faults": [],
    "stimulus": {
     "kind": "control-operation",
     "control_kinds": [
-     "assignment.activate"
+     "output.freeze"
     ],
     "faults": [],
-    "detail": "Materialize a directory source and enumerate the tree."
+    "detail": "Freeze an assignment whose worker answered each declared output exactly once."
    },
    "expectation": {
     "kind": "control-success",
     "requires": [
      {
-      "fact": "tree_digest_matches",
+      "fact": "every_declaration_answered",
       "op": "is-true"
      },
      {
-      "fact": "entry_count_matches",
+      "fact": "every_answer_declared",
       "op": "is-true"
      },
      {
-      "fact": "total_bytes_matches",
-      "op": "is-true"
+      "fact": "duplicate_answers",
+      "op": "equals",
+      "value": 0
      }
     ]
    },
    "required_facts": [
-    "entry_count_matches",
-    "total_bytes_matches",
-    "tree_digest_matches"
+    "duplicate_answers",
+    "every_answer_declared",
+    "every_declaration_answered"
    ],
    "deciding_evidence": [
     "manifest",
-    "log"
+    "diff"
    ],
-   "statement": "The materialized tree digest, entry count and total bytes equal the declared content manifest.",
-   "document_digest": "sha256:a71460b192b6908f8bbece22552b0b5f8f33d58fa2970209c8179bf899224f90"
+   "statement": "Each declared output has exactly one answer in the completion envelope, with no extras and no omissions.",
+   "document_digest": "sha256:eb15e55dbf024d37fe2042bbe9a9839c81bd757e1b8375669122e9c6c96f9cc5"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-completion-copies-the-delivered-assignment-identity",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-18"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "Freeze an assignment whose worker copied assignment_ref from /input/assignment.json."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "envelope_identity_equals_delivered",
+      "op": "is-true"
+     },
+     {
+      "fact": "manifest_generation_is_live",
+      "op": "is-true"
+     },
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 1
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "envelope_identity_equals_delivered",
+    "manifest_generation_is_live"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "diff"
+   ],
+   "statement": "The completion envelope carries the exact identity delivered at /input/assignment.json and the freeze commits.",
+   "document_digest": "sha256:0c0ddfb5786fb5539c0a0f2d19f73322951da7b91a013cda8fdd2ec2912dd9a6"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-completion-identity-must-match-the-declaration",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-16"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "The worker's envelope answers a declared name with a different type and path."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "schema"
+    },
+    "requires": [
+     {
+      "fact": "answer_identity_matches",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "answer_identity_matches",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "An answer's name, type and path equal the declaration's; a differing identity is refused.",
+   "document_digest": "sha256:16a52623b094996e8a12e107d91c644764a4fa35ebb0537739aac4b8a5a091de"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-completion-under-a-superseded-generation-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-18"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "Freeze after the authority superseded the generation the delivered assignment named."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "stale-assignment",
+     "code": "generation"
+    },
+    "requires": [
+     {
+      "fact": "manifest_generation_is_live",
+      "op": "is-false"
+     },
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "durable_effects",
+    "manifest_generation_is_live",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "A completion envelope naming a superseded generation refuses and mutates no custody.",
+   "document_digest": "sha256:a50bf1a67ce79cd45eb0a8dbd7561aeadf7b123cd273208d65503072a115a29a"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-completion-with-an-undeclared-answer-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-16"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "The worker's envelope answers an output the input manifest never declared."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "schema"
+    },
+    "requires": [
+     {
+      "fact": "every_answer_declared",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "every_answer_declared",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "An answer naming an output this assignment did not declare is refused.",
+   "document_digest": "sha256:25091d599c33a0a3ff307b7b79871055ac0bd6c41d54e7c4c239e4fc7b94226f"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-consent-sees-neither-input-document",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-17"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [],
+    "detail": "Enumerate everything mounted into the consent-phase container."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "assignment_manifest_present",
+      "op": "is-false"
+     },
+     {
+      "fact": "input_manifest_present",
+      "op": "is-false"
+     },
+     {
+      "fact": "consent_mounts",
+      "op": "empty"
+     }
+    ]
+   },
+   "required_facts": [
+    "assignment_manifest_present",
+    "consent_mounts",
+    "input_manifest_present"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "attestation"
+   ],
+   "statement": "The consent phase mounts neither manager-authored input document, and mounts nothing at all.",
+   "document_digest": "sha256:34c2140bdbb34f44f3cec462a5ed11c4019e564a55cf80375638205bb56f2c76"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-ephemeral-exported-is-collected",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-13"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.collect"
+    ],
+    "faults": [],
+    "detail": "Export ephemeral material into a declared output path before quiescence, then collect."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "exported_before_quiescence",
+      "op": "is-true"
+     },
+     {
+      "fact": "collected_paths",
+      "op": "subset-of",
+      "value": [
+       "exported.txt"
+      ]
+     }
+    ]
+   },
+   "required_facts": [
+    "collected_paths",
+    "exported_before_quiescence"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "diff"
+   ],
+   "statement": "Ephemeral material becomes a result only by being exported into a declared output path before quiescence.",
+   "document_digest": "sha256:335e19dd9bc8360ce1dd9a1645435baab71feab42e4269cb9d0a3e5bc31573c5"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-ephemeral-not-exported-not-collected",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-13"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [
+     "output.collect"
+    ],
+    "faults": [],
+    "detail": "Probe writes into private ephemeral space and does not export, then collect."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "wrote_ephemeral_path",
+      "op": "is-true"
+     },
+     {
+      "fact": "collected_paths",
+      "op": "disjoint-from",
+      "value": [
+       "ephemeral-only.txt"
+      ]
+     }
+    ]
+   },
+   "required_facts": [
+    "collected_paths",
+    "wrote_ephemeral_path"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "diff"
+   ],
+   "statement": "Material left in private ephemeral space is not collected; ephemeral space is capacity rather than protocol.",
+   "document_digest": "sha256:dbf477f8480163866490427fe1b9e21abef9b60afc5a3622a4cb5308ad8be240"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-execution-without-the-assignment-manifest-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-17"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [],
+    "detail": "Compose an execution container whose input root carries input.json alone."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "precondition"
+    },
+    "requires": [
+     {
+      "fact": "assignment_manifest_present",
+      "op": "is-false"
+     },
+     {
+      "fact": "agent_dispatches",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "agent_dispatches",
+    "assignment_manifest_present",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "An input root missing assignment.json refuses before any agent is dispatched.",
+   "document_digest": "sha256:0c5b14c2d629faf619c1d6d0be6e909fce57bc650c8a0eac45cb22df4bfa64a2"
   },
   {
    "suite_family": "baton.worker-conformance",
@@ -335,7 +949,7 @@
     "minor": 0
    },
    "document": "case",
-   "case_id": "A-git-exact-base",
+   "case_id": "A-frozen-output-chains-as-read-only-input",
    "family": "A",
    "scope": "portable-core",
    "applies_to": [
@@ -343,7 +957,7 @@
     "remote"
    ],
    "obligations": [
-    "A-01"
+    "A-14"
    ],
    "supplemental_source": null,
    "required_faults": [],
@@ -353,37 +967,36 @@
      "assignment.activate"
     ],
     "faults": [],
-    "detail": "Materialize a git source whose manifest binds an exact base revision."
+    "detail": "Stage a previous assignment's frozen output as the next assignment's input, then activate."
    },
    "expectation": {
     "kind": "control-success",
     "requires": [
      {
-      "fact": "materialized_object_id",
-      "op": "equals",
-      "value": "base-revision-under-test"
-     },
-     {
-      "fact": "object_id_matches_manifest",
+      "fact": "chained_content_manifest_matches_frozen_result",
       "op": "is-true"
      },
      {
-      "fact": "ref_was_resolved",
+      "fact": "chained_input_write_succeeded",
       "op": "is-false"
+     },
+     {
+      "fact": "manager_acquisition_transports",
+      "op": "empty"
      }
     ]
    },
    "required_facts": [
-    "materialized_object_id",
-    "object_id_matches_manifest",
-    "ref_was_resolved"
+    "chained_content_manifest_matches_frozen_result",
+    "chained_input_write_succeeded",
+    "manager_acquisition_transports"
    ],
    "deciding_evidence": [
     "manifest",
-    "log"
+    "trace"
    ],
-   "statement": "The workspace resolves to the exact base_revision the input manifest bound.",
-   "document_digest": "sha256:3bfe7e188a485831147c97526987e76d473346d5e508334805399bac4e051457"
+   "statement": "A frozen output chains into a later assignment as a read-only staged input, by content manifest and with no re-acquisition.",
+   "document_digest": "sha256:281322efc2680bd6a99a1acb0f779eead656a4eccef8dab7fd4e1aeef849c2f4"
   },
   {
    "suite_family": "baton.worker-conformance",
@@ -392,7 +1005,7 @@
     "minor": 0
    },
    "document": "case",
-   "case_id": "A-git-moved-ref-refused",
+   "case_id": "A-identifier-only-output-refused",
    "family": "A",
    "scope": "portable-core",
    "applies_to": [
@@ -400,17 +1013,17 @@
     "remote"
    ],
    "obligations": [
-    "A-01"
+    "A-11"
    ],
    "supplemental_source": null,
    "required_faults": [],
    "stimulus": {
     "kind": "control-operation",
     "control_kinds": [
-     "assignment.activate"
+     "output.freeze"
     ],
     "faults": [],
-    "detail": "Move the source ref after binding, then materialize."
+    "detail": "The worker's envelope names an output only by an unresolved identifier; freeze it."
    },
    "expectation": {
     "kind": "control-refusal",
@@ -420,21 +1033,21 @@
     },
     "requires": [
      {
-      "fact": "object_id_matches_manifest",
+      "fact": "manager_holds_artifact_bytes",
       "op": "is-false"
      }
     ]
    },
    "required_facts": [
-    "object_id_matches_manifest",
+    "manager_holds_artifact_bytes",
     "refusal"
    ],
    "deciding_evidence": [
-    "manifest",
-    "log"
+    "log",
+    "manifest"
    ],
-   "statement": "A source ref that moved after binding refuses rather than taking the new tip.",
-   "document_digest": "sha256:b4e152fb45080f5a75c1c3bd53a8e5d06daa625a0964b35f071f7b15bc1292a4"
+   "statement": "An output the manager cannot resolve to bytes it holds is refused as a durable result.",
+   "document_digest": "sha256:1fc77c1d92b38520eaeb21451e8158103550b97a0e777c7134ef2f288eff31f7"
   },
   {
    "suite_family": "baton.worker-conformance",
@@ -443,7 +1056,7 @@
     "minor": 0
    },
    "document": "case",
-   "case_id": "A-input-readonly",
+   "case_id": "A-input-is-read-only",
    "family": "A",
    "scope": "portable-core",
    "applies_to": [
@@ -451,7 +1064,7 @@
     "remote"
    ],
    "obligations": [
-    "A-02"
+    "A-01"
    ],
    "supplemental_source": null,
    "required_faults": [],
@@ -482,8 +1095,345 @@
     "log",
     "trace"
    ],
-   "statement": "A write into a declared input path does not succeed; inputs are read-only to the worker.",
-   "document_digest": "sha256:b0fc2fe9ccbd47e5be40f41a32be41c8e98e7182476c05b8b3c9756e4d25074b"
+   "statement": "A write into a declared input path does not succeed; /input/ is read-only to the worker.",
+   "document_digest": "sha256:e82c37620489d6fca13e08aef48f0ec1ee2b67a4c014a74a8ab2f306c456f815"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-input-pair-naming-two-work-items-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-17"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [],
+    "detail": "Deliver an assignment.json for a different Work than input.json declares."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "schema"
+    },
+    "requires": [
+     {
+      "fact": "input_pair_bindings_agree",
+      "op": "is-false"
+     },
+     {
+      "fact": "agent_dispatches",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "agent_dispatches",
+    "input_pair_bindings_agree",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "An input pair about two different Work items refuses however valid each document is alone.",
+   "document_digest": "sha256:25d0c11005960eb48854f56f34b2c809bb1d60337b08b828c03aa198d089f824"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-input-root-authorized-against-the-owned-assignment",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-18"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [],
+    "detail": "Start a runtime over a root composed for this exact assignment and attempt."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "root_authorized_before_exposure",
+      "op": "is-true"
+     },
+     {
+      "fact": "manifest_generation_is_live",
+      "op": "is-true"
+     },
+     {
+      "fact": "attempt_identity_matches",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "attempt_identity_matches",
+    "manifest_generation_is_live",
+    "root_authorized_before_exposure"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "trace"
+   ],
+   "statement": "The composed input root is held against the manager's own assignment, generation and runtime attempt before it is exposed.",
+   "document_digest": "sha256:ff266e052e400ac4e28ce414879017174f54630f0e02fe938bdab8362e777ca4"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-interrupted-publish-leaves-no-output-json",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-10"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "process-kill"
+   ],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [
+     "process-kill"
+    ],
+    "detail": "Stop the worker during its publication of output.json, then read /output/."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "output_manifest_present",
+      "op": "is-false"
+     },
+     {
+      "fact": "partial_manifest_observed",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "output_manifest_present",
+    "partial_manifest_observed"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "An interrupted publication leaves no output.json at all rather than an empty or truncated one.",
+   "document_digest": "sha256:7807145725daae206c7fb194cf55d9fe9bab4a887eb1df95469596ae2ffac9c7"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-malformed-assignment-manifest-refused",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-17"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [],
+    "detail": "Deliver an assignment.json that is not a closed valid assignment manifest."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "integrity",
+     "code": "schema"
+    },
+    "requires": [
+     {
+      "fact": "assignment_manifest_valid",
+      "op": "is-false"
+     },
+     {
+      "fact": "agent_dispatches",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "agent_dispatches",
+    "assignment_manifest_valid",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "A structurally invalid assignment.json refuses before any agent is dispatched.",
+   "document_digest": "sha256:10e0cd8a0cb03fcdd3707176ac674f8219e219a1bb20cce357694fff6f152082"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-manager-acquires-nothing",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-01"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "faults": [],
+    "detail": "Activate an assignment whose input.json declares a staged tree with an opaque consumption payload."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "manager_acquisition_transports",
+      "op": "empty"
+     },
+     {
+      "fact": "consumption_payload_read",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "consumption_payload_read",
+    "manager_acquisition_transports"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "The manager performs no acquisition transport and reads no consumption payload; /input/ is staged before it acts.",
+   "document_digest": "sha256:2b1ff3269ff4b1eee8fa7584f711588deb02a3799379250b1d356c1a3dce78b1"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-manager-receipt-is-not-the-worker-envelope",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-15"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [],
+    "detail": "Freeze a completed assignment, then read both documents and where each lives."
+   },
+   "expectation": {
+    "kind": "invariant",
+    "requires": [
+     {
+      "fact": "output_json_schema",
+      "op": "equals",
+      "value": "baton.worker-manifest/completion"
+     },
+     {
+      "fact": "frozen_receipt_schema",
+      "op": "equals",
+      "value": "baton.worker-manifest/result"
+     },
+     {
+      "fact": "frozen_receipt_inside_output",
+      "op": "is-false"
+     },
+     {
+      "fact": "output_json_carries_freeze_operation",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "frozen_receipt_inside_output",
+    "frozen_receipt_schema",
+    "output_json_carries_freeze_operation",
+    "output_json_schema"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "diff"
+   ],
+   "statement": "The worker's completion envelope and the manager's frozen-result receipt are two documents with two authors in two places.",
+   "document_digest": "sha256:83d603c2c783d698f0ea18ef9022058968daaf19e7a60bbe348ddc48ab3c5319"
   },
   {
    "suite_family": "baton.worker-conformance",
@@ -548,6 +1498,112 @@
     "minor": 0
    },
    "document": "case",
+   "case_id": "A-only-the-authorized-root-is-mounted-at-the-fixed-path",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-17"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [],
+    "detail": "Authorize one input root and start a runtime whose mount plan names another source at /input."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "policy",
+     "code": "denied"
+    },
+    "requires": [
+     {
+      "fact": "mounted_source_is_authorized",
+      "op": "is-false"
+     },
+     {
+      "fact": "runtimes_started",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "mounted_source_is_authorized",
+    "refusal",
+    "runtimes_started"
+   ],
+   "deciding_evidence": [
+    "trace",
+    "log"
+   ],
+   "statement": "The root the manager authorized is the root the runtime mounts: exactly that source, read-only, at the fixed /input.",
+   "document_digest": "sha256:d3ca95569fd50895e3ebcc2f9c201e08cdc60c62933fd98beb574bbb8118c5a3"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-output-json-published-last",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-10"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "in-runtime-probe",
+    "control_kinds": [],
+    "faults": [],
+    "detail": "Probe writes every declared output, then publishes /output/output.json, recording the order entries become visible."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "every_declared_output_written_before_manifest",
+      "op": "is-true"
+     },
+     {
+      "fact": "manifest_visible_after_outputs",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "every_declared_output_written_before_manifest",
+    "manifest_visible_after_outputs"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "trace"
+   ],
+   "statement": "The worker publishes output.json only after every durable result below /output/ is written.",
+   "document_digest": "sha256:0cd1017a3944d0112f6e7f941da1fa0f11dca0454a46d719355e41ca2e70fd0d"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
    "case_id": "A-output-overlap-refused",
    "family": "A",
    "scope": "portable-core",
@@ -584,6 +1640,63 @@
    ],
    "statement": "Two declared outputs whose destinations overlap are refused.",
    "document_digest": "sha256:4c19ba971008d7166c79cca0c9645f46c132122bd4e154be2758106b11e84454"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-output-persists-past-the-runtime",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-12"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze",
+     "runtime.destroy"
+    ],
+    "faults": [],
+    "detail": "Freeze, destroy the runtime, then read /output/ again."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "frozen_tree_readable_after_destroy",
+      "op": "is-true"
+     },
+     {
+      "fact": "output_manifest_readable_after_destroy",
+      "op": "is-true"
+     },
+     {
+      "fact": "digests_unchanged_after_destroy",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "digests_unchanged_after_destroy",
+    "frozen_tree_readable_after_destroy",
+    "output_manifest_readable_after_destroy"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "trace"
+   ],
+   "statement": "A declared output workspace and its manifest outlive the runtime that produced them, with unchanged digests.",
+   "document_digest": "sha256:c14fa4940220b31b74fc437fbbb0d45d7fe4f5739d72e43cdb0379472b6908f7"
   },
   {
    "suite_family": "baton.worker-conformance",
@@ -738,6 +1851,180 @@
     "minor": 0
    },
    "document": "case",
+   "case_id": "A-required-declaration-cannot-be-answered-missing",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-16"
+   ],
+   "supplemental_source": null,
+   "required_faults": [
+    "output-suppress"
+   ],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "output.freeze"
+    ],
+    "faults": [
+     "output-suppress"
+    ],
+    "detail": "Suppress a REQUIRED output, then have the worker answer it missing-optional."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "refused",
+     "code": "precondition"
+    },
+    "requires": [
+     {
+      "fact": "required_output_present",
+      "op": "is-false"
+     }
+    ]
+   },
+   "required_facts": [
+    "refusal",
+    "required_output_present"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "A required declaration answered missing-optional is refused; a worker cannot settle its own attempt.",
+   "document_digest": "sha256:b445e3336138980a46a0a0ea5c0a6094ae8f12b8860e3cc304bb96b334b5c222"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-staged-tree-matches-its-manifest",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-02"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "assignment.activate"
+    ],
+    "faults": [],
+    "detail": "Activate, then enumerate the staged tree under its declared destination."
+   },
+   "expectation": {
+    "kind": "control-success",
+    "requires": [
+     {
+      "fact": "tree_digest_matches",
+      "op": "is-true"
+     },
+     {
+      "fact": "entry_count_matches",
+      "op": "is-true"
+     },
+     {
+      "fact": "total_bytes_matches",
+      "op": "is-true"
+     }
+    ]
+   },
+   "required_facts": [
+    "entry_count_matches",
+    "total_bytes_matches",
+    "tree_digest_matches"
+   ],
+   "deciding_evidence": [
+    "manifest",
+    "log"
+   ],
+   "statement": "The staged tree digest, entry count and total bytes equal the declared content manifest.",
+   "document_digest": "sha256:173431ba18189ba6b6a63ca57fcb93bb0caa4a91730d7dc0500d8fce9d3781bd"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-stale-generation-root-refused-before-mount",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-18"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [],
+    "detail": "Start a runtime over a self-consistent root whose assignment names a superseded generation."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "stale-assignment",
+     "code": "generation"
+    },
+    "requires": [
+     {
+      "fact": "manifest_generation_is_live",
+      "op": "is-false"
+     },
+     {
+      "fact": "agent_dispatches",
+      "op": "equals",
+      "value": 0
+     },
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "agent_dispatches",
+    "durable_effects",
+    "manifest_generation_is_live",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "manifest"
+   ],
+   "statement": "A root that agrees with itself but names a superseded generation refuses before mount, with no runtime and no agent.",
+   "document_digest": "sha256:3596eb40b657af67c8ca9a4df320ed9ad38e619fc0d974bd9e67ac8ab07b5d19"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
    "case_id": "A-undeclared-not-collected",
    "family": "A",
    "scope": "portable-core",
@@ -784,6 +2071,69 @@
    ],
    "statement": "A file written outside every declared output is not collected.",
    "document_digest": "sha256:6cd764fe3ffe69f45ab67b5bf0f41df5ee46714a05e9ebc32a8475a97e82fd40"
+  },
+  {
+   "suite_family": "baton.worker-conformance",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "document": "case",
+   "case_id": "A-wrong-attempt-root-refused-before-mount",
+   "family": "A",
+   "scope": "portable-core",
+   "applies_to": [
+    "local-oci",
+    "remote"
+   ],
+   "obligations": [
+    "A-18"
+   ],
+   "supplemental_source": null,
+   "required_faults": [],
+   "stimulus": {
+    "kind": "control-operation",
+    "control_kinds": [
+     "runtime.start"
+    ],
+    "faults": [],
+    "detail": "Start a runtime over a root composed for a different runtime attempt."
+   },
+   "expectation": {
+    "kind": "control-refusal",
+    "expected_refusal": {
+     "category": "runtime-observation",
+     "code": "identity-mismatch"
+    },
+    "requires": [
+     {
+      "fact": "attempt_identity_matches",
+      "op": "is-false"
+     },
+     {
+      "fact": "agent_dispatches",
+      "op": "equals",
+      "value": 0
+     },
+     {
+      "fact": "durable_effects",
+      "op": "equals",
+      "value": 0
+     }
+    ]
+   },
+   "required_facts": [
+    "agent_dispatches",
+    "attempt_identity_matches",
+    "durable_effects",
+    "refusal"
+   ],
+   "deciding_evidence": [
+    "log",
+    "trace"
+   ],
+   "statement": "A root composed for another runtime attempt refuses before mount rather than at the freeze.",
+   "document_digest": "sha256:3fab50cc22fcb8297d338b16818b18709d48ca3d61e7818d0d2c1960737e7355"
   },
   {
    "suite_family": "baton.worker-conformance",

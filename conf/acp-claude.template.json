@@ -6,6 +6,12 @@
   "//5": "policy are deployment-owned and never bundled with Baton.",
   "//6": "W459: stateDir carries {{start.id}}, so every managed start",
   "//7": "gets a fresh selection location without weakening mode=new.",
+  "//8": "W14828: the four BATON_* launcher values are DERIVED from the",
+  "//9": "baton section above and reach the agent in both its prompt and",
+  "//10": "its environment. Do not spell them here. An entry that repeats",
+  "//11": "them exactly is accepted for compatibility; one that disagrees",
+  "//12": "refuses startup by key, because two spellings of one launcher",
+  "//13": "contract is the drift rather than the fix.",
   "baton": {
     "binary": "/absolute/path/to/v11-release/bin/baton",
     "config": "/absolute/path/to/mailbox/baton.json",

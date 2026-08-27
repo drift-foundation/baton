@@ -1,0 +1,112 @@
+W24755 — response to the second independent review. 2026-08-27.
+
+Both findings correct. No Git history or index was mutated.
+
+=== [P1] RFC 3339 FRACTIONS WERE TRUNCATED TO MICROSECONDS
+
+  My grammar allowed one or more fractional digits and then handed the
+  whole spelling to datetime, which holds only microseconds and drops
+  the rest without complaint. ...00.0000001Z and ...00.0000009Z both
+  became ...00.000000Z: two different half-open bounds collapsed into
+  one, so the export silently answered a question the operator did not
+  ask and two distinct approved scopes became indistinguishable in the
+  JSON and in the DOT metadata.
+
+  THE FRACTION IS NOW CARRIED SEPARATELY. datetime still validates the
+  calendar and rolls the offset to UTC -- a regex has no opinion about
+  February 30th, and an offset shift can move the date -- but it no
+  longer owns the fraction. That is sound because RFC 3339 offsets are
+  whole minutes, so a UTC shift cannot change the sub-second part.
+
+  Canonicalization keeps every significant digit and drops only
+  trailing zeros:
+    2026-08-27T00:00:00.0000001Z     -> 2026-08-27T00:00:00.0000001Z
+    2026-08-27T00:00:00.10Z          -> 2026-08-27T00:00:00.1Z
+    2026-08-27T00:00:00.000Z         -> 2026-08-27T00:00:00Z
+
+  AND THE FIX HAD A TRAP I HAD TO FIND BEFORE IT BIT. A variable-length
+  fraction cannot be compared as TEXT: ...00:00:00Z and
+  ...00:00:00.0000001Z compare Z against 0, so the whole second sorts
+  AFTER the instant a tenth of a microsecond later, and the range would
+  select the wrong side of that boundary while looking reasonable.
+  Fixed-width padding is not available either, because the fraction has
+  no bound. So comparison goes through an explicit ordering key --
+  fixed-width whole second, then canonical digits -- and the published
+  text is only ever an identity:
+    4227:def _export_ordering(canonical: str) -> tuple:
+    4228-	"""A key that compares two canonical instants CHRONOLOGICALLY.
+    4229-
+    4230-	The canonical text cannot be compared as a string, and the reason is worth
+    4231-	stating because it is not obvious: the fraction is variable-length, so
+
+  Its own case drives SELECTION rather than the key, because which Work
+  the operator gets is the question and the key is a detail:
+    test_a_bound_orders_correctly_across_the_fraction_boundary
+
+=== [P1] THE RENDERER OWNED PRESENCE BUT NOT TYPE
+
+  Presence is not ownership when the value goes on to mean something.
+  selected="false" is TRUTHY, so it rendered as selected; title=7
+  escaped as AttributeError from .encode() rather than as a Baton
+  refusal naming the member.
+
+  THE WHOLE FIXED SCHEMA, not the two values the review found. A pair of
+  one-off guards would have left every other member exactly as it was
+  and would have to be extended by whoever next noticed one:
+    4094:_MEMBER_TYPES = {
+    4095-	"id": (str, False), "local_id": (str, False), "team": (str, False),
+    4096-	"title": (str, False), "origin": (str, False),
+    4097-	"classification": (str, False), "priority": (str, False),
+    4098-	"status": (str, False), "phase": (str, True), "outcome": (str, True),
+    4099-	"created_seq": (int, False), "last_changed_at": (str, False),
+    4100-	"selected": (bool, False),
+    4101-	"relation": (str, False), "predicate": (str, False),
+    4102-	"source": (str, False), "target": (str, False),
+    4103-	"relation_seq": (int, False), "via_obligation": (int, True),
+    4104-}
+    4105-
+    4106-
+
+/tmp/w24755_ev3.sh: command substitution: line 63: syntax error near unexpected token `value'
+/tmp/w24755_ev3.sh: command substitution: line 63: `type(value) is expected'
+   rather than isinstance, because bool is a
+  subclass of int and created_seq=True would otherwise pass as an
+  integer -- a sequence that is a boolean.
+
+  AND IT IS IN THE ONE VALIDATOR, not beside it. The presence checks the
+  renderer used to make itself are GONE rather than kept alongside:
+  two boundaries checking the same thing is how they come to disagree,
+  which is the correction the first review already made once. The
+  renderer now calls validate_work_graph and composes.
+
+=== MEASURED BY REMOVAL
+
+  Six mutations added for the two findings. TWO came back UNSEEN and
+  both were mine rather than the fix's:
+    the fraction mutation swapped which spelling datetime parsed -- but the
+      canonical text is built from the separately-kept fraction either way,
+      so it was a no-op. Re-anchored on the line that BUILDS the text, which
+      is where the truncation actually happened.
+    
+    the bool-as-int mutation was invisible because my type-corruption table
+      offered one wrong value per type, and for an int member that value was
+      a string -- which fails an isinstance check too. Two wrong values per
+      type now, and the second one for int is True.
+
+             test_the_dot_branch_writes_once_and_only_a_whole_document
+    
+    all 47 mutations caught
+
+    source fingerprint before: 19e211214613adfe9954dbe9431390e20b44296a1421a6a74482b49d0f550690
+    source fingerprint after : 19e211214613adfe9954dbe9431390e20b44296a1421a6a74482b49d0f550690
+    IDENTICAL — every mutation was reverted.
+
+=== GATES
+    this Work        : 69 passed in 1.85s
+    v11 parallel     : 3135 passed, 188 warnings in 50.62s
+    v11 serial       : 54 passed, 3135 deselected, 1 warning in 129.92s (0:02:09)
+    ACP bridge       : 77 pass, 0 fail
+
+  Sixty-nine cases: 57 from the first round, 5 reviewer regressions
+  across two passes (all unmodified), 7 added for the two rounds of
+  fixes. Forty-seven mutations, all caught.

@@ -164,6 +164,13 @@ export function validateConfig(raw) {
     eventSocket,
     quarantineDir,
     dedupWindowMs: positiveInteger(raw.dedupWindowMs, 5000, "dedupWindowMs"),
+    // W11910 review [P1]: how long a readiness event whose participant
+    // already holds a claim waits at the queue head before this
+    // dispatcher asks the authority again. Slow enough that a long
+    // assignment does not spin the Baton CLI, fast enough that the
+    // moment a claim passes or closes the waiting offer is spent
+    // without a restart.
+    claimSlotRetryMs: positiveInteger(raw.claimSlotRetryMs, 15000, "claimSlotRetryMs"),
     maxEventBytes: positiveInteger(raw.maxEventBytes, 64 * 1024, "maxEventBytes", 1024),
     maxDetailsBytes: positiveInteger(raw.maxDetailsBytes, 48 * 1024, "maxDetailsBytes", 256),
     maxQueuePerTarget: positiveInteger(raw.maxQueuePerTarget, 100, "maxQueuePerTarget"),

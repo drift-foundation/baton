@@ -625,7 +625,27 @@ def _runtime_labels(attempt):
     so two participants' runtimes on one Work and generation were
     indistinguishable by label -- and the whole reconciliation below decides by
     comparing labels.
+
+    AND THE POLICY THE DELIVERY IS MADE UNDER. W6632 review [P1]: the resolved
+    identity is image, profile, policy and adapter, and reconciliation has to
+    be able to prove all four of a runtime it adopts. The engine reports the
+    image itself; the policy digest exists nowhere but here.
+
+    A CONSEQUENCE WORTH NAMING: `policy_digest` is nullable on the attempt row,
+    so an attempt recorded without one can no longer start a runtime. That is
+    the right answer rather than an accident -- a delivery whose policy this
+    manager cannot name exactly is one no later reconciliation can describe --
+    but it is a lifecycle rule this Job reached rather than one it owns, and it
+    is refused HERE with a message that says so instead of surfacing as a
+    digest complaint about `None` from two layers down.
     """
+    if attempt["policy_digest"] is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt['runtime_attempt_id'])} records no "
+            f"policy digest; a runtime is labelled with the policy its "
+            f"delivery is made under, and reconciliation after a restart has "
+            f"no other way to learn what this worker was started to obey")
     return documents.runtime_labels(
         runtime_attempt_id=attempt["runtime_attempt_id"],
         authority_uuid=attempt["authority_uuid"],
@@ -633,6 +653,7 @@ def _runtime_labels(attempt):
         participant=attempt["assignment_participant"],
         generation=attempt["assignment_generation"],
         profile_digest=attempt["profile_digest"],
+        policy_digest=attempt["policy_digest"],
         adapter_digest=attempt["adapter_digest"])
 
 

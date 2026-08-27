@@ -110,6 +110,8 @@ keeps the explicit config and participant identity established above.
     $BATON dispatch
     $BATON drain reason="host kernel upgrade"
     $BATON resume reason="upgrade complete"
+    $BATON work-graph
+    $BATON work-graph format=dot > work.dot
 
 **Protocol 11 uses `say`, not retired `send`.** A plain `say` discusses the
 Work; adding `request=` and `on=` creates one directed obligation. `pass` is a
@@ -786,6 +788,69 @@ write concurrently without fighting:
 - `PROGRESS.md` — **implementer-owned**, one writer.
 - `review-*.md` — append-only review evidence. Corrections append a dated
   marker; they never rewrite what a reviewer already said.
+
+## Exporting the Work graph
+
+`home`, `tree` and the dependency neighbourhood are bounded operator views:
+team-scoped, three containment levels, dependency-only, capped. They answer
+"what should I look at next". None of them answers "what does the whole graph
+contain right now", and you cannot build that answer by calling `links` in a
+loop — each call observes its own snapshot, so the result is a picture of a
+moment that never existed.
+
+`work-graph` is that answer. One read transaction, every typed relation, and a
+sequence naming the exact state it came from:
+
+    $BATON work-graph
+    $BATON work-graph format=dot > work.dot
+    $BATON work-graph format=dot status=all \
+        changed-from=2026-08-01T00:00:00Z changed-until=2026-09-01T00:00:00Z
+
+With no operands you get every team's OPEN Work as JSON. `format=dot` writes
+Graphviz DOT to stdout instead, which is the one command that does not emit the
+usual JSON envelope — so redirect it. A refusal still writes JSON to stderr,
+exits nonzero, and writes **nothing** to stdout: the whole document is built in
+memory first, so a failed export cannot leave a half-graph that happens to
+parse.
+
+**Baton emits text and never renders an image.** There is no bundled layout
+engine and no Graphviz dependency; `work-graph format=dot` works on a host that
+has never heard of Graphviz. Rendering, if you want it, is a separate tool on
+your own machine:
+
+    dot -Tsvg work.dot -o work.svg
+
+Four relations are exported, each pointing one fixed way:
+
+| relation | edge direction | predicate |
+| --- | --- | --- |
+| `dependency` | blocker → consumer | `blocks` |
+| `containment` | parent → child | `contains` |
+| `follow-up` | predecessor → successor | `followed_by` |
+| `duplicate` | rejected duplicate → canonical survivor | `duplicate_of` |
+
+Every edge spells its relation in its `label` and in `baton_*` attributes;
+nothing is carried by colour, shape or line style. The digraph is deliberately
+not `strict`, because one pair of Works can hold more than one relation and
+`strict` would silently merge them.
+
+**Scope selects, then keeps the far end of every edge it touches.** With
+`status=open`, a closed blocker of selected open Work stays in the export
+marked `scope=context` rather than being dropped — dropping it would leave a
+dangling edge, and promoting it would report closed Work as open. Context does
+not expand further, so one closed predecessor cannot drag an entire history
+chain into an open export.
+
+**`status=all` requires `changed-from` and `changed-until`.** Terminal history
+would otherwise bury the current graph. Both take timezone-bearing RFC 3339
+instants, the interval is half-open (`from` inclusive, `until` exclusive), and
+it filters on each Work's `last_changed_at`. The pair is optional for
+`status=open` and `status=closed`.
+
+The export is complete or it refuses: no page, depth, limit or truncation. Two
+exports of an unchanged authority are byte-identical, and identical for every
+authorized participant — nothing viewer-specific and no timestamp goes into the
+document — so a `.dot` file can be diffed and checksummed.
 
 ## Configuration changes
 

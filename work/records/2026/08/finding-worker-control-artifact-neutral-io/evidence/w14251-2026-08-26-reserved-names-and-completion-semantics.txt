@@ -1,0 +1,88 @@
+W14251 — third-review corrections. 2026-08-26.
+No repository state was mutated.
+
+=== 1. the three additive regressions, and the focused shipped gate
+$ PYTHONPATH=src python3 -m unittest test_frozen test_manifest_rules test_output test_secrets test_workspaces
+----------------------------------------------------------------------
+Ran 228 tests in 0.847s
+
+OK
+
+=== 2. [P1] the reserved manifest names, and where the rule lives
+The rule is SEMANTIC. Driven, with the code it produces:
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+OK
+
+It is NOT in the schema, deliberately: the review's own regression
+asserts integrity.path, a schema refusal carries integrity.schema and
+cannot name the rule, and this contract decides schema-first by design,
+so a schema reservation would make the semantic rule unreachable.
+
+=== 3. [P1] the shipped validator now carries completion semantics
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.003s
+
+OK
+
+=== 4. the record's own executable contract, with four new invalid vectors
+----------------------------------------------------------------------
+Ran 24 tests in 0.104s
+
+OK
+
+=== 5. the conformance suite, with §12 rule 15's identity relations
+cases: 123 {'control-success': 27, 'control-refusal': 48, 'invariant': 48}
+----------------------------------------------------------------------
+Ran 74 tests in 4.437s
+
+OK
+
+=== 6. [P1 ESCALATED] the receipt's binding, and what requiring it costs
+The rule: a receipt whose disposition is 'completed' MUST bind the
+worker envelope it validated. Applied, then measured:
+
+    tests/manager/test_intake.py         58   W6629
+    tests/manager/test_output.py         34   W6628
+    tests/manager/test_credentials.py     2   W6634
+                                         --
+                                         96 cases in three other Works
+
+The review's second option is unreachable inside 1.0:
+  $defs.version = {"major": {"const": 1}, "minor": {"const": 0}}
+  ^ minor is a const, so a minor-1 receipt cannot be expressed at all
+    without widening the version vocabulary.
+
+  Three ways forward are named in PROGRESS.md. The tree is left GREEN
+  with the member optional, and test_manifest_rules pins both what the
+  contract says today and that the question is open.
+
+=== 7. all four schema copies
+copies: 4 distinct digests: 1 | sha256: bc2675fb7fa0428c500c7450805e49e4e1e132901d610d4ed2c7622c7281f5f4
+
+=== 8. the aggregate gate
+ERROR: test_a_cleanup_exception_cannot_replace_an_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_cleanup_exception_cannot_replace_an_earlier_failure)
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+FAIL: test_a_started_runtime_with_an_invalid_identity_is_explicitly_unresolved (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_started_runtime_with_an_invalid_identity_is_explicitly_unresolved)
+FAIL: test_a_proved_failed_recovery_removes_its_stale_record (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_a_proved_failed_recovery_removes_its_stale_record)
+FAIL: test_a_refused_cleanup_is_attached_to_the_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_refused_cleanup_is_attached_to_the_earlier_failure)
+Ran 1406 tests in 793.300s
+FAILED (failures=9, errors=1, skipped=6)
+V12_STATUS=1
+
+All three of this review's additive regressions are GREEN and gone.
+None of the ten is this Work's:
+  - six are the long-standing boundary-inventory gaps;
+  - two are W6633's test_worker_image_build;
+  - two are additive regressions W6634's own review added to
+    test_credentials while this round ran.
+
+$ diff --check over the working tree
+DIFFCHECK_STATUS=0

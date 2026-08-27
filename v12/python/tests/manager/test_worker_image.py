@@ -19,20 +19,45 @@ unable to run is the failure mode this distribution is built against.
 """
 
 import ast
+import copy
 import io
 import json
+import os
 import pathlib
+import shutil
 import sys
 import unittest
 
 WORKER = (pathlib.Path(__file__).resolve().parents[3] / "worker")
 sys.path.insert(0, str(WORKER))
 
+# THE WORKER'S BYTECODE CACHE GOES BEFORE THE IMPORT, AND IT IS NOT HYGIENE.
+#
+# W19784 review [P1], 2026-08-27. `v12/worker/` is not a package this
+# distribution installs; it is a directory a mutation harness rewrites in
+# place, repeatedly, inside a single filesystem timestamp tick. CPython
+# invalidates a cached `.pyc` by comparing the source's mtime and size, and
+# both can be unchanged across two different sources written that fast -- so
+# the suite silently executed MUTATION-ERA CODE against restored source.
+#
+# What that cost was not abstract. The first round's own evidence reported
+# seven failures, listed five of them, and concluded there were two; five were
+# phantoms of a previous mutation. The review reproduced it and had to pass
+# `-B` by hand to see the real tree, which means the ordinary command could not
+# reproduce the gate. A transcript nobody can reproduce from the ordinary
+# command is not evidence.
+#
+# So the removal happens HERE, before the import, rather than in whichever
+# harness happens to be running: the suite cannot be run against a stale cache
+# even by a caller who has never heard of the harnesses. `-B` remains correct
+# and is now redundant instead of required.
+shutil.rmtree(WORKER / "__pycache__", ignore_errors=True)
+
 import baton_worker                                          # noqa: E402
 from baton_worker import (ANSWER_MEMBERS, COMMON_MEMBERS, MAX_FRAME,  # noqa
                           MAX_IDENTITY, OPERATIONS, POSTURES, PROTOCOL,
                           REQUEST_MEMBERS, Uncorrelated, WorkerFault,
-                          read_frame, serve, write_frame)
+                          check_answer, read_frame, serve, write_frame)
 from scripted_agent import ScriptedAgent                     # noqa: E402
 
 # THE TWO SESSIONS ARE DIFFERENT, and that is the topology rather than the
@@ -46,11 +71,139 @@ CONSENT = {"BATON_WORKER_POSTURE": "consent",
            "BATON_WORKER_SESSION": CONSENT_SESSION,
            "BATON_WORKER_CONTRACT": "do the thing",
            "BATON_WORKER_ROLE": "implementer"}
+# W14251, closed: THE TWO POSTURES CARRY THE SAME FOUR MEMBERS. The assignment,
+# the workspace and the output path are gone rather than renamed -- with two
+# fixed filesystem roots there is nothing left for them to say, and the
+# assignment itself arrives as `/input/input.json`.
 EXECUTION = {**CONSENT, "BATON_WORKER_POSTURE": "execution",
-             "BATON_WORKER_SESSION": EXECUTION_SESSION,
-             "BATON_WORKER_ASSIGNMENT": "assignment-1",
-             "BATON_WORKER_WORKSPACE": "/workspace",
-             "BATON_WORKER_OUTPUT": "/workspace/out"}
+             "BATON_WORKER_SESSION": EXECUTION_SESSION}
+
+# The WHOLE frozen `outputDescriptor`, constraints included. W6633 eleventh
+# review [P1]: this used to omit `constraints`, and so did the worker's own
+# member list -- so the ceilings a declaration states were not merely
+# unenforced, they were not required to be present, and every case here was
+# driving a declaration the contract would refuse.
+UNBOUNDED = {"max_bytes": 1048576, "max_entries": 100,
+             "allowed_media_types": ["text/plain"],
+             "link_policy": "forbid", "validator_digest": None}
+DECLARATION = {"name": "proposal", "type": "directory-result",
+               "path": "out", "required": True,
+               "constraints": dict(UNBOUNDED)}
+WORK_REF = {"authority_uuid": "0123456789abcdef0123456789abcdef",
+            "work_id": "01234567-W1"}
+ASSIGNMENT_REF = {"work_ref": WORK_REF,
+                  "participant": "baton.claude", "generation": 1}
+POLICY = "sha256:" + "a" * 64
+PROFILE = "sha256:" + "b" * 64
+
+# The canonical input manifest the contract record publishes. A fixture I wrote
+# by hand is a document built to pass my own reader; this one is not.
+VECTORS = (pathlib.Path(__file__).resolve().parents[4] / "work" / "records"
+           / "2026" / "08" / "finding-v12-isolated-agent-workers" / "findings"
+           / "finding-v12-worker-contract" / "findings"
+           / "finding-worker-control-api-manifests" / "evidence"
+           / "vectors.json")
+
+
+def canonical_input(declarations):
+    """The published input manifest, carrying THIS fixture's declarations.
+
+    W19784: the previous fixture wrote `{"assignment_ref": ..., "outputs":
+    ...}` -- a document the frozen `inputManifest` schema forbids, invented to
+    give the worker an identity the real document does not carry. That fixture
+    is exactly what hid the defect this Work fixes, so it is gone rather than
+    extended: the input side is now the record's own vector, and the identity
+    comes from the second document beside it.
+    """
+    corpus = json.loads(VECTORS.read_text(encoding="utf-8"))
+    manifest = next(one["document"] for one in corpus["valid"]
+                    if one["name"] ==
+                    "input-manifest-directory-and-declared-output")
+    manifest = dict(manifest, work_ref=dict(WORK_REF), outputs=declarations,
+                    policy_digest=POLICY, runtime_profile_digest=PROFILE)
+    manifest.pop("manifest_digest", None)
+    manifest["manifest_digest"] = baton_worker.digest(manifest)
+    return manifest
+
+
+def _resealed_document(document):
+    """A document whose own digest describes its own (edited) bytes, so what
+    refuses it is the rule under test rather than the digest rule."""
+    document.pop("manifest_digest", None)
+    document["manifest_digest"] = baton_worker.digest(document)
+    return document
+
+
+def delivered_assignment(given, **spoiled):
+    """The assignment manifest the manager materializes beside it.
+
+    Minted against THAT input manifest's digest, which is what makes the pair
+    one delivery rather than two halves of two.
+    """
+    document = {"version": given["version"], "manifest_id": "assignment-1",
+                "created_at": given["created_at"], "extensions": {},
+                "schema": "baton.worker-manifest/assignment",
+                "assignment_ref": copy.deepcopy(ASSIGNMENT_REF),
+                "assignment_contract": given["assignment_contract"],
+                "offer_id": "offer-1", "runtime_attempt_id": "attempt-1",
+                "input_manifest_digest": given["manifest_digest"],
+                "policy_digest": given["policy_digest"],
+                "runtime_profile_digest": given["runtime_profile_digest"],
+                "claim_receipt_digest": "sha256:" + "c" * 64,
+                "claim_event_seq": 7,
+                "activated_at": given["created_at"]}
+    document.update(spoiled)
+    document.pop("manifest_digest", None)
+    document["manifest_digest"] = baton_worker.digest(document)
+    return document
+
+
+# A fixture sentinel: "this document is not delivered at all", told apart
+# from "no override given" so a case can stage a HALF delivery.
+DELETE = object()
+
+
+def staged(case, declarations=None, roots=None, assignment=None,
+           input_manifest=None):
+    """A read-only `/input/` and a writable `/output/`, for a direct run.
+
+    THE ROOTS ARE PATCHED ON THE MODULE RATHER THAN PASSED IN, and that is the
+    contract's own shape showing through: they are CONSTANTS, so there is no
+    operand for a fixture to supply. A test may reach into the module; a
+    caller may not reach into the contract.
+
+    W19784: `/input/` now carries TWO manager-authored documents. `assignment`
+    and `input_manifest` let a case deliver a deliberately mis-composed pair;
+    `assignment=DELETE` leaves the second document out entirely.
+    """
+    import tempfile
+    from baton_worker import ASSIGNMENT_MANIFEST, INPUT_MANIFEST
+    import baton_worker
+    import scripted_agent
+    home = tempfile.mkdtemp(prefix="v12-worker-io-")
+    inputs = os.path.join(home, "input")
+    outputs = os.path.join(home, "output")
+    os.makedirs(inputs)
+    os.makedirs(outputs)
+    declarations = [dict(DECLARATION)] if declarations is None else declarations
+    given = canonical_input(declarations) if input_manifest is None \
+        else input_manifest
+    if assignment is None:
+        assignment = delivered_assignment(given)
+    for name, document in ((INPUT_MANIFEST, given),
+                           (ASSIGNMENT_MANIFEST, assignment)):
+        if document is DELETE:
+            continue
+        with open(os.path.join(inputs, name), "w", encoding="utf-8") as handle:
+            json.dump(document, handle)
+    for module, name, value in ((baton_worker, "INPUT_ROOT", inputs),
+                                (baton_worker, "OUTPUT_ROOT", outputs),
+                                (scripted_agent, "OUTPUT_ROOT", outputs)):
+        held = getattr(module, name)
+        setattr(module, name, value)
+        case.addCleanup(setattr, module, name, held)
+    case.addCleanup(shutil.rmtree, home, True)
+    return inputs, outputs
 
 _minted = iter(range(1, 10_000))
 
@@ -183,11 +336,12 @@ class TheEnvelopeBindsEveryFrame(unittest.TestCase):
         """"It failed, so you may send it again" is exactly the reasoning a
         replay fence exists to refuse: this program cannot know whether the
         first attempt's side effects happened."""
+        staged(self)
         class Angry:
             def work(self, seen, request):
                 raise ZeroDivisionError("after doing half of it")
 
-        request = execution("work", task="build")
+        request = execution("work")
         status, given = run(EXECUTION, request, dict(request), agent=Angry())
         self.assertEqual(given[0]["code"], "agent")
         self.assertEqual(given[1]["code"], "replay")
@@ -197,9 +351,15 @@ class TheEnvelopeBindsEveryFrame(unittest.TestCase):
         where it does: a request that never reached the agent had no effect to
         be uncertain about, so a sender that corrects its frame may use the id
         it never spent."""
-        broken = execution("work")
-        status, given = run(EXECUTION, dict(broken),
-                            {**broken, "task": "build"})
+        staged(self)
+        # W19784, migrating W6633's leftover: this used to send the CLEAN frame
+        # first and the broken one second, which worked only while `work` had
+        # an operand of its own to omit. Under the artifact-neutral request the
+        # clean frame succeeds, so the broken one has to come first for the
+        # rule to be about anything.
+        request = execution("work")
+        status, given = run(EXECUTION, {**request, "invented": "build"},
+                            dict(request))
         self.assertEqual(given[0]["code"], "protocol")
         self.assertIs(given[1]["ok"], True)
 
@@ -222,24 +382,31 @@ class TheClosureIsPerOperation(unittest.TestCase):
     def test_each_operation_names_exactly_its_own_members(self):
         self.assertEqual(REQUEST_MEMBERS["describe"], COMMON_MEMBERS)
         self.assertEqual(REQUEST_MEMBERS["consider"], COMMON_MEMBERS)
-        self.assertEqual(REQUEST_MEMBERS["work"], COMMON_MEMBERS + ("task",))
+        self.assertEqual(REQUEST_MEMBERS["work"], COMMON_MEMBERS)
 
     def test_describe_does_not_accept_another_operations_member(self):
-        status, given = run(EXECUTION, execution("describe", task="build"))
+        status, given = run(EXECUTION, execution("describe", invented="x"))
         self.assertIs(given[0]["ok"], False)
         self.assertEqual(given[0]["code"], "protocol")
-        self.assertIn("unexpected task", given[0]["message"])
+        self.assertIn("unexpected invented", given[0]["message"])
 
     def test_an_unknown_member_is_refused_rather_than_ignored(self):
         status, given = run(CONSENT, consent("consider", assignment="a-1"))
         self.assertEqual(given[0]["code"], "protocol")
         self.assertIn("assignment", given[0]["message"])
 
-    def test_a_missing_operation_member_is_named(self):
+    def test_a_member_no_operation_names_is_named(self):
+        """W19784, migrating W6633's leftover. This asserted "missing task",
+        and `work` no longer takes a `task` -- W14251 closed every operation to
+        the common envelope. A test of a member that no longer exists asserts
+        nothing, so what it checks now is the surviving half of the same rule:
+        the refusal NAMES what was wrong rather than saying the frame was bad.
+        """
+        staged(self)
         request = execution("work")
-        status, given = run(EXECUTION, request)
+        status, given = run(EXECUTION, {**request, "task": "build"})
         self.assertEqual(given[0]["code"], "protocol")
-        self.assertIn("missing task", given[0]["message"])
+        self.assertIn("unexpected task", given[0]["message"])
 
     def test_an_unknown_operation_is_refused_before_anything_else(self):
         status, given = run(CONSENT, consent("meditate"))
@@ -263,7 +430,7 @@ class TheAnswerIsValidatedBeforeItIsFramed(unittest.TestCase):
         request = ask(operation,
                       CONSENT_SESSION if operation == "consider"
                       else EXECUTION_SESSION,
-                      **({"task": "build"} if operation == "work" else {}))
+                      )
         status, given = run(environment or CONSENT, request, agent=Fixed())
         return given[0]
 
@@ -273,7 +440,7 @@ class TheAnswerIsValidatedBeforeItIsFramed(unittest.TestCase):
         self.assertEqual(ANSWER_MEMBERS["consider"],
                          ("contract_digest", "decision", "reason"))
         self.assertEqual(ANSWER_MEMBERS["work"],
-                         ("disposition", "workspace", "recap"))
+                         ("disposition", "outputs", "recap"))
 
     def test_an_answer_with_an_extra_member_never_becomes_a_frame(self):
         given = self.answering({"contract_digest": "sha256:x",
@@ -293,22 +460,812 @@ class TheAnswerIsValidatedBeforeItIsFramed(unittest.TestCase):
                                 "reason": "fine"})
         self.assertEqual(given["code"], "answer")
 
-    def test_a_workspace_may_be_null_and_nothing_else_may(self):
-        """Null is how a posture with no workspace SAYS so; absent and null are
-        different documents and only one of them answers the question."""
-        given = self.answering({"disposition": "completed", "workspace": None,
-                                "recap": "done"}, operation="work",
-                               environment=EXECUTION)
-        self.assertIs(given["ok"], True)
-        given = self.answering({"disposition": None, "workspace": None,
-                                "recap": "done"}, operation="work",
-                               environment=EXECUTION)
-        self.assertEqual(given["code"], "answer")
+    def test_an_agents_output_answer_is_held_against_the_declarations(self):
+        """W14251, closed. `workspace` is gone, and what replaces it is not a
+        looser member -- it is a stricter one. The agent says which declared
+        outputs it produced; the worker fills the type and the path from the
+        DECLARATION and measures the bytes itself, so an agent cannot rename an
+        output, move it, invent one, or describe material it did not write."""
+        staged(self)
+        for what, answer in (
+                ("an invented output",
+                 {"disposition": "completed", "recap": "done",
+                  "outputs": [{"name": "invented", "status": "present",
+                               "result_metadata": {}}]}),
+                ("a declaration left unanswered",
+                 {"disposition": "completed", "recap": "done",
+                  "outputs": []}),
+                ("a required output answered missing",
+                 {"disposition": "completed", "recap": "done",
+                  "outputs": [{"name": "proposal",
+                               "status": "missing-optional",
+                               "result_metadata": {}}]}),
+                ("a member the answer does not name",
+                 {"disposition": "completed", "recap": "done",
+                  "outputs": [{"name": "proposal", "status": "present",
+                               "result_metadata": {}, "path": "/elsewhere"}]}),
+                ("a disposition this contract never had",
+                 {"disposition": None, "recap": "done", "outputs": []})):
+            with self.subTest(what=what):
+                given = self.answering(answer, operation="work",
+                                       environment=EXECUTION)
+                self.assertIs(given["ok"], False)
+                # `agent` rather than `answer`: these refusals arise on the
+                # agent path, which the channel already reports as such. What
+                # matters is that the frame is a correlated refusal rather
+                # than a published envelope -- the code is the channel's own
+                # classification of where it happened.
+                self.assertIn(given["code"], ("agent", "answer"))
 
     def test_the_scripted_work_answer_is_exactly_the_pinned_set(self):
-        status, given = run(EXECUTION, execution("work", task="build"))
+        staged(self)
+        status, given = run(EXECUTION, execution("work"))
         self.assertEqual(sorted(given[0]["answer"]),
                          sorted(ANSWER_MEMBERS["work"]))
+
+    def test_the_correlated_work_answer_names_outputs_only(self):
+        """The completion envelope carries workerOutput documents; the framed
+        answer carries only their bounded names. They are distinct surfaces."""
+        staged(self)
+        status, given = run(EXECUTION, execution("work"))
+        self.assertIs(given[0]["ok"], True)
+        self.assertEqual(given[0]["answer"]["outputs"], ["proposal"])
+
+
+class TheArtifactNeutralInputIsTheFrozenManifest(unittest.TestCase):
+
+    def test_a_contract_valid_input_manifest_reaches_the_agent(self):
+        """The reference worker consumes the contract's actual inputManifest.
+
+        W19784 CLOSED THIS. The case used to overwrite the fixture's document
+        with the published vector, because the fixture wrote a test-only
+        `{"assignment_ref": ..., "outputs": ...}` that the frozen input schema
+        forbids -- and the worker read the identity out of it. That was the
+        workaround the finding names. `staged` now delivers the record's own
+        input manifest AND the assignment manifest beside it, so this case
+        needs no overwrite: the ordinary fixture IS the contract-valid pair.
+        """
+        inputs, _outputs = staged(self)
+        with open(os.path.join(inputs, "input.json"), encoding="utf-8") as one:
+            self.assertEqual(json.load(one)["schema"],
+                             "baton.worker-manifest/input")
+
+        class Reached:
+            def work(self, seen, declared):
+                raise ZeroDivisionError("the valid input reached the agent")
+
+        status, given = run(EXECUTION, execution("work"), agent=Reached())
+        self.assertEqual(given[0]["code"], "agent")
+
+    def test_declared_output_limits_hold_before_completion_publication(self):
+        """Constraints are assignment inputs, not manager-only commentary.
+
+        The reference agent writes more than one byte. A declaration with a
+        one-byte ceiling must prevent both a success frame and publication of
+        the completion signal.
+        """
+        limited = {**DECLARATION,
+                   "constraints": {"max_bytes": 1, "max_entries": 1,
+                                   "allowed_media_types": ["text/plain"],
+                                   "link_policy": "forbid",
+                                   "validator_digest": None}}
+        _inputs, outputs = staged(self, declarations=[limited])
+
+        status, given = run(EXECUTION, execution("work"))
+        self.assertIs(given[0]["ok"], False)
+        self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
+
+    def test_a_declared_output_path_cannot_escape_the_output_root(self):
+        """The worker consumes the path, so it owns the relative-path check.
+
+        A manager-side validation does not make an unsafe join safe inside the
+        container. The scripted agent must not write outside `/output`, and a
+        completion manifest must not make such material look authorized.
+        """
+        escaped = {**DECLARATION, "path": "../tmp/escaped",
+                   "constraints": {"max_bytes": 1024, "max_entries": 1,
+                                   "allowed_media_types": ["text/plain"],
+                                   "link_policy": "forbid",
+                                   "validator_digest": None}}
+        _inputs, outputs = staged(self, declarations=[escaped])
+
+        status, given = run(EXECUTION, execution("work"))
+        self.assertFalse(os.path.exists(os.path.join(
+            os.path.dirname(outputs), "tmp", "escaped", "result.txt")))
+        self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
+        self.assertIs(given[0]["ok"], False)
+
+
+class ADeclarationIsProvedBeforeAnAgentIsDispatched(unittest.TestCase):
+    """W6633 eleventh review [P1], and the order is the whole content.
+
+    The worker used to check that four member names were present and hand the
+    declarations straight to the agent, which wrote under
+    `os.path.join(OUTPUT_ROOT, path)`. Everything below now runs BEFORE
+    `agent.work`, so a declaration this worker cannot honour never becomes
+    bytes anywhere -- and the cases prove that by watching for the agent.
+    """
+
+    def refusing(self, declaration, expect_agent=False):
+        reached = []
+
+        class Watching:
+            def work(self, seen, declared):
+                reached.append(True)
+                raise AssertionError("an unproved declaration reached the agent")
+
+        _inputs, outputs = staged(self, declarations=declaration)
+        status, given = run(EXECUTION, execution("work"), agent=Watching())
+        self.assertIs(given[0]["ok"], False)
+        self.assertEqual(given[0]["code"], "input")
+        self.assertEqual(reached, [])
+        self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
+        return given[0]
+
+    def test_a_descriptor_that_is_not_the_frozen_shape_refuses(self):
+        """The closed set is the contract's own. A member missing is a
+        declaration this worker would have to guess the rest of; a member
+        extra is one it would be ignoring."""
+        for what, spoiled in (
+                ("constraints missing",
+                 {name: value for name, value in DECLARATION.items()
+                  if name != "constraints"}),
+                ("required missing",
+                 {name: value for name, value in DECLARATION.items()
+                  if name != "required"}),
+                ("a member the descriptor does not name",
+                 {**DECLARATION, "destination": "elsewhere"})):
+            with self.subTest(what=what):
+                self.refusing([spoiled])
+
+    def test_constraints_that_are_not_the_frozen_shape_refuse(self):
+        for what, spoiled in (
+                ("a ceiling missing",
+                 {name: value for name, value in UNBOUNDED.items()
+                  if name != "max_bytes"}),
+                ("a member the constraints do not name",
+                 {**UNBOUNDED, "max_depth": 3}),
+                ("a ceiling that is not a whole number",
+                 {**UNBOUNDED, "max_entries": "many"}),
+                ("a negative ceiling", {**UNBOUNDED, "max_bytes": -1})):
+            with self.subTest(what=what):
+                self.refusing([{**DECLARATION, "constraints": spoiled}])
+
+    def test_descriptor_values_are_the_frozen_types_and_bounds(self):
+        """Deriving member names is not validation of the members' values.
+
+        These are all outside the shipped schema. Each value is consumed or
+        copied by this worker, so none may reach the agent on the strength of
+        the manager having validated an earlier view of the input root.
+        """
+        for what, spoiled in (
+                ("a numeric name", {**DECLARATION, "name": 7}),
+                ("a numeric type", {**DECLARATION, "type": 7}),
+                ("a textual required flag",
+                 {**DECLARATION, "required": "true"}),
+                ("media types that are not a list",
+                 {**DECLARATION, "constraints": {
+                     **UNBOUNDED, "allowed_media_types": "text/plain"}}),
+                ("a link policy outside the frozen const",
+                 {**DECLARATION, "constraints": {
+                     **UNBOUNDED, "link_policy": "allow"}}),
+                ("an entry ceiling above the frozen maximum",
+                 {**DECLARATION, "constraints": {
+                     **UNBOUNDED, "max_entries": 100001}}),
+                ("a byte ceiling above the frozen maximum",
+                 {**DECLARATION, "constraints": {
+                     **UNBOUNDED, "max_bytes": 9007199254740992}})):
+            with self.subTest(what=what):
+                self.refusing([spoiled])
+
+    def test_each_frozen_keyword_can_refuse_on_its_own(self):
+        """W6633 twelfth review: prove each guard fails INDEPENDENTLY.
+
+        Every value below is chosen so that exactly ONE keyword rejects it and
+        the others accept it. `name` of 161 characters still matches the
+        `opaqueId` pattern, so only `maxLength` sees it; a two-character media
+        type has no pattern at all, so only `minLength` does; and `True` is an
+        `int` in Python and is neither an integer in JSON nor caught by the
+        bounds, so only the type rule tells it apart from the number one.
+        """
+        for what, spoiled in (
+                ("a name longer than the frozen maximum",
+                 {**DECLARATION, "name": "a" * 161}),
+                ("a media type shorter than the frozen minimum",
+                 {**DECLARATION, "constraints": {
+                     **UNBOUNDED, "allowed_media_types": ["ab"]}}),
+                ("a media type longer than the frozen maximum",
+                 {**DECLARATION, "constraints": {
+                     **UNBOUNDED, "allowed_media_types": ["x" * 161]}}),
+                ("a media type that is not text",
+                 {**DECLARATION, "constraints": {
+                     **UNBOUNDED, "allowed_media_types": [7]}}),
+                ("media types that repeat",
+                 {**DECLARATION, "constraints": {
+                     **UNBOUNDED,
+                     "allowed_media_types": ["text/plain", "text/plain"]}}),
+                ("a boolean where a ceiling belongs",
+                 {**DECLARATION, "constraints": {
+                     **UNBOUNDED, "max_entries": True}}),
+                ("a validator digest that is neither a digest nor null",
+                 {**DECLARATION, "constraints": {
+                     **UNBOUNDED, "validator_digest": 7}})):
+            with self.subTest(what=what):
+                self.refusing([spoiled])
+
+    def test_a_regular_file_link_is_refused_too(self):
+        """The other half of `link_policy: forbid`. The review's case covers a
+        link to a DIRECTORY, which `os.walk` lists separately; this is the one
+        that appears in `files`, and the two are refused by two different
+        lines."""
+        class Linked:
+            def work(self, seen, declared):
+                place = os.path.join(baton_worker.OUTPUT_ROOT, "out")
+                os.makedirs(place)
+                target = os.path.join(place, "real.txt")
+                with open(target, "w", encoding="utf-8") as handle:
+                    handle.write("real\n")
+                os.symlink(target, os.path.join(place, "linked.txt"))
+                return {"disposition": "completed", "recap": "linked",
+                        "outputs": [{"name": "proposal", "status": "present",
+                                     "result_metadata": {}}]}
+
+        _inputs, outputs = staged(self)
+        status, given = run(EXECUTION, execution("work"), agent=Linked())
+        self.assertIs(given[0]["ok"], False)
+        self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
+
+    def test_a_keyword_this_worker_does_not_implement_is_a_fault(self):
+        """THE PROPERTY THAT KEEPS THIS FROM BECOMING A PARAPHRASE AGAIN.
+
+        `_held` is a closed, bounded reader of the keywords these two frozen
+        definitions actually use -- not a JSON Schema engine. If a later
+        version of them uses a keyword it does not implement, it must REFUSE
+        rather than pass silently over it: skipping one is exactly how a
+        derived check quietly becomes a weaker one.
+        """
+        frozen = baton_worker._frozen_contract()
+        with self.assertRaises(WorkerFault) as caught:
+            baton_worker._held(frozen, {"type": "string", "format": "email"},
+                               "someone@example.invalid", "a probe value")
+        self.assertIn("format", caught.exception.message)
+        # And a type it does not implement is the same answer.
+        with self.assertRaises(WorkerFault):
+            baton_worker._held(frozen, {"type": "number"}, 1.5, "a probe value")
+
+    def test_a_value_matching_no_frozen_branch_is_refused(self):
+        """`validator_digest` is `oneOf` a digest or null, and this is the
+        branch where it is NEITHER.
+
+        Exercised directly rather than through a declaration, and the reason
+        is a measurement: `_limits` refuses every non-null validator digest
+        immediately afterwards, so a declaration carrying `7` is refused
+        whether this branch fires or not. A case that cannot fail for the
+        reason it names is not evidence about that reason.
+        """
+        frozen = baton_worker._frozen_contract()
+        rule = frozen["$defs"]["outputConstraints"]["properties"][
+            "validator_digest"]
+        self.assertIn("oneOf", rule)
+        self.assertIsNone(baton_worker._held(frozen, rule, None, "a probe"))
+        digest = "sha256:" + "b" * 64
+        self.assertEqual(baton_worker._held(frozen, rule, digest, "a probe"),
+                         digest)
+        for neither in (7, "not-a-digest", ["sha256:" + "b" * 64]):
+            with self.subTest(value=neither):
+                with self.assertRaises(WorkerFault) as caught:
+                    baton_worker._held(frozen, rule, neither, "a probe")
+                self.assertIn("none of its frozen forms",
+                              caught.exception.message)
+
+    def test_a_spelling_the_grammar_refuses_never_reaches_the_agent(self):
+        """SEPARATED FROM CONTAINMENT ON PURPOSE. Each of these stays INSIDE
+        the output root once resolved, so containment would accept every one
+        of them -- what refuses is the frozen `relativePath` grammar, which is
+        about the spelling and not about where it lands."""
+        # `out/nested/` is DELIBERATELY ABSENT: the frozen grammar accepts a
+        # trailing separator, and inventing a stricter rule here would be the
+        # paraphrase mistake W19784's third review is the standing lesson
+        # about. The contract is the authority for what the spelling may be.
+        for path in ("out/./nested", "out//nested", "out/nested/.",
+                     "", "out\\nested"):
+            with self.subTest(path=path):
+                self.refusing([{**DECLARATION, "path": path}])
+
+    def test_a_path_that_resolves_out_of_the_root_never_reaches_the_agent(
+            self):
+        """AND SEPARATED THE OTHER WAY. This spelling is perfectly canonical
+        -- the grammar accepts it -- and it resolves outside the root anyway,
+        because a component of it is a link. The grammar is about text; only
+        resolution sees this."""
+        inputs, outputs = staged(self)
+        elsewhere = os.path.join(os.path.dirname(outputs), "elsewhere")
+        os.makedirs(elsewhere)
+        os.symlink(elsewhere, os.path.join(outputs, "escape"))
+        given = self.pointed(inputs, outputs, "escape/inside")
+        self.assertIs(given[0]["ok"], False)
+        self.assertEqual(given[0]["code"], "input")
+        self.assertFalse(os.path.exists(os.path.join(elsewhere, "inside")))
+
+    def pointed(self, inputs, outputs, path):
+        """Re-stage the input manifest in an ALREADY staged root, so a case
+        can plant filesystem state first and then declare against it."""
+        given = canonical_input([{**DECLARATION, "path": path}])
+        assignment = delivered_assignment(given)
+        for name, document in (("input.json", given),
+                               ("assignment.json", assignment)):
+            with open(os.path.join(inputs, name), "w",
+                      encoding="utf-8") as handle:
+                json.dump(document, handle)
+
+        class Watching:
+            def work(self, seen, declared):
+                raise AssertionError("an unproved declaration reached the agent")
+
+        status, seen = run(EXECUTION, execution("work"), agent=Watching())
+        return seen
+
+    def test_the_output_manifest_name_is_reserved(self):
+        """`output.json` is this root's protocol document, and its presence
+        under its final name is the completion signal. A declared output there
+        would have the agent writing the signal."""
+        for path in ("output.json", "output.json/tree"):
+            with self.subTest(path=path):
+                self.refusing([{**DECLARATION, "path": path}])
+
+    def test_one_name_is_declared_once(self):
+        self.refusing([DECLARATION, {**DECLARATION, "path": "other"}])
+
+    def test_two_declarations_cannot_name_one_tree(self):
+        """§7.2: the same bytes under two names are two artifacts with two
+        identities, and retention would decide twice about material that is
+        once."""
+        for what, second in (
+                ("the same tree", {"name": "twin", "path": "out"}),
+                ("one inside the other",
+                 {"name": "twin", "path": "out/nested"})):
+            with self.subTest(what=what):
+                self.refusing([DECLARATION, {**DECLARATION, **second}])
+
+    def test_a_stated_validator_digest_is_refused_rather_than_ignored(self):
+        """FAIL-CLOSED, not unimplemented. §7.2 makes `type` opaque and the
+        manager never branches on it, so a worker running a type-specific
+        validator would be branching on exactly that -- and nothing else in
+        1.0 runs one either. Publishing a result while ignoring a constraint
+        the manager wrote down is the thing this refuses."""
+        stated = {**UNBOUNDED, "validator_digest": "sha256:" + "b" * 64}
+        self.refusing([{**DECLARATION, "constraints": stated}])
+
+    def test_the_entry_ceiling_refuses_before_publication(self):
+        """The scripted agent writes one file per declared output, so a
+        zero-entry ceiling is crossed by the first one."""
+        bounded = {**UNBOUNDED, "max_entries": 0}
+        _inputs, outputs = staged(
+            self, declarations=[{**DECLARATION, "constraints": bounded}])
+        status, given = run(EXECUTION, execution("work"))
+        self.assertIs(given[0]["ok"], False)
+        self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
+
+    def test_a_directory_link_is_not_silently_omitted_from_measurement(self):
+        """`os.walk(..., followlinks=False)` lists a directory link in
+        `directories` and then skips it. Ignoring the link is not enforcing
+        the frozen `link_policy: forbid`; the completion manifest would claim
+        an empty tree while the declared tree still contains a link.
+        """
+        class Linked:
+            def work(self, seen, declared):
+                place = os.path.join(baton_worker.OUTPUT_ROOT, "out")
+                os.makedirs(place)
+                os.symlink(baton_worker.OUTPUT_ROOT,
+                           os.path.join(place, "linked-directory"))
+                return {"disposition": "completed", "recap": "linked",
+                        "outputs": [{"name": "proposal", "status": "present",
+                                     "result_metadata": {}}]}
+
+        _inputs, outputs = staged(self)
+        status, given = run(EXECUTION, execution("work"), agent=Linked())
+        self.assertIs(given[0]["ok"], False)
+        self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
+
+
+class TheFramedAnswerIsNotTheCompletionEnvelope(unittest.TestCase):
+    """W6633 eleventh review [P1]. Two surfaces carrying different things.
+
+    The completion envelope is the durable document and holds the whole record
+    for each output. The framed answer is the correlated reply on the
+    worker-entry channel and carries the bounded NAMES of what was produced.
+    They used to carry the same records, so the manager received one document
+    twice by two routes -- one of them the transport it is supposed to read
+    without interpreting.
+    """
+
+    def test_the_rule_has_no_exemption_for_outputs(self):
+        """`check_answer` is a boundary and is exercised as one. The member
+        used to be skipped here on the reasoning that `answered` had already
+        built it -- which was about the OTHER document."""
+        record = {"name": "proposal", "type": "directory-result",
+                  "path": "out", "status": "present",
+                  "content_manifest": None, "result_metadata": {}}
+        with self.assertRaises(WorkerFault) as caught:
+            check_answer("work", {"disposition": "completed",
+                                  "outputs": [record], "recap": "done"})
+        self.assertEqual(caught.exception.code, "answer")
+
+    def test_an_entry_wider_than_a_frame_is_not_bounded_text(self):
+        """A list of unbounded strings is unbounded text with extra steps."""
+        with self.assertRaises(WorkerFault):
+            check_answer("work", {"disposition": "completed",
+                                  "outputs": ["x" * (MAX_FRAME + 1)],
+                                  "recap": "done"})
+
+    def test_a_missing_optional_output_is_not_named_as_produced(self):
+        """The member is what was PRODUCED. An output answered
+        `missing-optional` exists in the envelope with that status and is not
+        in this list."""
+        optional = {**DECLARATION, "name": "extra", "path": "extra",
+                    "required": False}
+
+        class Partial:
+            def work(self, seen, declared):
+                # It produces one and not the other, and it WRITES the one it
+                # claims: the worker measures what is there rather than
+                # believing the answer, so an agent that said `present` and
+                # wrote nothing is refused before this case could observe
+                # anything about naming.
+                place = os.path.join(baton_worker.OUTPUT_ROOT, "out")
+                os.makedirs(place, exist_ok=True)
+                with open(os.path.join(place, "result.txt"), "w",
+                          encoding="utf-8") as handle:
+                    handle.write("produced\n")
+                return {"disposition": "completed", "recap": "done",
+                        "outputs": [{"name": "proposal", "status": "present",
+                                     "result_metadata": {}},
+                                    {"name": "extra",
+                                     "status": "missing-optional",
+                                     "result_metadata": {}}]}
+
+        _inputs, outputs = staged(self,
+                                  declarations=[dict(DECLARATION), optional])
+        status, given = run(EXECUTION, execution("work"), agent=Partial())
+        self.assertIs(given[0]["ok"], True)
+        self.assertEqual(given[0]["answer"]["outputs"], ["proposal"])
+        with open(os.path.join(outputs, "output.json"),
+                  encoding="utf-8") as one:
+            published = json.load(one)
+        self.assertEqual(sorted(one["name"] for one in published["outputs"]),
+                         ["extra", "proposal"])
+
+
+class TheGateCannotRunAgainstStaleBytecode(unittest.TestCase):
+    """W19784 review [P1], 2026-08-27.
+
+    The defect this answers was in the EVIDENCE rather than in the product,
+    which is why it needs a case rather than a note. `v12/worker/` is rewritten
+    in place by the mutation harnesses, faster than CPython's mtime-and-size
+    invalidation can distinguish, so the ordinary command executed a previous
+    mutation's bytecode against restored source -- and the transcript that
+    produced was wrong in a way that read as a real result.
+    """
+
+    def test_the_cache_is_removed_before_the_worker_is_imported(self):
+        """Ordering is the whole content: a removal after the import would
+        leave the stale module already loaded."""
+        source = pathlib.Path(__file__).read_text(encoding="utf-8")
+        removal = source.index('shutil.rmtree(WORKER / "__pycache__"')
+        self.assertLess(removal, source.index("\nimport baton_worker"),
+                        "the cache is dropped after the worker is imported")
+
+    def test_the_module_under_test_is_the_file_on_disk(self):
+        """Not that a cache is absent -- that what this suite has loaded IS the
+        current source. A future change that moved the removal, or a runner
+        that imported the worker first, would leave this failing rather than
+        quietly measuring a different program."""
+        loaded = pathlib.Path(baton_worker.__file__).resolve()
+        self.assertEqual(loaded, (WORKER / "baton_worker.py").resolve())
+        current = ast.parse(loaded.read_text(encoding="utf-8"))
+        defined = {node.name for node in current.body
+                   if isinstance(node, (ast.FunctionDef, ast.ClassDef))}
+        for name in defined:
+            with self.subTest(name=name):
+                self.assertTrue(
+                    hasattr(baton_worker, name),
+                    f"{name} is in the source and not in the loaded module; "
+                    f"this gate is running stale bytecode")
+
+
+class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
+    """W19784, approved 2026-08-26.
+
+    THE DEFECT. `completionManifest` requires the exact full `assignment_ref`
+    -- Work reference, participant AND authority generation. `inputManifest` is
+    minted before any claim exists and carries no generation; the `work` frame
+    carries only the common worker-entry identity; the execution environment
+    carries no assignment value. So this worker had nowhere to learn who the
+    assignment was, and the only way it published a valid-looking envelope was
+    the test-only `input.json` this suite used to write.
+
+    THE FIX is a path and a lifecycle: the manager delivers the already-defined
+    assignment manifest, unchanged, at `/input/assignment.json`.
+    """
+
+    def envelope(self, outputs):
+        with open(os.path.join(outputs, "output.json"), encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_the_envelope_carries_the_delivered_identity_exactly(self):
+        """The positive that closes the finding: run the whole path and read
+        what actually landed in the durable document."""
+        inputs, outputs = staged(self)
+        status, given = run(EXECUTION, execution("work"))
+        self.assertIs(given[0]["ok"], True)
+        with open(os.path.join(inputs, "assignment.json"),
+                  encoding="utf-8") as one:
+            delivered = json.load(one)["assignment_ref"]
+        published = self.envelope(outputs)
+        self.assertEqual(published["schema"],
+                         "baton.worker-manifest/completion")
+        self.assertEqual(published["assignment_ref"], delivered)
+        # THE GENERATION IS THE POINT. It is the member the input manifest
+        # cannot carry and the envelope must, and it arrived unchanged.
+        self.assertEqual(published["assignment_ref"]["generation"],
+                         ASSIGNMENT_REF["generation"])
+
+    def test_the_identity_is_not_taken_from_the_input_manifest(self):
+        """A worker that fell back to the input side would be reading a
+        document that has no generation to give -- which is how the defect
+        stayed invisible. Deliver an input manifest naming another Work and the
+        envelope must still carry the ASSIGNMENT's, or refuse."""
+        elsewhere = canonical_input([dict(DECLARATION)])
+        elsewhere["work_ref"] = {"authority_uuid": "f" * 32,
+                                 "work_id": "ffffffff-W9"}
+        elsewhere.pop("manifest_digest", None)
+        elsewhere["manifest_digest"] = baton_worker.digest(elsewhere)
+        # Minted against the SPOILED input, so every digest binding agrees and
+        # the only thing left disagreeing is the Work itself. Otherwise the
+        # digest guard would catch this and the case would witness nothing of
+        # its own.
+        assignment = delivered_assignment(elsewhere)
+        assignment["assignment_ref"] = copy.deepcopy(ASSIGNMENT_REF)
+        assignment.pop("manifest_digest", None)
+        assignment["manifest_digest"] = baton_worker.digest(assignment)
+        _inputs, outputs = staged(self, input_manifest=elsewhere,
+                                  assignment=assignment)
+        status, seen = run(EXECUTION, execution("work"))
+        self.assertIs(seen[0]["ok"], False)
+        self.assertEqual(seen[0]["code"], "input")
+        self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
+
+    def test_a_missing_assignment_document_refuses_before_the_agent(self):
+        """Nothing is written, because nothing ran. A worker that dispatched an
+        agent and only then discovered it could not name the assignment would
+        leave material behind that no envelope can describe."""
+        reached = []
+
+        class Watching:
+            def work(self, seen, declared):
+                reached.append(True)
+                raise AssertionError("the agent ran without an identity")
+
+        _inputs, outputs = staged(self, assignment=DELETE)
+        status, given = run(EXECUTION, execution("work"), agent=Watching())
+        self.assertIs(given[0]["ok"], False)
+        self.assertEqual(given[0]["code"], "input")
+        self.assertEqual(reached, [])
+        self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
+
+    def test_a_mis_composed_pair_refuses_before_the_agent(self):
+        """Each document below is separately readable and separately
+        plausible. What refuses is the RELATIONSHIP, and it refuses BEFORE
+        dispatch -- so a container composed from two deliveries writes
+        nothing."""
+        given = canonical_input([dict(DECLARATION)])
+        other = "sha256:" + "9" * 64
+        for what, spoiled in (
+                ("another Work",
+                 {"assignment_ref": {
+                     "work_ref": {"authority_uuid": "f" * 32,
+                                  "work_id": "ffffffff-W9"},
+                     "participant": "baton.claude", "generation": 1}}),
+                ("another input manifest", {"input_manifest_digest": other}),
+                ("another policy", {"policy_digest": other}),
+                ("another runtime profile",
+                 {"runtime_profile_digest": other})):
+            with self.subTest(what=what):
+                reached = []
+
+                class Watching:
+                    def work(self, seen, declared):
+                        reached.append(True)
+                        raise AssertionError("a mis-composed pair ran an agent")
+
+                _inputs, outputs = staged(
+                    self, input_manifest=given,
+                    assignment=delivered_assignment(given, **spoiled))
+                status, seen = run(EXECUTION, execution("work"),
+                                   agent=Watching())
+                self.assertIs(seen[0]["ok"], False)
+                self.assertEqual(seen[0]["code"], "input")
+                self.assertEqual(reached, [])
+                self.assertFalse(
+                    os.path.exists(os.path.join(outputs, "output.json")))
+
+    def test_an_identity_this_worker_would_have_to_invent_refuses(self):
+        """`assignment_ref` is COPIED, so a delivered value that is not exactly
+        the frozen three members is either short of the generation the envelope
+        requires or carrying something this worker would be inventing."""
+        given = canonical_input([dict(DECLARATION)])
+        for what, ref in (
+                ("no generation",
+                 {"work_ref": dict(WORK_REF), "participant": "baton.claude"}),
+                ("an extra member",
+                 {**copy.deepcopy(ASSIGNMENT_REF), "session": "s-1"}),
+                ("not an object", "01234567-W1")):
+            with self.subTest(what=what):
+                _inputs, outputs = staged(
+                    self, input_manifest=given,
+                    assignment=delivered_assignment(given,
+                                                    assignment_ref=ref))
+                status, seen = run(EXECUTION, execution("work"))
+                self.assertIs(seen[0]["ok"], False)
+                self.assertEqual(seen[0]["code"], "input")
+                self.assertFalse(
+                    os.path.exists(os.path.join(outputs, "output.json")))
+
+    def test_a_delivery_missing_a_binding_member_refuses(self):
+        """The pair rule cannot be checked against a document that does not
+        carry its side of it, and a worker that skipped the comparison because
+        the member was absent would be answering "unbound" with "fine"."""
+        given = canonical_input([dict(DECLARATION)])
+        for name in ("input_manifest_digest", "policy_digest",
+                     "runtime_profile_digest", "assignment_ref"):
+            with self.subTest(member=name):
+                short = delivered_assignment(given)
+                short.pop(name)
+                short.pop("manifest_digest", None)
+                short["manifest_digest"] = baton_worker.digest(short)
+                _inputs, outputs = staged(self, input_manifest=given,
+                                          assignment=short)
+                status, seen = run(EXECUTION, execution("work"))
+                self.assertIs(seen[0]["ok"], False)
+                self.assertEqual(seen[0]["code"], "input")
+
+    def test_a_malformed_assignment_document_refuses(self):
+        inputs, outputs = staged(self)
+        with open(os.path.join(inputs, "assignment.json"), "w",
+                  encoding="utf-8") as handle:
+            handle.write("{not a document")
+        status, given = run(EXECUTION, execution("work"))
+        self.assertIs(given[0]["ok"], False)
+        self.assertEqual(given[0]["code"], "input")
+        self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
+
+    def test_both_delivered_manifests_prove_their_own_digest_before_dispatch(self):
+        """The approved ruling says the worker validates both CLOSED manifests,
+        not only that their untrusted digest strings agree with each other."""
+        for what in ("input", "assignment"):
+            with self.subTest(document=what):
+                given = canonical_input([dict(DECLARATION)])
+                assignment = delivered_assignment(given)
+                if what == "input":
+                    false_digest = "sha256:" + "0" * 64
+                    given["manifest_digest"] = false_digest
+                    assignment["input_manifest_digest"] = false_digest
+                    assignment.pop("manifest_digest", None)
+                    assignment["manifest_digest"] = baton_worker.digest(
+                        assignment)
+                else:
+                    assignment["manifest_digest"] = "sha256:" + "0" * 64
+                reached = []
+
+                class Watching:
+                    def work(self, seen, declared):
+                        reached.append(True)
+                        raise AssertionError("an unproved manifest ran an agent")
+
+                _inputs, outputs = staged(
+                    self, input_manifest=given, assignment=assignment)
+                _status, seen = run(EXECUTION, execution("work"),
+                                    agent=Watching())
+                self.assertEqual(seen[0]["code"], "input")
+                self.assertEqual(reached, [])
+                self.assertFalse(
+                    os.path.exists(os.path.join(outputs, "output.json")))
+
+    def test_both_delivered_manifests_are_closed_before_dispatch(self):
+        """A second identity alias is invalid even when all pair bindings and
+        self-digests agree; shallow extraction is not manifest validation."""
+        for what in ("input", "assignment"):
+            with self.subTest(document=what):
+                given = canonical_input([dict(DECLARATION)])
+                if what == "input":
+                    given["compatibility_assignment"] = copy.deepcopy(
+                        ASSIGNMENT_REF)
+                    given.pop("manifest_digest", None)
+                    given["manifest_digest"] = baton_worker.digest(given)
+                    assignment = delivered_assignment(given)
+                else:
+                    assignment = delivered_assignment(given)
+                    assignment["compatibility_assignment"] = copy.deepcopy(
+                        ASSIGNMENT_REF)
+                    assignment.pop("manifest_digest", None)
+                    assignment["manifest_digest"] = baton_worker.digest(
+                        assignment)
+                reached = []
+
+                class Watching:
+                    def work(self, seen, declared):
+                        reached.append(True)
+                        raise AssertionError("an open manifest ran an agent")
+
+                _inputs, outputs = staged(
+                    self, input_manifest=given, assignment=assignment)
+                _status, seen = run(EXECUTION, execution("work"),
+                                    agent=Watching())
+                self.assertEqual(seen[0]["code"], "input")
+                self.assertEqual(reached, [])
+                self.assertFalse(
+                    os.path.exists(os.path.join(outputs, "output.json")))
+
+    def test_a_document_that_says_it_is_the_other_one_refuses(self):
+        """W19784 second round. The closed-member check alone would NOT catch
+        this: a document can carry exactly the input manifest's members and
+        still declare itself a completion envelope, because `schema` is one of
+        those members. The frozen definition pins its value, so the delivery
+        is read as what the contract says it is rather than as what the
+        document claims.
+        """
+        given, assignment = self.paired()
+        for what, spoiled in (
+                ("the input side claiming another schema",
+                 (dict(given, schema="baton.worker-manifest/completion"),
+                  assignment)),
+                ("the assignment side claiming another schema",
+                 (given,
+                  dict(assignment, schema="baton.worker-manifest/input")))):
+            with self.subTest(what=what):
+                one, two = (_resealed_document(dict(part))
+                            for part in spoiled)
+                reached = []
+
+                class Watching:
+                    def work(self, seen, declared):
+                        reached.append(True)
+                        raise AssertionError("a mislabelled document ran an agent")
+
+                _inputs, outputs = staged(self, input_manifest=one,
+                                          assignment=two)
+                _status, seen = run(EXECUTION, execution("work"),
+                                    agent=Watching())
+                self.assertEqual(seen[0]["code"], "input")
+                self.assertEqual(reached, [])
+                self.assertFalse(
+                    os.path.exists(os.path.join(outputs, "output.json")))
+
+    def paired(self):
+        given = canonical_input([dict(DECLARATION)])
+        return given, delivered_assignment(given)
+
+    def test_consent_reads_neither_input_document(self):
+        """§7.0: consent mounts nothing. The identity is a document under a
+        root a consent container does not have, so the posture boundary is the
+        filesystem rather than a rule about a string."""
+        reached = []
+
+        class Watching:
+            def consider(self, seen, request):
+                reached.append(sorted(os.listdir(baton_worker.INPUT_ROOT))
+                               if os.path.isdir(baton_worker.INPUT_ROOT)
+                               else None)
+                return {"decision": "accept", "reason": "ok",
+                        "contract_digest": "sha256:" + "0" * 64}
+
+        status, given = run(CONSENT, consent("consider"), agent=Watching())
+        self.assertIs(given[0]["ok"], True)
+        # No `staged()` here, so `INPUT_ROOT` is the contract's own `/input`,
+        # which does not exist on the host running this suite -- which is
+        # exactly the shape a consent container has.
+        self.assertEqual(reached, [None])
+        self.assertNotIn("work", OPERATIONS["consent"])
 
 
 # -- a bootstrap fault is latched and correlated -----------------------------
@@ -565,11 +1522,25 @@ class TheScriptedFixtures(unittest.TestCase):
                          ["contract_digest", "decision", "reason"])
 
     def test_execution_completes_and_recaps(self):
-        status, given = run(EXECUTION, execution("work", task="build"))
+        """W19784, migrating W6633's leftover. This read `answer["workspace"]`
+        and asked for a task echoed back into the recap; W14251 removed both --
+        a worker writes under a fixed root and the request carries no operand.
+        What survives is the part that was ever about this program: a completed
+        disposition and a bounded recap of what it actually did."""
+        staged(self)
+        status, given = run(EXECUTION, execution("work"))
         answer = given[0]["answer"]
         self.assertEqual(answer["disposition"], "completed")
-        self.assertEqual(answer["workspace"], "/workspace")
-        self.assertIn("build", answer["recap"])
+        self.assertNotIn("workspace", answer)
+        self.assertTrue(answer["recap"].strip())
+        # WHAT `outputs` CARRIES IS NOT SETTLED and this case deliberately does
+        # not decide it. `test_the_correlated_work_answer_names_outputs_only`
+        # requires bounded names; `check_answer` explicitly exempts the member
+        # and `handle` frames the whole published documents. That contradiction
+        # is W6633's open slice, not this Work's, and asserting either reading
+        # here would quietly pick a winner. What is asserted is the part both
+        # readings agree on: one entry, for the one declaration.
+        self.assertEqual(len(answer["outputs"]), 1)
 
     def test_the_same_request_produces_the_same_bytes(self):
         """DETERMINISTIC is what makes a reproducibility case possible."""
@@ -582,12 +1553,12 @@ class TheScriptedFixtures(unittest.TestCase):
         """A traceback would carry paths from inside the image out through the
         channel, and a worker that died would leave the manager waiting for a
         runtime that is gone."""
+        staged(self)
         class Angry:
             def work(self, seen, request):
                 raise ZeroDivisionError("inside the image")
 
-        status, given = run(EXECUTION, execution("work", task="build"),
-                            agent=Angry())
+        status, given = run(EXECUTION, execution("work"), agent=Angry())
         self.assertIs(given[0]["ok"], False)
         self.assertEqual(given[0]["code"], "agent")
         self.assertEqual(given[0]["message"],
@@ -652,13 +1623,40 @@ class TheRecipeIsInspectableWithoutADaemon(unittest.TestCase):
                                   if line.startswith(directive)], [])
 
     def test_no_secret_or_assignment_material_enters_a_layer(self):
-        """Only the two program files are copied in, so a layer cannot carry
-        an assignment, a bearer or a workspace."""
+        """An EXHAUSTIVE list, so a layer cannot carry an assignment, a bearer
+        or a workspace.
+
+        W19784 review [P0], 2026-08-27: a third entry. The worker derives the
+        closed member sets of the manager's two `/input/` documents from the
+        frozen contract rather than from a list typed into the program, and
+        that requires the contract to be present where the worker runs.
+
+        It stays exhaustive, which is the property that matters: the third
+        entry is named exactly, and `test_frozen` proves the file it copies is
+        byte-identical to the other four copies. A contract is not an
+        assignment, a bearer or a workspace -- it is the document both sides
+        are held to, and it is the same in every image ever built.
+        """
         copied = [line for line in self.lines if line.startswith("COPY")]
         self.assertEqual(
             copied,
             ["COPY baton_worker.py /opt/baton/baton_worker.py",
-             "COPY scripted_agent.py /opt/baton/scripted_agent.py"])
+             "COPY scripted_agent.py /opt/baton/scripted_agent.py",
+             "COPY worker-control-1.0.schema.json "
+             "/opt/baton/worker-control-1.0.schema.json"])
+
+    def test_the_shipped_contract_is_data_and_not_a_second_program(self):
+        """The one thing that would make the third COPY a mistake: if it were
+        code, or if it opened an import path the recipe's own comment says the
+        worker must not have."""
+        shipped = WORKER / "worker-control-1.0.schema.json"
+        self.assertTrue(shipped.is_file())
+        json.loads(shipped.read_text(encoding="utf-8"))
+        self.assertNotIn(".py", shipped.name)
+        # PYTHONPATH is still exactly the program's own directory, and the
+        # worker still cannot import the manager.
+        self.assertIn("PYTHONPATH=/opt/baton", " ".join(self.lines))
+        self.assertNotIn("baton_v12", "\n".join(self.lines))
 
     def test_the_user_agrees_with_the_adapters_own_restriction(self):
         """Two places agreeing because they were written from one decision."""

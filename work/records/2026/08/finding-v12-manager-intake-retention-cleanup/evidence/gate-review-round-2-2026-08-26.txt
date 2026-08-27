@@ -1,0 +1,163 @@
+W6629 -- evidence for the independent review's four [P1] contract boundaries.
+
+Baseline reproduced before touching anything: 52 retained passes, 4 failures
+and 2 errors over the review's six additive cases.
+
+
+[P1] CLEANUP WAITS UNTIL THE ASSIGNMENT IS ENDED OR FENCED
+
+  `authorize_cleanup` verified the participant and then called the destructive
+  adapter without ever asking whether the exact fixed assignment was still
+  live. The gate is added among the genuinely-NEW-destroy checks, BELOW the
+  replay, because an exact retry of a committed destroy must keep reproducing
+  its answer after the assignment has moved on.
+
+  ASKED OF THE AUTHORITY rather than inferred from an axis: the axes here
+  describe the RUNTIME, and whether an assignment is still authorized is the
+  authority's fact.
+
+
+[P1] THE COMPLETE COMMANDS ARE DELIVERED
+
+  `decide_retention` typed `adapter.retain` and never called it -- one of the
+  two frozen output commands was never issued at all, so the side holding the
+  material was never told. `_destroyed` called `adapter.destroy(runtime_id)`,
+  which drops both digests that AUTHORIZE the destruction and makes the
+  adapter guess which protocol operation it is executing.
+
+  Both bodies now cross, as `documents.retain_command` and
+  `documents.destroy_command` -- closed member sets in the frozen schema's own
+  order, emitted through the same `_emit` rule as every other outbound
+  document -- with the operation beside each so the delivery is
+  effectively-once at the adapter too.
+
+  RETAIN IS DELIVERED BEFORE THE JOURNAL, for the reason `authorize_cleanup`
+  already states: neither axis has a `requested` state to record an intent in,
+  so journalling one would invent a mechanism the axis does not have.
+
+  NOTHING EITHER ADAPTER ANSWERS IS ADOPTED. The retain reply is discarded --
+  what the disposition IS was decided here -- and destroy keeps the existing
+  rule that only a positive observation of the exact runtime settles absence.
+
+  This changed the adapter seam, so `OciAdapter.destroy` takes the body and
+  reads the identity out of it. It interprets nothing else: the manager's
+  authorization travels with the command rather than being reconstructed on
+  the far side.
+
+
+[P1] ONE POLICY CAN DECIDE DIFFERENT ARTIFACT GROUPS
+
+  `retain_operation` keyed on the attempt and the policy digest alone, so a
+  policy retaining one artifact and discarding another produced ONE operation
+  id and TWO signatures -- and the second command came back as an operation
+  collision. A policy that says "keep this, discard that" is the ordinary
+  case.
+
+  The canonical artifact set and the disposition are part of the identity now.
+  `_chosen` is written once because the identity and the command body must
+  name the same answer, and it canonicalises: the caller's order and any
+  repeats are not part of the decision, so a retry stays a retry.
+
+
+[P1] AUTHENTICATE AGAINST COMMITTED JOURNAL EVIDENCE
+
+  `intake_receipt_of` compared the reconstructed receipt against
+  `intakes.receipt_digest` -- a column in the same row -- which proves
+  self-consistency and nothing else. `retentions_of` compared nothing at all,
+  and a direct edit of disposition and policy became valid destroy
+  authorization.
+
+  Both doors authenticate against the operation this manager COMMITTED.
+
+  AND MY FIRST ATTEMPT AT THIS WAS WRONG, in a way worth recording. I
+  reconstructed the committed SIGNATURE from the persisted rows. That works
+  for one artifact and breaks for two: `intake.record` is signed over the
+  ADAPTER'S OWN COLLECTION, whose member order and exact shape the rows do not
+  preserve, so a perfectly faithful row derived a mismatched signature. The
+  fix is to compare against the committed RESULT -- what this manager itself
+  composed, byte-stable in the journal, needing no guess about what somebody
+  else sent. `test_one_policy_can_decide_different_artifact_groups` is what
+  caught it.
+
+  INTEGRITY RATHER THAN A COLLISION, as the review required: `store.replay`
+  raises `refused.operation-collision` on a signature mismatch, which is right
+  for a caller reusing an identity and wrong here -- nobody called anything
+  twice, the store was edited. The row is read directly and the row's own
+  signature is what replays it.
+
+
+TWO REVIEW ASSERTIONS WERE UNSATISFIABLE, AND ARE CORRECTED
+
+  `test_a_self_consistent_receipt_edit_is_not_journal_evidence` and
+  `test_a_retention_row_edit_cannot_authorize_cleanup` both assert
+
+      self.assertEqual(caught.exception.code, "integrity")
+
+  No refusal can satisfy that. `integrity` is a CATEGORY in the frozen closed
+  pairing and its codes are schema, digest, path, file-type, limit and
+  secret-leak. The build asserts against the combination itself:
+
+      >>> ContractRefusal("integrity", "integrity", "x")
+      AssertionError: this build raised a refusal whose code is 'integrity',
+      which is not a integrity code; the pairing is closed
+
+  So the cases could never have passed whatever was implemented. Corrected to
+  `.category`, which is the axis the review's own prose names -- "report
+  divergence as integrity rather than a caller collision" -- and flagged here
+  and in the handoff rather than quietly changed.
+
+
+WHAT THE NEW PRECONDITION DID TO THE EXISTING SUITE
+
+  Seventeen existing cases reach a destroy, and cleanup now requires the
+  assignment to be over. They say so explicitly through one `ended()` helper,
+  placed IMMEDIATELY BEFORE authorizing rather than in setup -- intake
+  QUARANTINES material collected for a generation that has ended, so ending
+  the assignment early silently changes what those cases are about. That is
+  not hypothetical: it is exactly what happened to
+  `test_blocked_cleanup_completes_once_intake_happens` on the first pass, which
+  went from `complete` to `retained` until the call was moved below the intake.
+
+  `blocked-on-intake` is answered BEFORE the liveness gate, so that half of the
+  same case deliberately does not end the assignment.
+
+
+PACKAGE SURFACES THE CHANGE TOUCHED
+
+  Every one of these is a registry that exists to notice exactly this:
+
+    test_secrets           the `retain_operation` probe drives four operands
+    test_text_sweep        the same, in the declared-operand table
+    test_dependencies      `command` declared as an operand of the seam
+    test_boundary_inventory  probes for the four-operand identity and the
+                           body-taking seam; owners and witnesses for
+                           `retain_operation`'s two new operands, the
+                           `adapter.retain` command, and the two new outbound
+                           command documents
+    test_oci / test_oci_engine  the seam's fixtures, including the live-engine
+                           path
+
+
+VERIFICATION
+
+    tests.manager.test_intake                   58/58   (52 -> 58)
+    the full v12 suite                          see below
+
+  Remaining failures are NOT this Work's, and none names `intake.py`,
+  `oci.py:OciAdapter.destroy` or either new command document:
+
+    - the boundary inventory's long-standing gaps: 21 receiving entries with
+      no owner in `documents.py` and `sessions.py` from W6627/W6628, the
+      shared orphan-resolver gap across five modules, eight handshake/sessions
+      entries owned but never probed, two stale `workspaces.py` owners, and
+      two untracked `operations` column names. Measured: zero unowned entries
+      and zero witness-table gaps belong to W6629.
+    - `tests.tools.test_worker_image_build`, which is W6633's.
+
+  Source hashes at handoff:
+
+    intake.py     c5f970df9c4c91cfe53d96dccf45a795
+    oci.py        6d7b04d86a9d930e601a3e3fbe2669a6
+    documents.py  a6c0a023257094dcc9ebf41196788a16
+
+  No repository state was mutated.

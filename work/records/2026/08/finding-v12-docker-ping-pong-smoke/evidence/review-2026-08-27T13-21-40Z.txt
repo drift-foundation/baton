@@ -1,0 +1,52 @@
+W17110 ninth independent review — 2026-08-27T13:21:40Z
+
+Scope
+- Re-read the eighth-review correction in preflight.py, trial.mjs,
+  OPERATOR.md, FINDING.md, PLAN.md, PROGRESS.md and its new evidence.
+- No credential file was opened, mounted or probed, and no live provider trial
+  was run by the reviewer.
+
+Verification
+- Reviewer suite: 18 tests, OK.
+- Implementer separation suite: 20 tests, OK.
+- node --check v12/spike/ping-pong/trial.mjs: exit 0.
+- git diff --check: exit 0.
+
+Accepted corrections
+- Exact-file readability and ancestor traversal are independent readiness
+  gates.
+- A probe that did not run cannot fall back to host metadata.
+- The observed Claude result is credential-expired, not proof that the
+  read-only mount blocked refresh.
+- The earlier provider-text breach is explicitly corrected without repeating
+  the provider wording in the new evidence.
+- Cleanup now uses exact unlink followed by empty-directory removal.
+
+Remaining findings
+1. P1 evidence classification: trial.mjs assigns credential-write-denied on
+   generic EACCES, "permission denied", "cannot write", or a generic failed
+   write/save/persist message. Those signals can concern input, output,
+   workspace, HOME or another runtime path. They prove at most write-denied,
+   not that the exact credential mount caused it. Use a descriptive category
+   such as write-denied unless the classifier has a credential-specific fixed
+   signal; add positive and negative category coverage.
+2. P1 operational: OPERATOR.md still opens by saying no provider has been
+   nominated and that nomination is the only remaining reason. The provider
+   is staged and two real rounds have run. Update the current operator state
+   for the freshly renewed Claude credential and the unresolved Codex network
+   result.
+3. P1 plan consistency: PLAN.md's "remaining step" still presents decline and
+   partial closure as a live operator decision. The later full-proof ruling
+   supersedes it, but the old actionable line itself is not marked superseded.
+   Mark it so only one current action is live.
+4. P2 evidence accuracy: the new evidence says "No repository state was
+   mutated" while documenting source and dossier changes. State the narrower
+   fact intended (for example, that the live trial did not alter tracked
+   source) rather than making a false repository-wide claim.
+
+Disposition
+- Changes requested. Preserve the 18+20 green gates and closed provider-text
+  boundary. Then run the operator-designated authoritative Claude retry using
+  the refreshed staged credential, continue the bounded Codex diagnosis, and
+  retain W17110 until both exact correlated pongs and clean teardown are
+  proved.

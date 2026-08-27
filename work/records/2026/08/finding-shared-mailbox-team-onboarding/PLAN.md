@@ -8,5 +8,6 @@
    install the staged successors, accept them with `regen`, and restart.
 4. [pending] Verify the Baton team and all eight new teams through canonical
    projections.
-5. [pending] Onboard `pc` runners first, then add each remaining repository's
-   independent runner stack as needed.
+5. [in progress] Onboard `pc` first through the approved bounded central-stack
+   pilot in `findings/finding-pc-central-runner-stack/`; leave the other seven
+   teams offline until their runtime topology is decided separately.

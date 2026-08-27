@@ -1,0 +1,192 @@
+W10265 — evidence for PLAN step 5, the approved `maxDiff` correction.
+
+Ruling implemented: T10265 message 11462 (Option A), pinned in FINDING.md.
+Review answered: review-2026-08-25T18-42-01Z.md, finding R1.
+
+THE BOUNDARY, AS RULED
+
+  add test-local `self.maxDiff = None` immediately before the already
+  approved sorted-list comparison in
+  `test_the_missing_probe_check_can_actually_fail`;
+  add a focused additive regression proving complete deterministic rendering;
+  preserve the existing verdict;
+  widen nothing else.
+
+
+REVALIDATION BEFORE IMPLEMENTING
+
+  Both approved sites were re-read against the current tree, which has moved
+  since the previous correction:
+
+    3951  self.assertIn(entry, sorted(entries))
+    4106  self.assertEqual(sorted(wanted - declared), [])
+
+  Present in the ruled form, and no `maxDiff` assignment anywhere in the
+  module. The difference this site renders is now EIGHT entries rather than
+  the nine the review measured -- W6632's correction added a probe -- which
+  changes the count in the diagnostic and nothing about the defect.
+
+
+WHAT CHANGED
+
+  One line, plus its comment, in
+  `tests/manager/test_boundary_inventory.py`:
+
+    self.maxDiff = None
+    self.assertEqual(sorted(wanted - declared), [])
+
+  Test-local, which is the whole of why it was separately ruled: a
+  module- or class-level default would change every other diagnostic in that
+  file, none of which was reviewed for it, and that is the output
+  normalization the same ruling excludes. A case pins that no other function
+  in the module sets it.
+
+
+THE DIAGNOSTIC IS COMPLETE AGAIN
+
+    $ env PYTHONPATH=src PYTHONHASHSEED=1 python3 -m unittest \
+        tests.manager.test_boundary_inventory.EveryProbeProvesItArrived\
+.test_the_missing_probe_check_can_actually_fail
+
+    First list contains 8 additional elements.
+    First extra element 0:
+    (('adopted', 'handshake.py:certified_agent_session_profile', ...
+    ...
+    -  (('adopted', 'sessions.py:_session_row', 'agent_sessions.work_id'),
+    -   'a persisted agent session')]
+
+    Ran 1 test in 66.624s
+    FAILED (failures=1)
+
+  All eight entries present -- one as `First extra element 0` and seven in the
+  rendered diff -- and ZERO occurrences of `Set self.maxDiff to None`, which
+  was the whole of R1.
+
+
+BOTH RULED SITES, THREE SEEDS, IDENTICAL
+
+    $ for seed in 1 2 3; do env PYTHONPATH=src PYTHONHASHSEED=$seed \
+        python3 -m unittest \
+        …EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale \
+        …EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail
+
+    verdict          FAILED (failures=3)   FAILED (failures=3)   FAILED (failures=3)
+    md5, elapsed
+      line filtered  73d119727e9992cb3f7358e3cafc6398   (all three)
+    truncation
+      notices        0                     0                     0
+
+  The verdict is the one the previous correction recorded: the two stale-owner
+  subtests plus the probe check. Unchanged.
+
+
+THE ADDITIVE REGRESSION
+
+  `tests/manager/test_diagnostic_rendering.py` grows from 3 cases to 10.
+
+  THE EXISTING THREE PIN THE SHAPE of the two ruled assertions through `ast`,
+  and that module's own docstring gives the reason: the diagnostics those
+  sites render only exist while those tests are FAILING, so an output
+  comparison against them would evaporate exactly when the underlying gaps
+  close.
+
+  THE ARGUMENT IS RIGHT ABOUT THOSE SITES AND DOES NOT EXCUSE NEVER PROVING
+  THE PROPERTY. `TheRuledFormRendersCompletelyAndIdentically` proves it over a
+  failing assertion this file OWNS: a synthetic module carrying the ruled form
+  character for character, over eighteen tuples of strings shaped like the
+  real operands, run in a subprocess under six hash seeds.
+
+    determinism   one rendering across seeds 1, 2, 3, 5, 7, 11
+    completeness  every operand present, and no truncation notice
+    order         the rendered order is the SORTED one, not merely repeatable
+    verdict       both forms still report FAILED (failures=1)
+
+  AND THE CONTROL. `test_the_form_the_ruling_replaced_still_reorders` points
+  the same harness at `assertEqual(MISSING, set())` and requires it to produce
+  MORE than one rendering across those seeds. A determinism check whose
+  subject cannot vary is a check that passes for the wrong reason. If a future
+  interpreter renders set differences stably, that case fails and says so.
+
+  THE COMPLETENESS CHECK CAN ACTUALLY FAIL -- measured, not asserted. With the
+  `maxDiff` line removed from the synthetic form and nothing else changed:
+
+    AssertionError: … Diff is 1145 characters long. Set self.maxDiff to None
+    to see it. … : the diagnostic is truncated
+    Ran 10 tests -- FAILED (failures=1, errors=1)
+
+  The file was restored byte for byte afterwards.
+
+  ONE DEFECT OF MINE IN THAT HARNESS, recorded because the harness is the
+  instrument. The first version made a fresh temporary directory per run, and
+  a traceback names the file it came from -- so six runs disagreed on a path
+  and the determinism case failed for a reason that had nothing to do with
+  hashing. The harness has to hold everything but the seed still or it
+  measures itself. One directory per case now, and the reason is a comment at
+  the site.
+
+
+SUITE-WIDE: THE VERDICTS AND IDS ARE UNCHANGED
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1219 tests in 458.718s
+    FAILED (failures=12, skipped=6)
+
+    $ cd v12/python && just build
+    Ran 1219 tests in 458.749s
+    FAILED (failures=12, skipped=5)
+
+  1210 -> 1219: seven from this Work's regression module and two the W6633
+  reviewer added to `tests/tools/test_worker_image_build.py` while this
+  correction was in progress.
+
+  THE FAILING-ID SET, DIFFED AGAINST THE RUN IMMEDIATELY BEFORE THIS CHANGE:
+
+    > tests.tools.test_worker_image_build…test_a_partial_base_layer_match_refuses
+    > tests.tools.test_worker_image_build…test_concurrent_builds_for_one_destination_have_distinct_stages
+
+  Two additions and no removals, and both are the reviewer's new W6633 cases
+  rather than anything this change caused. Every other failing id is
+  byte-identical, which is the property this Work exists to protect.
+
+
+REPORTED AND NOT FIXED
+
+  Four of the twelve belong to Work this claim does not hold, and all four are
+  reviewer regressions posted after this participant passed that Work back.
+
+  W6633 — `tests.tools.test_worker_image_build`, posted with
+  `review-2026-08-26T00-41-16Z.md`:
+    OnlyTheRecipesOwnWorkIsRewritten.test_a_partial_base_layer_match_refuses
+    TheBuildVectorIsClosed.test_concurrent_builds_for_one_destination_have_distinct_stages
+
+  W6632 — `tests.manager.test_oci`, posted with
+  `review-2026-08-26T00-03-30Z.md`:
+    test_a_target_traversal_is_not_normalized_into_another_location
+    test_a_stale_policy_runtime_is_not_filtered_into_a_duplicate_start
+
+  W6630 — `tests.manager.test_secrets`:
+    test_the_substitute_cannot_quote_a_live_bearer_substring
+
+  The remaining seven are the boundary inventory's long-standing seven, which
+  include the two sites this Work renders deterministically. Making them PASS
+  is other Work's; making them render the same twice is this one's.
+
+
+NOT DONE, AND NAMED RATHER THAN ROUNDED UP
+
+  The four latent sites the previous correction reported -- one `assertEqual(
+  …, set())` in `tests/authority/test_boundary.py`, two in
+  `tests/authority/test_session.py`, and one `assertIn(entry, entries)` at
+  `test_boundary_inventory.py` line 4039 -- are still latent and still
+  unpatched. Those tests pass, so nothing renders, and they are outside both
+  the approval and the acceptance boundary's wording. The synthetic control
+  above is now the standing evidence that the idiom itself is the defect, if
+  a later ruling wants them.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w10265_both{1,2,3}.txt   the two ruled sites under three seeds
+    /tmp/w10265_full.txt          the full source-suite log
+    /tmp/w10265_build.txt         the locked installed-layout log
+    /tmp/w10265_canfail.txt       the can-actually-fail measurement

@@ -1,0 +1,46 @@
+W17110 eleventh independent review — 2026-08-27T13:41:07Z
+
+Scope
+- Re-read the exact successful reports, trial host/container verdict code,
+  classifier correction, OPERATOR.md and current dossier state.
+- No credential was opened, mounted or probed and no live provider trial was
+  run by the reviewer.
+
+Independent recomputation from the verbatim trial.py JSON
+- claude correlation:
+  w17110-eb769e1e-26e0-4788-aae0-f0667bfd68b4 equals the published value.
+- codex correlation:
+  w17110-b26dba4f-0c7a-4bc2-967a-6d16cbb3f320 equals the published value.
+- Both published result digests equal independently derived sha256("pong"):
+  sha256:9795c5ff8937f23526ccb207a5684c1fc94a7854e19c021b39d944e51f5baef2.
+- Both host/container exit layers are zero.
+- Both publications contain exactly the closed nine-member allowlist.
+- Both completion signals are present and both full image ids have the
+  sha256:<64 lowercase hex> grammar.
+- For each trial: container query, image removal, tag query and immutable-id
+  query succeeded; container/image survivor lists are empty; staged root is
+  removed; every host verdict clause, clean and satisfying are true.
+- The two correlations and full image identities are distinct between trials.
+
+Verification
+- Reviewer suite: 18 tests, OK.
+- Implementer separation suite: 26 tests, OK.
+- node --check v12/spike/ping-pong/trial.mjs: exit 0.
+- git diff --check: exit 0.
+- The classifier now requires credential path and denial on one diagnostic
+  line, with cross-line negative and same-line positive controls.
+- OPERATOR.md now exposes only exact unlink/rmdir as the live action.
+
+Operational boundary
+- The reviewer still cannot independently query /var/run/docker.sock and did
+  not escalate. Signoff rests on the exact per-trial status-bearing cleanup
+  evidence, not the implementer's later general engine query.
+- The two volatile credential entries remain staged. The pinned decision gives
+  their withdrawal to the operator. W17110 must not close until exact unlink
+  and empty-directory removal are confirmed.
+
+Disposition
+- Independent proof signoff. Both real providers returned independently
+  correlated exact pongs through the approved boundary with clean teardown and
+  no provider text in the reports. Route to baton.ops for exact credential
+  withdrawal and satisfying closure.

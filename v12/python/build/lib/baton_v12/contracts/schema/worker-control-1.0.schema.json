@@ -1,2645 +1,2663 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:baton:worker-control:1.0",
-  "title": "Baton worker-control 1.0 design documents",
-  "oneOf": [
-    {
-      "$ref": "#/$defs/controlEnvelope"
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "urn:baton:worker-control:1.0",
+ "title": "Baton worker-control 1.0 design documents",
+ "oneOf": [
+  {
+   "$ref": "#/$defs/controlEnvelope"
+  },
+  {
+   "$ref": "#/$defs/inputManifest"
+  },
+  {
+   "$ref": "#/$defs/assignmentManifest"
+  },
+  {
+   "$ref": "#/$defs/runtimeAttemptManifest"
+  },
+  {
+   "$ref": "#/$defs/completionManifest"
+  },
+  {
+   "$ref": "#/$defs/resultManifest"
+  },
+  {
+   "$ref": "#/$defs/proposalManifest"
+  },
+  {
+   "$ref": "#/$defs/verificationReceipt"
+  },
+  {
+   "$ref": "#/$defs/verificationAssessment"
+  },
+  {
+   "$ref": "#/$defs/technicalReviewReceipt"
+  },
+  {
+   "$ref": "#/$defs/approvalReceipt"
+  },
+  {
+   "$ref": "#/$defs/integrationReceipt"
+  }
+ ],
+ "$defs": {
+  "activityBody": {
+   "type": "object",
+   "properties": {
+    "activity_id": {
+     "$ref": "#/$defs/opaqueId"
     },
-    {
-      "$ref": "#/$defs/inputManifest"
+    "source_event_seq": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 9007199254740991
     },
-    {
-      "$ref": "#/$defs/assignmentManifest"
+    "assignment_ref": {
+     "$ref": "#/$defs/assignmentRef"
     },
-    {
-      "$ref": "#/$defs/runtimeAttemptManifest"
-    },
-    {
-      "$ref": "#/$defs/resultManifest"
-    },
-    {
-      "$ref": "#/$defs/proposalManifest"
-    },
-    {
-      "$ref": "#/$defs/verificationReceipt"
-    },
-    {
-      "$ref": "#/$defs/verificationAssessment"
-    },
-    {
-      "$ref": "#/$defs/technicalReviewReceipt"
-    },
-    {
-      "$ref": "#/$defs/approvalReceipt"
-    },
-    {
-      "$ref": "#/$defs/integrationReceipt"
-    }
-  ],
-  "$defs": {
-    "version": {
-      "type": "object",
-      "properties": {
-        "major": {
-          "const": 1
-        },
-        "minor": {
-          "const": 0
-        }
+    "plan_step_id": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/opaqueId"
       },
-      "required": [
-        "major",
-        "minor"
-      ],
-      "additionalProperties": false
+      {
+       "type": "null"
+      }
+     ]
     },
-    "digest": {
-      "type": "string",
-      "pattern": "^sha256:[0-9a-f]{64}$"
+    "kind": {
+     "enum": [
+      "step-started",
+      "step-completed",
+      "action",
+      "evidence",
+      "retry",
+      "blocker",
+      "handoff-preparation"
+     ]
     },
-    "opaqueId": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 160,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    "summary": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 16000
     },
-    "capability": {
-      "enum": [
-        "core.offer",
-        "core.assignment",
-        "core.runtime-lifecycle",
-        "core.activity",
-        "core.output-freeze",
-        "core.proposal",
-        "core.receipts",
-        "core.errors"
-      ]
+    "record_paths": {
+     "type": "array",
+     "maxItems": 64,
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/relativePath"
+     }
+    }
+   },
+   "required": [
+    "activity_id",
+    "source_event_seq",
+    "assignment_ref",
+    "plan_step_id",
+    "kind",
+    "summary",
+    "record_paths"
+   ],
+   "additionalProperties": false
+  },
+  "approvalReceipt": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/receiptBase"
     },
-    "timestamp": {
-      "type": "string",
-      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/approval"
+      },
+      "technical_review_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "disposition": {
+       "enum": [
+        "approved",
+        "denied"
+       ]
+      }
+     },
+     "required": [
+      "schema",
+      "technical_review_id",
+      "disposition"
+     ]
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "artifactOutput": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "$ref": "#/$defs/opaqueId"
     },
-    "relativePath": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 512,
-      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*//)(?!.*(?:^|/)\\.\\.?$)[^\\u0000\\\\]+$"
+    "type": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "status": {
+     "enum": [
+      "present",
+      "missing-optional"
+     ]
+    },
+    "content_manifest": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/contentManifest"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "artifact": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/artifactRef"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "result_metadata": {
+     "$ref": "#/$defs/extensions"
+    }
+   },
+   "required": [
+    "name",
+    "type",
+    "status",
+    "content_manifest",
+    "artifact",
+    "result_metadata"
+   ],
+   "additionalProperties": false
+  },
+  "artifactRef": {
+   "type": "object",
+   "properties": {
+    "artifact_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "media_type": {
+     "type": "string",
+     "minLength": 3,
+     "maxLength": 160,
+     "pattern": "^[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*/[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*$"
+    },
+    "bytes": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 9007199254740991
+    },
+    "content_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "locator": {
+     "type": "string",
+     "minLength": 3,
+     "maxLength": 2048,
+     "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^?#]*$"
+    }
+   },
+   "required": [
+    "artifact_id",
+    "media_type",
+    "bytes",
+    "content_digest",
+    "locator"
+   ],
+   "additionalProperties": false
+  },
+  "assignmentActivateBody": {
+   "type": "object",
+   "properties": {
+    "assignment_ref": {
+     "$ref": "#/$defs/assignmentRef"
+    },
+    "runtime_attempt_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "input_manifest_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "assignment_manifest_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "policy_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "runtime_profile_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "assignment_ref",
+    "runtime_attempt_id",
+    "input_manifest_digest",
+    "assignment_manifest_digest",
+    "policy_digest",
+    "runtime_profile_digest"
+   ],
+   "additionalProperties": false
+  },
+  "assignmentManifest": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/manifestHeader"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/assignment"
+      },
+      "assignment_ref": {
+       "$ref": "#/$defs/assignmentRef"
+      },
+      "assignment_contract": {
+       "const": "v12-assignment-1"
+      },
+      "offer_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "runtime_attempt_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "input_manifest_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "runtime_profile_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "claim_receipt_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "claim_event_seq": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 9007199254740991
+      },
+      "activated_at": {
+       "$ref": "#/$defs/timestamp"
+      }
+     },
+     "required": [
+      "schema",
+      "assignment_ref",
+      "assignment_contract",
+      "offer_id",
+      "runtime_attempt_id",
+      "input_manifest_digest",
+      "policy_digest",
+      "runtime_profile_digest",
+      "claim_receipt_digest",
+      "claim_event_seq",
+      "activated_at"
+     ]
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "assignmentRef": {
+   "type": "object",
+   "properties": {
+    "work_ref": {
+     "$ref": "#/$defs/workRef"
     },
     "participant": {
-      "type": "string",
-      "pattern": "^[a-z][a-z0-9_-]*\\.[a-z][a-z0-9_-]*$"
+     "$ref": "#/$defs/participant"
     },
-    "extensions": {
-      "type": "object",
-      "propertyNames": {
-        "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+/[1-9][0-9]*$"
-      },
-      "additionalProperties": true
+    "generation": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 9007199254740991
+    }
+   },
+   "required": [
+    "work_ref",
+    "participant",
+    "generation"
+   ],
+   "additionalProperties": false
+  },
+  "capability": {
+   "enum": [
+    "core.offer",
+    "core.assignment",
+    "core.runtime-lifecycle",
+    "core.activity",
+    "core.output-freeze",
+    "core.proposal",
+    "core.receipts",
+    "core.errors"
+   ]
+  },
+  "completionManifest": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/manifestHeader"
     },
-    "workRef": {
-      "type": "object",
-      "properties": {
-        "authority_uuid": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{32}$"
-        },
-        "work_id": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{8}-W[1-9][0-9]*$"
-        }
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/completion"
       },
-      "required": [
-        "authority_uuid",
-        "work_id"
-      ],
-      "additionalProperties": false
+      "assignment_ref": {
+       "$ref": "#/$defs/assignmentRef"
+      },
+      "disposition": {
+       "enum": [
+        "completed",
+        "unable",
+        "plan-rejected",
+        "cancelled"
+       ]
+      },
+      "outputs": {
+       "type": "array",
+       "maxItems": 64,
+       "items": {
+        "$ref": "#/$defs/workerOutput"
+       }
+      }
+     },
+     "required": [
+      "schema",
+      "assignment_ref",
+      "disposition",
+      "outputs"
+     ]
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "contentEntry": {
+   "type": "object",
+   "properties": {
+    "path": {
+     "$ref": "#/$defs/relativePath"
     },
-    "assignmentRef": {
-      "type": "object",
-      "properties": {
-        "work_ref": {
-          "$ref": "#/$defs/workRef"
-        },
-        "participant": {
-          "$ref": "#/$defs/participant"
-        },
-        "generation": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 9007199254740991
-        }
-      },
-      "required": [
-        "work_ref",
-        "participant",
-        "generation"
-      ],
-      "additionalProperties": false
+    "bytes": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 9007199254740991
     },
-    "operation": {
-      "type": "object",
-      "$comment": "Review 2026-08-22 [P1] on W4487: `signature_digest` is NOT the body digest. Section 4.2 fixes the payload exactly -- the canonical digest of {\"kind\": <envelope kind>, \"operands\": <durable body operands>} -- so the operation kind is inside the identity and two kinds carrying identical operands are different operations. A `claim_token` operand enters that payload as its verifier digest, never literally, because a signature is durable and section 13 keeps the bearer off durable surfaces. Transport correlation, `sent_at`, `sender` and `extensions` are excluded. Schema can only prove the digest's SHAPE; section 12 rule 9 states the recomputation, which a receiver of a command performs before journalling the operation. A reply echoes its request's signature and is not recomputed. See work/records/2026/08/finding-worker-control-decline-token-conflict/.",
-      "properties": {
-        "operation_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "signature_digest": {
-          "$ref": "#/$defs/digest"
-        }
+    "content_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "path",
+    "bytes",
+    "content_digest"
+   ],
+   "additionalProperties": false
+  },
+  "contentManifest": {
+   "type": "object",
+   "properties": {
+    "entries": {
+     "type": "array",
+     "maxItems": 100000,
+     "items": {
+      "$ref": "#/$defs/contentEntry"
+     }
+    },
+    "entry_count": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100000
+    },
+    "total_bytes": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 9007199254740991
+    },
+    "tree_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "entries",
+    "entry_count",
+    "total_bytes",
+    "tree_digest"
+   ],
+   "additionalProperties": false
+  },
+  "controlEnvelope": {
+   "type": "object",
+   "properties": {
+    "protocol": {
+     "const": "baton.worker-control"
+    },
+    "version": {
+     "$ref": "#/$defs/version"
+    },
+    "message_type": {
+     "enum": [
+      "command",
+      "reply",
+      "event"
+     ]
+    },
+    "kind": {
+     "enum": [
+      "control.hello",
+      "control.welcome",
+      "offer.issue",
+      "offer.decide",
+      "assignment.activate",
+      "runtime.start",
+      "runtime.cancel",
+      "runtime.inspect",
+      "activity.emit",
+      "result.declare",
+      "output.freeze",
+      "output.collect",
+      "proposal.publish",
+      "output.retain",
+      "runtime.destroy",
+      "operation.reply",
+      "control.error"
+     ]
+    },
+    "message_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "correlation_id": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/opaqueId"
       },
-      "required": [
-        "operation_id",
-        "signature_digest"
-      ],
-      "additionalProperties": false
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "sent_at": {
+     "$ref": "#/$defs/timestamp"
     },
     "sender": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "enum": [
-            "worker-manager",
-            "worker-endpoint",
-            "runtime-adapter",
-            "verifier",
-            "reviewer",
-            "approver",
-            "integrator"
-          ]
-        },
-        "instance_id": {
-          "$ref": "#/$defs/opaqueId"
-        }
+     "$ref": "#/$defs/sender"
+    },
+    "operation": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/operation"
       },
-      "required": [
-        "role",
-        "instance_id"
-      ],
-      "additionalProperties": false
+      {
+       "type": "null"
+      }
+     ]
     },
-    "artifactRef": {
-      "type": "object",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "media_type": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 160,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*/[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*$"
-        },
-        "bytes": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
-        },
-        "content_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "locator": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 2048,
-          "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^?#]*$"
-        }
-      },
-      "required": [
-        "artifact_id",
-        "media_type",
-        "bytes",
-        "content_digest",
-        "locator"
-      ],
-      "additionalProperties": false
+    "body_digest": {
+     "$ref": "#/$defs/digest"
     },
-    "evidenceRef": {
-      "type": "object",
-      "properties": {
-        "purpose": {
-          "enum": [
-            "log",
-            "test-output",
-            "manifest",
-            "trace",
-            "dossier",
-            "reproduction",
-            "diff",
-            "bundle",
-            "candidate-tree",
-            "attestation"
-          ]
-        },
-        "artifact": {
-          "$ref": "#/$defs/artifactRef"
-        }
-      },
-      "required": [
-        "purpose",
-        "artifact"
-      ],
-      "additionalProperties": false
+    "body": {
+     "type": "object"
     },
-    "gitObject": {
-      "oneOf": [
-        {
-          "type": "object",
-          "properties": {
-            "algorithm": {
-              "const": "sha1"
-            },
-            "hex": {
-              "type": "string",
-              "pattern": "^[0-9a-f]{40}$"
-            }
-          },
-          "required": [
-            "algorithm",
-            "hex"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "algorithm": {
-              "const": "sha256"
-            },
-            "hex": {
-              "type": "string",
-              "pattern": "^[0-9a-f]{64}$"
-            }
-          },
-          "required": [
-            "algorithm",
-            "hex"
-          ],
-          "additionalProperties": false
-        }
-      ]
-    },
-    "contentEntry": {
-      "type": "object",
-      "properties": {
-        "path": {
-          "$ref": "#/$defs/relativePath"
-        },
-        "bytes": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
-        },
-        "content_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "path",
-        "bytes",
-        "content_digest"
-      ],
-      "additionalProperties": false
-    },
-    "contentManifest": {
-      "type": "object",
-      "properties": {
-        "entries": {
-          "type": "array",
-          "maxItems": 100000,
-          "items": {
-            "$ref": "#/$defs/contentEntry"
-          }
-        },
-        "entry_count": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 100000
-        },
-        "total_bytes": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
-        },
-        "tree_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "entries",
-        "entry_count",
-        "total_bytes",
-        "tree_digest"
-      ],
-      "additionalProperties": false
-    },
-    "gitSource": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "type": {
-          "const": "git"
-        },
-        "uri": {
-          "type": "string",
-          "format": "uri",
-          "maxLength": 2048
-        },
-        "destination": {
-          "$ref": "#/$defs/relativePath"
-        },
-        "required": {
-          "type": "boolean"
-        },
-        "repository_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "object_format": {
-          "enum": [
-            "sha1",
-            "sha256"
-          ]
-        },
-        "base_revision": {
-          "$ref": "#/$defs/gitObject"
-        },
-        "source_ref": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "maxLength": 1024
-        },
-        "integration_ref": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "maxLength": 1024
-        },
-        "acquisition_policy_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "name",
-        "type",
-        "uri",
-        "destination",
-        "required",
-        "repository_id",
-        "object_format",
-        "base_revision",
-        "source_ref",
-        "integration_ref",
-        "acquisition_policy_digest"
-      ],
-      "additionalProperties": false
-    },
-    "directorySource": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "type": {
-          "const": "directory"
-        },
-        "uri": {
-          "type": "string",
-          "format": "uri",
-          "maxLength": 2048
-        },
-        "destination": {
-          "$ref": "#/$defs/relativePath"
-        },
-        "required": {
-          "type": "boolean"
-        },
-        "content_manifest": {
-          "$ref": "#/$defs/contentManifest"
-        }
-      },
-      "required": [
-        "name",
-        "type",
-        "uri",
-        "destination",
-        "required",
-        "content_manifest"
-      ],
-      "additionalProperties": false
-    },
-    "sourceDescriptor": {
-      "oneOf": [
-        {
-          "$ref": "#/$defs/gitSource"
-        },
-        {
-          "$ref": "#/$defs/directorySource"
-        }
-      ]
-    },
-    "outputConstraints": {
-      "type": "object",
-      "properties": {
-        "max_bytes": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
-        },
-        "max_entries": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 100000
-        },
-        "allowed_media_types": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 160
-          }
-        },
-        "link_policy": {
-          "const": "forbid"
-        },
-        "validator_digest": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/digest"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "required": [
-        "max_bytes",
-        "max_entries",
-        "allowed_media_types",
-        "link_policy",
-        "validator_digest"
-      ],
-      "additionalProperties": false
-    },
-    "outputDescriptor": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "type": {
-          "enum": [
-            "git-change-proposal",
-            "directory-result",
-            "record-output"
-          ]
-        },
-        "path": {
-          "$ref": "#/$defs/relativePath"
-        },
-        "required": {
-          "type": "boolean"
-        },
-        "constraints": {
-          "$ref": "#/$defs/outputConstraints"
-        }
-      },
-      "required": [
-        "name",
-        "type",
-        "path",
-        "required",
-        "constraints"
-      ],
-      "additionalProperties": false
-    },
-    "artifactOutput": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "type": {
-          "enum": [
-            "git-change-proposal",
-            "directory-result",
-            "record-output"
-          ]
-        },
-        "status": {
-          "enum": [
-            "present",
-            "missing-optional"
-          ]
-        },
-        "content_manifest": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/contentManifest"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "artifact": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/artifactRef"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "required": [
-        "name",
-        "type",
-        "status",
-        "content_manifest",
-        "artifact"
-      ],
-      "additionalProperties": false
-    },
-    "manifestHeader": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "$ref": "#/$defs/version"
-        },
-        "manifest_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "created_at": {
-          "$ref": "#/$defs/timestamp"
-        },
-        "manifest_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
-        }
-      },
-      "required": [
-        "version",
-        "manifest_id",
-        "created_at",
-        "manifest_digest",
-        "extensions"
-      ]
-    },
-    "inputManifest": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/manifestHeader"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "schema": {
-              "const": "baton.worker-manifest/input"
-            },
-            "work_ref": {
-              "$ref": "#/$defs/workRef"
-            },
-            "assignment_contract": {
-              "const": "v12-assignment-1"
-            },
-            "human_contract": {
-              "$ref": "#/$defs/artifactRef"
-            },
-            "sources": {
-              "type": "array",
-              "minItems": 1,
-              "maxItems": 64,
-              "items": {
-                "$ref": "#/$defs/sourceDescriptor"
-              }
-            },
-            "outputs": {
-              "type": "array",
-              "minItems": 1,
-              "maxItems": 64,
-              "items": {
-                "$ref": "#/$defs/outputDescriptor"
-              }
-            },
-            "role_instructions_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "toolchain_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "worker_image_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "runtime_profile_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "resource_policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "network_policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "mount_policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "tool_policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "credential_policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "retention_policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "record_binding": {
-              "type": "object",
-              "properties": {
-                "root": {
-                  "$ref": "#/$defs/opaqueId"
-                },
-                "path": {
-                  "$ref": "#/$defs/relativePath"
-                },
-                "finding_digest": {
-                  "$ref": "#/$defs/digest"
-                },
-                "plan_digest": {
-                  "$ref": "#/$defs/digest"
-                }
-              },
-              "required": [
-                "root",
-                "path",
-                "finding_digest",
-                "plan_digest"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "schema",
-            "work_ref",
-            "assignment_contract",
-            "human_contract",
-            "sources",
-            "outputs",
-            "role_instructions_digest",
-            "policy_digest",
-            "toolchain_digest",
-            "worker_image_digest",
-            "runtime_profile_digest",
-            "resource_policy_digest",
-            "network_policy_digest",
-            "mount_policy_digest",
-            "tool_policy_digest",
-            "credential_policy_digest",
-            "retention_policy_digest",
-            "record_binding"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "assignmentManifest": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/manifestHeader"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "schema": {
-              "const": "baton.worker-manifest/assignment"
-            },
-            "assignment_ref": {
-              "$ref": "#/$defs/assignmentRef"
-            },
-            "assignment_contract": {
-              "const": "v12-assignment-1"
-            },
-            "offer_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "runtime_attempt_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "input_manifest_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "runtime_profile_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "claim_receipt_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "claim_event_seq": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 9007199254740991
-            },
-            "activated_at": {
-              "$ref": "#/$defs/timestamp"
-            }
-          },
-          "required": [
-            "schema",
-            "assignment_ref",
-            "assignment_contract",
-            "offer_id",
-            "runtime_attempt_id",
-            "input_manifest_digest",
-            "policy_digest",
-            "runtime_profile_digest",
-            "claim_receipt_digest",
-            "claim_event_seq",
-            "activated_at"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "runtimeAttemptManifest": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/manifestHeader"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "schema": {
-              "const": "baton.worker-manifest/runtime-attempt"
-            },
-            "runtime_attempt_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "assignment_ref": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/assignmentRef"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "adapter": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "$ref": "#/$defs/opaqueId"
-                },
-                "version": {
-                  "$ref": "#/$defs/opaqueId"
-                },
-                "digest": {
-                  "$ref": "#/$defs/digest"
-                }
-              },
-              "required": [
-                "name",
-                "version",
-                "digest"
-              ],
-              "additionalProperties": false
-            },
-            "runtime_profile_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "worker_image_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "toolchain_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "runtime_id": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/opaqueId"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "observation_seq": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
-            "states": {
-              "type": "object",
-              "properties": {
-                "consent_runtime": {
-                  "enum": [
-                    "not-started",
-                    "running",
-                    "quiescent",
-                    "uncertain",
-                    "destroyed"
-                  ]
-                },
-                "execution_runtime": {
-                  "enum": [
-                    "not-started",
-                    "start-requested",
-                    "running",
-                    "cancel-requested",
-                    "stopping",
-                    "quiescent",
-                    "uncertain",
-                    "destroyed"
-                  ]
-                },
-                "output": {
-                  "enum": [
-                    "open",
-                    "freeze-requested",
-                    "frozen",
-                    "invalid",
-                    "sealed",
-                    "discarded"
-                  ]
-                },
-                "worker_disposition": {
-                  "enum": [
-                    "none",
-                    "completed",
-                    "unable",
-                    "plan-rejected",
-                    "cancelled"
-                  ]
-                },
-                "proposal": {
-                  "enum": [
-                    "none",
-                    "publish-requested",
-                    "published",
-                    "superseded"
-                  ]
-                },
-                "verification": {
-                  "enum": [
-                    "none",
-                    "passed",
-                    "failed",
-                    "unable"
-                  ]
-                },
-                "technical_review": {
-                  "enum": [
-                    "none",
-                    "accepted",
-                    "changes-requested",
-                    "rejected"
-                  ]
-                },
-                "approval": {
-                  "enum": [
-                    "none",
-                    "approved",
-                    "denied"
-                  ]
-                },
-                "integration": {
-                  "enum": [
-                    "none",
-                    "integrated",
-                    "failed"
-                  ]
-                },
-                "cleanup": {
-                  "enum": [
-                    "pending",
-                    "blocked-on-intake",
-                    "complete",
-                    "retained",
-                    "failed"
-                  ]
-                }
-              },
-              "required": [
-                "consent_runtime",
-                "execution_runtime",
-                "output",
-                "worker_disposition",
-                "proposal",
-                "verification",
-                "technical_review",
-                "approval",
-                "integration",
-                "cleanup"
-              ],
-              "additionalProperties": false
-            },
-            "observed_at": {
-              "$ref": "#/$defs/timestamp"
-            },
-            "diagnostics": {
-              "$ref": "#/$defs/extensions"
-            }
-          },
-          "required": [
-            "schema",
-            "runtime_attempt_id",
-            "assignment_ref",
-            "adapter",
-            "runtime_profile_digest",
-            "worker_image_digest",
-            "toolchain_digest",
-            "policy_digest",
-            "runtime_id",
-            "observation_seq",
-            "states",
-            "observed_at",
-            "diagnostics"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "resultManifest": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/manifestHeader"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "schema": {
-              "const": "baton.worker-manifest/result"
-            },
-            "result_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "assignment_ref": {
-              "$ref": "#/$defs/assignmentRef"
-            },
-            "input_manifest_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "disposition": {
-              "enum": [
-                "completed",
-                "unable",
-                "plan-rejected",
-                "cancelled"
-              ]
-            },
-            "outputs": {
-              "type": "array",
-              "maxItems": 64,
-              "items": {
-                "$ref": "#/$defs/artifactOutput"
-              }
-            },
-            "evidence": {
-              "type": "array",
-              "maxItems": 256,
-              "items": {
-                "$ref": "#/$defs/evidenceRef"
-              }
-            },
-            "freeze_operation": {
-              "$ref": "#/$defs/operation"
-            },
-            "manager_observed_at": {
-              "$ref": "#/$defs/timestamp"
-            }
-          },
-          "required": [
-            "schema",
-            "result_id",
-            "assignment_ref",
-            "input_manifest_digest",
-            "policy_digest",
-            "disposition",
-            "outputs",
-            "evidence",
-            "freeze_operation",
-            "manager_observed_at"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "proposalManifest": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/manifestHeader"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "schema": {
-              "const": "baton.worker-manifest/proposal"
-            },
-            "proposal_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "assignment_ref": {
-              "$ref": "#/$defs/assignmentRef"
-            },
-            "result_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "result_manifest_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "input_manifest_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "policy_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "runtime_profile_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "output_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "source_base": {
-              "$ref": "#/$defs/gitObject"
-            },
-            "target_revision": {
-              "$ref": "#/$defs/gitObject"
-            },
-            "proposal_head": {
-              "$ref": "#/$defs/gitObject"
-            },
-            "proposal_artifact": {
-              "$ref": "#/$defs/artifactRef"
-            },
-            "author_tests": {
-              "type": "array",
-              "maxItems": 128,
-              "items": {
-                "$ref": "#/$defs/evidenceRef"
-              }
-            },
-            "implementation_recap": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 16000
-            },
-            "dossier_evidence": {
-              "type": "array",
-              "maxItems": 128,
-              "items": {
-                "$ref": "#/$defs/evidenceRef"
-              }
-            },
-            "publish_operation": {
-              "$ref": "#/$defs/operation"
-            },
-            "publish_receipt_digest": {
-              "$ref": "#/$defs/digest"
-            }
-          },
-          "required": [
-            "schema",
-            "proposal_id",
-            "assignment_ref",
-            "result_id",
-            "result_manifest_digest",
-            "input_manifest_digest",
-            "policy_digest",
-            "runtime_profile_digest",
-            "output_digest",
-            "source_base",
-            "target_revision",
-            "proposal_head",
-            "proposal_artifact",
-            "author_tests",
-            "implementation_recap",
-            "dossier_evidence",
-            "publish_operation",
-            "publish_receipt_digest"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "receiptBase": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/manifestHeader"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "receipt_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "operation": {
-              "$ref": "#/$defs/operation"
-            },
-            "proposal_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "proposal_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "candidate_tree_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "target_revision": {
-              "$ref": "#/$defs/gitObject"
-            },
-            "actor": {
-              "$ref": "#/$defs/participant"
-            },
-            "policy_generation": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 9007199254740991
-            },
-            "rationale": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 16000
-            }
-          },
-          "required": [
-            "receipt_id",
-            "operation",
-            "proposal_id",
-            "proposal_digest",
-            "candidate_tree_digest",
-            "target_revision",
-            "actor",
-            "policy_generation",
-            "rationale"
-          ]
-        }
-      ]
-    },
-    "verificationReceipt": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/receiptBase"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "schema": {
-              "const": "baton.worker-manifest/verification"
-            },
-            "observation": {
-              "enum": [
-                "passed",
-                "failed",
-                "unable"
-              ]
-            },
-            "verifier_profile_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "worker_image_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "toolchain_digest": {
-              "$ref": "#/$defs/digest"
-            },
-            "suites": {
-              "type": "array",
-              "minItems": 1,
-              "maxItems": 128,
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "$ref": "#/$defs/opaqueId"
-                  },
-                  "observation": {
-                    "enum": [
-                      "passed",
-                      "failed",
-                      "unable"
-                    ]
-                  },
-                  "evidence": {
-                    "$ref": "#/$defs/evidenceRef"
-                  }
-                },
-                "required": [
-                  "name",
-                  "observation",
-                  "evidence"
-                ],
-                "additionalProperties": false
-              }
-            }
-          },
-          "required": [
-            "schema",
-            "observation",
-            "verifier_profile_digest",
-            "worker_image_digest",
-            "toolchain_digest",
-            "suites"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "verificationAssessment": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/receiptBase"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "schema": {
-              "const": "baton.worker-manifest/verification-assessment"
-            },
-            "verification_receipt_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "assessment": {
-              "enum": [
-                "accepted",
-                "rejected",
-                "inconclusive"
-              ]
-            }
-          },
-          "required": [
-            "schema",
-            "verification_receipt_id",
-            "assessment"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "technicalReviewReceipt": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/receiptBase"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "schema": {
-              "const": "baton.worker-manifest/technical-review"
-            },
-            "verification_assessment_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "disposition": {
-              "enum": [
-                "accepted",
-                "changes-requested",
-                "rejected"
-              ]
-            }
-          },
-          "required": [
-            "schema",
-            "verification_assessment_id",
-            "disposition"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "approvalReceipt": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/receiptBase"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "schema": {
-              "const": "baton.worker-manifest/approval"
-            },
-            "technical_review_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "disposition": {
-              "enum": [
-                "approved",
-                "denied"
-              ]
-            }
-          },
-          "required": [
-            "schema",
-            "technical_review_id",
-            "disposition"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "integrationReceipt": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/receiptBase"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "schema": {
-              "const": "baton.worker-manifest/integration"
-            },
-            "approval_id": {
-              "$ref": "#/$defs/opaqueId"
-            },
-            "disposition": {
-              "enum": [
-                "integrated",
-                "refused"
-              ]
-            },
-            "target_before": {
-              "$ref": "#/$defs/gitObject"
-            },
-            "target_after": {
-              "oneOf": [
-                {
-                  "$ref": "#/$defs/gitObject"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          "required": [
-            "schema",
-            "approval_id",
-            "disposition",
-            "target_before",
-            "target_after"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "controlLimits": {
-      "type": "object",
-      "properties": {
-        "max_frame_bytes": {
-          "type": "integer",
-          "minimum": 1024,
-          "maximum": 16777216
-        },
-        "max_extension_bytes": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 1048576
-        },
-        "max_artifact_bytes": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
-        },
-        "max_manifest_entries": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 100000
-        },
-        "max_activity_bytes": {
-          "type": "integer",
-          "minimum": 64,
-          "maximum": 65536
-        }
-      },
-      "required": [
-        "max_frame_bytes",
-        "max_extension_bytes",
-        "max_artifact_bytes",
-        "max_manifest_entries",
-        "max_activity_bytes"
-      ],
-      "additionalProperties": false
-    },
-    "helloBody": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "$ref": "#/$defs/sender/properties/role"
-        },
-        "supported_versions": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": {
-            "$ref": "#/$defs/version"
-          }
-        },
-        "capabilities": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "contains": {
-            "const": "core.errors"
-          },
-          "items": {
-            "$ref": "#/$defs/capability"
-          }
-        },
-        "extensions": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+/[1-9][0-9]*$"
-          }
-        },
-        "limits": {
-          "$ref": "#/$defs/controlLimits"
-        },
-        "runtime_profile_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "role",
-        "supported_versions",
-        "capabilities",
-        "extensions",
-        "limits",
-        "runtime_profile_digest"
-      ],
-      "additionalProperties": false
-    },
-    "welcomeBody": {
-      "type": "object",
-      "properties": {
-        "selected_version": {
-          "$ref": "#/$defs/version"
-        },
-        "capabilities": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "contains": {
-            "const": "core.errors"
-          },
-          "items": {
-            "$ref": "#/$defs/capability"
-          }
-        },
-        "extensions": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+/[1-9][0-9]*$"
-          }
-        },
-        "effective_limits": {
-          "$ref": "#/$defs/controlLimits"
-        }
-      },
-      "required": [
-        "selected_version",
-        "capabilities",
-        "extensions",
-        "effective_limits"
-      ],
-      "additionalProperties": false
-    },
-    "offerIssueBody": {
-      "type": "object",
-      "properties": {
-        "offer_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "runtime_attempt_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "work_ref": {
-          "$ref": "#/$defs/workRef"
-        },
-        "human_contract_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "human_contract_summary": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 16000
-        },
-        "input_manifest_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "declared_output_names": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 64,
-          "uniqueItems": true,
-          "items": {
-            "$ref": "#/$defs/opaqueId"
-          }
-        },
-        "policy_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "runtime_profile_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "expires_at": {
-          "$ref": "#/$defs/timestamp"
-        },
-        "sensitive": {
-          "const": true
-        },
-        "claim_token": {
-          "type": "string",
-          "minLength": 32,
-          "maxLength": 4096
-        }
-      },
-      "required": [
-        "offer_id",
-        "runtime_attempt_id",
-        "work_ref",
-        "human_contract_digest",
-        "human_contract_summary",
-        "input_manifest_digest",
-        "declared_output_names",
-        "policy_digest",
-        "runtime_profile_digest",
-        "expires_at",
-        "sensitive",
-        "claim_token"
-      ],
-      "additionalProperties": false
-    },
-    "offerDecideBody": {
-      "type": "object",
-      "$comment": "W4487, ruled 2026-08-22: `claim_token` is null for a decline and a string for an accept, and that asymmetry is DELIBERATE. W151 1-ruled section 7 originally required a declining worker to present the exact unspent bearer, which this schema mechanically rejects; the approver kept this non-secret decline envelope and superseded that requirement. A decline is authorized instead by the exact binding of offer_id, runtime_attempt_id, work_ref, decision and reason under the envelope's body_digest, and the manager consumes the offer verifier without a bearer ever being transmitted. Schema proves the shape only; section 12 rule 14 states the binding check no schema can express. See work/records/2026/08/finding-worker-control-decline-token-conflict/.",
-      "properties": {
-        "offer_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "runtime_attempt_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "work_ref": {
-          "$ref": "#/$defs/workRef"
-        },
-        "decision": {
-          "enum": [
-            "accept",
-            "decline"
-          ]
-        },
-        "reason": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 4000
-        },
-        "claim_token": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "minLength": 32,
-          "maxLength": 4096
-        }
-      },
-      "required": [
-        "offer_id",
-        "runtime_attempt_id",
-        "work_ref",
-        "decision",
-        "reason",
-        "claim_token"
-      ],
-      "additionalProperties": false,
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "decision": {
-                "const": "accept"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "claim_token": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "decision": {
-                "const": "decline"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "claim_token": {
-                "type": "null"
-              }
-            }
-          }
-        }
-      ]
-    },
-    "assignmentActivateBody": {
-      "type": "object",
-      "properties": {
-        "assignment_ref": {
-          "$ref": "#/$defs/assignmentRef"
-        },
-        "runtime_attempt_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "input_manifest_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "assignment_manifest_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "policy_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "runtime_profile_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "assignment_ref",
-        "runtime_attempt_id",
-        "input_manifest_digest",
-        "assignment_manifest_digest",
-        "policy_digest",
-        "runtime_profile_digest"
-      ],
-      "additionalProperties": false
-    },
-    "runtimeStartBody": {
-      "type": "object",
-      "properties": {
-        "assignment_ref": {
-          "$ref": "#/$defs/assignmentRef"
-        },
-        "runtime_attempt_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "input_manifest_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "assignment_manifest_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "assignment_ref",
-        "runtime_attempt_id",
-        "input_manifest_digest",
-        "assignment_manifest_digest"
-      ],
-      "additionalProperties": false
-    },
-    "runtimeCancelBody": {
-      "type": "object",
-      "properties": {
-        "assignment_ref": {
-          "$ref": "#/$defs/assignmentRef"
-        },
-        "runtime_attempt_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "runtime_id": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/opaqueId"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "reason": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 4000
-        },
-        "fence_receipt_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "assignment_ref",
-        "runtime_attempt_id",
-        "runtime_id",
-        "reason",
-        "fence_receipt_digest"
-      ],
-      "additionalProperties": false
-    },
-    "runtimeInspectBody": {
-      "type": "object",
-      "properties": {
-        "runtime_attempt_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "assignment_ref": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/assignmentRef"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "runtime_id": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/opaqueId"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "required": [
-        "runtime_attempt_id",
-        "assignment_ref",
-        "runtime_id"
-      ],
-      "additionalProperties": false
-    },
-    "activityBody": {
-      "type": "object",
-      "properties": {
-        "activity_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "source_event_seq": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
-        },
-        "assignment_ref": {
-          "$ref": "#/$defs/assignmentRef"
-        },
-        "plan_step_id": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/opaqueId"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "kind": {
-          "enum": [
-            "step-started",
-            "step-completed",
-            "action",
-            "evidence",
-            "retry",
-            "blocker",
-            "handoff-preparation"
-          ]
-        },
-        "summary": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 16000
-        },
-        "record_paths": {
-          "type": "array",
-          "maxItems": 64,
-          "uniqueItems": true,
-          "items": {
-            "$ref": "#/$defs/relativePath"
-          }
-        }
-      },
-      "required": [
-        "activity_id",
-        "source_event_seq",
-        "assignment_ref",
-        "plan_step_id",
-        "kind",
-        "summary",
-        "record_paths"
-      ],
-      "additionalProperties": false
-    },
-    "resultDeclareBody": {
-      "type": "object",
-      "properties": {
-        "result_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "assignment_ref": {
-          "$ref": "#/$defs/assignmentRef"
-        },
-        "disposition": {
-          "enum": [
-            "completed",
-            "unable",
-            "plan-rejected",
-            "cancelled"
-          ]
-        },
-        "declared_outputs": {
-          "type": "array",
-          "maxItems": 64,
-          "uniqueItems": true,
-          "items": {
-            "$ref": "#/$defs/opaqueId"
-          }
-        },
-        "evidence": {
-          "type": "array",
-          "maxItems": 256,
-          "items": {
-            "$ref": "#/$defs/evidenceRef"
-          }
-        },
-        "summary": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 16000
-        }
-      },
-      "required": [
-        "result_id",
-        "assignment_ref",
-        "disposition",
-        "declared_outputs",
-        "evidence",
-        "summary"
-      ],
-      "additionalProperties": false
-    },
-    "outputActionBody": {
-      "type": "object",
-      "properties": {
-        "assignment_ref": {
-          "$ref": "#/$defs/assignmentRef"
-        },
-        "runtime_attempt_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "result_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "output_names": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 64,
-          "uniqueItems": true,
-          "items": {
-            "$ref": "#/$defs/opaqueId"
-          }
-        },
-        "result_manifest_digest": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/digest"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "policy_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "assignment_ref",
-        "runtime_attempt_id",
-        "result_id",
-        "output_names",
-        "result_manifest_digest",
-        "policy_digest"
-      ],
-      "additionalProperties": false
-    },
-    "proposalPublishBody": {
-      "type": "object",
-      "properties": {
-        "assignment_ref": {
-          "$ref": "#/$defs/assignmentRef"
-        },
-        "proposal_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "proposal_manifest_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "target_revision": {
-          "$ref": "#/$defs/gitObject"
-        },
-        "policy_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "assignment_ref",
-        "proposal_id",
-        "proposal_manifest_digest",
-        "target_revision",
-        "policy_digest"
-      ],
-      "additionalProperties": false
-    },
-    "outputRetainBody": {
-      "type": "object",
-      "properties": {
-        "assignment_ref": {
-          "$ref": "#/$defs/assignmentRef"
-        },
-        "runtime_attempt_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "artifact_ids": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 128,
-          "uniqueItems": true,
-          "items": {
-            "$ref": "#/$defs/opaqueId"
-          }
-        },
-        "disposition": {
-          "enum": [
-            "retain",
-            "quarantine",
-            "discard-after-intake"
-          ]
-        },
-        "retention_policy_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "assignment_ref",
-        "runtime_attempt_id",
-        "artifact_ids",
-        "disposition",
-        "retention_policy_digest"
-      ],
-      "additionalProperties": false
-    },
-    "runtimeDestroyBody": {
-      "type": "object",
-      "properties": {
-        "assignment_ref": {
-          "$ref": "#/$defs/assignmentRef"
-        },
-        "runtime_attempt_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "runtime_id": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/opaqueId"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "intake_receipt_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "retention_policy_digest": {
-          "$ref": "#/$defs/digest"
-        }
-      },
-      "required": [
-        "assignment_ref",
-        "runtime_attempt_id",
-        "runtime_id",
-        "intake_receipt_digest",
-        "retention_policy_digest"
-      ],
-      "additionalProperties": false
-    },
-    "operationReplyBody": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "enum": [
-            "committed",
-            "observed"
-          ]
-        },
-        "result_schema": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "result_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "result_artifact": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/artifactRef"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "required": [
-        "status",
-        "result_schema",
-        "result_digest",
-        "result_artifact"
-      ],
-      "additionalProperties": false
-    },
-    "controlErrorBody": {
-      "type": "object",
-      "properties": {
-        "category": {
-          "enum": [
-            "refused",
-            "ambiguous",
-            "unavailable",
-            "policy",
-            "integrity",
-            "stale-assignment",
-            "runtime-observation"
-          ]
-        },
-        "code": {
-          "enum": [
-            "precondition",
-            "unsupported-version",
-            "capability",
-            "extension",
-            "operation-collision",
-            "already-terminal",
-            "operation",
-            "runtime-start",
-            "collection",
-            "transport",
-            "authority",
-            "artifact-store",
-            "source-provider",
-            "denied",
-            "profile-uncertified",
-            "credential-lifetime",
-            "retention",
-            "schema",
-            "digest",
-            "path",
-            "file-type",
-            "limit",
-            "secret-leak",
-            "ended",
-            "generation",
-            "contract",
-            "target",
-            "identity-mismatch",
-            "duplicate-runtime",
-            "quiescence-unknown",
-            "state-regression"
-          ]
-        },
-        "summary": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 4000
-        },
-        "retry": {
-          "enum": [
-            "never",
-            "exact",
-            "after-state-change",
-            "reconcile"
-          ]
-        },
-        "operation_state": {
-          "enum": [
-            "unsubmitted",
-            "committed",
-            "refused",
-            "retired",
-            "unknown"
-          ]
-        },
-        "assignment_ref": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/assignmentRef"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "runtime_attempt_id": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/opaqueId"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "diagnostic_artifact": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/artifactRef"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "required": [
-        "category",
-        "code",
-        "summary",
-        "retry",
-        "operation_state",
-        "assignment_ref",
-        "runtime_attempt_id",
-        "diagnostic_artifact"
-      ],
-      "additionalProperties": false
-    },
-    "controlEnvelope": {
-      "type": "object",
-      "properties": {
-        "protocol": {
-          "const": "baton.worker-control"
-        },
-        "version": {
-          "$ref": "#/$defs/version"
-        },
-        "message_type": {
-          "enum": [
-            "command",
-            "reply",
-            "event"
-          ]
-        },
-        "kind": {
-          "enum": [
-            "control.hello",
-            "control.welcome",
-            "offer.issue",
-            "offer.decide",
-            "assignment.activate",
-            "runtime.start",
-            "runtime.cancel",
-            "runtime.inspect",
-            "activity.emit",
-            "result.declare",
-            "output.freeze",
-            "output.collect",
-            "proposal.publish",
-            "output.retain",
-            "runtime.destroy",
-            "operation.reply",
-            "control.error"
-          ]
-        },
-        "message_id": {
-          "$ref": "#/$defs/opaqueId"
-        },
-        "correlation_id": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/opaqueId"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "sent_at": {
-          "$ref": "#/$defs/timestamp"
-        },
-        "sender": {
-          "$ref": "#/$defs/sender"
-        },
-        "operation": {
-          "oneOf": [
-            {
-              "$ref": "#/$defs/operation"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "body_digest": {
-          "$ref": "#/$defs/digest"
-        },
-        "body": {
-          "type": "object"
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensions"
-        }
-      },
-      "required": [
-        "protocol",
-        "version",
-        "message_type",
-        "kind",
-        "message_id",
-        "correlation_id",
-        "sent_at",
-        "sender",
-        "operation",
-        "body_digest",
-        "body",
-        "extensions"
-      ],
-      "additionalProperties": false,
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "control.hello"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "type": "null"
-              },
-              "body": {
-                "$ref": "#/$defs/helloBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "control.welcome"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "reply"
-              },
-              "operation": {
-                "type": "null"
-              },
-              "body": {
-                "$ref": "#/$defs/welcomeBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "offer.issue"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "$ref": "#/$defs/operation"
-              },
-              "body": {
-                "$ref": "#/$defs/offerIssueBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "offer.decide"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "$ref": "#/$defs/operation"
-              },
-              "body": {
-                "$ref": "#/$defs/offerDecideBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "assignment.activate"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "$ref": "#/$defs/operation"
-              },
-              "body": {
-                "$ref": "#/$defs/assignmentActivateBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "runtime.start"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "$ref": "#/$defs/operation"
-              },
-              "body": {
-                "$ref": "#/$defs/runtimeStartBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "runtime.cancel"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "$ref": "#/$defs/operation"
-              },
-              "body": {
-                "$ref": "#/$defs/runtimeCancelBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "runtime.inspect"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "type": "null"
-              },
-              "body": {
-                "$ref": "#/$defs/runtimeInspectBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "activity.emit"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "event"
-              },
-              "operation": {
-                "type": "null"
-              },
-              "body": {
-                "$ref": "#/$defs/activityBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "result.declare"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "$ref": "#/$defs/operation"
-              },
-              "body": {
-                "$ref": "#/$defs/resultDeclareBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "enum": [
-                  "output.freeze",
-                  "output.collect"
-                ]
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "$ref": "#/$defs/operation"
-              },
-              "body": {
-                "$ref": "#/$defs/outputActionBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "proposal.publish"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "$ref": "#/$defs/operation"
-              },
-              "body": {
-                "$ref": "#/$defs/proposalPublishBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "output.retain"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "$ref": "#/$defs/operation"
-              },
-              "body": {
-                "$ref": "#/$defs/outputRetainBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "runtime.destroy"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "command"
-              },
-              "operation": {
-                "$ref": "#/$defs/operation"
-              },
-              "body": {
-                "$ref": "#/$defs/runtimeDestroyBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "operation.reply"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "reply"
-              },
-              "body": {
-                "$ref": "#/$defs/operationReplyBody"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "control.error"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message_type": {
-                "const": "reply"
-              },
-              "body": {
-                "$ref": "#/$defs/controlErrorBody"
-              }
-            }
-          }
-        }
-      ]
+    "extensions": {
+     "$ref": "#/$defs/extensions"
     }
+   },
+   "required": [
+    "protocol",
+    "version",
+    "message_type",
+    "kind",
+    "message_id",
+    "correlation_id",
+    "sent_at",
+    "sender",
+    "operation",
+    "body_digest",
+    "body",
+    "extensions"
+   ],
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "control.hello"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "type": "null"
+       },
+       "body": {
+        "$ref": "#/$defs/helloBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "control.welcome"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "reply"
+       },
+       "operation": {
+        "type": "null"
+       },
+       "body": {
+        "$ref": "#/$defs/welcomeBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "offer.issue"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "$ref": "#/$defs/operation"
+       },
+       "body": {
+        "$ref": "#/$defs/offerIssueBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "offer.decide"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "$ref": "#/$defs/operation"
+       },
+       "body": {
+        "$ref": "#/$defs/offerDecideBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "assignment.activate"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "$ref": "#/$defs/operation"
+       },
+       "body": {
+        "$ref": "#/$defs/assignmentActivateBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "runtime.start"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "$ref": "#/$defs/operation"
+       },
+       "body": {
+        "$ref": "#/$defs/runtimeStartBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "runtime.cancel"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "$ref": "#/$defs/operation"
+       },
+       "body": {
+        "$ref": "#/$defs/runtimeCancelBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "runtime.inspect"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "type": "null"
+       },
+       "body": {
+        "$ref": "#/$defs/runtimeInspectBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "activity.emit"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "event"
+       },
+       "operation": {
+        "type": "null"
+       },
+       "body": {
+        "$ref": "#/$defs/activityBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "result.declare"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "$ref": "#/$defs/operation"
+       },
+       "body": {
+        "$ref": "#/$defs/resultDeclareBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "enum": [
+         "output.freeze",
+         "output.collect"
+        ]
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "$ref": "#/$defs/operation"
+       },
+       "body": {
+        "$ref": "#/$defs/outputActionBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "proposal.publish"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "$ref": "#/$defs/operation"
+       },
+       "body": {
+        "$ref": "#/$defs/proposalPublishBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "output.retain"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "$ref": "#/$defs/operation"
+       },
+       "body": {
+        "$ref": "#/$defs/outputRetainBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "runtime.destroy"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "command"
+       },
+       "operation": {
+        "$ref": "#/$defs/operation"
+       },
+       "body": {
+        "$ref": "#/$defs/runtimeDestroyBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "operation.reply"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "reply"
+       },
+       "body": {
+        "$ref": "#/$defs/operationReplyBody"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "kind": {
+        "const": "control.error"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "message_type": {
+        "const": "reply"
+       },
+       "body": {
+        "$ref": "#/$defs/controlErrorBody"
+       }
+      }
+     }
+    }
+   ]
+  },
+  "controlErrorBody": {
+   "type": "object",
+   "properties": {
+    "category": {
+     "enum": [
+      "refused",
+      "ambiguous",
+      "unavailable",
+      "policy",
+      "integrity",
+      "stale-assignment",
+      "runtime-observation"
+     ]
+    },
+    "code": {
+     "enum": [
+      "precondition",
+      "unsupported-version",
+      "capability",
+      "extension",
+      "operation-collision",
+      "already-terminal",
+      "operation",
+      "runtime-start",
+      "collection",
+      "transport",
+      "authority",
+      "artifact-store",
+      "source-provider",
+      "denied",
+      "profile-uncertified",
+      "credential-lifetime",
+      "retention",
+      "schema",
+      "digest",
+      "path",
+      "file-type",
+      "limit",
+      "secret-leak",
+      "ended",
+      "generation",
+      "contract",
+      "target",
+      "identity-mismatch",
+      "duplicate-runtime",
+      "quiescence-unknown",
+      "state-regression"
+     ]
+    },
+    "summary": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 4000
+    },
+    "retry": {
+     "enum": [
+      "never",
+      "exact",
+      "after-state-change",
+      "reconcile"
+     ]
+    },
+    "operation_state": {
+     "enum": [
+      "unsubmitted",
+      "committed",
+      "refused",
+      "retired",
+      "unknown"
+     ]
+    },
+    "assignment_ref": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/assignmentRef"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "runtime_attempt_id": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/opaqueId"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "diagnostic_artifact": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/artifactRef"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "category",
+    "code",
+    "summary",
+    "retry",
+    "operation_state",
+    "assignment_ref",
+    "runtime_attempt_id",
+    "diagnostic_artifact"
+   ],
+   "additionalProperties": false
+  },
+  "controlLimits": {
+   "type": "object",
+   "properties": {
+    "max_frame_bytes": {
+     "type": "integer",
+     "minimum": 1024,
+     "maximum": 16777216
+    },
+    "max_extension_bytes": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 1048576
+    },
+    "max_artifact_bytes": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 9007199254740991
+    },
+    "max_manifest_entries": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 100000
+    },
+    "max_activity_bytes": {
+     "type": "integer",
+     "minimum": 64,
+     "maximum": 65536
+    }
+   },
+   "required": [
+    "max_frame_bytes",
+    "max_extension_bytes",
+    "max_artifact_bytes",
+    "max_manifest_entries",
+    "max_activity_bytes"
+   ],
+   "additionalProperties": false
+  },
+  "digest": {
+   "type": "string",
+   "pattern": "^sha256:[0-9a-f]{64}$"
+  },
+  "evidenceRef": {
+   "type": "object",
+   "properties": {
+    "purpose": {
+     "enum": [
+      "log",
+      "test-output",
+      "manifest",
+      "trace",
+      "dossier",
+      "reproduction",
+      "diff",
+      "bundle",
+      "candidate-tree",
+      "attestation"
+     ]
+    },
+    "artifact": {
+     "$ref": "#/$defs/artifactRef"
+    }
+   },
+   "required": [
+    "purpose",
+    "artifact"
+   ],
+   "additionalProperties": false
+  },
+  "extensions": {
+   "type": "object",
+   "propertyNames": {
+    "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+/[1-9][0-9]*$"
+   },
+   "additionalProperties": true
+  },
+  "gitObject": {
+   "oneOf": [
+    {
+     "type": "object",
+     "properties": {
+      "algorithm": {
+       "const": "sha1"
+      },
+      "hex": {
+       "type": "string",
+       "pattern": "^[0-9a-f]{40}$"
+      }
+     },
+     "required": [
+      "algorithm",
+      "hex"
+     ],
+     "additionalProperties": false
+    },
+    {
+     "type": "object",
+     "properties": {
+      "algorithm": {
+       "const": "sha256"
+      },
+      "hex": {
+       "type": "string",
+       "pattern": "^[0-9a-f]{64}$"
+      }
+     },
+     "required": [
+      "algorithm",
+      "hex"
+     ],
+     "additionalProperties": false
+    }
+   ]
+  },
+  "helloBody": {
+   "type": "object",
+   "properties": {
+    "role": {
+     "$ref": "#/$defs/sender/properties/role"
+    },
+    "supported_versions": {
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/version"
+     }
+    },
+    "capabilities": {
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "contains": {
+      "const": "core.errors"
+     },
+     "items": {
+      "$ref": "#/$defs/capability"
+     }
+    },
+    "extensions": {
+     "type": "array",
+     "uniqueItems": true,
+     "items": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+/[1-9][0-9]*$"
+     }
+    },
+    "limits": {
+     "$ref": "#/$defs/controlLimits"
+    },
+    "runtime_profile_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "role",
+    "supported_versions",
+    "capabilities",
+    "extensions",
+    "limits",
+    "runtime_profile_digest"
+   ],
+   "additionalProperties": false
+  },
+  "inputManifest": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/manifestHeader"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/input"
+      },
+      "work_ref": {
+       "$ref": "#/$defs/workRef"
+      },
+      "assignment_contract": {
+       "const": "v12-assignment-1"
+      },
+      "human_contract": {
+       "$ref": "#/$defs/artifactRef"
+      },
+      "sources": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 64,
+       "items": {
+        "$ref": "#/$defs/sourceDescriptor"
+       }
+      },
+      "outputs": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 64,
+       "items": {
+        "$ref": "#/$defs/outputDescriptor"
+       }
+      },
+      "role_instructions_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "toolchain_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "worker_image_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "runtime_profile_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "resource_policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "network_policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "mount_policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "tool_policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "credential_policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "retention_policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "record_binding": {
+       "type": "object",
+       "properties": {
+        "root": {
+         "$ref": "#/$defs/opaqueId"
+        },
+        "path": {
+         "$ref": "#/$defs/relativePath"
+        },
+        "finding_digest": {
+         "$ref": "#/$defs/digest"
+        },
+        "plan_digest": {
+         "$ref": "#/$defs/digest"
+        }
+       },
+       "required": [
+        "root",
+        "path",
+        "finding_digest",
+        "plan_digest"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "schema",
+      "work_ref",
+      "assignment_contract",
+      "human_contract",
+      "sources",
+      "outputs",
+      "role_instructions_digest",
+      "policy_digest",
+      "toolchain_digest",
+      "worker_image_digest",
+      "runtime_profile_digest",
+      "resource_policy_digest",
+      "network_policy_digest",
+      "mount_policy_digest",
+      "tool_policy_digest",
+      "credential_policy_digest",
+      "retention_policy_digest",
+      "record_binding"
+     ]
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "integrationReceipt": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/receiptBase"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/integration"
+      },
+      "approval_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "disposition": {
+       "enum": [
+        "integrated",
+        "refused"
+       ]
+      },
+      "target_before": {
+       "$ref": "#/$defs/gitObject"
+      },
+      "target_after": {
+       "oneOf": [
+        {
+         "$ref": "#/$defs/gitObject"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      }
+     },
+     "required": [
+      "schema",
+      "approval_id",
+      "disposition",
+      "target_before",
+      "target_after"
+     ]
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "manifestHeader": {
+   "type": "object",
+   "properties": {
+    "version": {
+     "$ref": "#/$defs/version"
+    },
+    "manifest_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "created_at": {
+     "$ref": "#/$defs/timestamp"
+    },
+    "manifest_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "extensions": {
+     "$ref": "#/$defs/extensions"
+    }
+   },
+   "required": [
+    "version",
+    "manifest_id",
+    "created_at",
+    "manifest_digest",
+    "extensions"
+   ]
+  },
+  "offerDecideBody": {
+   "type": "object",
+   "$comment": "W4487, ruled 2026-08-22: `claim_token` is null for a decline and a string for an accept, and that asymmetry is DELIBERATE. W151 1-ruled section 7 originally required a declining worker to present the exact unspent bearer, which this schema mechanically rejects; the approver kept this non-secret decline envelope and superseded that requirement. A decline is authorized instead by the exact binding of offer_id, runtime_attempt_id, work_ref, decision and reason under the envelope's body_digest, and the manager consumes the offer verifier without a bearer ever being transmitted. Schema proves the shape only; section 12 rule 14 states the binding check no schema can express. See work/records/2026/08/finding-worker-control-decline-token-conflict/.",
+   "properties": {
+    "offer_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "runtime_attempt_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "work_ref": {
+     "$ref": "#/$defs/workRef"
+    },
+    "decision": {
+     "enum": [
+      "accept",
+      "decline"
+     ]
+    },
+    "reason": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 4000
+    },
+    "claim_token": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "minLength": 32,
+     "maxLength": 4096
+    }
+   },
+   "required": [
+    "offer_id",
+    "runtime_attempt_id",
+    "work_ref",
+    "decision",
+    "reason",
+    "claim_token"
+   ],
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "decision": {
+        "const": "accept"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "claim_token": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "decision": {
+        "const": "decline"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "claim_token": {
+        "type": "null"
+       }
+      }
+     }
+    }
+   ]
+  },
+  "offerIssueBody": {
+   "type": "object",
+   "properties": {
+    "offer_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "runtime_attempt_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "work_ref": {
+     "$ref": "#/$defs/workRef"
+    },
+    "human_contract_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "human_contract_summary": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 16000
+    },
+    "input_manifest_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "declared_output_names": {
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 64,
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/opaqueId"
+     }
+    },
+    "policy_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "runtime_profile_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "expires_at": {
+     "$ref": "#/$defs/timestamp"
+    },
+    "sensitive": {
+     "const": true
+    },
+    "claim_token": {
+     "type": "string",
+     "minLength": 32,
+     "maxLength": 4096
+    }
+   },
+   "required": [
+    "offer_id",
+    "runtime_attempt_id",
+    "work_ref",
+    "human_contract_digest",
+    "human_contract_summary",
+    "input_manifest_digest",
+    "declared_output_names",
+    "policy_digest",
+    "runtime_profile_digest",
+    "expires_at",
+    "sensitive",
+    "claim_token"
+   ],
+   "additionalProperties": false
+  },
+  "opaqueId": {
+   "type": "string",
+   "minLength": 1,
+   "maxLength": 160,
+   "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+  },
+  "operation": {
+   "type": "object",
+   "$comment": "Review 2026-08-22 [P1] on W4487: `signature_digest` is NOT the body digest. Section 4.2 fixes the payload exactly -- the canonical digest of {\"kind\": <envelope kind>, \"operands\": <durable body operands>} -- so the operation kind is inside the identity and two kinds carrying identical operands are different operations. A `claim_token` operand enters that payload as its verifier digest, never literally, because a signature is durable and section 13 keeps the bearer off durable surfaces. Transport correlation, `sent_at`, `sender` and `extensions` are excluded. Schema can only prove the digest's SHAPE; section 12 rule 9 states the recomputation, which a receiver of a command performs before journalling the operation. A reply echoes its request's signature and is not recomputed. See work/records/2026/08/finding-worker-control-decline-token-conflict/.",
+   "properties": {
+    "operation_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "signature_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "operation_id",
+    "signature_digest"
+   ],
+   "additionalProperties": false
+  },
+  "operationReplyBody": {
+   "type": "object",
+   "properties": {
+    "status": {
+     "enum": [
+      "committed",
+      "observed"
+     ]
+    },
+    "result_schema": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "result_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "result_artifact": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/artifactRef"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "status",
+    "result_schema",
+    "result_digest",
+    "result_artifact"
+   ],
+   "additionalProperties": false
+  },
+  "outputActionBody": {
+   "type": "object",
+   "properties": {
+    "assignment_ref": {
+     "$ref": "#/$defs/assignmentRef"
+    },
+    "runtime_attempt_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "result_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "output_names": {
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 64,
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/opaqueId"
+     }
+    },
+    "result_manifest_digest": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/digest"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "policy_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "assignment_ref",
+    "runtime_attempt_id",
+    "result_id",
+    "output_names",
+    "result_manifest_digest",
+    "policy_digest"
+   ],
+   "additionalProperties": false
+  },
+  "outputConstraints": {
+   "type": "object",
+   "properties": {
+    "max_bytes": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 9007199254740991
+    },
+    "max_entries": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100000
+    },
+    "allowed_media_types": {
+     "type": "array",
+     "uniqueItems": true,
+     "items": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160
+     }
+    },
+    "link_policy": {
+     "const": "forbid"
+    },
+    "validator_digest": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/digest"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "max_bytes",
+    "max_entries",
+    "allowed_media_types",
+    "link_policy",
+    "validator_digest"
+   ],
+   "additionalProperties": false
+  },
+  "outputDescriptor": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "type": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "path": {
+     "$ref": "#/$defs/relativePath"
+    },
+    "required": {
+     "type": "boolean"
+    },
+    "constraints": {
+     "$ref": "#/$defs/outputConstraints"
+    }
+   },
+   "required": [
+    "name",
+    "type",
+    "path",
+    "required",
+    "constraints"
+   ],
+   "additionalProperties": false
+  },
+  "outputRetainBody": {
+   "type": "object",
+   "properties": {
+    "assignment_ref": {
+     "$ref": "#/$defs/assignmentRef"
+    },
+    "runtime_attempt_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "artifact_ids": {
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 128,
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/opaqueId"
+     }
+    },
+    "disposition": {
+     "enum": [
+      "retain",
+      "quarantine",
+      "discard-after-intake"
+     ]
+    },
+    "retention_policy_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "assignment_ref",
+    "runtime_attempt_id",
+    "artifact_ids",
+    "disposition",
+    "retention_policy_digest"
+   ],
+   "additionalProperties": false
+  },
+  "participant": {
+   "type": "string",
+   "pattern": "^[a-z][a-z0-9_-]*\\.[a-z][a-z0-9_-]*$"
+  },
+  "proposalManifest": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/manifestHeader"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/proposal"
+      },
+      "proposal_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "assignment_ref": {
+       "$ref": "#/$defs/assignmentRef"
+      },
+      "result_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "result_manifest_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "input_manifest_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "runtime_profile_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "output_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "source_base": {
+       "$ref": "#/$defs/gitObject"
+      },
+      "target_revision": {
+       "$ref": "#/$defs/gitObject"
+      },
+      "proposal_head": {
+       "$ref": "#/$defs/gitObject"
+      },
+      "proposal_artifact": {
+       "$ref": "#/$defs/artifactRef"
+      },
+      "author_tests": {
+       "type": "array",
+       "maxItems": 128,
+       "items": {
+        "$ref": "#/$defs/evidenceRef"
+       }
+      },
+      "implementation_recap": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 16000
+      },
+      "dossier_evidence": {
+       "type": "array",
+       "maxItems": 128,
+       "items": {
+        "$ref": "#/$defs/evidenceRef"
+       }
+      },
+      "publish_operation": {
+       "$ref": "#/$defs/operation"
+      },
+      "publish_receipt_digest": {
+       "$ref": "#/$defs/digest"
+      }
+     },
+     "required": [
+      "schema",
+      "proposal_id",
+      "assignment_ref",
+      "result_id",
+      "result_manifest_digest",
+      "input_manifest_digest",
+      "policy_digest",
+      "runtime_profile_digest",
+      "output_digest",
+      "source_base",
+      "target_revision",
+      "proposal_head",
+      "proposal_artifact",
+      "author_tests",
+      "implementation_recap",
+      "dossier_evidence",
+      "publish_operation",
+      "publish_receipt_digest"
+     ]
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "proposalPublishBody": {
+   "type": "object",
+   "properties": {
+    "assignment_ref": {
+     "$ref": "#/$defs/assignmentRef"
+    },
+    "proposal_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "proposal_manifest_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "target_revision": {
+     "$ref": "#/$defs/gitObject"
+    },
+    "policy_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "assignment_ref",
+    "proposal_id",
+    "proposal_manifest_digest",
+    "target_revision",
+    "policy_digest"
+   ],
+   "additionalProperties": false
+  },
+  "receiptBase": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/manifestHeader"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "receipt_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "operation": {
+       "$ref": "#/$defs/operation"
+      },
+      "proposal_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "proposal_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "candidate_tree_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "target_revision": {
+       "$ref": "#/$defs/gitObject"
+      },
+      "actor": {
+       "$ref": "#/$defs/participant"
+      },
+      "policy_generation": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 9007199254740991
+      },
+      "rationale": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 16000
+      }
+     },
+     "required": [
+      "receipt_id",
+      "operation",
+      "proposal_id",
+      "proposal_digest",
+      "candidate_tree_digest",
+      "target_revision",
+      "actor",
+      "policy_generation",
+      "rationale"
+     ]
+    }
+   ]
+  },
+  "relativePath": {
+   "type": "string",
+   "minLength": 1,
+   "maxLength": 512,
+   "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*//)(?!.*(?:^|/)\\.\\.?$)[^\\u0000\\\\]+$"
+  },
+  "resultDeclareBody": {
+   "type": "object",
+   "properties": {
+    "result_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "assignment_ref": {
+     "$ref": "#/$defs/assignmentRef"
+    },
+    "disposition": {
+     "enum": [
+      "completed",
+      "unable",
+      "plan-rejected",
+      "cancelled"
+     ]
+    },
+    "declared_outputs": {
+     "type": "array",
+     "maxItems": 64,
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/opaqueId"
+     }
+    },
+    "evidence": {
+     "type": "array",
+     "maxItems": 256,
+     "items": {
+      "$ref": "#/$defs/evidenceRef"
+     }
+    },
+    "summary": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 16000
+    }
+   },
+   "required": [
+    "result_id",
+    "assignment_ref",
+    "disposition",
+    "declared_outputs",
+    "evidence",
+    "summary"
+   ],
+   "additionalProperties": false
+  },
+  "resultManifest": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/manifestHeader"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/result"
+      },
+      "result_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "assignment_ref": {
+       "$ref": "#/$defs/assignmentRef"
+      },
+      "input_manifest_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "disposition": {
+       "enum": [
+        "completed",
+        "unable",
+        "plan-rejected",
+        "cancelled"
+       ]
+      },
+      "outputs": {
+       "type": "array",
+       "maxItems": 64,
+       "items": {
+        "$ref": "#/$defs/artifactOutput"
+       }
+      },
+      "evidence": {
+       "type": "array",
+       "maxItems": 256,
+       "items": {
+        "$ref": "#/$defs/evidenceRef"
+       }
+      },
+      "freeze_operation": {
+       "$ref": "#/$defs/operation"
+      },
+      "manager_observed_at": {
+       "$ref": "#/$defs/timestamp"
+      },
+      "completion_manifest_digest": {
+       "$ref": "#/$defs/digest"
+      }
+     },
+     "required": [
+      "schema",
+      "result_id",
+      "assignment_ref",
+      "input_manifest_digest",
+      "policy_digest",
+      "disposition",
+      "outputs",
+      "evidence",
+      "freeze_operation",
+      "manager_observed_at"
+     ],
+     "if": {
+      "properties": {
+       "disposition": {
+        "const": "completed"
+       }
+      },
+      "required": [
+       "disposition"
+      ]
+     },
+     "then": {
+      "required": [
+       "completion_manifest_digest"
+      ]
+     }
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "runtimeAttemptManifest": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/manifestHeader"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/runtime-attempt"
+      },
+      "runtime_attempt_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "assignment_ref": {
+       "oneOf": [
+        {
+         "$ref": "#/$defs/assignmentRef"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "adapter": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "$ref": "#/$defs/opaqueId"
+        },
+        "version": {
+         "$ref": "#/$defs/opaqueId"
+        },
+        "digest": {
+         "$ref": "#/$defs/digest"
+        }
+       },
+       "required": [
+        "name",
+        "version",
+        "digest"
+       ],
+       "additionalProperties": false
+      },
+      "runtime_profile_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "worker_image_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "toolchain_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "policy_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "runtime_id": {
+       "oneOf": [
+        {
+         "$ref": "#/$defs/opaqueId"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "observation_seq": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 9007199254740991
+      },
+      "states": {
+       "type": "object",
+       "properties": {
+        "consent_runtime": {
+         "enum": [
+          "not-started",
+          "running",
+          "quiescent",
+          "uncertain",
+          "destroyed"
+         ]
+        },
+        "execution_runtime": {
+         "enum": [
+          "not-started",
+          "start-requested",
+          "running",
+          "cancel-requested",
+          "stopping",
+          "quiescent",
+          "uncertain",
+          "destroyed"
+         ]
+        },
+        "output": {
+         "enum": [
+          "open",
+          "freeze-requested",
+          "frozen",
+          "invalid",
+          "sealed",
+          "discarded"
+         ]
+        },
+        "worker_disposition": {
+         "enum": [
+          "none",
+          "completed",
+          "unable",
+          "plan-rejected",
+          "cancelled"
+         ]
+        },
+        "proposal": {
+         "enum": [
+          "none",
+          "publish-requested",
+          "published",
+          "superseded"
+         ]
+        },
+        "verification": {
+         "enum": [
+          "none",
+          "passed",
+          "failed",
+          "unable"
+         ]
+        },
+        "technical_review": {
+         "enum": [
+          "none",
+          "accepted",
+          "changes-requested",
+          "rejected"
+         ]
+        },
+        "approval": {
+         "enum": [
+          "none",
+          "approved",
+          "denied"
+         ]
+        },
+        "integration": {
+         "enum": [
+          "none",
+          "integrated",
+          "failed"
+         ]
+        },
+        "cleanup": {
+         "enum": [
+          "pending",
+          "blocked-on-intake",
+          "complete",
+          "retained",
+          "failed"
+         ]
+        }
+       },
+       "required": [
+        "consent_runtime",
+        "execution_runtime",
+        "output",
+        "worker_disposition",
+        "proposal",
+        "verification",
+        "technical_review",
+        "approval",
+        "integration",
+        "cleanup"
+       ],
+       "additionalProperties": false
+      },
+      "observed_at": {
+       "$ref": "#/$defs/timestamp"
+      },
+      "diagnostics": {
+       "$ref": "#/$defs/extensions"
+      }
+     },
+     "required": [
+      "schema",
+      "runtime_attempt_id",
+      "assignment_ref",
+      "adapter",
+      "runtime_profile_digest",
+      "worker_image_digest",
+      "toolchain_digest",
+      "policy_digest",
+      "runtime_id",
+      "observation_seq",
+      "states",
+      "observed_at",
+      "diagnostics"
+     ]
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "runtimeCancelBody": {
+   "type": "object",
+   "properties": {
+    "assignment_ref": {
+     "$ref": "#/$defs/assignmentRef"
+    },
+    "runtime_attempt_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "runtime_id": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/opaqueId"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "reason": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 4000
+    },
+    "fence_receipt_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "assignment_ref",
+    "runtime_attempt_id",
+    "runtime_id",
+    "reason",
+    "fence_receipt_digest"
+   ],
+   "additionalProperties": false
+  },
+  "runtimeDestroyBody": {
+   "type": "object",
+   "properties": {
+    "assignment_ref": {
+     "$ref": "#/$defs/assignmentRef"
+    },
+    "runtime_attempt_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "runtime_id": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/opaqueId"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "intake_receipt_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "retention_policy_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "assignment_ref",
+    "runtime_attempt_id",
+    "runtime_id",
+    "intake_receipt_digest",
+    "retention_policy_digest"
+   ],
+   "additionalProperties": false
+  },
+  "runtimeInspectBody": {
+   "type": "object",
+   "properties": {
+    "runtime_attempt_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "assignment_ref": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/assignmentRef"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "runtime_id": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/opaqueId"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "runtime_attempt_id",
+    "assignment_ref",
+    "runtime_id"
+   ],
+   "additionalProperties": false
+  },
+  "runtimeStartBody": {
+   "type": "object",
+   "properties": {
+    "assignment_ref": {
+     "$ref": "#/$defs/assignmentRef"
+    },
+    "runtime_attempt_id": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "input_manifest_digest": {
+     "$ref": "#/$defs/digest"
+    },
+    "assignment_manifest_digest": {
+     "$ref": "#/$defs/digest"
+    }
+   },
+   "required": [
+    "assignment_ref",
+    "runtime_attempt_id",
+    "input_manifest_digest",
+    "assignment_manifest_digest"
+   ],
+   "additionalProperties": false
+  },
+  "sender": {
+   "type": "object",
+   "properties": {
+    "role": {
+     "enum": [
+      "worker-manager",
+      "worker-endpoint",
+      "runtime-adapter",
+      "verifier",
+      "reviewer",
+      "approver",
+      "integrator"
+     ]
+    },
+    "instance_id": {
+     "$ref": "#/$defs/opaqueId"
+    }
+   },
+   "required": [
+    "role",
+    "instance_id"
+   ],
+   "additionalProperties": false
+  },
+  "sourceDescriptor": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "destination": {
+     "$ref": "#/$defs/relativePath"
+    },
+    "required": {
+     "type": "boolean"
+    },
+    "content_manifest": {
+     "$ref": "#/$defs/contentManifest"
+    },
+    "consumption": {
+     "$ref": "#/$defs/extensions"
+    }
+   },
+   "required": [
+    "name",
+    "destination",
+    "required",
+    "content_manifest",
+    "consumption"
+   ],
+   "additionalProperties": false
+  },
+  "technicalReviewReceipt": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/receiptBase"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/technical-review"
+      },
+      "verification_assessment_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "disposition": {
+       "enum": [
+        "accepted",
+        "changes-requested",
+        "rejected"
+       ]
+      }
+     },
+     "required": [
+      "schema",
+      "verification_assessment_id",
+      "disposition"
+     ]
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "timestamp": {
+   "type": "string",
+   "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+  },
+  "verificationAssessment": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/receiptBase"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/verification-assessment"
+      },
+      "verification_receipt_id": {
+       "$ref": "#/$defs/opaqueId"
+      },
+      "assessment": {
+       "enum": [
+        "accepted",
+        "rejected",
+        "inconclusive"
+       ]
+      }
+     },
+     "required": [
+      "schema",
+      "verification_receipt_id",
+      "assessment"
+     ]
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "verificationReceipt": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/receiptBase"
+    },
+    {
+     "type": "object",
+     "properties": {
+      "schema": {
+       "const": "baton.worker-manifest/verification"
+      },
+      "observation": {
+       "enum": [
+        "passed",
+        "failed",
+        "unable"
+       ]
+      },
+      "verifier_profile_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "worker_image_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "toolchain_digest": {
+       "$ref": "#/$defs/digest"
+      },
+      "suites": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 128,
+       "items": {
+        "type": "object",
+        "properties": {
+         "name": {
+          "$ref": "#/$defs/opaqueId"
+         },
+         "observation": {
+          "enum": [
+           "passed",
+           "failed",
+           "unable"
+          ]
+         },
+         "evidence": {
+          "$ref": "#/$defs/evidenceRef"
+         }
+        },
+        "required": [
+         "name",
+         "observation",
+         "evidence"
+        ],
+        "additionalProperties": false
+       }
+      }
+     },
+     "required": [
+      "schema",
+      "observation",
+      "verifier_profile_digest",
+      "worker_image_digest",
+      "toolchain_digest",
+      "suites"
+     ]
+    }
+   ],
+   "unevaluatedProperties": false
+  },
+  "version": {
+   "type": "object",
+   "properties": {
+    "major": {
+     "const": 1
+    },
+    "minor": {
+     "const": 0
+    }
+   },
+   "required": [
+    "major",
+    "minor"
+   ],
+   "additionalProperties": false
+  },
+  "welcomeBody": {
+   "type": "object",
+   "properties": {
+    "selected_version": {
+     "$ref": "#/$defs/version"
+    },
+    "capabilities": {
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "contains": {
+      "const": "core.errors"
+     },
+     "items": {
+      "$ref": "#/$defs/capability"
+     }
+    },
+    "extensions": {
+     "type": "array",
+     "uniqueItems": true,
+     "items": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+/[1-9][0-9]*$"
+     }
+    },
+    "effective_limits": {
+     "$ref": "#/$defs/controlLimits"
+    }
+   },
+   "required": [
+    "selected_version",
+    "capabilities",
+    "extensions",
+    "effective_limits"
+   ],
+   "additionalProperties": false
+  },
+  "workRef": {
+   "type": "object",
+   "properties": {
+    "authority_uuid": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{32}$"
+    },
+    "work_id": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{8}-W[1-9][0-9]*$"
+    }
+   },
+   "required": [
+    "authority_uuid",
+    "work_id"
+   ],
+   "additionalProperties": false
+  },
+  "workerOutput": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "type": {
+     "$ref": "#/$defs/opaqueId"
+    },
+    "path": {
+     "$ref": "#/$defs/relativePath"
+    },
+    "status": {
+     "enum": [
+      "present",
+      "missing-optional"
+     ]
+    },
+    "content_manifest": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/contentManifest"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "result_metadata": {
+     "$ref": "#/$defs/extensions"
+    }
+   },
+   "required": [
+    "name",
+    "type",
+    "path",
+    "status",
+    "content_manifest",
+    "result_metadata"
+   ],
+   "additionalProperties": false
   }
+ }
 }

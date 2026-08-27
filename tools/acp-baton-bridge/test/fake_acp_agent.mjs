@@ -40,6 +40,22 @@ function log(record) {
 		`${JSON.stringify({ at: Date.now(), ...record })}\n`);
 }
 
+// W14828: WHAT THIS PROCESS ACTUALLY INHERITED, recorded at startup.
+//
+// The incident was a launcher contract that existed in the rendered runtime
+// context and reached neither the spawned environment nor the prompt, so the
+// model went looking and found a stale persistent file. A test that read the
+// bridge's own config object would prove the config object; only the real
+// child can say what the real spawn delivered, which is why this record is
+// taken here rather than asserted there.
+log({
+	event: "launcher/env",
+	BATON_BIN: process.env.BATON_BIN ?? null,
+	BATON_CONFIG: process.env.BATON_CONFIG ?? null,
+	BATON_PARTICIPANT: process.env.BATON_PARTICIPANT ?? null,
+	BATON_ROLE: process.env.BATON_ROLE ?? null,
+});
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function modes() {

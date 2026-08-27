@@ -48,9 +48,9 @@ import json
 import os
 import re
 
-from ..contracts import ContractRefusal
+from ..contracts import ContractRefusal, check_no_durable_secret
 from ..contracts.errors import name_value
-from . import boundaries, documents
+from . import boundaries, credentials, documents, sealing
 
 __all__ = ["ENGINES", "EnginePort", "LABEL_PREFIX", "MAX_DIAGNOSTIC",
            "POSTURES", "ROOT_NAMES", "MOUNTABLE", "RESOLVED_IDENTITY",
@@ -116,15 +116,24 @@ RESTRICTIONS = (
 # separate required input. Consent mounts NOTHING -- it has no assignment, no
 # workspace and no output, and a consent container that could see the inputs
 # would be the promotion the two-container topology exists to prevent.
-# Execution may see `inputs` read-only and `workspace` read/write.
-#
-# The private `git` root is never mounted at either posture: it is the
-# manager's own metadata, and a worker that could reach it could move another
-# assignment's refs.
+# Execution may see `inputs` read-only and `workspace` read/write, and those
+# two are the whole set -- see `ROOT_NAMES` below.
 POSTURES = ("consent", "execution")
-ROOT_NAMES = ("inputs", "workspace", "git")
+# W15232 review [P1]: TWO GENERIC ROOTS. This core closed over an
+# acquisition-specific third root that no posture was ever allowed to mount, so
+# `_roots` refused an otherwise complete generic root set -- the adapter still
+# understood an acquisition format after the operations that consumed that root
+# were gone. A stager or driver needing private capacity allocates its own
+# under an explicit owner.
+ROOT_NAMES = ("inputs", "workspace")
 MOUNTABLE = {"consent": (), "execution": ("inputs", "workspace")}
 WRITABLE = {"execution": ("workspace",)}
+
+# THE WORKER'S FIXED INPUT PATH, as a constant of the contract (§7.0). The same
+# string the worker reads its two documents from, and the same one the recipe
+# gives it -- a path a mount plan could vary is a path a runtime can be pointed
+# at wrongly.
+INPUT_TARGET = "/input"
 
 
 # THE ONE RESOLVED IDENTITY a delivery is made under. Review: the adapter
@@ -134,10 +143,84 @@ WRITABLE = {"execution": ("workspace",)}
 # then reasons about it as though they described the image that is running.
 #
 # One record, owned at construction, is what makes the two accounts one: the
-# image reaches the argv from it, the profile and adapter digests reach the
-# labels from it, and a request whose labels disagree is refused rather than
-# started.
-RESOLVED_IDENTITY = ("image_digest", "profile_digest", "adapter_digest")
+# image reaches the argv from it, the profile, policy and adapter digests
+# reach the labels from it, and a request whose labels disagree is refused
+# rather than started.
+#
+# FOUR DIGESTS, and the record has said four since it was confirmed. Review
+# [P1]: the first version of this tuple carried three and actively refused
+# `policy_digest`, which narrowed a confirmed contract without a supersession
+# anybody had agreed to -- and a resolved identity missing the policy is one
+# that cannot answer what a running worker was started to obey.
+RESOLVED_IDENTITY = ("image_digest", "profile_digest", "policy_digest",
+                     "adapter_digest")
+
+# The members of the resolved identity a runtime's LABELS carry, so a restart
+# can compare them. The image is deliberately not among them: the engine
+# reports what it is running, and its own record beats a label this manager
+# wrote about itself.
+_LABELLED_IDENTITY = ("profile_digest", "policy_digest", "adapter_digest")
+
+# THE CANDIDATE SELECTOR: which runtimes are THIS ATTEMPT'S, whatever they were
+# delivered under. Everything in the frozen label set that is not part of the
+# resolved identity -- the attempt, the four parts of the assignment.
+#
+# Review [P0]: the listing used to filter on all eight labels, and a real
+# engine applies every filter BEFORE it returns a row. So a runtime from this
+# exact attempt running under an OLD policy was omitted from stdout, never
+# reached the identity comparison below, and `start` read the empty candidate
+# set as "nothing exists" and created a second runtime for one attempt --
+# which is the state the acceptance says no later reconciliation can undo.
+#
+# DISCOVERY HAS TO BE BROADER THAN COMPARISON. The engine answers which
+# runtimes belong to this attempt; this adapter decides, in process, whether
+# each one is this delivery's. A stale one is then REFUSED rather than
+# filtered away, which is what the module docstring has claimed all along:
+# it is not absent, it is wrong, and dropping it leaves a mislabelled runtime
+# running.
+#
+# AND THE SELECTOR IS THE MINIMAL OWNERSHIP KEY, which took two corrections to
+# get to. The first moved the three resolved digests out of the filters and
+# stopped there -- leaving the attempt, the four parts of the assignment and
+# the generation as exact filters -- so review [P0] found the same defect
+# still standing in the same boundary: a runtime carrying THIS attempt id
+# under generation 0 while the request says 1 is hidden by the engine, `start`
+# reads absence, and it creates the duplicate.
+#
+# The general rule is the one that was missing. ANY assignment fact used as a
+# filter hides a runtime that contradicts it, and a contradictory runtime is
+# exactly what this adapter exists to refuse. So the ONE label that selects is
+# the one that answers "is this runtime this attempt's" and can never
+# disagree without meaning a different attempt entirely.
+_CANDIDATE_LABELS = ("runtime_attempt_id",)
+
+# What the engines call the image of a listed runtime. Docker's `ps` answers
+# `Image`, and because this adapter starts a runtime BY DIGEST that field is
+# the `sha256:` reference rather than a tag. Podman answers both, and its
+# `ImageID` is the unambiguous one, so it is asked for first.
+_LISTED_IMAGE = ("ImageID", "ImageId", "Image")
+
+
+def _image_identity(value, what):
+    """One image named as a digest, however the engine spells the prefix.
+
+    An engine that cannot name a runtime's image by digest has not proved
+    which image is running, and a tag is not an identity: it is a pointer that
+    was true when somebody last pushed. Refused rather than compared loosely,
+    because the comparison this feeds decides whether a restarted manager
+    adopts a worker.
+    """
+    # A LITERAL LABEL at the owner, for the reason `_canonical` gives: the
+    # inventory attributes an owned entry by the label written at the site, so
+    # a computed one is a boundary it cannot place. `what` still names which
+    # image disagreed in the refusal below.
+    text = boundaries.text(value, "a runtime image")
+    bare = text[len("sha256:"):] if text.startswith("sha256:") else text
+    if not re.fullmatch(r"[0-9a-f]{64}", bare):
+        _refuse(f"{what} is {name_value(text)}, which is not an image digest; "
+                f"an engine that cannot name the image by digest has not "
+                f"said which image is running", code="digest")
+    return bare
 
 
 def _identity(identity):
@@ -273,7 +356,35 @@ def _label_pairs(labels):
             for name in documents.RUNTIME_LABELS]
 
 
-def _canonical(place, what):
+def canonical_target(place, what):
+    """One CONTAINER path, canonical as text and never resolved here.
+
+    THE SPELLING IS CHECKED BEFORE `normpath` CAN ERASE IT. `/else/../input`
+    normalizes to `/input`, so a rule that normalized first would accept a plan
+    that names a path this manager never fixed and call it the fixed one --
+    W19784 third review [P1], which found exactly that in the manager's
+    pre-journal check while the adapter refused it correctly one layer later.
+
+    AND IT IS NEVER RESOLVED. A target names a path inside a container that
+    does not exist yet; resolving it against THIS host's filesystem would be
+    asking the wrong machine. That is the whole difference from
+    `canonical_source` below, and it is why they are two functions rather than
+    one with a flag.
+    """
+    text = boundaries.text(place, "a container path")
+    if ".." in text.split("/") or ":" in text:
+        _refuse(f"{what} is not canonical; `..` and the engine's own `:` "
+                f"separator are both refused, because a caller writing either "
+                f"is asking this adapter to compute a path rather than name "
+                f"one", code="path")
+    target = os.path.normpath(text)
+    if not target.startswith("/"):
+        _refuse(f"{what} is {name_value(target)}, which is not an absolute "
+                f"path", code="path")
+    return target
+
+
+def canonical_source(place, what):
     """One host path, as the KERNEL would resolve it.
 
     Review [P1]: containment was decided with `os.path.normpath`, which is a
@@ -318,7 +429,7 @@ def _roots(assignment_roots, posture):
                 f"{', '.join(POSTURES)}")
     taken = boundaries.document(assignment_roots, "the assignment's roots",
                                 required=ROOT_NAMES)
-    real = {name: _canonical(taken[name], f"the {name} root")
+    real = {name: canonical_source(taken[name], f"the {name} root")
             for name in ROOT_NAMES}
     # NO ROOT CONTAINS ANOTHER. Review: with `workspace` beneath `inputs`, a
     # source inside both has no unique posture authority -- `_mounts` would
@@ -360,20 +471,18 @@ def _mounts(mounts, roots, posture):
     for mount in mounts:
         one = boundaries.document(mount, "a runtime mount",
                                   required=("source", "target", "writable"))
-        # THE SOURCE IS RESOLVED; THE TARGET IS NOT. A source is a HOST path
-        # and the engine will resolve it, so this adapter proves the thing the
-        # engine will act on. A target is a path INSIDE a container that does
-        # not exist yet, and resolving it against this host would be resolving
-        # somebody else's filesystem.
-        source = _canonical(one["source"], "a mount source")
-        target = os.path.normpath(
-            boundaries.text(one["target"], "a mount target"))
-        if not target.startswith("/"):
-            _refuse(f"a mount target is {name_value(target)}, which is not an "
-                    f"absolute path", code="path")
-        if ".." in target.split("/") or ":" in target:
-            _refuse(f"a mount target is not canonical; `..` and the engine's "
-                    f"own `:` separator are both refused", code="path")
+        source = canonical_source(one["source"], "a mount source")
+        # ONE RULE, AT ONE OWNER. The spelling is checked before `normpath`
+        # can erase it: `normpath` ran first here once, so the `..` test could
+        # never see traversal that normalization had already consumed -- and a
+        # workspace requested at `/workspace/../etc` was accepted and emitted
+        # as `target=/etc`, moving the assignment's WRITABLE bind over the
+        # image filesystem.
+        #
+        # W19784 third review [P1] found the same erasure in the manager's own
+        # pre-journal check, written as a second copy of this rule. It is now
+        # `canonical_target` and there is one of it.
+        target = canonical_target(one["target"], "a mount target")
         # PROVED TO BE OURS, rather than proved not to be one of theirs.
         under = [name for name in permitted if _within(source, roots[name])]
         if not under:
@@ -412,8 +521,58 @@ def _mounts(mounts, roots, posture):
     return taken
 
 
+def _credential_mounts(pairs):
+    """W6634: the delivered credential files, as read-only binds.
+
+    A SEPARATE OWNER FROM `_mounts`, and the separation is the whole point.
+    `_mounts` admits a source only because this manager created the assignment
+    ROOT it lives under -- that is the posture contract, and W15232 has just
+    finished removing a third root from it. A credential is not assignment
+    material and must not become a third mountable root: it is delivered at a
+    FIXED path of this contract's choosing, from a volatile root
+    `credentials.py` owns outright.
+
+    So the rules here are that contract's, not the posture's: every target is
+    an entry of `CREDENTIAL_ROOT`, every source is inside the volatile root
+    that produced it, and readonly is not a parameter.
+    """
+    taken = []
+    seen = set()
+    if len(pairs) > credentials.MAX_SLOTS:
+        _denied(f"a delivery mounts at most {credentials.MAX_SLOTS} "
+                f"credential slots; this one names {len(pairs)}")
+    for pair in pairs:
+        if type(pair) not in (list, tuple) or len(pair) != 2:
+            _refuse(f"a credential mount is a source and a target; this is "
+                    f"{name_value(pair)}")
+        source = canonical_source(pair[0], "a credential mount source")
+        target = boundaries.text(pair[1], "a credential mount target")
+        head, _, slot = target.rpartition("/")
+        if head != credentials.CREDENTIAL_ROOT:
+            _denied(f"a credential mount lands on {name_value(target)}; the "
+                    f"worker sees credentials only as entries of "
+                    f"{credentials.CREDENTIAL_ROOT}, which is a constant of "
+                    f"this contract rather than an operand")
+        # THE SLOT'S OWN GRAMMAR, applied to the container side too, and
+        # applied by the module that OWNS it rather than restated here. A
+        # target whose last segment could name something else is a target this
+        # adapter would be computing rather than naming.
+        credentials.slot_name(slot)
+        if os.path.basename(source) != slot:
+            _denied(f"a credential mount exposes {name_value(source)} as "
+                    f"{name_value(target)}; a slot is delivered under its own "
+                    f"name, and a file renamed on the way in is one nobody "
+                    f"can trace back to what was authorized")
+        if target in seen:
+            _refuse(f"two credential mounts land on {name_value(target)}; the "
+                    f"second would hide the first")
+        seen.add(target)
+        taken.append((source, target))
+    return tuple(taken)
+
+
 def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
-               mounts=(), name):
+               mounts=(), credentials_delivered=(), name):
     """The closed argv that STARTS one runtime, restrictions and all.
 
     The image is named BY DIGEST. A tag is a name somebody can move, and a
@@ -439,22 +598,51 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
     for key, value in _label_pairs(_labels(labels)):
         argv += ["--label", f"{key}={value}"]
     roots, posture = _roots(assignment_roots, posture)
-    for source, target, writable in _mounts(mounts, roots, posture):
+    assigned = _mounts(mounts, roots, posture)
+    for source, target, writable in assigned:
         argv += ["--mount",
                  f"type=bind,source={source},target={target},"
                  f"readonly={'false' if writable else 'true'}"]
+    # W6634: THE CREDENTIALS, ALWAYS READ-ONLY and always under the fixed
+    # root. Composed after the assignment mounts, and refused outright if one
+    # of them would contain a delivery -- an assignment mount over
+    # `/run/baton/credentials` would decide what the worker reads there, which
+    # is the one thing the fixed root exists to take away from it.
+    for source, target in _credential_mounts(credentials_delivered):
+        for _source, taken, _writable in assigned:
+            if taken == target or _within(target, taken):
+                _denied(f"a credential mount lands on {name_value(target)}, "
+                        f"which this assignment already mounts; the worker "
+                        f"would read one of the two and neither this manager "
+                        f"nor the engine says which")
+        argv += ["--mount",
+                 f"type=bind,source={source},target={target},readonly=true"]
     # THE IMAGE, LAST and by digest. Every flag precedes it, so nothing a
     # caller supplies can be read as an argument to the engine itself.
     argv.append(image_digest)
+    # §13 OVER THE WHOLE VECTOR, and this is the argv half of the ruling said
+    # as a rule rather than as an intention. Every process on the host can read
+    # another's command line, so an argv carrying a live bearer is a durable
+    # surface -- and this walk runs while the registry is live, because
+    # `credentials.materialize` registers before anything is delivered.
+    check_no_durable_secret(argv, what="a runtime start vector")
     return argv
 
 
 def list_vector(engine, *, labels):
-    """Ask the engine which runtimes carry EXACTLY this assignment's labels."""
+    """Ask the engine which runtimes belong to THIS ATTEMPT.
+
+    The candidate selector, not the identity comparison -- see
+    `_CANDIDATE_LABELS`. The whole label set is still OWNED here, so a
+    malformed or invented label refuses before the engine is asked anything;
+    what narrows is only which of those proved values become filters.
+    """
     engine = _engine(engine)
+    taken = _labels(labels)
     argv = [engine, "ps", "--all", "--no-trunc", "--format", "{{json .}}"]
-    for key, value in _label_pairs(_labels(labels)):
-        argv += ["--filter", f"label={key}={value}"]
+    for key, value in _label_pairs(taken):
+        if key[len(LABEL_PREFIX):] in _CANDIDATE_LABELS:
+            argv += ["--filter", f"label={key}={value}"]
     return argv
 
 
@@ -483,20 +671,161 @@ def destroy_vector(engine, *, runtime_id):
 # -- reading what the engine said ---------------------------------------------
 
 
-# The engines' own exact absence sentences, pinned rather than matched
-# loosely. Docker says `No such container: <id>` and `No such object: <id>`;
-# Podman says `no such container <id>` and `no container with name or ID <id>`.
-# Every one NAMES the identity, which is what makes the answer positive.
-_ABSENT = ("no such container", "no such object",
-           "no container with name or id")
+# THE ENGINES' OWN COMPLETE ABSENCE SENTENCES, each one CAPTURING the identity
+# the sentence is about.
+#
+# Review [P0]: the previous version asked two separate questions -- does an
+# absence phrase appear anywhere in stderr, and does the requested identity
+# appear anywhere in stderr -- and answered "absent" when both were true. Two
+# fragments of one diagnostic are not an association, so
+#
+#     Error: No such container: runtime-2; request was for runtime-1
+#
+# reported `runtime-1` dead. That is the exact branch that releases an
+# assignment whose worker may still be running, which is the one mistake this
+# whole module is arranged to avoid.
+#
+# So the sentence itself must name the runtime. Each pattern below is one
+# engine's own complete form with the identity as a capture, and absence is
+# reported only when a captured identity IS the one asked about.
+#
+# PER ENGINE, not pooled: a docker adapter reading podman's phrasing would be
+# accepting evidence from a daemon it is not talking to.
+_ABSENT_IDENTITY = r"(?P<runtime>[A-Za-z0-9][A-Za-z0-9_./-]*)"
+_ABSENT_FORMS = {
+    # `Error response from daemon: No such container: <id>`, and the same
+    # sentence with `object` for `inspect --type container` on some versions.
+    "docker": (re.compile(rf"no such container:\s*{_ABSENT_IDENTITY}", re.I),
+               re.compile(rf"no such object:\s*{_ABSENT_IDENTITY}", re.I)),
+    # `Error: no container with name or ID "<id>" found: no such container`,
+    # and the bare `no such container <id>` older podman emitted.
+    "podman": (re.compile(rf"no container with name or id\s+\"?"
+                          rf"{_ABSENT_IDENTITY}", re.I),
+               re.compile(rf"no such container\s+{_ABSENT_IDENTITY}", re.I)),
+}
+
+# Trailing punctuation an engine may put after the identity inside a longer
+# diagnostic. Stripped from the CAPTURE rather than admitted into the pattern,
+# because none of these characters is legal in a container name or an id.
+_ABSENT_TRAILING = ".,;:\"'"
 
 
-def _absent_prose(stderr, runtime_id):
-    """True only when the engine says THIS identity does not exist."""
-    prose = (stderr or "").lower()
-    if runtime_id.lower() not in prose:
-        return False
-    return any(sentence in prose for sentence in _ABSENT)
+def _absent_prose(engine, stderr, runtime_id):
+    """True only when THIS engine's own absence sentence names THIS identity.
+
+    A sentence naming another runtime is evidence about that runtime and
+    nothing at all about this one.
+    """
+    prose = stderr or ""
+    for form in _ABSENT_FORMS[engine]:
+        for found in form.finditer(prose):
+            if found.group("runtime").rstrip(_ABSENT_TRAILING) == runtime_id:
+                return True
+    return False
+
+
+def _observed_mounts(document):
+    """What the engine says this runtime's binds ACTUALLY are, or None.
+
+    W6634 fourth review [P1]. Restart adoption compared a lifecycle record
+    against locally derived paths and its own files, which proves that a
+    document this manager wrote agrees with itself. It says nothing about the
+    live container, and the container is the thing that holds the mount.
+
+    `None` MEANS UNKNOWN and an empty tuple means "the engine reported no
+    binds". Collapsing the two would let an engine that answered a shape this
+    adapter cannot read stand in for one that answered "there is nothing
+    mounted", and the second is grounds for adoption while the first is
+    grounds for failing closed.
+
+    NOTHING HERE REFUSES. This is one half of an observation whose other half
+    is already an honest `uncertain`; a rule that raised would turn an engine's
+    unfamiliar output into a fault escaping a method whose whole contract is
+    that it answers rather than throws.
+    """
+    reported = None
+    for member in ("Mounts", "mounts"):
+        if type(document) is dict and member in document:
+            reported = document[member]
+            break
+    if type(reported) is not list:
+        return None
+    found = []
+    for entry in reported:
+        if type(entry) is not dict:
+            return None
+        source = entry.get("Source", entry.get("source"))
+        target = entry.get("Destination", entry.get("Destination".lower()))
+        writable = entry.get("RW", entry.get("rw"))
+        if type(source) is not str or type(target) is not str \
+                or type(writable) is not bool:
+            return None
+        found.append({"source": source, "target": target,
+                      "writable": writable})
+    return tuple(found)
+
+
+def _mounts_disagree(observed, record):
+    """Why the live binds are not the recorded delivery, or None if they are.
+
+    FOUR THINGS ARE CHECKED AND THEY ARE FOUR DIFFERENT MISTAKES:
+
+      the engine could not be read       -> nothing is proved, so nothing is
+                                            adopted;
+      a recorded slot is not mounted     -> the container is not running the
+                                            delivery this record describes;
+      it is mounted from somewhere else  -> something replaced the source under
+                                            the same container path;
+      it is mounted WRITABLE             -> a credential the worker can rewrite
+                                            is one this manager cannot say the
+                                            contents of.
+
+    And one more that is easy to forget: an EXTRA bind under the fixed root.
+    The root's entries are the closed slot names, so a container carrying a
+    sixth entry under it is carrying something nobody authorized -- and a
+    comparison that only looked for what it expected would never see it.
+    """
+    if observed is None:
+        return ("the engine did not report this runtime's binds, so nothing "
+                "about its mounts is proved")
+    root = record["credential_root"]
+    for slot in record["slots"]:
+        # ONE AND ONLY ONE. Fifth review [P1]: the observations were collapsed
+        # into a dict keyed by target, so two binds on one path became one and
+        # the second was never compared. Which of the two a path inside the
+        # container reaches is the ENGINE's decision, not this manager's, so a
+        # duplicate is a runtime nobody can say the contents of.
+        live = [one for one in observed if one["target"] == slot["target"]]
+        if len(live) != 1:
+            return (f"the live runtime carries {len(live)} binds at "
+                    f"{name_value(slot['target'])}; exact agreement is one")
+        expected = os.path.join(root, slot["slot"])
+        if live[0]["source"] != expected:
+            return (f"the live bind at {name_value(slot['target'])} comes "
+                    f"from {name_value(live[0]['source'])} and the record says "
+                    f"{name_value(expected)}")
+        if live[0]["writable"]:
+            return (f"the live bind at {name_value(slot['target'])} is "
+                    f"writable; a credential the worker can rewrite is one "
+                    f"this manager cannot say the contents of")
+    # AT OR BELOW THE FIXED ROOT, and `at` is the half that was missing.
+    #
+    # The previous version looked only for unexpected DESCENDANTS, so a bind
+    # directly on `/run/baton/credentials` passed: every per-slot bind
+    # underneath it agreed with the record, and the root bind shadowed all of
+    # them. The worker would then read whatever that root contained while this
+    # manager reported an exact agreement.
+    recorded = {one["target"] for one in record["slots"]}
+    fixed = credentials.CREDENTIAL_ROOT
+    for one in observed:
+        target = one["target"]
+        if target in recorded:
+            continue
+        if target == fixed or target.startswith(fixed + "/"):
+            return (f"the live runtime carries {name_value(target)} at or "
+                    f"below {fixed}, which this assignment did not "
+                    f"authorize")
+    return None
 
 
 def _decoded(payload, what):
@@ -538,7 +867,8 @@ class OciAdapter:
     """
 
     def __init__(self, engine, run, *, identity, assignment_roots,
-                 posture, mounts=()):
+                 posture, mounts=(), outputs=(), input_manifest_digest=None,
+                 credential_delivery=None):
         self.engine = _engine(engine)
         self.run = run if isinstance(run, EnginePort) else EnginePort(run)
         # ONE RESOLVED IDENTITY, owned at construction and never re-supplied
@@ -552,6 +882,94 @@ class OciAdapter:
         # are kept, so what was proved is what is later mounted.
         self.assignment_roots, self.posture = _roots(assignment_roots, posture)
         self.mounts = tuple(mounts)
+        # W6634: THE DECLARED OUTPUTS, OWNED AT CONSTRUCTION like everything
+        # else that is assignment-scoped and fixed. What may be collected is
+        # decided by the assignment, and taking it per call would make that a
+        # per-call argument. Defaulted empty so the runtime half of this
+        # adapter -- start, list, stop, destroy, observe -- is constructible
+        # without them, exactly as it was before sealing existed.
+        self.declared_outputs = (sealing.declared_outputs(outputs)
+                                 if outputs else {})
+        self.input_manifest_digest = input_manifest_digest
+        # NO `completion_manifest_digest` OPERAND, deliberately. Sixth review
+        # [P1]: this adapter took one and copied it into the receipt, which is
+        # a CLAIM that a validation happened rather than evidence of one.
+        # `sealing`'s own envelope reader opens the worker's document, owns it,
+        # holds it against the declarations and recomputes its digest, so the
+        # value the receipt binds is a measurement this manager made.
+        # W6634: THE MATERIALIZED CREDENTIAL DELIVERY, and the manager made it.
+        #
+        # THIS ADAPTER DOES NOT RESOLVE CREDENTIALS, which is the approved
+        # boundary read literally: the assignment names slots, the TRUSTED
+        # PROFILE maps them, and "the manager resolves that mapping and
+        # materializes one assignment-private file per slot". An adapter that
+        # called the provider itself would put a credential decision inside the
+        # component whose whole contract is that it decides nothing.
+        #
+        # What crosses here is a delivery that already exists, and what this
+        # adapter owns is the two acts at the ends of its life: exposing it at
+        # the fixed root when a runtime starts, and tearing it down when one is
+        # proved gone.
+        if credential_delivery is not None \
+                and type(credential_delivery) is not credentials.Delivery:
+            _refuse(f"a credential delivery is one this manager materialized; "
+                    f"this is {name_value(credential_delivery)}")
+        self.credential_delivery = credential_delivery
+
+    def _mounts_the_authorized_root(self, authorized):
+        """The one input bind this delivery may carry, and it is the proved one.
+
+        REQUIRED, not merely compared. `_mounts` already proves containment and
+        writability, and none of that says WHICH of an assignment's two roots a
+        bind names or where it lands -- the sibling workspace is contained and
+        readable too, and `/inputs` is a target this manager never fixes.
+
+        Three things have to be true and they are three different failures:
+
+          exactly ONE bind lands at the worker's fixed `/input`, because two
+          would leave the engine deciding which the worker reads;
+          its SOURCE is the directory the manager authorized, canonically, so
+          a second allowed root cannot stand in for the proved one; and
+          it is READ-ONLY, because the input is the evidence the result is
+          measured against and a runtime that could edit it could edit what it
+          is judged by.
+
+        AND ABSENCE IS DECIDED TOO. With no authorized root there is nothing a
+        `/input` bind could be, so one is refused rather than passed through --
+        an execution container exposing an unproved directory at the path the
+        worker trusts is the whole defect, and "the manager did not say" is not
+        a reason to allow it.
+        """
+        landing = []
+        for mount in self.mounts:
+            one = boundaries.document(mount, "a runtime mount",
+                                      required=("source", "target", "writable"))
+            if canonical_target(one["target"], "a mount target") \
+                    == INPUT_TARGET:
+                landing.append(one)
+        if authorized is None:
+            if landing:
+                _denied(f"this delivery mounts {name_value(INPUT_TARGET)} and "
+                        f"no input root was authorized for it; a worker reads "
+                        f"its assignment from that path and this manager has "
+                        f"proved nothing about what is there")
+            return
+        proved = canonical_source(authorized, "an authorized input root")
+        if len(landing) != 1:
+            _denied(f"this delivery lands {len(landing)} mounts on "
+                    f"{name_value(INPUT_TARGET)} and an authorized input root "
+                    f"is mounted exactly once; the engine would decide which "
+                    f"one the worker reads")
+        one = landing[0]
+        source = canonical_source(one["source"], "a mount source")
+        if source != proved:
+            _denied(f"this delivery mounts {name_value(source)} at "
+                    f"{name_value(INPUT_TARGET)} and the authorized input root "
+                    f"is {name_value(proved)}; the root that was proved is the "
+                    f"root that is mounted")
+        if one["writable"] is not False:
+            _denied(f"this delivery mounts the authorized input root writable; "
+                    f"the input is the evidence the result is measured against")
 
     # -- the seam ------------------------------------------------------------
 
@@ -562,44 +980,316 @@ class OciAdapter:
         carries these labels BEFORE anything is created, because two runtimes
         for one assignment is the state no later reconciliation can undo.
         """
-        taken = boundaries.document(request, "a start request",
-                                    required=("labels", "operation_id"))
+        taken = boundaries.document(
+            request, "a start request", required=("labels", "operation_id"),
+            optional=("input_root",))
         labels = _labels(taken["labels"])
         boundaries.identity(taken["operation_id"], "an operation identity")
+        # W19784 second review [P0]: THE ROOT THAT WAS AUTHORIZED IS THE ROOT
+        # THAT IS MOUNTED, and until this existed those were two operations.
+        #
+        # The manager proved one directory named the live assignment, this
+        # attempt and the claimed input digest -- and then called an adapter
+        # whose mount plan is owned at CONSTRUCTION and independent of it. The
+        # plan could omit the input root, name the sibling workspace, or land
+        # an allowed source somewhere other than `/input`. Every one of those
+        # starts a worker over material nothing authorized, and the proof said
+        # nothing about it because it was about a different value.
+        #
+        # So the authenticated source crosses the seam and is required here,
+        # BEFORE the vector is composed and therefore before the engine can
+        # have created anything.
+        self._mounts_the_authorized_root(taken.get("input_root"))
         # THE LABELS MUST BE THIS ADAPTER'S OWN IDENTITY. A runtime labelled
         # with a profile or adapter digest other than the one it is started
         # under is a runtime reconciliation would describe wrongly for the
         # rest of its life -- and the manager would be reading that
         # description rather than the image.
-        for name in ("profile_digest", "adapter_digest"):
+        # THE DELIVERY'S OWN ATTEMPT, before anything else and WITHOUT
+        # settling it. Fifth review [P1]: nothing compared the mounted root's
+        # attempt with the runtime's label, so an attempt-2-labelled container
+        # could mount attempt-1's credential root -- and reconciliation and
+        # restart would then look for that delivery under an identity it was
+        # never recorded against.
+        #
+        # THIS EXIT DOES NOT TEAR ANYTHING DOWN, and that is the point. The
+        # settlement asks the engine which runtimes carry THESE labels, and
+        # these are the wrong attempt's: an empty answer about attempt-2 says
+        # nothing about whether attempt-1's runtime holds the mount. A refusal
+        # that acted on it would be inferring absence from the wrong question.
+        if self.credential_delivery is not None \
+                and self.credential_delivery.attempt_id \
+                != labels["runtime_attempt_id"]:
+            _denied(f"this start labels the runtime for attempt "
+                    f"{name_value(labels['runtime_attempt_id'])} and mounts "
+                    f"the credential root of attempt "
+                    f"{name_value(self.credential_delivery.attempt_id)}; one "
+                    f"delivery belongs to one attempt, and the credential "
+                    f"lifecycle is untouched because nothing here can prove "
+                    f"anything about the other attempt's runtimes")
+        for name in _LABELLED_IDENTITY:
             if labels[name] != self.identity[name]:
-                _denied(f"this start labels the runtime "
-                        f"{name_value(labels[name])} for {name} and the "
-                        f"resolved identity is "
-                        f"{name_value(self.identity[name])}; one delivery "
-                        f"carries one identity, and a label that disagrees "
-                        f"with what is started is what reconciliation would "
-                        f"believe afterwards")
+                self._refused_start(
+                    labels,
+                    f"this start labels the runtime "
+                    f"{name_value(labels[name])} for {name} and the "
+                    f"resolved identity is "
+                    f"{name_value(self.identity[name])}; one delivery "
+                    f"carries one identity, and a label that disagrees "
+                    f"with what is started is what reconciliation would "
+                    f"believe afterwards")
         existing = self.list({"labels": labels})
         if existing:
-            _denied(f"{len(existing)} runtime(s) already carry these "
-                    f"assignment labels; starting another would compound it")
-        name = _runtime_name(taken["operation_id"])
-        answer = self.run(run_vector(
-            self.engine, image_digest=self.image_digest, labels=labels,
-            assignment_roots=self.assignment_roots, posture=self.posture,
-            mounts=self.mounts, name=name))
-        if answer["status"] != 0:
-            _denied(f"the engine refused to start this runtime: "
-                    f"{name_value(answer['stderr'][:MAX_DIAGNOSTIC])}")
-        runtime_id = answer["stdout"].strip()
+            self._refused_start(
+                labels,
+                f"{len(existing)} runtime(s) already carry these assignment "
+                f"labels; starting another would compound it")
+        # EVERYTHING FROM HERE TO THE ENGINE IS A REFUSING EXIT TOO.
+        #
+        # Fifth review [P1]: `_refused_start` covered the checks above and the
+        # engine's own answer, and a `ContractRefusal` raised while COMPOSING
+        # the vector went straight past it -- a mount collision, a malformed
+        # operation id, an unmountable delivery. Those are the exits where the
+        # duplicate probe has already proved the candidate set empty, so they
+        # are the ones where settling is both safe and most obviously owed.
+        try:
+            delivered = (self.credential_delivery.mounts()
+                         if self.credential_delivery is not None else ())
+            argv = run_vector(
+                self.engine, image_digest=self.image_digest, labels=labels,
+                assignment_roots=self.assignment_roots, posture=self.posture,
+                mounts=self.mounts, credentials_delivered=delivered,
+                name=_runtime_name(taken["operation_id"]))
+        except ContractRefusal as refusal:
+            self._refused_start(labels, refusal.message)
+        # FROM HERE THE ENGINE MAY ALREADY HAVE CREATED SOMETHING.
+        #
+        # Sixth review [P1]: the guard above stopped at the vector, so the run
+        # itself, the reading of its answer and the ownership of the returned
+        # identity all escaped without a lifecycle decision -- and those are
+        # precisely the exits where a container may exist. The caller got a
+        # refusal with no `torn-down` or `unresolved` in it, and nothing asked
+        # the engine whether anything was holding the mount.
+        try:
+            answer = self.run(argv)
+            if answer["status"] != 0:
+                _denied(f"the engine refused to start this runtime: "
+                        f"{name_value(answer['stderr'][:MAX_DIAGNOSTIC])}")
+            runtime_id = answer["stdout"].strip()
+            if runtime_id:
+                boundaries.identity(runtime_id, "a started runtime id")
+        except ContractRefusal as refusal:
+            self._refused_start(labels, refusal.message)
         if not runtime_id:
             # THE ENGINE SAID NOTHING. That is not "started something unnamed";
             # it is an answer this adapter cannot turn into an identity, and
             # inventing one would make every later comparison meaningless.
-            return {"runtime_id": None, "labels": None}
-        boundaries.identity(runtime_id, "a started runtime id")
+            #
+            # AND IT IS A FAILURE ENDING FOR THE CREDENTIAL TOO. There is no
+            # runtime id to write a lifecycle record against, so nothing later
+            # could ever adopt or tear this delivery down by name -- the whole
+            # reason the record is written after the engine answers.
+            return {"runtime_id": None, "labels": None,
+                    "credentials": self._undelivered(labels)}
+        # THE LIFECYCLE RECORD, WRITTEN ONLY ONCE THERE IS A RUNTIME TO NAME.
+        # It exists so a restarted manager can prove the attempt, container,
+        # mount and root agree before it adopts anything; a record written
+        # before the engine answered would name a container that may not have
+        # started, which is the one thing adoption must not believe.
+        #
+        # AND ITS FAILURE IS A POST-CREATE EXIT LIKE THE OTHERS. A container is
+        # running by now, so a record this manager cannot publish leaves a
+        # delivery nothing can later adopt or name -- which is exactly the
+        # state the settlement exists to report rather than to leak.
+        if self.credential_delivery is not None:
+            try:
+                self._credential_home().written_state(
+                    self.credential_delivery.attempt_id,
+                    self.credential_delivery.record(runtime_id=runtime_id))
+            except ContractRefusal as refusal:
+                self._refused_start(labels, refusal.message)
         return {"runtime_id": runtime_id, "labels": labels}
+
+    def recover_credentials(self, request):
+        """W6634: restart recovery, against the LIVE runtime or not at all.
+
+        Fourth review [P1], twice over. Adoption compared a self-authored
+        record with locally derived paths and its own files -- document
+        consistency rather than the approved boundary -- and nothing in
+        production called it, `read_state` or `discard_orphans` at all. A
+        recovery path that exists only in a test is a recovery path this
+        manager does not have.
+
+        THE APPROVED BOUNDARY, in the order it is written: recovery is admitted
+        only when the ATTEMPT, the CONTAINER, the MOUNTS and the ROOT all
+        agree. Three of those four are facts about a live container, so three
+        of them come from the engine and are compared here; the record supplies
+        what was intended and the engine supplies what is.
+
+        AND THE DISAGREEMENT PATH IS THE POINT. It fails closed, accepts no
+        output, stops the worker and performs bounded orphan cleanup -- and
+        the cleanup is conditional on the stop being PROVED, because removing a
+        mount source out from under a container this manager cannot say is gone
+        is the one act worse than leaving it.
+        """
+        taken = boundaries.document(request, "a credential recovery request",
+                                    required=("attempt_id", "assignment"))
+        attempt = boundaries.identity(taken["attempt_id"],
+                                      "a credential attempt id")
+        # THE ASSIGNMENT IS OWNED AT THIS DOOR rather than inside the helper
+        # that composes the labels. A private helper's parameters are internal
+        # values of the operation that called it -- owning them there would be
+        # a second owner for one crossing, and the boundary inventory reports
+        # the helper's rules as owning nothing.
+        expect = boundaries.document(taken["assignment"],
+                                     "a recovery assignment",
+                                     required=("work_ref", "participant",
+                                               "generation"))
+        work = boundaries.document(expect["work_ref"], "a recovery work ref",
+                                   required=("authority_uuid", "work_id"))
+        home = self._credential_home()
+        record = home.read_state(attempt)
+        labels = self._attempt_labels(attempt, expect, work)
+        if record is None:
+            # NOTHING TO ADOPT IS NOT NOTHING TO DO. A root with no record is
+            # an attempt that was materialized and never launched, or one whose
+            # record this manager already removed; either way no live delivery
+            # owns it, so it is exactly what bounded orphan cleanup is for.
+            # ONLY THIS ATTEMPT'S ROOT. A `CredentialHome` is
+            # assignment-scoped and can hold sibling attempts, and "attempt-1
+            # has no record" is not evidence about attempt-2.
+            return {"lifecycle_state": "absent",
+                    "orphans": home.discard_orphan(attempt)}
+        existing = self.list({"labels": labels})
+        if len(existing) != 1:
+            return self._recovery_failed(
+                home, attempt, existing,
+                f"{len(existing)} runtime(s) carry this attempt's labels; "
+                f"recovery adopts one exactly identified container and "
+                f"refuses every other count")
+        runtime_id = existing[0]["runtime_id"]
+        if record["runtime_id"] != runtime_id:
+            return self._recovery_failed(
+                home, attempt, existing,
+                f"the live runtime is {name_value(runtime_id)} and the "
+                f"lifecycle record names {name_value(record['runtime_id'])}")
+        observed = self.observe(runtime_id)
+        disagreement = _mounts_disagree(observed["mounts"], record)
+        if disagreement is not None:
+            return self._recovery_failed(home, attempt, existing, disagreement)
+        # EVERY IDENTITY AGREED, so the record may now be believed about the
+        # one thing the engine cannot answer: which bearer belongs to which
+        # slot. `adopt` re-registers from this manager's own files.
+        return {"lifecycle_state": "adopted", "runtime_id": runtime_id,
+                "delivery": home.adopt(record, attempt_id=attempt,
+                                       runtime_id=runtime_id)}
+
+    def _recovery_failed(self, home, attempt, existing, why):
+        """Fail closed: no output, stop the worker, bounded orphan cleanup.
+
+        THE ORDER MATTERS AND THE CLEANUP IS CONDITIONAL. A stop this adapter
+        cannot prove leaves a container that may still be reading the mount, so
+        the attempt's own root stays LIVE for the cleanup pass and the refusal
+        says the credential lifecycle is unresolved. Reporting a clean ending
+        there would be exactly the cleanup uncertainty the ruling forbids.
+        """
+        stopped = []
+        for entry in existing:
+            answer = self.stop({"runtime_id": entry["runtime_id"],
+                                "operation_id": f"runtime.stop:{attempt}"})
+            stopped.append(answer["state"] == "absent")
+        # ZERO CANDIDATES IS POSITIVE ABSENCE, not an unproved stop.
+        #
+        # Seventh review [P1]: `bool(stopped) and all(stopped)` is False for an
+        # empty list, so a stale record whose exact engine query returned
+        # nothing reported UNRESOLVED and kept both the root and the record --
+        # and every later recovery repeated it. That is the same
+        # non-convergence the last round corrected one layer up, arriving
+        # through an empty-sequence idiom instead.
+        #
+        # A SUCCESSFUL query that names no runtime is the engine answering
+        # about this exact attempt: there is nothing to stop, so nothing can be
+        # holding the mount, and targeted cleanup may settle it. `list` refuses
+        # rather than returning empty when it could not ask, so an empty answer
+        # here is an answer.
+        gone = all(stopped)
+        orphans = (home.discard_orphan(attempt) if gone
+                   else {"discarded": [], "remaining": 1, "bounded": False})
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"this attempt cannot be recovered: {why}. No output is accepted, "
+            f"{len(existing)} runtime(s) were stopped, and the credential "
+            f"lifecycle is "
+            f"{'settled by cleanup' if gone else 'UNRESOLVED'} after "
+            f"discarding {len(orphans['discarded'])} orphaned root(s)")
+
+    def _attempt_labels(self, attempt_id, expect, work):
+        """The frozen label set that selects THIS attempt's runtimes.
+
+        The same composition `_quiesced` performs: the request carries the
+        attempt and the four parts of the assignment, and this adapter has
+        owned the three resolved digests since construction. Both operands
+        arrive already proved -- see the caller.
+        """
+        return documents.runtime_labels(
+            runtime_attempt_id=attempt_id,
+            authority_uuid=work["authority_uuid"],
+            work_id=work["work_id"],
+            participant=expect["participant"],
+            generation=expect["generation"],
+            profile_digest=self.identity["profile_digest"],
+            policy_digest=self.identity["policy_digest"],
+            adapter_digest=self.identity["adapter_digest"])
+
+    def _refused_start(self, labels, why):
+        """Refuse a start AND settle the credential it was going to deliver.
+
+        EVERY refusing exit from `start` comes through here, because the
+        materialization happened before this adapter was built: a start that
+        raises without settling leaves a volatile root and a live registration
+        that the single `destroy` path can never reach, since there is no
+        runtime id to name them by. The fourth review found one such exit; the
+        duplicate-start and disagreeing-label exits are the same shape and are
+        corrected with it rather than after the next review.
+        """
+        settled = self._undelivered(labels)
+        _denied(f"{why}; the credential delivery is "
+                f"{settled['lifecycle_state']}")
+
+    def _undelivered(self, labels):
+        """W6634: the credential ending for a start that produced no runtime.
+
+        Fourth review [P1]: a start the engine declined raised immediately, so
+        the volatile root and the live registration stayed while no runtime id
+        and no lifecycle record existed. The single `destroy` path this Work
+        claims cannot reach a delivery it cannot name, so that bearer was
+        stranded for the life of the process.
+
+        THE ORDER IS STILL THE APPROVED ONE, which is why this cannot simply
+        tear down: the registry is released only after nothing can be reading
+        the mount. A declined start is strong evidence that nothing does, and
+        it is not proof -- an engine can create a container and then fail, and
+        it can fail while answering nothing about what it created. So this
+        ASKS: if no runtime carries this attempt's labels, no runtime can hold
+        the mount and the delivery settles; anything else is `unresolved`.
+
+        UNRESOLVED IS AN ANSWER, NOT A FAILURE TO ANSWER. The caller's refusal
+        carries it, so a start that failed and left a live credential is
+        distinguishable from one that failed cleanly -- which is exactly what
+        "cleanup uncertainty is not settlement" requires.
+        """
+        if self.credential_delivery is None:
+            return {"lifecycle_state": "not-delivered"}
+        try:
+            existing = self.list({"labels": labels})
+        except ContractRefusal as refusal:
+            return {"lifecycle_state": "unresolved", "why": refusal.message}
+        if existing:
+            return {"lifecycle_state": "unresolved",
+                    "why": f"{len(existing)} runtime(s) carry this attempt's "
+                           f"labels after a start this adapter did not "
+                           f"complete, and any of them may hold the mount"}
+        return self._credential_home().tear_down(self.credential_delivery)
 
     def list(self, request):
         """Every runtime carrying EXACTLY these labels, each one typed."""
@@ -621,8 +1311,65 @@ class OciAdapter:
             runtime_id = _one_of(entry, ("ID", "Id", "ContainerID"),
                                  "an engine listing entry")
             boundaries.identity(runtime_id, "a listed runtime id")
-            found.append({"runtime_id": runtime_id,
-                          "labels": self._labels_of(entry)})
+            labels_of = self._labels_of(entry)
+            # THE RUNNING IMAGE, AND IT IS THE ENGINE'S OWN FACT.
+            #
+            # Review [P1]: the image account was one-way. It chose the start
+            # argv and was never asked about again, so a restarted adapter
+            # resolved to image B adopted a runtime the engine says is running
+            # image A the moment its profile and adapter labels still matched
+            # -- and everything downstream then reasoned about B while A was
+            # running.
+            #
+            # Read from the LISTING rather than from a label, because a label
+            # is what this manager wrote about a delivery and the engine's
+            # record is what is actually running. The two are only the same
+            # while nobody has lied or replaced anything, which is precisely
+            # the case reconciliation exists for.
+            image = _image_identity(
+                _one_of(entry, _LISTED_IMAGE, "an engine listing entry"),
+                "a listed runtime's image")
+            resolved = _image_identity(self.identity["image_digest"],
+                                       "the resolved image")
+            if image != resolved:
+                _denied(f"runtime {name_value(runtime_id)} carries this "
+                        f"assignment's labels and the engine reports it "
+                        f"running a different image than the one this "
+                        f"delivery resolved; one delivery carries one "
+                        f"identity, and labels alone cannot make a stale "
+                        f"image this adapter's runtime")
+            # THE COMPLETE RETURNED RECORD, against the record that was
+            # ASKED FOR.
+            #
+            # Review [P0]: engine-side selection is not proof that a returned
+            # row has the values requested. A compatible engine may ignore a
+            # filter, engine state may be stale or hand-edited, and -- now
+            # that only the attempt id selects -- every other member arrives
+            # unchecked unless this says otherwise. A candidate that carries
+            # this attempt id and contradicts the request is WRONG, not
+            # absent, and refusing it here is what stops `start` reading an
+            # empty set and creating a duplicate.
+            for name in documents.RUNTIME_LABELS:
+                if labels_of[name] != labels[name]:
+                    _denied(f"runtime {name_value(runtime_id)} carries this "
+                            f"attempt's id and is labelled "
+                            f"{name_value(labels_of[name])} for {name} where "
+                            f"this delivery asked for "
+                            f"{name_value(labels[name])}; one delivery "
+                            f"carries one identity")
+            # AND THE LABELLED HALF OF THE RESOLVED IDENTITY, which is a
+            # different question: the loop above asks whether this runtime is
+            # the one the CALLER named, and this asks whether it is the one
+            # THIS ADAPTER resolved. `list` is reachable without `start`, so
+            # neither implies the other.
+            for name in _LABELLED_IDENTITY:
+                if labels_of[name] != self.identity[name]:
+                    _denied(f"runtime {name_value(runtime_id)} is labelled "
+                            f"{name_value(labels_of[name])} for {name} and "
+                            f"this delivery resolved "
+                            f"{name_value(self.identity[name])}; one delivery "
+                            f"carries one identity")
+            found.append({"runtime_id": runtime_id, "labels": labels_of})
         return found
 
     def stop(self, request):
@@ -645,13 +1392,149 @@ class OciAdapter:
                 "state": observed["state"],
                 "why": observed["why"]}
 
-    def destroy(self, runtime_id):
-        """Remove one runtime and PROVE it is gone."""
-        runtime_id = boundaries.identity(runtime_id, "a runtime id")
+    def destroy(self, command):
+        """Remove one runtime and PROVE it is gone.
+
+        W6629 review [P1]: this took a bare runtime id, so the manager's whole
+        `runtimeDestroyBody` -- the assignment, the attempt, the intake receipt
+        digest and the retention policy digest that AUTHORIZE the destruction
+        -- stopped at the boundary. The body crosses now.
+
+        NOTHING IN IT IS INTERPRETED HERE. This core answers facts about an
+        engine and decides nothing: the identity is what it acts on, and the
+        rest is the manager's authorization travelling with its command rather
+        than being reconstructed on this side.
+        """
+        taken = boundaries.document(command, "a destroy command",
+                                    required=("assignment_ref",
+                                              "runtime_attempt_id",
+                                              "runtime_id",
+                                              "intake_receipt_digest",
+                                              "retention_policy_digest"))
+        runtime_id = boundaries.identity(taken["runtime_id"], "a runtime id")
         self.run(destroy_vector(self.engine, runtime_id=runtime_id))
         observed = self.observe(runtime_id)
         return {"runtime_id": runtime_id, "state": observed["state"],
-                "why": observed["why"]}
+                "why": observed["why"],
+                "credentials": self._torn_down(observed)}
+
+    def _torn_down(self, observed):
+        """W6634: the credential ending, ordered AFTER container removal.
+
+        THE ORDER IS THE APPROVED ONE, and each step is a precondition of the
+        next rather than a preference: the registry is held through quiescence,
+        immutable staging and the leak checks; then the container is removed;
+        then the credential root; and the in-memory bearer is discarded only
+        once all of that is proved.
+
+        SO A RUNTIME THAT IS NOT PROVED GONE STOPS THIS. A container this
+        manager cannot say is absent may still be reading the mount, and
+        removing the file under it would be reporting an ending that has not
+        happened. `unresolved` is what this answers then -- never a state a
+        caller can read as settlement, because `destroy`'s own `state` is
+        already `uncertain` beside it.
+
+        ONE ACT ON EVERY ENDING. Success, failure and cancellation all arrive
+        here, because `destroy` is what runs on all three; there is no second
+        teardown path that a cancellation could take instead and that could
+        drift from this one.
+        """
+        if self.credential_delivery is None:
+            # NOT `absent`, which is what the RUNTIME state beside this says.
+            # One word meaning two things in one document is how a reader
+            # concludes a credential was torn down because a container was.
+            return {"lifecycle_state": "not-delivered"}
+        if observed["state"] != "absent":
+            return {"lifecycle_state": "unresolved",
+                    "why": observed["why"]}
+        return self._credential_home().tear_down(self.credential_delivery)
+
+    def seal(self, request):
+        """W6634: the sealed result `output.request_freeze` asks for.
+
+        Thin on purpose. The measurement, the quiescence gate and the frozen
+        result's shape live in `sealing.py`, which is this Work's file; this
+        method is the seam the manager already types as a capability.
+        """
+        self._quiesced(request)
+        return sealing.sealed_result(
+            request, roots=self.assignment_roots,
+            declared=self.declared_outputs, identity=self.identity,
+            custody=self._custody(request["attempt_id"]),
+            input_manifest_digest=self.input_manifest_digest)
+
+    def _custody(self, attempt_id):
+        """Where this manager keeps the bytes it has taken custody of.
+
+        A SIBLING of the assignment's roots and deliberately NOT one of them:
+        `ROOT_NAMES` is the contract for what a container may MOUNT, and
+        custody is precisely the material the worker must not be able to reach
+        after it is frozen. Adding it there would hand the worker its own
+        evidence back.
+        """
+        return os.path.join(self._home(), "custody", attempt_id)
+
+    def _credential_home(self):
+        """W6634: the credential home this adapter's assignment sits under.
+
+        Built per call rather than held, because it is derived entirely from
+        the roots this adapter already owns -- and a second copy of a value
+        that is already owned is a second thing to keep true.
+        """
+        return credentials.CredentialHome(self._home())
+
+    def _home(self):
+        """The manager-owned place this assignment's roots are siblings under.
+
+        Custody and the volatile credential root are both under it and NEITHER
+        is a mountable root: `ROOT_NAMES` is what a container may see as its
+        own material, and these two are precisely the material it must not
+        reach -- its own evidence after the freeze, and a bearer it is handed
+        at one fixed path instead.
+        """
+        return os.path.dirname(self.assignment_roots["workspace"].rstrip("/"))
+
+    def _quiesced(self, request):
+        """Nothing this attempt started is still running, asked of the ENGINE.
+
+        HERE RATHER THAN IN `sealing.py`, and the boundary inventory is what
+        decided it: `list` and `observe` are injected capabilities with exactly
+        one crossing each, and a second module calling them would give one
+        capability two owners. Inside this adapter they are its own methods.
+
+        The eight frozen label members split exactly -- the request carries the
+        attempt and the four parts of the assignment, this adapter has owned
+        the three resolved digests since construction -- so the selector
+        composes without the manager passing a runtime id it deliberately does
+        not pass. Nothing is remembered between calls, so a manager restarted
+        between start and freeze gates exactly as well as one that was never
+        restarted.
+        """
+        expect = request["assignment"]
+        labels = documents.runtime_labels(
+            runtime_attempt_id=request["attempt_id"],
+            authority_uuid=expect["work_ref"]["authority_uuid"],
+            work_id=expect["work_ref"]["work_id"],
+            participant=expect["participant"],
+            generation=expect["generation"],
+            profile_digest=self.identity["profile_digest"],
+            policy_digest=self.identity["policy_digest"],
+            adapter_digest=self.identity["adapter_digest"])
+        for entry in self.list({"labels": labels}):
+            observed = self.observe(entry["runtime_id"])
+            if observed["state"] not in sealing.QUIET_STATES:
+                raise ContractRefusal(
+                    "runtime-observation", "quiescence-unknown",
+                    f"runtime {name_value(entry['runtime_id'])} for attempt "
+                    f"{name_value(request['attempt_id'])} is "
+                    f"{name_value(observed['state'])}; a result is sealed over "
+                    f"a tree nobody is still writing to, and this one may be")
+
+    def collect(self, operands):
+        """W6634: the collection `intake.request_intake` asks for."""
+        return sealing.collected_result(
+            operands, custody=self._custody(operands["attempt_id"]),
+            declared=self.declared_outputs)
 
     def observe(self, runtime_id):
         """POSITIVE ABSENCE, or an honest `uncertain`.
@@ -666,6 +1549,23 @@ class OciAdapter:
         """
         runtime_id = boundaries.identity(runtime_id, "a runtime id")
         answer = self.run(inspect_vector(self.engine, runtime_id=runtime_id))
+
+        def unknown(state, why):
+            # `mounts` IS `None` on every branch that read no document: the
+            # honest value for "this adapter did not see what this runtime
+            # has". `_mounts_disagree` refuses an unknown reading outright, so
+            # nothing downstream has to interpret it.
+            #
+            # MEASURED AS AN EQUIVALENCE, and said so rather than claimed
+            # otherwise: answering `()` here produces the identical refusal
+            # today, because a lifecycle record names at least one slot and an
+            # empty bind list therefore fails the "no bind at ..." rule anyway.
+            # `None` is still the right value -- it is the true one -- but no
+            # case can currently tell the two apart, and a comment claiming a
+            # distinction nothing can drive is the vacuity this campaign keeps
+            # correcting.
+            return {"state": state, "why": why, "mounts": None}
+
         if answer["status"] != 0:
             # POSITIVE ABSENCE IS ABOUT THIS IDENTITY, and the engine has to
             # say so. Review [P1]: matching "no such" or "not found" anywhere
@@ -674,23 +1574,27 @@ class OciAdapter:
             # missing socket -- read as this runtime being dead, which is the
             # one mistake that releases an assignment whose worker is running.
             # The contract is now engine-specific and names the runtime.
-            if _absent_prose(answer["stderr"], runtime_id):
-                return {"state": "absent",
-                        "why": "the engine answered that this exact identity "
-                               "does not exist"}
-            return {"state": "uncertain",
-                    "why": f"the engine refused to inspect this runtime: "
-                           f"{answer['stderr'][:MAX_DIAGNOSTIC]}"}
+            #
+            # Review [P0], the second correction of this one branch: naming
+            # the runtime SOMEWHERE in stderr was still not association. The
+            # engine's own absence sentence has to be the thing that names it.
+            if _absent_prose(self.engine, answer["stderr"], runtime_id):
+                return unknown("absent",
+                               "the engine answered that this exact identity "
+                               "does not exist")
+            return unknown("uncertain",
+                           f"the engine refused to inspect this runtime: "
+                           f"{answer['stderr'][:MAX_DIAGNOSTIC]}")
         document = _decoded(answer["stdout"], "an engine inspection")
         if type(document) is list:
             if len(document) != 1:
-                return {"state": "uncertain",
-                        "why": f"the engine answered about {len(document)} "
-                               f"runtimes for one exact identity"}
+                return unknown("uncertain",
+                               f"the engine answered about {len(document)} "
+                               f"runtimes for one exact identity")
             document = document[0]
         if type(document) is not dict:
-            return {"state": "uncertain",
-                    "why": "the engine's inspection is not one record"}
+            return unknown("uncertain",
+                           "the engine's inspection is not one record")
         # AND A SUCCESSFUL INSPECTION MUST BE ABOUT THE RUNTIME WE ASKED
         # ABOUT. Review [P1]: this read `State` from whatever document came
         # back, so an engine answering about another container -- or about
@@ -701,27 +1605,35 @@ class OciAdapter:
                 named = document[member]
                 break
         if type(named) is not str or not named:
-            return {"state": "uncertain",
-                    "why": "the engine's inspection names no runtime, so it "
-                           "is not evidence about this one"}
+            return unknown("uncertain",
+                           "the engine's inspection names no runtime, so it "
+                           "is not evidence about this one")
         if named != runtime_id:
-            return {"state": "uncertain",
-                    "why": f"the engine answered about "
+            return unknown("uncertain",
+                           f"the engine answered about "
                            f"{name_value(named)} and this asked about "
-                           f"{name_value(runtime_id)}"}
+                           f"{name_value(runtime_id)}")
         state = _one_of(document, ("State",), "an engine inspection")
         if type(state) is not dict:
-            return {"state": "uncertain",
-                    "why": "the engine's inspection carries no state record"}
+            return unknown("uncertain",
+                           "the engine's inspection carries no state record")
+        # THE MOUNTS THE ENGINE SAYS THIS RUNTIME ACTUALLY HAS. Read from the
+        # SAME inspection that decided the state, so the two facts are one
+        # observation of one runtime rather than two questions asked at two
+        # moments -- which is what recovery needs them to be.
+        mounts = _observed_mounts(document)
         running = state.get("Running")
         if running is True:
-            return {"state": "running", "why": "the engine reports it running"}
+            return {"state": "running", "why": "the engine reports it running",
+                    "mounts": mounts}
         if running is False:
             return {"state": "quiescent",
-                    "why": "the engine reports it not running"}
+                    "why": "the engine reports it not running",
+                    "mounts": mounts}
         return {"state": "uncertain",
                 "why": f"the engine reports Running as "
-                       f"{name_value(running)}, which is neither"}
+                       f"{name_value(running)}, which is neither",
+                "mounts": mounts}
 
     def _labels_of(self, entry):
         """The labels the engine reports, back in the manager's vocabulary.

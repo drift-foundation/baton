@@ -1,0 +1,139 @@
+W6633 — evidence after the correction answering the 02:37:11Z review.
+
+Review answered: review-2026-08-26T02-37-11Z.md
+  [P1] source checkout mtimes remain part of the image identity
+  [P1] refused stage cleanup is silently reported as a successful build
+
+
+[P1] THE MTIME RULE WAS A DECISION I WROTE AND DEFENDED, AND IT WAS WRONG
+
+  `_normalized_layer` replaced the mtime of directories only, on this
+  reasoning, which is quoted from the code it justified:
+
+    "A regular file's mtime came out of the build context and is content."
+
+  The build context is a CHECKOUT, and a checkout does not pin mtimes. The
+  version-control source carries file bytes and the executable bit and nothing
+  about when a working tree was populated — so two fresh checkouts of one
+  revision present identical worker bytes under different ambient clocks, and
+  the reproducible identity this whole step exists to produce depended on when
+  somebody cloned.
+
+  I drew the line between "the copy created it" and "the context supplied it".
+  THE LINE THAT MATTERS IS WHAT THE SOURCE OF TRUTH PINS, and it pins neither.
+
+  Every member time in a recipe-owned layer is normalized now. Bytes, mode,
+  link target, ownership ids and member order are content and survive; the
+  mtime is a clock reading whatever member carries it. The module docstring
+  records the old rule as SUPERSEDED with its reasoning, because the
+  distinction it drew is the instructive part.
+
+  AND THE REAL-ENGINE CASE COULD NOT HAVE CAUGHT IT. It builds twice from ONE
+  context, so both builds see one set of source mtimes. That is worth naming:
+  a daemon-backed gate is not automatically the stronger evidence, and here
+  the daemon-free fixture is the only thing that can vary a checkout.
+
+
+[P1] A REFUSED CLEANUP CANNOT REPORT A SUCCESSFUL BUILD
+
+  The staging removal ran in `finally` and discarded its result, so an engine
+  that refused `image rm` left the mutable un-normalized image under a
+  readable staging tag while the function returned a pinnable identity — which
+  makes this module's own remove-on-every-path guarantee false, in the same
+  docstring that states it. **That is the second time in this Work a comment
+  has asserted a property the code did not have**, and the first was the
+  shared staging tag one correction ago.
+
+  The result is checked now, and the raise is placed AFTER the `finally` on
+  purpose: a build that failed and then could not clean up is reported as the
+  build failure it is, with the cleanup evidence in the log rather than
+  replacing it. Only a run that got all the way through — build, save,
+  normalize, load — turns a refused removal into its own failure, because that
+  is the run whose success would otherwise be a lie.
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest tests.tools.test_worker_image_build
+    Ran 27 tests in 0.019s
+    OK
+
+  22 -> 27. The review's two additive methods are kept as written and pass;
+  one assertion was revised under its explicit confirmation; four are new:
+
+    two checkouts of one revision reach one identity — the property stated at
+      the level a reader cares about
+    normalizing the clock did not normalize the content — mode, bytes and
+      member set survive, or this correction would be a different defect
+    a refused cleanup does not replace an earlier failure
+    every member time is the one instant (the revised assertion)
+
+  THE CLASS WAS RENAMED with it: `InsideTheRewrittenLayerOnlyDirectoryTimesMove`
+  is now `InsideTheRewrittenLayerOnlyTheClockMoves`, because the old name
+  states the superseded rule.
+
+  CAN-ACTUALLY-FAIL, measured. With the directory-only rule and the discarded
+  cleanup result restored:
+
+    x  test_a_failed_stage_removal_cannot_report_a_successful_build
+    x  test_every_member_time_is_the_one_instant
+    x  test_source_checkout_mtime_is_not_part_of_the_image_identity
+    x  test_two_checkouts_of_one_revision_reach_one_identity
+    Ran 27 tests -- FAILED (failures=4)
+
+  The file was restored byte for byte afterwards.
+
+
+AGAINST A REAL ENGINE
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_worker_container
+    Ran 31 tests in 26.761s
+    OK
+
+  Docker 29.1.3, including the two-independent-builds identity case — so
+  normalizing every member time did not break the artefact, and the checked
+  cleanup still removes the stage on the ordinary path.
+
+    $ docker images --format '{{.Repository}}:{{.Tag}}' | grep -c unnormalized
+    0
+
+    $ env PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_worker_image tests.tools.test_parallel_runner
+    Ran 94 tests -- OK
+
+
+FULL SOURCE SUITE AND LOCKED BUILD
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1253 tests in 500.682s
+    FAILED (failures=7, skipped=6)
+
+    $ cd v12/python && just build
+    Ran 1253 tests in 485.616s
+    FAILED (failures=7, skipped=5)
+
+  Taken back to back over a tree hashed before and after:
+
+    f3caf2aa40a8ec2a1016c9d7c1ff0a77   before
+    f3caf2aa40a8ec2a1016c9d7c1ff0a77   after
+
+  THE SEVEN ARE THE LONG-STANDING `test_boundary_inventory` FAILURES AND
+  NOTHING ELSE. `tools.test_worker_image_build` is gone from the list, and for
+  the first time in this campaign there is no reported-not-fixed section:
+  every failure the suite carries belongs to the one other Work that has held
+  them throughout.
+
+
+NOT DONE, AND IT IS THE OPERATOR'S
+
+  PLAN item 6: drain, deploy, restart with fresh contexts, complete W12181
+  through `pc.rsrch -> pc.impl -> pc.rsrch -> pc.ops`, and return W10198. A
+  live smoke on an existing thread does not satisfy the fresh-context
+  acceptance, and nothing here was verified against the running deployment.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w6633d_full.txt   the full source-suite log
+    /tmp/w6633d_build.txt  the locked installed-layout log
+    /tmp/w6633d_gate.txt   the daemon-backed image gate log

@@ -1,0 +1,164 @@
+W6630 — evidence after the SIXTH review correction, 2026-08-25.
+
+Review answered: review-2026-08-25T22-52-21Z.md
+  [P1] the substitute can itself contain a live bearer substring
+
+
+THE FINDING IS RIGHT AND THE MISTAKE WAS IN MY OWN COMMENT
+
+  The fifth correction exempted `SECRET_LEAK_MESSAGE` from the live-value test
+  so that raising the substitute could not recurse, and justified it in a
+  comment that reads, verbatim:
+
+    "... which it can, if the live value happens to BE this build's
+     substitute prose."
+
+  BE. That is equality reasoning, three lines under a rule whose whole content
+  is that the value test is CONTAINMENT and not equality. The registry admits
+  any non-empty value and §13's own contract admits a 32-character claim
+  token, so a live bearer can be a SUBSTRING of the constant — and the exempt
+  replacement then carried the entire live value out.
+
+    'a refusal quoted a live bearer v' unexpectedly found in
+    'a refusal quoted a live bearer value; §13 keeps ...'
+
+
+THE CORRECTION: THE REPLACEMENT IS PROVED, NOT EXEMPTED
+
+  The exemption is gone. The replacement now passes the same containment test
+  as every other message, and when the prose cannot pass it the message is
+  EMPTY:
+
+      live = _live_values()
+      if _carries_live_secret(message, live):
+          raise ContractRefusal(
+              "integrity", "secret-leak",
+              "" if _carries_live_secret(SECRET_LEAK_MESSAGE, live)
+              else SECRET_LEAK_MESSAGE,
+              durable=durable)
+
+  THE EMPTY MESSAGE IS SAFE BY CONSTRUCTION RATHER THAN BY INSPECTION. It is
+  the one string a non-empty value cannot be contained in, and
+  `remember_secret` refuses an empty value — so there is no live value it can
+  carry and no further fallback is needed. That is also what bottoms the
+  recursion: the substitute's own construction re-enters this guard, and a
+  substitute of `""` cannot fail it.
+
+  THE CLOSED PAIR DOES NOT GIVE WAY. `integrity.secret-leak` is the
+  diagnostic; the readable prose is the part that can be spent, and it is
+  spent only when it would otherwise leak. Durability still propagates: a leak
+  found while composing a diagnostic does not un-write what the raising site
+  had already written.
+
+  ONE SNAPSHOT FOR BOTH QUESTIONS. A refusal now asks the registry about two
+  strings — the message it was handed and the replacement it would use — and
+  asking twice would let the registry move between the two answers. The
+  snapshot is taken once and passed to both, which is the same rule `_walk`
+  follows for a whole document. `_carries_live_secret` takes an optional
+  `live=` for exactly this; with none it takes its own, so every other caller
+  is unchanged.
+
+
+ONE OF MY OWN ASSERTIONS WAS THE DEFECT AND IS REPLACED
+
+  `test_the_substitute_is_this_build_s_own_prose_and_cannot_recurse` required
+  a refusal whose message IS the substitute prose to be constructed UNCHANGED
+  while that prose was registered live. That is the equality exemption stated
+  as an expectation, and it is now
+  `test_the_substitute_is_proved_by_containment_and_never_exempted`, which
+  requires the same construction to REFUSE and the answer not to contain the
+  live value.
+
+  Nothing was weakened: the replacement asserts strictly more.
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_secrets
+    Ran 75 tests in 0.276s
+    OK
+
+  71 -> 75. The reviewer's additive regression is kept as written and passes;
+  one assertion of mine was replaced one-for-one; four are new:
+
+    the replacement gives way to an EMPTY message and not to a leak, while
+      the closed pair and the durability both survive
+    an empty message is accepted because it can carry nothing — the terminal
+      case stated as its own fact, because without it the fallback has no
+      bottom
+    the prose is still used when it carries nothing live — giving way is the
+      exception, not the rule
+    one snapshot answers both questions — counted, not assumed
+
+  CAN-ACTUALLY-FAIL, measured. With the equality exemption and the constant
+  replacement restored and nothing else changed:
+
+    FAIL: test_the_replacement_gives_way_to_an_empty_message_and_not_to_a_leak
+    FAIL: test_the_substitute_cannot_quote_a_live_bearer_substring
+    FAIL: test_the_substitute_is_proved_by_containment_and_never_exempted
+    Ran 75 tests -- FAILED (failures=3)
+
+  The reviewer's case and both of the new ones that bear on it catch the old
+  shape. The file was restored byte for byte afterwards.
+
+  THE FULL PUBLIC-SURFACE SWEEP IS UNTOUCHED, as the review required:
+  `NoPublicRefusalQuotesALiveBearer` still derives the same universe as the
+  public inventory and drives every surface, and `EveryDurableWriterIsGuarded`
+  and `EveryPublicSurfaceIsAccountedFor` are unchanged.
+
+
+ADJACENT
+
+    $ env PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_store tests.manager.test_offers \
+        tests.manager.test_handshake tests.manager.test_interrogation \
+        tests.manager.test_attempts tests.manager.test_sessions \
+        tests.manager.test_output tests.manager.test_contracts_inventory \
+        tests.manager.test_pod tests.manager.test_diagnostic_rendering \
+        tests.manager.test_dependencies tests.manager.test_text_sweep
+    Ran 485 tests in 2.076s
+    OK (skipped=1)
+
+
+FULL SOURCE SUITE AND LOCKED BUILD
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1223 tests in 479.970s
+    FAILED (failures=11, skipped=6)
+
+    $ cd v12/python && just build
+    Ran 1223 tests in 482.478s
+    FAILED (failures=11, skipped=5)
+
+  1219 -> 1223 is this correction's four added cases.
+
+  `test_secrets` DOES NOT APPEAR IN THE FAILURE LIST. It was the one W6630
+  failure the suite carried, and it is gone. The eleven that remain are:
+
+    7  test_boundary_inventory  — the long-standing seven, other Work's
+    2  test_oci                 — W6632 reviewer regressions
+    2  tools.test_worker_image_build — W6633 reviewer regressions
+
+  Nothing was added by this correction and one failure was removed.
+
+
+REPORTED AND NOT FIXED
+
+  The four above belong to Work this claim does not hold, and all four are
+  reviewer regressions posted after this participant passed that Work back:
+
+    W6632 — tests.manager.test_oci
+      test_a_target_traversal_is_not_normalized_into_another_location
+      test_a_stale_policy_runtime_is_not_filtered_into_a_duplicate_start
+    W6633 — tests.tools.test_worker_image_build
+      OnlyTheRecipesOwnWorkIsRewritten.test_a_partial_base_layer_match_refuses
+      TheBuildVectorIsClosed.test_concurrent_builds_for_one_destination_have_distinct_stages
+
+  Both W6632 and W6633 are routed to `baton.feat`; each was reported on its
+  own thread when it was found.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w6630b_full.txt   the full source-suite log
+    /tmp/w6630b_build.txt  the locked installed-layout log

@@ -1,0 +1,215 @@
+W6632 — evidence after the correction answering the 15:07:37Z re-review.
+
+Review answered: review-2026-08-25T15-07-37Z.md
+  [P0] absence prose combines two identities
+  [P1] the resolved identity is three digests and the image is one-way
+  [P1] the cleanup proof selects nothing this module creates
+
+
+THE FIVE ADDITIVE REVIEW METHODS, BEFORE
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_oci
+    ERROR: test_the_resolved_identity_includes_the_assignment_policy
+    FAIL:  test_an_absence_sentence_for_another_runtime_is_not_this_one_absent
+    FAIL:  test_a_restart_refuses_a_runtime_from_another_resolved_image
+    Ran 59 tests -- FAILED (failures=2, errors=1)
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_oci_engine
+    FAIL:  test_a_failed_cleanup_query_is_not_positive_absence
+    FAIL:  test_cleanup_queries_the_label_namespace_the_tests_create
+    Ran 14 tests -- FAILED (failures=2, skipped=5)
+
+  Reproduced exactly as the review reports them.
+
+
+[P0] ABSENCE NAMES THE RUNTIME, IN THE SENTENCE THAT STATES IT
+
+  `_absent_prose` asked two separate questions and answered "absent" when
+  both were true. Now each engine's own complete form CAPTURES the identity,
+  and only a captured identity equal to the one asked about is absence.
+
+    _ABSENT_FORMS = {
+        "docker": (no such container: <id>, no such object: <id>),
+        "podman": (no container with name or ID "<id>", no such container <id>),
+    }
+
+  PER ENGINE, not pooled: a docker adapter reading podman's phrasing would be
+  accepting evidence from a daemon it is not talking to. The reviewer's
+  `Error: No such container: runtime-2; request was for runtime-1` now
+  captures `runtime-2`, which is not `runtime-1`, and the answer is
+  `uncertain`.
+
+
+[P1] FOUR DIGESTS, AND BOTH HALVES SURVIVE THE RESTART
+
+  RESOLVED_IDENTITY is image, profile, policy, adapter. The three-digest
+  version was a narrowing of a confirmed contract and the review was right
+  that a green case named `..._three_digests_and_nothing_else` is how such a
+  narrowing stops looking like one. That case is now
+  `..._four_digests_and_nothing_else` and asserts the member tuple itself.
+
+  THE IMAGE IS THE ENGINE'S OWN FACT, read from the listing rather than from
+  a label, because a label is what this manager wrote about a delivery and
+  the engine's record is what is actually running. Measured against the real
+  daemon rather than assumed:
+
+    $ docker ps --all --no-trunc --format '{{json .}}' --filter id=...
+    {"ID": "f22c059a5bee...", "Image": "sha256:9351a9a0a697...", ...}
+
+  So `Image` is the `sha256:` reference when a runtime is started by digest,
+  which is what this adapter always does. Podman answers `ImageID` as well
+  and it is asked for first; either spelling, with or without the `sha256:`
+  prefix, is one fact. A listing that names no image, or names a tag, is
+  refused: an engine that cannot name the image by digest has not said which
+  image is running.
+
+  THE POLICY HAS NO ENGINE FACT, so it is a label. `runtime.labels` gains
+  `policy_digest` -- the second time this build has extended those labels
+  past the frozen host's set, and for the same reason the participant was
+  added: reconciliation decides by comparing labels, so a member of the
+  resolved identity the engine cannot report has to be there or it does not
+  survive a restart. Pinned in FINDING.md.
+
+  A CONSEQUENCE THAT REACHES PAST THIS JOB, named rather than absorbed:
+  `attempts.policy_digest` is nullable, so an attempt recorded without one
+  can no longer start a runtime. `_runtime_labels` refuses it with a message
+  that says exactly that, instead of surfacing as a digest complaint about
+  `None` two layers down. This is a lifecycle rule this correction REACHED
+  rather than one it owns; it is flagged for the reviewer.
+
+
+[P1] THE CLEANUP PROOF SELECTS WHAT THE SUITE ACTUALLY MADE
+
+  MARK is a label and never a name: every runtime name is derived from
+  `runtime.start:<digest>`, so `--filter name=baton-w6632-engine` selected
+  none of them and reported empty whatever survived. The proof now queries
+  `label=baton.v12.work_id=2b077949-W6632`, the one selector every created
+  runtime carries, and REQUIRES the query to have succeeded before it reads
+  the result as absence.
+
+  `remove_everything` also surfaces failure now. A refused `rm` is not by
+  itself a failure -- a name is registered the instant it CAN exist, so some
+  were never created -- but a container still present afterwards is, and that
+  is a question for the engine rather than for its prose.
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_oci
+    Ran 64 tests -- OK
+
+  59 -> 64: the reviewer's three plus five of mine. A runtime labelled for
+  another policy is refused at the restart; a listing that names no image is
+  refused; a tag is not an image identity; docker's and podman's two
+  spellings and the bare id are one fact; and a start labelled for another
+  policy is refused, which is the mismatch probe extended to the member the
+  review restored.
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_oci_engine
+    Ran 14 tests -- OK (skipped=5)
+
+  Against a REAL Docker 29.1.3 daemon: start, list, stop with proof, destroy
+  with proof, duplicate-start refusal, the restrictions read back from the
+  engine's own record, a workspace mount resolved where this manager named
+  it, and positive absence for an identity that never existed. The five
+  podman cases skip; podman is not installed on this runner. The listing
+  comparison the correction adds is exercised by the real daemon rather than
+  only by the fake: `test_a_runtime_starts_is_found_stops_and_is_destroyed`
+  calls `adapter.list` against Docker's own `Image` field.
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_attempts
+    Ran 52 tests -- OK
+
+  51 -> 52: the new lifecycle precondition case, which nulls the column and
+  requires the refusal to name the missing policy digest AND requires that
+  nothing was started.
+
+
+THE OCI INVENTORY IS STILL COMPLETE, MEASURED
+
+    OCI unprobed:            []
+    OCI probed-never-owned:  []
+    OCI unowned:             []
+
+  One probe was added, because `_image_identity` is a new receiving boundary
+  and because the audit found `oci.py:OciAdapter.__init__ / identity` owned
+  under the label `a resolved identity digest` with no probe: the document
+  envelope was probed and the digests inside it were not. It is driven with
+  the EMPTY STRING rather than the surrogate, for the reason that file
+  already records -- `own` walks the envelope for encodability first, so a
+  surrogate proves the envelope's rule and never reaches this one.
+
+  `_image_identity` takes a LITERAL label at its owner, which is the fourth
+  time this distribution has been corrected for a computed one. Written into
+  the code as a comment rather than learned again.
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory
+    Ran 86 tests -- FAILED (failures=7)
+
+  The same seven test names this campaign has carried throughout, naming
+  `documents.py:freeze_requested`, `sessions.py:close_agent_session`,
+  `handshake.py:certified_agent_session_profile` and
+  `workspaces.py:materialize_git_source` -- four sites this correction does
+  not touch. They belong to other in-flight Work that has that file modified.
+
+  THE ROUTE TO THOSE SEVEN IS RECORDED because it was not free. The label
+  contract change made this module fail 593 times at one point: every fixture
+  that builds runtime labels or records an attempt then starts a runtime
+  refused, from a handful of shared helpers. The fixtures are updated; the
+  count came back to seven.
+
+
+ADJACENT
+
+    $ env PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_oci tests.manager.test_oci_engine \
+        tests.manager.test_attempts tests.manager.test_sessions \
+        tests.manager.test_output tests.manager.test_interrogation \
+        tests.manager.test_store tests.manager.test_offers \
+        tests.manager.test_dependencies tests.manager.test_text_sweep \
+        tests.manager.test_contracts_inventory tests.manager.test_handshake
+    Ran 522 tests -- OK (skipped=6)
+
+
+FULL SOURCE SUITE
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1189 tests in 458.706s
+    FAILED (failures=9, skipped=6)
+
+    7  test_boundary_inventory  — the pre-existing seven above
+    1  test_worker_container    — W6633's image gate, pre-existing
+    1  test_secrets             — REPORTED, NOT FIXED; see below
+
+  The five OCI failures the review reported are gone and nothing was added.
+
+
+LOCKED INSTALLED-LAYOUT BUILD
+
+    $ cd v12/python && just build
+    [build] the frozen schema assets travelled: 2
+    Ran 1189 tests in 456.447s
+    FAILED (failures=9, skipped=5)
+
+  The same nine, reproduced from site-packages rather than from `src/`.
+
+
+REPORTED AND NOT FIXED
+
+  `tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing.
+   test_the_substitute_cannot_quote_a_live_bearer_substring`
+
+  A reviewer regression added to W6630 after this participant passed that
+  Work back, and it is a real defect in that correction: §13's substitute
+  message is exempted from the containment guard as a whole, so a live bearer
+  that happens to be a 32-character SUBSTRING of this build's constant prose
+  leaves inside the replacement. W6630 is routed to `baton.feat` and is not
+  held by this claim; fixing it here would be executing Work nobody claimed.
+  It is reported on T6630 and here.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w6632_full.txt    the full source-suite log
+    /tmp/w6632_build.txt   the locked installed-layout log
+    /tmp/w6632_bi6.txt     the final boundary-inventory log

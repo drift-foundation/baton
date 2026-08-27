@@ -1672,3 +1672,151 @@ no binding or an unresolved ambiguity remains. The detailed inheritance and
 override grammar, whether multi-parent organizations are admitted, and how
 shared-principal capacity is scheduled remain design questions for the bounded
 M6 Job. This requirement is not backported to v11.
+
+## Artifact-neutral Worker Manager boundary — confirmed 2026-08-25
+
+The Worker Manager does not understand Git, import bundles, resolve commits,
+prepare checkouts, or choose a source-acquisition operation. This explicitly
+supersedes the earlier wording above wherever it assigned Git-aware
+materialization, proposal import, or commit validation to the core manager.
+Git remains one worker/driver capability and one possible artifact format; it
+is not worker-control protocol vocabulary.
+
+For every assignment, the runtime exposes three generic surfaces:
+
+- a staged read-only input directory;
+- private local ephemeral space that disappears with the worker; and
+- an assignment-scoped writable output directory that survives the worker.
+
+A versioned input envelope describes the named staged material, stable paths,
+digests, and the instructions or format-specific descriptor needed to consume
+it. How that directory was populated is outside the Worker Manager. A source
+stager may clone Git, copy a directory, extract an archive, mount remote
+storage, or use another provider; the manager only supplies the resulting
+read-only directory and its generic integrity envelope.
+
+The worker chooses where to perform its private work. It may use ephemeral
+space and export every result needed after teardown, or it may clone/check out
+directly below its writable output directory and use that persistent tree as
+its workspace. The output path is not required to be a second copy of an
+ephemeral checkout.
+
+Completion publishes a standardized `output/result.json` last. The envelope
+records assignment identity, disposition, declared artifact paths and generic
+digests, plus format-specific opaque metadata. A Git-capable worker may report
+a commit identifier there, but a commit identifier alone is not a durable
+result: the corresponding repository/object transport must also exist in the
+declared output. For example, the worker may leave `output/repo/` containing
+its private repository and report its proposed head, or emit another
+self-contained Git artifact. Which representation it chooses is governed by
+the assignment/driver contract, not interpreted by the manager.
+
+After quiescence, the manager performs only format-neutral duties: refuse path
+escape and unsupported filesystem objects, enforce generic limits, freeze or
+snapshot the declared output, compute generic integrity evidence, and bind the
+frozen tree to the assignment generation. It does not run Git or decide
+whether a reported commit is meaningful. A later Git-aware verifier or
+integrator receives that frozen output as read-only input and interprets the
+repository and commit under its own explicit contract. Directory, research,
+media, and future result types use the same handoff without teaching the
+manager their semantics.
+
+The earlier immutable Git-bundle workflow remains a permitted Git-driver
+implementation, but no bundle is required or imported by the Worker Manager.
+The completed worker-control API and conformance specifications must receive a
+bounded revision for this supersession before the OCI reference worker or
+host manager is implemented.
+
+**Clarified 2026-08-25:** the outer worker protocol standardizes only two
+filesystem roles and their manifests:
+
+```text
+/input/                 read-only
+  input.json            how this assignment's staged input is to be consumed
+/output/                writable until quiescence, then frozen
+  output.json           published last; how the result is to be consumed
+```
+
+Private ephemeral storage is available runtime capacity, not a third protocol
+artifact or a required path. The manager does not know whether the input is a
+Git repository, a directory, an archive, a database snapshot, media, generated
+state, or a future format. It likewise does not know whether output contains a
+repository, individual files, a binary, research evidence or another result.
+
+Both JSON documents have a small generic envelope for schema version,
+assignment/generation identity, declared relative paths, completion status and
+generic integrity evidence. Their consumption description and result metadata
+are opaque to the Worker Manager. The manager validates only envelope shape,
+identity, containment, completion publication and generic integrity; it never
+executes an ingestion instruction or interprets payload semantics.
+
+The worker reads `input.json` and chooses whether to use ephemeral space or
+work directly below `output/`. It writes every durable result below `output/`
+and publishes `output.json` last. A later worker, verifier, reviewer or trusted
+integrator receives the frozen output as a new read-only input and follows its
+described consumption contract. A Git commit identifier is therefore merely
+format-specific output metadata, not a core field, and is useful only when the
+output also preserves the data needed by the downstream consumer to resolve
+it.
+
+This clarification supersedes the earlier `git`/`directory` source types and
+initial Git/directory result types as core protocol vocabulary. Those may exist
+inside particular `input.json`/`output.json` payload conventions, but the
+Worker Manager and base worker-control protocol remain format-neutral.
+
+## Compact human-facing identifiers — confirmed 2026-08-26
+
+All opaque identifiers shown in compact operator surfaces use a typed
+Crockford Base32 presentation form. Crockford Base32 is preferred over
+hexadecimal and Base64 because it is shorter than hex while remaining
+case-insensitive, terminal/URL/filename safe, and free of the easily confused
+`I`, `L`, `O` and `U` characters. Type prefixes remain visible, for example
+`W-`, `M-`, `T-`, `A-`, so shrinking an identifier never erases what it names.
+
+This is a presentation rule, not a change to canonical identity. Durable
+records, manifests, events, protocol mutations and integrity checks retain the
+full structured canonical identity already required above. A client may show
+the shortest Base32 prefix that is unambiguous in its stated authority and
+view, extending it on collision; before a mutation it resolves that shorthand
+and presents the full identity to the authority. A shorthand that is missing,
+ambiguous or resolves in a different authority fails closed.
+
+Human-readable participant, team and Route names remain names rather than
+being encoded. Cryptographic digests retain their algorithm-defined canonical
+serialization; they are integrity values, not compact UI identifiers. The v12
+TUI applies this rule when its post-proof implementation is ordered. No v11 ID
+or schema migration is authorized by this decision.
+
+**Clarified 2026-08-26:** the earlier upper-case, hyphenated examples such as
+`W-` are superseded. The canonical compact UI spelling is lower-case and has
+no separator: `w12abc`, `m8k2`, `t4pq` and `a7rs`. User-input parsers accept
+either ASCII case, case-fold before resolution, and re-render the resolved
+lower-case spelling. Generated compact IDs never mix case. This convenience
+applies only to human input; persisted and protocol identities remain the full
+case-sensitive canonical values required by their owning contracts.
+
+## MVP host-credential pass-through — confirmed 2026-08-27
+
+For the trusted, single-operator v12 MVP, an agent runtime may receive the
+operator's existing host credential file through an exact read-only bind mount
+for the lifetime of one running container. “Into the image” means visible to
+the container at runtime; the credential is never copied or baked into an
+image layer. The host runtime remains the owner of its ordinary persistent
+credential cache, while Baton creates no additional durable credential copy.
+
+The trusted runtime profile maps a closed logical credential slot to the exact
+host-side provider file and closed container target. Neither the assignment nor
+agent chooses a host path. The engine exposes only that exact file read-only;
+it does not expose the containing host state directory. Bearer bytes remain
+absent from argv, environment, labels, logs, protocol Events, durable Baton
+state and output artifacts. Removing the container removes the exposure; it
+does not delete or alter the provider-owned host cache.
+
+This MVP ruling supersedes any earlier requirement that Baton first
+materialize an assignment-private credential copy before launch. Such staging
+remains permitted, but is not required for the MVP. A runtime that needs to
+rewrite or rotate a read-only credential may fail with a typed operational
+result; the operator may refresh the host credential and start a fresh
+attempt. A writable container-private refresh cache, short-lived service
+credentials and multi-tenant credential brokerage remain post-MVP design
+work, not implied authority to weaken the read-only mount.

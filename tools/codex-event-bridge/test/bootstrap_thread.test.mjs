@@ -21,6 +21,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import { BOOTSTRAP_PROMPT, bootstrapThread } from "../src/main.mjs";
+import { launcherContract } from "../src/role_instructions.mjs";
 
 const OPTIONS = {
 	endpoint: "ws://127.0.0.1:4500",
@@ -203,13 +204,204 @@ test("the locator carries the resolved identity and generation",
 		});
 	});
 
-test("the accepted role instructions still reach thread/start", async () => {
+test("the accepted role instructions AND the launcher contract reach "
+	+ "thread/start", async () => {
+	// W12229 replaced this assertion, and the old one is the defect: it
+	// required `developerInstructions` to be the role prose and NOTHING
+	// else, which is exactly the fresh `pc.plan` context that reached
+	// W12181 over and over and could not claim it because it had never
+	// been told which executable, config, participant or role to use.
 	const server = new FakeServer();
 	const { made } = await run(server);
 	assert.deepEqual(made[0].startedWith, {
 		cwd: OPTIONS.cwd,
-		developerInstructions: ROLE.instructions,
+		developerInstructions: `${ROLE.instructions}\n\n`
+			+ launcherContract({
+				binary: OPTIONS.baton, config: OPTIONS["baton-config"],
+				participant: ROLE.participant, role: ROLE.role }),
 	});
+});
+
+test("the launcher contract carries exactly the ruled four values", async () => {
+	const server = new FakeServer();
+	const { made } = await run(server);
+	const text = made[0].startedWith.developerInstructions;
+	assert.match(text, /BATON_BIN="\/opt\/baton\/bin\/baton"/);
+	assert.match(text, /BATON_CONFIG="\/home\/op\/baton.json"/);
+	assert.match(text, /BATON_PARTICIPANT="baton.tuner"/);
+	assert.match(text, /BATON_ROLE="tuner"/);
+	// And nothing beside them. An action owner, an exec-policy path or a
+	// scrap of configuration would each be a value nobody ruled into a
+	// durable persona.
+	assert.equal(text.includes("actionOwner"), false);
+	assert.equal(text.includes("execPolicy"), false);
+	assert.equal((text.match(/^BATON_/gm) ?? []).length, 4,
+		"the block carries something other than the four ruled fields");
+});
+
+test("the role prose comes first and the contract is appended once",
+	async () => {
+	const server = new FakeServer();
+	const { made } = await run(server);
+	const text = made[0].startedWith.developerInstructions;
+	assert.ok(text.startsWith(ROLE.instructions),
+		"the accepted role prose was altered rather than composed with");
+	assert.equal(
+		(text.match(/Baton launcher contract \(authoritative/g) ?? []).length,
+		1, "the contract was rendered more than once");
+});
+
+test("--start-thread refuses before any read when a contract field is absent",
+	async () => {
+	// All four fail in the same place now. `--role` used to be refused
+	// indirectly by the instruction reader, so one field of one contract
+	// failed later and in somebody else's error.
+	for (const missing of ["endpoint", "cwd", "baton", "baton-config",
+	                       "participant", "role"]) {
+		const options = { ...OPTIONS };
+		delete options[missing];
+		let read = 0;
+		let connected = 0;
+		await assert.rejects(
+			bootstrapThread(options, quiet, {
+				out: capture().out,
+				read: async () => { read += 1; return ROLE; },
+				clientFactory: () => { connected += 1; return null; },
+			}),
+			new RegExp(`--start-thread requires --${missing}`),
+			`a missing --${missing} did not refuse`);
+		assert.equal(read, 0, `--${missing} was read past`);
+		assert.equal(connected, 0, `--${missing} reached a Codex connection`);
+	}
+});
+
+test("--start-thread refuses a relative Baton source before reading it",
+	async () => {
+	// Resolving either path through PATH or the bridge's working directory
+	// is inference. The configured dispatcher already refuses this shape;
+	// fresh bootstrap must enforce the same launcher contract before its
+	// instruction read or Codex connection.
+	for (const [name, value] of [["baton", "bin/baton"],
+	                            ["baton-config", "state/baton.json"]]) {
+		const options = { ...OPTIONS, [name]: value };
+		let reads = 0;
+		let connections = 0;
+		await assert.rejects(
+			bootstrapThread(options, quiet, {
+				out: capture().out,
+				read: async () => { reads += 1; return ROLE; },
+				clientFactory: () => { connections += 1; return null; },
+			}),
+			new RegExp(`--${name}.*absolute`),
+			`a relative --${name} was accepted as canonical`);
+		assert.equal(reads, 0, `--${name} reached the instruction read`);
+		assert.equal(connections, 0, `--${name} reached a Codex connection`);
+	}
+});
+
+test("the two entry points refuse the same relative shape", async () => {
+	// The defect was that they did not. `validateConfig` has always
+	// required both `roleInstructions` paths to be absolute, and
+	// standalone bootstrap never passes through it — so one contract had
+	// two different admission rules depending on which door it came in.
+	const { validateConfig } = await import("../src/config.mjs");
+	for (const [field, value] of [["binary", "bin/baton"],
+	                              ["config", "state/baton.json"]]) {
+		const source = { binary: "/opt/baton/bin/baton",
+			config: "/home/op/baton.json",
+			execPolicyFile: "/opt/baton/policy.json", [field]: value };
+		assert.throws(() => validateConfig({
+			roleInstructions: source,
+			servers: { local: { endpoint: "ws://127.0.0.1:4500" } },
+			targets: { one: { server: "local", threadId: "t",
+				identity: { participant: "baton.tuner", role: "tuner",
+					actionOwner: "ops.slaw" } } },
+			eventSocket: "/tmp/codex-w12229.sock",
+			quarantineDir: "/tmp/codex-w12229-quarantine",
+		}), /must be an absolute path/,
+			`the dispatcher accepted a relative ${field}`);
+	}
+	// And the same two shapes at the bootstrap door.
+	for (const [name, value] of [["baton", "bin/baton"],
+	                             ["baton-config", "state/baton.json"]]) {
+		await assert.rejects(
+			bootstrapThread({ ...OPTIONS, [name]: value }, quiet, {
+				out: capture().out,
+				read: async () => ROLE,
+				clientFactory: () => null,
+			}),
+			new RegExp(`--${name}.*absolute`));
+	}
+});
+
+test("a path that merely LOOKS rooted is not absolute", async () => {
+	// The kind of value a launcher template produces when a variable did
+	// not expand: it has the shape of a path and none of the meaning.
+	for (const value of ["./bin/baton", "../baton/bin/baton", "bin/baton",
+	                     "~/baton/bin/baton", "$BATON_HOME/bin/baton"]) {
+		await assert.rejects(
+			bootstrapThread({ ...OPTIONS, baton: value }, quiet, {
+				out: capture().out,
+				read: async () => ROLE,
+				clientFactory: () => null,
+			}),
+			/--baton.*absolute/,
+			`${value} was accepted as an absolute executable`);
+	}
+});
+
+test("an absolute pair still reaches the read and the contract", async () => {
+	// The other half: the guard refuses a shape, not the ordinary case.
+	const server = new FakeServer();
+	const { made } = await run(server);
+	assert.match(made[0].startedWith.developerInstructions,
+		/BATON_BIN="\/opt\/baton\/bin\/baton"/);
+});
+
+test("a launcher contract field that is blank refuses rather than rendering "
+	+ "a hole", async () => {
+	for (const spoiled of [{ binary: "" }, { config: "   " },
+	                       { participant: undefined }, { role: null }]) {
+		assert.throws(() => launcherContract({
+			binary: "/opt/baton/bin/baton", config: "/home/op/baton.json",
+			participant: "baton.tuner", role: "tuner", ...spoiled }),
+			/needs an explicit/,
+			`${JSON.stringify(spoiled)} rendered a partial contract`);
+	}
+});
+
+test("the contract quotes its values so a path is data, not syntax",
+	async () => {
+	const text = launcherContract({
+		binary: "/opt/baton bin/ba\"ton", config: "/home/op/b c.json",
+		participant: "pc.plan", role: "rview" });
+	assert.match(text, /BATON_BIN="\/opt\/baton bin\/ba\\"ton"/);
+	assert.match(text, /BATON_CONFIG="\/home\/op\/b c.json"/);
+});
+
+test("the renderer reads nothing and infers nothing", async () => {
+	// Conflicting ambient values and a plausible repository path must not
+	// reach the block: a context that could be told the wrong executable
+	// by an environment variable is a context that infers.
+	const before = { ...process.env };
+	process.env.BATON_BIN = "/wrong/baton";
+	process.env.BATON_CONFIG = "/wrong/baton.json";
+	process.env.BATON_PARTICIPANT = "somebody.else";
+	process.env.BATON_ROLE = "approv";
+	try {
+		const text = launcherContract({
+			binary: "/opt/baton/bin/baton", config: "/home/op/baton.json",
+			participant: "baton.tuner", role: "tuner" });
+		assert.equal(text.includes("/wrong/"), false);
+		assert.equal(text.includes("somebody.else"), false);
+		assert.equal(text.includes("approv"), false);
+	} finally {
+		for (const name of ["BATON_BIN", "BATON_CONFIG", "BATON_PARTICIPANT",
+		                    "BATON_ROLE"]) {
+			if (before[name] === undefined) delete process.env[name];
+			else process.env[name] = before[name];
+		}
+	}
 });
 
 // -- every way it can fail, fails the command --------------------------------

@@ -1,0 +1,135 @@
+W11910 — evidence after the correction answering the 01:28:35Z re-review.
+
+Review answered: review-2026-08-26T01-28-35Z.md
+  [P1] Codex uses the stale queued event to defer current claimed Work and
+       non-Work actions
+  [P1] ACP's final authority read still spends a Work turn after another
+       claim wins the slot
+
+Both are defects in the claim-slot gate the previous correction added, and
+both are mine.
+
+
+[P1] THE CURRENT MATCHING ENTRY DECIDES, NOT THE EVENT
+
+  The gate found the exact action key in the canonical read and then decided
+  claim-slot occupancy from `event.action.claimed` — a bit that describes the
+  world when the PRODUCER emitted the event, not the entry the read just
+  returned. It also had no action-kind test at all. Two live states failed:
+
+    an unclaimed offer CLAIMED while it waited in the dispatcher still said
+      `claimed:false` in the queued event, so the delivery was deferred
+      behind the very claim it now exists to recover;
+
+    a non-Work obligation carries no `claimed` field, so `undefined !== true`
+      read as unclaimed and the Work-only claim-slot rule swallowed it.
+
+  Nothing had to be parsed or added to the event. The read already returns the
+  exact matching action with its kind and its current claimed state:
+
+    absent            -> over
+    not a Work        -> live   (obligations, trials, pokes, refreshes keep
+                                 their own rule; the one-claim WORK slot does
+                                 not govern them)
+    a claimed Work    -> live   (the participant's own assignment being
+                                 recovered; it can never wait behind itself)
+    an unclaimed Work -> deferred while any Work claim occupies the slot
+
+
+[P1] ACP HAD THE SAME GAP, AND A BOOLEAN COULD NOT SAY OTHERWISE
+
+  `episodeStillLive` answered exact-key membership only. The outer snapshot
+  can admit unclaimed Work B while the slot is free; another adapter, an
+  interactive turn or an operator can then claim Work A before ACP's immediate
+  pre-turn read; B is still actionable, so the boolean said `true` and the
+  turn was spent against a slot the authority had already given away.
+
+  The boolean could not express the state: `false` meant the episode was over
+  and withdrew the offer permanently, `true` started the turn, and a live
+  offer waiting on another claim is neither. `episodeVerdict` derives the same
+  three answers from one canonical envelope, and `runBridge` handles them:
+
+    over      -> `markWithdrawn`, dropped, as before
+    deferred  -> NEITHER delivery NOR withdrawal. No prompt, no
+                 `markWithdrawn`, and no `markPresented` — a turn nobody spent
+                 is not an attempt — so the offer is admitted again on the
+                 next poll and the loop's own backoff keeps that from spinning
+    live      -> the turn
+
+  ONE DERIVATION, TWO ADAPTERS. The rule is the same sentence in both
+  families, which is the point: the previous correction fixed the Codex path
+  and left ACP answering a different question about the same authority.
+
+
+FOCUSED
+
+    $ npm test        # tools/codex-event-bridge
+    i  tests 396   i  pass 395   i  fail 1
+
+    $ npm test        # tools/acp-baton-bridge
+    i  tests 66    i  pass 66    i  fail 0
+
+  ACP 64 -> 66: the review's additive case and one of mine. The Codex suite's
+  one failure is W12229's and is not this Work's — see below.
+
+  THE TWO HALVES ARE COVERED SEPARATELY, and it is worth saying which is
+  which. The review's ACP case injects `revalidate` and therefore exercises
+  `runBridge`'s HANDLING of a deferred verdict; it would pass whatever the
+  derivation did. My added
+  `the verdict separates a dead episode from one waiting on a claim` drives
+  the derivation itself over one envelope: live, over, deferred, a claimed
+  Work as its own recovery, and a non-Work action beside a claim.
+
+  CAN-ACTUALLY-FAIL, measured. With the Codex gate reading the event's own
+  `claimed` again and the ACP verdict reduced to exact-key membership:
+
+    x  an unclaimed delivery promoted to claimed while queued becomes its own
+       recovery turn
+    x  a non-Work obligation is not held behind the participant's claim
+       (Codex, pass 27 fail 2)
+    x  the verdict separates a dead episode from one waiting on a claim
+       (ACP, pass 65 fail 1)
+
+  Both files were restored byte for byte afterwards.
+
+  THREE EXISTING INJECTIONS MOVED TO THE VERDICT VOCABULARY. The review is
+  explicit that the boolean cannot express the required distinction, so
+  `revalidate: async () => false` and its two siblings now answer `"over"`
+  and `"live"`. No assertion changed, and the seam has ONE vocabulary rather
+  than accepting both — two spellings of one answer is how the next reader
+  learns the wrong one.
+
+    whitespace check over the diff: clean
+
+
+REPORTED AND NOT FIXED
+
+  W12229 — `tools/codex-event-bridge/test/bootstrap_thread.test.mjs`:
+    --start-thread refuses a relative Baton source before reading it
+
+  A reviewer regression posted with `review-2026-08-26T01-31-59Z.md` while
+  this correction was in progress, and a real defect in that Work:
+  `--start-thread` requires all six operands and refuses an empty one, but
+  never required the Baton executable and config to be ABSOLUTE — so a
+  relative `bin/baton` is accepted and the context receives a launcher
+  contract whose paths mean nothing without a working directory nobody
+  named. That is inference wearing the shape of an explicit value, and
+  `validateConfig` already refuses the same shape for the dispatcher.
+
+  MEASURED, not assumed: it fails identically in a copy of the bridge with
+  this Work's change reverted to `HEAD`, so it is not caused by this turn.
+  W12229 is routed to `baton.feat` and is not held by this claim. Reported on
+  T12229 with the direction I would take.
+
+
+STILL THE OPERATOR'S
+
+  PLAN item 9's live smoke and item 10's deploy. This correction cannot prove
+  the live queue advances without being deployed to it, and nothing here was
+  verified against the running deployment.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w11910c_base/   the copy with this Work's change reverted to HEAD,
+                         used for the W12229 measurement above

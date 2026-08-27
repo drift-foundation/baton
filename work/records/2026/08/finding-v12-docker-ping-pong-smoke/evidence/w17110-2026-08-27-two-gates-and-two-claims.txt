@@ -1,0 +1,161 @@
+W17110 — the eighth review's five findings. 2026-08-27.
+SPIKE ONLY. No repository state was mutated.
+
+=== 0. A CORRECTION TO DURABLE EVIDENCE, first because it is a boundary
+  [P1] The previous transcript and PROGRESS.md quoted Codex's response
+  wording verbatim while also claiming no provider text appears
+  anywhere. Both cannot be true, and the claim was the false one.
+
+  That phrase is not a secret. Persisting it is still a breach of the
+  boundary the FIRST review closed: provider output comes from a process
+  holding a credential, so only closed categories and bounded
+  operational facts may be written down. Having argued that at length, I
+  then wrote the text into two durable artifacts.
+
+  THE CODEX RESULT IS 'network' AND NOTHING MORE. The earlier files are
+  historical events and are not rewritten; this correction stands beside
+  them, and the wording is not reproduced again here.
+
+=== 1. [P1] TWO GATES, AND ONE WAS SILENTLY STANDING IN FOR THE OTHER
+  A bind mount hands the container the exact file, so a successful probe
+  says nothing about a carrier the identity could never have walked.
+  Readability and traversal answer different questions about different
+  objects, and folding them left neither visible.
+    117:def _ancestors_traversable(place):
+    118-    """Whether every directory ABOVE this path can be traversed.
+    119-
+    120-    A SEPARATE GATE, and separate from readability on purpose. W17110's eighth
+    339-                 and usable and all(usable.values())
+    340-                 # THE SEPARATE CLAUSE. A bind mount hands the container the
+    341-                 # file directly, so a successful probe says nothing about a
+    342-                 # carrier the identity could never have walked -- and the
+    343-                 # approved layout requires both.
+    344:                 and all(traversable.values()))
+
+=== 2. [P1] A FAILED PROBE FELL BACK TO THE MODEL IT SUPERSEDED
+  I wrote that a probe which did not run concludes nothing, and then
+  had it fall back to readable_by_container_uid — so a failed probe over
+  a positively-modelled file still read as READY. Once the engine is
+  here, an exact file is usable only when a probe RAN and said so.
+    302-    # `usable` IS THE FILE VERDICT AND ONLY THAT: a probe RAN and said this
+    303-    # identity can open this exact path. It deliberately does not absorb the
+    304-    # traversal gate, which is a different question about a different object --
+    305-    # folding them would leave neither visible in the report, and the whole
+    306-    # finding was that one was silently standing in for the other.
+    307-    usable = {}
+    308-    for name, found in per_provider.items():
+    309-        seen = observed.get(name, {})
+    310:        usable[name] = bool(found["present"] and seen.get("probed")
+
+=== 3. [P1] I CLAIMED A CAUSE THE SIEVE DID NOT ESTABLISH
+  'credential-refresh-blocked' named a MECHANISM — the read-only mount
+  blocked the refresh — on evidence that showed only expiry and refresh
+  wording. No write-denied signal was ever observed. And the record said
+  in the same breath that a fresh snapshot might succeed, which is
+  incompatible with the delivery shape being the proved cause.
+
+  The categories are split, and only one of them explains anything:
+    41:  // A WRITE-DENIED SIGNAL IS WHAT WOULD PROVE CAUSATION, so only that earns
+    42-  // the causal name. Expiry wording alone earns the descriptive one, and
+    43-  // stops there.
+    44-  [/(read-only file system|erofs|eacces|permission denied|cannot write|failed to (write|save|persist))/i,
+    45-   "credential-write-denied"],
+    46-  [/oauth.*(expired|refresh)|(expired|refresh).*oauth|token (has )?expired|refresh token/i,
+    47-   "credential-expired"],
+    158-# `credential-expired` DESCRIBES; `credential-write-denied` EXPLAINS. W17110's
+    159-# eighth review [P1]: the earlier `credential-refresh-blocked` did both at once
+    160-# on evidence for only the first, and the record then carried the delivery shape
+    161-# as a proved cause. A category that names a mechanism has to be earned by a
+    162-# signal for that mechanism.
+    163:CATEGORIES = ("credential-write-denied", "credential-expired",
+    164-              "authentication", "quota", "network", "packaging", "timeout",
+    165-              "unrecognized")
+    166-
+
+=== 4. [P1 operational] OPERATOR.md AUTHORIZED WHAT THE APPROVER DID NOT
+  It said 'sudo rm -rf /run/baton/credentials'. The pinned decision
+  authorizes unlinking the two exact entries and removing the
+  directories once empty, and explicitly authorizes no recursive
+  deletion. An operator would have run that on my say-so.
+    74:    sudo unlink /run/baton/credentials/claude
+    75:    sudo unlink /run/baton/credentials/codex
+    76:    sudo rmdir  /run/baton/credentials
+    77:    sudo rmdir  /run/baton          # only if it is now empty
+    (and 'rmdir' refuses a non-empty directory, which is the point)
+
+  OPERATOR.md's option 2 is also gone: closing as a partial was
+  superseded by the full-proof ruling, and leaving it offered a path the
+  approver had removed.
+
+=== 5. BOTH TRIALS, RE-RUN UNDER THE CORRECTED CATEGORIES
+
+  --- claude
+    failure category         credential-expired
+    verdict.expected_spike          True
+    verdict.expected_provider       True
+    verdict.correlation_matches     True
+    verdict.provider_exit_zero      False
+    verdict.container_exit_zero     False
+    verdict.answer_is_exactly_pong  False
+    verdict.closed_result_shape     True
+    clean                    True
+    satisfying               False
+    provider text anywhere?  False
+
+  --- codex
+    failure category         network
+    verdict.expected_spike          True
+    verdict.expected_provider       True
+    verdict.correlation_matches     True
+    verdict.provider_exit_zero      False
+    verdict.container_exit_zero     False
+    verdict.answer_is_exactly_pong  False
+    verdict.closed_result_shape     True
+    clean                    True
+    satisfying               False
+    provider text anywhere?  False
+
+  CLAUDE is 'credential-expired': the runtime authenticates and finds
+  its OAuth token expired. WHY it could not proceed is NOT established.
+  CODEX is 'network'.
+
+=== 6. WHAT W6634 MAY TAKE FROM THIS, corrected
+  CONFIRMED WRAPPER FACTS, each observed directly:
+    both runtimes package into an image and start, by exact version;
+    a container reaches both provider endpoints;
+    Codex will not start when its WHOLE STATE DIRECTORY is mounted
+      read-only, and refuses a HOME under /tmp;
+    both need their state directory pre-created and owned in the image,
+      because Docker creates a missing bind-mount parent as root;
+    the host's uid numbering is not necessarily the container's.
+
+  HYPOTHESES, and they are not evidence:
+    that exact-file read-only delivery is insufficient for Claude. The
+      observed fact is an expired token. Under the approved layout the
+      surrounding state directory IS writable, so the earlier
+      whole-directory result does not transfer, and no write-denied
+      signal was seen. A fresh snapshot may simply work.
+    that Codex's network failure is about credential delivery at all.
+
+  The earlier PROGRESS entry stated the first hypothesis as a finding.
+  It is corrected here rather than rewritten there.
+
+=== 7. THE SUITES AND THE LIVE PREFLIGHT
+    Ran 18 tests in 0.007s
+    
+    OK
+    Ran 20 tests in 0.006s
+    
+    OK
+    live preflight exit=0 (the approved 0711 carrier still passes)
+
+=== 8. THE ENGINE, ASKED WHETHER ANYTHING SURVIVED
+    containers: (nothing listed = none)
+    images    : (nothing listed = none)
+
+=== 9. STILL NON-SATISFYING
+  Neither real agent returned the correlated exact pong, and the
+  full-proof ruling means that is the only thing that discharges this
+  Work. The credential remains staged and the harness is corrected; the
+  Claude path needs a token inside its lifetime and the Codex path needs
+  its connection failure understood.

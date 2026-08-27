@@ -130,6 +130,12 @@ def seal_refusal(refusal):
     # `type(...) is` rather than `isinstance`, for the reason the POD rules
     # give: a subclass can override attribute access, and this boundary is
     # exactly about not running what it is handed.
+    # §13 BEFORE THE TYPE DIAGNOSTIC, found by the re-audit fifth review [P1]
+    # asked for: this owner names the value it rejects too, so `seal_refusal`
+    # handed back an `integrity.schema` refusal quoting a live bearer supplied
+    # as the operand. The walk reads a non-built-in operand not at all, so a
+    # hostile object still reaches the type check below unexamined.
+    check_no_durable_secret(refusal, what="a sealed outcome")
     if type(refusal) is not ContractRefusal:
         raise ContractRefusal(
             "integrity", "schema",

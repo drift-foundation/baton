@@ -1,0 +1,37 @@
+W11910 independent sixth re-review
+2026-08-26, baton.codex
+
+Retained baseline before the additive case:
+
+  tools/codex-event-bridge: npm test
+  tests 409; pass 409; fail 0
+
+  tools/acp-baton-bridge: npm test
+  tests 70; pass 70; fail 0
+
+Additive focused regression:
+
+  node --test-name-pattern='deferred Work at the queue head' \
+    test/claim_slot.test.mjs
+
+  tests 1; pass 0; fail 1
+  expected one obligation turn; observed none
+
+Focused cross-boundary file:
+
+  node test/claim_slot.test.mjs
+  tests 38; pass 37; fail 1
+
+Complete Codex suite with the additive case:
+
+  npm test
+  tests 410; pass 409; fail 1
+
+The only failure is:
+
+  a deferred Work at the queue head does not hold a later obligation
+
+The setup first leaves unclaimed Work B retained at queue depth one beside
+claimed Work A. It then adds obligation #7 behind B while the canonical level
+contains claimed A, unclaimed B and that obligation. `#drain` repeatedly
+revalidates only B, returns `deferred`, and never examines the obligation.

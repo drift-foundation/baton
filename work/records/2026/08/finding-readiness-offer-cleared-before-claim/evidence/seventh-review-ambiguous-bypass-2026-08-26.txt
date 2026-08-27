@@ -1,0 +1,37 @@
+W11910 independent seventh review evidence — 2026-08-26T07:57:08Z
+
+Baseline, before the additive seventh-review case:
+  cwd tools/codex-event-bridge
+  npm test
+  tests 413; pass 413; fail 0
+
+Additive regression:
+  tools/codex-event-bridge/test/claim_slot.test.mjs
+  an ambiguous obligation behind a deferred Work is reconciled
+
+Focused result:
+  node test/claim_slot.test.mjs
+  tests 42; pass 41; fail 1
+  expected queue depth 1; actual queue depth 2
+
+Full Codex result with the regression:
+  npm test
+  tests 414; pass 413; fail 1
+  sole failure: an ambiguous obligation behind a deferred Work is reconciled
+
+Relevant implementation path:
+  event_bridge.mjs:599-607 selects a live candidate behind deferred B.
+  event_bridge.mjs:655 marks that selected candidate ambiguous.
+  event_bridge.mjs:883 skips ambiguous candidates behind B forever.
+  #reconcileTarget checks only state.queue[0], which remains B.
+
+Concurrent ACP state (not attributed to W11910):
+  cwd tools/acp-baton-bridge
+  npm test
+  tests 70; pass 68; fail 2
+  Both failures are prompt-suffix expectations after concurrent W14828
+  launcher-contract rendering; no W11910 assertion fails.
+
+Repository whitespace gate:
+  git diff --check
+  clean

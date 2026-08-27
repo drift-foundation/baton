@@ -51,3 +51,21 @@
     those Jobs. Exact messages and the full DAG are recorded in
     `evidence/w5-decomposition-2026-08-24.txt` and
     `review-2026-08-24T22-43-25Z.md`.
+13. [queued high priority 2026-08-26] Before the broad W6636 integration
+    matrix, run one deterministic real-Docker ping-pong proof through the
+    reviewed Python manager and OCI worker boundaries. The promoted top-level
+    record is
+    `work/records/2026/08/finding-v12-docker-ping-pong-smoke/`; it waits only
+    on W6633 and W6634, and W6636 consumes its satisfying result.
+13a. [supersedes item 13's prerequisite clause 2026-08-26] Run W17110 now as a
+     disposable tracer-bullet using a spike-only image and minimal Python glue.
+     It no longer waits on W6633 or W6634. Preserve W17110 as a prerequisite of
+     W6636, label all temporary implementation honestly, and let the production
+     component Jobs decide what—if anything—to reuse after the Docker concept
+     has been demonstrated.
+13b. [supersedes item 13's deterministic-worker scope 2026-08-26] W17110 tests
+     real agents in order: Claude first, then Codex. Each runs inside its own
+     spike container, receives a correlated ping through the smallest practical
+     wrapper, returns pong, and leaves redacted packaging/auth/start/result/
+     cleanup evidence. Both must succeed for the two-provider proof; neither
+     spike implementation is production conformance.

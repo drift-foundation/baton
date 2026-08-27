@@ -1,0 +1,77 @@
+W6634 fourth independent re-review evidence — 2026-08-26T16:33:05Z
+
+Confirmed corrected
+===================
+
+The two prior committed-result regressions pass:
+
+  PYTHONPATH=src python3 -m unittest \
+    tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_an_incomplete_committed_record_is_not_replay_evidence \
+    tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_replay_requires_the_same_freeze_operation
+
+  Ran 2 tests in 0.003s — OK
+
+The adjacent focused manager set passes:
+
+  tests.manager.test_sealing tests.manager.test_oci tests.manager.test_output
+  tests.manager.test_intake tests.manager.test_dependencies
+  tests.manager.test_workspaces tests.manager.test_secrets
+
+  Ran 357 tests in 1.448s — OK (skipped=1)
+
+Credential regressions added by this review
+===========================================
+
+Baseline before the additions:
+
+  tests.manager.test_credentials + tests.manager.test_sealing
+  Ran 74 tests in 0.017s — OK
+
+After adding three independently derived credential regressions:
+
+  PYTHONPATH=src python3 -m unittest -v tests.manager.test_credentials
+  Ran 47 tests in 0.011s — FAILED (failures=3)
+
+1. test_a_short_file_write_does_not_truncate_the_credential
+
+   credentials.py:370 calls os.write exactly once and ignores its returned
+   byte count. The reproducer makes each call accept one byte. Materialization
+   reports success and the worker-facing file contains b'b' rather than the
+   registered bearer.
+
+2. test_an_engine_declined_start_releases_the_undelivered_credential
+
+   oci.py:824-826 raises immediately on a non-zero engine start result. The
+   materialized root remains present and its bearer remains live even though
+   the engine has declined the launch. No runtime id or lifecycle record exists
+   for the advertised single destroy path to recover.
+
+3. test_a_partial_adoption_does_not_leave_an_unowned_live_bearer
+
+   credentials.py:419-459 validates and registers slots in the same loop. If
+   slot one is valid and slot two is missing, the first bearer is registered
+   before adoption refuses. No Delivery is returned, so no lifecycle owner can
+   later release that registration.
+
+Restart proof is not connected to engine facts
+==============================================
+
+Repository search finds no production caller of CredentialHome.adopt,
+read_state, resolved_delivery, materialize or discard_orphans outside
+credentials.py. OciAdapter accepts an already-built Delivery, writes its own
+lifecycle record after start, and tears it down after destroy.
+
+CredentialHome.adopt compares a durable record with caller-supplied attempt and
+runtime ids and with locally derived path constants. It never receives an
+engine observation. OciAdapter.observe parses runtime identity and State only;
+it does not read or return engine-reported mounts. Therefore no implemented
+path can prove that the live container's credential mount sources/targets and
+ephemeral root agree with the lifecycle record, nor can a disagreement drive
+the required stop-worker plus bounded-orphan-cleanup path. The existing exact
+adoption test proves agreement among self-authored documents and local files,
+not agreement with the runtime.
+
+Formatting
+==========
+
+git diff --check — status 0

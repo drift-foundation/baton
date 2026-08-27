@@ -1,0 +1,31 @@
+W17110 independent fourth review, 2026-08-27T04:55:30Z
+
+Existing gates before expansion:
+
+  reviewer suite: Ran 12 tests in 0.005s — OK
+  implementer harness: Ran 12 tests in 0.004s — OK
+  node --check v12/spike/ping-pong/trial.mjs — exit 0
+  git diff --check — exit 0
+
+Expanded reviewer gate:
+
+  test_a_successful_untag_does_not_prove_image_identity_absent ... FAIL
+  test_an_unhashable_provider_value_is_refused_not_raised ... ERROR
+
+  ERROR: TypeError: unhashable type: 'list'
+    at trial.py:115, value in CREDENTIAL_TARGET
+
+  FAIL: expected a nonzero trial status when the recorded image identity
+  survives after successful tag removal; actual status was 0.
+
+  Ran 14 tests in 0.006s
+  FAILED (failures=1, errors=1)
+
+Source observations:
+
+  trial.py:115 — provider membership has no string-type guard.
+  trial.py:369-383 — cleanup removes and queries the tag; recorded image id is
+  added as a survivor only when removal returned nonzero.
+  trial.py:424 — stale comment claims the image is queried by immutable id.
+
+No credential was opened or mounted and no live-provider trial was run.

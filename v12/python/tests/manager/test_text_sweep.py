@@ -266,6 +266,44 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
             # A pure derivation over a row this build already adopted; its
             # operand is a document and carries no durable text of its own.
             "freeze_operation": (({},), {}, []),
+            # -- W6629: intake, retention and cleanup ----------------------
+            #
+            # Every row drives the REAL exported operation, with the text
+            # operand spoiled before any state is consulted. The collection and
+            # the destroy answer are DOCUMENTS whose members are spoiled one at
+            # a time in the boundary inventory's probes; what is driven here is
+            # the text each operation carries beside them.
+            "request_intake": (
+                (store, port, _NoAdapter()), dict(attempt_id="attempt-1"),
+                ["attempt_id"]),
+            "record_intake": (
+                (store, port), dict(attempt_id="attempt-1", collected={}),
+                ["attempt_id"]),
+            "intake_receipt_of": ((store, "attempt-1"), {}, [1]),
+            "decide_retention": (
+                (store, port, _NoAdapter()),
+                dict(attempt_id="attempt-1", artifact_ids=["artifact-1"],
+                     disposition="retain",
+                     retention_policy_digest="sha256:" + "7" * 64),
+                ["attempt_id", "retention_policy_digest"]),
+            "retentions_of": ((store, "attempt-1"), {}, [1]),
+            "authorize_cleanup": (
+                (store, port, _NoAdapter()),
+                dict(attempt_id="attempt-1",
+                     retention_policy_digest="sha256:" + "7" * 64),
+                ["attempt_id", "retention_policy_digest"]),
+            # Pure derivations over a row this build already adopted. Their
+            # first operand is a document; the digests beside it are durable
+            # text and are spoiled as such.
+            "collect_operation": (({},), {}, []),
+            "intake_operation": (({},), {}, []),
+            "retain_operation": (({}, "sha256:" + "7" * 64,
+                                  ["artifact-1"], "retain"), {}, []),
+            "destroy_operation": (
+                ({}, "sha256:" + "8" * 64, "sha256:" + "7" * 64), {}, []),
+            "KEEPS_MATERIAL": None,
+            "CUSTODY": None,
+            "RETENTION_DISPOSITIONS": None,
             # -- W6627: the operator interrogation split -------------------
             #
             # Every row drives the REAL exported operation. None of them has a

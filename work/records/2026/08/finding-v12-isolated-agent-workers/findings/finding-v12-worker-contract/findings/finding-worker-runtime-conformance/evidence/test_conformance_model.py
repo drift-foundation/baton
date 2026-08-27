@@ -42,6 +42,10 @@ CONTROL_KINDS = set(
 MANIFEST_SCHEMAS = {
     "baton.worker-manifest/input", "baton.worker-manifest/assignment",
     "baton.worker-manifest/runtime-attempt", "baton.worker-manifest/result",
+    # W14251 second review, 2026-08-26: the worker's completion envelope. It is
+    # a family in its own right because it has its own AUTHOR -- the frozen
+    # result is the manager's receipt, and identifying the two was the defect.
+    "baton.worker-manifest/completion",
     "baton.worker-manifest/proposal", "baton.worker-manifest/verification",
     "baton.worker-manifest/verification-assessment",
     "baton.worker-manifest/technical-review", "baton.worker-manifest/approval",
@@ -295,7 +299,55 @@ class RegisterTests(unittest.TestCase):
     def test_every_case_document_validates_and_reseals(self) -> None:
         # W4487 amended the register on 2026-08-22: 107 + the three
         # decline-authorization cases the ruled supersession needs.
-        self.assertEqual(len(m.CASES["cases"]), 112)
+        #
+        # W14251 amended it again on 2026-08-26. The artifact-neutral ruling
+        # removed the two acquisition cases family A opened with -- a case for
+        # a rule that no longer exists asserts nothing -- and added eight for
+        # the rules the ruling introduces: no acquisition, publication last and
+        # atomic, identifier-only output refused, persistent output workspaces,
+        # ephemeral export, and frozen output chaining into read-only input.
+        # 112 - 2 + 8.
+        #
+        # And 119 after that Work's second review added
+        # `A-manager-receipt-is-not-the-worker-envelope`: the split between the
+        # worker's completion envelope and the manager's frozen-result receipt
+        # is a rule this suite can observe, and an unobservable rule is prose.
+        #
+        # And 123 after that Work's third review: publication order and the
+        # two-author split were covered, but whether the envelope actually
+        # ANSWERS the assignment was not. §12 rule 15's four identity
+        # relations are comparisons no single-document validator can make,
+        # which is exactly why the suite has to carry them.
+        #
+        # And 132 after W19784, 2026-08-26. The contract those 123 certified
+        # was UNSATISFIABLE and not one of them failed: §8.7 requires the
+        # completion envelope to carry the authority generation and §8.1 gives
+        # `input.json` none, because it is minted before any claim exists.
+        # Every case above reads one document at a time, so the gap between
+        # two documents was exactly the shape this suite could not see. The
+        # nine new cases make the second input document, its mount mode, its
+        # bindings to the first and the identity it delivers into the envelope
+        # observable -- delivery, missing, malformed, wrong input, wrong Work,
+        # consent visibility, the positive copy, stale generation, wrong
+        # attempt.
+        #
+        # And 135 after W19784's own review, 2026-08-27. The three cases that
+        # certified stale-generation and wrong-attempt refusal all operated at
+        # `output.freeze` -- AFTER the agent has run. So a root nothing had
+        # authorized could be mounted, an agent could work against it, and this
+        # suite called that conformant because the freeze refused afterwards.
+        # Certifying the right rule at the wrong moment is a hole of exactly
+        # the shape this register exists to close. The three added here are the
+        # pre-mount moment the approved lifecycle actually requires; the freeze
+        # cases stay as defence in depth.
+        #
+        # And 136 after that review's second round. Authorizing a root and
+        # mounting one were TWO OPERATIONS: the manager proved a directory and
+        # the runtime's mount plan was independent of it, free to name the
+        # sibling workspace or land somewhere other than the fixed path. A
+        # proof about one value says nothing about another, and the suite had
+        # no case that asked what was actually mounted.
+        self.assertEqual(len(m.CASES["cases"]), 136)
         for case in m.CASES["cases"]:
             with self.subTest(case=case["case_id"]):
                 VALIDATOR.validate(case)
@@ -432,7 +484,7 @@ class DocumentTests(unittest.TestCase):
             m.validate_fixture(tampered)
 
     def test_a_case_cannot_disagree_with_the_register(self) -> None:
-        case = copy.deepcopy(m.CASE_BY_ID["A-git-exact-base"])
+        case = copy.deepcopy(m.CASE_BY_ID["A-staged-tree-matches-its-manifest"])
         orphan = m.seal_document(dict(
             {k: v for k, v in case.items() if k != "document_digest"},
             obligations=["B-01"]))
@@ -456,7 +508,7 @@ class ObservationTests(unittest.TestCase):
 
     def test_an_observation_with_no_facts_is_not_a_document(self) -> None:
         fix = fixture()
-        case = m.CASE_BY_ID["A-git-exact-base"]
+        case = m.CASE_BY_ID["A-staged-tree-matches-its-manifest"]
         empty = m.seal_document(dict(
             {k: v for k, v in observation(case, fix).items() if k != "document_digest"},
             facts={}))
@@ -464,7 +516,7 @@ class ObservationTests(unittest.TestCase):
 
     def test_unrelated_evidence_cannot_support_an_observation(self) -> None:
         fix = fixture()
-        case = m.CASE_BY_ID["A-git-exact-base"]
+        case = m.CASE_BY_ID["A-staged-tree-matches-its-manifest"]
         unrelated = m.seal_document(dict(
             {k: v for k, v in observation(case, fix).items() if k != "document_digest"},
             evidence=[{"purpose": "dossier",
@@ -487,8 +539,8 @@ class ObservationTests(unittest.TestCase):
 
     def test_an_observation_is_bound_to_the_exact_case_and_fixture(self) -> None:
         fix = fixture()
-        case = m.CASE_BY_ID["A-git-exact-base"]
-        other = m.CASE_BY_ID["A-input-readonly"]
+        case = m.CASE_BY_ID["A-staged-tree-matches-its-manifest"]
+        other = m.CASE_BY_ID["A-input-is-read-only"]
         with self.assertRaises(m.ConformanceError):
             m.accept_observation(observation(case, fix), other, fix)
         with self.assertRaises(m.ConformanceError):
@@ -524,7 +576,7 @@ class AssessorTests(unittest.TestCase):
                 self.assertIn("refusal", rationale)
 
     def test_a_positive_case_that_observed_a_refusal_fails(self) -> None:
-        case = m.CASE_BY_ID["A-git-exact-base"]
+        case = m.CASE_BY_ID["A-staged-tree-matches-its-manifest"]
         facts = dict(satisfying_facts(case),
                      refusal={"category": "refused", "code": "precondition"})
         self.assertEqual(m.assess({"status": "observed", "facts": facts,
@@ -605,7 +657,7 @@ class VerdictTests(unittest.TestCase):
     def test_certification_refuses_an_unaccepted_fixture(self) -> None:
         broken = dict(fixture(), fixture_id="tampered-after-sealing")
         with self.assertRaises(m.ConformanceError):
-            m.certify(run([observation(m.CASE_BY_ID["A-git-exact-base"], broken)], broken),
+            m.certify(run([observation(m.CASE_BY_ID["A-staged-tree-matches-its-manifest"], broken)], broken),
                       broken)
 
     def test_certification_refuses_profile_substitution(self) -> None:
@@ -629,7 +681,7 @@ class VerdictTests(unittest.TestCase):
 
     def test_a_case_cannot_be_observed_twice_in_one_run(self) -> None:
         fix = fixture()
-        case = m.CASE_BY_ID["A-git-exact-base"]
+        case = m.CASE_BY_ID["A-staged-tree-matches-its-manifest"]
         doubled = [observation(c, fix) for c in core_cases(fix)]
         doubled.append(observation(case, fix, observation_id="obs-second"))
         with self.assertRaises(m.ConformanceError):
@@ -739,7 +791,7 @@ class ProfileApplicabilityTests(unittest.TestCase):
             m.validate_fixture(crippled)
 
     def test_a_case_cannot_exclude_a_profile_without_a_profile_only_fault(self) -> None:
-        case = copy.deepcopy(m.CASE_BY_ID["A-git-exact-base"])
+        case = copy.deepcopy(m.CASE_BY_ID["A-staged-tree-matches-its-manifest"])
         narrowed = m.seal_document(dict(
             {k: v for k, v in case.items() if k != "document_digest"},
             applies_to=["remote"]))
@@ -877,7 +929,7 @@ class SupplementalTests(unittest.TestCase):
         fix = fixture()
         impostor = m.seal_document(dict(
             {k: v for k, v in SUPPLEMENTAL.items() if k != "document_digest"},
-            case_id="A-git-exact-base"))
+            case_id="A-staged-tree-matches-its-manifest"))
         with self.assertRaises(m.ConformanceError):
             m.certify(run([observation(c, fix) for c in core_cases(fix)], fix,
                           supplemental_cases=[impostor]), fix)
@@ -909,7 +961,7 @@ class SupplementalTests(unittest.TestCase):
     def test_a_portable_core_case_cannot_carry_a_supplemental_source(self) -> None:
         for case in m.CASES["cases"]:
             self.assertIsNone(case["supplemental_source"])
-        case = copy.deepcopy(m.CASE_BY_ID["A-git-exact-base"])
+        case = copy.deepcopy(m.CASE_BY_ID["A-staged-tree-matches-its-manifest"])
         disguised = m.seal_document(dict(
             {k: v for k, v in case.items() if k != "document_digest"},
             supplemental_source="com.example.runtime/1"))

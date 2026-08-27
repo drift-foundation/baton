@@ -56,6 +56,30 @@ stack is live: a generation-2 proposal is not accepted authority until
 `regen`. Prepare successor files separately, then drain, stop, install the
 proposal, run `regen`, and restart.
 
+## Superseding operational decision — 2026-08-25, `pc` pilot only
+
+The earlier repo-local runner-stack boundary remains the intended general
+shape, but it is superseded for the first Pushcoin v11 pilot. Slawomir chose
+the faster operational path: add the `pc` runners to the existing Baton
+lifecycle stack and accept that changing this shared manifest requires one
+drain, stop, and restart of that stack.
+
+This does not centralize the other seven teams and does not change the v12
+on-demand worker model. The bounded `pc` addition reuses the existing Codex
+app-server, dispatcher, and event socket while adding fresh `pc.prompt`,
+`pc.plan`, and `pc.tuner` contexts, readiness consumers only for the two
+managed Codex participants, and one `pc.code` Claude ACP service. Every
+runner works from `/home/sl/src/pushcoin`, publishes its exact `pc.*`
+identity, and receives its own log/runtime locator. `pc.slaw` remains a human
+identity with no runner, and no Gemini service returns.
+
+The accepted generation-2 `baton.json` already contains these identities and
+routes, so this is an infrastructure-only successor: no `regen`, schema
+change, new authority, or TUI deployment. Prepare the manifest, dispatcher
+template, ACP template, and execution policy as staged successors while the
+live stack runs. Install them only after dispatch is drained and the shared
+stack is stopped.
+
 ## Acceptance
 
 - The successor config validates as generation 2 and adds exactly the eight
@@ -66,3 +90,7 @@ proposal, run `regen`, and restart.
 - The successor lifecycle manifest starts no Gemini service.
 - A post-restart `teams` read shows the new members offline until their own
   repository runners are deployed; offline is truthful and expected.
+- After the separately approved `pc` pilot restart, `pc.prompt`, `pc.plan`,
+  `pc.tuner`, and `pc.code` publish distinct live runtime identities;
+  `pc.plan` and `pc.tuner` each have exactly one readiness consumer, while
+  `pc.prompt` and `pc.slaw` have none.

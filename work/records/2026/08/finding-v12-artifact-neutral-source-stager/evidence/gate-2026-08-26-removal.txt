@@ -1,0 +1,153 @@
+W15232 -- evidence for removing acquisition from the core manager.
+
+
+THE CUT, COMPUTED RATHER THAN EYEBALLED
+
+  The call graph of `workspaces.py`, closed over from each half's public
+  entry points:
+
+    acquisition-only   GitPort, materialize_git_source,
+                       materialize_directory_source, _advertised, _agree,
+                       _destination, _place, _private_metadata, _publish,
+                       _reach, _resolved, _seal, _staging
+    shared             _real, _within, _walk, _open_directory, _read_exactly,
+                       _read_all, _remove, _refuse, _denied,
+                       directory_manifest
+    generic-only       assignment_workspace, discard_workspace, _contained
+
+  Nothing in the shared set is reachable ONLY from the acquisition half, so
+  removing that half removes no generic duty. 13 definitions, 349 lines;
+  exports narrowed from eleven names to seven.
+
+  No production caller outside the module. Every reference to the three public
+  acquisition operations was in tests and the boundary inventory.
+
+
+THERE IS NO OWNER TO RE-HOME INTO
+
+  The assignment permits re-homing "only behind an already pinned source-stager
+  or driver owner". Searched, not assumed:
+
+    $ baton search query=stager      0 hits
+    $ baton search query=acquisition  W15232 only
+    $ baton search query=driver       0 hits
+    $ ls work/records/2026/08/ | grep -i 'stager|acquisition|driver'
+      finding-v12-artifact-neutral-source-stager   (this Work's own record)
+
+  The umbrella FINDING mentions a source stager exactly once, descriptively --
+  "a source stager may clone Git, copy a directory, extract an archive, mount
+  remote storage" -- and names no Work, no module and no boundary.
+
+  So the assignment's own answer applies: remove it, and do not invent a second
+  acquisition contract to preserve code the superseding ruling made ownerless.
+
+
+WHAT LEFT THE MODULE'S IMPORTS WITH IT
+
+  `check_content_manifest` and `validate_fragment`. Both were how this module
+  READ an acquisition descriptor by definition name, or compared a CLAIMED
+  manifest against a measured one. Neither is an act a manager that receives an
+  already staged directory performs.
+
+  `check_content_manifest` STAYS in the test's imports: checking a MEASURED
+  manifest against the frozen `contentManifest` shape is a generic property of
+  what this manager still produces.
+
+
+THE ABSENCE IS ASSERTED
+
+  Two whole test classes tested only removed behaviour and are gone with it --
+  a test of behaviour that no longer exists asserts nothing.
+  `TheCoreManagerDoesNotAcquireSources` stands in their place:
+
+    - no acquisition operation on the module or the package;
+    - no acquisition definition named in the module's CODE, nor as a string
+      operand -- so a differently-spelled helper that still read a `gitSource`
+      would fail here;
+    - the generic duties still present and callable.
+
+  ONE OF THOSE CASES CAUGHT MY OWN PROSE FIRST. The descriptor case read the
+  raw source and failed on the module's comment explaining why the names are
+  gone. A case that cannot tell an explanation from a use punishes writing the
+  explanation down, so it parses the module and inspects names and string
+  operands.
+
+  AND ONE EXISTING CLEANUP CASE USED ACQUISITION ONLY AS SETUP. Its property --
+  cleanup removes read-only trees and leaves the origin untouched -- is generic
+  and is kept; the fixture stages the read-only tree directly now, which is a
+  more honest picture of what this manager receives.
+
+
+THE ACCEPTANCE CRITERION, MEASURED
+
+  Applying W14251's preserved `evidence/revise_schema.py` to both copies of the
+  worker-control schema:
+
+    $ python3 -m unittest tests.manager.test_workspaces
+    Ran 22 tests in 0.013s
+    OK
+
+  Before this Work the same patch produced, for every acquisition request:
+
+    ContractRefusal: a directory source names definition 'directorySource',
+    which is not one of the frozen worker-control schema's own definitions
+
+  That refusal is what blocked W14251 from measuring its own contract change.
+
+  The other 15 failures and 61 errors under the patch are the vectors,
+  fixtures and conformance expectations, which are W14251's PLAN item 5 and
+  explicitly not this Work's.
+
+  BOTH SCHEMA COPIES WERE RESTORED to their committed bytes afterwards. This
+  Work unblocks that revision; it does not land it.
+
+
+TWO LONG-STANDING FAILURES WENT AWAY
+
+  `test_no_declared_owner_is_stale` had been failing on
+  `workspaces.py:materialize_git_source`'s `base_revision.algorithm` and
+  `base_revision.hex` since before this session, and I reported them as
+  somebody else's in three separate handoffs. They were this module's. The
+  orphan set drops from 18 to 17 for the same reason (`workspaces.py:
+  _advertised`).
+
+  Inventory entries removed with the code: 24 stated-owner and delegation
+  entries with their witnesses, 10 probe tuples, and the probe machinery that
+  drove them (`delivering`, `revising`, `materializing`, `deliver_revision`,
+  `RecordingRepository`, `SourceMaterializerCase`, and four witness methods).
+
+  Measured after: zero unowned entries, zero orphans, zero stale owners and
+  zero witness-table gaps name `workspaces.py`.
+
+
+FULL SUITE
+
+    Ran 1289 tests   7 failures, 2 errors, 6 skipped
+
+  Suite size drops from 1316 because the removed behaviour's cases went with
+  it. NONE of the failures is this Work's:
+
+    - 6 are the boundary inventory's long-standing gaps in `documents.py`,
+      `sessions.py`, `handshake.py` and the shared orphan-resolver gap across
+      four modules. Measured: none names `workspaces.py`.
+    - 2 are `tests.tools.test_worker_image_build`, which is W6633's.
+    - 1 is NEW AND IS W6629'S, described below.
+
+
+A NEW W6629 DEFECT SURFACED WHILE THIS WORK RAN, AND IT IS MINE
+
+  `tests.manager.test_intake.IndependentContractReview.
+  test_a_later_policy_can_replace_part_of_a_grouped_decision` was added by
+  W6629's review at 09:13, after I passed that Work back, and it errors.
+
+  It is a real defect in the grouping logic I wrote for W6629's [P1] on
+  journal authentication. `retentions_of` groups persisted decisions by their
+  `retain_operation_id` and reconstructs the command each group came from. When
+  a LATER policy replaces the decision for one artifact of a group, the
+  remaining row is a fragment of the earlier command -- and reconstructing from
+  that fragment derives an operation the journal does not carry, so a perfectly
+  legitimate partial replacement reads as a forged row.
+
+  W6629 is routed to the reviewer and this Work touches no file of it, so it is
+  reported rather than fixed here. It is the next thing to correct when W6629
+  routes back.

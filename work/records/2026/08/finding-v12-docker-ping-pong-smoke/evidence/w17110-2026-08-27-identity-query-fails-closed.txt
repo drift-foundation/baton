@@ -1,0 +1,513 @@
+W17110 — the fifth review's one P1. 2026-08-27.
+SPIKE ONLY. Not a v12 contract, not production implementation, not
+conformance evidence. No repository state was mutated.
+
+=== 1. THE REVIEWER'S FIFTEEN REGRESSIONS, and my sixteen separations
+    ----------------------------------------------------------------------
+    Ran 15 tests in 0.006s
+    
+    OK
+    Ran 16 tests in 0.006s
+    
+    OK
+    Ran 16 tests in 0.006s
+    
+    OK
+  One failure at the fifth review. Fifteen green now, plus sixteen
+  of mine.
+
+=== 2. [P1] A RULE THAT RAISES HAS NOT REFUSED — IT HAS ESCAPED
+  'provider' went straight to a dictionary membership test, and a JSON
+  array is unhashable — so a perfectly valid JSON document raised
+  TypeError OUT of the validator rather than being refused BY it. The
+  document is worker-authored, so 'the container would never write that'
+  is not a property this validator may rely on.
+
+  Two mechanisms, and each is established SEPARATELY because through
+  _closed_shape they are indistinguishable: the per-rule type guard is
+  the fix, and the blanket is the property the review named — totality
+  over every JSON value, which holds only if every rule is right.
+    113:def _text(value, holds):
+    114-    """A string, and only then whatever else is asked of it.
+    115-
+    116-    W17110's fourth review [P1]: `provider` went straight to
+    117-    `value in CREDENTIAL_TARGET`, and a JSON array is unhashable -- so a
+    118-    perfectly valid JSON document raised `TypeError` out of the validator
+    119-    instead of being refused by it.
+    120-    """
+    121-    return type(value) is str and holds(value)
+    122-
+    176:    # TOTAL OVER EVERY JSON VALUE, not only the ones this wrapper emits. The
+    177-    # document is worker-authored, so "the container would never write that"
+    178-    # is not a property this validator may rely on -- a rule that RAISES on a
+    179-    # value has not refused it, it has escaped.
+    180-    for name, holds in FACT_RULES.items():
+    181-        try:
+    182-            if not holds(document[name]):
+    183-                return False
+    184-        except (TypeError, ValueError):
+    185-            return False
+
+=== 2b. THE EARLIER SHAPE FINDINGS STAND
+  Two defects in one rule, and both are the campaign's recurring shape:
+  proving one thing and claiming another.
+
+  It proved member NAMES, so result_bytes: 'four' was allowlisted to
+  null, kept closed_result_shape: true, and could satisfy the trial --
+  because a byte count is not otherwise part of the verdict, so nothing
+  else would ever have noticed. Every required fact is now held to its
+  own bounded rule.
+
+  AND THE TWO SHAPES WERE NOT DISJOINT. Any recognised category was
+  accepted whatever the exit and digest said, so a zero-exit exact-pong
+  document carrying failure_category: authentication was satisfying --
+  neither the success shape nor a truthful failure one. A category is a
+  CLAIM that something went wrong; a document making it beside a clean
+  exit and the right answer is disagreeing with itself, and accepting
+  one means accepting whichever half happened to be read.
+    124:FACT_RULES = {
+    125-    "spike": lambda value: value == "w17110-ping-pong",
+    126-    "provider": lambda value: _text(value, lambda one: one in CREDENTIAL_TARGET),
+    127-    "correlation_id": lambda value: _text(value, lambda one: 0 < len(one) <= 200),
+    128-    "started_at": lambda value: _text(value, INSTANT.match),
+    129-    "finished_at": lambda value: _text(value, INSTANT.match),
+    130-    # The provider's exit as the container observed it. `null` is the container
+    131-    # reporting that it could not observe one, which is a real state.
+    132-    "exit_status": lambda value: value is None or _whole(value, 255),
+    133-    "result_digest": lambda value: _text(value, DIGEST.match),
+    134-    "result_bytes": lambda value: _whole(value, 1 << 24),
+    135-    "stderr_bytes": lambda value: _whole(value, 1 << 24),
+    136-}
+    137-
+    138-# And the closed vocabulary itself, so a document cannot introduce a category
+    139-# by inventing one.
+    140-CATEGORIES = ("authentication", "quota", "network", "packaging", "timeout",
+    187:    answered = document["result_digest"] == EXPECTED_DIGEST
+    188-    exited_clean = document["exit_status"] == 0
+    189-    if "failure_category" in extra:
+    190-        return (document["failure_category"] in CATEGORIES
+    191-                and not (answered and exited_clean))
+    192-    return answered and exited_clean
+    193-
+    194-
+    195-def allowlisted(document):
+
+=== 2b. THE EARLIER FINDINGS STAND, and this is what they look like now
+  The finding is exact. Filtering to an allowlist keeps unknown material
+  out of the printed report and says NOTHING about whether the document
+  is this harness's own: a file carrying every valid fact PLUS raw
+  provider text was still accepted, because the extras were quietly
+  dropped rather than refused.
+
+  The two are separated now. 'allowlisted' is the DURABLE-REPORT
+  boundary -- what may be copied. '_closed_shape' is the DOCUMENT
+  boundary -- what this harness will accept as its own at all, exactly
+  the required members plus a failure category only when something
+  failed. Missing, unknown and extra all refuse.
+    144:def _closed_shape(document):  # noqa: C901
+    145-    """Whether a published document is exactly ONE of two EXCLUSIVE shapes.
+    146-
+    147-    Missing, unknown and extra members all refuse. A document that is not this
+    148-    program's own is not made into one by dropping the parts it did not expect.
+    149-
+    150-    THE VALUES ARE HELD TOO, not only the names.
+    151-
+    152-    AND THE TWO SHAPES ARE DISJOINT. W17110's third review [P1]: any recognised
+    153-    `failure_category` was accepted whatever the document's exit and digest
+    154-    said, so a zero-exit exact-pong document carrying
+    155-    `failure_category: authentication` was satisfying -- neither the success
+    156-    shape nor a truthful failure one. A document has to be one thing:
+    157-
+    158-      SUCCESS: zero provider exit, the exact pong digest, and NO category;
+    159-      FAILURE: a recognised category, and at least one of those two actually
+    160-      failed.
+    161-
+    162-    A category is a claim that something went wrong. A document making that
+    163-    claim while reporting a clean exit and the right answer is not a shape this
+    164-    harness has -- it is a document disagreeing with itself, and accepting it
+
+=== 2b. THE EARLIER P0 STANDS, and this is what it looks like now
+  The finding is right in a way the old code could not be patched into.
+  The rule is not 'remove the token spellings I recognise'. A real agent
+  HOLDS the mounted credential and can emit arbitrary stdout, and a
+  prompt asking for one word is not a non-disclosure boundary — so a
+  heuristic over text somebody else chooses is a guess.
+
+  Nothing is redacted now, because nothing that could carry provider
+  text is read. The container publishes only facts it COMPUTED:
+
+  and the host copies only from a closed allowlist:
+    73:PUBLISHED_FACTS = ("spike", "provider", "correlation_id", "started_at",
+    74-                   "finished_at", "exit_status", "result_digest",
+    75-                   "result_bytes", "stderr_bytes", "failure_category")
+    76-
+
+  The raw answer never leaves the container. What crosses is its DIGEST,
+  which is what lets the host decide an exact match without ever seeing
+  the plaintext — and the reviewer's sentinel, shaped like no known
+  token, no longer appears anywhere in the report.
+
+=== 3. THE HOST-RECOMPUTED VERDICT, now with the shape clause
+  It used to accept the truthiness of the document's own 'pong' member,
+  so a container claiming pong:true beside the text 'not pong', exiting
+  9, was reported satisfying. A worker-authored success bit is a claim,
+  and the party that has to be convinced is the host.
+    443:    report["verdict"] = {
+    444-        # The document is the one this trial asked for, not some other run's
+    445-        # left in the output root.
+    446-        "expected_spike": published.get("spike") == "w17110-ping-pong",
+    447-        "expected_provider": published.get("provider") == provider,
+    448-        "correlation_matches": published.get("correlation_id") == correlation,
+    449-        # BOTH exit states. The provider's, as the container observed it, and
+    450-        # the container's own.
+    451-        "provider_exit_zero": published.get("exit_status") == 0,
+    452-        "container_exit_zero": report.get("exit_status") == 0,
+    453-        # AN EXACT ANSWER. `sha256("pong")` is derived here, so this is a
+    454-        # comparison rather than a belief -- and "not pong" has a different
+    455-        # digest, which a substring test could never have told apart.
+    456-        "answer_is_exactly_pong":
+    457-            published.get("result_digest") == EXPECTED_DIGEST,
+    458-        # THE DOCUMENT IS THIS HARNESS'S OWN, exactly. Not "contains the facts
+    459-        # I wanted after I dropped the rest".
+    460-        "closed_result_shape": bool(report.get("published_shape_closed")),
+    461-    }
+    462-    report["pong"] = report["verdict"]["answer_is_exactly_pong"]
+    463-    report["correlation_matches"] = report["verdict"]["correlation_matches"]
+    464-
+    465-    # AND CLEANUP IS ENFORCED RATHER THAN OBSERVED. Every removal reports
+
+=== 4. [P1] I WROTE THE SAME FAIL-OPEN DEFECT AGAIN, IN A NEW QUERY
+  This is the finding and it is worth stating as bluntly as the reviewer
+  did. Two rounds ago I corrected docker ps and the tag query because a
+  failed observation is not an observation of absence. Then I added an
+  identity query with exactly that defect -- every non-zero result read
+  as absent -- and hard-coded image_identity_query_ok = True beside it,
+  where the clean verdict never consulted it. A daemon error reading 125
+  was indistinguishable from the engine saying the image is gone.
+
+  The outcome is THREE-VALUED now, because that is what it always was:
+    407:            # AND THE QUERY'S OWN OUTCOME IS THREE-VALUED, not two.
+    408-            #
+    409-            # W17110's fifth review [P1], and it is the same fail-open shape I
+    410-            # had JUST corrected for `docker ps` and the tag query -- written
+    411-            # again, in a new query, with `image_identity_query_ok` hard-coded
+    412-            # true beside it. Every non-zero result meant "absent", so a daemon
+    413-            # error reading 125 was indistinguishable from an engine saying the
+    414-            # image is gone, and the trial called that clean.
+    415-            #
+    416-            #   0  the image is there;
+    417-            #   1  the engine looked and there is no such image -- a
+    418-            #      SUCCESSFUL OBSERVATION OF ABSENCE, which is the one case
+    419-            #      that may conclude anything;
+    420-            #   anything else  the query did not run. That is not an
+    421-            #      observation at all, and it cannot establish absence.
+    422-            report["image_identity_query_ok"] = asked.returncode in (0, 1)
+    423-            if asked.returncode == 0 or not report["image_removed"]:
+    424-                surviving.append(recorded)
+    425-        report["images_surviving"] = sorted(set(surviving))
+    426-
+    427-        if taken.keep:
+
+=== 4b. AND THE FOURTH REVIEW'S FINDING STANDS: a tag is a name
+  Cleanup removed the unique tag and then queried by that SAME REMOVED
+  TAG, which proves nothing: an image surviving under another reference
+  is untagged successfully, the tag query comes back empty,
+  image_removed is true, and the trial reported a clean engine while the
+  identity it built was still there.
+
+  The recorded identity is now asked about after EVERY attempt, and a
+  removal that failed is still a survivor — a command that did not
+  report success is not evidence of absence either.
+    391:        # AND THE RECORDED IDENTITY IS ASKED ABOUT, AFTER EVERY ATTEMPT.
+    392-        #
+    393-        # W17110's fourth review [P1]. Removing the unique tag and then
+    394-        # querying by that same removed tag proves nothing: an image that
+    395-        # survives under ANOTHER reference is untagged successfully, the tag
+    396-        # query comes back empty, `image_removed` is true, and the trial
+    397-        # reported a clean engine while the identity it built is still there.
+    398-        #
+    399-        # A tag is a name. The id is the image. So the id is queried whatever
+    400-        # the removal said -- and a removal that failed is still treated as a
+    401-        # survivor, because a command that did not report success is not
+    402-        # evidence of absence either.
+    403-        recorded = report.get("image_id")
+    404-        if recorded:
+    405-            asked = engine("image", "inspect", "--format", "{{.Id}}",
+    406-                           recorded, check=False, timeout=300)
+    407-            # AND THE QUERY'S OWN OUTCOME IS THREE-VALUED, not two.
+    408-            #
+    409-            # W17110's fifth review [P1], and it is the same fail-open shape I
+
+  This also retires the stale comment the review named: nothing now
+  claims an immutable-id query that is not performed, because one is.
+
+=== 4b. AND THE EARLIER CLEANUP FINDINGS STAND
+  The removal's answer was enforced; the QUERIES intended to prove
+  absence were not. A failed docker ps or image ls returns empty stdout,
+  which became an empty survivor list and then 'nothing survived'.
+
+  Every outcome now participates:
+    472:    report["clean"] = bool(
+    473-        not report.get("containers_surviving")
+    474-        and not report.get("images_surviving")
+    475-        and report.get("image_removed")
+    476-        and report.get("container_query_ok")
+    477-        and report.get("image_query_ok")
+    478-        # The identity query too. Absent when there was no recorded id to ask
+    479-        # about, and absent is not a failure -- there was nothing to observe.
+    480-        and report.get("image_identity_query_ok", True)
+    481-        and report.get("staged_root_removed")
+    482-        # On the timeout path these exist and must have succeeded; off it they
+    483-        # are absent, and absent is not a failure.
+    484-        and report.get("timeout_kill_status", 0) == 0
+    485-        and report.get("timeout_remove_status", 0) == 0)
+    486-    report["satisfying"] = bool(all(report["verdict"].values())
+
+  AND A CORRECTION TO MY OWN PROSE. The last round called the fallback
+  an immutable-id query. It is not one: the lookup above is a TAG
+  lookup, and a refused removal is treated as a surviving image by its
+  recorded id because that is fail-closed, not because anything asked
+  the engine about the id. The comment says so at the site.
+sed: -e expression #1, char 10: unknown option to `s'
+
+=== 5. [P1] A ROOT IS NOT A CREDENTIAL
+  Preflight collected the exact per-provider paths and then decided
+  readiness from the ROOT alone, so an empty but perfectly readable
+  nominated directory printed READY while both entries a trial would
+  actually mount were absent. Readiness now requires every path each
+  trial mounts to be present and readable by uid 65532.
+
+  The root clause stays beside it rather than being replaced: a 0111
+  directory is traversable and not listable, so its entries can be
+  perfectly readable while the root is not — the one state where the
+  two clauses disagree, and a case pins it.
+
+  (and the earlier readability findings, still enforced)
+  Preflight reported readable_by_container_uid and then ignored it, so
+  a nominated provider the container cannot open still printed READY --
+  the preflight telling the operator to proceed into the one failure it
+  exists to catch. Readiness now requires it.
+
+  And a DIRECTORY needs its own execute bit, not only its read bit:
+  'r' on a directory is permission to read the NAMES, 'x' is permission
+  to reach what they name, and a credential provider is used for the
+  second. A 0444 provider was reported usable.
+
+  The exact paths each trial mounts are assessed too, because a generic
+  root cannot prove the provider-specific file beneath it is readable.
+
+  Still opening nothing:
+    
+    NOT READY: /run/baton/credentials does not exist, and no provider has been nominated in its place. The operator supplies the credential source; this preflight will not choose one.
+    
+    AND NOTE, for claude, codex: those files exist but uid 65532 cannot read them. A bind mount preserves host ownership, so nominating one as-is would hand the runtime a credential it cannot open. A provider for these trials needs ownership or a mode that admits the container identity — or an explicit ruling giving the container a different one.
+    {
+     "spike": "w17110-ping-pong",
+     "engine": {
+      "present": true,
+      "server": "29.1.3",
+      "client": "/usr/bin/docker"
+     },
+     "credential_providers": {
+      "nominated": {
+       "path": "/run/baton/credentials",
+       "present": false
+      },
+      "nominated_per_provider": {},
+      "known_operator_runtimes": {
+       "claude": {
+        "path": "/home/sl/.claude/.credentials.json",
+        "present": true,
+        "mode": "0o600",
+        "uid": 1000,
+        "gid": 1000,
+        "bytes": 281,
+        "owner_only": true,
+        "readable_by_container_uid": false,
+        "container_identity": "65532:65532"
+       },
+       "codex": {
+        "path": "/home/sl/.codex/auth.json",
+        "present": true,
+        "mode": "0o600",
+        "uid": 1000,
+        "gid": 1000,
+        "bytes": 3973,
+        "owner_only": true,
+        "readable_by_container_uid": false,
+        "container_identity": "65532:65532"
+       }
+      },
+      "usable_per_provider": {}
+     },
+     "host_runtimes": {
+      "claude": "/home/sl/.local/bin/claude",
+      "codex": "/home/sl/.nvm/versions/node/v24.14.0/bin/codex"
+     },
+     "container_reachability": {
+      "anthropic": "405",
+      "openai": "401"
+     }
+    }
+
+  The decision itself, controlled in both directions:
+      a world-readable file under a traversable directory  -> True (expect True)
+      an owner-only file                                   -> False (expect False)
+      a readable file under a 0700 directory               -> False (expect False)
+
+  I did NOT nominate or mount those personal files, on this claim or
+  any other. The reviewer said not to; the ruling says the operator
+  supplies the source; and they would not work as they stand.
+
+=== 5b. EVERY GUARD THIS ROUND ADDED, MEASURED BY REMOVAL
+=== baseline: ['OK']
+=== REMOVE: the published document is exactly one closed shape
+    ['FAILED (failures=3)']  (7 NEW case(s))
+=== REMOVE: an unknown member refuses the document
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: a missing member refuses the document
+    ['OK']  (4 NEW case(s))
+=== REMOVE: every required fact is held to its own rule
+    ['FAILED (failures=2)']  (10 NEW case(s))
+=== REMOVE: a boolean is not an integer fact
+    ['OK']  (2 NEW case(s))
+=== REMOVE: success and failure shapes are exclusive
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: a success shape actually answered and exited clean
+    ['OK']  (3 NEW case(s))
+=== REMOVE: the container cleanup QUERY answered
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: the image cleanup QUERY answered
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: a rule that raises has not refused
+    ['OK']  (1 NEW case(s))
+=== REMOVE: the provider fact is a string before it is a key
+    ['OK']  (4 NEW case(s))
+=== REMOVE: a failed identity query is not an observation of absence
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: the identity query's outcome reaches the clean verdict
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: an absent recorded id is not a failed query
+    ['OK']  (1 NEW case(s))
+=== REMOVE: the recorded image identity is queried after every removal
+    ['FAILED (failures=1)']  (2 NEW case(s))
+=== REMOVE: the image removal succeeded
+    ['OK']  (1 NEW case(s))
+=== REMOVE: the staged root is gone
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: the timeout kill and removal succeeded
+    ['OK']  (2 NEW case(s))
+=== REMOVE: readiness requires the root readable
+    ['OK']  (1 NEW case(s))
+=== REMOVE: readiness requires every path a trial mounts
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: a directory provider needs its own traversal bit
+    ['FAILED (failures=1)']  (1 NEW case(s))
+=== REMOVE: every ancestor is traversable
+    ['OK']  (1 NEW case(s))
+both sources restored
+
+  TWENTY-TWO GUARDS, NONE VACUOUS. One came back vacuous on this
+  round's first pass -- the default that says an ABSENT identity query
+  is not a FAILED one. With no recorded id there is nothing to ask the
+  engine about, and a verdict treating 'there was nothing to observe' as
+  'the observation failed' would refuse every trial whose build answered
+  no id, for a reason that never happened. Its case makes everything
+  else succeed so that default is the only clause left deciding.
+
+  ACROSS THE FIVE ROUNDS THIS MEASUREMENT HAS CAUGHT TEN GUARDS I had
+  written and not established. That number is the useful part of this
+  dossier: the suite being green has been a poor predictor of the
+  boundary holding, and removal has been the thing that said otherwise
+  every time. test_harness.py separates each with a case that can only
+  fail for its own reason, plus controls so a case cannot pass because a
+  rule says no to everything. The reviewer's file is theirs and was not
+  edited.
+
+=== 6. BOTH TRIALS RE-RUN UNDER THE CORRECTED HARNESS
+  Against a provider file carrying no credential, so what is shown is
+  everything except the authentication itself.
+
+  --- claude
+    image id                 sha256:80d1778456708bba29b
+    mount                    /input readonly
+    mount                    /output WRITABLE
+    mount                    /home/nonroot/.claude/.credentials.json readonly
+    credential provider      file -> /home/nonroot/.claude/.credentials.json (read-only, never copied)
+    published facts          ['correlation_id', 'exit_status', 'failure_category', 'finished_at', 'provider', 'result_bytes', 'result_digest', 'spike', 'started_at', 'stderr_bytes']
+    failure category         authentication
+    verdict.expected_spike          True
+    verdict.expected_provider       True
+    verdict.correlation_matches     True
+    verdict.provider_exit_zero      False
+    verdict.container_exit_zero     False
+    verdict.answer_is_exactly_pong  False
+    verdict.closed_result_shape     True
+    completion signal last   True
+    image removed            True
+    containers surviving     []
+    images surviving         []
+    staged root removed      True
+    clean                    True
+    satisfying               False
+    published shape closed   True
+    container query ok       True
+    image query ok           True
+    provider text anywhere?  False
+
+  --- codex
+    image id                 sha256:15082f38f54321242a0
+    mount                    /input readonly
+    mount                    /output WRITABLE
+    mount                    /home/nonroot/.codex/auth.json readonly
+    credential provider      file -> /home/nonroot/.codex/auth.json (read-only, never copied)
+    published facts          ['correlation_id', 'exit_status', 'failure_category', 'finished_at', 'provider', 'result_bytes', 'result_digest', 'spike', 'started_at', 'stderr_bytes']
+    failure category         network
+    verdict.expected_spike          True
+    verdict.expected_provider       True
+    verdict.correlation_matches     True
+    verdict.provider_exit_zero      False
+    verdict.container_exit_zero     False
+    verdict.answer_is_exactly_pong  False
+    verdict.closed_result_shape     True
+    completion signal last   True
+    image removed            True
+    containers surviving     []
+    images surviving         []
+    staged root removed      True
+    clean                    True
+    satisfying               False
+    published shape closed   True
+    container query ok       True
+    image query ok           True
+    provider text anywhere?  False
+
+  Everything but authentication is proved for both: read-only input,
+  one correlation identity carried from ping to result, output.json
+  published last, a host-recomputed verdict, and enforced cleanup.
+
+=== 7. THE WRAPPER-BOUNDARY COMPARISON, unchanged by these corrections
+  CLAUDE reads a read-only credential provider and reaches an
+  AUTHENTICATION decision. CODEX will not start with its state
+  directory read-only — it writes beside its credential — so the
+  provider must be a FILE over auth.json with the directory writable.
+  Codex also refuses a HOME under /tmp outright. And BOTH need their
+  state directory pre-created and owned IN THE IMAGE, because Docker
+  creates a missing bind-mount parent as root.
+
+  All of that is input to W6634, whose credential delivery mounts 0600
+  files read-only at a fixed root: that shape works for a Claude-like
+  runtime, does not work for a Codex-like one, and the mode has to
+  admit the CONTAINER's uid — which is the same defect the reviewer
+  found in the offered personal files, one layer up.
+
+=== 8. THE ENGINE, ASKED WHETHER ANYTHING SURVIVED
+    containers named baton-w17110-spike*: (nothing listed = none)
+    images     named baton-w17110-spike*: (nothing listed = none)
+
+=== 9. STILL NOT PROVED
+  NEITHER TRIAL RETURNED A PONG, so this Work remains non-satisfying
+  under the pinned ruling. The harness is now ready to receive a real
+  credential — which was the reviewer's own precondition — but the
+  provider is still the operator's to nominate, and it needs ownership
+  or a mode that admits uid 65532.

@@ -33,6 +33,7 @@ somebody to think of probing it.
 """
 
 import ast
+import inspect
 import json
 import os
 import pathlib
@@ -43,7 +44,11 @@ import unittest
 
 import baton_v12.worker_manager as worker_manager
 from baton_v12 import contracts
-from baton_v12.contracts import (ContractRefusal, SECRET_MEMBERS,
+from baton_v12.contracts import errors, secrets
+from baton_v12.contracts.errors import (DEFECT_REDACTED,
+                                        SECRET_LEAK_MESSAGE)
+from baton_v12.contracts import (ContractRefusal, MESSAGE_LIMIT,
+                                 SECRET_MEMBERS,
                                  check_manifest_structure,
                                  check_no_durable_secret, digest,
                                  forget_secret, held_secret, live_secret,
@@ -904,6 +909,27 @@ COVERED_ELSEWHERE = {
         "journal the older reason credited",
     ("interrogation.py", "publish_inquiry_answer", "interrogations"):
         "one instant, written after the answer it publishes",
+    # W6629's three. Both writers are PRIVATE and each has exactly one door:
+    # `record_intake` reaches `_seal` and `decide_retention` reaches `_retain`,
+    # and both go through `store.transact`. The journal row is written inside
+    # that transaction and before the COMMIT, and it carries the full
+    # effective signature AND the byte-stable result -- so a bearer in either
+    # is refused with the action's own writes still inside the transaction
+    # that takes them back. The reason names the path that actually runs,
+    # which is what the two interrogation entries above were corrected for.
+    ("intake.py", "_seal", "intakes"):
+        "written inside the journalled `intake.record` act, whose signature "
+        "carries the adapter's whole collection and whose result is the "
+        "receipt this row records -- including the composed `why`, which is "
+        "the one column here built rather than adopted",
+    ("intake.py", "_seal", "intake_artifacts"):
+        "the same act and the same walked result: every custody locator this "
+        "row holds is a member of that receipt",
+    ("intake.py", "_retain", "retentions"):
+        "written inside the journalled `output.retain` act, whose signature "
+        "carries the artifact ids, the disposition and the policy digest -- "
+        "and those operands went through `retain_operation`'s own walk before "
+        "the transaction was ever opened",
 }
 
 
@@ -940,6 +966,37 @@ CONSTRUCTS_A_PORTABLE_ARTEFACT = {
         "the read-side trust boundary. It exists because a write-side guard "
         "cannot see a later store edit, and §13 was the one rule left out of "
         "that argument",
+    # -- W6629: intake, retention and cleanup --------------------------------
+    #
+    # THE FOUR DERIVED IDENTITIES. Each is handed the caller's ATTEMPT MAPPING
+    # and answers with an operation id and a signature digest composed from
+    # it, so `manager_signature`'s own reason applies here unchanged: an
+    # operation identity is portable, and a guard at the eventual write runs
+    # after the caller already holds it. MEASURED RATHER THAN REASONED -- until
+    # these walked their operands, a live bearer in an attempt row's own id
+    # came straight back out inside the returned operation id.
+    "collect_operation":
+        "returns the `output.collect` identity, derived from the attempt it "
+        "is handed",
+    "intake_operation": "the same, for `intake.record`",
+    "retain_operation":
+        "the same, for `output.retain` -- and the retention policy digest is "
+        "free caller text that rides the identity rather than only the "
+        "signature",
+    "destroy_operation":
+        "the same, for `runtime.destroy`, over both of the digests "
+        "`runtimeDestroyBody` fixes",
+    # THE TWO READ-SIDE DOORS, for `certified_agent_session_profile`'s reason
+    # rather than a new one: a write-side guard cannot see a later store edit.
+    # One of these hands back the digest a destroy is AUTHORIZED by, which is
+    # the strongest form that argument takes anywhere in this package.
+    "intake_receipt_of":
+        "hands back a custody receipt and the digest that authorizes a "
+        "destroy, assembled out of rows this process did not write",
+    "retentions_of":
+        "hands back the retention decisions, and a decision is written under "
+        "its own operation and can be edited in the store without the intake "
+        "row changing at all",
 }
 
 # RETURNS_NOTHING_A_CALLER_DID_NOT_ALREADY_HAVE: the operation answers with this
@@ -1004,6 +1061,28 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
         "and this operation's precondition ordering is test_output's",
     "frozen_output_of": "the same",
     "freeze_operation": "two digests derived from an owned row",
+    # W6629's FOUR JOURNALLED DOORS. Each composes text it did not own -- the
+    # adapter's collection, the caller's retention policy digest -- and each
+    # walks it before it answers. The walk is probed DIRECTLY above rather
+    # than here: `manager_signature` for the two intake doors, and
+    # `retain_operation` and `destroy_operation` for the two policy ones. A
+    # probe in this file would be refused for the missing attempt first and
+    # would prove nothing, which is `record_frozen_result`'s situation
+    # exactly -- so the bearer-live drives are `test_intake`'s, one per door,
+    # against the fixture that can actually reach them.
+    "request_intake":
+        "its own construction is `collect_operation`, which is probed above, "
+        "and what it returns is `record_intake`'s answer",
+    "record_intake":
+        "the adapter's whole collection rides `manager_signature`, which is "
+        "probed above -- and it is signed before anything about today is "
+        "consulted, so the walk cannot be got past by moving an axis",
+    "decide_retention":
+        "the policy digest it composes into its answer went through "
+        "`retain_operation`'s walk before the journal was asked",
+    "authorize_cleanup":
+        "the same through `destroy_operation`, over the intake receipt digest "
+        "as well as the policy one",
 
     "negotiate_acp": "the wire version and this build's own capability "
                      "constants",
@@ -1190,7 +1269,78 @@ class EveryPublicSurfaceIsAccountedFor(SecretCase):
                     "message": f"held because of {BEARER}", "durable": True})),
             "certified_agent_session_profile":
                 self.reading_back_a_hand_edited_profile,
+            # W6629's four derived identities. Two carry the bearer in the
+            # ATTEMPT's own id, which is the leak that was measured, and two
+            # carry it in the free digest operand that rides the identity --
+            # different vectors into the same construction, so a walk that
+            # covered only the attempt would still fail this.
+            "collect_operation":
+                lambda: worker_manager.collect_operation(
+                    _attempt_carrying(BEARER)),
+            "intake_operation":
+                lambda: worker_manager.intake_operation(
+                    _attempt_carrying(BEARER)),
+            "retain_operation":
+                # W6629 review [P1]: the artifact set and disposition joined
+                # this identity, because one policy deciding differently about
+                # two artifacts produced one id and two signatures. The probe
+                # drives the real four-operand surface.
+                lambda: worker_manager.retain_operation(
+                    _attempt_carrying(None), f"sha256:{BEARER}",
+                    ["artifact-1"], "retain"),
+            "destroy_operation":
+                lambda: worker_manager.destroy_operation(
+                    _attempt_carrying(None), f"sha256:{BEARER}",
+                    "sha256:" + "7" * 64),
+            # And the two read-side doors, driven the way the profile one is:
+            # through bytes the write path would have refused.
+            "intake_receipt_of": self.reading_back_a_hand_edited_intake,
+            "retentions_of": self.reading_back_a_hand_edited_retention,
         }
+
+    def reading_back_a_hand_edited_intake(self):
+        """The custody read-side probe.
+
+        The attempt is RECORDED through the real door -- an intake receipt is
+        derived from its attempt and compared against the stored operation id,
+        so a fabricated attempts row would be refused for that mismatch and
+        would prove nothing about §13. What is hand-edited is the one column
+        the receipt composes rather than adopts: `why`, which `_seal` builds
+        out of the live assignment it found.
+        """
+        attempt_id = "attempt-1"
+        worker_manager.record_attempt(
+            self.store, attempt_id=attempt_id, adapter_name="acp",
+            adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE,
+            policy_digest="sha256:" + "2" * 64)
+        found = self.store._connection.execute(
+            "SELECT * FROM attempts WHERE runtime_attempt_id = ?",
+            (attempt_id,)).fetchone()
+        attempt = {name: found[name] for name in schema.ATTEMPT_COLUMNS}
+        self.store._connection.execute(
+            "INSERT INTO intakes (runtime_attempt_id, receipt_digest, "
+            "result_id, manifest_digest, custody, why, recoverable, "
+            "collect_operation_id, intake_operation_id, sealed_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (attempt_id, "sha256:" + "0" * 64, "result-1",
+             "sha256:" + "1" * 64, "quarantined",
+             f"collected under {BEARER}", 0,
+             worker_manager.collect_operation(attempt)["operation_id"],
+             worker_manager.intake_operation(attempt)["operation_id"], NOW))
+        return worker_manager.intake_receipt_of(self.store, attempt_id)
+
+    def reading_back_a_hand_edited_retention(self):
+        """The retention read-side probe, and it needs NO attempt at all --
+        which is the point of it being separate. A retention decision is
+        written under its own operation, so the row that can be edited
+        underneath this manager is not the intake row."""
+        self.store._connection.execute(
+            "INSERT INTO retentions (runtime_attempt_id, artifact_id, "
+            "disposition, retention_policy_digest, retain_operation_id, "
+            "decided_at) VALUES (?, ?, ?, ?, ?, ?)",
+            ("attempt-1", "artifact-1", "retain", f"sha256:{BEARER}",
+             "output.retain:" + "0" * 64, NOW))
+        return worker_manager.retentions_of(self.store, "attempt-1")
 
     def reading_back_a_hand_edited_profile(self):
         """The read-side probe. The row is written BEHIND the write guard,
@@ -1229,6 +1379,568 @@ class EveryPublicSurfaceIsAccountedFor(SecretCase):
         self.assertNotIn(fabricated, CONSTRUCTS_A_PORTABLE_ARTEFACT)
         self.assertNotIn(fabricated, RETURNS_NO_CONSTRUCTED_ARTEFACT)
         self.assertNotIn(fabricated, self.exported())
+
+
+# -- bounded diagnostics: the crossing, and the sweep that drives it ----------
+
+class TheRefusalConstructorIsTheOneCrossing(SecretCase):
+    """§13's containment rule where every diagnostic becomes durable.
+
+    Fifth review [P1] named two public doors whose shape diagnostic quoted a
+    live bearer before their walk, and asked for a re-audit of the other
+    public document owners. The re-audit was a MEASUREMENT rather than a
+    reading — `NoPublicRefusalQuotesALiveBearer` below is that measurement,
+    kept — and it found thirty leaking surfaces rather than two. Ordering the
+    walk at each door corrects the two and leaves twenty-eight, and the next
+    door written joins them.
+
+    So the rule is at the crossing every diagnostic passes through instead.
+    `ContractRefusal` already owns its message as durable text: it decides the
+    message is text, that it is encodable, and that it is bounded. "A bounded
+    diagnostic cannot itself leak" is the same kind of rule as those three.
+    """
+
+    def test_a_refusal_quoting_a_live_bearer_cannot_be_constructed(self):
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal) as caught:
+                ContractRefusal("refused", "precondition",
+                                f"attempt {BEARER} is not open")
+        self.assertEqual(caught.exception.code, "secret-leak")
+        self.assertNotIn(BEARER, caught.exception.message)
+
+    def test_the_substitution_keeps_the_durability_it_replaced(self):
+        """A leak found while composing a diagnostic does not un-write what
+        the raising site had already written. A durable refusal replaced by a
+        non-durable one would tell a caller nothing happened."""
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal) as caught:
+                ContractRefusal("policy", "retention",
+                                f"held because of {BEARER}", durable=True)
+        self.assertTrue(caught.exception.durable)
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal) as caught:
+                ContractRefusal("policy", "retention",
+                                f"held because of {BEARER}")
+        self.assertFalse(caught.exception.durable)
+
+    def test_the_substitute_is_proved_by_containment_and_never_exempted(self):
+        """SIXTH REVIEW [P1] REPLACED THIS ASSERTION, and the old one was the
+        defect.
+
+        It required a refusal whose message IS the substitute prose to be
+        constructed unchanged while that prose was registered live — which is
+        exactly the equality exemption the review refuted. Equality is the
+        wrong test for a containment rule: the registry admits any non-empty
+        value, so a live bearer can be a SUBSTRING of the constant, and the
+        exempt replacement then carried the whole live value out.
+
+        The replacement passes the same containment test as everything else
+        now, so a live value it would contain makes it give way.
+        """
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal) as caught:
+                ContractRefusal("integrity", "schema", f"this is {BEARER}")
+        substitute = caught.exception.message
+        self.assertEqual(substitute, SECRET_LEAK_MESSAGE)
+        with held_secret(substitute):
+            with self.assertRaises(ContractRefusal) as refused:
+                ContractRefusal("integrity", "secret-leak", substitute)
+        self.assertNotIn(substitute, refused.exception.message)
+
+    def test_the_replacement_gives_way_to_an_empty_message_and_not_to_a_leak(
+            self):
+        """The fallback is the ONE string a non-empty value cannot be
+        contained in, and `remember_secret` refuses an empty value — so it is
+        safe by construction rather than by inspection. What must NOT give way
+        is the closed pair: the code is the diagnostic, and the prose is the
+        part that can be spent."""
+        piece = SECRET_LEAK_MESSAGE[:32]
+        with held_secret(piece):
+            with self.assertRaises(ContractRefusal) as caught:
+                ContractRefusal("policy", "retention",
+                                f"held because of {piece}", durable=True)
+        self.assertEqual(caught.exception.message, "")
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "secret-leak"))
+        self.assertTrue(caught.exception.durable,
+                        "the empty fallback lost the durability it replaced")
+
+    def test_an_empty_message_is_accepted_because_it_can_carry_nothing(self):
+        """The terminal case, stated as its own fact. If this ever refused,
+        the fallback above would have no bottom."""
+        with held_secret(BEARER):
+            refusal = ContractRefusal("integrity", "secret-leak", "")
+        self.assertEqual(refusal.message, "")
+
+    def test_the_prose_is_still_used_when_it_carries_nothing_live(self):
+        """The other half: giving way is the exception, not the rule. An
+        ordinary leak still gets the readable diagnostic."""
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal) as caught:
+                ContractRefusal("integrity", "schema", f"this is {BEARER}")
+        self.assertEqual(caught.exception.message, SECRET_LEAK_MESSAGE)
+
+    def test_one_snapshot_answers_both_questions(self):
+        """The message and the replacement are one decision. Asking the
+        registry twice would let it move between the two answers, and a
+        replacement proved clean under a view nobody used is not proved."""
+        seen = []
+        real = secrets._snapshot
+
+        def counted():
+            seen.append(1)
+            return real()
+
+        secrets._snapshot = counted
+        try:
+            with held_secret(BEARER):
+                with self.assertRaises(ContractRefusal):
+                    ContractRefusal("integrity", "schema", f"is {BEARER}")
+        finally:
+            secrets._snapshot = real
+        # One for the leaking message and its replacement together, and one
+        # for the replacement's own construction. Never one per question.
+        self.assertEqual(len(seen), 2, seen)
+
+    def test_the_substitute_cannot_quote_a_live_bearer_substring(self):
+        """Containment applies to the replacement too, not only equality.
+
+        A claim token may be any 32-character string, including a substring
+        of this build's constant prose. Exempting the whole replacement from
+        the guard must not let that live value leave in the replacement.
+        """
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal) as caught:
+                ContractRefusal("integrity", "schema", f"this is {BEARER}")
+        bearer = caught.exception.message[:32]
+        self.assertEqual(len(bearer), 32)
+        with held_secret(bearer):
+            with self.assertRaises(ContractRefusal) as caught:
+                ContractRefusal("integrity", "schema", f"this is {bearer}")
+        self.assertNotIn(bearer, caught.exception.message)
+
+    def test_an_ordinary_refusal_is_untouched(self):
+        """The other half. With nothing held, the diagnostic the raising site
+        wrote is the diagnostic the caller gets — a correction that turned
+        every refusal into `secret-leak` would be a different defect with a
+        green gate."""
+        refusal = ContractRefusal("refused", "precondition",
+                                  f"attempt {BEARER} is not open")
+        self.assertEqual(refusal.code, "precondition")
+        self.assertIn(BEARER, refusal.message)
+
+    def test_a_forgotten_bearer_stops_being_a_leak(self):
+        """The dynamic rule, restated for diagnostics: the guard refuses a
+        value this process is HOLDING. A spent bearer is absent from the
+        registry, so an old refusal quoting it still constructs and an exact
+        durable replay still answers."""
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal):
+                ContractRefusal("policy", "retention", f"was {BEARER}")
+        self.assertEqual(
+            ContractRefusal("policy", "retention", f"was {BEARER}").code,
+            "retention")
+
+    def test_the_message_owner_s_other_rules_still_fire(self):
+        """The §13 rule is added to that owner, not substituted for it."""
+        with self.assertRaises(AssertionError):
+            ContractRefusal("integrity", "schema", 7)
+        with self.assertRaises(AssertionError):
+            ContractRefusal("integrity", "schema", "x" * (MESSAGE_LIMIT + 1))
+        with self.assertRaises(AssertionError):
+            ContractRefusal("integrity", "schema", "ordinary", durable="yes")
+
+    def test_the_pair_assertions_cannot_quote_a_live_bearer(self):
+        """The constructor's own earlier diagnostics are public text too.
+
+        Category and code are raising-site assertions, but that taxonomy does
+        not permit the assertion itself to carry a currently live value. The
+        centralized crossing must cover checks that precede message acceptance
+        as well as an otherwise valid refusal message.
+        """
+        for category, code in ((BEARER, "schema"),
+                               ("integrity", BEARER)):
+            with self.subTest(field="category" if category == BEARER
+                              else "code"):
+                with held_secret(BEARER):
+                    with self.assertRaises(AssertionError) as caught:
+                        ContractRefusal(category, code, "ordinary")
+                self.assertNotIn(BEARER, str(caught.exception))
+
+
+    def test_an_ordinary_bad_pair_is_still_quoted_verbatim(self):
+        """PROVED, NOT SUPPRESSED. A misspelled category is a build defect
+        and quoting it is the whole use of this message; only a value the
+        registry says is live gives way."""
+        with self.assertRaises(AssertionError) as caught:
+            ContractRefusal("integrty", "schema", "ordinary")
+        self.assertIn("integrty", str(caught.exception))
+        with self.assertRaises(AssertionError) as caught:
+            ContractRefusal("integrity", "shcema", "ordinary")
+        self.assertIn("shcema", str(caught.exception))
+
+    def test_a_live_pair_operand_gives_way_to_a_sentence_that_says_so(self):
+        """It gives way to an explanation rather than to silence: a reader
+        has to be able to tell a redaction from a missing value."""
+        with held_secret(BEARER):
+            with self.assertRaises(AssertionError) as caught:
+                ContractRefusal(BEARER, "schema", "ordinary")
+        self.assertNotIn(BEARER, str(caught.exception))
+        self.assertIn("§13", str(caught.exception))
+        self.assertIn("frozen error categories", str(caught.exception),
+                      "the assertion stopped saying what was wrong")
+
+    def test_a_pair_operand_that_is_not_text_is_named_by_its_type(self):
+        """The same rule `name_value` follows: a value with behaviour is
+        described from inert facts and never rendered."""
+        class Hostile:
+            def __repr__(self):
+                raise RuntimeError("a caller's code ran inside a diagnostic")
+
+        with self.assertRaises(AssertionError) as caught:
+            ContractRefusal(Hostile(), "schema", "ordinary")
+        self.assertIn("Hostile", str(caught.exception))
+
+    def test_a_live_bearer_containing_pair_operand_gives_way_too(self):
+        """CONTAINMENT, here as everywhere. An invalid category that merely
+        CONTAINS a live value carries it just as durably as one that is it."""
+        with held_secret(BEARER):
+            with self.assertRaises(AssertionError) as caught:
+                ContractRefusal(f"integrity-{BEARER}", "schema", "ordinary")
+        self.assertNotIn(BEARER, str(caught.exception))
+
+    def test_the_pair_and_the_message_share_one_snapshot(self):
+        """One construction, one view of the registry. Two reads could
+        disagree about the same value between the pair check and the
+        message check."""
+        seen = []
+        real = secrets._snapshot
+
+        def counted():
+            seen.append(1)
+            return real()
+
+        secrets._snapshot = counted
+        try:
+            with held_secret(BEARER):
+                with self.assertRaises(AssertionError):
+                    ContractRefusal(BEARER, "schema", f"and {BEARER}")
+        finally:
+            secrets._snapshot = real
+        self.assertEqual(len(seen), 1,
+                         f"the registry was read {len(seen)} times for one "
+                         f"construction")
+
+    def test_pair_ownership_precedes_membership_and_runs_no_caller_hash(self):
+        """`_rejected` cannot own a malformed pair operand after membership.
+
+        Mapping and set membership hash their question. A caller-controlled
+        value can therefore run or raise before the new safe diagnostic is
+        reached, replacing the promised raising-site assertion with an
+        exception carrying whatever text the caller chose.
+        """
+        class Hostile:
+            def __hash__(self):
+                raise RuntimeError(BEARER)
+
+        for category, code in ((Hostile(), "schema"),
+                               ("integrity", Hostile())):
+            with self.subTest(field="category" if category != "integrity"
+                              else "code"):
+                with held_secret(BEARER):
+                    with self.assertRaises(AssertionError) as caught:
+                        ContractRefusal(category, code, "ordinary")
+                self.assertNotIn(BEARER, str(caught.exception))
+
+    def test_pair_redactions_are_themselves_proved_by_containment(self):
+        """Safe provenance is not safe content.
+
+        The preferred redaction and an inert type name are both build-owned,
+        but either may CONTAIN a currently live value just as the sixth
+        review's preferred refusal message did. The assertion that leaves the
+        constructor must prove its composed text, not only its input string.
+        """
+        redaction = ("a string §13 will not let this build quote, because the "
+                     "registry says it is live")
+        redaction_bearer = redaction[:32]
+        type_bearer = "S" * 32
+        SecretNamedType = type(type_bearer, (), {})
+        for name, bearer, category in (
+                ("redaction", redaction_bearer, redaction_bearer),
+                ("type name", type_bearer, SecretNamedType())):
+            with self.subTest(source=name):
+                with held_secret(bearer):
+                    with self.assertRaises(AssertionError) as caught:
+                        ContractRefusal(category, "schema", "ordinary")
+                self.assertNotIn(bearer, str(caught.exception))
+
+    def test_message_and_durability_type_assertions_do_not_consult_metaclass(
+            self):
+        """The later constructor assertions are pre-guard diagnostics too.
+
+        This module already owns a type-name helper that bypasses metaclass
+        dispatch. Reading `type(value).__name__` here instead lets caller code
+        choose the text, including a currently live bearer.
+        """
+        reads = []
+
+        class Meta(type):
+            def __getattribute__(self, name):
+                if name == "__name__":
+                    reads.append(name)
+                    return BEARER
+                return super().__getattribute__(name)
+
+        class Hostile(metaclass=Meta):
+            pass
+
+        for field in ("message", "durable"):
+            with self.subTest(field=field):
+                before = len(reads)
+                with held_secret(BEARER):
+                    with self.assertRaises(AssertionError) as caught:
+                        if field == "message":
+                            ContractRefusal("integrity", "schema", Hostile())
+                        else:
+                            ContractRefusal("integrity", "schema", "ordinary",
+                                            durable=Hostile())
+                self.assertEqual(len(reads), before,
+                                 "a rejected value ran its metaclass")
+                self.assertNotIn(BEARER, str(caught.exception))
+
+
+    def test_every_assertion_in_the_constructor_goes_through_the_one_owner(
+            self):
+        """THE CONSTRUCTION, read from the source rather than trusted.
+
+        Eighth review [P1] asked for constructor assertions to be covered by
+        construction rather than by one exemption per reproduction. This is
+        what makes that checkable: every `raise AssertionError` inside
+        `ContractRefusal.__init__` must pass its text through `_defect`, so a
+        diagnostic added tomorrow is proved tomorrow instead of becoming the
+        next reproduction.
+        """
+        source = pathlib.Path(errors.__file__).resolve()
+        tree = ast.parse(source.read_text(encoding="utf-8"), str(source))
+        found = []
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.ClassDef)
+                    and node.name == "ContractRefusal"):
+                continue
+            for method in node.body:
+                if not (isinstance(method, ast.FunctionDef)
+                        and method.name == "__init__"):
+                    continue
+                for inner in ast.walk(method):
+                    if not (isinstance(inner, ast.Raise)
+                            and isinstance(inner.exc, ast.Call)
+                            and isinstance(inner.exc.func, ast.Name)
+                            and inner.exc.func.id == "AssertionError"):
+                        continue
+                    argument = inner.exc.args[0] if inner.exc.args else None
+                    owned = (isinstance(argument, ast.Call)
+                             and isinstance(argument.func, ast.Name)
+                             and argument.func.id == "_defect")
+                    found.append((inner.lineno, owned))
+        self.assertGreaterEqual(len(found), 5,
+                                "the constructor's assertions moved; this "
+                                "case is about all of them")
+        self.assertEqual([at for at, owned in found if not owned], [],
+                         "an AssertionError leaves the constructor without "
+                         "its text being proved against the live registry")
+
+    def test_no_assertion_in_the_constructor_names_a_type_unsafely(self):
+        """`type(x).__name__` consults a caller-controlled metaclass, which
+        this module has refused to do since W6782. The helper exists; the
+        constructor has to use it."""
+        source = pathlib.Path(errors.__file__).resolve()
+        tree = ast.parse(source.read_text(encoding="utf-8"), str(source))
+        unsafe = []
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.ClassDef)
+                    and node.name == "ContractRefusal"):
+                continue
+            for inner in ast.walk(node):
+                if (isinstance(inner, ast.Attribute)
+                        and inner.attr == "__name__"):
+                    unsafe.append(inner.lineno)
+        self.assertEqual(unsafe, [],
+                         "the constructor reads __name__ through ordinary "
+                         "attribute lookup, which runs a metaclass")
+
+    def test_a_pair_operand_with_a_hostile_hash_never_runs(self):
+        """Shape before membership. `x in mapping` hashes x, and `__hash__`
+        is caller code — so the check meant to OWN the operand was running
+        it, and an unhashable one escaped as a raw TypeError."""
+        class Hostile:
+            def __hash__(self):
+                raise RuntimeError("a caller's hash ran inside the owner")
+
+        class Unhashable:
+            __hash__ = None
+
+        for what in (Hostile(), Unhashable(), ["integrity"], 7):
+            for field in ("category", "code"):
+                with self.subTest(kind=type(what).__name__, field=field):
+                    pair = {"category": "integrity", "code": "schema"}
+                    pair[field] = what
+                    with self.assertRaises(AssertionError) as caught:
+                        ContractRefusal(pair["category"], pair["code"], "ok")
+                    self.assertIn(field, str(caught.exception))
+
+    def test_the_defect_text_gives_way_whole_when_its_own_words_are_live(self):
+        """Safe provenance is not safe content. A redaction sentence and a
+        type name are text this build owns, and a live value may equal a
+        substring of either."""
+        piece = DEFECT_REDACTED[:32]
+        with held_secret(piece):
+            with self.assertRaises(AssertionError) as caught:
+                ContractRefusal("integrity", "schema", 7)
+        self.assertNotIn(piece, str(caught.exception))
+
+    def test_a_live_type_name_cannot_leave_in_an_assertion(self):
+        """The review's own example: a build-owned class name can itself be
+        the currently live value."""
+        class Bearer:
+            pass
+
+        Bearer.__qualname__ = Bearer.__name__ = "b" * 40
+        with held_secret("b" * 40):
+            with self.assertRaises(AssertionError) as caught:
+                ContractRefusal("integrity", "schema", Bearer())
+        self.assertNotIn("b" * 40, str(caught.exception))
+
+    def test_an_ordinary_defect_still_reads_as_one(self):
+        """The other half, for all five assertions: with nothing live, each
+        says what is wrong in its own words."""
+        cases = [
+            (("integrty", "schema", "ok"), "frozen error categories"),
+            (("integrity", "shcema", "ok"), "pairing is closed"),
+            ((7, "schema", "ok"), "category"),
+            (("integrity", "schema", 7), "is text"),
+            (("integrity", "schema", "x" * (MESSAGE_LIMIT + 1)), "at most"),
+        ]
+        for operands, fragment in cases:
+            with self.subTest(operands=operands[:2]):
+                with self.assertRaises(AssertionError) as caught:
+                    ContractRefusal(*operands)
+                self.assertIn(fragment, str(caught.exception))
+        with self.assertRaises(AssertionError) as caught:
+            ContractRefusal("integrity", "schema", "ok", durable="yes")
+        self.assertIn("Boolean", str(caught.exception))
+
+
+class NoPublicRefusalQuotesALiveBearer(SecretCase):
+    """THE RE-AUDIT FIFTH REVIEW [P1] ASKED FOR, kept as a gate.
+
+    The universe is `__all__` and the exported classes' public methods — the
+    same derivation `EveryPublicSurfaceIsAccountedFor` uses, asserted equal to
+    it below so the two cannot drift. Every surface is DRIVEN with the live
+    bearer in every operand it takes, and none of them may answer with a
+    diagnostic containing it.
+
+    This is a probe rather than an inventory on purpose. The reason a fifth
+    review was needed is that four rounds of reasoning about which doors quote
+    their operands produced four incomplete answers; handing every door a
+    spoiled operand and reading what comes back produces a fact.
+    """
+
+    def drivers(self):
+        """One call per public surface, with the bearer in every operand.
+
+        `store` and `port` take the fixture's own, because a surface that
+        refuses its store before reading anything else proves nothing about
+        the diagnostic it builds for the operand under test. `ControlStore.open`
+        takes a real temporary path for the same reason — and because naming a
+        database after the secret would be its own §13 failure.
+        """
+        drivers = {}
+        for name in sorted(worker_manager.__all__):
+            member = getattr(worker_manager, name)
+            if isinstance(member, type):
+                # THE CLASS ITSELF IS A SURFACE. `__all__` exports it, so
+                # constructing one is a public call that builds diagnostics
+                # about the operands it was handed.
+                drivers[name] = self.driver(member)
+                for attribute in sorted(dir(member)):
+                    if attribute.startswith("_"):
+                        continue
+                    bound = getattr(member, attribute, None)
+                    if not callable(bound):
+                        continue
+                    owner = {"ControlStore": self.store,
+                             "AuthorityPort": self.port}[name]
+                    drivers[f"{name}.{attribute}"] = self.driver(
+                        getattr(owner, attribute)
+                        if attribute != "open" else member.open,
+                        opening=(attribute == "open"))
+            elif callable(member):
+                drivers[name] = self.driver(member)
+        return drivers
+
+    def driver(self, member, opening=False):
+        signature = inspect.signature(member)
+        args, kwargs = [], {}
+        for parameter in signature.parameters.values():
+            if parameter.kind in (parameter.VAR_POSITIONAL,
+                                  parameter.VAR_KEYWORD):
+                continue
+            if parameter.name == "store":
+                value = self.store
+            elif parameter.name == "port":
+                value = self.port
+            elif opening and parameter.name == "path":
+                value = os.path.join(self._root.name, "probe.sqlite3")
+            else:
+                value = BEARER
+            if (parameter.kind == parameter.KEYWORD_ONLY
+                    or parameter.default is not parameter.empty):
+                kwargs[parameter.name] = value
+            else:
+                args.append(value)
+        return lambda: member(*args, **kwargs)
+
+    def test_the_universe_agrees_with_the_public_inventory(self):
+        """One derivation, read twice. A surface this sweep cannot reach would
+        be a surface the inventory accounts for and nobody drives."""
+        inventory = EveryPublicSurfaceIsAccountedFor("exported")
+        inventory.setUp()
+        self.assertEqual(sorted(self.drivers()), sorted(inventory.exported()))
+
+    def test_no_public_surface_answers_with_a_bearer_in_its_diagnostic(self):
+        """The measurement. Thirty of these answered with the bearer in the
+        message before the crossing guard existed."""
+        refused = 0
+        for name, drive in sorted(self.drivers().items()):
+            with self.subTest(surface=name):
+                self.setUp()
+                with held_secret(BEARER):
+                    try:
+                        drive()
+                    except ContractRefusal as refusal:
+                        refused += 1
+                        self.assertNotIn(BEARER, refusal.message, name)
+                    except Exception as raised:
+                        # A raw exception escaping is a DIFFERENT defect and
+                        # not this Work's to fix; one carrying the bearer is
+                        # this Work's, because §13 is about the text, not
+                        # about which type carried it.
+                        self.assertNotIn(BEARER, str(raised), name)
+        self.assertGreater(refused, 25, "the sweep drove nothing that refused")
+
+    def test_the_sweep_can_actually_fail(self):
+        """A gate with nothing to catch is tested by handing it something. The
+        stand-in is built the way the leaking doors built theirs: a diagnostic
+        naming the operand it rejects, composed while the bearer is live."""
+        with held_secret(BEARER):
+            with self.assertRaises(ContractRefusal) as caught:
+                try:
+                    raise ContractRefusal("integrity", "schema",
+                                          f"this is {BEARER}")
+                except ContractRefusal as refusal:
+                    self.assertNotIn(BEARER, refusal.message)
+                    raise
+        self.assertEqual(caught.exception.code, "secret-leak")
 
 
 class EveryDurableWriterIsGuarded(unittest.TestCase):
@@ -1368,6 +2080,34 @@ def _resealed(document):
     body = {name: value for name, value in document.items()
             if name != "manifest_digest"}
     return {**body, "manifest_digest": digest(body)}
+
+
+def _attempt_carrying(bearer):
+    """A caller's attempt mapping, optionally with a live bearer in its own id.
+
+    The four intake operation identities take an ATTEMPT rather than an attempt
+    id and derive protocol identity from it, so no store is needed to drive
+    them -- and no store is WANTED either: what these prove is that the
+    construction walks what it was handed, and a fixture that could only
+    produce clean attempts would prove it against material the leak cannot
+    reach.
+
+    Every column `ATTEMPT_COLUMNS` names is present because the exported
+    operations require the whole set, and the nullable ones stay null: the
+    assignment fixes are absent, so the derivation runs its no-assignment path
+    and the walk still covers the id and the operands.
+    """
+    attempt = {name: None for name in schema.ATTEMPT_COLUMNS}
+    attempt.update({
+        "runtime_attempt_id": ("attempt-1" if bearer is None
+                               else f"attempt-{bearer}"),
+        "adapter_name": "acp",
+        "adapter_digest": "sha256:" + "a" * 64,
+        "profile_digest": PROFILE,
+        "created_at": NOW,
+        "observation_seq": 0,
+    })
+    return attempt
 
 
 def _profile_carrying(bearer):

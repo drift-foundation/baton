@@ -1,0 +1,150 @@
+W14828 -- evidence for PLAN items 3 and 4.
+
+
+THE DEFECT, REPRODUCED BY THE IMPLEMENTER BEFORE READING THE RECORD
+
+  The first turn of this implementer session opened with the readiness prompt
+  the finding describes:
+
+    [BATON READY] ... Configured role instructions: ... This deployment
+    supplies the exact Baton binary and explicit config; every invocation
+    names --participant baton.claude.
+
+  Prose that says an exact binary is supplied, and names neither it nor the
+  config. What followed is what the finding predicts:
+
+    $ .../v11/fc613e3/bin/baton --config /home/sl/baton-v11/baton.json \
+        --participant baton.claude claim work=W14251
+    {"error": "/home/sl/baton-v11/baton.json: team 'baton' role 'approv'
+     carries unknown fields ['instructions']"}
+
+  The binary came from the persistent participant `load.json`, still pinned to
+  the retired deployment. Recovery was reading the live executable out of `ps`,
+  which is not a contract; an operator repinned the persistent file later, and
+  the record already names that as a stopgap.
+
+  This is independent corroboration of the reviewer's reproduction rather than
+  a new finding, and it is recorded because the prompt that caused it is the
+  exact artefact this Work changes.
+
+
+REVALIDATED SOURCE BASELINE
+
+  promptText              rendered locator, role prose and policy cue; no
+                          launcher operand at all
+  validateConfig          kept the four in `config.baton`, returned
+                          `agent.env` straight from the operator document
+  AcpAgentSession.setup   spawns {...process.env, ...config.agent.env};
+                          derives and checks nothing
+  both shipped templates  spell none of the four
+  launcherContract        ALREADY EXISTS in the shared
+                          codex-event-bridge/src/role_instructions.mjs, and
+                          acp_baton_bridge.mjs already imports
+                          readRoleInstructions from that module
+
+
+THE CORRECTION
+
+  ONE SOURCE -- the accepted `baton` section -- and TWO CARRIERS that cannot
+  disagree.
+
+  THE PROMPT. `runBridge` renders the block once, after `loadInstructions` and
+  before the first wait, spawn, session or prompt, and passes it to
+  `promptText` for every delivered action. Once, because a per-prompt render
+  could read state that moved. There, because `launcherContract` throws on a
+  missing or blank field, so an incomplete contract refuses the LAUNCH rather
+  than producing a partial prompt some turn then acts on. Last in the text,
+  for the reason the Codex path already gives.
+
+  THE ENVIRONMENT. `validateConfig` derives the four into `agent.env` from the
+  same section, and derives them LAST so they override whatever the parent
+  exported -- a stale ambient BATON_BIN is the same untrusted carrier as a
+  stale file. A conflicting explicit entry refuses startup BY KEY; the same
+  value spelled explicitly is accepted, which is what keeps existing templates
+  working.
+
+  THE SHARED RENDERER, imported rather than re-spelled. A second textual
+  format for the same four values is how two adapters drift into telling their
+  contexts different things.
+
+
+SEVEN REGRESSIONS, AND THE GAP THEY CLOSE
+
+  The measured gap: 69 green ACP tests asserted no launcher value in either
+  carrier. Green tests reproduced the missing-coverage condition rather than
+  refuting the defect.
+
+    every action kind carries the launcher contract exactly once
+    a loaded session gets the same contract as a new one
+    the spawned agent observes the four values even when the template omits
+      them
+    a stale inherited launcher value does not survive into the child
+    an explicitly conflicting launcher value refuses the configuration
+    two participants sharing one binary receive their own values
+    the block carries the four values and nothing else about the deployment
+
+  THE SUBPROCESS ONE IS THE REAL CHILD. The fake agent records its own
+  inherited environment at startup now: reading the bridge's config object
+  would have proved the config object, and what failed live was the SPAWN.
+
+  The stale-inheritance case exports the retired `fc613e3` path from the
+  parent deliberately -- the incident's own shape -- and requires the derived
+  value to win.
+
+
+MEASURED
+
+  With the prompt block and the derived environment both removed:
+
+    $ npm test   # tools/acp-baton-bridge
+    tests 77; pass 70; fail 7
+
+  All seven, and only those seven. Sources restored byte for byte.
+
+
+TWO EXISTING ASSERTIONS EDITED, AND ONLY THEIR ANCHORS
+
+  Both required the compact line to be the END of the prompt text. The block
+  now follows it, so the anchor moved from end-of-text to end-of-LINE under
+  `/m`. The wording they assert is unchanged, which is what the finding's
+  matrix requires ("the existing compact action wording remain unchanged").
+
+
+GREEN
+
+    tools/acp-baton-bridge     npm test    tests 77; pass 77; fail 0  (69 -> 77)
+    just test-v11                          3067 parallel passed
+                                           52 serial passed
+                                           77 ACP passed
+    both shipped templates                 re-parse as JSON after annotation
+    the whitespace check                   clean
+
+
+THE SIBLING SUITE IS RED, AND IT IS NOT THIS WORK'S
+
+    tools/codex-event-bridge   npm test    tests 414; pass 413; fail 1
+      FAIL an ambiguous obligation behind a deferred Work is reconciled
+
+  That case was added by W11910's SEVENTH review at 07:57, while this Work was
+  being implemented, against a real [P1] in my own W11910 correction:
+  `#pastTheClaimSlot` skips an ambiguous candidate on every retry, so a turn
+  the server actually created is never bound to the dispatcher.
+
+  W11910 is routed to the reviewer and this Work touches no file of it. The
+  ACP adapter does not consume `event_bridge.mjs`, which is why the gate above
+  is green -- `just test-v11` runs the ACP suite, not the dispatcher's. It is
+  recorded here because a red sibling suite in the same tree is not something
+  a handoff should leave unsaid.
+
+
+STILL THE OPERATOR'S
+
+  PLAN item 6: drain, publish a successor, start a fresh ACP session with a
+  fresh start-scoped state directory, deliberately leave the stale persistent
+  `load.json` in place, and route one bounded smoke Work. The first prompt must
+  name the successor's exact four values and the first canonical mutation must
+  be a successful standalone claim through that pair. A repinned file or a
+  reused session does not satisfy it.
+
+  Nothing here was verified against the running deployment and no repository
+  state was mutated.

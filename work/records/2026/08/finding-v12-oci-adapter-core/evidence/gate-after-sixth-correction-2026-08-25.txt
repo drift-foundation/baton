@@ -1,0 +1,183 @@
+W6632 — evidence after the correction answering the 00:03:30Z re-review.
+
+Review answered: review-2026-08-26T00-03-30Z.md
+  [P0] exact resolved-label filters hide stale runtimes before comparison
+  [P1] target traversal is erased before the rule checks for it
+
+
+[P0] DISCOVERY HAS TO BE BROADER THAN COMPARISON
+
+  `list_vector` asked the engine to filter on all EIGHT runtime labels,
+  including the three resolved-identity digests. A real engine applies every
+  filter before it returns a row — which the review's fake reproduces exactly
+  — so a runtime from THIS attempt running under an old policy never appeared
+  in stdout, never reached `_labels_of` or the identity comparison, and
+  `start` read the empty candidate set as "nothing exists" and created a
+  second runtime for one attempt.
+
+  That is the state the acceptance says no later reconciliation can undo, and
+  the module docstring had claimed the opposite all along:
+
+    "A stale identity ... is refused rather than filtered away, because it is
+     not absent, it is WRONG, and dropping it leaves a mislabelled runtime
+     running."
+
+  It was true of everything except the query that finds the runtime.
+
+  THE SPLIT, derived rather than listed. `_CANDIDATE_LABELS` is every member of
+  the frozen label set that is NOT part of the resolved identity — the attempt
+  and the four parts of the assignment. Those are the filters. The three
+  digests are compared IN PROCESS after the read, where a mismatch is refused.
+
+    _CANDIDATE_LABELS = tuple(name for name in documents.RUNTIME_LABELS
+                              if name not in _LABELLED_IDENTITY)
+
+  Derived so a label added to the contract tomorrow becomes a selector or a
+  comparison by which list it belongs to, rather than by somebody remembering
+  to add it here.
+
+  NARROWING THE FILTERS DID NOT NARROW THE OWNERSHIP. `list_vector` still owns
+  the WHOLE label set through `_labels` before the engine is asked anything, so
+  an invented member, a missing member or a text-shaped digest still refuses
+  before a query is composed. Only which of those proved values become filters
+  changed, and a case pins that.
+
+
+[P1] THE SPELLING IS CHECKED BEFORE `normpath` CAN ERASE IT
+
+  `_mounts` normalized the target and only then looked for `..` as a segment,
+  so the check could never see traversal that normalization had already
+  consumed. `/workspace/../etc` was accepted and emitted as
+
+    type=bind,source=/srv/a-1/workspace,target=/etc,readonly=false
+
+  moving the assignment's WRITABLE bind over the image filesystem.
+
+  The raw spelling is checked first now — the rule `_canonical` already
+  followed for a host source and that this side was missing — and only the
+  canonical spelling reaches the engine. The source/target asymmetry is
+  unchanged and is still stated at the site: a source is a HOST path the engine
+  will resolve, so it is resolved here; a target is a path inside a container
+  that does not exist yet, so it is normalized as text and never resolved
+  against this host.
+
+
+ONE EXISTING ASSERTION REVISED, UNDER THE REVIEW'S EXPLICIT CONFIRMATION
+
+  `TheVectorsAreClosedAndOrdered.test_the_listing_filters_on_every_label`
+  required a filter for EVERY label, which is the defect stated as an
+  expectation. The review gives explicit case-specific confirmation to revise
+  it, and it is now
+  `test_the_listing_selects_candidates_and_never_pre_compares_identity`:
+  the filters are exactly the candidate labels in the contract's own order,
+  and each of the three identity digests is asserted NOT to be among them —
+  a digest used as a filter is a runtime the engine hides rather than one this
+  adapter refuses.
+
+
+FOCUSED
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_oci
+    Ran 70 tests in 0.006s
+    OK
+
+  66 -> 70. The review's two additive methods are kept as written and pass;
+  one assertion was revised one-for-one; four are new:
+
+    the whole label set is still owned before the engine is asked
+    a stale candidate is refused rather than filtered away — driven for each
+      of the three identity digests
+    a stale candidate stops a start before the engine creates anything
+    an ordinary start still finds no candidate and creates — because
+      broadening discovery must not make every start refuse
+
+  CAN-ACTUALLY-FAIL, measured. With both corrections reverted and nothing else
+  changed:
+
+    FAIL: test_a_target_traversal_is_not_normalized_into_another_location
+    FAIL: test_a_stale_policy_runtime_is_not_filtered_into_a_duplicate_start
+    FAIL: test_the_listing_selects_candidates_and_never_pre_compares_identity
+    Ran 70 tests -- FAILED (failures=3)
+
+  The file was restored byte for byte afterwards.
+
+
+AGAINST A REAL ENGINE, because the defect was about what a real engine does
+
+    $ env PYTHONPATH=src python3 -m unittest tests.manager.test_oci_engine
+    Ran 14 tests in 0.452s
+    OK (skipped=5)
+
+  The five Docker cases ran against docker 29.1.3 and the five podman ones
+  skipped. `test_a_second_start_under_one_identity_is_refused` is the one that
+  matters here: it drives the candidate query against a daemon that really
+  does apply label filters, which is precisely what the fake could not tell
+  the previous correction.
+
+
+ADJACENT
+
+    $ env PYTHONPATH=src python3 -m unittest \
+        tests.manager.test_oci tests.manager.test_oci_engine \
+        tests.manager.test_attempts tests.manager.test_sessions \
+        tests.manager.test_store tests.manager.test_offers \
+        tests.manager.test_secrets tests.manager.test_output \
+        tests.manager.test_interrogation tests.manager.test_handshake
+    Ran 564 tests in 2.128s
+    OK (skipped=5)
+
+
+FULL SOURCE SUITE AND LOCKED BUILD
+
+    $ env PYTHONPATH=src python3 -m unittest discover -s tests -t .
+    Ran 1228 tests in 484.815s
+    FAILED (failures=11, skipped=6)
+
+    $ cd v12/python && just build
+    Ran 1228 tests in 478.294s
+    FAILED (failures=11, skipped=5)
+
+  1223 -> 1228 is this correction's five added cases (four new plus the
+  revised one splitting into two).
+
+  `test_oci` DOES NOT APPEAR in the failure list. Both W6632 failures the
+  suite carried are gone and nothing was added by this correction.
+
+
+REPORTED AND NOT FIXED
+
+  W6630 — `tests.manager.test_secrets`:
+    TheRefusalConstructorIsTheOneCrossing.test_the_pair_assertions_cannot_quote_a_live_bearer
+      (two subcases)
+
+  A seventh-review regression posted at 01:53:20Z, minutes after this
+  participant passed W6630 back, and it is a real defect in that correction:
+  `ContractRefusal.__init__`'s category and code assertions run BEFORE the §13
+  message guard and interpolate the rejected operand with `repr`, so a live
+  bearer supplied as an invalid category or code escapes in an `AssertionError`
+  that never reaches the crossing. The same shape as the door-ordering defects
+  that Work has been corrected for, one layer earlier in the same function.
+  W6630 is routed to `baton.feat` and is not held by this claim. Reported on
+  T6630 with the direction I would take.
+
+  W6633 — `tests.tools.test_worker_image_build`:
+    OnlyTheRecipesOwnWorkIsRewritten.test_a_partial_base_layer_match_refuses
+    TheBuildVectorIsClosed.test_concurrent_builds_for_one_destination_have_distinct_stages
+
+  Also routed to `baton.feat`, already reported on its own thread.
+
+  The remaining seven are the long-standing `test_boundary_inventory` failures.
+
+
+A NOTE ON THE REVIEW'S CLOSING PARAGRAPH
+
+  It records that the lifecycle precondition for a missing `policy_digest` is
+  the necessary closed outcome once policy is a required restart label, that
+  W6636 should revalidate where that refusal is surfaced, and that this review
+  does not request removing or rerouting it. Nothing was changed there.
+
+
+TEMPORARY PATHS, LEFT RATHER THAN REMOVED
+
+    /tmp/w6632b_full.txt   the full source-suite log
+    /tmp/w6632b_build.txt  the locked installed-layout log

@@ -15,10 +15,16 @@ what makes a reproducibility case possible at all.
 
 import hashlib
 import json
+import os
 
 __all__ = ["ScriptedAgent"]
 
 MAX_RECAP = 4000
+
+# The writable root of the two W14251 fixes. Named here as well as in the
+# worker because this file writes into it, and a path it took from an operand
+# would be a path a payload could redirect.
+OUTPUT_ROOT = "/output"
 
 
 def _digest(value):
@@ -49,26 +55,42 @@ class ScriptedAgent:
                            if decision == "decline"
                            else "the contract is acceptable")}
 
-    def work(self, seen, request):
-        """Do the scripted work and RECAP it, bounded.
+    def work(self, seen, declared):
+        """Write the declared outputs and say WHICH of them were produced.
 
-        The recap is the only prose an execution worker emits, and it is
-        truncated here rather than at the channel, so the worker reports what
-        it did instead of the channel reporting that the worker said too much.
+        W14251, closed. The agent no longer receives an inline task and no
+        longer reports a workspace: it is handed the DECLARATIONS the manager
+        wrote, it writes its material under each declared path below
+        `/output/`, and it answers which outputs exist.
+
+        IT SAYS NOTHING ABOUT THE BYTES. The worker measures them, because a
+        content manifest is a claim about a tree and this file is the least
+        trusted thing inside the container. So an agent cannot describe
+        material it did not write, and cannot rename or move an output either
+        -- everything but `name`, `status` and the opaque `result_metadata`
+        comes from the declaration.
+
+        DETERMINISTIC MEANS DERIVED, still. The bytes come from the
+        declaration, so two runs of the same assignment produce the same tree
+        and a reproducibility case is possible at all.
         """
-        task = request.get("task")
-        if type(task) is not str:
-            raise ValueError("a work request names one task")
-        # THE ANSWER IS EXACTLY WHAT THE CONTRACT PINS: `disposition`,
-        # `workspace`, `recap`. Review [P1]: this also returned a
-        # `task_digest`, which the closed answer set does not name -- a member
-        # the worker boundary would have had to refuse, and which said nothing
-        # a manager holding the task could not compute for itself.
-        #
-        # The task still DECIDES the answer, which is what deterministic
-        # means here: the recap is derived from it, so two runs of the same
-        # assignment produce the same bytes.
-        recap = f"scripted worker completed {task}"[:MAX_RECAP]
-        return {"disposition": "completed",
-                "workspace": seen.get("BATON_WORKER_WORKSPACE"),
+        answers = []
+        produced = []
+        for one in declared:
+            place = os.path.join(OUTPUT_ROOT, one["path"])
+            os.makedirs(place, exist_ok=True)
+            body = f"scripted worker produced {one['name']}\n"
+            with open(os.path.join(place, "result.txt"), "w",
+                      encoding="utf-8") as handle:
+                handle.write(body)
+            produced.append(one["name"])
+            answers.append({
+                "name": one["name"], "status": "present",
+                # OPAQUE, and empty is the honest value. A worker with nothing
+                # format-specific to say says nothing; the manager carries this
+                # and never reads it either way.
+                "result_metadata": {}})
+        recap = ("scripted worker produced "
+                 + ", ".join(produced))[:MAX_RECAP]
+        return {"disposition": "completed", "outputs": answers,
                 "recap": recap}

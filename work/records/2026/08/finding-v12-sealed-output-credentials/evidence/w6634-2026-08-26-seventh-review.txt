@@ -1,0 +1,123 @@
+W6634 — seventh-review corrections. 2026-08-26.
+No repository state was mutated.
+
+=== 1. the two focused modules, with all four additive regressions
+----------------------------------------------------------------------
+Ran 110 tests in 0.049s
+
+OK
+
+=== 2. the adjacent gate
+----------------------------------------------------------------------
+Ran 437 tests in 1.566s
+
+OK (skipped=1)
+
+=== 3. the completion signal is opened without following anything
+40:`O_NOFOLLOW` -- so a replacement between the check and the read is a file this
+515:    `O_NOFOLLOW` refuses the link itself rather than resolving it, and the
+528:                         os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+535:        if not stat.S_ISREG(os.fstat(handle).st_mode):
+
+=== 4. replay proves the binding before it reads worker state
+716:    settled = _committed_result(custody, expected)
+717-    if settled is not None:
+734:    _envelope, completion_manifest_digest = _completion_envelope(
+  ^ the read is BELOW the replay now, and the envelope is out of _BOUND:
+364:_BOUND = ("result_id", "assignment_ref", "disposition", "freeze_operation",
+365-          "input_manifest_digest", "policy_digest")
+366-
+
+=== 5. every guard this round added, measured by REMOVING it
+   the envelope is read before replay again -> 1 case(s), first: test_an_exact_retry_does_not_need_the_worker_envelope_again
+   the completion signal may be a link -> 1 case(s), first: test_the_completion_signal_is_a_regular_file_in_the_output_root
+   the open may block on a named pipe -> 1 case(s), first: test_the_completion_signal_is_a_regular_file_in_the_output_root
+   the opened descriptor is not proved a regular file -> 2 case(s), first: test_the_completion_signal_is_not_a_directory_or_a_special_file
+   another assignment's envelope is accepted -> 1 case(s), first: test_the_envelope_answers_this_exact_assignment
+   zero candidates is not positive absence -> 1 case(s), first: test_a_stale_record_with_no_runtime_converges_to_absence
+
+UNMEASURED: none
+
+=== 6. the aggregate gate
+Ran 1420 tests in 821.745s
+FAILED (failures=13, errors=4, skipped=6)
+V12_STATUS=1
+
+  Attributed:
+      6     manager.test_boundary_inventory
+      2     manager.test_worker_container
+      9     manager.test_worker_image
+
+  NONE is W6634's. Six are the long-standing boundary-inventory gaps.
+  The eleven in test_worker_image and test_worker_container are W6633's:
+  that Work's own tenth round left its direct suite RED at 52/58 and its
+  reviewer has since added further cases. It is with its reviewer and the
+  state is recorded plainly in its own PROGRESS.md.
+
+$ diff --check over the working tree
+DIFFCHECK_STATUS=0
+
+
+=== ADDENDUM, at the design checkpoint. 2026-08-26.
+No repository state was mutated, and no eighth W6634 correction round
+began. Section 6 above is STALE and this corrects it: W19784 landed
+after that evidence was written, and its own review has since begun.
+
+  -- W6634's own contracts, re-verified on today's tree:
+     Ran 110 tests in 0.050s
+     
+     OK
+
+  -- the adjacent gate, which W19784 grew by nine workspace cases:
+     Ran 446 tests in 1.600s
+     
+     OK (skipped=1)
+
+  -- the two suites section 6 attributed 11 failures to. That count is
+     no longer 11, and it is no longer W6633's alone:
+     FAIL: test_the_correlated_work_answer_names_outputs_only 
+     FAIL: test_declared_output_limits_hold_before_completion_publication 
+     FAIL: test_both_delivered_manifests_are_closed_before_dispatch  (document='input')
+     FAIL: test_both_delivered_manifests_are_closed_before_dispatch  (document='assignment')
+     FAIL: test_both_delivered_manifests_prove_their_own_digest_before_dispatch  (document='input')
+     FAIL: test_both_delivered_manifests_prove_their_own_digest_before_dispatch  (document='assignment')
+     Ran 104 tests in 27.456s
+     FAILED (failures=6)
+
+     TWO are W6633's own open contradiction, unchanged:
+       test_the_correlated_work_answer_names_outputs_only
+       test_declared_output_limits_hold_before_completion_publication
+
+     FOUR ARE MINE, and they are NEW. They are additive regressions
+     W19784's reviewer added after I passed that Work, and I found them
+     by running this addendum rather than by being told. Both are real
+     and both are against the delivery I built:
+       test_both_delivered_manifests_prove_their_own_digest_before_
+         dispatch -- the worker compares the two documents' digest
+         STRINGS with each other and never recomputes either document's
+         own manifest_digest over its own bytes. The approved ruling
+         says the worker validates both CLOSED manifests.
+       test_both_delivered_manifests_are_closed_before_dispatch -- a
+         second identity alias (compatibility_assignment) survives
+         delivery, because the worker extracts the members it needs
+         rather than proving the document is closed. That is precisely
+         the compatibility alias the ruling rejected.
+
+     Both belong to W19784, which is with its reviewer and which I do
+     not hold. They are recorded here rather than corrected here,
+     because this instruction authorizes finishing W6634 evidence and
+     nothing else. NEITHER is a W6634 defect: sealing.py already
+     recomputes every manifest digest it reads and already validates
+     against a closed definition.
+
+  -- the standing shared boundary-inventory baseline is unchanged at six.
+
+A MEASUREMENT NOTE that bears on any evidence run in this tree.
+The command above deletes v12/worker/__pycache__ first, and it has to.
+The mutation harnesses rewrite one source repeatedly inside a single
+filesystem timestamp tick, so CPython's mtime-based invalidation can
+serve the PREVIOUS bytecode. Run without the delete, this same command
+reported 7 failures rather than 6 -- and a DIFFERENT five, which would
+have attributed real-looking failures to the wrong Work. The first
+draft of this addendum said '11 -> 2' on exactly that basis and was
+wrong; it is replaced rather than amended.

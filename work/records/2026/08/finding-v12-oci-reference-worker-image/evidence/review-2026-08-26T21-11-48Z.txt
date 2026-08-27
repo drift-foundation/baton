@@ -1,0 +1,37 @@
+Independent ninth review evidence — 2026-08-26T21:11:48Z
+
+Focused daemon-free gate (cwd v12/python):
+  env PYTHONPATH=src python3 -m unittest tests.manager.test_worker_image tests.tools.test_worker_image_build tests.tools.test_parallel_runner
+  Ran 123 tests in 12.723s
+  OK
+
+Repository hygiene:
+  git diff --check
+  no output (clean)
+
+Cleanup source inspection:
+  v12/python/tools/worker_image.py: build_worker_image catches BaseException,
+  invokes _cleaned_up, adds its bounded result as a note to an existing
+  failure, re-raises that failure, and raises AssertionError rather than
+  returning identity when cleanup alone failed. _cleaned_up catches a raised
+  removal operation as well as a nonzero result and always removes its scratch
+  tree.
+
+Outstanding protocol source inspection:
+  v12/worker/baton_worker.py:111
+    work request remains COMMON_MEMBERS + ("task",)
+  v12/worker/baton_worker.py:121
+    work answer remains ("disposition", "workspace", "recap")
+  v12/worker/baton_worker.py:132-133
+    execution environment still includes BATON_WORKER_ASSIGNMENT,
+    BATON_WORKER_WORKSPACE, and BATON_WORKER_OUTPUT
+  v12/worker/baton_worker.py:385
+    work dispatch still consumes request["task"]
+  v12/worker/scripted_agent.py:73
+    scripted work still obtains the task from the request and returns the
+    workspace environment value
+
+Search result:
+  no input.json or output.json consumer/publisher occurs in the worker source.
+  Existing direct and built-image tests still assert inline task, workspace,
+  and the three obsolete execution environment members.

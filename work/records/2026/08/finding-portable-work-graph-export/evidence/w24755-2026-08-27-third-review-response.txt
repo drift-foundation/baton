@@ -1,0 +1,111 @@
+W24755 — response to the third independent review. 2026-08-27.
+
+The finding is correct. No Git history or index was mutated.
+
+=== [P1] CLOSED VOCABULARIES WERE NOT OWNED
+
+  I proved status, phase and outcome are TEXT and called that owning
+  the structured input. A forged status=bogus, phase=review or
+  outcome=done rendered a complete-looking document, and each of those
+  members supplies both the readable node-state label and a
+  machine-readable baton_* attribute.
+
+  SIX MEMBERS, NOT THE THREE THAT WERE FOUND. origin, classification
+  and priority are closed in exactly the same way and reach exactly the
+  same two places. Validating only the named three would be the
+  guard-extended-one-member-at-a-time shape the second review already
+  corrected once, so the rule covers every member that has a domain:
+    4117:_MEMBER_VOCABULARIES = {
+    4118-	"status": (OPEN, CLOSED),
+    4119-	"phase": PHASES,
+    4120-	"outcome": OUTCOMES,
+    4121-	"origin": ORIGINS,
+    4122-	"classification": CLASSIFICATIONS,
+    4123-	"priority": PRIORITIES,
+    4124-}
+    4125-
+
+  team is deliberately absent: its domain is the accepted configuration,
+  which is a STORE fact, and the renderer is pure. The projection admits
+  the team inside its own snapshot instead — that is the second review's
+  [P2] and it already holds.
+
+  THE VOCABULARIES ARE THE AUTHORITY'S OWN, imported rather than
+  restated, and a case asserts that BY IDENTITY so a renderer-only copy
+  would fail rather than drift:
+    1258:	assert projection._MEMBER_VOCABULARIES == {
+    1259-		"status": (tr.OPEN, tr.CLOSED), "phase": tr.PHASES,
+    1260-		"outcome": tr.OUTCOMES, "origin": tr.ORIGINS,
+    1261-		"classification": tr.CLASSIFICATIONS, "priority": tr.PRIORITIES}
+    1262-
+
+=== THE IMPORT THAT MADE THAT POSSIBLE, AND THE RULE THAT BOUNDS IT
+
+  Reusing the canonical tuples means the READ side importing from the
+  WRITE module. projection.py has imported only authority since it was
+  written, and test_the_read_side_never_commits is a source-TEXT check
+  that would not notice if that import later grew into a mutation.
+
+  So the import takes NAMES, never the module, and the narrowing is now
+  an enforced rule rather than my intention:
+    130:def test_the_read_side_imports_only_vocabulary_from_transitions():
+    131-	"""The read side may borrow the authority's closed VALUES, never its acts.
+    132-
+    133-	W24755's export has to refuse a forged `status` or `phase`, and a
+    134-	renderer-only copy of those vocabularies would be a second opinion about
+
+  Every name projection takes from transitions must resolve to text or a
+  tuple of text. A function, a class or a bare module import fails —
+  which is the moment to ask whether the read side should be reaching
+  for it at all. I considered relocating the vocabularies to
+  authority.py instead, and did not: that is 44 references across five
+  modules and another Work's file, for a structural change this review
+  did not ask for.
+
+=== ON THE PATTERN, WHICH I ASKED THE REVIEWER TO NAME
+
+  Four rounds, four findings, one shape: I proved something narrower
+  than I claimed and wrote the claim down anyway.
+    round 1  a docstring promising the renderer validates its input, over
+             code that checked container shapes
+    round 1  a grammar reasoned through for one spelling and delegated for
+             the rest
+    round 2  presence checked and called ownership
+    round 3  type checked and called ownership
+
+  The common cause is that I write the general sentence first and then
+  implement the case in front of me. The mutation pass catches it in the
+  TESTS every time — six unestablished guards in round one, two in each
+  round since — but it cannot catch it in PROSE, because a docstring is
+  not executable. What has actually worked is the reviewer reading the
+  claim and asking what enforces it.
+
+  Concretely, for the rest of this Work: where a comment or docstring
+  states a general rule, there is a case named for that rule or the
+  sentence is narrowed to what the code does. The two boundary tests
+  added this round are that applied to the two claims I made today.
+
+=== MEASURED BY REMOVAL
+
+  Three mutations added for this finding, including one that swaps the
+  imported PHASES for a renderer-local copy carrying a fifth phase — the
+  exact divergence the review warned against.
+
+             test_the_dot_branch_writes_once_and_only_a_whole_document
+    
+    all 50 mutations caught
+
+    source fingerprint before: 382e2a45303108a4ea1f795f752544f77148bd80ca84667395761490c6a224f1
+    source fingerprint after : 382e2a45303108a4ea1f795f752544f77148bd80ca84667395761490c6a224f1
+    IDENTICAL — every mutation was reverted.
+
+=== GATES
+    this Work        : 73 passed in 1.87s
+    boundaries       : 5 passed in 0.18s
+    v11 parallel     : 3140 passed, 188 warnings in 53.85s
+    v11 serial       : 54 passed, 3140 deselected, 1 warning in 129.99s (0:02:09)
+    ACP bridge       : 77 pass, 0 fail
+
+  Seventy-three cases here: 57 from the first round, 6 reviewer
+  regressions across three passes (all unmodified), 10 added for the
+  three rounds of fixes. Fifty mutations, all caught.

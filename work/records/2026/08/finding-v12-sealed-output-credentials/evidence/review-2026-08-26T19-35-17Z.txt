@@ -1,0 +1,72 @@
+W6634 sixth independent review evidence — 2026-08-26T19:35:17Z
+
+Confirmed corrected baseline
+============================
+
+Credential module before new regressions:
+  Ran 67 tests in 0.012s — OK
+
+Adjacent gate:
+  tests.manager.test_sealing tests.manager.test_oci
+  tests.manager.test_output tests.manager.test_intake
+  tests.manager.test_dependencies tests.manager.test_workspaces
+  tests.manager.test_secrets
+  Ran 359 tests in 1.528s — OK (skipped=1)
+
+The fifth review's five regressions are green:
+  - delivery/start attempt identity
+  - pre-engine vector-refusal settlement
+  - fixed-root bind shadowing
+  - duplicate binds at one target
+  - sibling-attempt preservation during per-attempt cleanup
+
+Two new regressions
+===================
+
+Command:
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_credentials
+
+Result:
+  Ran 69 tests in 0.015s
+  FAILED (failures=2)
+
+1. test_a_started_runtime_with_an_invalid_identity_is_explicitly_unresolved
+
+   After the duplicate probe, the engine create call returns stdout containing
+   text that cannot be encoded as a durable runtime identity. EnginePort
+   refuses the answer. Because self.run(argv) is outside start's guarded
+   composition block, the refusal escapes without _refused_start. The root and
+   bearer remain live, but the refusal contains no unresolved lifecycle state.
+
+2. test_a_proved_failed_recovery_removes_its_stale_record
+
+   A disagreement path stops the worker, receives positive absence, and
+   removes credentials/attempt-1. state/attempt-1.json remains with
+   lifecycle_state=live, naming the deleted root and runtime. read_state still
+   returns that document instead of None.
+
+Completion publication observation
+==================================
+
+  - OciAdapter takes completion_manifest_digest as an optional constructor
+    operand.
+  - sealed_result copies it into the manager receipt and replay binding.
+  - No worker_manager path reads /output/output.json or owns the completion
+    document from which that digest must be recomputed.
+  - No W6634 path compares completion entries with the exact input manifest.
+
+Boundary inventory observation
+==============================
+
+The implementer's own fifth evidence reports:
+
+  ORPHANS 23 | mine:
+    sealing.py:_relative — a declared output path
+    sealing.py:collected_result — a collected output name
+    sealing.py:declared_outputs — output document
+    sealing.py:declared_outputs — constraints document
+    sealing.py:declared_outputs — output name
+    sealing.py:declared_outputs — output type
+
+git diff --check: status 0

@@ -1,0 +1,255 @@
+W24755 — the portable Work-graph export, implemented. 2026-08-27.
+
+No Git history or index was mutated. The mutation harness rewrote source
+files in place and restored each one; section 6 shows the check.
+
+=== 1. THE APPROVED RULING, REVALIDATED AGAINST THE CURRENT TREE
+
+  A reviewer proposal is decision support, not authority, so every
+  pinned claim was re-checked before anything was written. All held.
+
+    edges(work, blocker, via_obligation, created_seq)   authority.py:352
+    work.parent / follow_up_of / duplicate_of           authority.py:296,315,316
+    work.last_changed_at, TEXT NOT NULL                 authority.py:321
+    _read_snapshot is reentrant BEGIN..ROLLBACK         projection.py:41
+    PROJECTION_VERSION was 12.5, so 12.6 is free        jsonapi.py
+
+  THE ORDERING KEYS WERE THE ONES THAT COULD HAVE ROTTED, because each
+  is deterministic only if its column cannot move or be null:
+    parent is IMMUTABLE      no 'SET parent' exists in transitions.py
+    follow_up_of at creation refuses an open predecessor (1070-1074)
+    duplicate_of with closure written by the same UPDATE as closed_seq (1356-1361)
+
+  The six focused baseline cases the design evidence names:
+      ......                                                                   [100%]
+      6 passed in 0.18s
+
+=== 2. WHAT WAS BUILT
+
+    src/baton_work/projection.py  work_graph and its fixed node/edge builders
+    src/baton_work/dot.py         NEW, the pure renderer and quoting rules
+    src/baton_work/cli.py         the work-graph grammar and the raw DOT branch
+    src/baton_work/jsonapi.py     projection 12.6
+    tests/work/test_w24755_work_graph_export.py  NEW, 57 cases
+    docs/EFFECTIVE-BATON.md       'Exporting the Work graph'
+    docs/BATON-WORK.md            the console graph is a view, not an export
+
+  The surface, exercised against a real authority:
+
+    $BATON work-graph
+    $BATON work-graph format=dot > work.dot
+    $BATON work-graph format=dot status=all \
+        changed-from=2026-08-01T00:00:00Z changed-until=2026-09-01T00:00:00Z
+
+  ONE SNAPSHOT, TWO STATEMENTS. Every Work row and every current
+  dependency row are read in a constant number of ordered statements
+  inside one _read_snapshot; the other three relation families are
+  derived from those same Work rows, so the statement count does not
+  grow with the graph and nothing is stitched from a second state.
+
+=== 3. THREE THINGS THE TREE SAID THAT THE DESIGN DID NOT
+
+  Each was found by driving the approved design against the real
+  authority rather than by reading it, and each changed a test.
+
+  --- [1] THE AUTHORITY STORES HOSTILE TITLES THAT LOOK UNSTORABLE
+  validate_subject refuses a literal newline or carriage return in a
+  Work title. It refuses NOTHING ELSE that this export has to survive:
+  a bare TAB, a NUL, a right-to-left override and U+2028/U+2029 are all
+  storable. U+2028 is the sharpest — it IS a line break to a great many
+  consumers, and the single-line check does not see it. So the
+  renderer's visibility rule is load-bearing for REAL titles, not
+  hypothetical ones. The two the authority refuses are still driven at
+  the renderer, because a later relaxation of the title rule must not
+  silently become a DOT-injection defect.
+
+  --- [2] THE AUTHORITY PERMITS FEWER PARALLEL RELATIONS THAN RULED
+  FINDING.md says any of the four families may coexist on one pair.
+  Driven for real, the reachable set is narrower:
+      containment + dependency  refused as a required-edge cycle
+      follow-up + dependency    refused: a follow-up predecessor is closed and
+                                a new blocker must be open
+      containment + duplicate   refused: a parent cannot close holding an open
+                                child
+      dependency + duplicate    REACHABLE -- A blocks B, then A closes as a
+                                rejected duplicate of B
+  Two parallel edges is all the non-strict argument needs, and the case
+  now uses the reachable pair rather than an invented one. The renderer
+  is separately held to four, because a later change to the authority
+  must not become a change to every previously exported document.
+
+  --- [3] A MODULE-SCOPE NAME COLLISION, WHICH WAS MINE
+  projection.py already had a _graph_node for the bounded dependency
+  NEIGHBOURHOOD. I appended a second definition of that name for the
+  export. Python rebinds silently: W24755's own suite passed while
+  EIGHTY-EIGHT dependency-graph cases failed with a TypeError.
+
+  A focused run could not see it and the full gate reported it as
+  failures somewhere else entirely, so the instance is renamed
+  (_export_*) AND the class is now checked directly, by AST over every
+  module, in tests/work/test_boundaries.py:
+      93:def test_no_module_defines_one_top_level_name_twice():
+      94-	"""A second definition of a module-scope name silently replaces the first.
+      95-
+      96-	W24755 appended a `work_graph` projection whose helper was called
+
+=== 4. TWO CLARIFICATIONS INSIDE THE RULING, NOT AGAINST IT
+
+  --- the DOT graph attributes had to carry the approver's range
+  DOT v1's attribute list predates the changed-from/changed-until
+  ruling. The determinism promise is that one authority, one snapshot
+  and one SCOPE give one document — so a scope operand the document did
+  not spell would let two different questions produce identical bytes.
+  baton_scope_changed_from and baton_scope_changed_until are emitted,
+  '*' when absent, and a case proves two scopes over one snapshot
+  differ.
+
+  --- 'scope=selected|context' versus 'a baton_* per node member'
+  FINDING.md says both. They conflict for one member. The explicit
+  spelling wins, because it is the more specific instruction; the
+  mapping is total, so 'selected' is still recoverable, and a case
+  asserts every other member has its own baton_* attribute.
+
+=== 5. THE TWELVE ACCEPTANCE GROUPS
+
+      ============================== 57 passed in 1.72s ==============================
+
+=== 6. MEASURED BY REMOVAL, WHICH IS THE ONLY REASON TO BELIEVE IT
+
+  A guard nothing observes is not established. Every promise this
+  export makes was removed from the source and the suite re-run. The
+  harness is kept beside this file as
+  evidence/w24755-mutation-harness.py.
+
+  THE FIRST PASS FOUND FIVE UNESTABLISHED, and the interesting ones
+  were all the same shape — a second thing standing where the guard
+  was, so removing the guard changed nothing observable:
+
+    the projection's status default -- the CLI grammar carries its own
+      default and passes it explicitly, so changing work_graph's changed
+      nothing any case could see. BOTH are now asserted, because a caller
+      reaching the projection directly gets the projection's.
+    
+    the graph attribute sort -- the dict literal was ALREADY written in
+      sorted order, so removing sorted() moved no byte. Fixed at the rule
+      rather than the case: both attribute lists now go through one owner,
+      so the cases that hold the bracketed lists hold the graph block too.
+    
+    the literal 'null' -- nothing asserted it, so rendering absent members
+      as '' passed everything. Now asserted in both directions.
+    
+    one write of a whole document -- the refusal cases prove stdout is EMPTY
+      when the PROJECTION refuses, but by then the renderer has not run. A
+      streamed prefix was invisible to all of them. The write itself is now
+      observed: exactly one call, opening and closing the digraph.
+    
+    the interleaved-writer case -- it took a fixed twelve exports, and over
+      a small database all twelve finished before the writer's first commit.
+      It was a consistency proof about a QUIET store that would have passed
+      for an exporter with no snapshot discipline at all. It now reads until
+      the writer has actually moved the authority three times, under a
+      deadline.
+
+  The final measurement, with the three mutated files fingerprinted
+  before and after so 'the harness restored everything' is measured
+  rather than asserted:
+
+      BASELINE  OK
+      
+      [caught] the export is not read inside one snapshot
+               test_an_interleaved_writer_lands_wholly_before_or_after_the_export
+      [caught] the snapshot sequence is sampled after the read
+               test_an_interleaved_writer_lands_wholly_before_or_after_the_export
+      [caught] the dependency edge points from consumer to blocker
+               test_every_relation_family_exports_with_its_ruled_direction
+      [caught] the containment edge points from child to parent
+               test_every_relation_family_exports_with_its_ruled_direction
+      [caught] the follow-up edge points from successor to predecessor
+               test_every_relation_family_exports_with_its_ruled_direction
+      [caught] the duplicate edge points from survivor to duplicate
+               test_every_relation_family_exports_with_its_ruled_direction
+      [caught] a relation spells the wrong predicate
+               test_every_relation_family_exports_with_its_ruled_direction
+      [caught] the duplicate relation is sequenced by creation, not closure
+               test_each_relation_sequence_is_the_moment_the_relation_began
+      [caught] a whole relation family is dropped
+               test_every_relation_family_exports_with_its_ruled_direction
+      [caught] the export is capped like the other views
+               test_more_than_five_hundred_nodes_export_whole_with_no_continuation
+      [caught] a closed consumer's dependency is hidden, as `links` hides it
+               test_a_closed_consumer_remains_in_the_current_graph
+      [caught] context endpoints are dropped, leaving dangling edges
+               test_a_filter_keeps_the_far_endpoint_as_marked_context
+      [caught] context is promoted to selected
+               test_a_filter_keeps_the_far_endpoint_as_marked_context
+      [caught] context expands recursively
+               test_context_does_not_expand_into_an_unbounded_history_chain
+      [caught] the default scope is `all` rather than `open`
+               test_the_zero_operand_default_is_every_team_and_open_status
+      [caught] status=all no longer demands both bounds
+               test_a_malformed_operand_refuses_with_empty_stdout
+      [caught] a naive instant is accepted
+               test_a_malformed_operand_refuses_with_empty_stdout
+      [caught] an empty or reversed interval is accepted
+               test_a_malformed_operand_refuses_with_empty_stdout
+      [caught] the range is half-open at the wrong end
+               test_the_range_is_half_open_and_selects_by_last_changed_at
+      [caught] an unknown team is accepted
+               test_a_malformed_operand_refuses_with_empty_stdout
+      [caught] nodes come out in an unstable order
+               test_the_repeated_json_projection_is_deterministic
+      [caught] edges come out in an unstable order
+               test_each_relation_sequence_is_the_moment_the_relation_began
+      [caught] attribute lists are emitted unsorted
+               test_every_attribute_list_is_lexicographic
+      [caught] the digraph becomes `strict`
+               test_one_pair_holding_two_relations_exports_two_edges
+      [caught] the escString backslash is not protected
+               test_escstring_sequences_cannot_reach_graphviz_as_substitutions
+      [caught] control characters pass through into the document
+               test_a_hostile_title_stays_one_node_statement[the
+      [caught] the exact title is no longer carried
+               test_a_hostile_title_stays_one_node_statement[a
+      [caught] the scope range is left out of the document
+               test_the_document_spells_its_whole_scope_and_identity
+      [caught] a null member renders as an empty string
+               test_every_structured_node_member_survives_into_the_dot
+      [caught] the document does not end in exactly one newline
+               test_a_hostile_title_stays_one_node_statement[plain
+      [caught] a missing endpoint no longer refuses
+               test_a_damaged_endpoint_refuses_the_whole_export
+      [caught] a duplicate typed edge no longer refuses
+               test_a_duplicate_typed_edge_refuses
+      [caught] DOT is emitted for every format, not only when asked
+               test_a_full_export_writes_nothing_to_the_authority
+      [caught] a refusal writes a partial document first
+               test_the_dot_branch_writes_once_and_only_a_whole_document
+      
+      all 34 mutations caught
+
+      source fingerprint before: ca6170d28801cd443db34044ce43e3d0e729a6a6b26fbbac2b1d36ebf5adb7a5
+      source fingerprint after : ca6170d28801cd443db34044ce43e3d0e729a6a6b26fbbac2b1d36ebf5adb7a5
+      IDENTICAL — every mutation was reverted.
+
+=== 7. THE COMPLETE v11 GATE
+    parallel : 3123 passed, 188 warnings in 48.65s
+    serial   : 54 passed, 3123 deselected, 1 warning in 129.79s (0:02:09)
+    ACP      : 77 pass, 0 fail (tools/acp-baton-bridge)
+
+    The three mutated files' fingerprints are compared around the
+    harness run in section 6 above; a grep for the word MUTATION would
+    have been useless here, because cli.py legitimately defines a
+    MUTATIONS set of its own and matched every time.
+
+=== 8. WHAT WAS NOT DONE, AND WHY
+  Nothing in the ruling is unimplemented. Two notes for review:
+  - The six projection-version pins in existing suites were moved 12.5
+    -> 12.6. Each asserts 'the current version is X and a 12.0 demand
+    still succeeds within the major'; a MINOR bump leaves every one of
+    them testing exactly what it tested. The bump is the approver's
+    explicit ruling, so this is tracking an approved change rather than
+    weakening a test — but it is an edit to existing assertions and is
+    named here rather than left to be discovered.
+  - dot.py was added to test_boundaries' read-side purity list, and the
+    new module-scope collision rule was added there too. Both are
+    additive.

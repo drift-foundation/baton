@@ -1,0 +1,71 @@
+W14251 — fifth-review corrections. 2026-08-26.
+No repository state was mutated.
+
+=== 1. [P1] the vector now reaches the rule it names
+The pair, as data:
+  valid   result-receipt-unfinished-without-an-envelope
+           disposition = unable | completion_manifest_digest present: False
+  invalid result-completed-without-its-completion-envelope
+           mutate_valid = result-receipt-unfinished-without-an-envelope
+           patch        = {"disposition": "completed"}
+           expected     = "'completion_manifest_digest' is a required property"
+
+$ python3 -m unittest test_contract_model
+----------------------------------------------------------------------
+Ran 25 tests in 0.110s
+
+OK
+
+MEASURED. Restoring the vacuous form -- the null patch and the one-word
+expectation -- fails the review's own additive regression:
+    ['test_the_completed_receipt_vector_reaches_its_named_rule']
+
+=== 2. [P2] the duplicated shape rule is gone from the design model
+279:# WHY THERE IS NO `_validate_result_manifest` HERE.
+280-#
+281-# W14251 fifth review [P2].  I wrote one: it repeated the conditional
+282-# requirement that a `completed` receipt carries `completion_manifest_digest`.
+283-# This module says at the top that it models only the invariants JSON Schema
+284-# CANNOT express, and that one it can -- the frozen schema carries it as
+285-# `if disposition == completed then required`.
+  occurrences of _validate_result_manifest: 1
+
+=== 3. the shipped gates, unchanged this round
+----------------------------------------------------------------------
+Ran 322 tests in 1.412s
+
+OK
+
+=== 4. the conformance suite
+cases: 123 {'control-success': 27, 'control-refusal': 48, 'invariant': 48}
+----------------------------------------------------------------------
+Ran 74 tests in 4.427s
+
+OK
+
+=== 5. the four schema copies -- no bytes moved this round
+copies: 4 distinct digests: 1 | sha256: 22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc
+
+=== 6. the aggregate gate
+ERROR: test_a_cleanup_exception_cannot_replace_an_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_cleanup_exception_cannot_replace_an_earlier_failure)
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+FAIL: test_a_started_runtime_with_an_invalid_identity_is_explicitly_unresolved (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_started_runtime_with_an_invalid_identity_is_explicitly_unresolved)
+FAIL: test_a_proved_failed_recovery_removes_its_stale_record (tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime.test_a_proved_failed_recovery_removes_its_stale_record)
+FAIL: test_a_refused_cleanup_is_attached_to_the_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_refused_cleanup_is_attached_to_the_earlier_failure)
+Ran 1408 tests in 791.576s
+FAILED (failures=9, errors=1, skipped=6)
+V12_STATUS=1
+
+None of these is this Work's:
+  - six are the long-standing boundary-inventory gaps;
+  - two are W6633's test_worker_image_build;
+  - the test_credentials ones are additive regressions W6634's own
+    review added while this round ran.
+
+$ diff --check over the working tree
+DIFFCHECK_STATUS=0

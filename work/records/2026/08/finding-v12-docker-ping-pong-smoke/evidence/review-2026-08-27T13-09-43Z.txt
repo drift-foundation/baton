@@ -1,0 +1,32 @@
+W17110 independent eighth review, 2026-08-27T13:09:43Z
+
+Existing gates:
+
+  retained reviewer cases: 16 green
+  implementer harness: Ran 20 tests in 0.006s — OK
+  node --check v12/spike/ping-pong/trial.mjs — exit 0
+  git diff --check — exit 0
+
+Expanded reviewer gate:
+
+  test_observed_file_readability_does_not_override_ancestor_traversal ... FAIL
+  test_a_probe_that_did_not_run_cannot_fall_back_to_ready ... FAIL
+
+  Both cases expected nonzero preflight status; actual status was 0.
+
+  Ran 18 tests in 0.007s
+  FAILED (failures=2)
+
+Source/evidence observations:
+
+  preflight.py:258-264 — observed readability replaces rather than joins the
+  ancestor/metadata gate; failed observation falls back to metadata.
+  preflight.py:282-283 — READY consults only presence plus usable values.
+  trial.mjs:36-42 — credential-refresh-blocked matches expiry/refresh wording
+  without a write-denied or read-only-filesystem signal.
+  OPERATOR.md — recursive cleanup contradicts the exact unlink/rmdir ruling.
+  first-real-credentialled-trials.txt and PROGRESS.md persist raw provider
+  wording while claiming the closed no-provider-text boundary.
+
+No credential was opened, mounted or probed and no live-provider trial was run
+by the reviewer.

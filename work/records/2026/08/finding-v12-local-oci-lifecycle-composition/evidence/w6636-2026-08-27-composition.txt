@@ -1,0 +1,284 @@
+W6636 — the local OCI lifecycle, composed. 2026-08-27.
+
+No Git history or index was mutated. The mutation harness rewrote source
+files in place and restored each one before the next; the tree is as it
+was found, and section 6 shows the check.
+
+=== 1. PLAN ITEM 1 — EVERY DEPENDENCY'S FINAL CONTRACT, REVALIDATED
+
+  All ten dependencies are CLOSED. One is closed NON-SATISFYING:
+
+    W6634  "Seven implementation and review cycles produced no
+            independently accepted deliverable. Closing the overbroad
+            Work; its code remains provisional and cannot be treated as
+            certified."
+
+  No successor Work exists for its sealed-output/credential half, and
+  W6636 is W5's last open child. W6636's own acceptance says:
+
+    "All component and manager dependencies are closed satisfying
+     before terminal integration signoff; W6 remains the separate
+     certification gate."
+
+  THAT CLAUSE CANNOT BE MET AS THINGS STAND, and waiving it is not mine
+  to do. This round composes the certified surface, measures it, and
+  reports the gap.
+
+  --- where the provisional code is, BY CALL rather than by file
+      the SATISFYING adapter imports it: oci.py:53
+        from . import boundaries, credentials, documents, sealing
+      
+        reached from            lands in
+        OciAdapter.__init__     sealing.declared_outputs   (only when outputs=)
+                                credentials.Delivery       (only when delivered)
+        OciAdapter.seal         sealing.sealed_result, sealing.QUIET_STATES
+        OciAdapter.collect      sealing.collected_result
+        OciAdapter.start        credentials.CredentialHome (only when delivered)
+        OciAdapter.destroy      credentials.CredentialHome (only when delivered)
+        recover_credentials     credentials.CredentialHome
+      
+        NOT reached at all: list, stop, observe.
+
+  Constructed with outputs=() and credential_delivery=None -- which the
+  adapter's own docstring names as the runtime half's supported
+  construction -- start, list, stop, destroy and observe enter neither
+  provisional module. That is the ground this composition stands on.
+
+  --- and the reach is wider than those two calls
+  authorize_cleanup destroys nothing without an intake receipt;
+  request_intake takes custody only of a FROZEN result; only
+  request_freeze -- which calls adapter.seal -- freezes one. So for a
+  runtime that ever started, DESTROY AND POSITIVE ABSENCE ARE REACHABLE
+  ONLY THROUGH THE PROVISIONAL PATH. PLAN item 3 names freeze, collect,
+  destroy and positive absence together; all four sit behind W6634. A
+  consent runtime is torn down directly by the adapter and never passes
+  through intake, so consent teardown IS composed here.
+
+=== 2. TWO [P0] FINDINGS COMPOSITION PRODUCED AND NO COMPONENT COULD
+
+  --- [P0] THE ADAPTER STARTS NO WORKER THAT CAN RUN
+
+  run_vector composes restrictions, labels, mounts, credential mounts
+  and the image. It composes NO --env. The reference worker reads four
+  variables from the environment:
+    151:    "consent": ("BATON_WORKER_POSTURE", "BATON_WORKER_SESSION",
+    152-                "BATON_WORKER_CONTRACT", "BATON_WORKER_ROLE"),
+    153:    "execution": ("BATON_WORKER_POSTURE", "BATON_WORKER_SESSION",
+    154-                  "BATON_WORKER_CONTRACT", "BATON_WORKER_ROLE"),
+    155-}
+
+  Finding none, it exits at once without a frame. MEASURED through the
+  adapter's own vector against a real daemon:
+    environment flags in the vector: NONE
+    docker run status            : 0
+    container state              : exited exit 2
+    stdout / stderr              : b'' / b''
+
+  NEITHER COMPONENT'S SUITE COULD SEE IT, and both are right about
+  themselves. W6632's engine suite runs the pinned BASE image, which
+  requires no environment. W6633's container suite composes its own
+  docker run:
+      331-                          f"{'false' if writable else 'true'}"]
+      332-        for key, value in environment.items():
+      333:            arguments += ["--env", f"{key}={value}"]
+  ...and never calls the adapter. The defect exists only in the join.
+
+  --- [P0] THE MANAGER RECORDS `running` FOR A WORKER THAT IS GONE
+
+  list_vector is 'ps --all', and reconcile_runtime's _attach observes
+  'running' for anything the label filter returns -- so an EXITED
+  container satisfies reconciliation exactly as a live one does.
+  Composed with the finding above, every execution attempt records
+  execution_runtime = running for a worker that died before the call
+  returned.
+
+  The adapter HAS the operation that would settle it: observe() answers
+  running, quiescent, absent or uncertain about one exact identity, and
+  a case here proves it tells the three apart. NO MANAGER OPERATION
+  CALLS IT -- every adapter call the manager makes:
+      src/baton_v12/worker_manager/attempts.py:880:    started = _started(adapter.start({"labels": labels,
+      src/baton_v12/worker_manager/attempts.py:940:    listed = _listed(adapter.list({"labels": labels}))
+      src/baton_v12/worker_manager/attempts.py:1269:        runtime_settlement = adapter.stop({
+      src/baton_v12/worker_manager/intake.py:400:    collected = adapter.collect({
+      src/baton_v12/worker_manager/intake.py:1127:        adapter.destroy({**documents.destroy_command(
+      src/baton_v12/worker_manager/output.py:207:    sealed = adapter.seal({"attempt_id": attempt_id, "assignment": expect,
+
+  Naming the shape of the fix is this Job's business; making it is not.
+
+  --- [P2] THE CONSENT AXIS HAS NO OPERATION EITHER
+  The store carries a consent_runtime axis and the adapter a consent
+  posture, and nothing joins them: request_runtime_start writes
+  execution_runtime and no operation writes the other. The composition
+  drives the adapter directly and records the axis alongside, which is
+  what a later slice should replace with one operation.
+
+=== 3. AN OPERATIONAL FINDING I HAVE TO REPORT AGAINST MY OWN CLOSED WORK
+
+  The full-tree gate is at SEVEN failures. Six are test_boundary_inventory's
+  accepted baseline, unchanged. The SEVENTH is not, and it is mine:
+
+    FAIL: test_every_entry_has_exactly_one_stated_owner
+          (tests.manager.test_contracts_inventory)
+      receiving entries with no owner:
+        ('check_input_pair', 'assignment_manifest')
+        ('check_input_pair', 'input_manifest')
+        ('check_input_pair', 'what')
+
+  check_input_pair is the public function I added to
+  contracts/manifest.py in W19784, which CLOSED SATISFYING. Its three
+  receiving parameters were never registered in the contracts
+  inventory's OWNERS table, so the whole-universe scan reports them
+  unowned. Neither my gate nor the reviewer's caught it, because that
+  inventory is part of the ~14-minute full-tree run and the round was
+  verified on the manager subset.
+
+  I am NOT fixing it here. It is a closed Work's deliverable, the remedy
+  is three entries in tests/manager/test_contracts_inventory.py's OWNERS
+  table, and editing another Work's accepted deliverable without review
+  is exactly what passing work back exists to prevent. It needs an owner.
+
+=== 4. WHAT IS COMPOSED
+
+  tests/manager/test_lifecycle_composition.py -- 24 cases over a REAL
+  daemon, running THIS repository's own worker image built from W6633's
+  recipe. Docker is REQUIRED and fails rather than skips; Podman is
+  additive and skips narrowly.
+
+      test_a_claimed_but_unactivated_attempt_starts_no_container (tests.manager.test_lifecycle_composition.DockerComposition.test_a_claimed_but_unactivated_attempt_starts_no_container)
+      test_a_credential_never_delivered_is_not_reported_torn_down (tests.manager.test_lifecycle_composition.DockerComposition.test_a_credential_never_delivered_is_not_reported_torn_down)
+      test_a_declined_offer_reaches_neither_workspace_nor_engine (tests.manager.test_lifecycle_composition.DockerComposition.test_a_declined_offer_reaches_neither_workspace_nor_engine)
+      test_a_plan_that_omits_the_input_root_is_refused_before_the_journal (tests.manager.test_lifecycle_composition.DockerComposition.test_a_plan_that_omits_the_input_root_is_refused_before_the_journal)
+      test_a_root_composed_for_another_attempt_starts_nothing (tests.manager.test_lifecycle_composition.DockerComposition.test_a_root_composed_for_another_attempt_starts_nothing)
+      test_a_root_from_a_superseded_generation_starts_nothing (tests.manager.test_lifecycle_composition.DockerComposition.test_a_root_from_a_superseded_generation_starts_nothing)
+      test_a_runtime_removed_underneath_the_manager_is_uncertain (tests.manager.test_lifecycle_composition.DockerComposition.test_a_runtime_removed_underneath_the_manager_is_uncertain)
+      test_a_second_incarnation_adopts_the_running_runtime (tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_incarnation_adopts_the_running_runtime)
+      test_a_second_start_is_refused_and_creates_no_second_container (tests.manager.test_lifecycle_composition.DockerComposition.test_a_second_start_is_refused_and_creates_no_second_container)
+      test_a_stranger_carrying_this_assignments_labels_cancels (tests.manager.test_lifecycle_composition.DockerComposition.test_a_stranger_carrying_this_assignments_labels_cancels)
+      test_an_agreeing_plan_over_an_unauthorized_root_starts_nothing (tests.manager.test_lifecycle_composition.DockerComposition.test_an_agreeing_plan_over_an_unauthorized_root_starts_nothing)
+      test_an_engine_that_cannot_start_leaves_no_running_attempt (tests.manager.test_lifecycle_composition.DockerComposition.test_an_engine_that_cannot_start_leaves_no_running_attempt)
+      test_cancellation_fences_the_authority_before_it_stops_the_runtime (tests.manager.test_lifecycle_composition.DockerComposition.test_cancellation_fences_the_authority_before_it_stops_the_runtime)
+      test_consent_is_absent_before_the_execution_container_is_created (tests.manager.test_lifecycle_composition.DockerComposition.test_consent_is_absent_before_the_execution_container_is_created)
+      test_destroy_is_unreachable_without_the_provisional_path (tests.manager.test_lifecycle_composition.DockerComposition.test_destroy_is_unreachable_without_the_provisional_path)
+      test_nothing_this_module_made_survives_it (tests.manager.test_lifecycle_composition.DockerComposition.test_nothing_this_module_made_survives_it)
+      test_observe_tells_a_live_runtime_from_a_gone_one (tests.manager.test_lifecycle_composition.DockerComposition.test_observe_tells_a_live_runtime_from_a_gone_one)
+      test_reconciling_again_attaches_the_same_runtime (tests.manager.test_lifecycle_composition.DockerComposition.test_reconciling_again_attaches_the_same_runtime)
+      test_the_adapter_refuses_a_mismatched_root_at_its_own_seam (tests.manager.test_lifecycle_composition.DockerComposition.test_the_adapter_refuses_a_mismatched_root_at_its_own_seam)
+      test_the_adapter_starts_no_worker_that_can_run (tests.manager.test_lifecycle_composition.DockerComposition.test_the_adapter_starts_no_worker_that_can_run)
+      test_the_consent_runtime_is_torn_down_before_execution_exists (tests.manager.test_lifecycle_composition.DockerComposition.test_the_consent_runtime_is_torn_down_before_execution_exists)
+      test_the_manager_derives_exactly_these_labels (tests.manager.test_lifecycle_composition.DockerComposition.test_the_manager_derives_exactly_these_labels)
+      test_the_manager_records_running_for_a_worker_that_is_gone (tests.manager.test_lifecycle_composition.DockerComposition.test_the_manager_records_running_for_a_worker_that_is_gone)
+      test_the_ordered_arc_starts_one_runtime_over_the_proved_root (tests.manager.test_lifecycle_composition.DockerComposition.test_the_ordered_arc_starts_one_runtime_over_the_proved_root)
+      setUpClass (tests.manager.test_lifecycle_composition.PodmanComposition) ... skipped 'podman is not on PATH'
+      Ran 24 tests in 3.136s
+      OK (skipped=1)
+
+  Against the acceptance, said plainly:
+      consent / decline / activation / execution creation   COMPOSED
+      refusal / fault / cancellation                        COMPOSED
+      restart / duplicate start / stale generation          COMPOSED
+      partition-uncertain observation / multi-match         COMPOSED
+      no execution workspace in consent; consent absent
+        before execution creation                           COMPOSED
+      Podman runs the same adapter contract                 ABSENT HOST,
+                                                            recorded as
+                                                            environment evidence
+      SUCCESS ending                                        NOT COMPOSABLE (W6634)
+      freeze / collect / destroy / positive absence         NOT COMPOSABLE (W6634)
+      cleanup recovery                                      NOT COMPOSABLE (W6634)
+      all dependencies closed satisfying                    UNMET (W6634)
+
+=== 5. MEASURED BY REMOVAL, WHICH IS THE ONLY REASON TO BELIEVE ANY OF IT
+
+  A guard nothing observes is not established. Every rule this module
+  claims to compose was REMOVED FROM THE SOURCE and the module re-run.
+  The harness is kept beside this file as
+  evidence/w6636-mutation-harness.py so the measurement is repeatable
+  rather than asserted.
+
+  THE FIRST PASS FOUND SIX UNESTABLISHED OF TWELVE, and five were one
+  mistake: two guards refusing the same obvious case, so removing either
+  left the other refusing and the case still passed.
+
+      _plan_agrees vs authorize_input_root -- a stranger's root is refused by
+        BOTH, so neither was measured. Separated into three cases: one whose
+        PLAN is wrong while the authorization agrees (and which asserts nothing
+        was journalled, since that is the earlier check's whole value), one
+        whose ROOT is wrong while the plan agrees, and one that reaches the
+        adapter's own seam directly.
+      
+      the consent posture -- the adapter was built with mounts=(), so "a
+        consent container mounts nothing" was true BY CONSTRUCTION and MOUNTABLE
+        was never reached. It is now handed a workspace-only plan and must
+        refuse it. Workspace-only and not the full plan: the full plan refuses
+        one step earlier on the unauthorized /input bind, and accepting THAT
+        refusal would have been the same mistake a second time.
+      
+      activation -- could not be separated by wording at all.
+        authorize_input_root refuses an unactivated attempt with the SAME
+        category, the SAME code and the SAME opening words, and issue_offer
+        requires an input digest so the second guard always runs. What the first
+        one alone buys is that the adapter's plan is never read, so the case now
+        observes the ATTRIBUTE ACCESS.
+      
+      observe -- every case read it where absence was the honest answer, so an
+        adapter answering `absent` to EVERYTHING satisfied all of them. Measured,
+        and it did. That is the one answer that releases an assignment whose
+        worker may be running, so a live container is now put in front of it.
+      
+      reconcile's two uncertainty branches -- a caller that just started
+        something and cannot see it is a different question from a cold restart
+        that knows nothing, and only one is reached per call. Both now are.
+
+  The final measurement:
+
+      BASELINE  OK
+      
+      [caught] start: activation is not required
+               test_a_claimed_but_unactivated_attempt_starts_no_container
+      [caught] start: the adapter's plan is not held to the proved root
+               test_a_plan_that_omits_the_input_root_is_refused_before_the_journal
+      [caught] start: the input root is not authorized
+               test_a_root_from_a_superseded_generation_starts_nothing, test_an_agreeing_plan_over_an_unauthorized_root_starts_nothing
+      [caught] start: a second start is not refused
+               test_a_second_start_is_refused_and_creates_no_second_container
+      [caught] cancel: the runtime is stopped before the authority is fenced
+               test_cancellation_fences_the_authority_before_it_stops_the_runtime
+      [caught] reconcile: multiplicity is not a cancellation
+               test_a_stranger_carrying_this_assignments_labels_cancels
+      [caught] reconcile: a restart starts a second runtime instead of adopting
+               test_a_runtime_removed_underneath_the_manager_is_uncertain, test_a_second_incarnation_adopts_the_running_runtime, test_cancellation_fences_the_authority_before_it_stops_the_runtime, test_consent_is_absent_before_the_execution_container_is_created, test_the_adapter_starts_no_worker_that_can_run, test_the_manager_records_running_for_a_worker_that_is_gone, test_the_ordered_arc_starts_one_runtime_over_the_proved_root
+      [caught] oci: a consent container may mount the assignment's roots
+               test_the_consent_runtime_is_torn_down_before_execution_exists
+      [caught] oci: the delivery's input bind is not held to the authorized root
+               test_the_adapter_refuses_a_mismatched_root_at_its_own_seam
+      [caught] oci: a torn-down credential is reported for one never delivered
+               test_a_credential_never_delivered_is_not_reported_torn_down, test_the_consent_runtime_is_torn_down_before_execution_exists
+      [caught] oci: the input root is mounted writable
+               test_the_ordered_arc_starts_one_runtime_over_the_proved_root
+      [caught] authorize: a superseded generation's root is accepted
+               test_a_root_from_a_superseded_generation_starts_nothing
+      [caught] reconcile: an unlistable runtime is called absent, not uncertain
+               test_a_runtime_removed_underneath_the_manager_is_uncertain
+      [caught] reconcile: a cold restart calls an unlistable runtime absent
+               test_a_runtime_removed_underneath_the_manager_is_uncertain
+      [caught] offers: a declined offer can still be claimed
+               test_a_declined_offer_reaches_neither_workspace_nor_engine
+      [caught] attempts: a reconciliation label is dropped
+               test_a_runtime_removed_underneath_the_manager_is_uncertain, test_a_second_incarnation_adopts_the_running_runtime, test_a_stranger_carrying_this_assignments_labels_cancels, test_reconciling_again_attaches_the_same_runtime, test_the_manager_derives_exactly_these_labels
+      [caught] oci: observe calls everything absent
+               test_observe_tells_a_live_runtime_from_a_gone_one
+      [caught] intake: cleanup destroys without an intake receipt
+               test_destroy_is_unreachable_without_the_provisional_path
+      
+      all 18 mutations caught
+
+=== 6. THE TREE IS AS IT WAS FOUND
+    leftover mutation markers in src: (nothing listed = none)
+    the component suites the harness mutated, re-run: OK
+
+=== 7. THE ENGINE, ASKED WHETHER ANYTHING SURVIVED
+    containers: (nothing listed = none)
+    images    : (nothing listed = none)
+    podman    : absent on this host -- the Podman cases skip narrowly, which is
+              the environment evidence the acceptance asks for rather than a
+              change in vocabulary

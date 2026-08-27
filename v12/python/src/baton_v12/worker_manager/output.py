@@ -198,8 +198,14 @@ def request_freeze(store, port, adapter, *, attempt_id, disposition):
     # THE WHOLE IDENTITY crosses the boundary. An adapter handed only the retry
     # key cannot echo the binding, and a manager that asks for an echo it never
     # supplied is asking the adapter to guess.
+    # W6634: THE INSTANT COMES FROM HERE. A sealed result carries `created_at`,
+    # and the adapter has no clock of its own to give it -- `clock` is an
+    # injected capability with exactly one crossing, the control store's, and a
+    # second one would give one capability two owners. So the manager stamps
+    # the act it is already composing, which is also the more honest account:
+    # this is the instant of the freeze THIS manager requested.
     sealed = adapter.seal({"attempt_id": attempt_id, "assignment": expect,
-                           "disposition": disposition,
+                           "disposition": disposition, "now": store._now(),
                            "operation": dict(operation)})
     return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
 

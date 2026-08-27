@@ -24,9 +24,23 @@ from __future__ import annotations
 
 import contextlib
 import json as _json
+import re
 
 from baton_work.authority import (Authority, PICKUP_OVERDUE_DEFAULT,
                                   WorkError, dispatch_row, live_claim_rows)
+# W24755 third review [P1]: the CLOSED VOCABULARIES, imported rather than
+# restated. A renderer-only copy of "the four phases" would be a second
+# opinion about the authority's own axis, and the two would agree until
+# somebody added a fifth.
+#
+# NAMES ONLY, NEVER THE MODULE. `from baton_work import transitions` would put
+# every mutation in this module's namespace, and this is the read side --
+# `test_the_read_side_never_commits` is a source-text check and would not
+# notice. `test_the_read_side_imports_only_vocabulary_from_transitions` holds
+# this import to closed tuples of text, so the narrowing is a rule rather than
+# a habit.
+from baton_work.transitions import (CLASSIFICATIONS, CLOSED, OPEN, ORIGINS,
+                                    OUTCOMES, PHASES, PRIORITIES)
 
 
 class Snapshotted(list):
@@ -4035,3 +4049,697 @@ def _detail_in_snapshot(store: Authority, work_id: str, *, viewer_team: str,
 	# W71: open_blockers is the ROW's own field (one computation, one
 	# meaning) — the former detail-local recompute is gone.
 	return view
+
+
+# -- W24755: the portable Work-graph export -----------------------------------
+#
+# THE COMPLETE CURRENT GRAPH, IN ONE SNAPSHOT. Every existing projection here
+# answers a bounded operator question: `tree` is team-scoped and three
+# containment levels deep, `dependency_neighborhood` is dependency-only and
+# capped at 200 rendered occurrences, and `links` carries all four families but
+# ONE HOP AT A TIME under an independent snapshot per call. An exporter
+# assembled from repeated `links` reads would therefore be stitched from
+# different database states, which is precisely the thing this Work exists to
+# refuse: a graph nobody can say the moment of.
+#
+# So this is a NEW read over the canonical relation sources rather than a crawl
+# over the public views. It reads every Work row and every current dependency
+# row in a constant number of ordered statements inside ONE `_read_snapshot`,
+# derives the other three families from those same Work rows, validates, samples
+# the snapshot sequence inside the same transaction, and rolls back.
+
+GRAPH_STATUSES = ("all", "open", "closed")
+# The one closure this export performs, spelled once. A scope naming any other
+# would be describing a graph this projection does not build.
+GRAPH_CLOSURE = "incident-endpoints"
+GRAPH_SCOPE_MEMBERS = ("team", "status", "changed_from", "changed_until",
+                       "closure")
+GRAPH_COUNT_MEMBERS = ("selected_nodes", "context_nodes", "nodes", "edges")
+
+# The four families, and the rank that orders them when two edges share a
+# sequence. Fixed here rather than at the renderer, because the ORDER is part
+# of the projection's determinism promise and a second copy would be a second
+# opinion about it.
+GRAPH_RELATIONS = ("dependency", "containment", "follow-up", "duplicate")
+_RELATION_RANK = {name: rank for rank, name in enumerate(GRAPH_RELATIONS)}
+_RELATION_PREDICATE = {"dependency": "blocks", "containment": "contains",
+                       "follow-up": "followed_by", "duplicate": "duplicate_of"}
+
+# Every member of a graph node, fixed. A node is graph IDENTITY plus current
+# node state: Route, Handler, message counts, attention and dossier facts are
+# deliberately absent, because an export that carried them would be a second
+# `detail` that happens to have edges, and every one of them is a per-viewer or
+# per-moment fact that would break the byte-determinism this format promises.
+GRAPH_NODE_MEMBERS = ("id", "local_id", "team", "title", "origin",
+                      "classification", "priority", "status", "phase",
+                      "outcome", "created_seq", "last_changed_at", "selected")
+GRAPH_EDGE_MEMBERS = ("relation", "predicate", "source", "target",
+                      "relation_seq", "via_obligation")
+
+# THE TYPE AND THE NULLABLE DOMAIN OF EVERY FIXED MEMBER. Second review [P1]:
+# presence was proved and types were not, so a malformed structured input
+# reached code that gave it meaning anyway -- `selected="false"` is TRUTHY and
+# rendered as selected, and a non-text title escaped as `AttributeError` from
+# `.encode()` rather than as a Baton refusal naming the member.
+#
+# THE WHOLE SCHEMA, not the two values that happened to be found. A pair of
+# one-off guards would leave every other member in the same state and would
+# have to be extended by whoever next notices one.
+#
+# `type(value) is expected` rather than `isinstance`, because `bool` is a
+# subclass of `int`: `created_seq=True` would otherwise pass as an integer, and
+# a sequence that is a boolean is exactly the kind of nonsense this exists to
+# refuse.
+# THE CLOSED DOMAIN OF EVERY MEMBER THAT HAS ONE. Third review [P1] named
+# `status`, `phase` and `outcome`; this covers `origin`, `classification` and
+# `priority` too, because they are closed in exactly the same way and validating
+# only the three that were found would be the same mistake the second review
+# already corrected -- a guard extended one member at a time by whoever next
+# notices one.
+#
+# `team` is deliberately absent: its domain is the accepted configuration, which
+# is a STORE fact, and the renderer is pure. The projection admits the team
+# inside its own snapshot instead.
+_MEMBER_VOCABULARIES = {
+	"status": (OPEN, CLOSED),
+	"phase": PHASES,
+	"outcome": OUTCOMES,
+	"origin": ORIGINS,
+	"classification": CLASSIFICATIONS,
+	"priority": PRIORITIES,
+}
+
+_MEMBER_TYPES = {
+	"id": (str, False), "local_id": (str, False), "team": (str, False),
+	"title": (str, False), "origin": (str, False),
+	"classification": (str, False), "priority": (str, False),
+	"status": (str, False), "phase": (str, True), "outcome": (str, True),
+	"created_seq": (int, False), "last_changed_at": (str, False),
+	"selected": (bool, False),
+	"relation": (str, False), "predicate": (str, False),
+	"source": (str, False), "target": (str, False),
+	"relation_seq": (int, False), "via_obligation": (int, True),
+}
+
+
+def _export_members(document, members, what) -> dict:
+	"""Every fixed member present, of its fixed type, and null only where the
+	contract allows it."""
+	if not isinstance(document, dict):
+		raise WorkError(f"{what} is a document; this is {document!r}")
+	missing = [name for name in members if name not in document]
+	if missing:
+		raise WorkError(f"{what} needs {', '.join(missing)}")
+	for name in members:
+		wanted, nullable = _MEMBER_TYPES[name]
+		value = document[name]
+		if value is None:
+			if nullable:
+				continue
+			raise WorkError(
+				f"{what} carries {name}=null; that member is always present")
+		if type(value) is not wanted:
+			raise WorkError(
+				f"{what} carries {name}={value!r}, which is "
+				f"{type(value).__name__} and not {wanted.__name__}")
+		allowed = _MEMBER_VOCABULARIES.get(name)
+		if allowed is not None and value not in allowed:
+			raise WorkError(
+				f"{what} carries {name}={value!r}, which is not one of "
+				f"{', '.join(allowed)}")
+	return document
+
+
+# THE PUBLIC GRAMMAR, WRITTEN OUT. Review [P1]: this delegated its grammar to
+# `datetime.fromisoformat`, whose accepted language is a SUPERSET of RFC 3339 --
+# `2026-01-01 00:00:00Z`, `2026-W01-1T00:00:00Z` and `20260101T000000Z` were all
+# accepted and silently normalized. The approved contract says timezone-bearing
+# RFC 3339 and nothing else, and "whatever this Python happens to parse" is not
+# a contract a client can be held to or a future Python will keep.
+#
+# `date-time = full-date "T" full-time`, with the separator and the zone
+# designator case-insensitive per §5.6, an optional fractional second, and an
+# offset that is `Z` or `(+|-)HH:MM`. The offset is REQUIRED here: RFC 3339
+# permits `-00:00` to mean an unknown local offset, and a range whose meaning
+# depended on the reader's zone would answer two different questions on two
+# machines.
+_RFC3339 = re.compile(
+	r"^(?P<whole>\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2})"
+	r"(\.(?P<fraction>\d+))?"
+	r"(?P<offset>[Zz]|[+-]\d{2}:\d{2})$")
+
+
+def _rfc3339_upper(value: str) -> str:
+	"""The separator and the zone designator, upper-cased. See §5.6."""
+	spelled = value[:10] + value[10].upper() + value[11:]
+	return spelled[:-1] + spelled[-1].upper()
+
+
+def _rfc3339_fraction(digits: str | None) -> str:
+	"""The canonical fractional second: trailing zeros gone, nothing else.
+
+	`.1` and `.10` are one instant and canonicalize alike; `.0000001` keeps
+	every significant digit. The empty result means a whole second.
+	"""
+	return (digits or "").rstrip("0")
+
+
+def _export_instant(value, what: str) -> str:
+	"""One timezone-bearing RFC 3339 instant, normalized to UTC.
+
+	THE GRAMMAR IS CHECKED BEFORE THE VALUE IS PARSED, so a spelling outside
+	the contract refuses as a spelling rather than being accepted and quietly
+	turned into some other instant.
+
+	The parse still runs afterwards, because a string can match the shape and
+	name no moment -- month 13, or the 30th of February -- and a regex has no
+	opinion about that.
+	"""
+	import datetime
+	if not isinstance(value, str) or not value:
+		raise WorkError(f"{what} is one RFC 3339 instant")
+	if not _RFC3339.match(value):
+		raise WorkError(
+			f"{what}={value!r} is not an RFC 3339 instant; the grammar is "
+			f"YYYY-MM-DDThh:mm:ss[.sss](Z|+hh:mm|-hh:mm), and the offset is "
+			f"required because a naive instant is a different moment on every "
+			f"machine that reads it")
+	# THE CASE IS NORMALIZED BEFORE THE PARSE, and it belongs here rather than
+	# in the grammar. RFC 3339 §5.6 makes both `T` and `Z` case-insensitive, so
+	# `2026-08-27t00:00:00z` IS the contract -- and `fromisoformat` rejects the
+	# lower-case `z`. Without this the accepted grammar and the parser would
+	# disagree about a legal spelling, and the operator would be told an
+	# instant "names no moment" when it names one perfectly well.
+	#
+	# MEASURED, AND ONLY HALF OF IT IS LOAD-BEARING TODAY: this CPython's
+	# `fromisoformat` already accepts a lower-case `t`, so removing that half
+	# alone changes nothing observable. Both halves are still done in one
+	# operation, because the two letters are one rule in §5.6 and a
+	# normalization that handled one of them would be a rule half-applied --
+	# but the asymmetry is stated here rather than left for the next reader to
+	# rediscover, and the case that covers this covers the `z`.
+	spelled = _rfc3339_upper(value)
+	found = _RFC3339.match(spelled)
+	fraction = _rfc3339_fraction(found.group("fraction"))
+	# THE FRACTION IS CARRIED SEPARATELY FROM `datetime`, and second review
+	# [P1] is why. RFC 3339 permits arbitrarily many fractional digits;
+	# `datetime` holds only microseconds and TRUNCATES the rest without
+	# complaint, so `...00.0000001Z` and `...00.0000009Z` both became
+	# `...00.000000Z`. Those are different instants and therefore different
+	# half-open bounds: the export silently answered a question the operator
+	# did not ask, and two distinct approved scopes became indistinguishable
+	# in the JSON and in the DOT metadata.
+	#
+	# `datetime` is still what validates the calendar and rolls the offset to
+	# UTC -- a regex has no opinion about February 30th, and an offset shift
+	# can move the date. It is simply not allowed to own the fraction. That is
+	# sound because RFC 3339 offsets are whole minutes, so shifting to UTC
+	# cannot change the sub-second part.
+	try:
+		moment = datetime.datetime.fromisoformat(
+			found.group("whole") + found.group("offset"))
+	except ValueError:
+		raise WorkError(
+			f"{what}={value!r} has the shape of an RFC 3339 instant and names "
+			f"no moment") from None
+	whole = moment.astimezone(datetime.timezone.utc).isoformat(
+		timespec="seconds").replace("+00:00", "")
+	return whole + (f".{fraction}" if fraction else "") + "Z"
+
+
+def _export_ordering(canonical: str) -> tuple:
+	"""A key that compares two canonical instants CHRONOLOGICALLY.
+
+	The canonical text cannot be compared as a string, and the reason is worth
+	stating because it is not obvious: the fraction is variable-length, so
+	`...00:00:00Z` and `...00:00:00.0000001Z` compare on `Z` against `0` and
+	the whole second sorts AFTER the instant a tenth of a microsecond later.
+	Fixed-width padding is not available either, because the fraction has no
+	bound.
+
+	So the two parts are compared separately. The whole second is fixed-width
+	text, where lexicographic and chronological agree. The fraction is compared
+	as its canonical digits, which is numerically correct once trailing zeros
+	are gone: equal values have equal digits, and where they differ the first
+	differing digit decides -- including when one is a prefix of the other,
+	since the longer one then carries a significant digit the shorter does not.
+	"""
+	whole, _, rest = canonical.partition(".")
+	if not rest:
+		return (canonical[:-1], "")
+	return (whole, rest[:-1])
+
+
+def _export_scope(team, status, changed_from, changed_until):
+	"""The validated scope, decided from the OPERANDS ALONE.
+
+	Nothing here touches the store, so an export that cannot be answered
+	refuses before a transaction is opened and before a byte is composed.
+
+	Review [P2]: the configured-team check used to live here, which meant one
+	authority read that admits the export happened at a DIFFERENT instant from
+	the rows it admits. It is now `_export_configured_team`, called inside the
+	snapshot -- so a configuration change cannot land between the two and leave
+	a graph admitted under a team that no longer exists.
+
+	THIS FUNCTION PARSES; `_export_scope_document` RULES. Fourth review [P1]
+	gave the scope a document validator, and for one round this held a second
+	copy of the same interval and status rules -- two statements of one rule,
+	which is the thing three earlier rounds corrected elsewhere. What is left
+	here is the only operand-specific work there is: turning whatever legal
+	spelling the operator typed into the canonical instant the document
+	carries. Every rule about the result is stated once, downstream.
+	"""
+	since = (None if changed_from is None
+	         else _export_instant(changed_from, "changed-from"))
+	until = (None if changed_until is None
+	         else _export_instant(changed_until, "changed-until"))
+	scope = {"team": team, "status": status,
+	         "changed_from": since, "changed_until": until,
+	         "closure": GRAPH_CLOSURE}
+	_export_scope_document(scope)
+	return scope
+
+
+def _export_configured_team(store: Authority, team) -> None:
+	"""The one store-dependent scope refusal, read inside the snapshot."""
+	if team is not None and not store.conn.execute(
+			"SELECT 1 FROM teams WHERE handle=?", (team,)).fetchone():
+		raise WorkError(f"team={team!r} is not a configured team")
+
+
+def _export_node(row, *, selected: bool) -> dict:
+	"""One EXPORT node, every member fixed and derived from the row alone.
+
+	`_export_*` rather than `_graph_*`, and the prefix is a correction rather
+	than a preference: this file already had a `_graph_node` for the bounded
+	dependency NEIGHBOURHOOD, and appending a second definition of that name
+	silently replaced it -- so every neighbourhood case failed with a
+	TypeError while W24755's own suite passed. A module-scope name is a shared
+	resource; the export's helpers now say which graph they belong to.
+	"""
+	return {"id": row["id"],
+	        "local_id": row["id"].rsplit("-", 1)[1],
+	        "team": row["team"],
+	        "title": row["title"],
+	        "origin": row["origin"],
+	        "classification": row["classification"],
+	        "priority": row["priority"],
+	        "status": row["status"],
+	        # Terminal Work holds no phase and open Work holds no outcome.
+	        # `phase` is NOT NULL in the store and keeps its last value
+	        # forever, so a row closed while blocked still reads 'block'
+	        # there; the projection derives the terminal null from `status`,
+	        # exactly as `_row_view` and `_graph_node` already do.
+	        "phase": row["phase"] if row["status"] == "open" else None,
+	        "outcome": row["outcome"] if row["status"] != "open" else None,
+	        "created_seq": row["created_seq"],
+	        "last_changed_at": row["last_changed_at"],
+	        "selected": selected}
+
+
+def _export_edge(relation, source, target, relation_seq,
+                via_obligation=None) -> dict:
+	return {"relation": relation,
+	        "predicate": _RELATION_PREDICATE[relation],
+	        "source": source, "target": target,
+	        "relation_seq": relation_seq,
+	        "via_obligation": via_obligation}
+
+
+def _export_selects(row, scope, bounds) -> bool:
+	"""Whether one Work row is SELECTED by the scope operands.
+
+	Selection is about the operands only. Whether a row is nevertheless
+	present as context is decided later, by the edges -- keeping the two
+	apart is what makes `selected` a fact about the query rather than a fact
+	about the traversal.
+	"""
+	if scope["team"] is not None and row["team"] != scope["team"]:
+		return False
+	if scope["status"] != "all" and row["status"] != scope["status"]:
+		return False
+	if scope["changed_from"] is not None:
+		# CANONICAL AGAINST CANONICAL, and by ORDERING KEY rather than by text
+		# -- see `_export_ordering` for why the text of two canonical instants
+		# cannot be compared directly.
+		moment = _export_ordering(_export_instant(row["last_changed_at"],
+		                                          "a stored last_changed_at"))
+		if not (bounds[0] <= moment < bounds[1]):
+			return False
+	return True
+
+
+def _export_node_state(node) -> None:
+	"""status, phase and outcome are ONE state, not three fields.
+
+	Fourth review [P1]: each was proved to be in its own closed vocabulary and
+	nothing proved they belonged together, so an open node with a terminal
+	outcome, or a closed one still carrying a phase, rendered as an
+	authoritative-looking document. Every value in those four combinations is
+	individually legal; only the whole state is wrong.
+
+	The schema couples them: `phase` is null exactly for terminal Work and
+	`outcome` is null exactly for open Work, which is the same rule
+	`_export_node` applies when it builds one.
+	"""
+	terminal = node["status"] != OPEN
+	if terminal and node["phase"] is not None:
+		raise WorkError(
+			f"{node['id']} is {node['status']} and carries "
+			f"phase={node['phase']!r}; terminal Work holds no scheduler phase")
+	if not terminal and node["phase"] is None:
+		raise WorkError(
+			f"{node['id']} is open and carries phase=null; open Work is "
+			f"always in one scheduler phase")
+	if terminal and node["outcome"] is None:
+		raise WorkError(
+			f"{node['id']} is {node['status']} and carries outcome=null; "
+			f"every terminal close records exactly one outcome")
+	if not terminal and node["outcome"] is not None:
+		raise WorkError(
+			f"{node['id']} is open and carries outcome={node['outcome']!r}; "
+			f"an outcome is what closing records")
+
+
+def _export_edge_provenance(edge) -> None:
+	"""`via_obligation` is dependency provenance and null everywhere else.
+
+	Fourth review [P1]: the type rule allowed a nullable integer on every
+	relation, so a containment edge could name an obligation it cannot have
+	come from -- a plausible-looking claim about how a relation was created.
+	"""
+	if edge["relation"] != "dependency" and edge["via_obligation"] is not None:
+		raise WorkError(
+			f"the {edge['relation']} relation from {edge['source']} to "
+			f"{edge['target']} carries via_obligation="
+			f"{edge['via_obligation']!r}; only a dependency is created through "
+			f"an obligation")
+
+
+def _export_scope_document(scope) -> None:
+	"""The scope AS A DOCUMENT -- its shape, its closed values, its interval.
+
+	Distinct from `_export_scope`, which validates the OPERANDS a caller typed
+	before a transaction is opened. This owns the document a structured caller
+	may hand the renderer directly, and both end at the same rules: the bounds
+	are RFC 3339, they arrive together, and the interval is half-open and
+	non-empty.
+	"""
+	if not isinstance(scope, dict):
+		raise WorkError(f"a Work-graph scope is a document; this is {scope!r}")
+	unknown = sorted(set(scope) - set(GRAPH_SCOPE_MEMBERS))
+	if unknown:
+		raise WorkError(
+			f"a Work-graph scope carries {', '.join(unknown)}, which is not "
+			f"part of it; the scope is exactly "
+			f"{', '.join(GRAPH_SCOPE_MEMBERS)}")
+	missing = [name for name in GRAPH_SCOPE_MEMBERS if name not in scope]
+	if missing:
+		raise WorkError(f"a Work-graph scope needs {', '.join(missing)}")
+	for name in ("team", "changed_from", "changed_until"):
+		if scope[name] is not None and type(scope[name]) is not str:
+			raise WorkError(
+				f"a Work-graph scope carries {name}={scope[name]!r}, which is "
+				f"neither text nor null")
+	if scope["status"] not in GRAPH_STATUSES:
+		raise WorkError(
+			f"a Work-graph scope carries status={scope['status']!r}; the "
+			f"three are {', '.join(GRAPH_STATUSES)}")
+	if scope["closure"] != GRAPH_CLOSURE:
+		raise WorkError(
+			f"a Work-graph scope carries closure={scope['closure']!r}; this "
+			f"export performs exactly {GRAPH_CLOSURE}")
+	supplied = [name for name in ("changed_from", "changed_until")
+	            if scope[name] is not None]
+	if scope["status"] == "all" and len(supplied) != 2:
+		raise WorkError(
+			"a Work-graph scope with status=all names both changed_from and "
+			"changed_until; the complete graph is bounded by an explicit "
+			"interval")
+	if len(supplied) == 1:
+		raise WorkError(
+			f"a Work-graph scope names {supplied[0]} alone; changed_from and "
+			f"changed_until are supplied together or not at all")
+	if supplied:
+		since = _export_instant(scope["changed_from"], "changed_from")
+		until = _export_instant(scope["changed_until"], "changed_until")
+		# THE BOUND IS THE CANONICAL INSTANT, not merely a legal spelling of
+		# it. Fifth review [P1], and I decided this the other way one round
+		# ago on purpose: I judged that requiring canonical form would be
+		# unkind to a structured caller, and validated "parses as RFC 3339"
+		# instead. That was wrong, and by an argument I had already made
+		# myself -- two rounds earlier I added the range to the DOT graph
+		# attributes precisely so two different scopes could not produce
+		# identical bytes. One scope producing DIFFERENT bytes is the same
+		# promise broken from the other side.
+		#
+		# `2026-01-01T01:00:00+01:00` and `2026-01-01T00:00:00Z` are one
+		# approved lower bound, and a document may spell it exactly one way.
+		# The OPERAND path is untouched and still accepts every legal
+		# spelling: it normalizes before building the scope, so the rule it
+		# reaches here is already satisfied.
+		for name, canonical in (("changed_from", since),
+		                        ("changed_until", until)):
+			if scope[name] != canonical:
+				raise WorkError(
+					f"a Work-graph scope carries {name}={scope[name]!r}, "
+					f"which is the instant {canonical} spelled another way; a "
+					f"structured scope carries the canonical UTC form so one "
+					f"scope has one document")
+		if _export_ordering(since) >= _export_ordering(until):
+			raise WorkError(
+				f"a Work-graph scope names changed_from={since} which is not "
+				f"before changed_until={until}; the interval is half-open and "
+				f"cannot be empty or reversed")
+
+
+def _export_counts(counts, nodes, edges) -> None:
+	"""Every count PROVED from the arrays beside it.
+
+	Fourth review [P1]: `counts` was a required member nothing checked, so a
+	document could announce two nodes and carry one. A count that is not
+	derived is a second, unverifiable description of the same data -- and the
+	one a reader is most likely to trust, because it is cheap to read.
+	"""
+	if not isinstance(counts, dict):
+		raise WorkError(f"Work-graph counts are a document; this is {counts!r}")
+	if sorted(counts) != sorted(GRAPH_COUNT_MEMBERS):
+		raise WorkError(
+			f"Work-graph counts are exactly {', '.join(GRAPH_COUNT_MEMBERS)}; "
+			f"these are {', '.join(sorted(counts)) or 'none'}")
+	selected = len([one for one in nodes if one.get("selected")])
+	derived = {"selected_nodes": selected,
+	           "context_nodes": len(nodes) - selected,
+	           "nodes": len(nodes), "edges": len(edges)}
+	for name in GRAPH_COUNT_MEMBERS:
+		if type(counts[name]) is not int:
+			raise WorkError(
+				f"Work-graph counts carry {name}={counts[name]!r}, which is "
+				f"not an integer")
+		if counts[name] != derived[name]:
+			raise WorkError(
+				f"Work-graph counts say {name}={counts[name]} and the arrays "
+				f"hold {derived[name]}; a count that is not derived is a "
+				f"second description of the same data")
+
+
+def validate_work_graph(result) -> dict:
+	"""Refuse the whole export rather than omit an offending row, and answer
+	the `id -> node` mapping the caller can then render from.
+
+	COMPLETE-OR-REFUSE. There is no fallback that drops an invalid edge,
+	because an export missing one relation is indistinguishable from a graph
+	that never had it -- and this format exists to be trusted about exactly
+	that.
+
+	PUBLIC, AND CALLED BY BOTH BOUNDARIES. Review [P1]: this was private to the
+	projection, so `dot.render_work_graph_dot` -- whose own docstring promises
+	it owns its input because something other than this projection may call it
+	-- emitted complete-looking DOT for a duplicate edge, a dangling endpoint
+	or a forged predicate. A promise the code did not keep is worse than no
+	promise, because a reader stops checking.
+
+	ONE ENFORCEMENT, NOT TWO COPIES OF THE RULES. The renderer calls this
+	rather than restating it; two statements of one rule agree until they
+	don't.
+
+	TAKES THE NODES AS A SEQUENCE, deliberately. A caller that had already
+	built a mapping would have silently collapsed two nodes sharing an id
+	before this could object -- and an export naming one Work twice is exactly
+	as broken as one naming an endpoint it never described.
+
+	TAKES THE WHOLE RESULT, and fourth review [P1] is why. It owned nodes and
+	edges while `scope` and `counts` -- both required members, both reaching
+	the DOT graph attributes -- were merely present. "The whole input
+	validated" was a claim about two of its four parts.
+	"""
+	if not isinstance(result, dict):
+		raise WorkError(f"a Work-graph result is a document; this is "
+		                f"{result!r}")
+	for name in ("scope", "counts", "nodes", "edges"):
+		if name not in result:
+			raise WorkError(f"a Work-graph result needs {name}")
+	for name in ("nodes", "edges"):
+		if not isinstance(result[name], list):
+			raise WorkError(f"Work-graph {name} are a list; this is "
+			                f"{result[name]!r}")
+	nodes, edges = result["nodes"], result["edges"]
+	_export_scope_document(result["scope"])
+	taken: dict = {}
+	for node in nodes:
+		_export_members(node, GRAPH_NODE_MEMBERS, "a Work-graph node")
+		_export_node_state(node)
+		if node["id"] in taken:
+			raise WorkError(
+				f"the Work-graph describes {node['id']} twice; one Work is "
+				f"one node")
+		taken[node["id"]] = node
+	nodes = taken
+	seen = set()
+	for edge in edges:
+		_export_members(edge, GRAPH_EDGE_MEMBERS, "a Work-graph edge")
+		_export_edge_provenance(edge)
+		if edge["relation"] not in _RELATION_RANK:
+			raise WorkError(
+				f"{edge['relation']!r} is not a Work-graph relation; the four "
+				f"are {', '.join(GRAPH_RELATIONS)}")
+		if edge["predicate"] != _RELATION_PREDICATE[edge["relation"]]:
+			raise WorkError(
+				f"the {edge['relation']} relation from {edge['source']} to "
+				f"{edge['target']} spells its predicate "
+				f"{edge['predicate']!r}; it is "
+				f"{_RELATION_PREDICATE[edge['relation']]!r}")
+		for side in ("source", "target"):
+			if edge[side] not in nodes:
+				raise WorkError(
+					f"the {edge['relation']} relation from {edge['source']} "
+					f"to {edge['target']} names {edge[side]}, which is not in "
+					f"the exported graph; an edge with a missing endpoint "
+					f"would render as a node this export never described")
+		key = (edge["relation"], edge["source"], edge["target"])
+		if key in seen:
+			raise WorkError(
+				f"the {edge['relation']} relation from {edge['source']} to "
+				f"{edge['target']} appears twice; one typed relation between "
+				f"one pair is one edge")
+		seen.add(key)
+	# LAST, because it is the only rule that reads both arrays at once.
+	_export_counts(result["counts"], result["nodes"], result["edges"])
+	return nodes
+
+
+def work_graph(store: Authority, *, team: str | None = None,
+               status: str = "open", changed_from: str | None = None,
+               changed_until: str | None = None) -> dict:
+	"""The complete current Work graph, in one snapshot, as structured data.
+
+	FOUR RELATION FAMILIES, EACH WITH A FIXED SEMANTIC DIRECTION:
+
+	    dependency   blocker      -> consumer   `blocks`
+	    containment  parent       -> child      `contains`
+	    follow-up    predecessor  -> successor  `followed_by`
+	    duplicate    rejected     -> survivor   `duplicate_of`
+
+	THIS IS THE CURRENT GRAPH, NOT RELATIONSHIP HISTORY. A dependency that was
+	removed is absent; a current `edges` row is present even where the `links`
+	drill deliberately hides a closed consumer, because the drill answers "who
+	is still waiting on me" and this answers "what does the graph contain".
+
+	SCOPE SELECTS, THEN CLOSES OVER INCIDENT ENDPOINTS ONLY. Every typed edge
+	touching a selected node is included, and the far endpoint of such an edge
+	joins the export as `selected: false` context. Context does NOT expand: an
+	edge incident only to context nodes is not followed. That keeps every
+	selected node's direct adjacency complete, never emits a dangling edge, and
+	stops one closed predecessor from pulling an unbounded history chain into
+	an open-only export.
+
+	NO PAGINATION, NO DEPTH, NO TRUNCATION MEMBER. Bounding this would produce
+	a partial graph indistinguishable from a complete one.
+	"""
+	scope = _export_scope(team, status, changed_from, changed_until)
+	with _read_snapshot(store):
+		_export_configured_team(store, team)
+		# STATEMENT 1 of 2: every Work row, once, in canonical order. The
+		# whole graph is derived from this list and the dependency rows
+		# below; there is no per-node follow-up read, which is what keeps the
+		# statement count constant rather than proportional to the graph.
+		rows = {row["id"]: dict(row) for row in store.conn.execute(
+			"SELECT id, team, title, origin, classification, priority, "
+			"status, phase, outcome, parent, follow_up_of, duplicate_of, "
+			"created_seq, closed_seq, last_changed_at "
+			"FROM work ORDER BY created_seq, id")}
+		# STATEMENT 2 of 2: every CURRENT dependency row.
+		dependencies = [dict(row) for row in store.conn.execute(
+			"SELECT work, blocker, via_obligation, created_seq FROM edges "
+			"ORDER BY created_seq, blocker, work")]
+
+		bounds = (None if scope["changed_from"] is None else
+		          (_export_ordering(scope["changed_from"]),
+		           _export_ordering(scope["changed_until"])))
+		selected = {work_id for work_id, row in rows.items()
+		            if _export_selects(row, scope, bounds)}
+
+		# Every typed edge in the authority, built once from the rows already
+		# read. Whether it appears in the export is decided afterwards by
+		# incidence, so the selection rule is in one place instead of being
+		# repeated four times with four chances to differ.
+		candidates = [
+			_export_edge("dependency", edge["blocker"], edge["work"],
+			            edge["created_seq"], edge["via_obligation"])
+			for edge in dependencies]
+		for work_id, row in rows.items():
+			# The relation sequence is the moment the relation came into
+			# being, and each is checked in PROGRESS.md against the column
+			# that carries it: `parent` and `follow_up_of` are written at
+			# creation and never updated, and `duplicate_of` is written by
+			# the same close that sets `closed_seq`.
+			if row["parent"] is not None:
+				candidates.append(_export_edge(
+					"containment", row["parent"], work_id,
+					row["created_seq"]))
+			if row["follow_up_of"] is not None:
+				candidates.append(_export_edge(
+					"follow-up", row["follow_up_of"], work_id,
+					row["created_seq"]))
+			if row["duplicate_of"] is not None:
+				candidates.append(_export_edge(
+					"duplicate", work_id, row["duplicate_of"],
+					row["closed_seq"]))
+
+		edges = [edge for edge in candidates
+		         if edge["source"] in selected or edge["target"] in selected]
+		context = {edge[side] for edge in edges for side in
+		           ("source", "target")} - selected
+
+		nodes = {work_id: _export_node(rows[work_id],
+		                              selected=work_id in selected)
+		         for work_id in selected | context}
+		# ORDERED LAST, ONCE. Nodes by `(created_seq, id)`; edges by
+		# `(relation_seq, relation_rank, source, target)`. Both are total
+		# orders over values the store guarantees, so two unchanged snapshots
+		# produce the same arrays and therefore the same bytes.
+		ordered_nodes = sorted(nodes.values(),
+		                       key=lambda one: (one["created_seq"], one["id"]))
+		ordered_edges = sorted(
+			edges, key=lambda one: (one["relation_seq"],
+			                        _RELATION_RANK[one["relation"]],
+			                        one["source"], one["target"]))
+		# SAMPLED INSIDE THE SAME TRANSACTION. A sequence read after the
+		# rollback would describe a state these rows may not have come from,
+		# which is the defect that makes repeated `links` calls unusable as
+		# an export.
+		snapshot_seq = store.last_seq()
+	# THE PROJECTION IS HELD TO ITS OWN OUTPUT by the same function the
+	# renderer uses. Building a result and validating a result are two
+	# different things, and a producer exempt from the rules its consumer
+	# enforces is how the two come to disagree.
+	answered = {"scope": scope,
+	            "counts": {"selected_nodes": len(selected),
+	                       "context_nodes": len(context),
+	                       "nodes": len(ordered_nodes),
+	                       "edges": len(ordered_edges)},
+	            "nodes": ordered_nodes,
+	            "edges": ordered_edges}
+	validate_work_graph(answered)
+	return {**answered, "snapshot_seq": snapshot_seq}

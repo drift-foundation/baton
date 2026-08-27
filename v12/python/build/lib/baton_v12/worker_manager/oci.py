@@ -134,10 +134,84 @@ WRITABLE = {"execution": ("workspace",)}
 # then reasons about it as though they described the image that is running.
 #
 # One record, owned at construction, is what makes the two accounts one: the
-# image reaches the argv from it, the profile and adapter digests reach the
-# labels from it, and a request whose labels disagree is refused rather than
-# started.
-RESOLVED_IDENTITY = ("image_digest", "profile_digest", "adapter_digest")
+# image reaches the argv from it, the profile, policy and adapter digests
+# reach the labels from it, and a request whose labels disagree is refused
+# rather than started.
+#
+# FOUR DIGESTS, and the record has said four since it was confirmed. Review
+# [P1]: the first version of this tuple carried three and actively refused
+# `policy_digest`, which narrowed a confirmed contract without a supersession
+# anybody had agreed to -- and a resolved identity missing the policy is one
+# that cannot answer what a running worker was started to obey.
+RESOLVED_IDENTITY = ("image_digest", "profile_digest", "policy_digest",
+                     "adapter_digest")
+
+# The members of the resolved identity a runtime's LABELS carry, so a restart
+# can compare them. The image is deliberately not among them: the engine
+# reports what it is running, and its own record beats a label this manager
+# wrote about itself.
+_LABELLED_IDENTITY = ("profile_digest", "policy_digest", "adapter_digest")
+
+# THE CANDIDATE SELECTOR: which runtimes are THIS ATTEMPT'S, whatever they were
+# delivered under. Everything in the frozen label set that is not part of the
+# resolved identity -- the attempt, the four parts of the assignment.
+#
+# Review [P0]: the listing used to filter on all eight labels, and a real
+# engine applies every filter BEFORE it returns a row. So a runtime from this
+# exact attempt running under an OLD policy was omitted from stdout, never
+# reached the identity comparison below, and `start` read the empty candidate
+# set as "nothing exists" and created a second runtime for one attempt --
+# which is the state the acceptance says no later reconciliation can undo.
+#
+# DISCOVERY HAS TO BE BROADER THAN COMPARISON. The engine answers which
+# runtimes belong to this attempt; this adapter decides, in process, whether
+# each one is this delivery's. A stale one is then REFUSED rather than
+# filtered away, which is what the module docstring has claimed all along:
+# it is not absent, it is wrong, and dropping it leaves a mislabelled runtime
+# running.
+#
+# AND THE SELECTOR IS THE MINIMAL OWNERSHIP KEY, which took two corrections to
+# get to. The first moved the three resolved digests out of the filters and
+# stopped there -- leaving the attempt, the four parts of the assignment and
+# the generation as exact filters -- so review [P0] found the same defect
+# still standing in the same boundary: a runtime carrying THIS attempt id
+# under generation 0 while the request says 1 is hidden by the engine, `start`
+# reads absence, and it creates the duplicate.
+#
+# The general rule is the one that was missing. ANY assignment fact used as a
+# filter hides a runtime that contradicts it, and a contradictory runtime is
+# exactly what this adapter exists to refuse. So the ONE label that selects is
+# the one that answers "is this runtime this attempt's" and can never
+# disagree without meaning a different attempt entirely.
+_CANDIDATE_LABELS = ("runtime_attempt_id",)
+
+# What the engines call the image of a listed runtime. Docker's `ps` answers
+# `Image`, and because this adapter starts a runtime BY DIGEST that field is
+# the `sha256:` reference rather than a tag. Podman answers both, and its
+# `ImageID` is the unambiguous one, so it is asked for first.
+_LISTED_IMAGE = ("ImageID", "ImageId", "Image")
+
+
+def _image_identity(value, what):
+    """One image named as a digest, however the engine spells the prefix.
+
+    An engine that cannot name a runtime's image by digest has not proved
+    which image is running, and a tag is not an identity: it is a pointer that
+    was true when somebody last pushed. Refused rather than compared loosely,
+    because the comparison this feeds decides whether a restarted manager
+    adopts a worker.
+    """
+    # A LITERAL LABEL at the owner, for the reason `_canonical` gives: the
+    # inventory attributes an owned entry by the label written at the site, so
+    # a computed one is a boundary it cannot place. `what` still names which
+    # image disagreed in the refusal below.
+    text = boundaries.text(value, "a runtime image")
+    bare = text[len("sha256:"):] if text.startswith("sha256:") else text
+    if not re.fullmatch(r"[0-9a-f]{64}", bare):
+        _refuse(f"{what} is {name_value(text)}, which is not an image digest; "
+                f"an engine that cannot name the image by digest has not "
+                f"said which image is running", code="digest")
+    return bare
 
 
 def _identity(identity):
@@ -360,20 +434,29 @@ def _mounts(mounts, roots, posture):
     for mount in mounts:
         one = boundaries.document(mount, "a runtime mount",
                                   required=("source", "target", "writable"))
-        # THE SOURCE IS RESOLVED; THE TARGET IS NOT. A source is a HOST path
-        # and the engine will resolve it, so this adapter proves the thing the
-        # engine will act on. A target is a path INSIDE a container that does
-        # not exist yet, and resolving it against this host would be resolving
-        # somebody else's filesystem.
         source = _canonical(one["source"], "a mount source")
-        target = os.path.normpath(
-            boundaries.text(one["target"], "a mount target"))
+        # THE SPELLING IS CHECKED BEFORE `normpath` CAN ERASE IT, which is the
+        # rule `_canonical` already follows for a host source and which this
+        # side was missing. Review [P1]: `normpath` ran first, so the `..`
+        # test could never see traversal that normalization had already
+        # consumed -- and a workspace requested at `/workspace/../etc` was
+        # accepted and emitted as `target=/etc`, moving the assignment's
+        # WRITABLE bind over the image filesystem. A caller writing `..` is
+        # asking this adapter to compute a target rather than name one, and
+        # refusing that is cheaper than proving where it landed.
+        spelled = boundaries.text(one["target"], "a mount target")
+        if ".." in spelled.split("/") or ":" in spelled:
+            _refuse(f"a mount target is not canonical; `..` and the engine's "
+                    f"own `:` separator are both refused", code="path")
+        # AND ONLY THE CANONICAL SPELLING REACHES THE ENGINE. A source is a
+        # HOST path the engine will resolve, so `_canonical` proves the thing
+        # the engine will act on; a target is a path inside a container that
+        # does not exist yet, so it is normalized as text and never resolved
+        # against this host's filesystem.
+        target = os.path.normpath(spelled)
         if not target.startswith("/"):
             _refuse(f"a mount target is {name_value(target)}, which is not an "
                     f"absolute path", code="path")
-        if ".." in target.split("/") or ":" in target:
-            _refuse(f"a mount target is not canonical; `..` and the engine's "
-                    f"own `:` separator are both refused", code="path")
         # PROVED TO BE OURS, rather than proved not to be one of theirs.
         under = [name for name in permitted if _within(source, roots[name])]
         if not under:
@@ -450,11 +533,19 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
 
 
 def list_vector(engine, *, labels):
-    """Ask the engine which runtimes carry EXACTLY this assignment's labels."""
+    """Ask the engine which runtimes belong to THIS ATTEMPT.
+
+    The candidate selector, not the identity comparison -- see
+    `_CANDIDATE_LABELS`. The whole label set is still OWNED here, so a
+    malformed or invented label refuses before the engine is asked anything;
+    what narrows is only which of those proved values become filters.
+    """
     engine = _engine(engine)
+    taken = _labels(labels)
     argv = [engine, "ps", "--all", "--no-trunc", "--format", "{{json .}}"]
-    for key, value in _label_pairs(_labels(labels)):
-        argv += ["--filter", f"label={key}={value}"]
+    for key, value in _label_pairs(taken):
+        if key[len(LABEL_PREFIX):] in _CANDIDATE_LABELS:
+            argv += ["--filter", f"label={key}={value}"]
     return argv
 
 
@@ -483,20 +574,57 @@ def destroy_vector(engine, *, runtime_id):
 # -- reading what the engine said ---------------------------------------------
 
 
-# The engines' own exact absence sentences, pinned rather than matched
-# loosely. Docker says `No such container: <id>` and `No such object: <id>`;
-# Podman says `no such container <id>` and `no container with name or ID <id>`.
-# Every one NAMES the identity, which is what makes the answer positive.
-_ABSENT = ("no such container", "no such object",
-           "no container with name or id")
+# THE ENGINES' OWN COMPLETE ABSENCE SENTENCES, each one CAPTURING the identity
+# the sentence is about.
+#
+# Review [P0]: the previous version asked two separate questions -- does an
+# absence phrase appear anywhere in stderr, and does the requested identity
+# appear anywhere in stderr -- and answered "absent" when both were true. Two
+# fragments of one diagnostic are not an association, so
+#
+#     Error: No such container: runtime-2; request was for runtime-1
+#
+# reported `runtime-1` dead. That is the exact branch that releases an
+# assignment whose worker may still be running, which is the one mistake this
+# whole module is arranged to avoid.
+#
+# So the sentence itself must name the runtime. Each pattern below is one
+# engine's own complete form with the identity as a capture, and absence is
+# reported only when a captured identity IS the one asked about.
+#
+# PER ENGINE, not pooled: a docker adapter reading podman's phrasing would be
+# accepting evidence from a daemon it is not talking to.
+_ABSENT_IDENTITY = r"(?P<runtime>[A-Za-z0-9][A-Za-z0-9_./-]*)"
+_ABSENT_FORMS = {
+    # `Error response from daemon: No such container: <id>`, and the same
+    # sentence with `object` for `inspect --type container` on some versions.
+    "docker": (re.compile(rf"no such container:\s*{_ABSENT_IDENTITY}", re.I),
+               re.compile(rf"no such object:\s*{_ABSENT_IDENTITY}", re.I)),
+    # `Error: no container with name or ID "<id>" found: no such container`,
+    # and the bare `no such container <id>` older podman emitted.
+    "podman": (re.compile(rf"no container with name or id\s+\"?"
+                          rf"{_ABSENT_IDENTITY}", re.I),
+               re.compile(rf"no such container\s+{_ABSENT_IDENTITY}", re.I)),
+}
+
+# Trailing punctuation an engine may put after the identity inside a longer
+# diagnostic. Stripped from the CAPTURE rather than admitted into the pattern,
+# because none of these characters is legal in a container name or an id.
+_ABSENT_TRAILING = ".,;:\"'"
 
 
-def _absent_prose(stderr, runtime_id):
-    """True only when the engine says THIS identity does not exist."""
-    prose = (stderr or "").lower()
-    if runtime_id.lower() not in prose:
-        return False
-    return any(sentence in prose for sentence in _ABSENT)
+def _absent_prose(engine, stderr, runtime_id):
+    """True only when THIS engine's own absence sentence names THIS identity.
+
+    A sentence naming another runtime is evidence about that runtime and
+    nothing at all about this one.
+    """
+    prose = stderr or ""
+    for form in _ABSENT_FORMS[engine]:
+        for found in form.finditer(prose):
+            if found.group("runtime").rstrip(_ABSENT_TRAILING) == runtime_id:
+                return True
+    return False
 
 
 def _decoded(payload, what):
@@ -571,7 +699,7 @@ class OciAdapter:
         # under is a runtime reconciliation would describe wrongly for the
         # rest of its life -- and the manager would be reading that
         # description rather than the image.
-        for name in ("profile_digest", "adapter_digest"):
+        for name in _LABELLED_IDENTITY:
             if labels[name] != self.identity[name]:
                 _denied(f"this start labels the runtime "
                         f"{name_value(labels[name])} for {name} and the "
@@ -621,8 +749,65 @@ class OciAdapter:
             runtime_id = _one_of(entry, ("ID", "Id", "ContainerID"),
                                  "an engine listing entry")
             boundaries.identity(runtime_id, "a listed runtime id")
-            found.append({"runtime_id": runtime_id,
-                          "labels": self._labels_of(entry)})
+            labels_of = self._labels_of(entry)
+            # THE RUNNING IMAGE, AND IT IS THE ENGINE'S OWN FACT.
+            #
+            # Review [P1]: the image account was one-way. It chose the start
+            # argv and was never asked about again, so a restarted adapter
+            # resolved to image B adopted a runtime the engine says is running
+            # image A the moment its profile and adapter labels still matched
+            # -- and everything downstream then reasoned about B while A was
+            # running.
+            #
+            # Read from the LISTING rather than from a label, because a label
+            # is what this manager wrote about a delivery and the engine's
+            # record is what is actually running. The two are only the same
+            # while nobody has lied or replaced anything, which is precisely
+            # the case reconciliation exists for.
+            image = _image_identity(
+                _one_of(entry, _LISTED_IMAGE, "an engine listing entry"),
+                "a listed runtime's image")
+            resolved = _image_identity(self.identity["image_digest"],
+                                       "the resolved image")
+            if image != resolved:
+                _denied(f"runtime {name_value(runtime_id)} carries this "
+                        f"assignment's labels and the engine reports it "
+                        f"running a different image than the one this "
+                        f"delivery resolved; one delivery carries one "
+                        f"identity, and labels alone cannot make a stale "
+                        f"image this adapter's runtime")
+            # THE COMPLETE RETURNED RECORD, against the record that was
+            # ASKED FOR.
+            #
+            # Review [P0]: engine-side selection is not proof that a returned
+            # row has the values requested. A compatible engine may ignore a
+            # filter, engine state may be stale or hand-edited, and -- now
+            # that only the attempt id selects -- every other member arrives
+            # unchecked unless this says otherwise. A candidate that carries
+            # this attempt id and contradicts the request is WRONG, not
+            # absent, and refusing it here is what stops `start` reading an
+            # empty set and creating a duplicate.
+            for name in documents.RUNTIME_LABELS:
+                if labels_of[name] != labels[name]:
+                    _denied(f"runtime {name_value(runtime_id)} carries this "
+                            f"attempt's id and is labelled "
+                            f"{name_value(labels_of[name])} for {name} where "
+                            f"this delivery asked for "
+                            f"{name_value(labels[name])}; one delivery "
+                            f"carries one identity")
+            # AND THE LABELLED HALF OF THE RESOLVED IDENTITY, which is a
+            # different question: the loop above asks whether this runtime is
+            # the one the CALLER named, and this asks whether it is the one
+            # THIS ADAPTER resolved. `list` is reachable without `start`, so
+            # neither implies the other.
+            for name in _LABELLED_IDENTITY:
+                if labels_of[name] != self.identity[name]:
+                    _denied(f"runtime {name_value(runtime_id)} is labelled "
+                            f"{name_value(labels_of[name])} for {name} and "
+                            f"this delivery resolved "
+                            f"{name_value(self.identity[name])}; one delivery "
+                            f"carries one identity")
+            found.append({"runtime_id": runtime_id, "labels": labels_of})
         return found
 
     def stop(self, request):
@@ -674,7 +859,11 @@ class OciAdapter:
             # missing socket -- read as this runtime being dead, which is the
             # one mistake that releases an assignment whose worker is running.
             # The contract is now engine-specific and names the runtime.
-            if _absent_prose(answer["stderr"], runtime_id):
+            #
+            # Review [P0], the second correction of this one branch: naming
+            # the runtime SOMEWHERE in stderr was still not association. The
+            # engine's own absence sentence has to be the thing that names it.
+            if _absent_prose(self.engine, answer["stderr"], runtime_id):
                 return {"state": "absent",
                         "why": "the engine answered that this exact identity "
                                "does not exist"}

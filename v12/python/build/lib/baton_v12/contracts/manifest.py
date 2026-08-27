@@ -405,16 +405,25 @@ def _check_input_manifest(owned, what):
                     f"{what} destinations {name_value(destinations[left])} "
                     f"and {name_value(destinations[right])} overlap "
                     f"(§12 rule 3)")
-    for source in sources:
-        check_uri(source["uri"], f"{what} source {source['name']} uri")
-        # §12 rule 7: a sha1 base revision under a sha256 repository is not a
-        # shorter digest, it is a different object namespace.
-        if source["type"] == "git" \
-                and source["object_format"] != source["base_revision"]["algorithm"]:
-            _refuse(f"{what} source {source['name']} declares object format "
-                    f"{name_value(source['object_format'])} and a "
-                    f"{name_value(source['base_revision']['algorithm'])} base "
-                    f"revision (§12 rule 7)")
+    # W14251: THE SOURCE'S OWN ACQUISITION RULES ARE GONE WITH THE MEMBERS
+    # THEY READ.
+    #
+    # Two rules stood here. A `uri` grammar check, and §12 rule 7 -- a sha1
+    # base revision under a sha256 repository is a different object namespace
+    # rather than a shorter digest. Both read members the neutral staged-input
+    # descriptor does not have: the 2026-08-25 supersession says the manager
+    # receives an ALREADY STAGED read-only directory and its generic integrity
+    # envelope, and that "how that directory was populated is outside the
+    # Worker Manager".
+    #
+    # The rules above this line stay, because they are about the STAGING and
+    # not about acquisition: names are unique across sources and outputs, and
+    # destinations do not overlap.
+    #
+    # `check_uri` itself is untouched and still guards artifact locators below,
+    # so `fixtures/uri-vectors.json` remains the authority for that grammar.
+    # What ended is this manager reading a source's acquisition locator, not
+    # the grammar for locators it still receives.
     return owned
 
 

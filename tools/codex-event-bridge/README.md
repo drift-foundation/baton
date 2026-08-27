@@ -105,12 +105,16 @@ bin/codex-event-bridge \
     --role role
 ```
 
+All six operands are required, and `--role` is one of them: it is a field of
+the launcher contract below, so it fails here with the other three rather than
+indirectly inside the instruction reader.
+
 The command resolves the participant's role instructions through the public
-Baton CLI before creating anything, starts the thread with those instructions,
-records one no-tool bootstrap turn so the thread has a durable rollout, and
-then reopens a SECOND connection and resumes the thread to prove it. Only
-after that does it print JSON containing the thread ID, selected role, and
-accepted configuration generation.
+Baton CLI before creating anything, starts the thread with those instructions
+AND its launcher contract, records one no-tool bootstrap turn so the thread has
+a durable rollout, and then reopens a SECOND connection and resumes the thread
+to prove it. Only after that does it print JSON containing the thread ID,
+selected role, and accepted configuration generation.
 
 That order is the point. `thread/start` alone returns an id with no rollout
 behind it: the bootstrap client can read it, and nobody else can. A thread
@@ -177,6 +181,64 @@ When `roleInstructions` is present, every target needs an identity. On every
 dispatcher startup, the bridge resolves the accepted text again and supplies
 it as `developerInstructions` while resuming each target.
 
+### The Baton launcher contract
+
+Every managed context is given its executable, config, participant and role
+EXPLICITLY, and may not infer any of them from a repository path, a deployment
+symlink, remembered history, another participant, or a filesystem search
+(W12229, `work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/
+finding-pc-central-runner-stack/findings/finding-codex-launcher-contract/`).
+
+ONE SOURCE, and the carriers differ per family because their transports do:
+
+- a **Codex** context receives a labelled block appended to its
+  `developerInstructions`, on `thread/start` and on every `thread/resume`;
+- an **ACP** context receives the SAME block in every readiness prompt, and
+  the same four values as real environment variables in its own isolated agent
+  process — `BATON_BIN`, `BATON_CONFIG`, `BATON_PARTICIPANT`, `BATON_ROLE`,
+  derived from that one source rather than supplied beside it.
+
+**W12229 established the ACP environment carrier and W14828 superseded its
+SUFFICIENCY.** After a healthy restart the rendered runtime context held the
+correct four values, the prompt named none of them, the operator template
+spelled none of them, and the fresh model went looking — found a persistent
+participant file still pinned to a retired deployment, and made its first
+`claim` through an executable that refused the live authority. Environment
+delivery remains useful and must agree; it is no longer the model's only
+locator. The prompt carrier is what stops a fresh context rediscovering a
+stale file, and an `agent.env` entry that disagrees with the accepted `baton`
+section refuses startup by key rather than being resolved in favour of either
+side.
+
+The Codex carrier is developer instructions because the generated app-server
+contract offers nothing better: `thread/start` and `thread/resume` expose
+`developerInstructions` and no per-thread environment map, the generic
+per-thread `config` override is the one W415 ruled out, and ONE app-server
+process hosts every target — so process environment would cross participant
+boundaries even if a launcher could set it after start. The labels make the
+two families' vocabulary agree; for a Codex context they are instruction text,
+not a claim that the shared process has participant-specific environment.
+
+The block carries exactly those four values. Not `identity.actionOwner`, not
+`roleInstructions.execPolicyFile`, not configuration contents, not credentials,
+and nothing from the ambient environment. Values are JSON-quoted so a space or
+a quote in a path is data rather than syntax, and a blank or missing field
+refuses rather than rendering a contract with a hole in it.
+
+It is composed from the configured source and the participant and role the
+instruction read ALREADY PROVED, so a restart or a configuration refresh
+rebuilds it from current configuration rather than from what an old thread
+remembers. The renderer is SHARED by both families: the instruction reader
+they both use still returns accepted role prose ALONE, and each family
+composes the block beside that prose in the carrier its own transport has.
+That is the property which lets one rendering serve two adapters instead of
+two renderings drifting apart.
+
+Role prose that happens to name a deployment's paths is configuration content,
+not an adapter guarantee. W12181 is the counterexample this exists for: a fresh
+`pc.plan` context was reached repeatedly and could not claim, because its role
+text did not carry the values and nothing else supplied them.
+
 ## 5. Verify one protocol turn
 
 Before starting the long-running dispatcher, verify initialization, resume,
@@ -228,7 +290,9 @@ bin/codex-baton-bridge \
 
 `--target` and `--socket` must match the dispatcher configuration. Optional
 `--wait-timeout` and `--retry-ms` control this producer only. Use `--once` to
-exit after at least one event is accepted by the dispatcher.
+exit after at least one event is accepted by the dispatcher — that proves the
+TRANSPORT path and deliberately not the claim loop, because acceptance of one
+event is not claim acknowledgement.
 
 The producer repeatedly invokes:
 
@@ -237,10 +301,48 @@ BATON --config PATH --participant TEAM.MEMBER wait timeout=SECONDS
 ```
 
 It validates the protocol-11 participant-action envelope and forwards one
-compact event per unseen action key. It is read-only and level-triggered: it
-never claims Work, responds to obligations, advances a cursor, or mutates the
-authority. A key is suppressed while present, forgotten when it disappears,
-and delivered again when a new assignment episode makes it actionable.
+compact event per actionable key. It is read-only: it never claims Work,
+responds to obligations, advances a cursor, or mutates the authority.
+
+It is level-triggered against CANONICAL state. An obligation, trial, poke or
+refresh request is suppressed while present, forgotten when it disappears, and
+delivered again when it returns. A ready unclaimed Work is an OFFER, and the
+exact successful atomic `claim` is what clears it (W11910,
+`work/records/2026/08/finding-readiness-offer-cleared-before-claim/`): an
+accepted event is transport acknowledgement, and the managed turn it schedules
+may end without claiming anything. So the offer stays armed while canonical
+state reports `ready && unclaimed` and is re-forwarded under a bounded
+exponential retry (from `--retry-ms`, capped at 60s); `claimed:true` for that
+key acknowledges it; unclaimed offers wait while the participant holds any
+claim; at most one unclaimed Work is admitted per poll in canonical order; a
+Work first seen already claimed is forwarded once as restart recovery — and a
+recovery wake whose delivery FAILED stays eligible, because the claim it was
+going to recover cannot acknowledge a wake nobody received; and a key that
+stops being actionable withdraws the retained offer.
+
+The dispatcher retains the exact v11 event id for the whole
+queued/starting/ambiguous/active lifetime, independently of `dedupWindowMs`,
+and refuses a producer retry of a delivery it is still holding with
+`reason: "in-flight"`. It releases that identity on withdrawal or terminal
+settlement, so a later bounded retry becomes a new turn. `dedupWindowMs` is a
+short fingerprint timer that a model turn routinely outlives; it never decided
+this, and a generic event from any other source keeps exactly its old rule.
+
+ONE UNCLAIMED WORK BECOMES A TURN AT A TIME, and the dispatcher is where that
+is decided. This producer marks an event presented as soon as the socket
+accepts it — before the turn starts — so unlike the ACP bridge it cannot know
+the head offer's claim-slot outcome, and its rotation can forward a second
+unclaimed Work while the first is still running. The pre-turn revalidation each
+delivery already performs therefore answers a second question from the same
+canonical read: if the participant already holds a claim, the unclaimed
+delivery is HELD at the queue head and re-asked every `claimSlotRetryMs`
+(default 15s) rather than spending a model turn against an occupied slot. It is
+held and never dropped — a dropped offer would need a new episode to come back,
+which is this Work's own defect one layer down — and a CLAIMED Work's own
+recovery delivery is never held, because it is the claim. Asking the authority
+rather than tracking it locally is deliberate: a claim taken by an interactive
+turn, another adapter, or an operator at a terminal is invisible to this
+dispatcher and exactly as occupying.
 
 Run one readiness path per participant. Two producers see the same action set
 and can create duplicate turns; they do not divide work between themselves.

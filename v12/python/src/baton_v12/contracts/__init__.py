@@ -28,8 +28,9 @@ from .pod import MAX_DEPTH, MAX_MEMBERS, own, own_record
 from .secrets import (SECRET_MEMBERS, check_no_durable_secret, forget_secret,
                       held_secret, live_secret, remember_secret)
 from .manifest import (ARTIFACT_REF_MEMBERS, CONTENT_MANIFEST_MEMBERS,
-                       check_content_manifest, check_manifest_structure,
-                       check_relative_path, check_uri, check_work_ref)
+                       check_content_manifest, check_input_pair,
+                       check_manifest_structure, check_relative_path,
+                       check_uri, check_work_ref)
 from .validate import (AGENT_SESSION_DEFINITIONS, DEFINITIONS,
                        validate_against, validate_agent_session,
                        validate_agent_session_fragment, validate_fragment,
@@ -39,7 +40,8 @@ __all__ = [
     "AGENT_SESSION_DEFINITIONS", "DEFINITIONS", "validate_fragment",
     "validate_agent_session_fragment", "verify_manifest_digest",
     "ARTIFACT_REF_MEMBERS", "CONTENT_MANIFEST_MEMBERS",
-    "check_content_manifest", "check_manifest_structure",
+    "check_content_manifest", "check_input_pair",
+    "check_manifest_structure",
     "check_relative_path", "check_uri", "check_work_ref",
     "SECRET_MEMBERS", "check_no_durable_secret", "forget_secret",
     "held_secret", "live_secret", "remember_secret",

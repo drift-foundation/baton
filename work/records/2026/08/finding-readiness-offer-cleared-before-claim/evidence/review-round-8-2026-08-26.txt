@@ -1,0 +1,34 @@
+W11910 independent eighth re-review — 2026-08-26T10:15:47Z
+
+Seventh correction result:
+  ambiguity follows the exact attempted candidate, even behind deferred Work B
+
+Reviewer-added terminating regression:
+  tools/codex-event-bridge/test/claim_slot.test.mjs
+  a disconnected ambiguous obligation behind a deferred Work is reconciled by
+  the next drain
+
+Current focused result:
+  node test/claim_slot.test.mjs
+  tests 44; pass 44; fail 0
+
+Discriminating isolated measurement:
+  copy: /tmp/w11910-round8.ojUN2V/codex-event-bridge
+  mutation: ordinary-drain candidate selection reverted to queue[0]
+  node test/claim_slot.test.mjs
+  tests 44; pass 43; fail 1
+  sole failure: disconnected ambiguous obligation behind deferred Work
+  expected queue depth 1; actual queue depth 2
+
+Complete gates:
+  tools/codex-event-bridge: npm test
+  tests 417; pass 417; fail 0
+
+  tools/acp-baton-bridge: npm test
+  tests 77; pass 77; fail 0
+
+  git diff --check
+  clean
+
+Not performed:
+  deployment and live runner smokes; these remain operator work

@@ -1,0 +1,178 @@
+W17110 — the real Claude and Codex Docker trials. 2026-08-27.
+SPIKE ONLY. Not a v12 contract, not production implementation, not
+conformance evidence. No repository state was mutated.
+
+=== 1. PREFLIGHT (PLAN item 1), which decides whether the trials can run
+    
+    NOT READY: /run/baton/credentials does not exist, and no provider has been nominated in its place. The operator supplies the credential source; this preflight will not choose one.
+    {
+     "spike": "w17110-ping-pong",
+     "engine": {
+      "present": true,
+      "server": "29.1.3",
+      "client": "/usr/bin/docker"
+     },
+     "credential_providers": {
+      "nominated": {
+       "path": "/run/baton/credentials",
+       "present": false
+      },
+      "known_operator_runtimes": {
+       "claude": {
+        "path": "/home/sl/.claude/.credentials.json",
+        "present": true,
+        "mode": "0o600",
+        "bytes": 281,
+        "owner_only": true
+       },
+       "codex": {
+        "path": "/home/sl/.codex/auth.json",
+        "present": true,
+        "mode": "0o600",
+        "bytes": 3973,
+        "owner_only": true
+       }
+      }
+     },
+     "host_runtimes": {
+      "claude": "/home/sl/.local/bin/claude",
+      "codex": "/home/sl/.nvm/versions/node/v24.14.0/bin/codex"
+     },
+     "container_reachability": {
+      "anthropic": "405",
+      "openai": "401"
+     }
+    }
+
+  Docker is present and a CONTAINER can reach both providers -- asked
+  from inside one, because the daemon having egress says nothing about
+  a container, and this campaign's workers run --network none.
+  405/401 are reachability proofs: the endpoints answered.
+
+  THE NOMINATED CREDENTIAL PROVIDER DOES NOT EXIST. That is the one
+  thing standing between this and a satisfying two-provider result.
+
+=== 2. PACKAGING: both runtimes run inside Docker, by exact version
+    claude image: sha256:3f7a75bc4251d48397c74c363efe02a1726ee1b0544b3381e3128d1f6c34ca59
+    codex image: sha256:4d376eef0d40342c3df753f01ca975014d658b0df0cfe13714f4432a34c57e7b
+    claude reports: 2.1.247 (Claude Code)
+    codex  reports: codex-cli 0.150.1
+
+  This is the experiment's first real answer: BOTH provider runtimes
+  package into an image and start. Neither needed a host escape, an
+  interactive terminal, or anything copied out of the operator's home.
+
+=== 3. THE OUTER SHAPE, end to end, for BOTH providers
+  Run against a provider file carrying NO credential, so what is proved
+  is everything except the authentication itself.
+
+  --- claude
+    image id                 sha256:3f7a75bc4251d48397c
+    mount                    /input readonly
+    mount                    /output WRITABLE
+    mount                    /home/nonroot/.claude/.credentials.json readonly
+    credential provider      file -> /home/nonroot/.claude/.credentials.json (read-only, never copied)
+    correlation carried      True
+    completion signal last   True
+    pong                     False
+    failure category         authentication
+    redacted detail          Not logged in · Please run /login
+    containers surviving     []
+    images surviving         []
+    staged root removed      True
+    clean                    True
+    satisfying               False
+
+  --- codex
+    image id                 sha256:4d376eef0d40342c3df
+    mount                    /input readonly
+    mount                    /output WRITABLE
+    mount                    /home/nonroot/.codex/auth.json readonly
+    credential provider      file -> /home/nonroot/.codex/auth.json (read-only, never copied)
+    correlation carried      True
+    completion signal last   True
+    pong                     False
+    failure category         network
+    redacted detail          Reading additional input from stdin... / 2026-08-27T04:20:44.967711Z ERROR codex_models_manager::manager: failed to refresh available models: Connection failed: error sending request / 2026-08-27T04:20:45
+    containers surviving     []
+    images surviving         []
+    staged root removed      True
+    clean                    True
+    satisfying               False
+
+  EVERYTHING BUT AUTHENTICATION IS PROVED, for both: read-only input,
+  one correlation identity carried from ping to result, output.json
+  published last, host-side validation, and positive cleanup asked of
+  the engine rather than remembered.
+
+=== 4. WHAT THE TWO RUNTIMES DO DIFFERENTLY AT THE WRAPPER BOUNDARY
+  which is what the ruling asks this experiment to compare.
+
+  CLAUDE reads a read-only credential provider and makes an
+  AUTHENTICATION decision: 'Not logged in'. A read-only mount at
+  $HOME/.claude is sufficient for it to get that far.
+
+  CODEX will not start with its state directory mounted read-only:
+    'failed to initialize in-process app-server client:
+     Read-only file system (os error 30)'
+  It writes beside its credential while running. The provider therefore
+  has to be mounted as a FILE over auth.json, leaving the state
+  directory writable -- which is why --credentials accepts both shapes.
+
+  CODEX also refuses a HOME under /tmp outright:
+    'Refusing to create helper binaries under temporary dir'
+  The first version of the trial gave each runtime a fresh mkdtemp home.
+  Claude accepted it; Codex would not run at all.
+
+  AND BOTH need their state directory pre-created and owned in the
+  IMAGE. Docker creates a missing bind-mount parent as ROOT, so a
+  container running as an unprivileged uid got 'Permission denied'
+  beside its own credential before reaching any provider.
+
+  THAT IS DIRECTLY USEFUL TO W6634. Its approved credential delivery
+  materializes assignment-private files at 0600 and mounts them
+  READ-ONLY at a fixed root. On this evidence that shape works for a
+  Claude-like runtime and does NOT work for a Codex-like one, and the
+  file mode has to admit the container's uid rather than the host user's.
+
+=== 5. TWO DEFECTS IN THIS HARNESS THAT ONLY A REAL RUNTIME FOUND
+  A scripted echo worker would have found neither, which is the ruling's
+  own argument for superseding it.
+
+  (a) THE FIRST CODEX RUN HUNG PAST ITS OWN DEADLINE. The in-container
+  timer fired and killed 'codex', but its child held the stdio pipes
+  open, so Node's 'close' never arrived and nothing was published. The
+  container was still up ten minutes later. Now: its own process group,
+  killed as a group; settle on 'exit' rather than only 'close'; a grace
+  timer that settles anyway; and a HOST-side bound that ends the
+  container and records a 'timeout' category.
+
+  (b) A trial that cannot end is worse than one that fails -- the
+  operator has nothing to read either way and no reason to stop waiting.
+
+=== 6. CREDENTIAL HANDLING
+  preflight.py reports PRESENCE, MODE and SIZE and never opens a
+  credential file. trial.py and trial.mjs redact anything key-shaped,
+  token-shaped or JWT-shaped before it can reach a result, an evidence
+  file or a log, and record a failure CATEGORY rather than provider
+  text. Nothing is copied into an image.
+    mentions of redaction in trial.py:4
+    mentions of redaction in trial.mjs:6
+    mentions of redaction in preflight.py:0
+
+=== 7. THE ENGINE, ASKED WHETHER ANYTHING SURVIVED
+    containers named baton-w17110-spike*: (none listed = none)
+    images  named baton-w17110-spike*: (none listed = none)
+
+=== 8. WHAT IS NOT PROVED, said plainly
+  NEITHER TRIAL RETURNED A PONG. The ruling closes this Work satisfying
+  only when both real agents return the correlated pong from inside
+  their containers. They did not, because no credential provider has
+  been nominated: /run/baton/credentials does not exist, and the
+  operator's own runtime credentials are theirs to offer rather than
+  mine to take. Choosing one would be exactly the 'weakening isolation'
+  the ruling forbids, in the one direction it did not have to spell out.
+
+  This is a PARTIAL RESULT and the ruling anticipates one: 'a partial
+  result remains valuable experiment evidence but is not a satisfying
+  two-provider proof'. It is recorded as exactly that.

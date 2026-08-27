@@ -1,0 +1,135 @@
+W6634 — sixth-review corrections. 2026-08-26.
+No repository state was mutated.
+
+=== 1. [P1] the manager VALIDATES the envelope and binds what it measured
+The caller-supplied operand is gone from the adapter:
+  occurrences of completion_manifest_digest in oci.py: 1
+and the manager opens the worker's document instead:
+501:COMPLETION_MANIFEST = "output.json"
+509:def _completion_envelope(roots, declared, disposition):
+591:def _answers_the_assignment(envelope, declared):
+571:    owned = check_manifest_structure(document, "completionManifest",
+
+$ PYTHONPATH=src python3 -m unittest tests.manager.test_sealing -v
+test_more_bytes_than_the_declaration_allows_refuses ... ok
+test_more_entries_than_the_declaration_allows_refuses ... ok
+test_nothing_partial_is_accepted_when_a_limit_refuses (tests.manager.test_sealing.ALimitIsARefusalRatherThanATruncation.test_nothing_partial_is_accepted_when_a_limit_refuses)
+test_a_running_runtime_for_this_attempt_stops_the_seal (tests.manager.test_sealing.NothingIsSealedWhileSomethingMayStillBeWriting.test_a_running_runtime_for_this_attempt_stops_the_seal)
+test_an_absent_or_quiescent_runtime_seals ... ok
+test_an_uncertain_answer_is_not_a_quiet_one (tests.manager.test_sealing.NothingIsSealedWhileSomethingMayStillBeWriting.test_an_uncertain_answer_is_not_a_quiet_one)
+test_a_declared_path_leaving_the_writable_root_is_refused ... ok
+test_a_link_in_a_declared_output_is_not_a_regular_file ... ok
+test_a_required_output_that_is_not_there_refuses ... ok
+test_an_optional_output_that_is_not_there_is_answered (tests.manager.test_sealing.OnlyWhatWasDeclaredIsCollected.test_an_optional_output_that_is_not_there_is_answered)
+test_the_result_answers_every_declaration_and_nothing_else ... ok
+test_a_committed_record_whose_bytes_moved_is_not_evidence (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_a_committed_record_whose_bytes_moved_is_not_evidence)
+test_a_completed_freeze_without_an_envelope_refuses (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_a_completed_freeze_without_an_envelope_refuses)
+test_a_frozen_custody_without_its_record_is_re_staged (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_a_frozen_custody_without_its_record_is_re_staged)
+test_a_partial_custody_directory_is_not_a_settled_replay (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_a_partial_custody_directory_is_not_a_settled_replay)
+test_a_replay_under_another_worker_envelope_is_refused (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_a_replay_under_another_worker_envelope_is_refused)
+test_a_required_declaration_cannot_be_answered_missing (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_a_required_declaration_cannot_be_answered_missing)
+test_an_exact_retry_preserves_a_missing_optional_answer (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_an_exact_retry_preserves_a_missing_optional_answer)
+test_an_exact_seal_retry_replays_custody_without_the_workspace (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_an_exact_seal_retry_replays_custody_without_the_workspace)
+test_an_incomplete_committed_record_is_not_replay_evidence (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_an_incomplete_committed_record_is_not_replay_evidence)
+test_an_undeclared_output_name_is_refused ... ok
+test_an_unfinished_ending_needs_no_envelope (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_an_unfinished_ending_needs_no_envelope)
+test_collection_uses_immutable_custody_not_the_live_workspace ... ok
+test_replay_requires_the_same_freeze_operation (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_replay_requires_the_same_freeze_operation)
+test_the_collection_names_what_the_freeze_recorded ... ok
+test_the_envelope_is_held_against_the_exact_declarations (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_the_envelope_is_held_against_the_exact_declarations)
+test_the_final_record_never_exists_before_its_bytes_do (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_the_final_record_never_exists_before_its_bytes_do)
+test_the_receipt_binds_the_envelope_this_manager_validated (tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt.test_the_receipt_binds_the_envelope_this_manager_validated)
+test_an_assignment_declaring_nothing_is_refused ... ok
+test_an_unreadable_declaration_refuses_before_any_freeze (tests.manager.test_sealing.TheDeclarationsAreOwnedAtConstruction.test_an_unreadable_declaration_refuses_before_any_freeze)
+test_one_name_is_declared_once ... ok
+test_output_paths_are_validated_at_construction (tests.manager.test_sealing.TheDeclarationsAreOwnedAtConstruction.test_output_paths_are_validated_at_construction)
+test_two_names_cannot_alias_or_nest_the_same_output_tree ... ok
+test_a_tree_that_changes_between_measuring_and_custody_is_refused (tests.manager.test_sealing.TheObservationIsMeasuredRatherThanDeclared.test_a_tree_that_changes_between_measuring_and_custody_is_refused)
+test_the_custody_copy_is_read_only_afterwards (tests.manager.test_sealing.TheObservationIsMeasuredRatherThanDeclared.test_the_custody_copy_is_read_only_afterwards)
+test_the_manifest_counts_and_digests_what_is_actually_there ... ok
+Ran 36 tests in 0.042s
+OK
+
+=== 2. [P1] and [P1] the two lifecycle edges
+----------------------------------------------------------------------
+Ran 69 tests in 0.017s
+
+OK
+  including the review's two additive regressions:
+    test_a_started_runtime_with_an_invalid_identity_is_explicitly_unresolved
+    test_a_proved_failed_recovery_removes_its_stale_record
+
+=== 3. every guard this round added, measured by REMOVING it
+   post-create refusals escape the lifecycle -> 2 case(s), first: test_a_started_runtime_with_an_invalid_identity_is_explicitly_unresolved
+   a lifecycle record that cannot be published escapes -> 2 case(s), first: test_a_started_runtime_with_an_invalid_identity_is_explicitly_unresolved
+   a proved cleanup leaves the lifecycle record -> 1 case(s), first: test_a_proved_failed_recovery_removes_its_stale_record
+   a completed freeze needs no envelope -> 1 case(s), first: test_a_completed_freeze_without_an_envelope_refuses
+   the envelope is not held against the declarations -> 5 case(s), first: test_a_required_declaration_cannot_be_answered_missing
+   an undeclared answer is accepted -> 1 case(s), first: test_the_envelope_is_held_against_the_exact_declarations
+!! a missing answer is accepted: anchor appears 2 times
+   a differing identity is accepted -> 2 case(s), first: test_the_envelope_is_held_against_the_exact_declarations
+   a required output may be answered missing -> 1 case(s), first: test_a_required_declaration_cannot_be_answered_missing
+** the digest is not recomputed over the bytes read -> NOTHING FAILED
+
+UNMEASURED: ['a missing answer is accepted', 'the digest is not recomputed over the bytes read']
+
+  The 'missing answer' anchor above is ambiguous in the harness rather
+  than unmeasured; re-anchored uniquely it fails
+  test_the_envelope_is_held_against_the_exact_declarations.
+  The digest recomputation is a MEASURED EQUIVALENCE and the source says
+  so: check_manifest_structure has already refused a document whose
+  declared digest does not describe it, so lifting the member gives the
+  same value. It is still computed, because the whole correction is that
+  the receipt binds something this manager derived.
+
+=== 4. [P1] the six inventory orphans, RESOLVED rather than reattributed
+UNOWNED 21
+    ('caller', 'documents.py:freeze_requested', 'members')
+    ('caller', 'documents.py:frozen_output', 'members')
+    ('caller', 'documents.py:manifest_retained', 'members')
+    ('caller', 'documents.py:operation', 'members')
+    ('caller', 'documents.py:output_answer', 'members')
+    ('caller', 'documents.py:output_artifact', 'members')
+    ('caller', 'documents.py:posture_slot', 'members')
+    ('caller', 'documents.py:provider_session_adopted', 'members')
+    ('caller', 'documents.py:result_frozen', 'members')
+    ('caller', 'documents.py:session_closed', 'members')
+    ('caller', 'documents.py:session_observed', 'members')
+    ('caller', 'documents.py:session_opened', 'members')
+    ('caller', 'documents.py:session_quiescence_requested', 'members')
+    ('caller', 'documents.py:session_reconciled', 'members')
+    ('caller', 'documents.py:session_ref', 'members')
+    ('caller', 'documents.py:slot_moved', 'members')
+    ('caller', 'documents.py:transport_lost', 'members')
+    ('caller', 'sessions.py:close_agent_session', 'session_ref.posture')
+    ('caller', 'sessions.py:close_agent_session', 'session_ref.session_epoch')
+    ('caller', 'sessions.py:handle_transport_loss', 'session_ref.posture')
+    ('caller', 'sessions.py:handle_transport_loss', 'session_ref.session_epoch')
+ORPHANS 17 | mine: []
+OWNED NEVER PROBED 11 | mine: []
+PROBED NEVER OWNED 8 | mine: []
+WITNESSES == STATED_OWNERS: True
+CHECK_STATUS=0
+
+  The standing orphan count fell from 23 to 17: the six were this Work's
+  and they are gone. The fifth evidence claimed both zero and six; this
+  number is the whole number.
+
+=== 5. the aggregate gate
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+Ran 1412 tests in 809.399s
+FAILED (failures=6, skipped=6)
+V12_STATUS=1
+
+SIX failures, and all six are the long-standing boundary-inventory gaps.
+Nothing else fails anywhere in the v12 tree: both of this review's
+credential regressions are green, and W6633's two test_worker_image_build
+errors are gone with that Work's own cleanup correction.
+
+$ diff --check over the working tree
+DIFFCHECK_STATUS=0

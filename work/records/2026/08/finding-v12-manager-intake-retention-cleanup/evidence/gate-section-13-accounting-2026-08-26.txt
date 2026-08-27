@@ -1,0 +1,200 @@
+W6629 — evidence for PLAN item 7e, the section 13 accounting for the new
+public surface.
+
+Written under the same claim, after the full suite corrected the earlier
+verification section. What was outstanding: `test_secrets` requires every
+exported callable to be classified into one of its two closed sets, and every
+surface classified as CONSTRUCTING to be proved by a probe that drives the real
+exported operation with the bearer live. Ten exported names had no accounting
+and three durable writers had no coverage, and two gates were red because of
+it.
+
+
+THE TWO RED GATES, AND WHAT THEY WERE SAYING
+
+    tests.manager.test_secrets.EveryDurableWriterIsGuarded
+      .test_every_durable_writer_is_covered
+        ('intake.py', '_retain', 'retentions')
+        ('intake.py', '_seal', 'intake_artifacts')
+        ('intake.py', '_seal', 'intakes')
+
+    tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor
+      .test_every_exported_callable_is_in_exactly_one_class
+        authorize_cleanup   collect_operation   decide_retention
+        destroy_operation   intake_operation    intake_receipt_of
+        record_intake       request_intake      retain_operation
+        retentions_of
+
+  Both universes are DERIVED -- the writers from the AST, the surfaces from
+  `__all__` -- so neither list is one somebody remembered. That is why they
+  found this at all.
+
+
+THE DURABLE HALF: THREE WRITERS, ONE REASON EACH
+
+  Both writers are private and each has exactly one door. `record_intake`
+  reaches `_seal`; `decide_retention` reaches `_retain`; both go through
+  `store.transact`. The journal row is written INSIDE that transaction and
+  before the COMMIT, and it carries the full effective signature and the
+  byte-stable result -- so a bearer in either is refused with the action's own
+  writes still inside the transaction that takes them back.
+
+  The reason each entry gives names the path that actually runs, which is what
+  the two interrogation entries above them in the same table were corrected
+  for twice. `_seal`'s `why` is the one column here that is COMPOSED rather
+  than adopted -- it is built from the live assignment the port answered with
+  -- and it is a member of the receipt the journal walks.
+
+
+THE PUBLIC HALF: SIX PROBED HERE, FOUR PROBED WHERE THEY CAN BE REACHED
+
+  CONSTRUCTS_A_PORTABLE_ARTEFACT, each with a probe in `test_secrets`:
+
+    collect_operation     the four derived identities. Each is handed the
+    intake_operation      caller's ATTEMPT MAPPING and answers with an
+    retain_operation      operation id and a signature digest composed from
+    destroy_operation     it, so `manager_signature`'s own reason applies
+                          unchanged: the identity is PORTABLE and a guard at
+                          the eventual write runs after the caller holds it.
+
+    intake_receipt_of     the two read-side doors, for the reason
+    retentions_of         `certified_agent_session_profile` was added for: a
+                          write-side guard cannot see a later store edit, and
+                          one of these hands back the digest a destroy is
+                          AUTHORIZED by.
+
+  RETURNS_NO_CONSTRUCTED_ARTEFACT, with the walk named and the drive
+  elsewhere:
+
+    request_intake        each composes text it did not own and each walks it
+    record_intake         before it answers -- but each refuses for a missing
+    decide_retention      attempt long before reaching that walk, so a probe
+    authorize_cleanup     against `test_secrets`' fixture would pass for the
+                          wrong reason and report a guard it never ran.
+
+  This is `record_frozen_result`'s situation exactly, and it is resolved the
+  way that entry resolves it: the reason names the walk, the walk is probed
+  directly, and the door itself is driven where a fixture can reach it --
+  `tests.manager.test_intake.EveryJournalledDoorRefusesALiveBearer`, one case
+  per door plus one control.
+
+
+THE PROBES ARE FACTS, MEASURED BY REMOVING THE GUARDS
+
+  Six probes, source mutated and restored byte for byte each time.
+
+    walks removed                     probes that stopped refusing
+    -------------------------------   ----------------------------------
+    boundaries.row's walk only        none
+    intake.py's five walks only       collect_operation, intake_operation,
+                                      retain_operation, destroy_operation
+    both                              all six
+
+  So the four derived identities are guarded by intake.py's own walk and by
+  nothing else -- there is no row crossing in them to fall back on -- and the
+  two read-side doors are guarded TWICE, at the row crossing and again over
+  the assembled document. Removing either one alone still refuses; it takes
+  both. That is what makes the read-side entries defence in depth rather than
+  one of them being dead code, which is the question the measurement was run
+  to answer.
+
+  THE FOUR JOURNALLED DOORS ARE LAYERED THREE DEEP, and the same method
+  says so:
+
+    intake.py's walks muted           all four still refuse
+    ... and manager_signature too     all four still refuse (the journal)
+
+  Each case proves its door refuses -- which is what §13 asks -- and not
+  which of the three did it. The named owner is the FIRST; the ones behind it
+  are why removing one of them is not a leak. Recorded in the test class
+  rather than only here, because the next reader meets the test.
+
+  AND A REFUSAL IS NOT EVIDENCE OF A WALK. Every one of these doors refuses a
+  missing attempt, an unfrozen output and an undecided artifact too, so a
+  case that never got past those would look exactly like a passing §13 case.
+  `test_the_walk_is_what_refuses_and_not_a_precondition` drives the same
+  operands with the bearer FORGOTTEN and requires each door to get through.
+
+
+ONE THING THE GATES DID NOT CATCH
+
+  `schema.__all__` did not declare `CUSTODY`, `RETENTION_DISPOSITIONS`,
+  `INTAKE_COLUMNS`, `INTAKE_ARTIFACT_COLUMNS` or `RETENTION_COLUMNS`, while
+  every other table's column contract and closed vocabulary in that module is
+  declared. Nothing failed: the package reads them as module attributes and
+  the text sweep drives them from the package surface rather than from that
+  list.
+
+  That is the observation worth keeping rather than the fix. This module has
+  no gate comparing what it DEFINES to what it DECLARES, so the omission was
+  invisible to a suite that is otherwise built out of derived universes. The
+  names are declared now; the missing gate is not this Work's to add and is
+  left for review to place.
+
+
+THE BOUNDARY INVENTORY, RE-ATTRIBUTED
+
+  The earlier progress entry said "after 7b and 7c none of my entries is among
+  them" about the boundary-inventory failures. That was wrong, and re-reading
+  the gates one at a time is what showed it.
+
+  `test_every_stated_owner_names_a_witness_that_exists` was ENTIRELY W6629's.
+  Ten stated owners had no witness and every one of them was this Work's:
+
+    documents.py:collect_requested   documents.py:intake_artifact
+    documents.py:intake_receipt      documents.py:retention
+    documents.py:retention_decided   documents.py:cleanup_blocked
+    documents.py:cleanup_unsettled   documents.py:cleanup_settled
+    intake.py:decide_retention  artifact_ids
+    intake.py:request_intake    adapter.collect
+
+  A stated owner is a CLAIM until something exercises it, which is what that
+  gate is for. Eight are outbound constructors and their witness is derived
+  from `documents.CONTRACTS` rather than listed, so it already exercised them
+  and only the entry was missing. The other two state a rule of their own and
+  are witnessed by two new cases: an adapter that reports success and answers
+  with something that is not a collection, and a retention decision whose
+  artifact list is wrong in each of the three ways it can be wrong. The gate is
+  green.
+
+
+THE ORPHAN GATE IS NOT THIS WORK'S, AND THE MEASUREMENT IS WHY
+
+  `test_every_boundary_call_belongs_to_an_entry_or_is_declared` reports 18
+  boundary calls the inventory cannot attribute to any entry. Six are
+  `intake.py`'s. The other twelve are four other modules':
+
+    intake.py:_compared             5   W6629
+    intake.py:decide_retention      1   W6629
+    oci.py (six sites)              7   W6632 / W6633
+    posture_slots.py (three sites)  3   W6627
+    interrogation.py:_diagnostics   1   W6627
+    workspaces.py:_advertised       1   W6631
+
+  EVERY ONE OF THE EIGHTEEN HAS THE SAME SHAPE: a boundary call whose subject
+  is a caller-origin local inside a private helper, or a comprehension
+  variable. `_calls_in` propagates a helper's calls to its caller's site only
+  when the subject resolves to `session:` or `read:`, so a caller-origin rule
+  written in a shared owner is invisible from the crossing that reaches it.
+  This is one gap in the resolver, met independently by five modules.
+
+  AND THE TWO DECLARED ESCAPES CANNOT TAKE IT. `DELEGATED` is the mechanism
+  for an owner that lives at another site, and adding one here was MEASURED
+  rather than assumed:
+
+    layer_labels(('caller','intake.py:record_intake','collected.result_id'))
+      -> ['a collection observation']
+    claims with DELEGATED added -> 2, and `test_no_entry_is_owned_twice`
+      requires <= 1
+
+  The member is already claimed by the COVERING owner -- `boundaries.document`
+  over the whole collection -- so declaring the per-member owner as well is
+  double ownership, which is the rule 4bz put there. `NOT_AN_ENTRY` is the
+  other escape and it says "this subject is not a receiving entry"; these
+  subjects ARE receiving entries, so writing them there would be a false
+  statement to make a gate green.
+
+  So this Work does not resolve it. The condition is recorded, attributed and
+  left for review to place: the correction belongs to the resolver or to a
+  ruling about what a covering owner claims, and either is a decision above
+  one module's slice.

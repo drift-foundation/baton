@@ -1,0 +1,88 @@
+W14251 -- why the contract revision cannot land while workspaces.py stands.
+
+PLAN item 2 was recorded as a question asked asynchronously "so nothing waits
+on it". That was wrong, and the way it was found is the point: the revision was
+attempted, and the attempt is what showed the question is load-bearing.
+
+
+WHAT WAS BUILT
+
+The neutral schema revision from PLAN item 3, applied to BOTH copies of
+worker-control 1.0 by evidence/revise_schema.py, producing
+evidence/schema-patch-2026-08-26.diff (13 insertions, 98 deletions):
+
+  - sourceDescriptor becomes ONE generic staged-input descriptor: name,
+    destination, required, content_manifest, and an OPAQUE `consumption`
+    member. No acquisition kind, and no `uri` -- how the directory was
+    populated is outside the Worker Manager.
+  - gitSource and directorySource are removed. gitObject STAYS: four of its
+    six referents are the proposal and integration surfaces, which this
+    supersession did not supersede.
+  - outputDescriptor.type and artifactOutput.type stop being a three-value
+    enum of result kinds and become opaqueId. The manager already compares the
+    declaration against the answer WITHOUT interpreting either -- see
+    output.py:_compare_declared, which does `expect["type"] != output["type"]`
+    and nothing else -- so the neutral form is what the code was already doing.
+  - artifactOutput gains a required `result_metadata`, because the ruling's own
+    example depends on it: a worker may report a commit identifier as
+    format-specific output metadata, and before this there was nowhere to put
+    it.
+
+The 53 definitions become 51 and the two copies stay byte-identical.
+
+
+WHAT THE ATTEMPT MEASURED
+
+    $ python3 -m unittest tests.manager.test_workspaces
+    ERROR: ... 20+ cases
+
+    baton_v12.contracts.errors.ContractRefusal: a directory source names
+    definition 'directorySource', which is not one of the frozen
+    worker-control schema's own definitions
+
+      workspaces.py:424, in materialize_directory_source
+        declared = validate_fragment(
+            boundaries.document(source, "a directory source"),
+            "directorySource", what=what)
+
+  workspaces.py validates its operands against the removed definitions BY
+  NAME. So there is no version of this revision that lands green while that
+  module stands: removing the acquisition vocabulary from the contract makes
+  the shipped acquisition module refuse everything it is handed.
+
+  Roughly 60 further cases in test_output and test_manifest_rules fail on the
+  vectors and fixtures, which is expected work inside this Job (PLAN item 5).
+  The workspaces failures are NOT that. They are a module this Job does not
+  own, refusing because the contract it reads no longer says what it reads.
+
+
+WHY THIS IS A BLOCK RATHER THAN A JUDGEMENT CALL
+
+  The two ways forward are different Jobs:
+
+  (a) Remove or re-home workspaces.py's acquisition half. That deletes a
+      shipped module and its suite from a green distribution. It is not
+      "revise the completed contracts", and it is not reversible by review
+      reading a diff -- it is a scope decision.
+
+  (b) Land the contract and leave the module. That leaves the contract
+      forbidding what the shipped manager exports, which AGENTS.md names as
+      worse than either rule alone.
+
+  (b) is what the policy forbids. (a) is a widening this implementer may not
+  grant itself. So the Work is suspended on the question rather than resolved
+  by picking one, and the schema patch is preserved here so whoever answers it
+  does not rebuild the revision from scratch.
+
+
+THE TREE IS BACK GREEN
+
+  Both schema copies were restored from the committed bytes -- read with
+  `git show HEAD:<path>`, which is a read, and written with a file copy; no
+  Git state was mutated. Re-measured after restoring:
+
+    tests.manager.test_workspaces, test_output, test_manifest_rules,
+    test_secrets -- Ran 228 tests, OK
+
+  Nothing is left half-edited. A blocked Work that also leaves a red
+  distribution behind it would make the block somebody else's problem twice.

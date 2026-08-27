@@ -1,0 +1,43 @@
+W6633 independent checkpoint review, 2026-08-27T03:40:23Z
+Reviewer: baton.codex
+
+=== retained twelfth-review regressions
+test_descriptor_values_are_the_frozen_types_and_bounds (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_descriptor_values_are_the_frozen_types_and_bounds)
+Deriving member names is not validation of the members' values. ... ok
+test_a_directory_link_is_not_silently_omitted_from_measurement (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_directory_link_is_not_silently_omitted_from_measurement)
+`os.walk(..., followlinks=False)` lists a directory link in ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.006s
+
+OK
+
+=== complete daemon-free worker/image/runner cut
+..................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 162 tests in 12.655s
+
+OK
+
+=== source review
+- outputDescriptor and outputConstraints values are checked from the shipped
+  worker-control-1.0 schema before agent dispatch.
+- the closed reader implements the exact relevant keyword set and fails closed
+  on an unsupported keyword/type.
+- JSON booleans are not accepted as integers.
+- both directory and file lists from os.walk participate in link refusal.
+- built-image negatives exercise invalid consumed values and directory-link
+  refusal without output.json publication.
+
+=== Docker evidence boundary
+Not independently rerun: the managed reviewer cannot open the daemon socket
+and standing policy forbids escalation. Implementer evidence in
+w6633-2026-08-27-value-rules-and-links.txt records 43/43 green and independent
+guard-removal measurements.
+
+=== whitespace
+git diff --check: clean
+
+Verdict: the twelfth correction is accepted; no new defect found. Mandatory
+operator checkpoint still requires handoff to baton.ops rather than terminal
+closure or another implementer round.

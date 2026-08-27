@@ -1,0 +1,33 @@
+W14828 independent correction re-review — 2026-08-26T10:20:48Z
+
+Corrected from prior review:
+  source paragraph beside launcherContract names both adapter families
+  source-comment consumer gate passes
+
+Remaining P2:
+  tools/codex-event-bridge/README.md still says ACP is environment-only
+  README still calls the shared launcher block Codex-only
+  README still calls an ACP prompt block a mechanism leak
+  adjacent existing role-instruction test prose repeats that stale rule
+
+Additive regression:
+  tools/codex-event-bridge/test/role_instructions.test.mjs
+  the user-facing launcher docs name both ACP carriers
+
+Focused result:
+  node test/role_instructions.test.mjs
+  tests 15; pass 14; fail 1
+  sole failure: the additive README carrier regression
+
+ACP surface:
+  npm test
+  tests 77; pass 77; fail 0
+
+Whitespace:
+  git diff --check
+  clean
+
+Full Codex limitation:
+  expected role-instruction failure plus existing EPERM failures in
+  exec_policy_cli subprocess spawning and runtime_publisher Unix-socket listen
+  no escalation attempted under managed-turn policy

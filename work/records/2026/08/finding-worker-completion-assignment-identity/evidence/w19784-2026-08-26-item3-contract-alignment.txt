@@ -1,0 +1,114 @@
+W19784 — PLAN item 3: schema copies, specification, contract model,
+vectors and conformance obligations. 2026-08-26.
+No repository state was mutated.
+
+=== 1. the shipped validator, its record model, and the conformance model
+----------------------------------------------------------------------
+Ran 264 tests in 0.894s
+
+OK
+----------------------------------------------------------------------
+Ran 31 tests in 0.119s
+
+OK
+----------------------------------------------------------------------
+Ran 74 tests in 4.785s
+
+OK
+
+=== 2. NO FROZEN SCHEMA COPY CHANGED, and that is the point of the ruling
+  'assignmentManifest' was already in worker-control 1.0.  What W19784
+  adds is a PATH and a LIFECYCLE, not a document — so all four copies
+  stay byte-identical and the recorded digest in test_frozen is untouched.
+      22caa60ae0aab610d93d9c67 (4 copies)
+         v12/python/build/lib/baton_v12/contracts/schema/worker-control-1.0.schema.json
+         v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json
+         v12/src/worker_manager/schema/worker-control-1.0.schema.json
+         work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json
+      DISTINCT CONTENTS: 1 (1 is the requirement)
+121:                 "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"),
+
+=== 3. every guard added to the SHIPPED validator, measured by REMOVAL
+=== baseline
+    Ran 162 tests in 0.527s
+    OK
+=== REMOVE: the input root reserves `assignment.json` too
+    FAILED (failures=2)   (2 case(s) refused the removal)
+       FAIL: test_the_input_root_reserves_both_manager_authored_documents (tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair.test_the_input_root_reserves_both_manager_authored_documents) (spelling='assignment.json')
+       FAIL: test_the_input_root_reserves_both_manager_authored_documents (tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair.test_the_input_root_reserves_both_manager_authored_documents) (spelling='assignment.json/tree')
+=== REMOVE: `_check_reserved` ranges over every reserved name
+    FAILED (failures=2)   (2 case(s) refused the removal)
+       FAIL: test_the_input_root_reserves_both_manager_authored_documents (tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair.test_the_input_root_reserves_both_manager_authored_documents) (spelling='assignment.json')
+       FAIL: test_the_input_root_reserves_both_manager_authored_documents (tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair.test_the_input_root_reserves_both_manager_authored_documents) (spelling='assignment.json/tree')
+=== REMOVE: the pair is about one Work
+    FAILED (failures=1)   (1 case(s) refused the removal)
+       FAIL: test_two_halves_of_two_deliveries_are_refused (tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair.test_two_halves_of_two_deliveries_are_refused) (what='another Work')
+=== REMOVE: the assignment was minted against THIS input manifest
+    FAILED (failures=2)   (2 case(s) refused the removal)
+       FAIL: test_a_repinned_input_manifest_no_longer_matches_its_assignment (tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair.test_a_repinned_input_manifest_no_longer_matches_its_assignment)
+       FAIL: test_two_halves_of_two_deliveries_are_refused (tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair.test_two_halves_of_two_deliveries_are_refused) (what='another input manifest')
+=== REMOVE: the pair carries one policy and one runtime profile
+    FAILED (failures=2)   (2 case(s) refused the removal)
+       FAIL: test_two_halves_of_two_deliveries_are_refused (tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair.test_two_halves_of_two_deliveries_are_refused) (what='another policy')
+       FAIL: test_two_halves_of_two_deliveries_are_refused (tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair.test_two_halves_of_two_deliveries_are_refused) (what='another runtime profile')
+source restored byte-identical
+
+=== 4. every guard added to the RECORD's executable model, likewise
+=== baseline: OK
+=== REMOVE: `/input/` reserves `assignment.json` too
+    FAILED (failures=2)  (2 case(s))
+       FAIL: test_invalid_vectors (test_contract_model.SchemaAndVectorTests.test_invalid_vectors) (vector='manifest-source-takes-the-assignment-manifest-name')
+       FAIL: test_invalid_vectors (test_contract_model.SchemaAndVectorTests.test_invalid_vectors) (vector='manifest-source-nests-under-the-assignment-manifest-name')
+=== REMOVE: `_check_reserved` ranges over every reserved name
+    FAILED (failures=2)  (2 case(s))
+       FAIL: test_invalid_vectors (test_contract_model.SchemaAndVectorTests.test_invalid_vectors) (vector='manifest-source-takes-the-assignment-manifest-name')
+       FAIL: test_invalid_vectors (test_contract_model.SchemaAndVectorTests.test_invalid_vectors) (vector='manifest-source-nests-under-the-assignment-manifest-name')
+=== REMOVE: the pair is about one Work
+    FAILED (failures=1)  (1 case(s))
+       FAIL: test_every_published_broken_pair_reaches_its_named_rule (test_contract_model.TheInputPairIsOneDelivery.test_every_published_broken_pair_reaches_its_named_rule) (vector='pair-names-two-different-work-items')
+=== REMOVE: the assignment was minted against THIS input
+    FAILED (failures=1)  (1 case(s))
+       FAIL: test_every_published_broken_pair_reaches_its_named_rule (test_contract_model.TheInputPairIsOneDelivery.test_every_published_broken_pair_reaches_its_named_rule) (vector='assignment-minted-against-another-input-manifest')
+=== REMOVE: one policy and one runtime profile
+    FAILED (failures=2)  (2 case(s))
+       FAIL: test_every_published_broken_pair_reaches_its_named_rule (test_contract_model.TheInputPairIsOneDelivery.test_every_published_broken_pair_reaches_its_named_rule) (vector='pair-declares-two-policies')
+       FAIL: test_every_published_broken_pair_reaches_its_named_rule (test_contract_model.TheInputPairIsOneDelivery.test_every_published_broken_pair_reaches_its_named_rule) (vector='pair-declares-two-runtime-profiles')
+=== REMOVE: each document is the kind it is delivered as
+    FAILED (errors=1)  (1 case(s))
+       ERROR: test_neither_document_may_stand_in_for_the_other (test_contract_model.TheInputPairIsOneDelivery.test_neither_document_may_stand_in_for_the_other)
+source restored byte-identical
+
+=== 5. two rules were NOT written, and each is recorded rather than dropped
+  (a) 'assignment_contract' is not compared across the pair.  The frozen
+      schema pins it to one const on BOTH documents, so no schema-valid
+      pair can disagree and no removal could measure the branch.
+      inputManifest {'const': 'v12-assignment-1'}
+      assignmentManifest {'const': 'v12-assignment-1'}
+  (b) the GENERATION is not compared across the pair.  The input manifest
+      has none; that asymmetry IS the defect, and the assignment side is
+      the sole source.  Both are stated in SPEC 12 rule 16.
+
+=== 6. the counts this round moved, read back from the data
+      obligations 79 (was 77)
+      cases 132 (was 123) {'invariant': 50, 'control-refusal': 54, 'control-success': 28}
+      by family {'A': 35, 'B': 8, 'C': 16, 'D': 12, 'E': 15, 'F': 9, 'G': 22, 'H': 15}
+      local-oci core 131 (was 122)
+      vectors: valid 7 invalid 16 input_pairs 1 + 4
+
+=== 7. drift this round FOUND rather than introduced
+  The conformance SPEC's family table read E = 13 while cases.json held
+  15.  W4487's re-review added two E cases and never touched the prose.
+  Corrected, and the correction is recorded in the section itself.
+
+=== 8. the v12 JS runtime is RED and it is not this Work's
+  5 of 60 fail in v12/test/worker_manager_contracts.test.mjs.  Each reads
+  a source's 'uri' or 'object_format' — members W14251's artifact-neutral
+  ruling deleted — or looks up an invalid vector W14251 renamed.  Measured:
+  reverting THIS Work's three vector additions leaves the same 5 failures.
+    ℹ pass 55
+    ℹ fail 5
+    ✖ W2929 review: a parser-invalid absolute URI is never trusted (0.30648ms)
+    ✖ W2929: a git source's object format matches its base revision (0.367074ms)
+    ✖ W2929: a malformed locator cannot reach the trusted manifest (0.205713ms)
+    ✖ W2929: the frozen input manifest validates through the product entry (9.806533ms)
+    ✖ W2929: the record's semantic-invalid manifests are refused (0.346505ms)
