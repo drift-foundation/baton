@@ -788,7 +788,7 @@ def test_a_real_terminal_activates_the_hidden_claim_and_comes_back(world):
 	assert "stage-3" in opened[0], opened[0]
 	assert any("Threads (" in line for line in opened), opened[:12]
 	back = ptyharness.replay(steps[2])
-	assert back[0].startswith("[Jobs]  [Teams]"), back[0]
+	assert back[0].startswith("[Jobs ") and "[Teams]" in back[0], back[0]
 	assert any(line.strip() == "⋮" for line in back), back[:10]
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, text[-400:]
 

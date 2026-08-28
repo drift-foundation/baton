@@ -1,0 +1,42 @@
+W26331 tuner implementation evidence — 2026-08-28 UTC
+
+Boundary
+--------
+Client-only TUI navigation, rendering, tests and operator documentation.
+No protocol, schema, projection-version or workflow mutation.
+
+Focused W26331 plus expanded pane-focus contract
+-------------------------------------------------
+./.venv/bin/python3 -m pytest -q -p no:randomly \
+  tests/work/test_w26331_focusable_breadcrumb.py \
+  tests/work/test_w1151_pane_focus.py
+
+35 passed in 3.53s
+
+Affected navigation and compatibility set
+-----------------------------------------
+./.venv/bin/python3 -m pytest -q -p no:randomly \
+  tests/work/test_w26331_focusable_breadcrumb.py \
+  tests/work/test_w292_breadcrumb_navigation.py \
+  tests/work/test_w1151_pane_focus.py \
+  tests/work/test_w4996_dependency_graph.py \
+  tests/work/test_w26328_actionable_console.py \
+  tests/work/test_w110_tab_grammar.py \
+  tests/work/test_w17_poke_visibility.py \
+  tests/work/test_w71_navigation.py \
+  tests/work/test_tui.py \
+  tests/work/test_parity.py
+
+277 passed in 97.98s
+
+Complete v11 gate
+-----------------
+just test-v11
+
+3239 parallel passed, 189 warnings, 73.26s
+54 serial/PTY passed, 3239 deselected, 1 warning, 130.24s
+ACP: 77 passed, 0 failed
+
+Diff hygiene
+------------
+git diff --check over the W26331 implementation paths: clean

@@ -135,8 +135,14 @@ class TestTheWindowReportsWhatItHides:
 		after = tree(store, levels[0])
 		assert [row["id"] for row in after["rows"]] == \
 			[row["id"] for row in before["rows"]]
+		# W26328 adds `actionable_for_viewer` as projection 12.7's additive
+		# member. The rule this case states is unchanged -- the member set is
+		# exhaustive and a consumer that ignores a new member reads what it
+		# read before -- so the set grows by exactly the one the approved
+		# contract names.
 		assert set(after) == set(before) == {
-			"rows", "summary", "filter", "active_trails", "snapshot_seq"}
+			"rows", "summary", "filter", "active_trails",
+			"actionable_for_viewer", "snapshot_seq"}
 
 
 class TestTheFilterCounterexample:

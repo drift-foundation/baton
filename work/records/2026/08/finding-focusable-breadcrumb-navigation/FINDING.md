@@ -92,3 +92,34 @@ The existing 64-step browser-history bound remains unchanged. Direct ancestor
 navigation is one new history action; one Esc restores the prior deeper page.
 This remains client-only TUI state with no protocol, schema, projection or
 workflow mutation.
+
+## Tuner implementation — 2026-08-28 UTC
+
+**Revalidated:** the approved client-only boundary still matches the current
+tree. The existing navigation stack remained browser history, but its frames
+also remained the sole input to the displayed breadcrumb; an ancestor jump
+could therefore not retain the deeper frame for Back without painting that
+deeper location. The implementation separates a captured structural
+`location` list from the unchanged bounded history and restores both through
+the existing navigation-state boundary.
+
+Breadcrumbs now expose structured Work and page targets, participate in every
+approved focus cycle, keep a stable selected key, navigate with both horizontal
+key pairs, and restore the prior body focus on Down. Work-detail Tab cycles and
+Ctrl-W geometry include the breadcrumb; first-row Up joins it on the single-body
+pages. Direct Work jumps preserve Jobs/Messages/Events, while captured page
+crumbs restore their exact search/graph/poke/Awaiting-me state. The current
+crumb remains a no-op and every other jump adds exactly one Back step.
+
+The header derives a maximal contiguous whole-token viewport around selection.
+Standalone `…` markers name omitted sides, overlong labels fall back to exact
+selectors, and the focused footer reports `breadcrumb I/N: SELECTOR` before
+optional help clauses. Operator documentation now distinguishes crumb selection
+from browser Back and teaches the expanded focus graph.
+
+Focused regressions live in
+`tests/work/test_w26331_focusable_breadcrumb.py`; approved compatibility changes
+also update W292, W1151 and W4996 expectations where a page suffix becomes its
+own selectable crumb or the breadcrumb becomes a real focus stop. Verification
+is retained in `evidence/w26331-2026-08-28-tuner.txt`. No protocol, schema,
+projection or workflow code changed.

@@ -250,7 +250,7 @@ def run_json(world, *argv, member="ada", team="lang"):
 
 def test_the_tabs_lead_the_header_in_the_ruled_order(world):
 	header = painted(console(world))[0]
-	assert header.startswith("[Jobs]"), header
+	assert header.startswith("[Jobs "), header
 	assert header.index("Jobs") < header.index("Teams") < \
 		header.index("Inbox"), header
 	assert TABS == ("jobs", "teams", "inbox")
@@ -285,12 +285,15 @@ def test_every_tab_is_bracketed_and_the_active_one_is_highlighted(world):
 	The information W25 was protecting is not lost — it moved to the
 	paint, which this asserts rather than assuming."""
 	view = console(world)
-	assert view.top_tabs() == "[Jobs]  [Teams]  [Inbox]", \
+	# W26328: the Jobs label carries the actionable count. It is still
+	# one bracketed tab and the brackets still say "this is a tab",
+	# which is the whole of what this case rules on.
+	assert view.top_tabs() == "[Jobs 0]  [Teams]  [Inbox]", \
 		view.top_tabs()
 	screen = attr_painted(view)
-	assert screen.reverse_text() == "[Jobs]", screen.reverse_text()
+	assert screen.reverse_text() == "[Jobs 0]", screen.reverse_text()
 	view.handle(NEXT_TAB)
-	assert view.top_tabs() == "[Jobs]  [Teams]  [Inbox]", \
+	assert view.top_tabs() == "[Jobs 0]  [Teams]  [Inbox]", \
 		"the label text moved with the selection"
 	assert attr_painted(view).reverse_text() == "[Teams]"
 
@@ -341,7 +344,7 @@ def test_only_the_inbox_tab_carries_the_urgency_weight(world):
 	assert "Teams" not in bold, \
 		"the Teams tab acquired the Inbox urgency cue"
 	# the selection cue and the identity are untouched by the change
-	assert screen.lines()[0].startswith("[Jobs]")
+	assert screen.lines()[0].startswith("[Jobs ")
 	assert screen.lines()[0].rstrip().endswith("lang.ada")
 
 
@@ -392,7 +395,7 @@ def test_a_narrow_terminal_still_says_who_and_where(world):
 	view = console(world)
 	header = painted(view, height=14, width=44)[0]
 	assert header.rstrip().endswith("lang.ada"), header
-	assert header.startswith("[Jobs]"), header
+	assert header.startswith("[Jobs "), header
 	assert any("waiting for you" in line
 	           for line in painted(view, height=14, width=44)), \
 		"the owed cue was hidden by the narrow width"
@@ -756,7 +759,7 @@ def test_a_real_terminal_shows_the_tabs_and_switches_them(tmp_path):
 		(b"qy", 0.4),
 	])
 	jobs = ptyharness.replay(steps[0])
-	assert jobs[0].startswith("[Jobs]"), jobs[0]
+	assert jobs[0].startswith("[Jobs "), jobs[0]
 	assert jobs[0].rstrip().endswith("lang.ada"), jobs[0]
 	teams = ptyharness.replay(steps[1])
 	assert "[Teams]" in teams[0], teams[0]

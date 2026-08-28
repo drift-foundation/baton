@@ -1,0 +1,26 @@
+BASELINE  OK
+
+[expected-unseen] a claimed Work counts as actionable
+[caught] a blocked or parked Work counts
+         test_a_parked_work_is_not
+[expected-unseen] a terminal Work counts
+[caught] the route is not resolved to this member
+         test_work_whose_route_resolves_elsewhere_is_not, test_a_reroute_moves_the_work_between_participants, test_the_flattened_
+[caught] the explicit route selection is ignored
+         test_a_reroute_moves_the_work_between_participants
+[caught] the roll-up stops at the first ancestor
+         test_a_deep_item_counts_once_however_many_ancestors_roll_it_up
+[caught] a row counts itself as its own descendant
+         test_a_deep_item_counts_once_however_many_ancestors_roll_it_up, test_a_row_does_not_count_itself_as_its_own_descendant, 
+[caught] the total is summed over rows instead of the set
+         test_a_claimed_work_is_not, test_a_blocked_work_is_not, test_a_parked_work_is_not, test_a_terminal_work_is_not, test_wor
+[caught] active-trail rows lose the facts
+         test_an_active_trail_row_carries_the_same_two_facts
+[caught] the flattened view drops the breadcrumb
+         test_every_match_appears_with_a_complete_breadcrumb
+[caught] the flattened view is not the same predicate
+         test_a_reroute_moves_the_work_between_participants, test_the_flattened_rows_apply_the_member_predicate_too
+[caught] the endpoint resolution is not memoized
+         test_the_derivation_does_not_grow_with_the_tree
+
+10 of 12 mutations caught; 2 expected-unseen and named above

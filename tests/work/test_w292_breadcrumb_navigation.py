@@ -149,12 +149,12 @@ def local(id_):
 def test_the_global_tab_row_is_the_top_level_only(world):
 	view = console(world)
 	assert view.nav == [] and view.nav_segments() == []
-	assert header(view).startswith("[Jobs]  [Teams]  [Inbox")
+	assert header(view).startswith("[Jobs 3]  [Teams]  [Inbox")
 
 	view.handle(curses.KEY_ENTER)
 	row = header(view)
 	assert view.nav, "entering a Work page recorded no navigation path"
-	for label in ("[Jobs]  [Teams]", "[Teams]", "[Inbox"):
+	for label in ("[Jobs 3]  [Teams]", "[Teams]", "[Inbox"):
 		assert label not in row, row
 	assert row.startswith("Jobs > "), row
 	# The drilled page's OWN tabs are still there, and exactly one is
@@ -204,7 +204,7 @@ def test_direct_grandchild_entry_is_one_action_and_one_back(world):
 
 	view.handle(27)
 	assert view.nav == [] and view.mode == "table"
-	assert header(view).startswith("[Jobs]"), "the last Back left the top level"
+	assert header(view).startswith("[Jobs "), "the last Back left the top level"
 
 	# Explicitly opening the intermediate parent first IS two actions,
 	# and is therefore two Back steps — the other half of the ruling.
@@ -247,13 +247,13 @@ def test_table_re_root_is_a_drill_that_restores_its_opener(world):
 	assert view.nav_segments()[0] == "Jobs"
 	assert view.nav_segments()[-1] in ("the child", "a second root",
 	                                   "the root")
-	assert "[Jobs]" not in header(view)
+	assert "[Jobs " not in header(view)
 	while view.nav:
 		view.handle(27)
 	assert (view.cursor, view.selected_id) == opened_at, \
 		"the re-root Back did not restore the row that opened it"
 	assert view.path == []
-	assert header(view).startswith("[Jobs]")
+	assert header(view).startswith("[Jobs ")
 
 
 def select(view, title):
@@ -291,7 +291,7 @@ def test_a_nested_re_root_appends_one_segment_not_the_whole_ancestry(world):
 	view.handle(27)
 	assert view.nav == [] and view.mode == "table"
 	assert view.path == [], "the last Back did not reach the Jobs root"
-	assert header(view).startswith("[Jobs]")
+	assert header(view).startswith("[Jobs ")
 
 
 def test_a_works_own_pages_are_tabs_of_one_level_not_two_levels(world):
@@ -352,7 +352,7 @@ def test_a_linked_drill_through_rebuilds_the_far_works_own_ancestry(world):
 	select(view, "a second root")
 	view.handle(ord("d"))
 	assert view.mode == "links"
-	assert view.nav_segments() == ["Jobs", "a second root · deps"], \
+	assert view.nav_segments() == ["Jobs", "a second root", "deps"], \
 		view.nav_segments()
 	center = view.graph_center
 
@@ -364,17 +364,17 @@ def test_a_linked_drill_through_rebuilds_the_far_works_own_ancestry(world):
 	view.handle(curses.KEY_ENTER)
 	assert view.mode == "links", "Enter left the dependency view"
 	assert view.graph_center != center, "Enter did not recenter"
-	assert len(view.nav_segments()) == 3, view.nav_segments()
-	assert view.nav_segments()[-1].endswith(" · deps"), view.nav_segments()
+	assert view.nav_segments()[-1] == "deps", view.nav_segments()
+	assert "the grandchild" in view.nav_segments(), view.nav_segments()
 
 	# Back reveals exactly one level, and the first Back off the page
 	# returns to the caller's table.
 	view.handle(27)
 	assert view.mode == "links" and view.graph_center == center
-	assert view.nav_segments() == ["Jobs", "a second root · deps"]
+	assert view.nav_segments() == ["Jobs", "a second root", "deps"]
 	view.handle(27)
 	assert view.nav == [] and view.mode == "table"
-	assert header(view).startswith("[Jobs]")
+	assert header(view).startswith("[Jobs ")
 
 
 def test_a_drill_through_from_a_re_rooted_caller_carries_no_caller_ancestry(
@@ -431,7 +431,7 @@ def test_brackets_still_move_the_global_tabs_at_the_top_level(world):
 	assert view.tab == "inbox"
 	view.handle(ord("["))
 	assert view.tab == "teams"
-	assert header(view).startswith("[Jobs]  [Teams]  [Inbox")
+	assert header(view).startswith("[Jobs 3]  [Teams]  [Inbox")
 
 
 # -- the other entry paths ------------------------------------------------
@@ -446,7 +446,7 @@ def test_search_is_a_segment_and_keeps_its_exact_restoration(world):
 	view.handle(10)
 	assert view.mode == "search"
 	assert view.nav_segments() == ["Jobs", "search: root"], view.nav_segments()
-	assert "[Jobs]" not in header(view)
+	assert "[Jobs " not in header(view)
 
 	rows, _hidden = view.visible_rows(view.search_rows())
 	assert rows, "the fixture search matched nothing"
@@ -492,7 +492,7 @@ def test_the_inbox_handoff_lands_in_jobs_and_backs_out_there(world):
 	assert view.nav_segments() == ["Jobs", "the root"]
 	view.handle(27)
 	assert view.nav == [] and view.tab == "jobs" and view.mode == "table"
-	assert header(view).startswith("[Jobs]")
+	assert header(view).startswith("[Jobs ")
 
 
 def test_the_links_page_is_a_segment_too(world):
@@ -503,7 +503,7 @@ def test_the_links_page_is_a_segment_too(world):
 	# W17 ruled the label reads "deps"; W4996 made the page the
 	# dependency neighbourhood graph. The segment is still a segment.
 	assert "deps" in view.nav_segments()[-1]
-	assert "[Jobs]" not in header(view)
+	assert "[Jobs " not in header(view)
 	view.handle(27)
 	assert view.mode == "table" and view.nav == []
 
@@ -532,7 +532,7 @@ def test_a_drilled_header_still_discloses_an_active_filter(world):
 	assert row.startswith("Jobs > "), row
 	assert tag in row, f"the drilled header dropped the filter tag: {row!r}"
 	assert row.rstrip().endswith("lang.ada"), row
-	for label in ("[Jobs]", "[Teams]", "[Inbox"):
+	for label in ("[Jobs ", "[Teams]", "[Inbox"):
 		assert label not in row, row
 
 	# A re-rooted table keeps BOTH the header tag and the separately
@@ -575,7 +575,7 @@ def test_the_drilled_filter_tag_and_identity_survive_a_narrow_header(world):
 		assert location, (width, row)
 		if not location.startswith("Jobs > "):
 			assert location.startswith("…"), (width, row)
-		for label in ("[Jobs]", "[Teams]", "[Inbox"):
+		for label in ("[Jobs ", "[Teams]", "[Inbox"):
 			assert label not in row, (width, row)
 
 
@@ -597,12 +597,12 @@ def test_a_narrow_header_keeps_where_you_are_and_who_you_are(world):
 		row = header(view, width=width)
 		assert row.rstrip().endswith("lang.ada"), (width, row)
 		if width < 60:
-			assert row.startswith("…"), (width, row)
-			assert "the grandchild" in row or "grandchild" in row \
-				or "child" in row, (width, row)
+			# W26331 uses exact compact selectors when they let the whole
+			# path fit; an ellipsis appears only when a side is omitted.
+			assert "W4" in row and "grand tit" not in row, (width, row)
 		else:
 			assert "the grandchild" in row, (width, row)
-		for label in ("[Jobs]", "[Teams]", "[Inbox"):
+		for label in ("[Jobs ", "[Teams]", "[Inbox"):
 			assert label not in row, (width, row)
 	# The local tab row survives every one of those widths, and the
 	# active tab is still exactly one.
@@ -642,9 +642,9 @@ def test_a_real_terminal_walks_in_and_out_one_segment_at_a_time(world):
 	])
 	top, rooted, deeper, messages, out_one, out_two = (
 		ptyharness.replay(step) for step in steps[:6])
-	assert top[0].startswith("[Jobs]  [Teams]  [Inbox"), top[0]
+	assert top[0].startswith("[Jobs 3]  [Teams]  [Inbox"), top[0]
 	for screen in (rooted, deeper, messages, out_one):
-		for label in ("[Jobs]  [Teams]", "[Teams]", "[Inbox"):
+		for label in ("[Jobs 3]  [Teams]", "[Teams]", "[Inbox"):
 			assert label not in screen[0], screen[0]
 		assert screen[0].startswith("Jobs > "), screen[0]
 		assert screen[0].rstrip().endswith("lang.ada"), screen[0]
@@ -652,7 +652,7 @@ def test_a_real_terminal_walks_in_and_out_one_segment_at_a_time(world):
 		"the local tab move changed the location row"
 	assert any("[Messages]  [Events]" in line for line in messages), \
 		messages[:12]
-	assert out_two[0].startswith("[Jobs]  [Teams]  [Inbox"), out_two[0]
+	assert out_two[0].startswith("[Jobs 3]  [Teams]  [Inbox"), out_two[0]
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, text[-600:]
 	assert world["store"].last_seq() == before, \
 		"the navigation walk wrote to the authority"

@@ -262,3 +262,9 @@ Status: **changes requested** in
 45. [next operator] Deploy the signed-off v11 correction and run item 9's live
     smokes: held Work A releasing already-pending Work B without restart, and
     an unchanged no-claim action retrying after runner repair.
+
+## Tuner deployment audit — 2026-08-27
+
+46. [done] Revalidate the signed bridge source, current immutable release, and live process inventory. Source gates are Codex 420/420 and ACP 77/77; every active bridge process predates final sign-off, the ACP runtime still comes from byte-different `14aecfb`, and no new immutable release exists.
+47. [next approver/operator] Select a clean reviewed commit containing W11910, publish it through the official immutable v11 deploy path, update the live deployment's explicit paths and accepted launcher instructions as required, and perform the drain/cutover/restart under approver authority. Do not deploy the current dirty checkout wholesale.
+48. [pending after cutover] Run and record both live smokes from item 45, then close only if the unchanged readiness levels advance without a recovery restart.

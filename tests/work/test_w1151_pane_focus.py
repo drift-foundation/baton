@@ -109,6 +109,11 @@ def detail(world):
 	return view
 
 
+def region(view):
+	return "breadcrumb" if view.crumb_focus else (
+		view.event_focus if view.detail_tab == "events" else view.focus)
+
+
 # -- the cycle ---------------------------------------------------------------
 
 def test_tab_cycles_the_message_panes_forward(world):
@@ -118,28 +123,28 @@ def test_tab_cycles_the_message_panes_forward(world):
 	panes in one order and wraps."""
 	view = detail(world)
 	seen = []
-	for _ in range(4):
-		seen.append(view.focus)
+	for _ in range(5):
+		seen.append(region(view))
 		view.handle(TAB)
-	assert seen == ["index", "reader", "threads", "index"], seen
+	assert seen == ["index", "reader", "breadcrumb", "threads", "index"], seen
 
 
 def test_shift_tab_cycles_them_backward(world):
 	view = detail(world)
 	seen = []
-	for _ in range(4):
-		seen.append(view.focus)
+	for _ in range(5):
+		seen.append(region(view))
 		view.handle(BTAB)
-	assert seen == ["index", "threads", "reader", "index"], seen
+	assert seen == ["index", "threads", "breadcrumb", "reader", "index"], seen
 
 
 def test_the_two_directions_are_inverses(world):
 	view = detail(world)
-	for _ in range(len(("threads", "index", "reader")) * 2):
-		before = view.focus
+	for _ in range(len(("breadcrumb", "threads", "index", "reader")) * 2):
+		before = (view.crumb_focus, view.focus)
 		view.handle(TAB)
 		view.handle(BTAB)
-		assert view.focus == before, before
+		assert (view.crumb_focus, view.focus) == before, before
 
 
 def test_events_cycles_the_panes_it_actually_paints(world):
@@ -149,13 +154,12 @@ def test_events_cycles_the_panes_it_actually_paints(world):
 	view.handle(NEXT_TAB)
 	assert view.detail_tab == "events"
 	seen = []
-	for _ in range(3):
-		seen.append(view.event_focus)
+	for _ in range(4):
+		seen.append(region(view))
 		view.handle(TAB)
-	assert seen == ["index", "reader", "index"], seen
-	# three forward steps from `index` land on `reader`; one back
-	# returns to `index`
-	assert view.event_focus == "reader"
+	assert seen == ["index", "reader", "breadcrumb", "index"], seen
+	# Four forward steps return to the reader; one back returns to index.
+	assert view.event_focus == "reader" and not view.crumb_focus
 	view.handle(BTAB)
 	assert view.event_focus == "index"
 
@@ -176,7 +180,10 @@ def test_tab_and_the_chord_reach_the_same_states(world):
 	by_tab.handle(TAB)
 	by_chord.handle(CTRL_W)
 	by_chord.handle(ord("k"))
-	assert by_tab.focus == by_chord.focus == "threads"
+	assert by_tab.crumb_focus and by_chord.focus == "threads"
+	by_chord.handle(CTRL_W)
+	by_chord.handle(ord("k"))
+	assert by_tab.crumb_focus and by_chord.crumb_focus
 
 
 @pytest.mark.parametrize("pane_key", [TAB, BTAB])
@@ -291,9 +298,9 @@ def test_the_focus_states_are_the_same_at_every_width(world, width):
 	seen = []
 	for _ in range(3):
 		painted(view, width=width)
-		seen.append(view.focus)
+		seen.append(region(view))
 		view.handle(TAB)
-	assert seen == ["index", "reader", "threads"], (width, seen)
+	assert seen == ["index", "reader", "breadcrumb"], (width, seen)
 
 
 # -- what the console tells the operator --------------------------------------
@@ -301,8 +308,8 @@ def test_the_focus_states_are_the_same_at_every_width(world, width):
 def test_the_footer_names_both_gestures_in_one_cell(world):
 	view = detail(world)
 	lines = painted(view)
-	footer = next(line for line in lines if "panes" in line)
-	assert "Tab/Ctrl-W panes" in footer, footer
+	footer = next(line for line in lines if "Ctrl-W panes" in line)
+	assert "Tab focus" in footer and "Ctrl-W panes" in footer, footer
 	# and it did not cost a row: the tab hint is still on the same line
 	assert "[/] tabs" in footer, footer
 
@@ -313,9 +320,9 @@ def test_the_operator_documentation_teaches_the_alternative():
 	prose = " ".join((repo / "docs" / "BATON-WORK.md")
 	                 .read_text(encoding="utf-8").split())
 	assert "Tab" in prose and "pane" in prose
-	assert "Tab/Ctrl-W panes" in prose or \
-		"`Tab` cycles pane focus" in prose, \
-		"the guide does not teach Tab as a pane gesture"
+	assert "`Tab` cycles focus" in prose and \
+		"breadcrumb" in prose, \
+		"the guide does not teach the expanded focus cycle"
 
 
 # -- a real terminal ----------------------------------------------------------
@@ -328,10 +335,10 @@ def test_a_real_terminal_moves_the_focus_marker_with_tab(world):
 	still say which pane has it."""
 	import ptyharness
 	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
-		(b"\r", 0.9),      # 0: detail, focus on Threads
-		(b"\t", 0.6),      # 1: Tab -> the message index
-		(b"\t", 0.6),      # 2: Tab -> the reader
-		(b"\x1b[Z", 0.6),  # 3: Shift-Tab (CSI Z) -> back to the index
+		(b"\r", 0.9),      # 0: detail, focus on the message index
+		(b"\t", 0.6),      # 1: Tab -> the reader
+		(b"\t", 0.6),      # 2: Tab -> the breadcrumb
+		(b"\x1b[Z", 0.6),  # 3: Shift-Tab -> back to the reader
 		(b"qy", 0.4),
 	], columns=120, lines=32)
 
@@ -347,12 +354,10 @@ def test_a_real_terminal_moves_the_focus_marker_with_tab(world):
 				return (row, line.index("»"))
 		return None
 
-	seen = [marker(ptyharness.replay(step, columns=120, lines=32))
-	        for step in steps[:4]]
-	assert all(seen), seen
-	threads, index, reader, back = seen
-	assert threads != index, ("Tab did not leave Threads", seen)
-	assert index != reader, ("the second Tab did not move", seen)
-	assert threads != reader, seen
-	assert back == index, ("Shift-Tab did not step back", seen)
+	screens = [ptyharness.replay(step, columns=120, lines=32)
+	           for step in steps[:4]]
+	seen = [marker(screen) for screen in screens]
+	assert seen[0] and seen[1] and seen[0] != seen[1], seen
+	assert any("breadcrumb" in line for line in screens[2]), screens[2]
+	assert seen[3] == seen[1], ("Shift-Tab did not restore the reader", seen)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, text[-400:]

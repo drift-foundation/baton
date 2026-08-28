@@ -1,0 +1,23 @@
+W26328 — evidence, 2026-08-27
+Implementer: baton.claude. No Git history or index was mutated.
+
+== full v11 gate (just test-v11), final tree ==
+================ 3226 passed, 189 warnings in 73.10s (0:01:13) =================
+========== 54 passed, 3226 deselected, 1 warning in 130.05s (0:02:10) ==========
+ℹ pass 77
+ℹ fail 0
+
+== the two new suites ==
+................................................................         [100%]
+64 passed in 3.03s
+
+== console mutation measurement (evidence/w26328-console-mutation-harness.py) ==
+         test_a_second_page_opened_inside_the_first_restores_it
+
+21 of 21 mutations caught, none expected-unseen
+  full run: evidence/w26328-console-mutation-run.txt
+
+== authority mutation measurement (evidence/w26328-mutation-harness.py) ==
+
+10 of 12 mutations caught; 2 expected-unseen and named above
+  full run: evidence/w26328-authority-mutation-run.txt

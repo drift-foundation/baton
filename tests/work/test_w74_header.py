@@ -60,7 +60,7 @@ def test_the_root_header_is_identity_plus_summary_only(world):
 	                                        [(b"qy", 0.4)])
 	screen = ptyharness.replay(text)
 	header = screen[0]
-	assert header.startswith("[Jobs]"), header
+	assert header.startswith("[Jobs "), header
 	assert header.rstrip().endswith("lang.ada"), \
 		"the participant identity left the right edge"
 	assert "top-level work" not in header, \
@@ -88,7 +88,7 @@ def test_drilled_views_keep_their_real_breadcrumb(world):
 		"the drilled breadcrumb lost its trail"
 	assert drilled[0].startswith("Jobs > "), \
 		f"the drilled trail does not start at its page: {drilled[0]!r}"
-	for label in ("[Jobs]", "[Teams]", "[Inbox"):
+	for label in ("[Jobs ", "[Teams]", "[Inbox"):
 		assert label not in drilled[0], \
 			f"the global tab row survived the drill-in: {drilled[0]!r}"
 	assert drilled[0].rstrip().endswith("lang.ada")
@@ -106,6 +106,6 @@ def test_the_narrow_root_header_still_fits_and_identifies(world):
 	# Identity overdraws LAST, so the one fact a narrow header can
 	# never lose is who the operator is signed in as.
 	assert screen[0].rstrip().endswith("lang.ada"), screen[0]
-	assert screen[0].startswith("[Jobs]"), screen[0]
+	assert screen[0].startswith("[Jobs "), screen[0]
 	assert "top-level work" not in "\n".join(screen)
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0

@@ -1658,7 +1658,7 @@ def test_search_entry_carries_the_search_state_back(world, tmp_path):
 	          view.search_page)
 	view.handle(ord("d"))
 	assert view.mode == "links" and view.graph_center == target
-	assert view.nav_segments()[-1].endswith(" · deps")
+	assert view.nav_segments()[-1] == "deps"
 	view.handle(27)
 	assert view.mode == "search", "Back did not return to the results"
 	assert (view.search_query, view.cursor, view.selected_id,

@@ -112,6 +112,7 @@ keeps the explicit config and participant identity established above.
     $BATON resume reason="upgrade complete"
     $BATON work-graph
     $BATON work-graph format=dot > work.dot
+    $BATON actionable-work
 
 **Protocol 11 uses `say`, not retired `send`.** A plain `say` discusses the
 Work; adding `request=` and `on=` creates one directed obligation. `pass` is a
@@ -789,6 +790,42 @@ write concurrently without fighting:
 - `review-*.md` — append-only review evidence. Corrections append a dated
   marker; they never rewrite what a reviewer already said.
 
+## Finding the Work that awaits you
+
+`home` and `tree` show a team's containment window three levels deep. A Work
+you could claim on the fourth has no row there — and `search` needs a query and
+only reaches your own team — so "what can I pick up?" was a question the views
+could not answer.
+
+The Jobs tab now spells the count, and every tree row carries a `Mine` cue over
+its whole subtree: `me` when the row itself is yours to claim, `+N` when N items
+below it are, `me+N` for both, and blank for nothing. **The count ignores the
+display bound**: an item four levels down is counted under each of its visible
+ancestors, and each Work counts once in the header total however many ancestors
+roll it up.
+
+Press `m`, or ask directly:
+
+    $BATON actionable-work
+    $BATON actionable-work limit=25
+    $BATON actionable-work after=25
+
+Every match appears with its complete root-first breadcrumb, across every owning
+team, in the same canonical order `wait` offers — so the list and the wake agree.
+Paging is 100 by default (1..500) and each page is one snapshot; a refresh
+restarts at the first page rather than pretending to continue one that has moved.
+
+**A Work counts when it is open, ready, queued, unclaimed, and its current Route
+resolves to you** — including an alternate somebody deliberately selected. That
+is narrower than the bold Title in the console, which also marks your own held
+claim and directed `@` obligations.
+
+**On a shared Route this means "available to you", not "assigned to you".** Two
+handlers see one opportunity until one of them claims it, and then neither does.
+It is a locator, not an obligation: pickup lateness remains one participant-level
+concern on Teams, directed obligations remain Inbox concerns, and neither is
+folded into this count.
+
 ## Exporting the Work graph
 
 `home`, `tree` and the dependency neighbourhood are bounded operator views:
@@ -803,6 +840,7 @@ sequence naming the exact state it came from:
 
     $BATON work-graph
     $BATON work-graph format=dot > work.dot
+    $BATON actionable-work
     $BATON work-graph format=dot status=all \
         changed-from=2026-08-01T00:00:00Z changed-until=2026-09-01T00:00:00Z
 

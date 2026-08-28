@@ -492,3 +492,13 @@ instead of being reconciled to depth one.
 **Confirmed:** the code correction is signed off. The live deploy and the two
 operator smokes in acceptance remain separate pending operational work; this
 review did not infer them from focused tests.
+
+## Tuner deployment audit — 2026-08-27
+
+**Observed:** The signed correction is committed in current `main` at `aa15287`, and the relevant ACP/Codex bridge paths have no working-tree diff. Fresh source gates pass: Codex event bridge 420/420 and ACP bridge 77/77.
+
+**Observed:** The active `/home/sl/baton-v11.14aecfb` services all started on 2026-08-26 at 00:19 local time, before the final review signed off at 10:15. The Codex dispatcher and readiness producers import from the source checkout but have not restarted to load the signed-off bytes. The two ACP services execute the immutable `14aecfb` bridge, whose ACP and shared readiness-gate hashes differ from current signed source. No `aa15287` immutable distribution or matching deployment home exists.
+
+**Confirmed operational boundary:** The official `deploy-v11` entry point packages the complete v11 authority, operator documents, and co-deployed ACP bridge. The present checkout contains unrelated uncommitted authority and documentation work, so publishing it would expand this signed-off bridge correction to unreviewed scope. The approver role owns Git and destructive deployment gates; it must select a clean reviewed commit, publish a new immutable release, cut the live home over, and restart the managed services before either live smoke can be meaningful.
+
+**Pending acceptance evidence:** After that cutover, prove (1) an already-pending Work offer is delivered when the participant's live claim slot frees, without a bridge restart, and (2) an unchanged no-claim action is retried after runner-environment repair. No live-smoke result is claimed from the pre-correction processes.

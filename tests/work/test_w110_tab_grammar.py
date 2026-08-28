@@ -26,6 +26,7 @@ from __future__ import annotations
 import curses
 import os
 import pathlib
+import re
 import pty as _pty
 import sys
 
@@ -148,7 +149,12 @@ def open_detail(view):
 def test_the_top_bar_brackets_every_tab(world):
 	view = console(world)
 	labels = [label for _name, label in view.top_tab_segments()]
-	assert labels[:2] == ["[Jobs]", "[Teams]"], labels
+	# W26328: the Jobs label carries the participant-actionable count,
+	# always spelled. It is still ONE bracketed tab, which is what this
+	# case is about, so the shape is asserted here and the number is
+	# asserted where it is the subject.
+	assert re.fullmatch(r"\[Jobs \d+\]", labels[0]), labels[0]
+	assert labels[1] == "[Teams]", labels
 	# W167: the label is `[Inbox]`, or `[Inbox *]` when this
 	# participant owes something. Either way it is one bracketed tab.
 	assert labels[2] in ("[Inbox]", "[Inbox *]"), labels[2]
@@ -431,7 +437,7 @@ def test_the_detail_footer_teaches_the_same_keys(world):
 def test_the_operator_documentation_teaches_one_grammar():
 	body = (REPO / "docs" / "BATON-WORK.md").read_text(encoding="utf-8")
 	prose = " ".join(body.split())
-	assert "[Jobs] [Teams] [Inbox *]" in prose, \
+	assert "[Jobs 3] [Teams] [Inbox *]" in prose, \
 		"the documented header still shows the superseded bar"
 	assert "`]` selects the next tab and `[` the previous" in prose, \
 		"the doc does not name the canonical keys at the top level"
@@ -464,7 +470,8 @@ def test_a_real_terminal_moves_both_tab_levels_with_brackets(world):
 	jobs, teams, inbox, wrapped, detail, events = (
 		ptyharness.replay(step) for step in steps[:6])
 	for screen in (jobs, teams, inbox, wrapped):
-		assert screen[0].startswith("[Jobs]  [Teams]  [Inbox"), screen[0]
+		assert re.match(r"\[Jobs \d+\]  \[Teams\]  \[Inbox", screen[0]), \
+			screen[0]
 	assert any("lang.grace" in line for line in teams), teams[:8]
 	assert any("nothing owed" in line or "Inbox" in line
 	           for line in inbox), inbox[:8]
@@ -484,7 +491,7 @@ def test_a_real_terminal_moves_both_tab_levels_with_brackets(world):
 	# and nothing else — and it is now provable from the header, which
 	# names the drilled location rather than the top level.
 	assert events[0].startswith("Jobs > "), events[0]
-	for label in ("[Jobs]", "[Teams]", "[Inbox"):
+	for label in ("[Jobs ", "[Teams]", "[Inbox"):
 		assert label not in events[0], events[0]
 	assert detail[0] == events[0], \
 		"the local tab move changed the location row"

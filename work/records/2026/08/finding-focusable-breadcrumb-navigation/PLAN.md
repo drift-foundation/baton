@@ -11,7 +11,10 @@
    Tab/Shift-Tab and Work-detail Ctrl-W graph, boundary Up/Down, same-tab Work
    jumps, exact page restoration, focused Left-versus-Esc rule, compact
    selectors, whole-token `…` viewport, and footer/narrow refusal.
-4. [next implementation] Add the shared breadcrumb focus model, rendering,
-   navigation and deep/history/narrow-terminal regressions.
-5. [then review] Independently verify direct ancestor navigation, one-step
+4. [done tuner 2026-08-28 UTC] Added the separate structural-location model,
+   shared structured crumb targets, complete focus graph, one-action direct
+   navigation, whole-token viewport/footer, operator guide, and focused
+   deep/history/purity/narrow-terminal regressions. Full v11 verification:
+   3239 parallel, 54 serial/PTY and 77 ACP passed.
+5. [next review] Independently verify direct ancestor navigation, one-step
    Back restoration, key parity, focus visibility and no page-specific drift.

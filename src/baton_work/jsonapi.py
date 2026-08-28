@@ -259,7 +259,14 @@ from baton_work.authority import Authority, WorkError
 # what it was. The MINOR advances because a consumer that wants the export
 # needs to know the surface exists; it never has to parse the DOT rendering,
 # which carries its own independent `baton_dot_version`.
-PROJECTION_VERSION = "12.6"
+# W26328 adds the participant-actionable facts: `actionable_for_viewer` on the
+# Jobs tree, `viewer_actionable` and `actionable_descendants` on every row it
+# returns including active trails, and the paged `actionable-work` read.
+# Additive in the same sense as every MINOR before it -- a consumer that
+# ignores them reads exactly what it read before -- and no database schema
+# changes, because these are DERIVED CURRENT FACTS rather than stored
+# workflow state.
+PROJECTION_VERSION = "12.7"
 
 
 def require_version(requested: str | None) -> None:

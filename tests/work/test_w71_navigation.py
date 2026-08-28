@@ -121,11 +121,11 @@ def test_unfold_re_roots_and_esc_returns(world):
 		f"the re-rooted breadcrumb is wrong: {rooted[0]!r}"
 	assert rooted[0].startswith("Jobs > "), \
 		f"the trail does not start at the top-level page: {rooted[0]!r}"
-	assert "[Jobs]  [Teams]" not in rooted[0], \
+	assert "[Teams]" not in rooted[0], \
 		f"the global tab row survived the drill-in: {rooted[0]!r}"
 	assert any("↳ the grandch" in line for line in rooted), rooted[:6]
 	back = ptyharness.replay(steps[2])
-	assert back[0].startswith("[Jobs]  [Teams]"), \
+	assert back[0].startswith("[Jobs ") and "[Teams]" in back[0], \
 		f"one Esc did not return from one unfold: {back[0]!r}"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 
@@ -143,10 +143,10 @@ def test_unfolding_the_current_root_is_idempotent(world):
 	twice = ptyharness.replay(steps[1])
 	assert "the root > the root" not in twice[0], \
 		f"the re-root stack duplicated its current Work: {twice[0]!r}"
-	assert "[Jobs]" not in twice[0], \
+	assert "[Jobs " not in twice[0], \
 		f"the global tab row survived the drill-in: {twice[0]!r}"
 	back = ptyharness.replay(steps[2])
-	assert back[0].startswith("[Jobs]") and " > " not in back[0], \
+	assert back[0].startswith("[Jobs ") and " > " not in back[0], \
 		f"one Esc did not return from one logical unfold: {back[0]!r}"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 

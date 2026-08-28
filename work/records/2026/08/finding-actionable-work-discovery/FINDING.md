@@ -110,3 +110,18 @@ column is not added automatically to `Awaiting me`, search, dependency graphs,
 or every other specialized table that happens to render Work. In particular,
 `Mine` would be redundant in a view whose membership already means actionable
 for the viewer and would unnecessarily consume scarce horizontal space.
+
+## 2026-08-28 independent review
+
+**Confirmed P1:** The approved opaque continuation was implemented as a
+positional integer offset into the current actionable set. A claim or routing
+change that removes an earlier row between pages shifts every later row left,
+so the next page starts too far forward and silently skips still-actionable
+Work. This directly defeats the flattened view's discovery guarantee under the
+shared-route race it is designed to expose. The CLI grammar and documentation
+also expose the cursor as an integer (`after=25`) rather than an opaque token.
+
+**Confirmed P2:** When the mandatory `Mine` column makes the ordinary table too
+narrow, the refusal's calculated `need N cells` omits the Mine allocation.
+The table correctly refuses instead of clipping, but it tells the operator to
+widen to a width that can still be insufficient.

@@ -924,11 +924,19 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		claimed = _claimed_ats(store, ids)
 		handed = _handoffs(store, ids)
 		window_now = store.clock()
+		# W26328: the participant's claimable set and the roll-up over EVERY
+		# Work, derived in THIS snapshot beside the rows they describe. A
+		# count read afterwards would describe a state the rows may not have
+		# come from -- the same rule the whole projection is built on.
+		claimable = _claimable(store, viewer_team, viewer_member)
+		below = _actionable_rollup(store, claimable)
 		rows = [dict(_row_view(store, entry, viewer_team,
 		                       viewer_member, first_blockers=first,
 		                       claimed_ats=claimed, handoffs=handed,
 		                       now=window_now),
-		             depth=depth)
+		             depth=depth,
+		             viewer_actionable=entry["id"] in claimable,
+		             actionable_descendants=below.get(entry["id"], 0))
 		        for entry, depth in window]
 		# W5 (approved containment rule): within each bounded
 		# parent/child group — a matching parent keeps only its
@@ -969,13 +977,20 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 			trail_first = _first_open_blockers(store, endpoints)
 			trail_claimed = _claimed_ats(store, endpoints)
 			trail_handed = _handoffs(store, endpoints)
+			# W26328: a trail row carries the same two facts an ordinary row
+			# does. `viewer_actionable` is always false for one -- a trail is
+			# an ACTIVE claim and the predicate requires unclaimed -- but the
+			# roll-up beneath it is not, and a reader that had to know which
+			# kind of row it held to know whether the facts were there would
+			# be reading two shapes.
 			trail_rows = {
-				claim["id"]: _row_view(store, claim, viewer_team,
-				                       viewer_member,
-				                       first_blockers=trail_first,
-				                       claimed_ats=trail_claimed,
-				                       handoffs=trail_handed,
-				                       now=window_now)
+				claim["id"]: dict(
+					_row_view(store, claim, viewer_team, viewer_member,
+					          first_blockers=trail_first,
+					          claimed_ats=trail_claimed,
+					          handoffs=trail_handed, now=window_now),
+					viewer_actionable=claim["id"] in claimable,
+					actionable_descendants=below.get(claim["id"], 0))
 				for claim, _chain in hidden}
 		matched_hidden = [
 			(claim, chain) for claim, chain in hidden
@@ -1055,7 +1070,13 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		           if name != "_path"} for trail in trails]
 		snapshot_seq = store.last_seq()
 	return {"rows": rows, "summary": summary, "filter": active,
-	        "active_trails": trails, "snapshot_seq": snapshot_seq}
+	        "active_trails": trails,
+	        # W26328: ONE COUNT, each Work once however many visible ancestors
+	        # roll it up. The header total is a property of the participant's
+	        # claimable SET rather than a sum over rows, which is why it is
+	        # the set's size and not an accumulation.
+	        "actionable_for_viewer": len(claimable),
+	        "snapshot_seq": snapshot_seq}
 
 
 def _hidden_claims(store, viewer_team, painted, within, parents, order):
@@ -4743,3 +4764,125 @@ def work_graph(store: Authority, *, team: str | None = None,
 	            "edges": ordered_edges}
 	validate_work_graph(answered)
 	return {**answered, "snapshot_seq": snapshot_seq}
+
+
+# -- W26328: the participant-actionable set -----------------------------------
+#
+# `work/records/2026/08/finding-actionable-work-discovery/`.
+#
+# THE COUNTING PREDICATE IS NARROWER THAN EVERY NEIGHBOURING ONE, and the
+# reviewer's research is explicit that this is the whole difficulty: the TUI's
+# bold Title also covers the viewer's own held claim and directed `@`
+# obligations including blocked Work; `participant_actions` deliberately
+# redelivers the viewer's claimed Work for restart recovery; and
+# `_first_actionable` has the right predicate and answers one row.
+#
+# What THIS counts is Work the viewer could claim right now: open, ready,
+# queued, unclaimed, and whose exact CURRENT Route -- including an explicitly
+# selected alternate -- resolves to them. Planned `Next`, trials, pokes,
+# runtime refreshes, member pickup and every Inbox concern are excluded, and
+# W2938 remains authoritative that pickup lateness is one participant
+# obligation on Teams rather than N Work alerts.
+#
+# ON A SHARED ROUTE THIS MEANS "available to this participant", not exclusive
+# assignment. Two handlers see one opportunity until an atomic claim removes
+# it from both.
+
+
+def _claimable(store: Authority, viewer_team: str, viewer_member: str) -> set:
+    """Every Work this participant may claim right now, in ONE pass.
+
+    THE ROUTE IS RESOLVED BY `_endpoint_struct` AND MEMOIZED, which is how
+    this keeps a fixed statement cost without writing a second opinion about
+    route resolution. The number of DISTINCT `(team, kind, selected)` triples
+    is bounded by the accepted configuration -- kinds times routes -- and not
+    by how much Work exists, so a thousand queued rows sharing one endpoint
+    cost one resolution rather than a thousand.
+    """
+    resolved = {}
+    claimable = set()
+    for row in store.conn.execute(
+            "SELECT id, route_team, route_kind, route_selected FROM work "
+            "WHERE status='open' AND ready=1 AND phase='queued' "
+            "AND handler_team IS NULL AND route_team=?", (viewer_team,)):
+        key = (row["route_team"], row["route_kind"], row["route_selected"])
+        if key not in resolved:
+            answer = _endpoint_struct(store, key[0], key[1], key[2])
+            resolved[key] = tuple((answer or {}).get("handlers") or ())
+        if viewer_member in resolved[key]:
+            claimable.add(row["id"])
+    return claimable
+
+
+def _actionable_rollup(store: Authority, claimable: set) -> dict:
+    """How many claimable Work items sit BELOW each Work, transitively.
+
+    THE DEPTH BOUND IS THE DISPLAY'S, NEVER THE COUNT'S. `tree` shows three
+    containment levels; a queued actionable descendant on the fourth has no
+    row, and the whole point of the cue is to say it is there. So this walks
+    the parent map over EVERY Work rather than the returned rows, and a
+    filtered-out or depth-omitted descendant counts exactly as a visible one
+    does.
+
+    EACH WORK COUNTS ONCE PER ANCESTOR, not once per path: containment is a
+    tree, so an item has one chain of ancestors and increments each of them
+    exactly once. The visited set is what makes a malformed cycle terminate
+    rather than hang -- containment cannot legitimately contain one, and a
+    projection that looped on damaged data would take the console with it.
+    """
+    parents = {row["id"]: row["parent"] for row in store.conn.execute(
+        "SELECT id, parent FROM work")}
+    below = {}
+    for work_id in claimable:
+        seen = set()
+        current = parents.get(work_id)
+        while current is not None and current not in seen:
+            seen.add(current)
+            below[current] = below.get(current, 0) + 1
+            current = parents.get(current)
+    return below
+
+
+def actionable_work(store: Authority, *, viewer_team: str, viewer_member: str,
+                    after: int = 0, limit: int = 100) -> dict:
+    """Every Work awaiting this participant, flattened, with its breadcrumb.
+
+    THE ORDINARY TREE CANNOT ANSWER THIS, which is why the verb exists.
+    `tree` is bounded at three containment levels and `search` needs a
+    title/id query and is restricted to the viewer's own team -- so a queued
+    item this participant may claim, nested on the fourth level or owned by
+    another team, has no row and no locator anywhere.
+
+    ACROSS EVERY OWNING TEAM. A Work owned by one team whose Route resolves
+    to a participant of another is exactly the cross-team convergence the
+    open-graph ruling exists for, and it is claimable by them.
+
+    ONE PAGE IS ONE SNAPSHOT. The continuation is opaque and a client that
+    refreshes restarts at the first page rather than pretending to continue a
+    snapshot that has moved.
+    """
+    start, size = _page_bounds(after, limit)
+    with _read_snapshot(store):
+        claimable = _claimable(store, viewer_team, viewer_member)
+        rows = []
+        for row in store.conn.execute(
+                "SELECT * FROM work WHERE status='open' AND ready=1 "
+                "AND phase='queued' AND handler_team IS NULL "
+                "AND route_team=? " + WORK_ORDER, (viewer_team,)):
+            if row["id"] not in claimable:
+                continue
+            rows.append(row)
+        page = rows[start:start + size]
+        answered = [{**_row_view(store, dict(row), viewer_team,
+                                 viewer_member),
+                     # THE COMPLETE PATH, root-first, in the shape every other
+                     # locator uses. A flattened view without it names Work an
+                     # operator cannot place.
+                     "breadcrumb": breadcrumb(store, row["id"])}
+                    for row in page]
+        snapshot_seq = store.last_seq()
+    return {"rows": answered,
+            "actionable_for_viewer": len(claimable),
+            "next_after": start + len(page) if start + size < len(rows)
+            else None,
+            "snapshot_seq": snapshot_seq}

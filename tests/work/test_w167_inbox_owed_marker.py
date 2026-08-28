@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+import re
 import pty as _pty
 import sys
 
@@ -163,8 +164,16 @@ def test_no_numeric_count_reaches_the_tab(world):
 	counted = box(world)
 	assert counted["total"] and counted["unseen"], counted
 	bar = view.top_tabs()
-	assert not any(character.isdigit() for character in bar), bar
-	assert bar == "[Jobs]  [Teams]  [Inbox *]", bar
+	# W26328 supersedes the whole-bar sweep. The ruling here is about
+	# the INBOX label: `total/unseen` emphasised unreadness where the
+	# question is whether you owe anything, and one marker answers
+	# that. The Jobs label answers a different question — HOW MANY
+	# items are actionable — and a count is the only answer to it.
+	# Sweeping the whole bar for digits would now forbid that, which
+	# W167 never ruled on, so the sweep is narrowed to the label it was
+	# always about.
+	assert not any(character.isdigit() for character in label(world)), bar
+	assert re.fullmatch(r"\[Jobs \d+\]  \[Teams\]  \[Inbox \*\]", bar), bar
 
 
 # -- what the marker does and does not follow --------------------------------
@@ -241,7 +250,7 @@ def test_the_marker_follows_the_canonical_field_and_not_the_counts(world):
 def test_the_painted_header_shows_the_marker(world):
 	poke(world)
 	header = painted(console(world))[0]
-	assert header.startswith("[Jobs]  [Teams]  [Inbox *]"), header
+	assert re.match(r"\[Jobs \d+\]  \[Teams\]  \[Inbox \*\]", header), header
 	assert header.rstrip().endswith("lang.ada"), header
 
 
@@ -251,11 +260,11 @@ def test_a_refresh_lowers_the_marker_on_the_next_read(world):
 	needing a keystroke that happens to rebuild it."""
 	seq = poke(world)
 	view = console(world)
-	assert painted(view)[0].startswith("[Jobs]  [Teams]  [Inbox *]")
+	assert re.match(r"\[Jobs \d+\]  \[Teams\]  \[Inbox \*\]", painted(view)[0])
 	tr.answer_poke(world["store"], seq, actor_team="lang", actor="ada",
 	               state="idle", explanation="between turns")
 	view.tick()
-	assert painted(view)[0].startswith("[Jobs]  [Teams]  [Inbox]"), \
+	assert re.match(r"\[Jobs \d+\]  \[Teams\]  \[Inbox\]", painted(view)[0]), \
 		painted(view)[0]
 
 

@@ -239,7 +239,16 @@ TEAM_DROP_ORDER = ("Session", "Role", "Since", "Work", "Agent", "Pickup")
 # on every Back.
 NAV_STATE_FIELDS = (
 	"mode", "path", "cursor", "selected_id", "show_closed",
+	# W26331: displayed structural location is separate from browser
+	# history. A direct ancestor jump keeps the deeper page in `nav` for
+	# one-step Back while resetting only this list.
+	"location", "crumb_focus", "crumb_key", "crumb_return_focus",
 	"search_query", "search_after", "search_page", "search_next",
+	# W26328: the `Awaiting me` page and its cursor. `cursor` and
+	# `selected_id` are already in this list, which is what makes
+	# Enter-then-Back land on the same ROW of the same page rather
+	# than at the top of page one.
+	"mine_after", "mine_page", "mine_next",
 	"detail_work", "detail_tab", "focus", "disc_cursor", "disc_after",
 	"viewed_thread", "thread_before", "msg_cursor", "reader_skip",
 	"event_cursor", "event_before", "event_focus", "event_skip",
@@ -258,6 +267,8 @@ NAV_SEPARATOR = " > "
 # segment. The Work's own three tabs need no suffix — they are tabs of the
 # page the trail already names, not places of their own (W6814).
 PAGE_NAMES = {"links": "deps"}
+PAGE_COMPACT = {"search": "search", "links": "deps", "pokes": "pokes",
+	            "mine": "awaiting"}
 
 # W6814 (finding-tui-active-descendant-trail): the bound on ORDINARY session
 # navigation history. Browser-shaped: one entry per explicit page transition,
@@ -265,6 +276,11 @@ PAGE_NAMES = {"links": "deps"}
 # and is never evicted, so a 64-deep walk can still be left in one Back —
 # eviction may cost the middle of a path, never the way out of it.
 NAV_HISTORY_LIMIT = 64
+
+# W26328 (finding-actionable-work-discovery): the `Awaiting me` page size.
+# One number, shared with the projection call, so the footer's page label and
+# the rows it describes can never come from two different bounds.
+MINE_LIMIT = 100
 
 # W6814: the local tabs of one contextual Work page. All three are scoped to
 # that page's ROOT Work: `Jobs` renders it as the tree root, and Messages and
@@ -282,7 +298,7 @@ def _nav_copy(value):
 	subtly not the state they left, which is exactly what this mechanism
 	exists to prevent."""
 	if isinstance(value, list):
-		return list(value)
+		return [dict(one) if isinstance(one, dict) else one for one in value]
 	if isinstance(value, dict):
 		return dict(value)
 	return value
@@ -297,6 +313,49 @@ def _fit(value: str, size: int) -> str:
 	if len(value) <= size:
 		return value.ljust(size)
 	return (value[:size - 1] + "…") if size > 1 else value[:size]
+
+
+def breadcrumb_window(items: list[dict], selected_key: str,
+	                  room: int) -> list[dict]:
+	"""The maximal whole-token window containing the selected crumb.
+
+	Every candidate reserves standalone omission markers before it is
+	accepted. The compact pass uses exact selectors, never sliced prose;
+	if even that cannot fit, an empty answer asks the painter for the
+	explicit narrow refusal.
+	"""
+	if not items or room <= 0:
+		return []
+	keys = [item["key"] for item in items]
+	selected = keys.index(selected_key) if selected_key in keys \
+		else len(items) - 1
+	best = None
+	for compact in (False, True):
+		labels = [item["compact"] if compact else item["label"]
+		          for item in items]
+		for left in range(selected + 1):
+			for right in range(selected, len(items)):
+				pieces = (["…"] if left else []) + labels[left:right + 1] \
+					+ (["…"] if right + 1 < len(items) else [])
+				cells = sum(len(piece) for piece in pieces) \
+					+ len(NAV_SEPARATOR) * max(0, len(pieces) - 1)
+				if cells > room:
+					continue
+				count = right - left + 1
+				rank = (count, not compact, cells)
+				if best is None or rank > best[0]:
+					best = (rank, left, right, labels)
+	if best is None:
+		return []
+	_rank, left, right, labels = best
+	out = []
+	if left:
+		out.append({"text": "…", "key": None})
+	for index in range(left, right + 1):
+		out.append({"text": labels[index], "key": items[index]["key"]})
+	if right + 1 < len(items):
+		out.append({"text": "…", "key": None})
+	return out
 
 
 # The narrowest a participant identity may be drawn before the table
@@ -477,6 +536,41 @@ def _wrap_value(text: str, room: int) -> list[str]:
 			else rest[cut:]
 	out.append(rest)
 	return out or [""]
+
+
+def mine_stream(rows, width: int) -> list[dict]:
+	"""W26328: the PHYSICAL lines of one `Awaiting me` page.
+
+	An entry is its Id and its COMPLETE breadcrumb — the whole
+	containment path, root-first, ending in the Work's own title. The
+	path is the point of this page: the tree cannot show these rows at
+	all (they are deeper than its window, or under a root the operator
+	is not on), so an entry that named only the Work would say what to
+	claim and never where it lives, and two similarly titled Works
+	under different roots would be indistinguishable.
+
+	So the crumb WRAPS rather than truncating. Every other bounded cell
+	in this console clips, because a clipped Title is still a Title and
+	the row beside it carries the identity; a clipped path is a
+	DIFFERENT path, and the operator has no second copy of it on the
+	line. Continuation lines are blank in the Id column, which is what
+	makes one entry read as one entry.
+
+	`first` marks the line the cursor and the selection weight anchor
+	to, exactly as `tree_stream`'s `kind` does: the keys see entries,
+	the viewport sees lines, and the two counts are not the same
+	number."""
+	id_width = id_column_width(rows)
+	room = max(1, width - 1 - id_width - 1)
+	out: list[dict] = []
+	for row in rows:
+		crumb = " > ".join(entry["title"]
+		                   for entry in row.get("breadcrumb") or ())
+		for index, text in enumerate(_wrap_value(crumb, room)):
+			out.append({"row": row, "first": index == 0,
+			            "id": row["local_id"] if index == 0 else "",
+			            "text": text})
+	return out
 
 
 def assist_text(buffer: str) -> str:
@@ -1019,6 +1113,42 @@ def cue_column_width(rows) -> int:
 	return max(longest, len("Wait")) if longest else 0
 
 
+def mine_cell(row: dict) -> str:
+	"""W26328: what THIS viewer can act on at this row — blank, `me`,
+	`+N`, or `me+N`.
+
+	Two facts, one cell, and they are genuinely different questions:
+	`me` says this row is claimable by you right now, and `+N` says how
+	many claimable rows are hidden somewhere BELOW it. A row that is
+	both is `me+N`. Blank means neither, which is the common case and
+	must read as nothing rather than as a zero — a column of `0`s is
+	noise an operator has to look past to find the rows that matter.
+
+	Both members come from the canonical projection row. Nothing is
+	derived here: `viewer_actionable` is the same predicate `claim`
+	authorizes against, and `actionable_descendants` counts the same
+	set through containment.
+	"""
+	here = "me" if row.get("viewer_actionable") else ""
+	below = row.get("actionable_descendants") or 0
+	return here + (f"+{below}" if below else "")
+
+
+def mine_column_width(rows) -> int:
+	"""The `Mine` allocation for one painted page — the longest cell or
+	the heading, whichever is wider.
+
+	It is computed like the Id column and for the same reason: the
+	column is MANDATORY and never truncated, so `me+12` widens it
+	rather than being clipped to `me+1`, which would be a smaller
+	number rather than a visibly cut one. Unlike the `Wait` cue it is
+	never omitted when every cell is blank — an empty column still
+	answers "nothing here is yours", and a column that vanished would
+	be indistinguishable from a build that never had it."""
+	longest = max((len(mine_cell(row)) for row in rows), default=0)
+	return max(len("Mine"), longest)
+
+
 def id_column_width(rows) -> int:
 	"""W4: the exact leading Id column width — grown to the longest
 	visible local selector (W100, W1000, ...), NEVER truncating
@@ -1282,6 +1412,13 @@ class Console:
 		# drillable page joins by pushing a frame, not by growing a
 		# special case here.
 		self.nav: list[dict] = []
+		# W26331: the breadcrumb's structural location. It normally grows
+		# beside `nav`, but a direct crumb jump resets it without discarding
+		# the history entry that one Esc must restore.
+		self.location: list[dict] = []
+		self.crumb_focus = False
+		self.crumb_key: str | None = None
+		self.crumb_return_focus: str | None = None
 		# W6814: the page the FIRST drill of this walk left. It is kept
 		# beside the stack rather than inside it, because the bound
 		# above evicts the oldest ordinary entry and the way out is the
@@ -1374,6 +1511,11 @@ class Console:
 		self.search_after = 0
 		self.search_next: int | None = None
 		self.search_page = 1
+		# W26328: the flattened all-team `Awaiting me` page.
+		self.mine_after = 0
+		self.mine_next: int | None = None
+		self.mine_page = 1
+		self.mine_total = 0
 		self.search_limit = 100
 		self.search_saved: tuple | None = None
 		self.detail_return = "table"
@@ -1521,11 +1663,16 @@ class Console:
 			self.nav_caller = state
 		self.nav.append({"kind": kind, "label": label, "work": work,
 		                 "restore": state})
+		self.location.append({"kind": kind, "label": label, "work": work})
+		self.crumb_focus = False
+		self.crumb_key = None
 		if len(self.nav) > NAV_HISTORY_LIMIT:
 			# The OLDEST ordinary entry goes. `nav_caller` already holds
 			# the escape target, so the walk shortens from the far end
 			# and never loses its exit.
 			del self.nav[0]
+			if len(self.location) > NAV_HISTORY_LIMIT:
+				del self.location[0]
 
 	def _nav_pop(self) -> bool:
 		"""Back/Esc: pop EXACTLY one entry and restore the page it
@@ -1564,29 +1711,134 @@ class Console:
 		segment that is not a containment level); a page of a Work the
 		segment above already names contributes that page's name instead;
 		and a page that is not a Work's names itself."""
-		if not self.nav:
+		return [item["label"] for item in self.breadcrumb_items()]
+
+	def breadcrumb_items(self) -> list[dict]:
+		"""Structured breadcrumb targets for the displayed location.
+
+		`nav` is browser history; `location` is the structural path it
+		currently displays. Keeping this structured is what lets focus move
+		without parsing titles and lets an ancestor jump reset the latter
+		without popping the former.
+		"""
+		if not self.location:
 			return []
-		names: list[str] = []
+		items = [{"key": "top:jobs", "label": "Jobs", "compact": "Jobs",
+		          "kind": "top", "work": None, "location": []}]
 		covered: list[str] = []
-		for frame in self.nav:
+		for index, frame in enumerate(self.location):
+			prefix = _nav_copy(self.location[:index + 1])
 			if not frame["work"]:
-				names.append(frame["label"])
+				kind = frame["kind"]
+				items.append({"key": f"page:{index}:{kind}",
+				              "label": frame["label"],
+				              "compact": PAGE_COMPACT.get(kind, kind),
+				              "kind": kind, "work": None,
+				              "location": prefix})
 				covered = []
 				continue
-			trail = [entry["title"]
-			         for entry in self._work_ancestry(frame["work"])]
-			ids = self._work_ids(frame["work"])
+			trail = self._work_ancestry(frame["work"])
+			ids = [entry["id"] for entry in trail]
 			already = len(covered) \
 				if covered and ids[:len(covered)] == covered else 0
-			fresh, covered = trail[already:], ids
-			suffix = PAGE_NAMES.get(frame["kind"])
-			if not fresh and not suffix:
-				continue
-			if not fresh:
-				fresh = [trail[-1]]
-			fresh[-1] = f"{fresh[-1]} · {suffix}" if suffix else fresh[-1]
-			names.extend(fresh)
-		return [self.tab.title()] + names
+			for entry in trail[already:]:
+				target = _nav_copy(self.location[:index])
+				target.append({"kind": "work", "label": entry["title"],
+				               "work": entry["id"]})
+				items.append({"key": f"work:{entry['id']}",
+				              "label": entry["title"],
+				              "compact": entry["id"].rsplit("-", 1)[-1],
+				              "kind": "work", "work": entry["id"],
+				              "location": target})
+			covered = ids
+			if frame["kind"] in PAGE_NAMES:
+				kind = frame["kind"]
+				items.append({"key": f"page:{index}:{kind}",
+				              "label": PAGE_NAMES[kind],
+				              "compact": PAGE_COMPACT[kind],
+				              "kind": kind, "work": frame["work"],
+				              "location": prefix})
+		return items
+
+	def _state_for_location(self, location: list[dict]) -> dict | None:
+		"""The exact captured page state for one displayed prefix."""
+		if not location:
+			return _nav_copy(self.nav_caller) if self.nav_caller else None
+		for frame in reversed(self.nav):
+			state = frame["restore"]
+			if state.get("location") == location:
+				return {name: _nav_copy(value)
+				        for name, value in state.items()}
+		return None
+
+	def _work_jump_state(self, work_id: str) -> dict:
+		"""A Work crumb target, preserving a contextual Work local tab."""
+		tab = self.context_tab() if self.context_work() else "jobs"
+		if tab == "jobs":
+			return self._rooted_state(work_id)
+		state = self._fresh_detail_state(work_id)
+		state["detail_tab"] = tab
+		return state
+
+	def _jump_to_crumb(self, item: dict) -> None:
+		items = self.breadcrumb_items()
+		if not items or item["key"] == items[-1]["key"]:
+			return
+		if item["kind"] == "top":
+			target = self._state_for_location([])
+		elif item["kind"] == "work":
+			target = self._work_jump_state(item["work"])
+		else:
+			target = self._state_for_location(item["location"])
+		if target is None:
+			return
+		# One direct jump is one browser-history action. `_nav_push`
+		# captures the complete deeper page, including its breadcrumb
+		# selection, before only the displayed location is reset.
+		self._nav_push(item["kind"], item["label"], work=item["work"])
+		self._nav_restore(target)
+		self.location = _nav_copy(item["location"])
+		self.crumb_focus = bool(self.location)
+		self.crumb_key = item["key"] if self.location else None
+
+	def _enter_breadcrumb(self, return_focus: str | None = None) -> bool:
+		items = self.breadcrumb_items()
+		if not items:
+			return False
+		self.crumb_focus = True
+		self.crumb_return_focus = return_focus
+		if self.crumb_key not in {item["key"] for item in items}:
+			self.crumb_key = items[-1]["key"]
+		return True
+
+	def _leave_breadcrumb(self) -> None:
+		self.crumb_focus = False
+		if self.detail_tab == "events" and self.crumb_return_focus:
+			self.event_focus = self.crumb_return_focus
+		elif self.crumb_return_focus:
+			self.focus = self.crumb_return_focus
+
+	def _handle_breadcrumb_key(self, key: int) -> bool:
+		if not self.crumb_focus:
+			return False
+		items = self.breadcrumb_items()
+		if not items:
+			self.crumb_focus = False
+			return False
+		keys = [item["key"] for item in items]
+		at = keys.index(self.crumb_key) if self.crumb_key in keys \
+			else len(keys) - 1
+		if key in (ord("h"), curses.KEY_LEFT):
+			self.crumb_key = keys[max(0, at - 1)]
+		elif key in (ord("l"), curses.KEY_RIGHT):
+			self.crumb_key = keys[min(len(keys) - 1, at + 1)]
+		elif key in (curses.KEY_ENTER, 10, 13):
+			self._jump_to_crumb(items[at])
+		elif key in (curses.KEY_DOWN, ord("j")):
+			self._leave_breadcrumb()
+		else:
+			return False
+		return True
 
 	def context_work(self) -> str | None:
 		"""The Work whose CONTEXTUAL PAGE the operator is on, or None at
@@ -1596,8 +1848,8 @@ class Console:
 		to. It comes from the navigation entry rather than from the
 		cursor, which is the ruling: moving the highlight through the
 		tree must never change which Work owns Messages or Events."""
-		if self.nav:
-			here = self.nav[-1]
+		if self.location:
+			here = self.location[-1]
 			return here["work"] if here["kind"] == "work" else None
 		# A view constructed STRAIGHT into a Work page has no recorded
 		# path — the parity and unit harnesses build one — and its tabs
@@ -1789,6 +2041,39 @@ class Console:
 				work_filter=effective,
 				after=self.search_after, limit=self.search_limit))
 		self.search_next = window["next_after"]
+		rows = list(window["rows"])
+		self._spend_owed_cycle(owed)
+		self._observe_phases(rows)
+		return rows
+
+	def mine_rows(self) -> list[dict]:
+		"""W26328: ONE page of the flattened `Awaiting me` window,
+		through the same cache, countdown and observation boundary
+		every other table-shaped window uses.
+
+		It is deliberately NOT the tree filtered down. The tree is a
+		bounded three-level containment window, so a claimable Work
+		four levels under a root it never returns is invisible there
+		however carefully the operator looks — which is the finding.
+		This asks the authority the flat question directly, across the
+		whole team's Work and independently of the current root, and
+		the projection answers with the same claimability the `claim`
+		operation authorizes against.
+
+		`show_closed` and the work filter are NOT applied. A closed
+		Work is never claimable and a filtered-out one is still
+		awaiting you, so honouring either would let a view state the
+		operator set for a different question silently hide Work this
+		page exists to surface."""
+		owed = self.refresh_due and self.tick_owed
+		window = self._cached(
+			("mine", self.mine_after),
+			lambda: projection.actionable_work(
+				self.store, viewer_team=self.team,
+				viewer_member=self.member,
+				after=self.mine_after, limit=MINE_LIMIT))
+		self.mine_next = window["next_after"]
+		self.mine_total = window["actionable_for_viewer"]
 		rows = list(window["rows"])
 		self._spend_owed_cycle(owed)
 		self._observe_phases(rows)
@@ -2026,6 +2311,18 @@ class Console:
 		out = []
 		for name in TABS:
 			label = name.title()
+			if name == "jobs":
+				# W26328: the participant-actionable total, ALWAYS spelled
+				# including zero. `[Jobs 0]` is an answer -- "nothing is
+				# waiting for you" -- and omitting it when the count is zero
+				# would leave an operator unable to tell that from a tab that
+				# never says. It carries a COUNT rather than the `*` marker
+				# Inbox and Teams use, because the question here is how much
+				# and theirs is whether.
+				#
+				# From the SAME cached window the rows come from, so the
+				# header and the table cannot describe two authority states.
+				label += f" {self._window()['actionable_for_viewer']}"
 			if name == "inbox" and box["owed_action"]:
 				# W167 (finding-inbox-owed-marker) supersedes W25's
 				# `total/unseen` here. Those are genuinely independent
@@ -2111,7 +2408,7 @@ class Console:
 		two peer navigation surfaces when one of them is a drill-down
 		inside the other. The local tabs of the drilled page are painted
 		by that page, beneath this row."""
-		if self.nav:
+		if self.location:
 			self._render_breadcrumb(screen, width)
 			return
 		box = self.inbox_view()
@@ -2227,20 +2524,26 @@ class Console:
 		room = max(0, self._tab_budget(width)
 		           - (len(tag) + 1 if tag else 0)
 		           - (len(dispatch) + 1 if dispatch else 0))
-		segments = self.nav_segments()
-		trail = NAV_SEPARATOR.join(segments)
-		if len(trail) > room:
-			kept = list(segments)
-			while len(kept) > 1 and \
-					len("… " + NAV_SEPARATOR.join(kept)) > room:
-				kept.pop(0)
-			trail = "… " + NAV_SEPARATOR.join(kept)
-			if len(trail) > room:
-				# One segment that still does not fit: keep its TAIL,
-				# because the end of a title distinguishes siblings more
-				# often than its beginning.
-				trail = "… " + kept[-1][-max(0, room - 2):]
-		screen.addnstr(0, 0, trail, max(1, width - 1), curses.A_BOLD)
+		items = self.breadcrumb_items()
+		selected = self.crumb_key if self.crumb_focus else items[-1]["key"]
+		window = breadcrumb_window(items, selected, room)
+		if not window:
+			refusal = "(breadcrumb too narrow)"
+			if len(refusal) <= room:
+				screen.addnstr(0, 0, refusal, room, curses.A_BOLD)
+		else:
+			column = 0
+			for index, piece in enumerate(window):
+				if index:
+					screen.addnstr(0, column, NAV_SEPARATOR,
+					               room - column, curses.A_BOLD)
+					column += len(NAV_SEPARATOR)
+				attr = curses.A_BOLD
+				if self.crumb_focus and piece["key"] == selected:
+					attr |= curses.A_REVERSE
+				screen.addnstr(0, column, piece["text"],
+				               room - column, attr)
+				column += len(piece["text"])
 		self._render_right_edge(screen, width)
 
 	# -- rendering ------------------------------------------------------------
@@ -2299,6 +2602,10 @@ class Console:
 			# W17: the conversational pokes this participant is part of
 			# — the ones owed an answer, and the ones they asked.
 			self._render_pokes(screen, height, width)
+		elif self.mode == "mine":
+			# W26328: every Work awaiting THIS participant, flat, with
+			# the complete path to each.
+			self._render_mine(screen, height, width)
 		elif self.mode == "search":
 			# W6: the flat result table — ordinary row facts, the
 			# closed-visibility rule, and a footer naming the result
@@ -2356,7 +2663,7 @@ class Console:
 				               curses.A_DIM)
 				table_top += 1
 			self._render_table(screen, height, width, rows,
-			                   top=table_top, trails=trails)
+			                   top=table_top, trails=trails, mine=True)
 		self._render_bar(screen, height, width)
 
 	# -- W25: the Inbox tab ----------------------------------------------
@@ -2891,6 +3198,8 @@ class Console:
 		the same row: an operator's hands do not change tab, and a
 		second copy of this precedence would be a second set of
 		rules to keep in step."""
+		if self.crumb_focus and self.location:
+			self._render_breadcrumb_footer(screen, height, width)
 		caret = None
 		if self.confirm_exit:
 			# One row, drawn whole at any width the console accepts.
@@ -3056,6 +3365,31 @@ class Console:
 			screen.move(*caret)
 		screen.refresh()
 
+	def _render_breadcrumb_footer(self, screen, height: int,
+	                              width: int) -> None:
+		items = self.breadcrumb_items()
+		keys = [item["key"] for item in items]
+		at = keys.index(self.crumb_key) if self.crumb_key in keys \
+			else len(items) - 1
+		prefix = (f"breadcrumb {at + 1}/{len(items)}: "
+		          f"{items[at]['compact']}")
+		available = max(0, width - 1)
+		if len(prefix) > available:
+			text = "(breadcrumb too narrow)"
+		else:
+			clauses = [prefix, "h/l select", "Enter open", "Down page",
+			           "Esc back"]
+			text = clauses[0]
+			for clause in clauses[1:]:
+				candidate = text + " · " + clause
+				if len(candidate) > available:
+					break
+				text = candidate
+		# Replace the page-specific help row completely; command/status
+		# input remains on its independent bottom row.
+		screen.addnstr(height - 2, 0, " " * available, available)
+		screen.addnstr(height - 2, 0, text, available, curses.A_DIM)
+
 	def _row_cells(self, row: dict) -> dict:
 		"""Every drawable cell for one projection row — canonical values
 		through the closed compact maps, nothing computed here."""
@@ -3097,7 +3431,15 @@ class Console:
 		}
 
 	def _render_table(self, screen, height, width, rows,
-	                  top: int = 1, trails=()) -> None:
+	                  top: int = 1, trails=(), mine: bool = False) -> None:
+		# W26328: `mine` is the VIEW's question, exactly as `terminal`
+		# and `claimed` are — the ordinary containment tree carries the
+		# `Mine` column and nothing else does. Deriving it from whether
+		# the rows happen to have the members would make the column
+		# appear and vanish with the data, and would silently paint it
+		# on the flattened `Awaiting me` page, where every row is
+		# actionable and a column saying so of all of them says
+		# nothing.
 		# W4 R1: the Id width comes from the rows ACTUALLY painted in
 		# this view — a collapsed closed row must not consume Title
 		# space or drop columns until `z` exposes it. The W39
@@ -3116,14 +3458,22 @@ class Console:
 		              if entry["kind"] == "work"]
 		id_width = id_column_width(selectable)
 		cue_width = cue_column_width(selectable)
+		# W26328: `Mine` is MANDATORY on this surface, so it joins the
+		# identity allocation rather than the responsive column set.
+		# Being in `COLUMNS` would put it in some drop position, and a
+		# column that answers "is any of this mine" is worth less than
+		# nothing if the widths at which an operator most needs a
+		# summary are exactly the widths that drop it.
+		mine_width = mine_column_width(selectable) if mine else 0
+		mandatory = id_width + ((1 + mine_width) if mine_width else 0)
 		# W73: the Out column is part of the budget exactly when the
 		# view can hold terminal Work, so every fit judgment below
 		# carries the same answer.
 		terminal = self.terminal_visible()
 		if cue_width and not layout_fits(
-				width, id_width + 1 + cue_width, terminal):
+				width, mandatory + 1 + cue_width, terminal):
 			cue_width = 0
-		lead = id_width + ((1 + cue_width) if cue_width else 0)
+		lead = mandatory + ((1 + cue_width) if cue_width else 0)
 		if not layout_fits(width, lead, terminal):
 			columns = visible_columns(width, lead, terminal)
 			need = sum(w for _n, w in columns) + len(columns) + \
@@ -3151,6 +3501,8 @@ class Console:
 			# W187: `Wait` — what this row waits on; `Blk` read
 			# ambiguously between blocks and blocked-by.
 			header += " " + "Wait".ljust(cue_width)
+		if mine_width:
+			header += " " + "Mine".ljust(mine_width)
 		for name, col_width in columns:
 			label = HEADER_LABELS.get(name, name.capitalize())
 			header += " " + label.ljust(col_width)
@@ -3219,6 +3571,8 @@ class Console:
 			line = (row["local_id"].ljust(id_width) + " " + title_cell)
 			if cue_width:
 				line += " " + blocker_cue(row).ljust(cue_width)
+			if mine_width:
+				line += " " + mine_cell(row).ljust(mine_width)
 			cells = self._row_cells(row)
 			for name, col_width in columns:
 				line += " " + cells[name][:col_width].ljust(col_width)
@@ -3271,8 +3625,16 @@ class Console:
 			# without them opens its own detail.
 			screen.addnstr(
 				height - 2, 0,
+				# W26328 appends `m mine` AFTER `[d] deps` rather than
+				# beside the other selection keys. W17 rules that the
+				# deps label survives whole at 60 columns, and this
+				# line clips at the terminal width — so a hint
+				# inserted ahead of it would have pushed a ruled one
+				# off the screen at exactly the width where it was
+				# ruled to be present.
 				"Enter drill · u unfold · c claim · z closed · "
-				"[d] deps · Esc back · : command · q quit", width - 1)
+				"[d] deps · m mine · Esc back · : command · q quit",
+				width - 1)
 
 	def _thread_autoselect(self) -> None:
 		"""The ruled default across EVERY bounded page of the detail
@@ -3433,6 +3795,11 @@ class Console:
 	def _handle_graph(self, key: int) -> bool:
 		rows = self._graph_row_set()
 		self._graph_reanchor(rows)
+		keys = self._graph_keys(rows)
+		at_top = not keys or self.graph_anchor == keys[0]
+		if key in (curses.KEY_UP, ord("k")) and at_top:
+			self._enter_breadcrumb()
+			return True
 		if key in (curses.KEY_DOWN, ord("j"), curses.KEY_UP, ord("k")):
 			# ONE UNIQUE-NODE ORDER, which is what the contract says and
 			# what a row order cannot give.
@@ -3484,7 +3851,8 @@ class Console:
 				# table: the operator asked to look at a neighbour's
 				# neighbourhood, not to leave the view.
 				self._nav_push("links",
-				               f"{self._work_title(row['work'])} · deps")
+				               f"{self._work_title(row['work'])} · deps",
+				               work=row["work"])
 				self.graph_center = row["work"]
 				self.graph_anchor = row["work"]
 				# Branch pages belong to the graph they were opened in.
@@ -3578,6 +3946,104 @@ class Console:
 		for line in lines:
 			out.extend(soft_wrap(line, max(8, width - 1)))
 		return out
+
+	def _render_mine(self, screen, height, width) -> None:
+		"""W26328: the flattened `Awaiting me` page.
+
+		NO `Mine` column. Every row here is claimable by this viewer —
+		that is the page's whole definition — so a column repeating it
+		on every line would be cells spent telling no two rows apart,
+		which is exactly the rule W73 and W93 apply to `Out` and `Run`.
+		The COUNT still appears, once, in the page label."""
+		rows = self.mine_rows()
+		more = "  (n: more)" if self.mine_next is not None else ""
+		screen.addnstr(1, 0,
+		               f"awaiting me: {self.mine_total} total · page "
+		               f"{self.mine_page} · {len(rows)} shown{more}",
+		               width - 1, curses.A_DIM)
+		# The empty page is an ANSWER and says so in words. A blank
+		# body would read as a view that failed to load.
+		if not rows:
+			screen.addnstr(3, 0, "(no work awaiting you)", width - 1)
+		else:
+			# W5's id anchor, on this page too: a background refresh
+			# that adds or removes actionable Work must not slide the
+			# cursor onto a different Work.
+			if self.selected_id is not None:
+				for index, row in enumerate(rows):
+					if row["id"] == self.selected_id:
+						self.cursor = index
+						break
+				else:
+					self.cursor = min(self.cursor, len(rows) - 1)
+			self.cursor = max(0, min(self.cursor, len(rows) - 1))
+			self.selected_id = rows[self.cursor]["id"]
+			stream = mine_stream(rows, width)
+			id_width = id_column_width(rows)
+			budget = max(1, height - 4)
+			at_line = [index for index, entry in enumerate(stream)
+			           if entry["first"]]
+			cursor_line = at_line[self.cursor]
+			start = max(0, min(cursor_line - budget + 1,
+			                   len(stream) - budget))
+			for offset, entry in enumerate(stream[start:start + budget]):
+				# The whole entry carries the selection weight, every
+				# wrapped line of it: half a highlighted path would
+				# read as two entries.
+				attribute = curses.A_REVERSE \
+					if entry["row"]["id"] == self.selected_id else 0
+				line = entry["id"].ljust(id_width) + " " + entry["text"]
+				screen.addnstr(2 + offset, 0, line, width - 1, attribute)
+		screen.addnstr(height - 2, 0,
+		               "j/k select · Enter details · c claim · "
+		               "n/p page · Esc back", width - 1)
+
+	def _open_mine(self) -> None:
+		"""W26328: enter the flattened page. It is a drill like any
+		other — one frame, one Back, and the frame carries the table
+		state being left, so Esc returns to the exact row of the exact
+		tree the operator pressed `m` on."""
+		self._nav_push("mine", "awaiting me")
+		self.mode = "mine"
+		self.mine_after = 0
+		self.mine_page = 1
+		self.cursor = 0
+		self.selected_id = None
+
+	def _handle_mine(self, key: int) -> bool:
+		"""W26328: the `Awaiting me` keys — the same vocabulary the
+		table and search already teach, and nothing new to learn."""
+		rows = self.mine_rows()
+		if key in (curses.KEY_DOWN, ord("j")):
+			self.cursor = min(self.cursor + 1, max(0, len(rows) - 1))
+			self.selected_id = rows[self.cursor]["id"] if rows else None
+		elif key in (curses.KEY_UP, ord("k")) and self.cursor == 0:
+			self._enter_breadcrumb()
+		elif key in (curses.KEY_UP, ord("k")):
+			self.cursor = max(0, self.cursor - 1)
+			self.selected_id = rows[self.cursor]["id"] if rows else None
+		elif key in (curses.KEY_ENTER, 10, 13) and rows:
+			self._enter_detail(rows[min(self.cursor,
+			                            len(rows) - 1)]["id"],
+			                   came_from="mine")
+		elif key == ord("n") and self.mine_next is not None:
+			self.mine_after = self.mine_next
+			self.mine_page += 1
+			self.cursor = 0
+			self.selected_id = None
+		elif key == ord("p"):
+			self.mine_after = 0
+			self.mine_page = 1
+			self.cursor = 0
+			self.selected_id = None
+		elif key == ord("c") and rows:
+			# The SAME shared claim path the table and search use. This
+			# is the page an operator opens to claim from, so anything
+			# else here would be a second claim path to keep honest.
+			self._claim_selected(rows)
+		elif key in (27, curses.KEY_LEFT) and self.nav:
+			self._nav_pop()
+		return True
 
 	def _render_pokes(self, screen, height, width) -> None:
 		"""The pokes this participant is part of, owed ones first.
@@ -3834,10 +4300,10 @@ class Console:
 		ruling is that tab navigation must not be discoverable only by
 		prior knowledge.
 
-		W1151 puts both pane gestures in ONE cell — `Tab/Ctrl-W panes`
-		— rather than spending a second row or a second bit on the
-		alternative. An operator who does not use Vim window commands
-		needs to see that Tab works; one who does needs nothing new."""
+		W26331 extends W1151's pane cycle through the breadcrumb. The
+		footer now names Tab as the generic focus gesture and keeps Ctrl-W
+		explicitly pane-shaped; the focused breadcrumb replaces this line
+		with its exact ordinal and selector instructions."""
 		screen.addnstr(height - 2, 0,
 		               " · ".join(["[/] tabs", *bits]), width - 1)
 
@@ -3909,7 +4375,7 @@ class Console:
 			bits.append("older events — n older · p newest")
 		elif self.event_before is not None:
 			bits.append("newer events — p newest")
-		bits.extend(["Tab/Ctrl-W panes", "j/k select", "Esc back"])
+		bits.extend(["Tab focus", "Ctrl-W panes", "j/k select", "Esc back"])
 		self._detail_footer(screen, height, width, bits)
 
 	# W47: the Event index is a fixed-column table. Concatenating the
@@ -4550,7 +5016,7 @@ class Console:
 			bits.append("reader: j scrolls")
 		seen_label = f"M{self.msg_cursor}" if self.msg_cursor \
 			else "selected"
-		bits.extend(["Tab/Ctrl-W panes", "j/k select",
+		bits.extend(["Tab focus", "Ctrl-W panes", "j/k select",
 		             f"s seen through {seen_label}", "Esc back"])
 		self._detail_footer(screen, height, width, bits)
 
@@ -5078,6 +5544,8 @@ class Console:
 				# `/` from results does not nest a second search inside
 				# the first, and one Esc still reaches the table.
 				self.nav[-1]["label"] = f"search: {query}"
+				if self.location and self.location[-1]["kind"] == "search":
+					self.location[-1]["label"] = f"search: {query}"
 			self.search_query = query
 			self.search_after = 0
 			self.search_page = 1
@@ -5277,6 +5745,8 @@ class Console:
 			                       max(0, len(rows) - 1))
 			self.poke_seq = rows[self.poke_cursor]["poke"] if rows \
 				else None
+		elif key in (curses.KEY_UP, ord("k")) and self.poke_cursor == 0:
+			self._enter_breadcrumb()
 		elif key in (curses.KEY_UP, ord("k")):
 			self.poke_cursor = max(0, self.poke_cursor - 1)
 			self.poke_seq = rows[self.poke_cursor]["poke"] if rows \
@@ -5321,6 +5791,8 @@ class Console:
 		if key in (curses.KEY_DOWN, ord("j")):
 			self.cursor = min(self.cursor + 1, max(0, len(rows) - 1))
 			self.selected_id = rows[self.cursor]["id"] if rows else None
+		elif key in (curses.KEY_UP, ord("k")) and self.cursor == 0:
+			self._enter_breadcrumb()
 		elif key in (curses.KEY_UP, ord("k")):
 			self.cursor = max(0, self.cursor - 1)
 			self.selected_id = rows[self.cursor]["id"] if rows else None
@@ -5893,7 +6365,7 @@ class Console:
 		# detail mode has no recorded path, and its brackets must still
 		# not reach the global row.
 		if key in (ord("["), ord("]")) \
-				and not self.nav and self.mode == "table" \
+				and not self.location and self.mode == "table" \
 				and not self.context_work():
 			step = -1 if key == ord("[") else 1
 			self.tab = TABS[(TABS.index(self.tab) + step) % len(TABS)]
@@ -5902,6 +6374,18 @@ class Console:
 			return self._handle_inbox(key)
 		if self.tab == "teams":
 			return self._handle_teams(key)
+		# W26331: every breadcrumb-bearing single-body page has a
+		# two-stop region cycle. Work detail owns its larger cycle below.
+		if self.location and self.mode != "detail":
+			if self.crumb_focus:
+				if key in (9, curses.KEY_BTAB):
+					self._leave_breadcrumb()
+					return True
+				if self._handle_breadcrumb_key(key):
+					return True
+			elif key in (9, curses.KEY_BTAB):
+				self._enter_breadcrumb()
+				return True
 		if key == ord("/") and self.mode in ("table", "search"):
 			# W6: open (or replace) the search query bar.
 			self.search_input = ""
@@ -5910,6 +6394,8 @@ class Console:
 			return self._search_mode_key(key)
 		if self.mode == "pokes":
 			return self._handle_pokes(key)
+		if self.mode == "mine":
+			return self._handle_mine(key)
 		rows, _hidden = (self.table_rows()
 		                 if self.mode == "table" else ([], 0))
 
@@ -5921,6 +6407,9 @@ class Console:
 		if key in (curses.KEY_DOWN, ord("j")):
 			self.cursor = min(self.cursor + 1, max(0, len(rows) - 1))
 			self.selected_id = rows[self.cursor]["id"] if rows else None
+		elif key in (curses.KEY_UP, ord("k")) and self.cursor == 0 \
+				and self.location:
+			self._enter_breadcrumb()
 		elif key in (curses.KEY_UP, ord("k")):
 			self.cursor = max(0, self.cursor - 1)
 			self.selected_id = rows[self.cursor]["id"] if rows else None
@@ -5954,6 +6443,11 @@ class Console:
 			# needed — a poke is addressed to a participant, not to
 			# Work, so it is reachable from an empty table too.
 			self._open_pokes()
+		elif key == ord("m"):
+			# W26328: `m` for mine. Like `p`, it needs no selected row
+			# and opens from an empty table — the whole point is the
+			# Work this window is NOT showing.
+			self._open_mine()
 		elif key == ord("z"):
 			self.show_closed = not self.show_closed
 			shown, _hidden = self.table_rows()
@@ -5987,6 +6481,28 @@ class Console:
 			"left": {"reader": "index"},
 			"right": {"index": "reader"},
 		}
+		if self.crumb_focus:
+			if self.ctrl_w_pending:
+				self.ctrl_w_pending = False
+				if key in (ord("j"), curses.KEY_DOWN, ord("w"), 23):
+					self.crumb_return_focus = "index" \
+						if self.detail_tab == "events" else "threads"
+					self._leave_breadcrumb()
+				return True
+			if key == 23:
+				self.ctrl_w_pending = True
+				return True
+			if key in (9, curses.KEY_BTAB):
+				if self.detail_tab == "events":
+					self.crumb_return_focus = "reader" \
+						if key == curses.KEY_BTAB else "index"
+				else:
+					self.crumb_return_focus = "reader" \
+						if key == curses.KEY_BTAB else "threads"
+				self._leave_breadcrumb()
+				return True
+			if self._handle_breadcrumb_key(key):
+				return True
 		# W1151: the discoverable alternative to the Vim chord. Tab
 		# cycles the VISIBLE regions forward and Shift-Tab backward,
 		# wrapping, over exactly the panes this tab paints — three in
@@ -6003,15 +6519,22 @@ class Console:
 			self.ctrl_w_pending = False
 			step = -1 if key == curses.KEY_BTAB else 1
 			if self.detail_tab == "events":
-				order = ("index", "reader")
+				order = ("breadcrumb", "index", "reader")
 				here = self.event_focus if self.event_focus in order \
 					else "index"
-				self.event_focus = order[(order.index(here) + step)
-				                         % len(order)]
+				target = order[(order.index(here) + step) % len(order)]
+				if target == "breadcrumb":
+					self._enter_breadcrumb(here)
+				else:
+					self.event_focus = target
 			else:
-				here = self.focus if self.focus in regions else "index"
-				self.focus = regions[(regions.index(here) + step)
-				                     % len(regions)]
+				order = ("breadcrumb",) + regions
+				here = self.focus if self.focus in order else "index"
+				target = order[(order.index(here) + step) % len(order)]
+				if target == "breadcrumb":
+					self._enter_breadcrumb(here)
+				else:
+					self.focus = target
 			return True
 		if self.ctrl_w_pending:
 			self.ctrl_w_pending = False
@@ -6022,6 +6545,9 @@ class Console:
 				if key in (ord("j"), curses.KEY_DOWN, ord("l"),
 				           curses.KEY_RIGHT):
 					self.event_focus = "reader"
+				elif key in (ord("k"), curses.KEY_UP) \
+						and self.event_focus == "index":
+					self._enter_breadcrumb("index")
 				elif key in (ord("k"), curses.KEY_UP, ord("h"),
 				             curses.KEY_LEFT):
 					self.event_focus = "index"
@@ -6044,7 +6570,10 @@ class Console:
 				return True
 			else:
 				return True
-			self.focus = neighbours[direction].get(here, here)
+			if direction == "up" and here == "threads":
+				self._enter_breadcrumb("threads")
+			else:
+				self.focus = neighbours[direction].get(here, here)
 			return True
 		if key == 23:
 			self.ctrl_w_pending = True
@@ -6083,6 +6612,9 @@ class Console:
 					self.disc_after = self.disc_next
 					self.disc_cursor = 0
 				self._reset_message_selection()
+			elif key in (curses.KEY_UP, ord("k")) \
+					and (self.disc_cursor or 0) == 0:
+				self._enter_breadcrumb("threads")
 			elif key in (curses.KEY_UP, ord("k")):
 				if self.disc_cursor > 0:
 					self.disc_cursor -= 1
@@ -6168,6 +6700,10 @@ class Console:
 					self.event_before = self.viewed_events_next_before
 					self.event_cursor = None
 					self.event_skip = 0
+		elif key in (curses.KEY_UP, ord("k")) \
+				and (not self.viewed_event_seqs or
+				     self.event_cursor == self.viewed_event_seqs[-1]):
+			self._enter_breadcrumb("index")
 		elif key in (curses.KEY_UP, ord("k")):
 			if self.event_cursor in self.viewed_event_seqs:
 				here = self.viewed_event_seqs.index(self.event_cursor)

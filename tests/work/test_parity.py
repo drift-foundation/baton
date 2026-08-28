@@ -83,11 +83,22 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 	# Title and the fixed columns; its width falls out of the header
 	# the app itself painted.
 	blk_at = header.index("Wait") if "Wait" in header else None
+	# W26328: and the mandatory `Mine` field, read the same way. It sits
+	# between the cue and the fixed columns, so a parser that did not
+	# know about it would read its cells as part of `Wait` — which is
+	# exactly the drift the header-driven decode exists to prevent.
+	mine_at = header.index("Mine") if "Mine" in header else None
+	tail_at = width - 1 - fixed          # where the fixed columns begin
+	mine_width = (tail_at - mine_at) if mine_at is not None else 0
 	if blk_at is not None:
-		cue_width = width - 1 - fixed - blk_at
-		title_width = blk_at - id_width - 2
+		cue_width = (mine_at - 1 if mine_at is not None
+		             else tail_at) - blk_at
 	else:
 		cue_width = 0
+	leading = [at for at in (blk_at, mine_at) if at is not None]
+	if leading:
+		title_width = min(leading) - id_width - 2
+	else:
 		title_width = max(app.MIN_TITLE, width - fixed - id_width - 2)
 	rows = []
 	for line in screen[2:]:
@@ -108,8 +119,10 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		local_id = line[:id_width].strip()
 		cue = line[blk_at:blk_at + cue_width].strip() \
 			if blk_at is not None else ""
-		rest_at = (blk_at + cue_width) if blk_at is not None \
+		rest_at = tail_at if (blk_at is not None or mine_at is not None) \
 			else id_width + 1 + title_width
+		mine = line[mine_at:mine_at + mine_width].strip() \
+			if mine_at is not None else ""
 		rest = line[rest_at:]
 		line = line[id_width + 1:]
 		raw_title = line[:title_width].rstrip()
@@ -133,7 +146,7 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		if clean.startswith("▸"):
 			clean = clean.split(" ", 1)[1] if " " in clean else ""
 		cells = {"title": clean, "depth": depth,
-		         "local_id": local_id, "cue": cue}
+		         "local_id": local_id, "cue": cue, "mine": mine}
 		offset = 0
 		for name, col_width in columns:
 			cells[name] = rest[offset + 1:offset + 1 + col_width].strip()
@@ -151,6 +164,9 @@ def _parse_rows(screen: list[str], width: int = WIDTH) -> list[dict]:
 		          # surfaces row FOR row — only field by field in an
 		          # order both happened to agree on.
 		          "local_id": cells["local_id"],
+		          # W26328: what the operator can act on, ABSENT in a
+		          # view that draws no such column.
+		          "mine": cells.get("mine"),
 		          # W73: `-` for an open row, the compact outcome for a
 		          # terminal one, and ABSENT entirely in an open-only
 		          # view that has no such column.
@@ -197,6 +213,12 @@ def test_home_rows_agree_value_by_value(world, capsys):
 			# W71 R3: the indentation depth itself is projected, not
 			# reconstructed client-side.
 			assert drawn_row["depth"] == json_row["depth"]
+			# W26328: the Mine cell is the two projected facts and
+			# nothing the console decided for itself. Both surfaces
+			# answer the same question, so a console that computed its
+			# own claimability would show it here.
+			assert drawn_row["mine"] == app.mine_cell(json_row), \
+				(viewer, json_row["id"], drawn_row["mine"])
 			# W73: Out formats the canonical outcome, and `-` while
 			# open. In an open-only view the column is not drawn at
 			# all, and parity is that BOTH surfaces agree it is absent

@@ -122,7 +122,14 @@ refresh is read-only and keeps the selection on the same Work.
 The console has three top-level tabs, and they lead the header with
 the participant identity right-aligned on the same row:
 
-    [Jobs] [Teams] [Inbox *]                                 team.member
+    [Jobs 3] [Teams] [Inbox *]                               team.member
+
+The number beside `Jobs` is how many open Work items are CLAIMABLE BY
+YOU right now — ready, unclaimed, routed to your team, and handled by
+you under the Route the item currently resolves to. It is always
+spelled, and `[Jobs 0]` is an answer: nothing is waiting for you. A
+tab that went blank instead would be indistinguishable from one that
+never says.
 
 That row appears at the TOP LEVEL and nowhere else. The moment you
 drill into something — a Work's detail, a re-rooted tree, a search, a
@@ -175,16 +182,36 @@ rows, scrolling, filtering and moving between a page's local tabs
 change nothing in that history, and going to the page you are already
 on is not recorded at all.
 
+The breadcrumb is also a focus region. `Tab`/`Shift-Tab` include it
+in the page's ordinary focus cycle; Up from the first row or top pane
+may enter it, and Down returns to the page. Focus starts on the
+current, deepest crumb. While focused, `h`/`l` or Left/Right select a
+whole level, and the footer says exactly which one — for example
+`breadcrumb 3/5: W3`. Enter opens the selected location directly;
+Enter on the current crumb does nothing. Left therefore means
+"previous crumb" only while this region has focus, and Esc remains
+the unambiguous Back key.
+
+A direct ancestor jump is one NEW browser-history action, not several
+Backs. It resets the displayed structural location while retaining
+the deeper page behind it, so one Esc restores that exact page and its
+selected crumb even when several containment levels lie between them.
+Work-to-Work jumps keep the current Jobs/Messages/Events tab. Search,
+dependency, poke and Awaiting-me crumbs restore their captured page
+state, including selection and paging.
+
 The history is per session, bounded at 64 ordinary page transitions,
 and starts empty on every launch. Past the bound the OLDEST ordinary
 entry is dropped — but the page you originally drilled in from is kept
 separately and is never dropped, so a long walk can always be left in
 one Esc.
 
-Narrow terminals drop the OLDEST breadcrumb segments and mark the
-shortened trail with a leading `…`, because where you are now is the
-part you cannot afford to lose. The participant identity keeps the
-right edge at every width.
+Long breadcrumbs use a horizontal whole-token viewport that keeps the
+selected crumb visible. Standalone `…` markers name whichever side is
+omitted; a long Work title falls back to its exact `W…` selector and
+is never sliced into a plausible different identity. If even that
+cannot fit, the header says `(breadcrumb too narrow)`. The participant
+identity keeps the right edge at every width.
 
 Every tab label is bracketed and the active one is HIGHLIGHTED. The
 brackets say "this is a tab"; they do not say which tab you are in.
@@ -417,15 +444,15 @@ list whenever the Work has several. This is the default for a FRESH
 entry, from Jobs, from search results, or from an Inbox row's Work
 context; moving between the detail tabs keeps whatever pane you chose.
 
-Inside Work detail, `Tab` cycles pane focus forward through the panes
-that view is painting and `Shift-Tab` cycles backward, wrapping — three
-in Messages, two in Events. It is the discoverable alternative to
-`Ctrl-W` plus `h`/`j`/`k`/`l`, which still moves geometrically and is
-unchanged; the footer advertises both as `Tab/Ctrl-W panes`. Focus
-movement is presentation only: it changes no selection, no seen state
-and nothing in the authority. Where the console is taking text, Tab
-keeps that surface's own contract — command-bar completion is still
-completion.
+Inside Work detail, `Tab` cycles focus forward through the breadcrumb
+and the panes that view is painting; `Shift-Tab` cycles backward, with
+wrap — four regions in Messages, three in Events. `Ctrl-W` plus
+`h`/`j`/`k`/`l` remains the geometric alternative and now connects the
+breadcrumb to the top pane: Up from Threads (or the Events index)
+enters it, and Down returns. Focus movement is presentation only: it
+changes no selection, no seen state and nothing in the authority.
+Where the console is taking text, Tab keeps that surface's own
+contract — command-bar completion is still completion.
 
 Refs section. A Work page carries THREE tabs — `[Jobs]`, `[Messages]`
 and `[Events]`, all bracketed like every other tab, with the active
@@ -713,6 +740,17 @@ normal, low then creation order without leaving their parent. The
 two-cell `Pr` column renders `Hi`/`No`/`Lo` and is the first column
 omitted at narrow widths; JSON always carries the full strings.
 
+The table's `Mine` field says what YOU can act on, and it is on the
+ordinary Jobs containment tree only. An empty cell means neither this
+row nor anything under it is yours; `me` means this row is claimable
+by you right now; `+N` means N claimable rows are hidden somewhere
+below it, however deep; `me+N` means both. The column is MANDATORY —
+it is never dropped at narrow widths and never clipped, so `me+12`
+widens it rather than shrinking to a smaller number, and a page where
+nothing is yours still draws the heading over blank cells. It is
+absent from the flattened `Awaiting me` page (every row there is
+yours), from search results and from the dependency graph.
+
 The table's `Wait` field shows the inline dependency cue, arrowless:
 `Wn` names the deterministic first OPEN blocker (oldest by creation)
 and `Wn+N` adds the count of remaining open blockers; a row with no
@@ -722,6 +760,20 @@ marker; `[d] deps` remains the full neighbour view, now drawn as the
 graph described under **The dependency graph** below; narrow layouts
 omit the cue whole — never clipped or relabelled. The boolean Ready column
 is gone: the cue names what must finish.
+
+**`m` opens `Awaiting me`** — every Work awaiting you, flat, across
+the whole team and independently of the root you are on. The
+containment tree is a bounded three-level window, so a Job you could
+claim on the fourth level has no row there at all; this page is where
+it is. Each entry is its Id and its COMPLETE containment path, wrapped
+across as many lines as it needs rather than clipped: a clipped path
+is a different path, and there is no second copy of it on the line.
+Pages hold 100 entries, `n` and `p` move between them, `Enter` opens
+the Work and one Esc comes back to the same page and the same row, and
+`c` claims the selected Work through the same claim path as everywhere
+else. When nothing awaits you the page says `(no work awaiting you)`.
+Closed visibility (`z`) and the Jobs filter do not reach it: a closed
+Work is never claimable and a filtered-out one is still awaiting you.
 
 Every Work carries its authority-local short
 selector — the `Id` column leading the table (`W11`, growing to fit

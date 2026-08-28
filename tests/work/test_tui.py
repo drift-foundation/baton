@@ -40,7 +40,7 @@ def test_the_console_opens_on_the_top_level_table_and_exits(world):
 	# this line: the tabs lead the header, the participant identity is
 	# right-aligned, and the `[oblig] [park] [due]` counters are gone —
 	# owed action lives in Inbox and parked Work in Jobs.
-	assert screen[0].startswith("[Jobs]"), screen[0]
+	assert screen[0].startswith("[Jobs "), screen[0]
 	assert screen[0].rstrip().endswith("lang.ada"), screen[0]
 	assert "top-level work" not in screen[0]
 	assert "[oblig:" not in screen[0], \
@@ -115,7 +115,7 @@ def test_escape_climbs_back_up_the_drilled_path(world):
 	screen = ptyharness.replay(steps[1])
 	# W74: the root view is recognized by the identity-led header with
 	# no breadcrumb trail, not by the removed prose.
-	assert screen[0].startswith("[Jobs]") and ">" not in screen[0], \
+	assert screen[0].startswith("[Jobs ") and ">" not in screen[0], \
 		"escape did not return to the home table"
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 

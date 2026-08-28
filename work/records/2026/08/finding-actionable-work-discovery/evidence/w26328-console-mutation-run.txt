@@ -1,0 +1,46 @@
+BASELINE  OK
+
+[caught] the Jobs tab carries no count at all
+         test_zero_is_spelled_rather_than_omitted, test_the_number_is_the_projection_s_own, test_it_counts_what_is_actionable_and_not_what_
+[caught] zero is omitted instead of spelled
+         test_zero_is_spelled_rather_than_omitted, test_it_counts_what_is_actionable_and_not_what_exists, test_the_painted_header_shows_the
+[caught] the count is how much Work is here, not how much is mine
+         test_it_counts_what_is_actionable_and_not_what_exists, test_it_counts_past_the_window_bound, test_a_claim_lowers_it_on_the_next_re
+[caught] the count comes from a second read of its own
+         test_the_number_is_the_projection_s_own, test_it_counts_what_is_actionable_and_not_what_exists, test_it_counts_past_the_window_bou
+[caught] the mine cell forgets what is below
+         test_the_header_and_the_table_come_from_one_read, test_the_four_values_and_their_meanings, test_a_wide_count_widens_the_column_rat
+[caught] the mine cell forgets this row itself
+         test_the_header_and_the_table_come_from_one_read, test_the_four_values_and_their_meanings, test_a_wide_count_widens_the_column_rat
+[caught] a blank cell is spelled as a zero
+         test_the_heading_is_drawn_when_nothing_is_mine, test_the_four_values_and_their_meanings, test_blank_rather_than_zero_when_nothing_
+[caught] a wide count is clipped instead of widening the column
+         test_a_wide_count_widens_the_column_rather_than_clipping
+[caught] the column is dropped under width pressure
+         test_no_width_that_draws_a_table_drops_it[90], test_no_width_that_draws_a_table_drops_it[74], test_no_width_that_draws_a_table_dro
+[caught] the column is omitted when every cell is blank
+         test_the_heading_is_drawn_when_nothing_is_mine, test_blank_rather_than_zero_when_nothing_is_mine
+[caught] the column leaks onto every table-shaped view
+         test_the_column_is_this_view_s_and_not_the_row_s
+[caught] the mandatory column is not in the width budget
+         test_home_rows_agree_value_by_value, test_containment_children_agree_inline, test_collapsed_resolved_rows_agree_on_both_surfaces
+[caught] the breadcrumb is truncated rather than wrapped
+         test_the_breadcrumb_is_complete_and_wrapped
+[caught] the entry names the Work instead of the path to it
+         test_the_breadcrumb_is_complete_and_wrapped
+[caught] the page is bounded by something other than the ruled limit
+         test_a_hundred_rows_to_a_page
+[caught] the empty page is silent
+         test_the_empty_page_says_so
+[caught] entering the page records no navigation
+         test_back_returns_to_the_exact_tree_it_opened_from, test_the_page_is_one_back_and_names_itself
+[caught] paging forward does not move the window
+         test_a_hundred_rows_to_a_page
+[caught] the page inherits the tree's closed-visibility state
+         test_m_lists_the_work_the_window_cannot_show, test_it_reaches_work_another_team_owns, test_it_is_not_the_current_root_s_subtree, t
+[caught] the key is bound but never taught
+         test_a_real_terminal_counts_finds_and_comes_back
+[caught] the page keeps no selection to come back to
+         test_a_second_page_opened_inside_the_first_restores_it
+
+21 of 21 mutations caught, none expected-unseen

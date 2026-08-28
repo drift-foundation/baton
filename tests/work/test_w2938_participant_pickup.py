@@ -675,7 +675,10 @@ def test_the_packaged_console_shows_the_participant_cue(tmp_path_factory):
 		columns=120, lines=20, command=[sys.executable, executable])
 	jobs, teams = (ptyharness.replay(step, columns=120, lines=20)
 	               for step in steps[:2])   # settle on Jobs, then `]`
-	assert jobs[0].startswith("[Jobs]  [Teams *]"), jobs[0]
+	# W26328: the Jobs label carries the actionable count. The
+	# subject here is the `*` on Teams, which is unchanged — a count
+	# on a NEIGHBOURING label is not the pickup cue multiplying.
+	assert jobs[0].startswith("[Jobs 1]  [Teams *]"), jobs[0]
 	assert any("Title" in line for line in jobs), jobs[:6]
 	# The TABLE, not the footer — `c claim` is the key hint and has
 	# always been there. What must not appear is a column or a cell.

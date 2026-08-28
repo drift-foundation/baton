@@ -728,6 +728,17 @@ GRAMMAR = {
 	"links": {"help": "typed graph edges with far-row summaries",
 	          "keys": (_key("work", required=True,
 	                        help="the Work id"),)},
+	# W26328: the flattened view the bounded tree cannot answer. `tree` stops
+	# at three containment levels and `search` needs a query and only reaches
+	# the viewer's own team, so a queued Work this participant may claim --
+	# nested deeper, or owned by another team -- had no locator anywhere.
+	"actionable-work": {"help": "every Work awaiting this participant, "
+	                            "flattened, with complete breadcrumbs",
+	                    "keys": (_key("after", kind="int", default=0,
+	                                  help="opaque continuation from a "
+	                                       "previous page"),
+	                             _key("limit", kind="int", default=100,
+	                                  help="page size, 1..500"))},
 	"breadcrumb": {"help": "root-first containment ancestry",
 	               "keys": (_key("work", required=True,
 	                             help="the Work id"),)},
@@ -2304,6 +2315,11 @@ def _dispatch(store: Authority, args):
 		                             changed_until=args.changed_until)
 	if command == "links":
 		return projection.links(store, args.work)
+	if command == "actionable-work":
+		team, member = _need_participant(args)
+		return projection.actionable_work(store, viewer_team=team,
+		                                  viewer_member=member,
+		                                  after=args.after, limit=args.limit)
 	if command == "breadcrumb":
 		return projection.breadcrumb(store, args.work)
 	if command == "events":

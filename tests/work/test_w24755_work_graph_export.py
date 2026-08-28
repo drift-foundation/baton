@@ -1841,7 +1841,7 @@ def test_the_zero_operand_default_is_every_team_and_open_status(world, capsys):
 	assert answered["result"]["scope"] == {
 		"team": None, "status": "open", "changed_from": None,
 		"changed_until": None, "closure": "incident-endpoints"}
-	assert answered["projection_version"] == "12.6"
+	assert answered["projection_version"] == "12.7"
 	# BOTH DEFAULTS, because there are two and either could drift.
 	#
 	# MEASURED, and the measurement added this line. The CLI grammar carries
