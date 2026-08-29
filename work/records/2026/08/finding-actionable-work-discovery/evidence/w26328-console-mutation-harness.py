@@ -121,6 +121,37 @@ MUTATIONS = [
     ("the page keeps no selection to come back to", APP,
      '\t"mine_after", "mine_page", "mine_next",',
      '\t"mine_after", "mine_next",'),
+
+    # --- 2026-08-28, the independent review ------------------------------
+    # [P2]: the too-narrow refusal has to name a width that WORKS.
+    ("the stated minimum forgets the mandatory Mine allocation", APP,
+     '			need = layout_minimum(lead, terminal)',
+     '			need = layout_minimum(id_width, terminal)'),
+
+    ("the stated minimum is one cell short of sufficient", APP,
+     '	return fixed + lead + MIN_TITLE + 1',
+     '	return fixed + lead + MIN_TITLE'),
+
+    ("the stated minimum is padded past what the table needs", APP,
+     '	return fixed + lead + MIN_TITLE + 1',
+     '	return fixed + lead + MIN_TITLE + 4'),
+
+    ("the diagnostic keeps arithmetic of its own", APP,
+     '			need = layout_minimum(lead, terminal)',
+     '			columns = visible_columns(width, lead, terminal)\n'
+     '			need = sum(w for _n, w in columns) + len(columns) + \\\n'
+     '				MIN_TITLE + id_width + 2'),
+
+    # [P1]: the console is a PASS-THROUGH client of the continuation.
+    ("the console invents a continuation instead of passing one back", APP,
+     '			self.mine_after = self.mine_next\n			self.mine_page += 1',
+     '			self.mine_after = str(self.mine_page * MINE_LIMIT)\n'
+     '			self.mine_page += 1'),
+
+    ("returning to the first page keeps the old continuation", APP,
+     '		elif key == ord("p"):\n			self.mine_after = None\n'
+     '			self.mine_page = 1',
+     '		elif key == ord("p"):\n			self.mine_page = 1'),
 ]
 
 EXPECTED = set()

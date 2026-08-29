@@ -25,14 +25,14 @@ EXCLUSIVE STDIO IS TRANSPORT ISOLATION, NOT MESSAGE IDENTITY -- the approved
 `baton.worker-entry/1` ruling, 2026-08-25. Every request is one closed object
 carrying `protocol`, `session`, `operation_id` and `operation`, plus only that
 operation's own members. `session` is the manager-minted identity of THIS
-exact posture-specific container session and arrives in the environment;
+exact container session and arrives in the launch document;
 `operation_id` is consumed once within it. Wrong-session, replayed, missing,
 unknown and extra members all refuse before the request reaches the agent.
 
-Consent and execution therefore hold DIFFERENT session identities, and an
-execution session is never a continuation or a promotion of a consent one:
-there is no message that turns one container into the other, because a fresh
-container after activation is what promotion was replaced by.
+`session` ARRIVES IN THE LAUNCH DOCUMENT (W26291), not in the environment.
+Every container holds its own identity for its own lifetime, and no message
+turns one container into another: a fresh container is what a continuation was
+replaced by.
 
 THERE IS EXACTLY ONE RESPONSE SHAPE AND IT IS CORRELATED. Every response
 echoes the request's own `protocol`, `session` and `operation_id`; a success
@@ -42,24 +42,37 @@ answered with NO FRAME at all and a non-zero exit -- the ruling forbids
 inventing an uncorrelated response shape, and the Worker Manager already owns
 the launched session and settles that case from the engine.
 
-THE TWO POSTURES ARE TWO CONTAINERS AND THIS PROGRAM KNOWS WHICH IT IS IN.
-`BATON_WORKER_POSTURE` is `consent` or `execution` and nothing else. The
-posture is checked ON EVERY OPERATION rather than once at start, because the
-rule the topology exists for is that a consent container never becomes an
-execution one -- and a check that ran once at start is a check a later message
-can walk past.
+THIS PROGRAM IS TOLD WHAT IT IS BY ONE VERSIONED DOCUMENT (W26291).
+`/run/baton/launch.json` is a manager-authored, read-only, bind-mounted file
+carrying exactly `schema`, `session`, `contract` and `role`. The path is a
+CONSTANT of the contract, so there is no locator variable to point this program
+somewhere else, and the read is bounded, no-follow and descriptor-proved for
+the same reason every other worker-visible byte in this campaign is.
 
-WHAT A CONSENT WORKER HAS: the human contract and the role instructions, and
-the ability to answer `accept` or `decline`. WHAT IT DOES NOT HAVE: the
-assignment, the workspace, any output path, and any execution tool.
+THERE IS NO ENVIRONMENT FALLBACK, and that is the ruling rather than an
+omission. `BATON_WORKER_POSTURE`, `BATON_WORKER_SESSION`,
+`BATON_WORKER_CONTRACT` and `BATON_WORKER_ROLE` are not read here at all: a
+container started with only those does not start. A compatibility path would be
+the second live contract the supersession exists to end.
+
+AND THERE IS NO POSTURE. V12 launches one runtime, consent/execution is not a
+runtime axis, and the ruling says there is no constant to transport -- so this
+program does not ask what kind of container it is, and `OPERATIONS` is the one
+runtime's set rather than a map keyed by an answer nothing supplies. `consider`
+is KEPT as a known operation this runtime is not entitled to, which is what
+makes refusing it mean something; deleting an operation from a ruled protocol
+is a larger decision than the Work that removed the axis.
 
 A BOOTSTRAP FAULT IS LATCHED, NOT RAISED -- the approved startup-correlation
-ruling. A container built with the wrong posture or carrying material its
-posture withholds still has an operable framing loop, so it reads exactly one
-bounded request identity envelope, returns the pending failure through the
-ordinary correlated fault, and exits non-zero. Reading that envelope grants no
-task, workspace, output, tool or agent capability: a latched failure can never
-reach the agent.
+ruling. A container whose launch document is present and
+correlatable but not valid still has an operable framing loop, so it reads
+exactly one bounded request identity envelope, returns the pending failure
+through the ordinary correlated fault, and exits non-zero. A document that
+cannot be read AT ALL is the other case: there is no session to answer under,
+so nothing is written and the manager settles the start it already owns.
+
+Reading that envelope grants no task, workspace, output, tool or agent
+capability: a latched failure can never reach the agent.
 
 STDOUT IS THE CHANNEL, so nothing else may write to it. Diagnostics go to
 stderr. A `print` in an agent would otherwise corrupt a frame, which is the
@@ -70,6 +83,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import sys
 import time
 
@@ -89,15 +103,32 @@ MAX_IDENTITY = 256
 # worker said too much.
 MAX_MESSAGE = 2000
 
-POSTURES = ("consent", "execution")
+# W26291: THE FIXED LAUNCH DOCUMENT, and every constant of it.
+#
+# The path is the contract's, not an operand: a path this program could be told
+# is a path a container can be pointed at wrongly, and the whole reason the
+# retired environment transport was replaced is that its vocabulary had no
+# version and no closed shape. `schema` carries the version IN THE NAME, so a
+# document from another generation is refused by an equality test rather than
+# by parsing a version member and deciding what to do about it.
+LAUNCH_DOCUMENT = "/run/baton/launch.json"
+LAUNCH_SCHEMA = "baton.worker-launch/1"
+LAUNCH_MEMBERS = ("schema", "session", "contract", "role")
 
-# What each posture may be ASKED. Two closed sets rather than one set plus
-# conditionals: the whole rule is readable in four lines, and an operation
-# added without a posture decision fails rather than defaulting into both.
-OPERATIONS = {
-    "consent": ("describe", "consider"),
-    "execution": ("describe", "work"),
-}
+# The manager writes these same four names, the same schema string and the same
+# ceilings. THE TWO COPIES ARE NECESSARY -- this program cannot import the
+# manager, which is the isolation rule the image is built on -- and a case in
+# `test_oci` reads this literal and holds the manager's against it, because two
+# copies of one contract agree until they don't.
+MAX_LAUNCH_BYTES = 65536                       # 64 KiB
+MAX_LAUNCH_VALUE = 4096
+
+# WHAT THIS RUNTIME MAY BE ASKED. One tuple rather than a map keyed by posture:
+# V12 launches one runtime, so there is no second set and nothing to key on.
+# `consider` stays in the vocabulary below as an operation this runtime is NOT
+# entitled to -- that refusal is the entitlement proof, and it needs `consider`
+# to be a real operation rather than an unknown word.
+OPERATIONS = ("describe", "work")
 
 # The common envelope every request carries, and then EXACTLY the members each
 # operation adds.
@@ -124,7 +155,12 @@ REQUEST_MEMBERS = {
 # thing inside this container -- a missing, unknown, extra or wrong-typed
 # member must not become a frame the manager then has to interpret.
 ANSWER_MEMBERS = {
-    "describe": ("protocol", "posture", "operations", "environment"),
+    # W26291: `posture` and `environment` are GONE and `launch` replaced them.
+    # `posture` reported an axis that no longer exists, and `environment`
+    # reported the transport this Work retired; `launch` is the exact analogue
+    # of what `environment` said -- the sorted member names of the document
+    # this container was actually launched with.
+    "describe": ("protocol", "operations", "launch"),
     "consider": ("contract_digest", "decision", "reason"),
     # `workspace` IS GONE ENTIRELY rather than renamed. A workspace path is a
     # HOST fact and the Worker Manager is artifact-neutral: what it needs from
@@ -133,26 +169,13 @@ ANSWER_MEMBERS = {
     "work": ("disposition", "outputs", "recap"),
 }
 
-# Environment a worker is allowed to see. Anything else in the image's
-# environment is not this program's business, and naming the set is what makes
-# "the assignment did not reach the consent container" checkable.
-# THE TWO POSTURES SEE THE SAME FOUR MEMBERS NOW, and that is the whole of
-# W14251's environment consequence. `BATON_WORKER_ASSIGNMENT`,
-# `BATON_WORKER_WORKSPACE` and `BATON_WORKER_OUTPUT` are REMOVED rather than
-# renamed: with two fixed paths there is nothing left for them to say, and the
-# assignment itself arrives as a document under one of them.
-#
-# The posture difference did not go with them -- it moved to where it always
-# belonged. A consent container has no `/input/` and no `/output/`, so what it
-# lacks is the two roots rather than three strings about them, and `visible`
-# still refuses a `BATON_WORKER_*` member outside the set because a container
-# carrying one was built wrong.
-ENVIRONMENT = {
-    "consent": ("BATON_WORKER_POSTURE", "BATON_WORKER_SESSION",
-                "BATON_WORKER_CONTRACT", "BATON_WORKER_ROLE"),
-    "execution": ("BATON_WORKER_POSTURE", "BATON_WORKER_SESSION",
-                  "BATON_WORKER_CONTRACT", "BATON_WORKER_ROLE"),
-}
+# `ENVIRONMENT` IS GONE ENTIRELY rather than emptied (W26291). It named the
+# four `BATON_WORKER_*` values a container was allowed to see, and the
+# supersession retired that transport with no fallback -- so a set describing
+# which of them are legal would be describing a channel this program no longer
+# reads. What replaced it is `LAUNCH_MEMBERS` above: the closed set of one
+# versioned document, checked as a closed set rather than as an allowlist over
+# whatever the image happened to be started with.
 
 # THE TWO FILESYSTEM ROLES, as constants of the contract. W14251 §7.0: a path
 # a manifest could vary is a path a runtime can be pointed at wrongly, so the
@@ -361,49 +384,147 @@ def failure(identity, fault):
             "message": fault.message}
 
 
-def posture_of(environment):
-    given = environment.get("BATON_WORKER_POSTURE")
-    if given not in POSTURES:
-        raise WorkerFault("posture",
-                          f"a worker runs as one of {', '.join(POSTURES)}; "
-                          f"this container says {given!r}")
-    return given
+def read_launch(place=LAUNCH_DOCUMENT):
+    """The manager's launch document, from a descriptor that proves what it is.
+
+    W26291. THE FOUR PROPERTIES HERE ARE NOT DECORATION, and each is a way a
+    container can be handed something other than the document it was promised:
+
+      NO-FOLLOW, so a link at the fixed path is refused rather than resolved.
+      A link is how a path this contract fixed becomes a path something else
+      chose, which is the exact defect `_read_without_following` was added to
+      the manager for.
+      NON-BLOCKING, so a FIFO at that name cannot stop this program inside
+      `open` before the descriptor check below can run. W26283's re-review is
+      the standing lesson: a guard placed after an operation that may not
+      return is a guard that never runs.
+      REGULAR, PROVED ON THE DESCRIPTOR rather than on the path, because the
+      descriptor is the one thing a racing replacement cannot have changed.
+      BOUNDED, at one byte past the ceiling. The document is written by the
+      manager, but this program is what a mis-composed delivery lands on, and a
+      reader with no bound is bounded by whoever writes the file.
+
+    AND READ-ONLY FOR THIS CONTAINER'S OWN VIEW. The manager mounts the file
+    read-only; this proves it rather than trusting it, because a launch
+    document this worker could rewrite is one it could change between reading
+    it and being asked what it is. The proof is an attempted write-open, which
+    is the only thing that actually answers the question -- the mode bits
+    describe the host file and say nothing about how it was mounted.
+
+    That proof depends on this process not being root, and it is not: the
+    recipe fixes the image user at 65532 and the adapter's `--user` restriction
+    names the same id, which is one decision written in two places with a case
+    holding them together. Root would satisfy a write-open on a read-only MODE
+    and still be refused by a read-only MOUNT, so the check is conservative in
+    the direction that matters either way.
+
+    Every failure here is `Uncorrelated`: without this document there is no
+    session, nothing this program said could be matched to a request, and the
+    ruling hands that case to the Worker Manager, which already owns the
+    launched operation.
+    """
+    try:
+        descriptor = os.open(place,
+                             os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except OSError:
+        raise Uncorrelated(f"this container has no readable {place}; the "
+                           f"launch document is how a worker is told what it "
+                           f"is") from None
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            raise Uncorrelated(f"{place} is not a regular file")
+        raw = os.read(descriptor, MAX_LAUNCH_BYTES + 1)
+    finally:
+        os.close(descriptor)
+    if len(raw) > MAX_LAUNCH_BYTES:
+        raise Uncorrelated(f"{place} is wider than {MAX_LAUNCH_BYTES} bytes")
+    try:
+        writable = os.open(place, os.O_WRONLY | os.O_NOFOLLOW)
+    except OSError:
+        pass
+    else:
+        os.close(writable)
+        raise Uncorrelated(f"{place} is writable from inside this container; "
+                           f"a launch document this worker could rewrite is "
+                           f"not one the manager can hold it to")
+    try:
+        document = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        raise Uncorrelated(f"{place} is not UTF-8 JSON") from None
+    if type(document) is not dict:
+        raise Uncorrelated(f"{place} is one JSON object")
+    return document
 
 
-def session_of(environment):
+def session_of(document):
     """The identity the manager minted for THIS container session.
 
-    Without it nothing this program says can be correlated to anything, so its
-    absence is not a fault frame -- it is the case the ruling hands to the
-    Worker Manager, which already owns the launched session and settles it as
-    `worker_start_failed` from the container-engine result.
+    Read BEFORE the rest of the document is validated, and deliberately: it is
+    what every answer correlates to, so a document that carries a usable
+    session and is wrong in some OTHER way can still be reported through the
+    ordinary fault frame. Without it nothing this program says can be
+    correlated to anything, so its absence is not a fault frame -- it is the
+    case the ruling hands to the Worker Manager, which already owns the
+    launched session and settles it as `worker_start_failed` from the
+    container-engine result.
     """
-    given = environment.get("BATON_WORKER_SESSION")
+    given = document.get("session")
     if type(given) is not str or not given or len(given) > MAX_IDENTITY:
         raise Uncorrelated("a worker session identity is bounded non-empty "
-                           "text and arrives from the manager")
+                           "text and arrives in the launch document")
     return given
 
 
-def visible(environment, posture):
-    """What this posture may see, and the proof that nothing else arrived.
+def launched(document, place=LAUNCH_DOCUMENT):
+    """The launch document held to its own closed contract.
 
-    A consent container that could read `BATON_WORKER_ASSIGNMENT` would be a
-    consent container holding the assignment, whatever it chose to do with it.
-    So the presence of a member outside the posture's set is a REFUSAL rather
-    than something to ignore: it means the manager built the wrong container,
-    and continuing would hide that.
+    A CLOSED SET, not an allowlist. Every required member present, NOTHING
+    else, the pinned schema, and every value bounded non-empty text -- an extra
+    top-level member is how a second contract alias would arrive, and this
+    campaign has rejected those explicitly before.
+
+    THE SCHEMA IS CHECKED BY EQUALITY. A version this program does not know is
+    not a document to read the parts it recognises out of: a manager and a
+    worker from two generations disagreeing silently is precisely what the
+    versioned document replaced.
+
+    Answers the VALIDATED DOCUMENT, all four members of it.
+
+    Re-review [P1]: this stripped `schema` and answered three, on the argument
+    that the version is this program's business. That is a plausible proposal
+    and it is not the recorded decision: the pinned finding says `describe`'s
+    `launch` is "the sorted member names of the validated launch document", and
+    that document has exactly four. Reporting three made the implementation
+    disagree with the ruling it was implementing, so the ruling wins — an
+    operator reading `describe` now sees which generation the container was
+    launched under, which is a fact worth having anyway.
     """
-    allowed = ENVIRONMENT[posture]
-    intruders = sorted(name for name in environment
-                       if name.startswith("BATON_WORKER_")
-                       and name not in allowed)
-    if intruders:
+    missing = sorted(name for name in LAUNCH_MEMBERS if name not in document)
+    extra = sorted(name for name in document if name not in LAUNCH_MEMBERS)
+    if missing or extra:
         raise WorkerFault(
-            "posture",
-            f"a {posture} container carries {', '.join(intruders)}, which its "
-            f"posture is not given; this container was built wrong")
-    return {name: environment[name] for name in allowed if name in environment}
+            "launch",
+            f"{place} is exactly {', '.join(LAUNCH_MEMBERS)}"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    if document["schema"] != LAUNCH_SCHEMA:
+        raise WorkerFault(
+            "launch",
+            f"{place} says it is {document['schema']!r} and this worker reads "
+            f"{LAUNCH_SCHEMA!r}; a launch document from another generation is "
+            f"not one to read the recognised parts out of")
+    for name in LAUNCH_MEMBERS:
+        value = document[name]
+        if type(value) is not str or not value:
+            raise WorkerFault(
+                "launch",
+                f"{place} carries a {name} that is not bounded non-empty text")
+        if len(value) > MAX_LAUNCH_VALUE:
+            raise WorkerFault(
+                "launch",
+                f"{place} carries a {name} wider than {MAX_LAUNCH_VALUE} "
+                f"characters")
+    return {name: document[name] for name in LAUNCH_MEMBERS}
 
 
 def canonical(value):
@@ -1092,8 +1213,8 @@ def bind(identity, expected):
     answering a question somebody else was asked.
 
     Re-review [P1]: this used to live inside `handle`, which the latched
-    bootstrap path never reaches -- so a container with a pending posture
-    fault echoed an arbitrary peer's session and disclosed its own failure to
+    bootstrap path never reaches -- so a container with a pending launch fault
+    echoed an arbitrary peer's session and disclosed its own failure to
     whoever asked. Startup correlation supplies an operation identity; it does
     not suspend the binding. Lifted out so the one caller that decides what to
     answer establishes the correlation FIRST, whatever it goes on to say.
@@ -1107,27 +1228,34 @@ def bind(identity, expected):
         raise WorkerFault(
             "session",
             "this frame names another container session; a worker answers "
-            "only the session the manager minted for it, and an execution "
-            "session is never a continuation of a consent one")
+            "only the session the manager minted for it, and no message turns "
+            "one container into another")
 
 
-def handle(request, identity, posture, environment, agent, spent):
-    """One operation, with the POSTURE CHECKED EVERY TIME.
+def handle(request, identity, seen, agent, spent):
+    """One operation, with ENTITLEMENT CHECKED EVERY TIME.
 
     The protocol and the session are `bind`'s and are established before this
     is reached; what remains here is entitlement, shape and the replay fence.
+
+    W26291: the entitlement was a POSTURE check and the posture axis is gone.
+    What it protected did not go with it -- this runtime answers `describe` and
+    `work`, and an operation outside that set is refused on every message
+    rather than once at start, because a check that ran once at start is a
+    check a later message can walk past.
     """
     operation = request.get("operation")
     if type(operation) is not str or operation not in REQUEST_MEMBERS:
         raise WorkerFault("protocol", "a request names one known operation")
-    if operation not in OPERATIONS[posture]:
-        # NOT "unknown operation". The distinction is the point of the
-        # topology: `work` is a real operation that this container is not
-        # entitled to, and saying so is what makes the negative test meaningful.
+    if operation not in OPERATIONS:
+        # NOT "unknown operation". The distinction is the whole point of
+        # keeping `consider` in the vocabulary: it is a REAL operation that
+        # this runtime is not entitled to, and saying so is what makes the
+        # negative case mean something.
         raise WorkerFault(
-            "posture",
-            f"a {posture} container is not asked to {operation!r}; it answers "
-            f"{', '.join(OPERATIONS[posture])}")
+            "entitlement",
+            f"this worker is not asked to {operation!r}; it answers "
+            f"{', '.join(OPERATIONS)}")
     wanted = REQUEST_MEMBERS[operation]
     missing = sorted(name for name in wanted if name not in request)
     extra = sorted(name for name in request if name not in wanted)
@@ -1152,12 +1280,11 @@ def handle(request, identity, posture, environment, agent, spent):
             f"operation {identity['operation_id']!r} was already used in this "
             f"session; an operation id is consumed once")
     spent.add(identity["operation_id"])
-    seen = visible(environment, posture)
     if operation == "describe":
         return check_answer(operation,
-                            {"protocol": PROTOCOL, "posture": posture,
-                             "operations": list(OPERATIONS[posture]),
-                             "environment": sorted(seen)})
+                            {"protocol": PROTOCOL,
+                             "operations": list(OPERATIONS),
+                             "launch": sorted(seen)})
     if operation == "consider":
         return check_answer(operation, agent.consider(seen, request))
     # W14251, closed: THE WORK OF AN EXECUTION WORKER, IN ORDER.
@@ -1211,7 +1338,7 @@ def handle(request, identity, posture, environment, agent, spent):
         "recap": reported.get("recap")})
 
 
-def serve(stdin, stdout, environment, agent):
+def serve(stdin, stdout, agent, place=LAUNCH_DOCUMENT):
     """The loop. Every answerable fault becomes a correlated frame; nothing
     becomes a traceback.
 
@@ -1219,9 +1346,19 @@ def serve(stdin, stdout, environment, agent):
     a runtime that is gone, and reconciliation would have to infer what
     happened from engine state -- which is exactly what the manager is built
     not to do.
+
+    W26291: THE LAUNCH DOCUMENT IS READ HERE, and the two failure kinds it has
+    are the two this loop already had. A document that cannot be read at all,
+    or that carries no usable session, is `Uncorrelated`: there is nothing to
+    answer under, so nothing is written and the manager settles the start it
+    already owns. A document that IS correlatable and is wrong in some other
+    way -- an unknown member, another generation's schema, an over-long role --
+    is LATCHED, answered once through the ordinary correlated fault, and exits
+    non-zero. Nothing on either path reaches the agent.
     """
     try:
-        expected = session_of(environment)
+        document = read_launch(place)
+        expected = session_of(document)
     except Uncorrelated:
         # NOTHING THIS PROGRAM SAYS COULD BE MATCHED TO A REQUEST. The ruling
         # hands this to the manager, which already owns the launched session.
@@ -1231,11 +1368,11 @@ def serve(stdin, stdout, environment, agent):
     # shape after exactly one identity envelope -- and it never reaches the
     # agent, because the dispatch below is not on this path at all.
     latched = None
+    seen = {}
     try:
-        posture = posture_of(environment)
-        visible(environment, posture)
+        seen = launched(document, place)
     except WorkerFault as fault:
-        latched, posture = fault, None
+        latched = fault
     spent = set()
     while True:
         try:
@@ -1271,8 +1408,7 @@ def serve(stdin, stdout, environment, agent):
         try:
             write_frame(stdout, success(
                 identity,
-                handle(request, identity, posture, environment, agent,
-                       spent)))
+                handle(request, identity, seen, agent, spent)))
         except WorkerFault as fault:
             write_frame(stdout, failure(identity, fault))
         except Exception as failed:                        # noqa: BLE001
@@ -1286,12 +1422,15 @@ def serve(stdin, stdout, environment, agent):
                             f"the agent failed: {type(failed).__name__}")))
 
 
-def main(argv=None, stdin=None, stdout=None, environment=None, agent=None):
+def main(argv=None, stdin=None, stdout=None, agent=None,
+         place=LAUNCH_DOCUMENT):
     from scripted_agent import ScriptedAgent
 
+    # NO ENVIRONMENT OPERAND AT ALL, W26291. It is not defaulted to `os.environ`
+    # and then ignored: a parameter that still exists is a parameter something
+    # can be threaded back through, and the supersession retains no fallback.
     return serve(stdin or sys.stdin.buffer, stdout or sys.stdout.buffer,
-                 environment if environment is not None else dict(os.environ),
-                 agent or ScriptedAgent())
+                 agent or ScriptedAgent(), place)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,23 @@
+W32649 round 3 — GATES
+======================
+
+  tests.manager.test_runtime_lane            29 tests  OK
+      (the reviewer's two additive regressions among them)
+  tests.manager.test_attempts               228 tests  OK
+  tests.manager.test_intake                  74 tests  OK
+  tests.manager.test_dependencies            21 tests  OK (1 skip)
+  tests.manager.test_secrets                 90 tests  OK
+  tests.manager.test_text_sweep               3 tests  OK
+
+  the boundary inventory's probe-arrival check -- the one that proves a probe
+  reaches the boundary it NAMES rather than failing for an earlier reason,
+  which is what the two new lane drivers had to satisfy:
+
+      tests.manager.test_boundary_inventory.EveryProbeProvesItArrived
+      .test_every_declared_probe_reaches_its_named_boundary
+      Ran 1 test in 416.346s — OK
+
+  the complete serial registry, all ten modules, driven directly because the
+  parallel runner does not reach it after a failing parallel phase:
+
+      Ran 189 tests in 46.938s — OK (skipped=11, all Podman)

@@ -14,6 +14,22 @@ Follow-up to: W19784, `work/records/2026/08/finding-v12-assignment-identity-deli
 
 **Proposed:** Revalidate the current canonical inventory and baseline first, then make the smallest additive ownership registration consistent with neighboring manifest receivers.
 
+## Clarification — 2026-08-27
+
+**Confirmed:** Revalidation supersedes the file locator in the original confirmed boundary. `v12/python/tests/manager/test_boundary_inventory.py` inventories only `baton_v12.worker_manager`, while `v12/python/tests/manager/test_contracts_inventory.py` derives the public contracts receiver universe from `baton_v12.contracts.__all__` and reports exactly the three missing `check_input_pair` parameters. The accepted manager boundary-inventory baseline remains six failures; the contracts inventory contributes the seventh full-tree failure described above.
+
+**Current boundary:** Register the three receiver owners and their probes in `v12/python/tests/manager/test_contracts_inventory.py`. The acceptance boundary and no-runtime-change ruling are unchanged. The earlier `test_boundary_inventory.py` locator is superseded; adding these keys there would create stale declarations for entries that inventory cannot discover.
+
+## Review correction — 2026-08-27
+
+**Confirmed:** The original finding's phrase “adds seven full-tree
+boundary-inventory failures beyond the accepted six-failure baseline” is a
+counting error. The three missing receiver entries produce one failing
+contracts-inventory test, which is the seventh full-tree failure in addition
+to the six accepted manager-inventory failures. This correction supersedes
+only that count; the three-entry ownership gap and the acceptance boundary are
+unchanged.
+
 ## Acceptance
 
 - All three `check_input_pair` parameters have explicit canonical receiver-owner entries and witnesses.

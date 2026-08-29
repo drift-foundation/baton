@@ -1,0 +1,17 @@
+{
+ "authorized": "/tmp/v12-w6636-38bpzmmj/storage/attempt-718507092e/inputs",
+ "engine_calls": [],
+ "mounted": "/tmp/v12-w6636-38bpzmmj/storage/attempt-718507092e/inputs/sub",
+ "plan": [
+  {
+   "source": "/tmp/v12-w6636-38bpzmmj/storage/attempt-718507092e/inputs/sub",
+   "target": "/input",
+   "writable": false
+  },
+  {
+   "source": "/tmp/v12-w6636-38bpzmmj/storage/attempt-718507092e/workspace",
+   "target": "/workspace",
+   "writable": true
+  }
+ ]
+}

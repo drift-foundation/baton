@@ -16,6 +16,60 @@ with respect to readiness: it never claims Work, answers obligations,
 advances cursors, or closes anything for the agent. It is not part of
 Baton core or the immutable Baton client distribution.
 
+## The turn deadline and the process domain (W28681)
+
+`turnTimeoutMs` is REQUIRED and has no default. It is the wall-clock bound
+on one delivered turn, and it must be at most **2147483647** ms (about 24.8
+days) -- the longest interval this runtime's timers hold. A larger value is
+REFUSED rather than clamped: Node truncates it to one millisecond, so the
+longest deadline an operator can express would silently become the shortest
+there is, and substituting a number of this repository's choosing is exactly
+what giving the operand no default was meant to avoid.
+
+Every other timeout here has a default because a wrong guess is merely
+slow. A wrong guess here either kills legitimate long work or leaves a
+managed lane held indefinitely, so the value is deployment policy and a
+configuration that has not chosen one does not start.
+
+It is wall-clock rather than an activity reset, deliberately. A legitimate
+tool may be silent for a long time, and an infinite but talkative one can
+produce ACP updates forever -- so streamed updates are diagnostics and never
+extend the deadline.
+
+**One agent process domain serves at most one delivered turn.** On success,
+failure, deadline, cancellation, session replacement and shutdown, the bridge
+destroys that domain and positively awaits its exit BEFORE anything is
+settled: no `idle` beside a live domain, and no replacement started beside
+one. A deadline is terminal for the delivery and is reported through the
+existing typed `failed`/`cause=internal` with its `(work, episode, session)`
+correlation; there is no second runtime state for it.
+
+If the exit cannot be proved, the bridge FAILS CLOSED: the readiness key is
+retained, the lane is fenced, no `idle` is published and no replacement
+process starts.
+
+ACP session continuity is not process continuity. The run retains one session
+id and a replacement process resumes it with `loadSession`; no rotation rule
+changes.
+
+**The configured `agent.command` must be a descendant-owning process
+domain.** This program is ACP-generic and does not parse the configured
+command, so it cannot check that -- the deployment's own verifier does. The
+incident behind this Work found five tool process groups outliving their
+managed agent by 34-36 hours; four had called `setsid`, so they were in
+neither the bridge's process group nor its session. A `setsid` call escapes a
+process group and a session and does not escape a PID namespace, so the
+shipped Claude/pc.code launcher runs bubblewrap with `--unshare-pid`
+(bubblewrap becomes the namespace's PID 1 reaper) and `--die-with-parent` in
+addition to its mount boundary. A direct executable, or a mount-only
+bubblewrap command, is not an accepted managed configuration.
+
+Whether a given host permits an unprivileged PID namespace is a property of
+the SERVICE LAUNCH CONTEXT and cannot be established from inside a nested
+sandbox. Run `preflight-process-domain.sh` from that context before
+installing; it exits non-zero and names the refusal rather than passing
+vacuously.
+
 ## Protocol
 
 Pinned SDK: `@agentclientprotocol/sdk` 1.3.0 (official TypeScript ACP
@@ -55,7 +109,8 @@ or model identity is inferred:
   "policyResources": [
     "/absolute/path/to/agent-policy/settings.json"
   ],
-  "stateDir": "/home/sl/.local/state/acp-baton-bridge/baton.claude"
+  "stateDir": "/home/sl/.local/state/acp-baton-bridge/baton.claude",
+  "turnTimeoutMs": 3600000
 }
 ```
 

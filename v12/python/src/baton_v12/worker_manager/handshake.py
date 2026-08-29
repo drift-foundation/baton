@@ -55,7 +55,8 @@ from . import boundaries, documents
 __all__ = ["ACP_CLIENT_CAPABILITIES", "ACP_CLIENT_CAPABILITY_MEMBERS",
            "SESSION_CAPABILITIES", "certify_agent_session_profile",
            "certified_agent_session_profile", "check_client_capabilities",
-           "negotiate_acp"]
+           "negotiate_acp", "settle_unsupported_version",
+           "unsupported_version_operation_id"]
 
 # The client-capability members ACP 1.3.0's own declaration names. `session` is
 # STABLE and is nonetheless not advertised, because §2.2 withholds EVERYTHING
@@ -69,6 +70,11 @@ ACP_CLIENT_CAPABILITY_MEMBERS = ("fs", "terminal", "session", "plan", "auth",
 # in one of the two places, and the schema already states this one as a `const`
 # on the profile's own member -- so a version that changed the set would change
 # this module with it instead of leaving it to disagree quietly.
+# W32576: the states a session is in while its handshake is still
+# happening. `ready` is reached only after negotiation succeeds, so
+# every later state is a session whose handshake is over.
+_HANDSHAKE_STATES = ("not-started", "initializing")
+
 SESSION_CAPABILITIES = tuple(
     AGENT_SESSION["$defs"]["sessionProfile"]["properties"]
     ["session_capabilities"]["const"])
@@ -318,6 +324,215 @@ def certified_agent_session_profile(store, profile_digest):
     return owned
 
 
+def unsupported_version_operation_id(session_ref):
+    """The one identity a session's refusal is filed under.
+
+    NAMED RATHER THAN INLINE because a SECOND operation reads the record back:
+    W32576's cleanup has to find the row this act wrote, on a later run and
+    possibly in a later process, and a derivation spelled twice is two
+    derivations that agree until one is edited.
+
+    IT IS THE SESSION ACT AND NOTHING ELSE -- attempt, posture, epoch and
+    provider session. The profile, the versions and the refusal's own text
+    ride the SIGNATURE, where a change is an operation collision rather than a
+    second incompatible account of what one session refused.
+    """
+    from .sessions import _session_ref
+    taken = _session_ref(session_ref)
+    return "session.unsupported-version:" + digest({
+        "runtime_attempt_id": taken["runtime_attempt_id"],
+        "posture": taken["posture"],
+        "session_epoch": taken["session_epoch"],
+        "provider_session_id": taken["provider_session_id"],
+    })[len("sha256:"):]
+
+
+def settle_unsupported_version(store, port, agent, adapter, *, session_ref,
+                               agent_protocol_version,
+                               agent_session_capabilities=None):
+    """W32576: carry a genuine `unsupported-version` negotiation refusal into
+    the ordinary runtime ending.
+
+    THE REFUSAL IS PRODUCED HERE, NOT ACCEPTED FROM A CALLER. Review [P1]: the
+    first version took a `ContractRefusal` as an operand and checked its
+    category/code, which proves its TYPE and not its PROVENANCE -- so any
+    holder of the manager capabilities could manufacture the closed pair,
+    name an unrelated profile, and fence a live attempt. It now runs
+    `negotiate_acp` itself against the PERSISTED session's own certified
+    profile, so the refusal that reaches the ending is one this manager
+    derived from evidence rather than one it was handed.
+
+    AND THE SESSION IS THE EXACT PERSISTED FOUR-PART REFERENCE. Attempt,
+    posture, epoch and provider session id are proved together by
+    `sessions._require_session`, which also refuses a reference naming a
+    provider session the row does not hold. The profile compared is the row's,
+    never a caller's, and the attempt the ending fences is the row's attempt
+    rather than a free operand.
+
+    IT IS NOT A WORKER DISPOSITION AND NEVER BECOMES ONE. The frozen axis
+    answers what a WORKER did; a wire version this manager never certified is
+    a fact about the session. The axis this act moves is the runtime's.
+
+    ONE FIXED IDENTITY FOR ONE SESSION'S REFUSAL, and changed facts COLLIDE.
+    Review [P1] again: hashing the profile and version INTO the identity made
+    a second version a second record, so one attempt could carry two
+    incompatible accounts of what it refused. The identity is now the session
+    act -- attempt, posture, epoch, provider session -- and the profile, the
+    pinned and answered versions and the refusal's own text ride in the
+    SIGNATURE, where a change is an operation collision rather than a second
+    truth.
+    """
+    from .attempts import request_cancellation, _fixed_assignment, \
+        _require_attempt
+    from .posture_slots import _slot_row
+    from .sessions import _require_session, _session_ref
+    from .store import manager_signature
+
+    reference = _session_ref(session_ref)
+    if type(agent_protocol_version) is not int \
+            or type(agent_protocol_version) is bool:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"an agent wire version is an integer; this is "
+            f"{name_value(agent_protocol_version)}")
+    # THE IDENTITY AND THE SIGNATURE ARE MADE OF CALLER OPERANDS ONLY, so an
+    # exact call can replay BEFORE any mutable precondition is consulted.
+    #
+    # Review [P1]: they used to carry the profile, the pinned version and the
+    # refusal text, all read from state -- so a committed refusal stopped
+    # replaying the moment its session advanced or its profile was withdrawn,
+    # which is the opposite of what effectively-once means. Replay is a fact
+    # about an act that already happened. What a caller can CHANGE is the
+    # reference and the answered version, and changing either still collides.
+    operation_id = unsupported_version_operation_id(reference)
+    signature = manager_signature(
+        "session.unsupported-version",
+        {"runtime_attempt_id": reference["runtime_attempt_id"],
+         "posture": reference["posture"],
+         "session_epoch": reference["session_epoch"],
+         "provider_session_id": reference["provider_session_id"],
+         "agent_protocol_version": agent_protocol_version})
+    found, already = store.replay(operation_id, signature,
+                                  kind="session.unsupported-version")
+    if found:
+        # THE ENDING IS RE-ORDERED, NOT RE-DECIDED. `request_cancellation`
+        # has its own effectively-once identity and deliberately re-issues in
+        # flight, so a retry after a crash between the two boundaries still
+        # reaches the authority.
+        return {**already,
+                "ending": request_cancellation(
+                    store, port, agent, adapter,
+                    attempt_id=already["attempt_id"],
+                    reason=f"handshake refused: {already['why']}")}
+
+    row = _require_session(store._connection, reference)
+    if row["posture"] != "execution":
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"an unsupported-version ending belongs to an execution session; "
+            f"this reference names {name_value(row['posture'])}")
+    attempt_id = row["runtime_attempt_id"]
+    attempt = _require_attempt(store, attempt_id)
+    profile_digest = row["profile_digest"]
+    profile = certified_agent_session_profile(store, profile_digest)
+    if profile is None:
+        raise ContractRefusal(
+            "policy", "profile-uncertified",
+            f"{name_value(profile_digest)} names no currently certified "
+            f"agent-session profile; this session's own profile must be "
+            f"certified for its refusal to mean anything")
+    try:
+        _negotiated_against(
+            profile, profile_digest,
+            agent_protocol_version=agent_protocol_version,
+            agent_session_capabilities=list(
+                agent_session_capabilities
+                if agent_session_capabilities is not None
+                else sorted(SESSION_CAPABILITIES)))
+    except ContractRefusal as derived:
+        if (derived.category, derived.code) != ("refused",
+                                                "unsupported-version"):
+            raise
+        # BOUND OUT OF THE HANDLER, because Python deletes the `except` name
+        # when the block ends and this refusal is the whole evidence below.
+        refusal = derived
+    else:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"this session negotiated wire version "
+            f"{name_value(agent_protocol_version)} successfully; there is no "
+            f"unsupported-version refusal to settle")
+    pinned = profile["pinned_wire_version"]
+
+    def act(connection):
+        # EVERY MUTABLE PRECONDITION RE-PROVED UNDER THE WRITE LOCK, which is
+        # the boundary that fixes this record. The reads above answer an
+        # optimistic question; these decide.
+        held = _require_session(connection, reference)
+        if held["state"] not in _HANDSHAKE_STATES \
+                or held["profile_digest"] != profile_digest:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"agent session {held['posture']}/{held['session_epoch']} "
+                f"moved to {name_value(held['state'])} under "
+                f"{name_value(held['profile_digest'])} while this refusal was "
+                f"being settled; the evidence and the record must name one "
+                f"session state")
+        # AND THE SLOT, which is a SEPARATE AXIS. Review [P1]: runtime-absence
+        # evidence releases the posture slot WITHOUT rewriting the session
+        # state, so a historical `not-started`/`initializing` row survives the
+        # state check while its posture belongs to nobody -- or to a newer
+        # epoch. A refusal is evidence from the session that currently HOLDS
+        # the execution posture, not from one that used to.
+        slot = _slot_row(connection, attempt_id, "execution")
+        if slot is None or slot["occupancy"] != "occupied" \
+                or slot["session_epoch"] != held["session_epoch"]:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"the execution posture slot for attempt "
+                f"{name_value(attempt_id)} is "
+                f"{name_value(None if slot is None else slot['occupancy'])} "
+                f"held by epoch "
+                f"{name_value(None if slot is None else slot['session_epoch'])}"
+                f" and this refusal names epoch {held['session_epoch']}; the "
+                f"evidence must come from the session that holds the posture")
+        # THE RUNTIME THIS REFUSAL IS ABOUT, RECORDED WITH IT.
+        #
+        # W32648 review [P0] taught this on the other ending, and the lesson
+        # transfers exactly: a manager-owned record that authorizes destroying
+        # a container must NAME the container, or the authorization and the
+        # command are two independently read facts that combine into one act.
+        # The attempt row is re-read under this write lock, so the identity
+        # recorded is the one attached when the refusal was fixed.
+        held_attempt = _require_attempt(store, attempt_id)
+        if held_attempt["runtime_id"] is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"attempt {name_value(attempt_id)} has no attached runtime; a "
+                f"handshake refusal is an ending for a session that was "
+                f"speaking to a container, and there is none to name")
+        return documents.session_unsupported_version(
+            attempt_id=attempt_id, assignment=_fixed_assignment(attempt),
+            decision="unsupported-version",
+            category=refusal.category, code=refusal.code,
+            why=refusal.message,
+            posture=held["posture"],
+            session_epoch=held["session_epoch"],
+            provider_session_id=reference["provider_session_id"],
+            profile_digest=profile_digest,
+            pinned_wire_version=pinned,
+            agent_protocol_version=agent_protocol_version,
+            runtime_id=held_attempt["runtime_id"])
+
+    recorded = store.transact(operation_id, "session.unsupported-version",
+                              signature, act)
+    ended = request_cancellation(store, port, agent, adapter,
+                                 attempt_id=attempt_id,
+                                 reason=f"handshake refused: "
+                                        f"{refusal.message}")
+    return {**recorded, "ending": ended}
+
+
 def negotiate_acp(store, profile_digest, *, agent_protocol_version,
                   agent_session_capabilities=()):
     """§2.1-§2.4 for ACP: an EXACT wire-version match, or a refusal.
@@ -326,6 +541,13 @@ def negotiate_acp(store, profile_digest, *, agent_protocol_version,
     an announcement, and the profile is what pinned the one this manager
     certified against.
     """
+    # W32576 review [P0]: THE PUBLIC DOOR READS THE CERTIFIED PROFILE, always.
+    # An earlier correction gave this an optional `profile=` operand so one
+    # snapshot could serve a verdict and a signature -- and since this function
+    # is on the public surface, that let any caller pair an uncertified digest
+    # with arbitrary bytes and receive a verdict from them. A single-snapshot
+    # requirement is not a licence to widen a trust boundary. The snapshot is
+    # shared through `_negotiated_against` below, which is private.
     profile = certified_agent_session_profile(store, profile_digest)
     if profile is None:
         raise ContractRefusal(
@@ -333,6 +555,21 @@ def negotiate_acp(store, profile_digest, *, agent_protocol_version,
             f"{name_value(profile_digest)} names no currently "
             f"certified agent-session profile; a handshake is conducted under "
             f"one or not at all")
+    return _negotiated_against(
+        profile, profile_digest,
+        agent_protocol_version=agent_protocol_version,
+        agent_session_capabilities=agent_session_capabilities)
+
+
+def _negotiated_against(profile, profile_digest, *, agent_protocol_version,
+                        agent_session_capabilities):
+    """The negotiation RULE, over a profile its caller already owns.
+
+    PRIVATE, and that is the whole point. `negotiate_acp` reads the certified
+    profile and hands it here; `settle_unsupported_version` reads it once and
+    hands the SAME snapshot here, so a verdict and the evidence signed beside
+    it name one observation. Neither door lets a caller supply the bytes.
+    """
     if profile["wire_protocol"] != "acp":
         raise ContractRefusal(
             "refused", "unsupported-version",

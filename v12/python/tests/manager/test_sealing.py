@@ -25,10 +25,11 @@ import json
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from baton_v12.contracts import ContractRefusal, held_secret
 from baton_v12.contracts import digest as contract_digest
-from baton_v12.worker_manager import sealing
+from baton_v12.worker_manager import sealing, workspaces
 from baton_v12.worker_manager.oci import OciAdapter
 
 NOW = "2026-08-26T00:00:00.000Z"
@@ -208,6 +209,10 @@ class SealingCase(unittest.TestCase):
         # `clock` is an injected capability with exactly one crossing -- the
         # control store's -- and a second would give one capability two owners.
         body = {"attempt_id": "attempt-1", "assignment": dict(ASSIGNMENT),
+                # W16823: the seal proves quiescence by SELECTING this
+                # attempt's runtimes, and the selector is the whole label set.
+                "context": {"principal": "principal:org-a",
+                            "effective_scope": "scope:deployment"},
                 "disposition": "completed", "now": NOW,
                 "operation": {"operation_id": "output.freeze:1",
                               "signature_digest": DIGEST}}
@@ -284,6 +289,218 @@ class OnlyWhatWasDeclaredIsCollected(SealingCase):
         os.symlink("/etc/passwd", os.path.join(place, "elsewhere"))
         with self.assertRaises(ContractRefusal):
             self.adapter().seal(self.request())
+
+
+class RetentionEnactsTheDispositionOverCustody(SealingCase):
+    """W6636 review [P0]: `retain` reported delivery and discarded nothing.
+
+    The first version validated the command and answered
+    `{"delivered": True}` for every disposition, which I recorded as an
+    unspecified retention semantics. It is not unspecified: the manager's own
+    settlement rule says `complete` means nothing was kept, so an arc that
+    discarded and then reported `complete` over surviving bytes was a FALSE
+    CLEAN ENDING. W6629 decided the boundary already — `output.retain` goes to
+    the side holding the material because retention decides what happens to it.
+    """
+
+    def collected(self, **overrides):
+        body = {"attempt_id": "attempt-1", "assignment": dict(ASSIGNMENT),
+                "result_id": "result-attempt-1",
+                "output_names": ["proposal"],
+                "result_manifest_digest": DIGEST,
+                "operation": {"operation_id": "output.collect:1",
+                              "signature_digest": DIGEST}}
+        body.update(overrides)
+        return body
+
+    def held(self, **overrides):
+        """One collected artifact, in custody, and the command about it."""
+        self.wrote({"a.txt": b"one"})
+        built = self.adapter()
+        built.seal(self.request())
+        collected = built.collect(self.collected())
+        body = {"assignment_ref": dict(ASSIGNMENT),
+                "runtime_attempt_id": "attempt-1",
+                "artifact_ids": [one["artifact_id"]
+                                 for one in collected["artifacts"]],
+                "disposition": "discard-after-intake",
+                "retention_policy_digest": DIGEST,
+                "operation": {"operation_id": "output.retain:1",
+                              "signature_digest": DIGEST}}
+        body.update(overrides)
+        return built, body, collected
+
+    @staticmethod
+    def place(built, name="proposal", attempt="attempt-1"):
+        return os.path.join(built._custody(attempt), name)
+
+    def test_discard_after_intake_removes_the_custody_bytes(self):
+        built, command, _collected = self.held()
+        self.assertTrue(os.path.isdir(self.place(built)))
+        answer = built.retain(command)
+        self.assertEqual(answer["discarded"], ["proposal"])
+        # ABSENCE IS ESTABLISHED, not ordered: a removal that returned is not
+        # evidence that anything is gone, which is the rule every other ending
+        # in this adapter is held to.
+        self.assertFalse(os.path.exists(self.place(built)))
+
+    def test_retain_and_quarantine_keep_the_bytes(self):
+        """`retain` is policy keeping them and `quarantine` is doubt keeping
+        them. Both are reasons the material must still be there."""
+        for disposition in ("retain", "quarantine"):
+            built, command, _collected = self.held(disposition=disposition)
+            answer = built.retain(command)
+            self.assertEqual(answer["discarded"], [], disposition)
+            self.assertTrue(os.path.isdir(self.place(built)), disposition)
+
+    def test_only_the_named_artifacts_are_discarded(self):
+        """A subset decision acts on the subset. Retention is per artifact,
+        and a discard that took the whole custody home would be deciding about
+        material nobody ruled on."""
+        self.wrote({"a.txt": b"one"})
+        self.wrote({"b.txt": b"two"}, into="second")
+        outputs = [declaration(), declaration(name="evidence",
+                                              path="second")]
+        built = self.adapter(outputs=outputs)
+        built.seal(self.request())
+        built.collect(self.collected(output_names=["proposal", "evidence"]))
+        self.assertTrue(os.path.isdir(self.place(built, "evidence")))
+
+        answer = built.retain({
+            "assignment_ref": dict(ASSIGNMENT),
+            "runtime_attempt_id": "attempt-1",
+            "artifact_ids": ["attempt-1:proposal"],
+            "disposition": "discard-after-intake",
+            "retention_policy_digest": DIGEST})
+        self.assertEqual(answer["discarded"], ["proposal"])
+        self.assertFalse(os.path.exists(self.place(built, "proposal")))
+        self.assertTrue(os.path.isdir(self.place(built, "evidence")))
+
+    def test_an_exact_retry_is_idempotent(self):
+        """The manager delivers this BEFORE its own journal, so a crash
+        between the two makes the next authorization repeat it. An
+        already-absent tree is the state that was asked for."""
+        built, command, _collected = self.held()
+        built.retain(command)
+        again = built.retain(command)
+        self.assertEqual(again["discarded"], ["proposal"])
+        self.assertFalse(os.path.exists(self.place(built)))
+
+    def test_another_attempts_artifact_is_refused(self):
+        """The identity is `attempt:name` and the tree is DERIVED from it, so
+        a cross-attempt identity is refused rather than resolved — otherwise
+        one attempt's retention reaches another's material."""
+        built, command, _collected = self.held(
+            artifact_ids=["attempt-2:proposal"])
+        with self.assertRaises(ContractRefusal) as caught:
+            built.retain(command)
+        self.assertIn("not this attempt's", str(caught.exception))
+        self.assertTrue(os.path.isdir(self.place(built)))
+
+    def test_an_undeclared_output_is_refused(self):
+        built, command, _collected = self.held(
+            artifact_ids=["attempt-1:invented"])
+        with self.assertRaises(ContractRefusal) as caught:
+            built.retain(command)
+        self.assertIn("does not declare", str(caught.exception))
+        self.assertTrue(os.path.isdir(self.place(built)))
+
+    def test_an_identity_that_is_a_path_is_refused(self):
+        """THE ONE THAT MATTERS. A caller-selected locator is exactly what
+        deriving the path from the identity exists to prevent."""
+        for invented in ("../../etc", "/etc/passwd", "attempt-1:../secret",
+                         "proposal"):
+            built, command, _collected = self.held(
+                artifact_ids=[invented])
+            with self.assertRaises(ContractRefusal):
+                built.retain(command)
+            self.assertTrue(os.path.isdir(self.place(built)), invented)
+
+    def test_an_unknown_disposition_never_reaches_the_filesystem(self):
+        """Re-review [P1]: this branched on membership of the KEEPING pair and
+        let everything else fall through to the discard, so a typo or a value
+        from a later vocabulary removed the material and reported success.
+
+        An adapter boundary that owns a destructive command may not make
+        unknown mean delete. The check runs before the names are resolved, let
+        alone before anything is removed.
+        """
+        for invented in ("not-a-retention-disposition", "discard", "keep",
+                         "Retain"):
+            built, command, _collected = self.held(disposition=invented)
+            with self.assertRaises(ContractRefusal) as caught:
+                built.retain(command)
+            self.assertIn("is not a retention disposition",
+                          str(caught.exception), invented)
+            self.assertTrue(os.path.isdir(self.place(built)), invented)
+
+    def test_a_disposition_that_is_not_text_refuses_before_the_vocabulary(
+            self):
+        """The empty string and a non-string are refused one guard EARLIER, by
+        the member's own owner. Named separately rather than folded in, because
+        asserting the vocabulary message over them would be asserting a
+        refusal that never runs."""
+        for invented in ("", 5, None, ["retain"]):
+            built, command, _collected = self.held(disposition=invented)
+            with self.assertRaises(ContractRefusal) as caught:
+                built.retain(command)
+            self.assertIn("a retention disposition", str(caught.exception))
+            self.assertTrue(os.path.isdir(self.place(built)), invented)
+
+    def test_a_keep_over_absent_custody_refuses(self):
+        """Re-review [P0]: the keep branch returned WITHOUT LOOKING.
+
+        Custody that vanished between intake and retention was journalled as
+        kept, and cleanup then derived `retained` -- whose whole meaning is
+        that the material is still there. That is the keep-side twin of the
+        false `complete` the previous review found: an ending reported over
+        bytes nobody saw.
+
+        The refusal lands BEFORE the manager journals the decision, which is
+        what makes it actionable rather than a second wrong record.
+        """
+        self.keep_over_absent_custody("retain")
+
+    def test_a_quarantine_over_absent_custody_refuses(self):
+        """The other keep disposition, in its OWN case.
+
+        Not a loop: the first pass removes the custody tree, and a second
+        `held()` in the same fixture then collects NOTHING -- `collected_result`
+        skips a name whose tree is absent -- so the second disposition would
+        have been checked with an empty artifact list and passed vacuously.
+        Measured: it did, until this was split.
+        """
+        self.keep_over_absent_custody("quarantine")
+
+    def keep_over_absent_custody(self, disposition):
+        built, command, _collected = self.held(disposition=disposition)
+        workspaces.discard_tree(self.place(built))
+        self.assertFalse(os.path.exists(self.place(built)))
+        with self.assertRaises(ContractRefusal) as caught:
+            built.retain(command)
+        self.assertIn("custody tree is not there", str(caught.exception),
+                      disposition)
+
+    def test_a_keep_over_present_custody_still_succeeds(self):
+        """The guard is about ABSENCE, not about keeping being hard. The
+        ordinary keep is unchanged, which is what stops the new refusal from
+        being a regression dressed as a correction."""
+        for disposition in ("retain", "quarantine"):
+            built, command, _collected = self.held(disposition=disposition)
+            answer = built.retain(command)
+            self.assertEqual(answer["discarded"], [], disposition)
+            self.assertTrue(os.path.isdir(self.place(built)), disposition)
+
+    def test_a_retention_that_cannot_prove_absence_refuses(self):
+        """A discard that returned is not a discard. Measured by making the
+        removal vacuous: the answer has to come from the filesystem."""
+        built, command, _collected = self.held()
+        from baton_v12.worker_manager import oci as _oci
+        with patch.object(_oci.workspaces, "discard_tree",
+                          lambda place: True):
+            with self.assertRaises(ContractRefusal) as caught:
+                built.retain(command)
+        self.assertIn("still present after removal", str(caught.exception))
 
 
 class ALimitIsARefusalRatherThanATruncation(SealingCase):

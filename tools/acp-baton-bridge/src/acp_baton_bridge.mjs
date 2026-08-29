@@ -24,7 +24,9 @@ import {
 } from "./baton_readiness.mjs";
 import {
 	AcpAgentSession,
+	DomainTeardownError,
 	SessionStateError,
+	TurnDeadlineError,
 	preflightSessionSelection,
 } from "./acp_agent_session.mjs";
 import {
@@ -171,8 +173,38 @@ export async function runBridge(config, {
 	// R4: operator shutdown tears the child down immediately — pending
 	// protocol calls reject when the subprocess dies; the loop unwinds
 	// instead of waiting on an unresponsive agent.
-	const onAbort = () => { session?.stop(); };
+	//
+	// W28681: teardown can now REJECT, and an abort handler is not a
+	// place a rejection can be handled. The failure is not lost: the
+	// `finally` below tears down again on the way out and reports there.
+	const onAbort = () => { session?.stop().catch(() => undefined); };
 	signal.addEventListener("abort", onAbort, { once: true });
+
+	// W28681: ONE PROCESS DOMAIN SERVES AT MOST ONE DELIVERED TURN.
+	//
+	// The incident: a persistent agent process accumulated tool process
+	// groups across turns — four polling shells and a runaway test that
+	// outlived 34-36 hours and several later turns — and nothing could
+	// correlate a surviving child with the turn that made it. The bridge
+	// does not launch those subprocesses and cannot enumerate them, so
+	// the first boundary it can both correlate exactly and destroy
+	// without PID discovery is the domain it started for this delivery.
+	//
+	// ACP SESSION CONTINUITY IS NOT PROCESS CONTINUITY, which is what
+	// makes this legal: the run retains one session id and a replacement
+	// process resumes it with `loadSession`. No rotation rule changes.
+	//
+	// TEARDOWN COMES BEFORE SETTLEMENT on every path — success, failure
+	// and deadline alike — so `idle` is never published beside a domain
+	// that is still running, and the next delivery cannot start beside
+	// one either.
+	const settleDomain = async (why) => {
+		if (!session) return;
+		const ending = session;
+		session = null;
+		await ending.stop();
+		logger.info(`acp process domain torn down after ${why}`);
+	};
 
 	const ensureSession = async () => {
 		// R2: reuse ONLY a fully published session — one whose
@@ -252,6 +284,17 @@ export async function runBridge(config, {
 		let deliveredNow = 0;
 		let failed = false;
 		for (const action of fresh) {
+			// W28681: WHICH EPISODE THE CURRENT DOMAIN IS SERVING, reset per
+			// ACTION rather than per envelope.
+			//
+			// Re-review [P1]: this was declared outside the loop and set only
+			// after `ensureSession()` succeeded, so after one delivered action
+			// a later one failing during revalidation or replacement setup
+			// published the PRECEDING action's (work, episode, session).
+			// Before this Work those early failures were uncorrelated; the
+			// merge turned a stale local into affirmative but false operator
+			// evidence, which is worse than none.
+			let correlation = {};
 			try {
 				// W49: revalidate the exact episode IMMEDIATELY before
 				// the turn. A queued prompt whose Work has since been
@@ -305,11 +348,16 @@ export async function runBridge(config, {
 				// bridge knows WHICH assignment episode the runner is
 				// about to serve. Correlation only — the Work table
 				// still decides who holds the claim.
-				await runtime.state("working", {
+				correlation = {
 					work: action.work, episode: action.episode_seq,
-					session: live.sessionId ?? undefined });
+					session: live.sessionId ?? undefined };
+				await runtime.state("working", correlation);
 				await live.promptText(promptText(envelope, action,
 				                              role.instructions, launcher));
+				// W28681: THE DOMAIN DIES BEFORE THE TURN IS CALLED OVER.
+				// A prompt that returned says the model stopped talking;
+				// it says nothing about what its tools left running.
+				await settleDomain(`delivering ${action.action_key}`);
 				// The turn returned. `idle` is the honest state for a
 				// runner between turns; silence past the lease deadline
 				// is what becomes `unknown`, and only the authority
@@ -340,13 +388,51 @@ export async function runBridge(config, {
 							+ "is unusable" });
 					throw error;
 				}
+				// W28681: an unprovable teardown is FATAL and FENCES THE
+				// LANE. The readiness key is retained — no
+				// `markPresented`, no `markWithdrawn` — no `idle` is
+				// published, and no replacement domain is started,
+				// because everything after this point would be built on
+				// an assumption about a process still running.
+				if (error instanceof DomainTeardownError) {
+					session = null;
+					await runtime.state("failed", { ...correlation,
+						cause: "internal",
+						detail: "could not prove the ACP agent process "
+							+ "domain exited; the delivery lane is fenced" });
+					throw error;
+				}
+				// W28681: EVERY OTHER FAILURE TEARS THE DOMAIN DOWN TOO,
+				// and before it is reported. A turn that failed left
+				// exactly the same descendants a turn that succeeded
+				// would have, and reporting first would publish a
+				// settlement beside a live domain.
+				try {
+					await settleDomain(`a failed ${action.action_key}`);
+				} catch (teardown) {
+					session = null;
+					await runtime.state("failed", { ...correlation,
+						cause: "internal",
+						detail: "could not prove the ACP agent process "
+							+ "domain exited; the delivery lane is fenced" });
+					throw teardown;
+				}
 				// A turn that could not be delivered is a FAILED turn,
 				// reported as what it is. R10: an operator cannot act on
 				// "transport" when the truth is an expired credential or
 				// a spent quota, so the failure is CLASSIFIED — and the
 				// upstream message is read to classify and then
 				// discarded, never persisted.
-				await runtime.state("failed", classifyDelivery(error));
+				//
+				// W28681: a deadline keeps its `(work, episode, session)`
+				// correlation, because "which assignment held the lane
+				// until it timed out" is the whole operator question. It
+				// is reported through the EXISTING typed
+				// `failed/cause=internal`; a new runtime state to rename
+				// a terminal timeout would be vocabulary rather than
+				// information, and the ruling said so.
+				await runtime.state("failed",
+					{ ...correlation, ...classifyDelivery(error) });
 				// The key stays undelivered; readiness is never
 				// discarded by a failed turn, exit, or policy failure.
 				failed = true;
@@ -367,7 +453,20 @@ export async function runBridge(config, {
 	}
 	} finally {
 		signal.removeEventListener("abort", onAbort);
-		if (session) await session.stop();
+		// W28681: the last domain goes with the bridge, and a shutdown
+		// that cannot prove it is reported rather than swallowed — an
+		// operator who stopped the service needs to know a domain may
+		// still be running under it.
+		if (session) {
+			try {
+				await session.stop();
+			} catch (error) {
+				logger.warn(`acp bridge shutdown: ${error.message}`);
+				await runtime.state("failed", { cause: "internal",
+					detail: "could not prove the ACP agent process domain "
+						+ "exited during shutdown" });
+			}
+		}
 		// The explicit goodbye. An operator reading Teams sees a runner
 		// that exited, which is a different fact from one that stopped
 		// answering — and the authority keeps those apart by provenance
@@ -387,6 +486,15 @@ export async function runBridge(config, {
 // classified by the shared helper, which reads the upstream message and
 // then discards it.
 function classifyDelivery(error) {
+	// W28681: a deadline is an INTERNAL supervision decision, not a
+	// transport fault and not the provider's doing. It carries this
+	// adapter's own sentence so an operator reading the Inbox sees why
+	// the lane was taken back rather than a generic failure.
+	if (error instanceof TurnDeadlineError) {
+		return { cause: "internal",
+			detail: "configured ACP turn deadline exceeded; the agent "
+				+ "process domain was destroyed and the delivery ended" };
+	}
 	if (/permission request/i.test(error?.message ?? "")) {
 		return { cause: "approval",
 			detail: "the agent asked for a permission the configured "

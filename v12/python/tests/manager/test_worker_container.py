@@ -134,7 +134,7 @@ class TheDaemonGateExercisesWhatTheManagerWillRun(unittest.TestCase):
 
         calls = []
         with patch(f"{__name__}.engine", self.recording_engine(calls)):
-            ContainerCase.talk(Harness(), CONSENT)
+            ContainerCase.talk(Harness(), None)
         arguments = calls[0]
         adjacent = set(zip(arguments, arguments[1:]))
         missing = []
@@ -313,23 +313,63 @@ class ContainerCase(unittest.TestCase):
                 json.dump(document, handle)
         return outputs, ((inputs, "/input", False), (outputs, "/output", True))
 
-    def talk(self, environment, *requests, timeout=120, mounts=()):
+    def launched(self, document, writable=False):
+        """One launch document on the host, as a mount triple for `talk`.
+
+        W26291. `document` is a mapping to write as canonical JSON, raw
+        `bytes` for the malformed cases, or the name of a DIRECTORY to put at
+        the fixed path -- because "what is at `/run/baton/launch.json`" is
+        itself one of the things a delivery can get wrong, and a suite that
+        could only vary the CONTENTS could not drive that.
+        """
+        home = tempfile.mkdtemp(prefix="v12-worker-launch-")
+        self.addCleanup(shutil.rmtree, home, True)
+        place = os.path.join(home, "launch.json")
+        if document is DIRECTORY:
+            os.makedirs(place)
+        else:
+            raw = (document if isinstance(document, bytes)
+                   else json.dumps(document, ensure_ascii=False,
+                                   sort_keys=True,
+                                   separators=(",", ":")).encode("utf-8"))
+            with open(place, "wb") as handle:
+                handle.write(raw)
+        # 0444, as `launch.materialize` writes it: the image runs as a fixed
+        # non-root uid the host does not have, and a bind mount carries the
+        # host mode through unchanged.
+        #
+        # THE WRITABLE CASE HAS TO BE WRITABLE BOTH WAYS. A read-only MODE
+        # under a read-write BIND is still unwritable to the container, so a
+        # fixture that varied only the bind would prove the worker refuses
+        # something it was never actually offered.
+        os.chmod(place, 0o666 if writable else 0o444)
+        return (place, LAUNCH_TARGET, writable)
+
+    def talk(self, document, *requests, timeout=120, mounts=(),
+             environment=(), writable=False):
         """Run one container, speak the framed channel, read what it says.
 
-        W19784: `mounts` exists because an EXECUTION container now has two
+        W19784: `mounts` exists because an EXECUTION container has two
         filesystem roles and three protocol documents, and a suite that spoke
-        only through the environment could not deliver any of them. A consent
-        container passes none, which is the topology rather than the default:
-        §7.0 says consent mounts nothing.
+        only through the environment could not deliver any of them.
+
+        W26291: THE LAUNCH DOCUMENT IS THE FIRST OF THOSE MOUNTS, and it
+        replaced the environment entirely. `document=None` mounts none, which
+        is the missing-delivery case rather than a default; `environment` is
+        here ONLY so a case can prove that a container started with the retired
+        `BATON_WORKER_*` values and nothing else still refuses.
         """
         name = self.container()
         arguments = restricted("run", "--interactive", "--rm",
                                "--name", name)
-        for source, target, writable in mounts:
+        delivered = list(mounts)
+        if document is not None:
+            delivered.insert(0, self.launched(document, writable))
+        for source, target, writable_mount in delivered:
             arguments += ["--mount", f"type=bind,source={source},"
                           f"target={target},readonly="
-                          f"{'false' if writable else 'true'}"]
-        for key, value in environment.items():
+                          f"{'false' if writable_mount else 'true'}"]
+        for key, value in dict(environment).items():
             arguments += ["--env", f"{key}={value}"]
         arguments.append(self.image)
         finished = engine(*arguments, stdin=b"".join(
@@ -344,26 +384,32 @@ def ask(operation, session, **members):
             "operation": operation, **members}
 
 
-CONSENT_SESSION = "session-consent-real"
 EXECUTION_SESSION = "session-execution-real"
 
-CONSENT = {"BATON_WORKER_POSTURE": "consent",
-           "BATON_WORKER_SESSION": CONSENT_SESSION,
-           "BATON_WORKER_CONTRACT": "do the thing",
-           "BATON_WORKER_ROLE": "implementer"}
-# W14251, closed, and this suite is where it was still unclosed. The two
-# postures carry THE SAME FOUR MEMBERS: `BATON_WORKER_ASSIGNMENT`,
-# `_WORKSPACE` and `_OUTPUT` are REMOVED rather than renamed, because with two
-# fixed filesystem roots there is nothing left for them to say -- and the
-# worker refuses a `BATON_WORKER_*` member outside the set, so a container
-# built with one of them is a container built wrong.
-#
-# The posture difference did not go with them. It moved to where it belongs:
-# an execution container HAS the two roots and a consent container does not.
-EXECUTION = {"BATON_WORKER_POSTURE": "execution",
-             "BATON_WORKER_SESSION": EXECUTION_SESSION,
-             "BATON_WORKER_CONTRACT": "do the thing",
-             "BATON_WORKER_ROLE": "implementer"}
+# W26291, and the whole of what a container is told. The two `BATON_WORKER_*`
+# environments this file used to build are GONE rather than emptied: the
+# dossier superseded that transport before acceptance and retains no
+# compatibility path, so a fixture that still composed one would be keeping the
+# retired contract alive in the only place that could still exercise it.
+LAUNCH_TARGET = "/run/baton/launch.json"
+LAUNCH_SCHEMA = "baton.worker-launch/1"
+LAUNCH = {"schema": LAUNCH_SCHEMA, "session": EXECUTION_SESSION,
+          "contract": "do the thing", "role": "implementer"}
+
+# The retired transport, kept as a fixture for ONE case: a container started
+# with these and nothing else must still refuse. Without that case the removal
+# would be invisible from the manager's side, because the manager sends none.
+RETIRED_ENVIRONMENT = {"BATON_WORKER_POSTURE": "execution",
+                       "BATON_WORKER_SESSION": EXECUTION_SESSION,
+                       "BATON_WORKER_CONTRACT": "do the thing",
+                       "BATON_WORKER_ROLE": "implementer"}
+
+
+class _Directory:
+    """A sentinel: put a DIRECTORY at the fixed launch path, not a file."""
+
+
+DIRECTORY = _Directory()
 
 # The WHOLE frozen `outputDescriptor`. W6633 eleventh review [P1]: the
 # constraints were absent here as well as in the worker, so a declaration this
@@ -696,21 +742,47 @@ class TheBuiltImageIsWhatTheRecipeSaid(ContainerCase):
 
 class RealContainersHoldTheTopology(ContainerCase):
 
-    def test_a_consent_container_answers_describe_and_consider(self):
-        status, given = self.talk(CONSENT, ask("describe", CONSENT_SESSION),
-                                  ask("consider", CONSENT_SESSION))
-        self.assertEqual(status, 0)
-        self.assertEqual([answer["ok"] for answer in given], [True, True])
-        self.assertEqual(given[0]["answer"]["posture"], "consent")
-        self.assertEqual(given[1]["answer"]["decision"], "accept")
+    def test_a_real_container_describes_the_one_runtime_it_is(self):
+        """W26291 REPLACED `test_a_consent_container_answers_describe_and_
+        consider`, and the replacement is not a rename.
 
-    def test_a_real_consent_container_is_not_asked_to_work(self):
+        That case asserted a consent container answering `consider` and
+        reporting `posture: consent`. V12 launches no consent runtime, the
+        posture axis is gone, and there is no way to build such a container --
+        so the old expectation describes something that cannot exist, and a
+        green assertion about nothing is worse than no assertion.
+
+        What is asserted instead is the property the old case was really
+        protecting: the ARTEFACT reports what it can be asked, and `describe`
+        now names the launch document it was actually started with.
+        """
+        status, given = self.talk(LAUNCH, ask("describe", EXECUTION_SESSION))
+        self.assertEqual(status, 0)
+        self.assertIs(given[0]["ok"], True)
+        answer = given[0]["answer"]
+        self.assertEqual(sorted(answer), ["launch", "operations", "protocol"])
+        self.assertEqual(answer["operations"], ["describe", "work"])
+        self.assertEqual(answer["launch"],
+                         ["contract", "role", "schema", "session"])
+        # THE RETIRED MEMBERS, ASSERTED ABSENT. `posture` reported an axis that
+        # no longer exists and `environment` reported the transport this Work
+        # retired; either one still present would be the compatibility surface
+        # the supersession forbids.
+        self.assertNotIn("posture", answer)
+        self.assertNotIn("environment", answer)
+
+    def test_a_real_container_is_not_asked_to_consider(self):
         """The container-level negative the acceptance names: not the
-        function refusing, the ARTEFACT refusing."""
-        status, given = self.talk(CONSENT,
-                                  ask("work", CONSENT_SESSION, task="build"))
+        function refusing, the ARTEFACT refusing.
+
+        `consider` is deliberately still a KNOWN operation. That is what makes
+        this refusal mean something -- an unknown word would refuse as a
+        protocol error and prove nothing about entitlement.
+        """
+        status, given = self.talk(LAUNCH,
+                                  ask("consider", EXECUTION_SESSION))
         self.assertIs(given[0]["ok"], False)
-        self.assertEqual(given[0]["code"], "posture")
+        self.assertEqual(given[0]["code"], "entitlement")
 
     def test_an_execution_container_completes_and_recaps(self):
         """W19784, migrating what W14251 left behind here. This asked for a
@@ -719,7 +791,7 @@ class RealContainersHoldTheTopology(ContainerCase):
         at all, so the built image had never once been asked to do the work it
         is for. It now runs against the real two-root delivery."""
         outputs, mounts = self.roots()
-        status, given = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+        status, given = self.talk(LAUNCH, ask("work", EXECUTION_SESSION),
                                   mounts=mounts)
         self.assertEqual(status, 0)
         answer = given[0]["answer"]
@@ -756,7 +828,7 @@ class RealContainersHoldTheTopology(ContainerCase):
                 outputs, mounts = self.roots(given=given,
                                              assignment=assignment)
                 status, seen = self.talk(
-                    EXECUTION, ask("work", EXECUTION_SESSION), mounts=mounts)
+                    LAUNCH, ask("work", EXECUTION_SESSION), mounts=mounts)
                 self.assertIs(seen[0]["ok"], False)
                 self.assertEqual(seen[0]["code"], "input")
                 self.assertEqual(os.listdir(outputs), [])
@@ -792,7 +864,7 @@ class RealContainersHoldTheTopology(ContainerCase):
                 outputs, mounts = self.roots(given=spoiled_input,
                                              assignment=spoiled_assignment)
                 status, seen = self.talk(
-                    EXECUTION, ask("work", EXECUTION_SESSION), mounts=mounts)
+                    LAUNCH, ask("work", EXECUTION_SESSION), mounts=mounts)
                 self.assertIs(seen[0]["ok"], False)
                 self.assertEqual(seen[0]["code"], "input")
                 self.assertEqual(os.listdir(outputs), [])
@@ -805,7 +877,7 @@ class RealContainersHoldTheTopology(ContainerCase):
         out of it."""
         outputs, mounts = self.roots()
         inputs = mounts[0][0]
-        status, given = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+        status, given = self.talk(LAUNCH, ask("work", EXECUTION_SESSION),
                                   mounts=mounts)
         self.assertEqual(status, 0)
         self.assertIs(given[0]["ok"], True)
@@ -844,7 +916,7 @@ class RealContainersHoldTheTopology(ContainerCase):
         different things: the framed answer names what was produced, and the
         published envelope holds the whole record for each output."""
         outputs, mounts = self.roots()
-        status, given = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+        status, given = self.talk(LAUNCH, ask("work", EXECUTION_SESSION),
                                   mounts=mounts)
         self.assertEqual(status, 0)
         self.assertEqual(given[0]["answer"]["outputs"], ["proposal"])
@@ -864,7 +936,7 @@ class RealContainersHoldTheTopology(ContainerCase):
         bounded = {**DECLARATION, "constraints": {**UNBOUNDED, "max_bytes": 1}}
         given, assignment = input_pair(declarations=[bounded])
         outputs, mounts = self.roots(given=given, assignment=assignment)
-        status, seen = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+        status, seen = self.talk(LAUNCH, ask("work", EXECUTION_SESSION),
                                  mounts=mounts)
         self.assertIs(seen[0]["ok"], False)
         # THE MATERIAL IS THERE AND THE SIGNAL IS NOT, and that distinction is
@@ -884,7 +956,7 @@ class RealContainersHoldTheTopology(ContainerCase):
         escaped = {**DECLARATION, "path": "../tmp/escaped"}
         given, assignment = input_pair(declarations=[escaped])
         outputs, mounts = self.roots(given=given, assignment=assignment)
-        status, seen = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+        status, seen = self.talk(LAUNCH, ask("work", EXECUTION_SESSION),
                                  mounts=mounts)
         self.assertIs(seen[0]["ok"], False)
         self.assertEqual(seen[0]["code"], "input")
@@ -896,7 +968,7 @@ class RealContainersHoldTheTopology(ContainerCase):
         reserved = {**DECLARATION, "path": "output.json"}
         given, assignment = input_pair(declarations=[reserved])
         outputs, mounts = self.roots(given=given, assignment=assignment)
-        status, seen = self.talk(EXECUTION, ask("work", EXECUTION_SESSION),
+        status, seen = self.talk(LAUNCH, ask("work", EXECUTION_SESSION),
                                  mounts=mounts)
         self.assertIs(seen[0]["ok"], False)
         self.assertEqual(os.listdir(outputs), [])
@@ -919,7 +991,7 @@ class RealContainersHoldTheTopology(ContainerCase):
                 outputs, mounts = self.roots(given=given,
                                              assignment=assignment)
                 status, seen = self.talk(
-                    EXECUTION, ask("work", EXECUTION_SESSION), mounts=mounts)
+                    LAUNCH, ask("work", EXECUTION_SESSION), mounts=mounts)
                 self.assertIs(seen[0]["ok"], False)
                 self.assertEqual(seen[0]["code"], "input")
                 self.assertEqual(os.listdir(outputs), [])
@@ -940,8 +1012,9 @@ class RealContainersHoldTheTopology(ContainerCase):
               for arg in ("--mount", f"type=bind,source={source},"
                                      f"target={target},readonly="
                                      f"{'false' if writable else 'true'}")],
-            *[arg for key, value in EXECUTION.items()
-              for arg in ("--env", f"{key}={value}")],
+            *[arg for arg in ("--mount",
+                              f"type=bind,source={self.launched(LAUNCH)[0]},"
+                              f"target={LAUNCH_TARGET},readonly=true")],
             "--entrypoint", "python3", self.image, "-c",
             "import os, sys;"
             "sys.path.insert(0, '/opt/baton');"
@@ -960,53 +1033,143 @@ class RealContainersHoldTheTopology(ContainerCase):
         self.assertIs(answered[0]["ok"], False)
         self.assertNotIn("output.json", os.listdir(outputs))
 
-    def test_a_real_consent_container_mounts_neither_input_document(self):
-        """§7.0: consent mounts nothing. The posture boundary is the
-        filesystem rather than a rule about a string, and this asks the
-        ARTEFACT."""
-        status, given = self.talk(CONSENT, ask("consider", CONSENT_SESSION))
-        self.assertIs(given[0]["ok"], True)
-        found = engine(*restricted("run", "--rm", "--name", self.container()),
-                       *[arg for key, value in CONSENT.items()
-                         for arg in ("--env", f"{key}={value}")],
-                       "--entrypoint", "/bin/sh", self.image,
-                       "-c", "ls /input /output 2>&1 || true", check=False)
-        told = found.stdout.decode("utf-8", "replace")
-        self.assertNotIn("input.json", told)
-        self.assertNotIn("assignment.json", told)
+    def test_a_real_container_reads_its_launch_document_read_only(self):
+        """W26291 REPLACED `test_a_real_consent_container_mounts_neither_input_
+        document`, whose subject -- a consent container -- V12 no longer
+        launches.
 
-    def test_a_real_container_refuses_the_other_postures_session(self):
-        status, given = self.talk(CONSENT,
-                                  ask("describe", EXECUTION_SESSION))
+        The property it protected was that the filesystem, rather than a rule
+        about a string, is what a container can and cannot reach. That property
+        is asked here of the thing this Work delivers: the launch document is
+        at the fixed path, it is the manager's own bytes, and the container
+        cannot write it.
+        """
+        place = self.launched(LAUNCH)[0]
+        name = self.container()
+        found = engine(
+            *restricted("run", "--rm", "--name", name, "--mount",
+                        f"type=bind,source={place},target={LAUNCH_TARGET},"
+                        f"readonly=true", "--entrypoint", "python3"),
+            self.image, "-c",
+            "import json\n"
+            "raw = open('/run/baton/launch.json','rb').read()\n"
+            "try:\n"
+            "    open('/run/baton/launch.json','ab'); wrote = True\n"
+            "except OSError:\n"
+            "    wrote = False\n"
+            "print(json.dumps({'read': json.loads(raw), 'wrote': wrote}))",
+            check=False)
+        seen = json.loads(found.stdout.decode("utf-8"))
+        self.assertEqual(seen["read"], LAUNCH)
+        self.assertIs(seen["wrote"], False)
+
+    def test_a_real_container_refuses_another_containers_session(self):
+        status, given = self.talk(LAUNCH,
+                                  ask("describe", "session-somebody-else"))
         self.assertIs(given[0]["ok"], False)
         self.assertEqual(given[0]["code"], "session")
 
     def test_a_real_container_consumes_an_operation_id_once(self):
-        request = ask("describe", CONSENT_SESSION)
-        status, given = self.talk(CONSENT, request, dict(request))
+        request = ask("describe", EXECUTION_SESSION)
+        status, given = self.talk(LAUNCH, request, dict(request))
         self.assertEqual([answer["ok"] for answer in given], [True, False])
         self.assertEqual(given[1]["code"], "replay")
 
-    def test_a_container_built_with_the_wrong_posture_latches_and_exits(self):
+    # -- W26291: the launch document, at the ARTEFACT -----------------------
+    #
+    # TWO FAILURE KINDS, and which one a case gets is the whole design. A
+    # document that can be read and carries a usable session is CORRELATABLE,
+    # so the container answers exactly one fault frame and exits non-zero. A
+    # document that cannot be read at all has no session to answer under, so
+    # the container says NOTHING and exits 2 -- the manager already owns the
+    # start operation and settles it from the engine.
+
+    def test_a_container_whose_document_names_another_generation_latches(self):
         status, given = self.talk(
-            {**CONSENT, "BATON_WORKER_POSTURE": "admin"},
-            ask("consider", CONSENT_SESSION))
+            {**LAUNCH, "schema": "baton.worker-launch/2"},
+            ask("describe", EXECUTION_SESSION))
         self.assertNotEqual(status, 0)
         self.assertEqual(len(given), 1)
-        self.assertEqual(given[0]["code"], "posture")
-        self.assertEqual(given[0]["session"], CONSENT_SESSION)
+        self.assertEqual(given[0]["code"], "launch")
+        self.assertEqual(given[0]["session"], EXECUTION_SESSION)
 
-    def test_a_consent_container_carrying_assignment_material_latches(self):
-        status, given = self.talk(
-            {**CONSENT, "BATON_WORKER_ASSIGNMENT": "assignment-1"},
-            ask("consider", CONSENT_SESSION))
-        self.assertNotEqual(status, 0)
-        self.assertEqual(given[0]["code"], "posture")
+    def test_a_container_whose_document_carries_an_unknown_member_latches(
+            self):
+        """CLOSED, not an allowlist. An extra top-level member is how a second
+        contract alias arrives, and this campaign has rejected those
+        explicitly before -- including the `posture` this Work removed."""
+        for extra, value in (("posture", "execution"),
+                             ("assignment", "assignment-1")):
+            with self.subTest(extra=extra):
+                status, given = self.talk({**LAUNCH, extra: value},
+                                          ask("describe", EXECUTION_SESSION))
+                self.assertNotEqual(status, 0)
+                self.assertEqual(given[0]["code"], "launch")
+                self.assertIn(extra, given[0]["message"])
 
-    def test_a_container_started_without_a_session_says_nothing(self):
-        without = {name: value for name, value in CONSENT.items()
-                   if name != "BATON_WORKER_SESSION"}
-        status, given = self.talk(without, ask("describe", CONSENT_SESSION))
+    def test_a_container_whose_document_is_short_a_member_latches(self):
+        for name in ("contract", "role"):
+            with self.subTest(missing=name):
+                short = {key: value for key, value in LAUNCH.items()
+                         if key != name}
+                status, given = self.talk(short,
+                                          ask("describe", EXECUTION_SESSION))
+                self.assertNotEqual(status, 0)
+                self.assertEqual(given[0]["code"], "launch")
+
+    def test_a_container_with_no_launch_document_says_nothing(self):
+        status, given = self.talk(None, ask("describe", EXECUTION_SESSION))
+        self.assertEqual((status, given), (2, []))
+
+    def test_a_container_started_only_with_the_retired_environment_refuses(
+            self):
+        """THE SUPERSESSION'S OWN CLAUSE, and it is the one case that could
+        not be driven from the manager's side.
+
+        The manager sends no environment at all, so every manager-side case
+        would pass while a worker that still read `BATON_WORKER_*` kept
+        working the old way. This starts a real container the OLD way and
+        requires it not to start.
+        """
+        status, given = self.talk(None, ask("describe", EXECUTION_SESSION),
+                                  environment=RETIRED_ENVIRONMENT)
+        self.assertEqual((status, given), (2, []))
+
+    def test_a_container_whose_document_carries_no_session_says_nothing(self):
+        short = {key: value for key, value in LAUNCH.items()
+                 if key != "session"}
+        status, given = self.talk(short, ask("describe", EXECUTION_SESSION))
+        self.assertEqual((status, given), (2, []))
+
+    def test_a_container_whose_document_is_not_a_document_says_nothing(self):
+        for what, raw in (("not JSON", b"{not json"),
+                          ("not an object", b'["a","b"]'),
+                          ("not UTF-8", b'{"schema":"\xff"}'),
+                          ("empty", b"")):
+            with self.subTest(what=what):
+                status, given = self.talk(
+                    raw, ask("describe", EXECUTION_SESSION))
+                self.assertEqual((status, given), (2, []))
+
+    def test_a_container_whose_document_is_wider_than_the_ceiling_says_nothing(
+            self):
+        raw = json.dumps({**LAUNCH, "role": "r" * 70000}).encode("utf-8")
+        status, given = self.talk(raw, ask("describe", EXECUTION_SESSION))
+        self.assertEqual((status, given), (2, []))
+
+    def test_a_container_whose_launch_path_is_not_a_file_says_nothing(self):
+        """A DIRECTORY at the fixed path is a path with no document at it, and
+        the descriptor is what says so rather than the name."""
+        status, given = self.talk(DIRECTORY, ask("describe",
+                                                 EXECUTION_SESSION))
+        self.assertEqual((status, given), (2, []))
+
+    def test_a_container_whose_launch_document_is_writable_says_nothing(self):
+        """A launch document this worker could rewrite is one it could change
+        between reading it and being asked what it is -- so a WRITABLE bind is
+        refused even though its bytes are perfectly good."""
+        status, given = self.talk(LAUNCH, ask("describe", EXECUTION_SESSION),
+                                  writable=True)
         self.assertEqual((status, given), (2, []))
 
 
@@ -1023,8 +1186,9 @@ class CancellationIsTheManagersRuntimeStopPath(ContainerCase):
         restriction the manager applies."""
         engine(*restricted("run", "--detach", "--interactive",
                            "--name", name),
-               *[arg for key, value in EXECUTION.items()
-                 for arg in ("--env", f"{key}={value}")],
+               "--mount",
+               f"type=bind,source={self.launched(LAUNCH)[0]},"
+               f"target={LAUNCH_TARGET},readonly=true",
                self.image)
 
     def test_a_waiting_container_is_stopped_and_settles_observably(self):
@@ -1067,7 +1231,7 @@ class CancellationIsTheManagersRuntimeStopPath(ContainerCase):
         channel is an ORDINARY end and exits zero, which is exactly why it
         cannot stand in for a stop."""
         _outputs, mounts = self.roots()
-        status, given = self.talk(EXECUTION, mounts=mounts)
+        status, given = self.talk(LAUNCH, mounts=mounts)
         self.assertEqual((status, given), (0, []))
 
 

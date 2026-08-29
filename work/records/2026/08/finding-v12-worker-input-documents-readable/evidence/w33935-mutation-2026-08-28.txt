@@ -1,0 +1,40 @@
+W33935 — THE CORRECTED DELIVERY, MEASURED BY REMOVAL
+==========================================================================
+
+BASELINE  OK
+
+[caught] the delivered mode is owner-only again
+         test_the_worker_identity_reads_both_delivered_documents
+
+[caught] ...and the daemon-free half sees it too
+         TheModeIsEstablishedRatherThanRequested
+
+[caught] ...and the two components stop agreeing
+         test_the_launch_document_and_the_input_pair_agree_on_the_mode
+
+[caught] the input root is never frozen at all
+         test_the_frozen_root_denies_create_unlink_rename_and_replacement
+
+[caught] the root is frozen owner-only, so the worker cannot traverse it
+         test_the_worker_identity_reads_both_delivered_documents
+
+[caught] the freeze runs BEFORE the second document is installed
+         TheInputRootIsFrozenAndNotOnlyItsFiles
+
+[caught] cleanup cannot remove what it froze
+         test_cleanup_reaches_exactly_one_frozen_home
+
+[caught] the home is never frozen, so the root entry stays replaceable
+         test_the_root_entry_itself_cannot_be_renamed_or_replaced
+
+[caught] the home is frozen before its later siblings are provisioned
+         test_what_the_frozen_home_still_permits
+
+[caught] the mode is REQUESTED at creation instead of established
+         test_a_restrictive_umask_cannot_author_an_unreadable_document
+
+[caught] the write denial is dropped, so readable became writable
+         test_neither_document_is_writable_and_neither_is_the_root
+
+==========================================================================
+caught 11 of 11

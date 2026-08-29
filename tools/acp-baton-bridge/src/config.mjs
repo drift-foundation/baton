@@ -12,6 +12,12 @@ function fail(message) {
 	throw new Error(`acp-baton-bridge configuration: ${message}`);
 }
 
+// The largest interval a Node timer holds: `setTimeout` stores its delay as a
+// signed 32-bit number of milliseconds, and anything above this is replaced
+// by 1ms with a warning. Exported so the bound is a checkable fact rather
+// than a number repeated in prose.
+export const MAX_TURN_TIMEOUT_MS = 2147483647;
+
 function requiredString(object, key, where) {
 	const value = object?.[key];
 	if (typeof value !== "string" || !value.trim()) {
@@ -166,11 +172,59 @@ export function validateConfig(raw) {
 		fail("retryMs must be a positive integer");
 	}
 	// R4: the supervision deadline for setup-phase protocol calls
-	// (initialize, session new/load, set_mode). Turns have no
-	// arbitrary work deadline; they race agent death instead.
+	// (initialize, session new/load, set_mode).
 	const setupTimeoutMs = raw.setupTimeoutMs ?? 10000;
 	if (!Number.isSafeInteger(setupTimeoutMs) || setupTimeoutMs < 1) {
 		fail("setupTimeoutMs must be a positive integer");
+	}
+	// W28681: THE TURN DEADLINE, MANDATORY AND WITHOUT A DEFAULT.
+	//
+	// The incident: a managed turn published `working` for the better part of
+	// an hour while five tool process groups it had left behind survived for
+	// 34-36 hours, one of them burning a full core. The turn itself had no
+	// deadline at all — `promptText` raced only the agent's death — so the
+	// only lane this participant has stayed occupied by a turn nothing could
+	// end.
+	//
+	// NO DEFAULT, deliberately, and this is the one place that decision can be
+	// enforced. Every other timeout here has one because a wrong guess is
+	// merely slow; a wrong guess HERE either kills legitimate long work or
+	// leaves the defect open, and neither is a choice a repository can make on
+	// a deployment's behalf. An absent value is a configuration that has not
+	// decided, and a configuration that has not decided must not start.
+	//
+	// AND IT IS WALL-CLOCK, not an activity reset. A legitimate tool may be
+	// silent for a long time while a chatty infinite one produces updates
+	// forever, so streamed ACP updates are diagnostics and never extend this.
+	const turnTimeoutMs = raw.turnTimeoutMs;
+	if (!Number.isSafeInteger(turnTimeoutMs) || turnTimeoutMs < 1) {
+		fail("turnTimeoutMs must be a positive integer number of "
+			+ "milliseconds and has no default: it is the wall-clock bound on "
+			+ "one delivered turn, and a deployment that has not chosen one "
+			+ "has not decided how long its only delivery lane may be held");
+	}
+	// AND IT MUST BE A DURATION THIS RUNTIME CAN ACTUALLY WAIT.
+	//
+	// Review [P1]: every positive safe integer was accepted, and Node's timer
+	// interval is a SIGNED 32-BIT millisecond value. `2147483648` therefore
+	// validated, then `setTimeout` warned about the overflow and used ONE
+	// MILLISECOND — so an operator asking for the longest deadline they could
+	// express silently got the shortest one there is. A deadline that becomes
+	// its own opposite without refusing is worse than no deadline, because
+	// the configuration says one thing and the supervisor does another.
+	//
+	// REFUSED RATHER THAN CLAMPED. Clamping would substitute this
+	// repository's number for the operator's, which is the whole reason this
+	// operand has no default; and a long-duration timer built by chaining
+	// short ones would be this program inventing a scheduler to make an
+	// unreasonable value work. ~24.8 days is named in the message so the
+	// ceiling is a fact the operator can act on rather than a mystery.
+	if (turnTimeoutMs > MAX_TURN_TIMEOUT_MS) {
+		fail(`turnTimeoutMs must be at most ${MAX_TURN_TIMEOUT_MS} `
+			+ "milliseconds (about 24.8 days), which is the longest interval "
+			+ "this runtime's timers can hold; a larger value is silently "
+			+ "truncated to one millisecond, turning the longest deadline an "
+			+ "operator can ask for into the shortest one there is");
 	}
 
 	// W93 R9: the runtime IDENTITY metadata. Teams cannot tell a Claude
@@ -231,6 +285,7 @@ export function validateConfig(raw) {
 		stateDir: raw.stateDir,
 		retryMs,
 		setupTimeoutMs,
+		turnTimeoutMs,
 	};
 }
 

@@ -268,3 +268,33 @@ Status: **changes requested** in
 46. [done] Revalidate the signed bridge source, current immutable release, and live process inventory. Source gates are Codex 420/420 and ACP 77/77; every active bridge process predates final sign-off, the ACP runtime still comes from byte-different `14aecfb`, and no new immutable release exists.
 47. [next approver/operator] Select a clean reviewed commit containing W11910, publish it through the official immutable v11 deploy path, update the live deployment's explicit paths and accepted launcher instructions as required, and perform the drain/cutover/restart under approver authority. Do not deploy the current dirty checkout wholesale.
 48. [pending after cutover] Run and record both live smokes from item 45, then close only if the unchanged readiness levels advance without a recovery restart.
+
+## Deployment cutover and live-smoke execution — 2026-08-28
+
+47. [done approver/operator] Immutable release `dd1dc3e` is deployed. The live
+    Codex dispatcher, readiness producers, and ACP bridge were restarted at
+    2026-08-28T04:28Z with explicit `dd1dc3e` paths.
+48. [in progress tuner] Claim-slot baseline captured: ACP PID 2756087 holds
+    W26291, and W28681 became ready and unclaimed for the same participant
+    after that claim. Observe delivery only after W26291 releases and require
+    PID 2756087 to remain unchanged.
+49. [pending tuner] Produce and record the unchanged no-claim retry after
+    runner-environment repair, requiring the exact action key and bridge PID
+    to remain unchanged. Do not infer this result from a changed episode,
+    generation, action, or process.
+50. [next approver/operator] Let the natural W26291 handoff release the ACP
+    claim slot without restarting PID 2756087, then return this Work to tuner
+    to capture W28681's delivery. Supply an operator-controlled incompatible-
+    runner setup for item 49 that can be repaired without restarting its
+    bridge; tuner will not manufacture that state by mutating the installed
+    binary or authority config.
+
+## Approver closure ruling — 2026-08-28
+
+51. [accepted incomplete evidence] Items 48–50 are no longer terminal closure
+    gates. Neither live smoke is claimed as passed; capture either later only
+    when an equivalent natural opportunity occurs, preserving exact action,
+    episode and bridge-process evidence.
+52. [next approver] Close W11910 satisfying on the independently signed-off,
+    fully gated and deployed `dd1dc3e` correction, with the closure rationale
+    explicitly naming the deferred live evidence.

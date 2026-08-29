@@ -209,3 +209,22 @@ W6629 (intake/retention/cleanup), and W6630 (section 13 security). W6634 must
 wait on W6628 and W6630. W6636 must wait on all five component Jobs and all five
 manager Jobs. Those two children are implementation-routed, so their exact
 edges are owed by `baton.impl`; reviewer authority cannot mutate their graphs.
+
+## 2026-08-28 — capability-pass supersession and roll-up outcome
+
+**Superseded:** the 2026-08-24 two-container consent/execution topology above
+is historical evidence, not the current requirement. The campaign later
+confirmed reservation without a runtime, atomic claim, and one execution
+container only after claim; W6636 implements and proves that topology.
+
+**Confirmed replacement rather than waiver:** W6634 remains non-satisfying.
+Its provisional output/credential surface was replaced by satisfying W26283
+and W26284, with W26291 and W26294 completing launch and exact observation.
+W6636 consumed those reviewed providers and closed satisfying as the bounded
+one-container Docker capability pass.
+
+**Confirmed W5 outcome:** under campaign PLAN item 27, that capability pass is
+the smallest honest W5 finish line. The design is promising, not
+production-ready. W32382, W32385 and W32391 preserve negative/race,
+exact-ended restart and Podman hardening as separate W3 Jobs; they are not W5
+blockers. See `review-2026-08-28T15-43-03Z.md`.

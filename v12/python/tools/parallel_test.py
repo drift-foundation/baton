@@ -66,10 +66,23 @@ ROOT = HERE.parents[1]
 PARALLEL_MODULES = ("tests.authority.test_assignment",
                     "tests.authority.test_boundary",
                     "tests.authority.test_catalog",
+                    # W16823's closed claim result and its schema-4 boundary.
+                    # PARALLEL: every case owns a disposable authority under
+                    # its own temporary directory and shares no file with
+                    # anything else.
+                    "tests.authority.test_claim_result",
                     "tests.authority.test_contract",
                     "tests.authority.test_identity",
                     "tests.authority.test_operations",
+                    # W16821's principal/scope seam.  PARALLEL: every case owns
+                    # a disposable authority under its own temporary directory
+                    # and shares no file, port or engine with anything else.
+                    "tests.authority.test_principal_scope",
                     "tests.authority.test_session",
+                    # W29400's Work-label authority model. PARALLEL: every
+                    # case owns a disposable authority under its own temporary
+                    # directory and shares no file with anything else.
+                    "tests.authority.test_work_labels",
                     "tests.authority.test_store",
                     "tests.manager.test_attempts",
                     "tests.manager.test_boundary_inventory",
@@ -77,10 +90,17 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     "tests.manager.test_contracts_inventory",
                     "tests.manager.test_dependencies",
                     "tests.manager.test_diagnostic_rendering",
+                    # W34998's failed-start destroy provider. PARALLEL: a
+                    # recording fake engine and this suite's own temporary
+                    # roots; no daemon, image or container anywhere in it.
+                    "tests.manager.test_failed_start_destroy",
+                    "tests.manager.test_refused_session_cleanup",
+                    "tests.manager.test_custody",
                     "tests.manager.test_frozen",
                     "tests.manager.test_handshake",
                     "tests.manager.test_credentials",
                     "tests.manager.test_intake",
+                    "tests.manager.test_launch",
                     "tests.manager.test_sealing",
                     "tests.manager.test_interrogation",
                     "tests.manager.test_manifest_rules",
@@ -88,6 +108,18 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     "tests.manager.test_offers",
                     "tests.manager.test_output",
                     "tests.manager.test_pod",
+                    # W16823's principal-aware manager context. PARALLEL: an
+                    # injected fake session and a disposable control store per
+                    # case, and no engine, image or container anywhere in it --
+                    # the label cases compare the manager's own derivation
+                    # rather than asking a daemon what is running.
+                    "tests.manager.test_principal_context",
+                    # W32649's cross-attempt runtime lane. PARALLEL: a
+                    # disposable control store per case and an injected fake
+                    # session and adapter; the one threaded case races three
+                    # managers over ITS OWN store file and touches no engine,
+                    # image or container.
+                    "tests.manager.test_runtime_lane",
                     "tests.manager.test_secrets",
                     "tests.manager.test_sessions",
                     "tests.manager.test_store",
@@ -117,9 +149,35 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
 # suite creating or removing containers makes that count a fact about the run
 # rather than about the manager. It runs LAST, because it observes both
 # artefacts the two before it produce.
+# W26283 adds the fourth: `test_output_custody_engine` runs the reference
+# worker for real and then seals what it wrote, so it owns containers and the
+# built image exactly as the three before it do. It runs after
+# `test_worker_container`, whose image gate is what produces the artefact it
+# depends on being buildable at all.
+# W32382 adds the sixth for the same two reasons as the third: it drives a
+# real daemon through the manager's negative and race endings and asks the
+# engine how many containers carry an assignment's labels. A concurrent suite
+# creating or removing containers makes that count a fact about the run. It
+# runs beside `test_lifecycle_composition`, whose fixture it subclasses.
+# W33935 adds the eighth: `test_input_delivery` builds the worker image and
+# starts real containers over the manager's own composed argv, so it owns the
+# same two artefacts the seven before it do. It runs beside
+# `test_lifecycle_composition`, whose engine fixture it reuses.
+# W34998 adds the ninth: `test_failed_start_destroy_engine` builds this
+# repository's worker image and creates real containers to remove them, so it
+# owns the same two artefacts the eight before it do. It runs after
+# `test_worker_container`, whose image gate produces the artefact it needs.
 SERIAL_MODULES = ("tests.manager.test_worker_container",
+                  "tests.manager.test_failed_start_destroy_engine",
                   "tests.manager.test_oci_engine",
-                  "tests.manager.test_lifecycle_composition")
+                  "tests.manager.test_lifecycle_composition",
+                  "tests.manager.test_negative_race_endings",
+                  "tests.manager.test_ended_runtime_adoption",
+                  "tests.manager.test_output_custody_engine",
+                  "tests.manager.test_credentials_engine",
+                  "tests.manager.test_refused_session_engine",
+                  "tests.manager.test_custody_engine",
+                  "tests.manager.test_input_delivery")
 
 # The two whole-universe scans from the baseline. Split one test method per
 # shard; every other class ships as one shard.

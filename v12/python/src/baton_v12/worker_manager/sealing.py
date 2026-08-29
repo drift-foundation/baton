@@ -46,7 +46,6 @@ keep true.
 
 import json
 import os
-import shutil
 import stat
 
 from ..contracts import (ContractRefusal, check_manifest_structure,
@@ -242,23 +241,6 @@ def _overlaps(one, other):
 # those capabilities already cross exactly once.
 
 
-def _measured(place, declared, name):
-    """One declared output, measured and held against its own limits."""
-    manifest = workspaces.directory_manifest(place)
-    limits = declared["constraints"]
-    if manifest["entry_count"] > limits["max_entries"]:
-        raise ContractRefusal(
-            "integrity", "limit",
-            f"output {name_value(name)} carries {manifest['entry_count']} "
-            f"entries and its declaration allows {limits['max_entries']}")
-    if manifest["total_bytes"] > limits["max_bytes"]:
-        raise ContractRefusal(
-            "integrity", "limit",
-            f"output {name_value(name)} carries {manifest['total_bytes']} "
-            f"bytes and its declaration allows {limits['max_bytes']}")
-    return manifest
-
-
 def _staged(place, into, declared, name):
     """The declared tree MEASURED AND COPIED into manager custody, then frozen.
 
@@ -337,16 +319,14 @@ def _cleared(into):
     leftover entry would refuse; and a prefix left by an earlier attempt is not
     evidence of anything this pass measured. The committed record above is what
     makes a whole answer replayable.
+
+    THROUGH W6631's REMOVAL rather than `shutil.rmtree`. The manager's ruled
+    dependency set does not include `shutil` -- a repository rule that caught
+    this import when it was added here -- and the module that owns tree
+    traversal already owns a removal that makes each directory writable as it
+    goes and never follows a link out of the tree.
     """
-    if not os.path.isdir(into):
-        return
-    for base, directories, files in os.walk(into, topdown=False):
-        for one in directories:
-            os.chmod(os.path.join(base, one), 0o700)
-        for one in files:
-            os.chmod(os.path.join(base, one), 0o600)
-    os.chmod(into, 0o700)
-    shutil.rmtree(into)
+    workspaces.discard_tree(into)
 
 
 # THE COMMITTED RESULT, and why a directory is not one.
@@ -731,15 +711,32 @@ def sealed_result(request, *, roots, declared, identity, custody,
                   input_manifest_digest):
     """The frozen result manifest, over the declared outputs only.
 
-    THE MEASUREMENT IS TAKEN TWICE, and the second one is the point. Between
-    measuring a tree and freezing it, a worker that is not as quiescent as the
-    engine said can replace a file -- so the tree is frozen and measured
-    AGAIN, and a digest that moved is a race this component refuses rather
-    than a result it describes wrongly.
+    THE MEASUREMENT IS TAKEN ONCE, and that is what removed the race rather
+    than checked for it. This docstring said the opposite until W26283's
+    review found it: the tree used to be measured, copied by REOPENING each
+    path, and measured AGAIN, and a digest that moved between the two was
+    refused. Comparing two measurements is a detector, and a detector only
+    narrows the window it watches -- the reopening copy in the middle was
+    itself following whatever the paths resolved to by then.
+
+    `workspaces.copied_manifest` now measures and copies in ONE no-follow
+    pass through the descriptor that produced the bytes, so the bytes WRITTEN
+    are the bytes MEASURED and there is no interval for a worker to move
+    anything in. `_staged` explains the same thing at the call site.
+
+    What remains below is a verification of the WRITE -- a short write, a
+    full device -- which is a different question and a cheap one.
     """
+    # W16823: `context` is OPTIONAL here and required by `_quiesced`, which is
+    # the door that actually uses it. The adapter's `seal` passes one request
+    # to both: the quiescence gate composes the label selector out of it, and
+    # this function -- which measures bytes and shapes a frozen result -- has
+    # no use for a principal. Naming it optional is how a member that is
+    # genuinely used one layer up stops reading as an unrecognised one here.
     taken = boundaries.document(request, "a freeze request",
                                 required=("attempt_id", "assignment",
-                                          "disposition", "now", "operation"))
+                                          "disposition", "now", "operation"),
+                                optional=("context",))
     now = boundaries.instant(taken["now"], "a freeze instant")
     # REPLAY SITS ABOVE EVERY STATE READ, which is the rule this module was
     # corrected for once already and got only half right: custody answered a

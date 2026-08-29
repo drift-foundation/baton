@@ -1,0 +1,45 @@
+W35557 - the sharded gate, the whole module, and their agreement
+======================================================================
+run at 2026-08-29T04:26:48Z
+
+THE SHARDED VERDICT - tools/parallel_test.py, which is what the
+parallel runner actually executes:
+
+  FAILING SHARD  tests.authority.test_work_labels.ProjectionsAndPredicates
+  FAILING SHARD  tests.authority.test_work_labels.ReplayAndConvergence
+  FAILING SHARD  tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe
+  FAILING SHARD  tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail
+  FAILING SHARD  tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared
+  FAILING SHARD  tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator
+  FAILING SHARD  tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+  FAILING SHARD  tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor
+  FAILING SHARD  tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed
+
+  [parallel source] 305 shards, 1846 tests, 9 failures, 1 errors, 1 skipped -> FAILED
+
+EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary
+is NOT in that list: every derived attempt probe ARRIVES at the
+'a persisted attempt' boundary rather than at an earlier refusal.
+
+The two tests.manager.test_runtime_lane shards are W32649's SECOND
+review round, not this Work's - see PROGRESS.md.
+
+======================================================================
+THE WHOLE-MODULE VERDICT, which the acceptance requires to AGREE with
+the shards above. The module run took 1288s for 96 tests, which is why
+the runner shards it:
+
+  FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared
+  FAIL: test_every_owned_entry_has_exactly_one_probe
+  FAIL: test_every_receiving_entry_has_an_owning_validator
+  FAIL: test_the_missing_probe_check_can_actually_fail
+  FAIL: test_the_universe_sees_every_persisted_column_that_is_read
+
+  Ran 96 tests in 1288.091s
+  FAILED (failures=5)
+
+AGREEMENT: the module fails exactly the five boundary-inventory checks
+the isolated shards fail, and no attempt-column entry appears in
+either. The remaining families - sessions, handshake, retentions and
+four oci/workspaces caller entries - are outside this record's
+boundary.

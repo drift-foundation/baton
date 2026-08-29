@@ -52,3 +52,10 @@
     operator infrastructure outside the source tree, not a repository payload.
     Enforce the generated wheelhouse boundary with the exact
     `v12/python/wheelhouse/` `.gitignore` entry.
+11. [done 2026-08-28] Revalidated the umbrella after W6. W6's satisfying
+    closure is a bounded, formally `not-certified` proof result and does not
+    complete M2 while W16823, W32382 and W32391 remain open.
+12. [coordination 2026-08-28] Block W3 explicitly on W32382 and W32391.
+    W32382 already waits transitively on W16823 through W32649; W32391 is
+    parked pending a real Podman engine. Re-run item 6 only after both direct
+    gates close.

@@ -1,0 +1,12 @@
+Command:
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_record_must_name_the_runtime_being_destroyed
+
+Observed:
+  FAIL
+  AssertionError: ContractRefusal not raised
+
+The case first records a failed start for runtime-1, then changes only the
+persisted attempt row to name runtime-sibling. Cleanup crosses the adapter and
+settles instead of refusing the mismatch between the authorizing journal
+result and the runtime selected for destruction.

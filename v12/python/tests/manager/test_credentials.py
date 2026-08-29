@@ -35,7 +35,12 @@ import unittest
 
 from baton_v12.contracts import (ContractRefusal, forget_secret, live_secret,
                                  remember_secret)
-from baton_v12.worker_manager import credentials, oci, sealing
+from baton_v12.worker_manager import ControlStore
+
+from . import input_roots
+from baton_v12.worker_manager import (credentials, launch, oci,
+                                      workspaces,
+                                      sealing)
 
 BEARER = "bearer-" + "0" * 40
 SECOND = "second-" + "1" * 40
@@ -49,6 +54,19 @@ DIGEST = "sha256:" + "a" * 64
 IDENTITY = {"image_digest": "sha256:" + "b" * 64, "profile_digest": DIGEST,
             "policy_digest": "sha256:" + "c" * 64,
             "adapter_digest": "sha256:" + "d" * 64}
+# W16823: the trusted authorization context an adapter request carries beside
+# the fence, and the two label members it composes from.
+# W33936: the deployment's configured workspace group. An execution adapter
+# without one refuses before the engine, so every execution construction below
+# names it -- `os.getgid()` is the group this process can actually adopt, which
+# keeps the pre-launch proof a real measurement rather than a mocked one.
+# W33936 review [P1]: the configured group is a CAPABILITY read from this
+# manager's own record, never an integer a caller composes. Obtained per
+# case in `setUp` -- see `input_roots.configured_group`.
+WORKSPACE_GROUP = None
+
+CONTEXT = {"principal": "principal:org-a",
+           "effective_scope": "scope:deployment"}
 ASSIGNMENT = {"work_ref": {"authority_uuid": UUID, "work_id": JOB},
               "participant": "baton.claude", "generation": 1}
 PROFILE = {"api": {"provider": "vault", "reference": "kv/one"},
@@ -64,6 +82,20 @@ class CredentialCase(unittest.TestCase):
         self.inputs = os.path.join(self.home_place, "inputs")
         for place in (self.inputs, self.workspace):
             os.makedirs(place, exist_ok=True)
+        # W33936: the workspace root is put in the configured group at exactly
+        # the mode an execution start proves before the engine. This fixture
+        # builds its roots by hand rather than through `assignment_workspace`,
+        # so it establishes what that boundary establishes -- and a case here
+        # that started over an unprepared root would refuse for the workspace's
+        # reason rather than its own.
+        self.store = ControlStore.open(
+            os.path.join(self.home_place, "control.sqlite3"),
+            incarnation="credentials-1",
+            clock=lambda: "2026-08-24T00:00:00.000Z")
+        self.addCleanup(self.store.close)
+        self.group = input_roots.configured_group(self.store)
+        os.chown(self.workspace, -1, self.group.gid)
+        os.chmod(self.workspace, workspaces.WORKSPACE_DIR)
         self.minted = []
         # NOTHING LEAKS OUT OF A CASE INTO THE PROCESS REGISTRY. A live value
         # left behind would arm every later case's §13 walk against a string
@@ -114,7 +146,33 @@ class CredentialCase(unittest.TestCase):
             "docker", Engine(), identity=dict(IDENTITY),
             assignment_roots={"inputs": self.inputs,
                               "workspace": self.workspace},
-            posture="execution", credential_delivery=delivery)
+            posture="execution", workspace_group=self.group, credential_delivery=delivery,
+            launch_delivery=self.launched())
+
+    def launched(self, attempt_id="attempt-1"):
+        """One materialized launch document. W26291 re-review [P1]: a start
+        now REQUIRES one, so every canonical start in this suite has it — the
+        credential lifecycle is what these cases are about, and a start
+        refused for a missing launch document would be about something else.
+        """
+        key = f"_launch_{attempt_id}"
+        if getattr(self, key, None) is None:
+            home = tempfile.mkdtemp(prefix="v12-cred-launch-")
+            self.addCleanup(self._take_launch_away, home)
+            setattr(self, key, launch.materialize(
+                home, attempt_id=attempt_id, session="session-1",
+                contract="do the thing", role="implementer"))
+        return getattr(self, key)
+
+    def _take_launch_away(self, home):
+        for current, directories, files in os.walk(home, topdown=False):
+            os.chmod(current, 0o700)
+            for name in files:
+                os.remove(os.path.join(current, name))
+            for name in directories:
+                os.rmdir(os.path.join(current, name))
+        if os.path.lexists(home):
+            os.rmdir(home)
 
 
 class AnAssignmentNamesSlotsAndNothingElse(CredentialCase):
@@ -320,6 +378,218 @@ class MaterializationArmsTheRegistryFirst(CredentialCase):
             os.path.exists(self.home().volatile_root("attempt-1")))
 
 
+
+
+class ThePermissionsAreTheContractsRatherThanTheCodes(CredentialCase):
+    """W26284 PLAN 1: the acceptance names permissions and nothing held them.
+
+    `MaterializationArmsTheRegistryFirst.test_one_private_file_per_slot`
+    asserts the observed mode equals `credentials.VOLATILE_FILE` -- the very
+    constant that produced it. That proves internal CONSISTENCY and nothing
+    about the required permission: measured, both constants can be changed to
+    world-readable and world-traversable with the whole suite green.
+
+    The acceptance says "fresh-run credential files and roots have the REQUIRED
+    permissions", and a required value is a literal somewhere or it is not
+    required at all.
+    """
+
+    def test_the_required_modes_are_exactly_these(self):
+        self.assertEqual(credentials.VOLATILE_FILE, 0o600)
+        self.assertEqual(credentials.VOLATILE_DIR, 0o700)
+
+    def test_a_delivered_credential_is_readable_only_by_this_manager(self):
+        """The LITERAL modes, on the bytes that actually landed.
+
+        Under a permissive umask on purpose. `os.open`'s mode is masked by the
+        process umask, so a case run under `0o077` would see 0o600 even for a
+        file created 0o666 -- and would pass for exactly the defect it is
+        meant to catch. Setting the umask to zero makes the assertion about
+        the open, which is where the rule lives.
+        """
+        previous = os.umask(0)
+        try:
+            delivered = self.delivery(slots=("api", "signing"))
+        finally:
+            os.umask(previous)
+        self.assertEqual(stat.S_IMODE(os.stat(delivered.root).st_mode), 0o700)
+        for name in ("api", "signing"):
+            place = os.path.join(delivered.root, name)
+            self.assertEqual(stat.S_IMODE(os.stat(place).st_mode), 0o600,
+                             name)
+        self.home().tear_down(delivered)
+
+    def test_the_mode_is_given_to_the_open_rather_than_applied_after(self):
+        """There is no instant at which the bytes are wider than 0600.
+
+        Applying the mode afterwards leaves a window in which the file exists
+        at whatever the umask allowed -- and the resulting file looks identical
+        once the window closes, which is why the mode assertion above cannot
+        see the difference. This watches the open itself.
+        """
+        seen = []
+        opened = credentials.os.open
+
+        def watched(path, flags, mode=0o777):
+            if os.path.dirname(path).startswith(self.home_place):
+                seen.append((os.path.basename(path), mode,
+                             bool(flags & os.O_EXCL)))
+            return opened(path, flags, mode)
+
+        credentials.os.open = watched
+        try:
+            delivered = self.delivery()
+        finally:
+            credentials.os.open = opened
+        self.assertEqual(seen, [("api", 0o600, True)])
+        self.home().tear_down(delivered)
+
+
+class TheAuthorizedSetIsBounded(CredentialCase):
+    """W26284 PLAN 1: `MAX_SLOTS` was enforced and never observed.
+
+    The bound is not decoration -- the delivery becomes that many mounts, that
+    many files and that many registry entries, so an unbounded list is an
+    unbounded act. Measured: raising the constant to 100000 changed no verdict.
+    """
+
+    def test_the_bound_is_exactly_sixteen(self):
+        self.assertEqual(credentials.MAX_SLOTS, 16)
+
+    def test_more_slots_than_the_bound_refuses(self):
+        names = tuple(f"slot{index:02d}" for index in
+                      range(credentials.MAX_SLOTS + 1))
+        with self.assertRaises(ContractRefusal) as caught:
+            credentials.resolved_delivery(
+                names, profile={name: {"provider": "vault",
+                                       "reference": f"kv/{name}"}
+                                for name in names})
+        self.assertEqual(caught.exception.code, "limit")
+
+    def test_exactly_the_bound_is_allowed(self):
+        """Or the rule would be a way of refusing everything."""
+        names = tuple(f"slot{index:02d}" for index in
+                      range(credentials.MAX_SLOTS))
+        resolved = credentials.resolved_delivery(
+            names, profile={name: {"provider": "vault",
+                                   "reference": f"kv/{name}"}
+                            for name in names})
+        self.assertEqual(len(resolved), credentials.MAX_SLOTS)
+
+    def test_the_adapter_refuses_more_mounts_than_slots(self):
+        """The same bound at the adapter, which composes the binds.
+
+        A separate owner from the one above -- `_credential_mounts` is handed
+        pairs rather than an assignment -- so it is a separate rule and needed
+        its own case.
+        """
+        pairs = tuple((os.path.join(self.home_place, f"s{index}"),
+                       f"{credentials.CREDENTIAL_ROOT}/s{index}")
+                      for index in range(credentials.MAX_SLOTS + 1))
+        with self.assertRaises(ContractRefusal):
+            oci._credential_mounts(pairs)
+
+
+class AFailedMaterializationRemovesBeforeItForgets(CredentialCase):
+    """W26284 PLAN 1: the failure path's ORDER was unobserved.
+
+    A registry released while the bytes are still on disk says a credential is
+    dead while it is readable -- the same rule teardown is held to, on the path
+    that runs when a delivery never completes. Measured: swapping the two
+    changed no verdict.
+    """
+
+    def test_the_root_is_gone_before_the_bearer_is_forgotten(self):
+        seen = {}
+        discard = credentials._discard
+
+        def watched(root):
+            seen["live_at_discard"] = live_secret(BEARER)
+            answer = discard(root)
+            seen["gone_after_discard"] = not os.path.exists(root)
+            return answer
+
+        credentials._discard = watched
+        try:
+            # The SECOND slot fails, so the first is already written and
+            # live when the discard runs. The provider capability is handed
+            # (provider, reference) rather than the slot name -- measured, my
+            # first version keyed on the name and never raised at all.
+            calls = []
+
+            def failing(provider, reference):
+                calls.append(reference)
+                if len(calls) == 2:
+                    # `unavailable/source-provider` is the pairing the
+                    # taxonomy actually has for a provider that cannot answer;
+                    # the closed pairing refused my first spelling, which is
+                    # the check doing its job.
+                    raise ContractRefusal("unavailable", "source-provider",
+                                          "the provider is down")
+                return BEARER
+
+            with self.assertRaises(ContractRefusal):
+                self.home().materialize(
+                    credentials.resolved_delivery(("api", "signing"),
+                                                  profile=PROFILE),
+                    attempt_id="attempt-1", credential_provider=failing)
+        finally:
+            credentials._discard = discard
+        self.assertTrue(seen["live_at_discard"],
+                        "the bearer was forgotten before its file was removed")
+        self.assertTrue(seen["gone_after_discard"])
+        self.assertFalse(live_secret(BEARER),
+                         "the bearer stayed live after a proved removal")
+
+    def test_a_removal_that_cannot_be_proved_keeps_every_bearer_live(self):
+        """W26284 review [P1]: the ORDER was observed and the ANSWER was not.
+
+        `_discard` exists to report whether the root is GONE, and this path
+        threw that answer away and forgot every bearer regardless. A
+        filesystem that refused the removal therefore left the bytes readable
+        while the registry guarding every later §13 scan was disarmed — a
+        check that cannot fail, which is worse than no check because it reads
+        as evidence.
+
+        The case above watches a SUCCESSFUL removal, which is why it could be
+        green while this was unsafe. This one drives the false answer.
+        """
+        discard = credentials._discard
+        credentials._discard = lambda root: False
+        self.addCleanup(setattr, credentials, "_discard", discard)
+        calls = []
+
+        def failing(provider, reference):
+            calls.append(reference)
+            if len(calls) == 2:
+                raise ContractRefusal("unavailable", "source-provider",
+                                      "the provider is down")
+            return BEARER
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.home().materialize(
+                credentials.resolved_delivery(("api", "signing"),
+                                              profile=PROFILE),
+                attempt_id="attempt-1", credential_provider=failing)
+        # THE ENDING IS ITS OWN, and it is not the provider's failure wearing
+        # a different hat: what an operator has to act on is a stranded
+        # bearer, not a provider that was down a moment ago.
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "credential-lifetime"))
+        # AND NOTHING WAS FORGOTTEN. The root is still there, so the registry
+        # stays armed over bytes that are still readable.
+        credentials._discard = discard
+        root = self.home().volatile_root("attempt-1")
+        self.assertTrue(os.path.lexists(root))
+        self.assertTrue(live_secret(BEARER),
+                        "a bearer was forgotten while its file remained")
+        # The fixture removes what the component correctly refused to claim
+        # was gone.
+        discard(root)
+        while live_secret(BEARER):
+            forget_secret(BEARER)
+
+
 class EveryPublicDoorOwnsWhatItIsHanded(CredentialCase):
     """The doors this module exposes, driven with operands nobody composed.
 
@@ -386,7 +656,9 @@ class TheWorkerSeesOnlyTheFixedRoot(CredentialCase):
         body = {"image_digest": IDENTITY["image_digest"],
                 "labels": self.labels(), "assignment_roots":
                     {"inputs": self.inputs, "workspace": self.workspace},
-                "posture": "execution", "name": "baton-v12-1"}
+                "posture": "execution", "name": "baton-v12-1",
+                # W33936: an execution vector names the configured group.
+                "workspace_group": self.group}
         body.update(overrides)
         return oci.run_vector("docker", **body)
 
@@ -394,6 +666,8 @@ class TheWorkerSeesOnlyTheFixedRoot(CredentialCase):
         from baton_v12.worker_manager import documents
         body = {"runtime_attempt_id": "attempt-1", "authority_uuid": UUID,
                 "work_id": JOB, "participant": "baton.claude", "generation": 1,
+                "principal": CONTEXT["principal"],
+                "effective_scope": CONTEXT["effective_scope"],
                 "profile_digest": IDENTITY["profile_digest"],
                 "policy_digest": IDENTITY["policy_digest"],
                 "adapter_digest": IDENTITY["adapter_digest"]}
@@ -456,19 +730,78 @@ class TheWorkerSeesOnlyTheFixedRoot(CredentialCase):
     def test_no_bearer_reaches_the_argv(self):
         """§13's argv half, driven rather than asserted about. Every
         process on the host can read another's command line, so the whole
-        vector is walked while the registry is live."""
+        vector is walked while the registry is live.
+
+        W26284 review [P1] MOVED WHERE THAT WALK LIVES, and this case moved
+        with it. `run_vector` used to sweep the vector IT composed and nothing
+        swept the others, so the duplicate probe and the refusal path's own
+        listing reached the engine unswept. The rule now has one owner —
+        `EnginePort.__call__`, which is what every vector actually passes
+        through — so the reachability half is driven THERE. What is asserted is
+        unchanged: a live bearer does not reach a command line, and the guard
+        that stops it can fail.
+        """
         delivered = self.delivery()
         argv = self.vector(credentials_delivered=delivered.mounts())
         self.assertTrue(live_secret(BEARER))
         for piece in argv:
             self.assertNotIn(BEARER, piece)
-        # And the walk is REACHABLE: a label carrying the live value refuses
-        # rather than being spelled into the command line.
+        # And the walk is REACHABLE, at the one boundary that owns it: an argv
+        # carrying the live value is refused instead of being handed to the
+        # engine, whatever composed it.
+        reached = []
+        port = oci.EnginePort(lambda one: reached.append(tuple(one))
+                              or {"status": 0, "stdout": "", "stderr": ""})
         with self.assertRaises(ContractRefusal) as caught:
-            self.vector(labels=self.labels(participant=BEARER),
-                        credentials_delivered=delivered.mounts())
+            port(self.vector(labels=self.labels(participant=BEARER),
+                             credentials_delivered=delivered.mounts()))
         self.assertEqual(caught.exception.code, "secret-leak")
+        self.assertEqual(reached, [], "the engine was reached anyway")
         self.home().tear_down(delivered)
+
+    def test_the_duplicate_probe_cannot_carry_a_bearer_to_the_engine(self):
+        """W26284 review [P1]: the FIRST engine call was unswept.
+
+        `start` asks the engine for duplicate candidates before any vector is
+        composed, and the candidate selector puts `runtime_attempt_id` into a
+        `--filter` argument. A provider answer is explicitly untrusted, so a
+        bearer equal to that attempt identity was handed to the daemon by the
+        very call that runs before anything else happens — and the later
+        run-vector sweep, which was the only one there was, refused far too
+        late to matter.
+
+        The case that existed chose `participant` precisely because it is NOT
+        a candidate filter. It proved the late sweep worked and said nothing
+        about the early leak, which is why this one uses the attempt label.
+        """
+        reached = []
+
+        class Engine:
+            def __call__(self, argv):
+                reached.append(tuple(argv))
+                return {"status": 0, "stdout": "", "stderr": ""}
+
+        delivered = self.home().materialize(
+            credentials.resolved_delivery(("api",), profile=PROFILE),
+            attempt_id=BEARER, credential_provider=self.provider())
+        built = oci.OciAdapter(
+            "docker", Engine(), identity=dict(IDENTITY),
+            assignment_roots={"inputs": self.inputs,
+                              "workspace": self.workspace},
+            posture="execution", workspace_group=self.group, credential_delivery=delivered,
+            launch_delivery=self.launched())
+        with self.assertRaises(ContractRefusal) as caught:
+            built.start({"labels": self.labels(runtime_attempt_id=BEARER),
+                         "operation_id": "runtime.start:w26284"})
+        self.assertEqual(caught.exception.code, "secret-leak")
+        # NOTHING AT ALL REACHED THE ENGINE. Not "no run" — no call: the
+        # duplicate probe is the first invocation and it is the one that used
+        # to leak.
+        self.assertEqual(reached, [])
+        self.assertTrue(live_secret(BEARER))
+        credentials._discard(delivered.root)
+        while live_secret(BEARER):
+            forget_secret(BEARER)
 
 
 class DurableStateNamesTheSlotAndNeverTheBearer(CredentialCase):
@@ -618,10 +951,13 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
             "docker", Engine(), identity=dict(IDENTITY),
             assignment_roots={"inputs": self.inputs,
                               "workspace": self.workspace},
-            posture="execution", credential_delivery=delivered)
+            posture="execution", workspace_group=self.group, credential_delivery=delivered,
+            launch_delivery=self.launched())
         labels = documents.runtime_labels(
             runtime_attempt_id="attempt-1", authority_uuid=UUID,
             work_id=JOB, participant="baton.claude", generation=1,
+            principal=CONTEXT["principal"],
+            effective_scope=CONTEXT["effective_scope"],
             profile_digest=IDENTITY["profile_digest"],
             policy_digest=IDENTITY["policy_digest"],
             adapter_digest=IDENTITY["adapter_digest"])
@@ -655,7 +991,8 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
             "docker", Engine(), identity=dict(IDENTITY),
             assignment_roots={"inputs": self.inputs,
                               "workspace": self.workspace},
-            posture="execution", credential_delivery=delivered)
+            posture="execution", workspace_group=self.group, credential_delivery=delivered,
+            launch_delivery=self.launched())
         with self.assertRaises(ContractRefusal) as caught:
             built.start({"labels": self.runtime_labels(),
                          "operation_id": "runtime.start:1"})
@@ -680,7 +1017,8 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
             "docker", Engine(), identity=dict(IDENTITY),
             assignment_roots={"inputs": self.inputs,
                               "workspace": self.workspace},
-            posture="execution", credential_delivery=delivered)
+            posture="execution", workspace_group=self.group, credential_delivery=delivered,
+            launch_delivery=self.launched())
         answer = built.start({"labels": self.runtime_labels(),
                               "operation_id": "runtime.start:1"})
         self.assertIsNone(answer["runtime_id"])
@@ -704,12 +1042,170 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
             "docker", Engine(), identity=dict(IDENTITY),
             assignment_roots={"inputs": self.inputs,
                               "workspace": self.workspace},
-            posture="execution", credential_delivery=delivered)
+            posture="execution", workspace_group=self.group, credential_delivery=delivered,
+            launch_delivery=self.launched())
         labels = dict(self.runtime_labels(), runtime_attempt_id="attempt-2")
         with self.assertRaises(ContractRefusal):
             built.start({"labels": labels,
                          "operation_id": "runtime.start:2"})
         self.assertTrue(live_secret(BEARER))
+
+    def test_a_missing_launch_document_still_settles_the_credential(self):
+        """W26291 second re-review [P1]: the refusal bypassed the settlement.
+
+        The missing-launch check called `_denied` directly, on the reasoning
+        that nothing had been created yet — which is true only when no OTHER
+        provider has materialized anything. A canonical adapter may already
+        hold a credential delivery whose root and live registration exist
+        before `start` is called, and that refusal stranded the bearer on a
+        path with no runtime id for the destroy crossing to name.
+        """
+        class Engine:
+            def __call__(self, argv):
+                if "ps" in argv:
+                    return {"status": 0, "stdout": "", "stderr": ""}
+                raise AssertionError("a start with no document reached a run")
+
+        delivered = self.delivery()
+        built = oci.OciAdapter(
+            "docker", Engine(), identity=dict(IDENTITY),
+            assignment_roots={"inputs": self.inputs,
+                              "workspace": self.workspace},
+            posture="execution", workspace_group=self.group, credential_delivery=delivered,
+            launch_delivery=None)
+        with self.assertRaises(ContractRefusal) as caught:
+            built.start({"labels": self.runtime_labels(),
+                         "operation_id": "runtime.start:1"})
+        self.assertIn("no launch document", caught.exception.message)
+        # SETTLED, not merely refused: the ending names the credential and the
+        # bytes are gone.
+        self.assertIn("credential delivery is torn-down",
+                      caught.exception.message)
+        self.assertFalse(os.path.exists(delivered.root))
+        self.assertFalse(live_secret(BEARER))
+
+    def test_a_missing_launch_document_with_a_live_runtime_stays_unresolved(
+            self):
+        """The settlement ASKS, and a runtime carrying this attempt's labels
+        may still hold the mount — so the credential is explicitly unresolved
+        rather than torn down under it."""
+        case = self
+
+        class Engine:
+            def __call__(self, argv):
+                if "ps" in argv:
+                    row = {"ID": "runtime-1",
+                           "Image": IDENTITY["image_digest"],
+                           "Labels": {f"baton.v12.{name}": str(value)
+                                      for name, value in
+                                      case.runtime_labels().items()}}
+                    return {"status": 0, "stdout": json.dumps(row),
+                            "stderr": ""}
+                raise AssertionError("a start with no document reached a run")
+
+        delivered = self.delivery()
+        built = oci.OciAdapter(
+            "docker", Engine(), identity=dict(IDENTITY),
+            assignment_roots={"inputs": self.inputs,
+                              "workspace": self.workspace},
+            posture="execution", workspace_group=self.group, credential_delivery=delivered,
+            launch_delivery=None)
+        with self.assertRaises(ContractRefusal) as caught:
+            built.start({"labels": self.runtime_labels(),
+                         "operation_id": "runtime.start:1"})
+        self.assertIn("credential delivery is unresolved",
+                      caught.exception.message)
+        self.assertTrue(os.path.exists(delivered.root))
+        self.assertTrue(live_secret(BEARER))
+        self.home().tear_down(delivered)
+
+    def test_a_missing_launch_document_with_an_unusable_listing_is_unresolved(
+            self):
+        """W26291 third review [P2]: the LISTING ITSELF failing is a distinct
+        branch from a listing that succeeds and names a runtime.
+
+        A surviving-runtime case is the adapter INFERRING possible use from a
+        row the engine really answered. This is the other half: the inventory
+        is unavailable or untrustworthy, so the adapter knows nothing at all —
+        and an unavailable inventory must never become proved absence, because
+        that would tear a credential root down under a container nobody could
+        rule out.
+        """
+        for what, answer in (
+                ("the engine refused the listing",
+                 {"status": 1, "stdout": "", "stderr": "the daemon is down"}),
+                ("the listing is not readable",
+                 {"status": 0, "stdout": "{not json", "stderr": ""}),
+                ("the listing names no runtime this manager can own",
+                 {"status": 0, "stdout": json.dumps({"Labels": {}}),
+                  "stderr": ""})):
+            with self.subTest(what=what):
+                class Engine:
+                    def __call__(self, argv):
+                        if "ps" in argv:
+                            return answer
+                        raise AssertionError(
+                            "a start with no document reached a run")
+
+                delivered = self.home().materialize(
+                    credentials.resolved_delivery(("api",), profile=PROFILE),
+                    attempt_id="attempt-1",
+                    credential_provider=lambda _p, _r: BEARER)
+                built = oci.OciAdapter(
+                    "docker", Engine(), identity=dict(IDENTITY),
+                    assignment_roots={"inputs": self.inputs,
+                                      "workspace": self.workspace},
+                    posture="execution", workspace_group=self.group, credential_delivery=delivered,
+                    launch_delivery=None)
+                with self.assertRaises(ContractRefusal) as caught:
+                    built.start({"labels": self.runtime_labels(),
+                                 "operation_id": "runtime.start:1"})
+                self.assertIn("no launch document", caught.exception.message)
+                # UNRESOLVED, never torn down: nothing was established, and an
+                # inventory this manager could not read is not absence.
+                self.assertIn("credential delivery is unresolved",
+                              caught.exception.message)
+                self.assertTrue(os.path.exists(delivered.root))
+                self.assertTrue(live_secret(BEARER))
+                # The fixture ends what the adapter correctly refused to call
+                # ended, so the next spelling of an unusable listing starts
+                # from a clean root.
+                self.home().tear_down(delivered)
+                self.assertFalse(os.path.exists(delivered.root))
+
+    def test_a_missing_launch_document_infers_nothing_about_another_attempt(
+            self):
+        """AND THE MISMATCH STILL REFUSES ABOVE THE SETTLEMENT.
+
+        `_refused_start` settles by asking which runtimes carry THESE labels.
+        A credential belonging to a different attempt must refuse before that
+        question is asked at all: an empty answer about attempt 2 says nothing
+        about attempt 1's runtime, and acting on it would be inferring absence
+        from the wrong question.
+        """
+        reached = []
+
+        class Engine:
+            def __call__(self, argv):
+                reached.append(tuple(argv))
+                return {"status": 0, "stdout": "", "stderr": ""}
+
+        delivered = self.delivery()
+        built = oci.OciAdapter(
+            "docker", Engine(), identity=dict(IDENTITY),
+            assignment_roots={"inputs": self.inputs,
+                              "workspace": self.workspace},
+            posture="execution", workspace_group=self.group, credential_delivery=delivered,
+            launch_delivery=None)
+        labels = dict(self.runtime_labels(), runtime_attempt_id="attempt-2")
+        with self.assertRaises(ContractRefusal) as caught:
+            built.start({"labels": labels, "operation_id": "runtime.start:1"})
+        self.assertIn("credential root of attempt", caught.exception.message)
+        # NOTHING WAS ASKED, because nothing could be answered.
+        self.assertEqual(reached, [])
+        self.assertTrue(os.path.exists(delivered.root))
+        self.assertTrue(live_secret(BEARER))
+        self.home().tear_down(delivered)
 
     def test_a_pre_engine_vector_refusal_settles_the_credential(self):
         """Mount validation can refuse after the duplicate probe but before
@@ -726,11 +1222,12 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
             "docker", Engine(), identity=dict(IDENTITY),
             assignment_roots={"inputs": self.inputs,
                               "workspace": self.workspace},
-            posture="execution",
+            posture="execution", workspace_group=self.group,
             mounts=({"source": self.workspace,
                      "target": "/run/baton/credentials",
                      "writable": False},),
-            credential_delivery=delivered)
+            credential_delivery=delivered,
+            launch_delivery=self.launched())
         with self.assertRaises(ContractRefusal):
             built.start({"labels": self.runtime_labels(),
                          "operation_id": "runtime.start:1"})
@@ -770,7 +1267,8 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
             "docker", Engine(), identity=dict(IDENTITY),
             assignment_roots={"inputs": self.inputs,
                               "workspace": self.workspace},
-            posture="execution", credential_delivery=delivered)
+            posture="execution", workspace_group=self.group, credential_delivery=delivered,
+            launch_delivery=self.launched())
         with self.assertRaises(ContractRefusal) as caught:
             built.start({"labels": self.runtime_labels(),
                          "operation_id": "runtime.start:1"})
@@ -839,6 +1337,8 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
         return documents.runtime_labels(
             runtime_attempt_id="attempt-1", authority_uuid=UUID, work_id=JOB,
             participant="baton.claude", generation=1,
+            principal=CONTEXT["principal"],
+            effective_scope=CONTEXT["effective_scope"],
             profile_digest=IDENTITY["profile_digest"],
             policy_digest=IDENTITY["policy_digest"],
             adapter_digest=IDENTITY["adapter_digest"])
@@ -1012,6 +1512,8 @@ class RecoveryIsDrivenAgainstTheLiveRuntime(CredentialCase):
         return documents.runtime_labels(
             runtime_attempt_id="attempt-1", authority_uuid=UUID, work_id=JOB,
             participant="baton.claude", generation=1,
+            principal=CONTEXT["principal"],
+            effective_scope=CONTEXT["effective_scope"],
             profile_digest=IDENTITY["profile_digest"],
             policy_digest=IDENTITY["policy_digest"],
             adapter_digest=IDENTITY["adapter_digest"])
@@ -1025,10 +1527,13 @@ class RecoveryIsDrivenAgainstTheLiveRuntime(CredentialCase):
             "docker", engine, identity=dict(IDENTITY),
             assignment_roots={"inputs": self.inputs,
                               "workspace": self.workspace},
-            posture="execution", credential_delivery=delivery)
+            posture="execution", workspace_group=self.group, credential_delivery=delivery)
 
     def request(self):
-        return {"attempt_id": "attempt-1", "assignment": dict(ASSIGNMENT)}
+        # W16823: the recovery selects by the whole label set, which now
+        # names the principal, so the trusted context crosses with the fence.
+        return {"attempt_id": "attempt-1", "assignment": dict(ASSIGNMENT),
+                "context": dict(CONTEXT)}
 
     def launched(self, slots=("api",)):
         """One materialized, recorded delivery, as a restart would find it."""

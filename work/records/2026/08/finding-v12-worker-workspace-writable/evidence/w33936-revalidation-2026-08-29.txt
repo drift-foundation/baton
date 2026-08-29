@@ -1,0 +1,28 @@
+W33936 - the round REVALIDATED, not quoted
+======================================================================
+run at 2026-08-29T04:30:04Z
+
+The workspace-write round was implemented before three other rounds
+touched the same suites, so its gates are re-run here rather than
+carried forward from the round that first produced them.
+
+FOCUSED: tests.manager.test_workspaces + tests.manager.test_input_delivery
+  (the whole real-Docker configured-group matrix lives in the second)
+
+  Ran 111 tests in 3.607s
+  
+  OK (skipped=2)
+  rc=0
+
+EVERY ENGINE-OWNING SERIAL SUITE TOGETHER -- worker_container,
+failed_start_destroy_engine, oci_engine, credentials_engine,
+ended_runtime_adoption, lifecycle_composition, negative_race_endings
+and output_custody_engine:
+
+  Ran 127 tests in 42.036s
+  
+  OK (skipped=8)
+  rc=0
+
+The skips are Podman's absence, named in the dossier rather than
+represented as passes.

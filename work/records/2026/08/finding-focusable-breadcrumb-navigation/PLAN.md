@@ -16,5 +16,23 @@
    navigation, whole-token viewport/footer, operator guide, and focused
    deep/history/purity/narrow-terminal regressions. Full v11 verification:
    3239 parallel, 54 serial/PTY and 77 ACP passed.
-5. [next review] Independently verify direct ancestor navigation, one-step
-   Back restoration, key parity, focus visibility and no page-specific drift.
+5. [done tuner; awaiting re-review 2026-08-28 UTC] Corrected the independent
+   review's non-unique repeated-Work crumb keys, focused Up/k body fallthrough,
+   and code-point viewport fitting. Added the requested graph-recenter,
+   all-single-body/dual-Up, wide-character and combining-character regressions.
+   Verification: 48 focused, 294 affected, 3252 full parallel, 54 serial/PTY
+   and 77 ACP passed. Re-review against
+   `review-2026-08-28T04-32-38Z.md`.
+6. [signed off reviewer 2026-08-28 UTC] Independently accepted all three
+   corrections: 48 focused and 294 affected tests pass. Application work is
+   complete. Terminal dossier closure awaits approver resolution of the
+   still-missing implementer-owned `PROGRESS.md`; see
+   `review-2026-08-28T04-46-59Z.md`.
+7. [done approver 2026-08-28 UTC] Superseded the Claude-only progress rule.
+   The participant that actually performs an implementation change owns its
+   attributable `PROGRESS.md` entry; review-only participants still do not.
+8. [done tuner 2026-08-28 UTC] Added the truthful tuner-authored `PROGRESS.md`
+   for the original implementation and review correction under the approver's
+   change-author ownership ruling.
+9. [next approver] Satisfying closure. Application review is signed off and no
+   further application review cycle is required.

@@ -1,0 +1,56 @@
+{
+ "assignment_decision": [
+  {
+   "effective_scope": "scope:platform",
+   "endpoint": "baton.claude",
+   "grant": "direct",
+   "policy_generation": 2,
+   "principal": "principal:baton.claude",
+   "role": "impl"
+  }
+ ],
+ "capabilities_of_after_two_scoped_grants": [
+  "verify"
+ ],
+ "deployment_only_close": {
+  "detail": "'baton.closer' does not hold the close capability; a close is written by the configured actor, not by whoever holds the object",
+  "result": "refused"
+ },
+ "deployment_only_receipt": {
+  "detail": "'baton.other' does not hold the review capability; a review is written by the configured actor, not by whoever holds the object",
+  "result": "refused"
+ },
+ "grants_of_after_two_scoped_grants": [
+  {
+   "capability": "verify",
+   "provenance": "direct",
+   "scope": "scope:deployment"
+  },
+  {
+   "capability": "verify",
+   "provenance": "direct",
+   "scope": "scope:platform"
+  }
+ ],
+ "proposal_decision": {
+  "effective_scope": "scope:platform",
+  "endpoint": "baton.claude",
+  "grant": "direct",
+  "policy_generation": 2,
+  "principal": "principal:baton.claude",
+  "role": "impl"
+ },
+ "recorded_receipt_scope": "scope:platform",
+ "scope_only_close": "accepted",
+ "scope_only_receipt": "accepted",
+ "still_open_after_refused_close": "open",
+ "work_close_decision": {
+  "effective_scope": "scope:platform",
+  "endpoint": "baton.closer",
+  "grant": "direct",
+  "policy_generation": 2,
+  "principal": "principal:baton.closer",
+  "role": "close"
+ },
+ "work_scope": "scope:platform"
+}

@@ -112,6 +112,7 @@ class Store:
         self._path = path
         self.authority_uuid = authority_uuid
         self._depth = 0
+        self._reading = False
         self._savepoints = 0
 
     # -- creation and opening ------------------------------------------------
@@ -403,6 +404,42 @@ class Store:
             raise outcome["refusal"]
         return outcome["value"]
 
+    def read_snapshot(self, body):
+        """One READ transaction, so composed reads see ONE state of the world.
+
+        Review [P0]: a projection read its Work row and its labels in separate
+        autocommit statements, and a caller could close the Work and add a
+        label between them -- so the projection returned an OPEN Work carrying
+        a label that only existed after it closed. A state that never existed.
+        The predicate reader had the same shape one table over: all label rows,
+        then all Work rows, so a Work atomically created WITH an excluded label
+        between the two came back as unlabelled.
+
+        A COMMENT SAYING "ONE SNAPSHOT" IS NOT ONE, which the review said in as
+        many words and which is the reason this exists as a seam rather than a
+        promise. `BEGIN DEFERRED` takes the read lock at the first statement
+        and holds that view until it ends, so every read inside the body is
+        answered from the same state.
+
+        It JOINS an open write transaction rather than opening a second, on
+        `transact`'s rule and for its reason: a read composed inside a write
+        already has the strongest view there is.
+        """
+        if self._depth > 0:
+            # A READ JOINS A WRITE, which is the approved direction: a read
+            # composed inside a write already has the strongest view there is.
+            return body()
+        self._db.execute("BEGIN DEFERRED")
+        self._depth, self._reading = 1, True
+        try:
+            return body()
+        finally:
+            self._depth, self._reading = 0, False
+            # A READ TRANSACTION ENDS BY ROLLBACK, because it wrote nothing and
+            # `COMMIT` on a read-only view would be this build claiming an act
+            # it did not perform.
+            self._db.execute("ROLLBACK")
+
     def transact(self, body):
         """One write transaction.
 
@@ -414,6 +451,20 @@ class Store:
         that without any statement looking wrong.
         """
         if self._depth > 0:
+            # A WRITE MAY NOT JOIN A READ SNAPSHOT, and this refusal is the
+            # correction review [P0] required. One `_depth` counter served both
+            # modes, so a `transact` nested inside `read_snapshot` took this
+            # join branch, performed its mutation, and returned a committed
+            # answer -- which the snapshot's own `ROLLBACK` then threw away.
+            # The caller was told an act was durable that was not.
+            #
+            # A write joining a write still joins, for the reason below.
+            if getattr(self, "_reading", False):
+                raise Refusal(
+                    "a write cannot join a read snapshot: the snapshot ends in "
+                    "ROLLBACK, so the mutation would be discarded after this "
+                    "caller was told it committed. Take the write transaction "
+                    "first and read inside it")
             self._depth += 1
             try:
                 return body()
@@ -478,6 +529,13 @@ def _apply_schema(connection):
         if statement.strip() and sqlite3.complete_statement(statement):
             connection.execute(statement)
             statement = ""
+    # W16821: the configuration generation is NOT seeded here.  This function
+    # runs at open, before any injected clock exists, and a row dated by
+    # `datetime.now()` would be durable evidence timed by the process rather
+    # than by the authority's clock -- the same rule that keeps `clock` a
+    # bootstrap operand.  `Core` treats an absent row as generation 1 and
+    # writes one only when a configuration act bumps it, under the clock it
+    # was constructed with.
     if statement.strip():
         raise Refusal("the authority schema ends with an incomplete statement")
 
@@ -544,11 +602,32 @@ def _check_compatibility(path, recorded, expected_authority_uuid):
             f"shared schema version number is not shared ownership")
     version = recorded.get(META_SCHEMA_VERSION)
     if version != str(SCHEMA_VERSION):
+        # W16821, approver ruling M33752.  A store of OUR kind at a version
+        # this build does not speak is refused READ-ONLY and the operator is
+        # told what to do about it.
+        #
+        # THE REFUSAL IS THE WHOLE HANDLING.  Nothing here opens the file for
+        # writing, reads a row out of it, deletes it, renames it, upgrades it,
+        # or applies any part of the new schema to it: the caller reached this
+        # function with a `recorded` dictionary from a read-only probe, and it
+        # leaves with an exception.  A build that "helpfully" migrated would be
+        # inventing the principal, effective scope and grant provenance schema
+        # 2 requires and schema 1 never recorded -- the exact inference the
+        # correction boundary forbids -- and it would do it to a file it has
+        # not been authorized to change.
+        #
+        # DELETION IS THE OPERATOR'S ACT, not this build's.  v12 stores are
+        # disposable proof state and the ruling says no migration is required
+        # for them; it does not say a program may delete somebody's database
+        # because it decided the contents were expendable.
         raise Refusal(
-            f"the authority at {name_of(path)} is schema {name_of(version)}, "
-            f"not "
-            f"{SCHEMA_VERSION}; this authority does not migrate, in either "
-            f"direction")
+            f"the authority at {name_of(path)} is schema {name_of(version)} "
+            f"and this build speaks schema {SCHEMA_VERSION}; this authority "
+            f"does not migrate, in either direction, and has not read, "
+            f"changed or removed one byte of that file. If it is a disposable "
+            f"proof store, remove it and initialize a fresh one; if its state "
+            f"must survive, a migration is separate product Work and this "
+            f"build is not it")
     uuid = recorded.get(META_AUTHORITY_UUID)
     if uuid is None:
         raise Refusal(

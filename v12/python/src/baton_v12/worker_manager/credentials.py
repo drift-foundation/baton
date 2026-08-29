@@ -381,15 +381,40 @@ class CredentialHome:
                     os.close(handle)
                 slots.append({"slot": name, "provider": one["provider"],
                               "target": f"{CREDENTIAL_ROOT}/{name}"})
-        except BaseException:
+        except BaseException as failure:
             # A FAILED MATERIALIZATION TEARS ITSELF DOWN. Half a delivery
             # is a root holding bearers nobody is going to remove, and the
             # ending that would have removed it never starts, because the
             # attempt never launched.
-            _discard(root)
-            for value in bearers.values():
-                forget_secret(value)
-            raise
+            #
+            # AND THE REMOVAL'S OWN ANSWER DECIDES WHAT HAPPENS NEXT. Review
+            # [P1]: this called `_discard`, IGNORED the boolean it exists to
+            # return, and then forgot every bearer unconditionally. A
+            # filesystem that refused the removal therefore left the bearer
+            # bytes in the volatile root while the registry that guards every
+            # later §13 scan was disarmed — a check that cannot fail, which is
+            # worse than no check because it reads as evidence.
+            #
+            # `_discard` answers whether the root is GONE, which is the same
+            # positive-absence rule `_gone` states for teardown: the removal's
+            # own error is not the answer, the state afterwards is.
+            if _discard(root):
+                for value in bearers.values():
+                    forget_secret(value)
+                raise
+            # UNRESOLVED, AND IT STAYS ARMED. Nothing is forgotten, because
+            # forgetting is what would make the bytes still on disk invisible
+            # to every scan that comes after. The ending is surfaced as what
+            # it is rather than propagated as the caller's original failure,
+            # which would say the provider broke and not that a bearer is
+            # stranded.
+            _refuse(f"a credential materialization for attempt "
+                    f"{name_value(attempt)} failed and its volatile root "
+                    f"{name_value(root)} could not be proved gone; the "
+                    f"bearers it wrote stay REGISTERED rather than forgotten, "
+                    f"because a registry disarmed over bytes still on disk is "
+                    f"a §13 scan that cannot fail",
+                    category="policy", code="credential-lifetime")
         return Delivery(attempt_id=attempt, root=root, slots=slots,
                         state="live", bearers=bearers)
 

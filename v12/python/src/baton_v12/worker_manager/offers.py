@@ -334,11 +334,21 @@ def issue_offer(store, port, *, offer_id, work_id, runtime_attempt_id,
     # here is the blanket revalidation 4bz forbids -- and the inventory found it
     # by noticing the probe now lands on the port's label instead of this one.
     authority_uuid = work["authority_uuid"]
+    # W16823: AND THE TWO FACTS THIS OFFER FREEZES ABOUT THE WORK. Owned at the
+    # port with the rest of the projection, for the same reason the authority
+    # is: owning them again here is the blanket revalidation 4bz forbids.
+    work_scope = work["scope"]
+    work_route = work["route"]
     signature = manager_signature("offer.issue", {
         "offer_id": offer_id, "authority_uuid": authority_uuid,
         "work_id": work_id, "participant": participant,
         "runtime_attempt_id": runtime_attempt_id, "input_digest": input_digest,
         "policy_digest": policy_digest, "profile_digest": profile_digest,
+        # THE FROZEN PAIR RIDES THE SIGNATURE, because it is a durable operand
+        # that changes what this offer MEANS: the same offer id issued against
+        # a Work whose scope has moved is a different authorization promise,
+        # and replaying the first would promise a scope nobody offered.
+        "work_scope": work_scope, "work_route": work_route,
         "expires_at": expires_at})
 
     # AND THE REPLAY IS CHECKED BEFORE ENTROPY IS SPENT.
@@ -386,13 +396,13 @@ def issue_offer(store, port, *, offer_id, work_id, runtime_attempt_id,
             connection.execute(
                 "INSERT INTO offers (offer_id, work_id, authority_uuid, "
                 "participant, runtime_attempt_id, incarnation, input_digest, "
-                "policy_digest, profile_digest, verifier, issued_at, "
-                "expires_at, state) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'issued')",
+                "policy_digest, profile_digest, verifier, work_scope, "
+                "work_route, issued_at, expires_at, state) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'issued')",
                 (offer_id, work_id, authority_uuid, participant,
                  runtime_attempt_id, store.incarnation, input_digest,
-                 policy_digest, profile_digest, verifier, issued_at,
-                 expires_at))
+                 policy_digest, profile_digest, verifier, work_scope,
+                 work_route, issued_at, expires_at))
         except sqlite3.IntegrityError as failure:
             raise ContractRefusal(
                 "refused", "precondition",
@@ -596,23 +606,59 @@ def _require_accepted(store, offer_id):
     return offer
 
 
-def _record_claim(store, offer, state, detail):
+def _record_claim(store, offer, state, detail, context=None):
+    """Record one claim decision, and the context it was authorized under.
+
+    THE CONTEXT IS A SEPARATE PARAMETER rather than a member of `detail`.
+    `detail` is the answer document's members and goes out to the caller;
+    the context goes to COLUMNS and to the SIGNATURE. Carrying it in `detail`
+    would put a durable operand in a document contract that does not name it,
+    which the emitter refuses -- correctly.
+    """
     offer_id = offer["offer_id"]
+    # W16823: THE AUTHORIZATION CONTEXT RIDES THE SIGNATURE.
+    #
+    # `{offer_id, state}` alone made this identity mean "this offer reached
+    # `claimed`", so a settlement carrying a DIFFERENT principal, scope, grant
+    # or policy generation replayed the first one instead of colliding -- and
+    # the row would durably attribute the second claim's authorization to the
+    # first claim's context. What a replay must reproduce is the act, and the
+    # act is "claimed, authorized like THIS".
+    #
+    # `None` for every path that authorized nothing -- a refused or expired
+    # settlement -- which is a stable operand rather than an absent one.
     signature = manager_signature("offer.settle",
-                                  {"offer_id": offer_id, "state": state})
+                                  {"offer_id": offer_id, "state": state,
+                                   "context": context})
 
     def act(connection):
         assignment = detail.get("assignment")
         generation = (assignment.get("generation")
                       if type(assignment) is dict else None)
+        held = context or {}
         changed = connection.execute(
             "UPDATE offers SET state = ?, decision_reason = ?, decided_at = ?, "
             # The GENERATION the claim committed. An attempt's activation
             # compares against this: a live assignment somewhere in the
             # authority is not proof that THIS offer claimed it.
-            "claim_generation = ? WHERE offer_id = ? AND state = 'accepted'",
-            (state, detail.get("reason"), store._now(), generation,
-             offer_id)).rowcount
+            "claim_generation = ?, "
+            # AND THE CONTEXT IT COMMITTED UNDER, in the same UPDATE as the
+            # state. The table's CHECK requires all six on a `claimed` row and
+            # none on any other, so a second write to fill them in could not
+            # exist: either this statement is the whole record of the act or
+            # the row is refused.
+            #
+            # COMPOSED FROM `schema.CLAIM_CONTEXT` rather than written out. The
+            # six names are the offer's own columns and the attempt's
+            # activation reads the same tuple to copy them, so one list is
+            # one place for them to be right -- and a seventh added to the
+            # table without a writer would be a column nothing fills.
+            + ", ".join(f"{column} = ?"
+                        for column, _, _ in schema.CLAIM_CONTEXT)
+            + " WHERE offer_id = ? AND state = 'accepted'",
+            (state, detail.get("reason"), store._now(), generation)
+            + tuple(held.get(member) for _, _, member in schema.CLAIM_CONTEXT)
+            + (offer_id,)).rowcount
         if changed != 1:
             raise ContractRefusal(
                 "refused", "already-terminal",
@@ -624,6 +670,21 @@ def _record_claim(store, offer, state, detail):
                           signature, act)
 
 
+def _context_of(result):
+    """The context this manager persists, out of the authority's own result.
+
+    W16823. A FLAT DOCUMENT of exactly the members the offer's columns hold,
+    composed in ONE place because both claim-recording paths -- the submitted
+    claim and the commit this manager never saw -- reach the same columns and
+    the same signature. The endpoint is deliberately absent: it is already the
+    offer's participant, and the port has proved the decision's equals it.
+    """
+    held = dict(result["decision"],
+                claim_event_seq=result["claim_event"])
+    return {member: held[member]
+            for _, _, member in schema.CLAIM_CONTEXT}
+
+
 def submit_claim(store, port, *, offer_id):
     """Step 4: take the claim, and record what the authority returned.
 
@@ -632,11 +693,25 @@ def submit_claim(store, port, *, offer_id):
     assignment directly -- so the authority held a live generation while the
     manager durably recorded `assignment: null`. A record that disagrees with
     the authority is worse than no record: a restart trusts it.
+
+    W16823: AND THE ANSWER IS NOW THREE FACTS. The authority answers a closed
+    result, so `assignment` IS a member of it again -- and the reason the
+    correction above is not being undone is that the member is the authority's
+    own and is owned at the port, rather than a shape the manager hoped for.
+    The other two are the exact claim event and the decision the claim was
+    authorized under, and they are recorded in the SAME transaction as the
+    state: a claimed offer that could not say which principal claimed it is
+    the conflation this Work exists to correct.
     """
     offer = _require_accepted(store, offer_id)
-    assignment = port.claim(offer["work_id"], offer["claim_operation_id"],
-                            offer["authority_uuid"])
-    return _record_claim(store, offer, "claimed", {"assignment": assignment})
+    result = port.claim(offer["work_id"], offer["claim_operation_id"],
+                        offer["authority_uuid"], offer["work_scope"],
+                        offer["work_route"])
+    return _record_claim(store, offer, "claimed",
+                         {"assignment": result["assignment"],
+                          "claim_event": result["claim_event"],
+                          "decision": result["decision"]},
+                         _context_of(result))
 
 
 def settle_claim(store, port, *, offer_id, now, refused_evidence=None):
@@ -671,13 +746,22 @@ def settle_claim(store, port, *, offer_id, now, refused_evidence=None):
         # WHICH WORK AND WHOSE AUTHORITY, so a committed result the manager
         # never saw is owned as THIS offer's assignment rather than as a
         # well-formed one belonging to somebody else.
-        offer["work_id"], offer["authority_uuid"])
+        # ...AND IN WHICH SCOPE AND AS WHICH ROUTE this offer was issued, so a
+        # late-recorded commit is held to exactly the relations a submitted
+        # claim is. The path a result arrives by does not change what it has to
+        # be to reach these columns.
+        offer["work_id"], offer["authority_uuid"], offer["work_scope"],
+        offer["work_route"])
     kind = answer.get("kind") if type(answer) is dict else None
     if kind == "committed":
         # STEP 6: the authority committed and this manager never saw it.
         # Recording it late is the whole reason the operation id is derived.
+        result = answer["result"]
         return _record_claim(store, offer, "claimed",
-                             {"assignment": answer.get("result"), "late": True})
+                             {"assignment": result["assignment"],
+                              "claim_event": result["claim_event"],
+                              "decision": result["decision"], "late": True},
+                             _context_of(result))
     if kind == "retired":
         bound = answer.get("record") or {}
         state = ("claim-refused" if bound.get("disposition") == "claim-refused"

@@ -57,17 +57,27 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/opt/baton \
     PYTHONHASHSEED=0
 
-# The posture and the SESSION IDENTITY both arrive from the manager, never
-# from the image. An image that defaulted to a posture would run as
-# `execution` when the manager forgot to say -- and forgetting is exactly when
-# a default matters. An image that carried a session identity would be an
-# image every container built from it shares one identity with, which is the
-# opposite of what `baton.worker-entry/1` binds a frame to.
+# EVERYTHING THE MANAGER SAYS ARRIVES IN ONE MOUNTED DOCUMENT, never in this
+# image and never in the environment (W26291).
 #
-# There is deliberately no `ENV BATON_WORKER_POSTURE` and no
-# `ENV BATON_WORKER_SESSION`. A container started without the session cannot
-# correlate anything it says, so it exits non-zero WITHOUT a frame and the
-# Worker Manager settles its already identified operation from the engine.
+# `/run/baton/launch.json` is bind-mounted read-only by the adapter and carries
+# `schema`, `session`, `contract` and `role`. The path is a constant of the
+# contract at both ends, so there is no locator variable here either -- an
+# image that could be told where to look is an image a container can be pointed
+# at wrongly.
+#
+# There is deliberately NO `ENV BATON_WORKER_*` OF ANY KIND, and the reason is
+# now stronger than it was. It used to be that an image carrying a session
+# identity would be an image every container built from it shares one identity
+# with, and that an image defaulting to a posture would run as `execution` when
+# the manager forgot to say. Both are still true, and the superseding ruling
+# adds the rest: that transport is retired with no fallback, the worker does
+# not read those names at all, and consent/execution is not a runtime axis --
+# so there is no posture for an image to default to.
+#
+# A container started without a readable launch document cannot correlate
+# anything it says, so it exits non-zero WITHOUT a frame and the Worker Manager
+# settles its already identified operation from the engine.
 #
 # There is also no `VOLUME`, no `EXPOSE` and no `HEALTHCHECK`: the worker has
 # no network, its writable workspace is a mount the manager names per

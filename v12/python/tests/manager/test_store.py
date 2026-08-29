@@ -91,7 +91,10 @@ class OwnershipBeforeAdoption(StoreCase):
             "offers_one_live_per_work", "offers_one_claim_per_attempt",
             "observations_manager_order", "profiles_by_digest",
             # W6627: one interrogation lists by the session it is addressed to.
-            "interrogations_by_session"})
+            "interrogations_by_session",
+            # W32649: the predecessor interlock reads by Work rather than by
+            # lane, and one attempt holds at most one lane.
+            "runtime_lanes_by_work", "runtime_lanes_one_per_holder"})
         del before
 
     def test_somebody_else_s_database_is_refused_with_nothing_changed(self):

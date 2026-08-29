@@ -1,0 +1,182 @@
+W26283 — the OCI output custody provider. 2026-08-27.
+
+No Git history or index was mutated. The mutation harness rewrote source
+files in place and restored each one; section 6 shows the check.
+
+=== 1. PLAN 1 — THE W6634 REVALIDATION
+
+  The finding is explicit that provisional code is EVIDENCE, not accepted
+  implementation, so this was a search for what is wrong rather than a
+  confirmation of what is right.
+
+  The contracts still say what the finding says they say, checked against
+  the frozen worker-control-1.0 schema rather than against W6634's
+  dossier: completionManifest, resultManifest (completion_manifest_digest
+  OPTIONAL, and the code treats it so), outputDescriptor/outputConstraints
+  with link_policy const forbid, contentManifest/contentEntry.
+
+  SIX OF THE SEVEN OBLIGATIONS ARE MET by the provisional code, read in
+  full rather than sampled:
+    bounded no-follow nonblocking read  O_RDONLY|O_NOFOLLOW|O_NONBLOCK, and
+                                        S_ISREG on the DESCRIPTOR
+    exact manifest comparison           shape, then this attempt's
+                                        assignment_ref, then §12 rule 15
+    digest from the bytes opened        recomputed over the read body
+    live-secret rejection               over each staged file's content
+    atomic publish                      private name, fsync, os.replace
+    replay above every state read       committed record consulted before the
+                                        worker's envelope, bound to six members
+
+=== 2. [P1] THE SEVENTH DID NOT HOLD, AND I PROVED IT RATHER THAN READ IT
+
+  Staging measured with W6631's race-safe walker -- which descends by
+  OPENED DIRECTORY IDENTITY and opens every file O_NOFOLLOW relative to
+  that descriptor -- and then copied by REOPENING each path with a plain
+  open(), resolving every component a second time.
+
+  Two harms, both driven against the real code. The reproduction is kept
+  beside this file as evidence/w26283-pre-fix-reproduction.py and still
+  demonstrates both against the pattern:
+
+    measured entries: [('deep/a.txt', 11)]
+    custody now holds: 'HOST FILE THE WORKER MUST NOT REACH\n'
+    >>> the manager read and copied a file from OUTSIDE the workspace
+    >>> TIMED OUT: one mkfifo stalls the copy indefinitely
+
+  The second one is the sharper harm: one mkfifo stalls the manager
+  indefinitely. It is the SAME failure _read_without_following added
+  O_NONBLOCK to prevent for output.json, reintroduced one function away.
+
+  This is the third appearance of one defect class in this module. Its
+  own walker records having fixed it once -- 'a no-follow open of the
+  FINAL file does not stop a raced ANCESTOR from becoming a symbolic
+  link' -- and the completion envelope was corrected for it separately.
+  Staging is where it survived, and it is the place the acceptance names
+  directly: the sealed manifest must describe the manager-custodied
+  bytes, 'not a path later reopened from worker storage.'
+
+=== 3. THE FIX: THE BYTES WRITTEN ARE THE BYTES MEASURED
+
+  Re-opening SAFELY would still be two opens with a window between them.
+  workspaces.copied_manifest measures and copies in ONE no-follow pass,
+  so the window does not exist rather than being checked for:
+    216:def copied_manifest(root, into, *, max_entries=None, max_bytes=None,
+    217-                    admits=None):
+    218-    """Measure a tree and COPY it, in ONE no-follow pass.
+    219-
+    220-    W26283. `directory_manifest` above is race-safe: it descends by opened
+    221-    directory identity and reads every file through a descriptor it proved is a
+    222-    regular file. A caller that measured with it and then copied by REOPENING
+
+/tmp/w26283_evidence.sh: line 72: workspaces: command not found
+  It is in  because that module owns no-follow traversal and
+  sealing's own docstring warns that 'a second walker here would be a
+/tmp/w26283_evidence.sh: line 74: sealing: command not found
+  second thing to keep true'. The §13 secret rule stays in ,
+/tmp/w26283_evidence.sh: line 75: admits: command not found
+  which owns it, and crosses as the  operand -- applied BEFORE
+  the write, so refusing means the bytes never became custody.
+
+  THAT RETIRED THE DOUBLE MEASUREMENT. Comparing two digests was how a
+  moving tree was detected; a single pass leaves nothing to move BETWEEN.
+  What remains is a verification of the WRITE -- a short write, a full
+  device -- which is a different question and a cheap one.
+
+=== 4. THE REPOSITORY'S OWN RULES CAUGHT TWO THINGS I DID
+
+  Neither was a review finding; both were the v12 gate refusing my work.
+
+/tmp/w26283_evidence.sh: line 87: shutil: command not found
+  sealing.py imported  for one rmtree. The manager's ruled
+  dependency set does not include it. Replaced with a public
+  workspaces.discard_tree over W6631's existing removal, which is also
+  the stronger answer -- rmtree has followed links out of a tree before,
+  and that module already owns not doing that.
+
+  copied_manifest's four parameters were not declared operands.
+  test_dependencies keeps a closed registry whose comment says 'an entry
+  here is a claim somebody has to make deliberately', so the four are
+  added with the reason each is an operand rather than bookkeeping.
+
+  And the parallel-runner registry -- which I added a module to during
+  W6636 -- refused the new real-engine suite until it was registered
+  serial, for the same two reasons the three before it are.
+
+=== 5. THE REAL-ENGINE SUITE THE ACCEPTANCE ASKS FOR
+
+  'A real OCI worker output is copied into manager custody only after
+  exact manifest validation' — and no suite established that.
+  test_sealing drives forty refusal paths against trees a fixture wrote
+  and an envelope a fixture composed, which is the right way to cover
+  them and is NOT the same claim: a fixture agrees with the manager by
+  construction.
+
+  tests/manager/test_output_custody_engine.py runs the reference worker
+  in a real container, lets it write its material and publish its own
+  envelope, and then seals what it wrote through the real adapter:
+    test_a_link_a_worker_leaves_in_its_output_is_refused (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_a_link_a_worker_leaves_in_its_output_is_refused)
+    test_a_live_secret_a_real_worker_wrote_never_reaches_custody (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_a_live_secret_a_real_worker_wrote_never_reaches_custody)
+    test_a_real_workers_output_is_taken_into_custody (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_a_real_workers_output_is_taken_into_custody)
+    test_a_replay_does_not_re_read_the_workers_output (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_a_replay_does_not_re_read_the_workers_output)
+    test_an_exact_replay_returns_the_first_answer (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_an_exact_replay_returns_the_first_answer)
+    test_custody_is_read_only_and_the_container_cannot_reach_it (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_custody_is_read_only_and_the_container_cannot_reach_it)
+    test_nothing_this_module_made_survives_it (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_nothing_this_module_made_survives_it)
+    test_the_completion_digest_describes_the_workers_own_envelope (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_the_completion_digest_describes_the_workers_own_envelope)
+    Ran 8 tests in 1.429s
+    OK
+
+  The container, the image, the worker program, the bytes, the envelope
+  and the engine asked about quiescence are all real. Custody is asserted
+  to be OUTSIDE the roots a container may mount, read-only, and to
+  re-measure to exactly what the sealed manifest claims.
+
+=== 6. MEASURED BY REMOVAL
+
+  Twelve mutations, including one that restores W6634's reopening copy
+  verbatim so the first mutation reproduces the DEFECT rather than merely
+  disabling something. The real-engine suite is in the measurement too:
+  a rule established only against material this repository wrote for
+  itself is a narrower claim than the acceptance makes.
+
+  THE FIRST PASS FOUND FOUR UNESTABLISHED, and one of them mattered:
+    live-secret bytes were not scanned by any case at all. The scan was in
+      W6634's code with a comment explaining it, and replacing it with a no-op
+      left every suite passing. The acceptance names it outright — 'live-secret
+      bytes fail closed' — so a guard nothing observed was standing in for a
+      named acceptance clause. Two cases now, one of them over a real worker's
+      own output, plus one proving the rule is about a LIVE registration rather
+      than about the characters.
+    
+    the other three were mine: no case drove a pre-existing entry at the
+      destination, none lowered this build's own ceilings to observe them, and
+      the write verification was unobservable until the collaborator was faked
+      rather than the code under test.
+
+    [caught] the write is not verified against what was copied
+             test_custody_that_disagrees_with_the_copy_refuses
+    
+    all 12 mutations caught
+
+    source fingerprint before: f2cd2ad54a07f75de7532262ae96729acf715554dc72f8d327ac236ef64cae41
+    source fingerprint after : f2cd2ad54a07f75de7532262ae96729acf715554dc72f8d327ac236ef64cae41
+    IDENTICAL — every mutation was reverted.
+
+=== 7. GATES
+    full v12 tree    : Ran 1554 tests in 868.424s
+    failures         : 7
+    The accepted baseline is SEVEN: six in test_boundary_inventory, and
+    one in test_contracts_inventory for check_input_pair — the W19784
+    leftover I reported while holding W6636 and which still has no owner.
+      FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'oci.py:OciAdapter.destroy', 'runtime_id'), label='a runtime id')
+      FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+      FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+      FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+      FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+      FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+      FAIL: test_every_entry_has_exactly_one_stated_owner (tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared.test_every_entry_has_exactly_one_stated_owner)
+
+=== 8. WHAT THIS PROVIDER STILL DOES NOT OWN
+    Credential delivery, the shared quiescence/removal/settlement
+    crossing, restart adoption, reconciliation and orphan convergence
+    remain outside it, per the finding's confirmed boundary. Nothing
+    here reached for any of them.

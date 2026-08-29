@@ -47,7 +47,11 @@ class ScriptedAgent:
         drive both outcomes without this file carrying a switch nobody can
         justify: a contract that says it is unacceptable is declined.
         """
-        contract = seen.get("BATON_WORKER_CONTRACT", "")
+        # W26291: THE LAUNCH DOCUMENT'S OWN MEMBER NAME. `seen` used to be the
+        # four `BATON_WORKER_*` values; it is now the validated launch
+        # document without its schema, so what an agent reads is a member of a
+        # versioned contract rather than a variable somebody set.
+        contract = seen.get("contract", "")
         decision = "decline" if "decline" in contract.lower() else "accept"
         return {"decision": decision,
                 "contract_digest": _digest(contract),

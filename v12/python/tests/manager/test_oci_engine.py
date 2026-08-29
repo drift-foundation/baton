@@ -36,6 +36,10 @@ import uuid
 from unittest import mock
 
 from baton_v12.contracts import ContractRefusal
+from baton_v12.worker_manager import launch
+from baton_v12.worker_manager import ControlStore, workspaces
+
+from . import input_roots
 from baton_v12.worker_manager.oci import (ENGINES, LABEL_PREFIX, EnginePort,
                                           OciAdapter, ROOT_NAMES)
 
@@ -57,6 +61,10 @@ LABELS = {"runtime_attempt_id": "attempt-w6632",
           "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
           "work_id": WORK, "participant": "baton.claude",
           "generation": 1,
+          # W16823: the principal and effective scope the claim was authorized
+          # for, beside the four-part fence.
+          "principal": "principal:org-a",
+          "effective_scope": "scope:deployment",
           "profile_digest": "sha256:" + "b" * 64,
           "policy_digest": "sha256:" + "d" * 64,
           "adapter_digest": "sha256:" + "c" * 64}
@@ -100,15 +108,26 @@ class EngineCycle:
             self.skipTest(why)
         self.server = why
         self.made = []
+        self.attempt_id = f"{MARK}-{uuid.uuid4().hex[:8]}"
         self.addCleanup(self.remove_everything)
         self.port = EnginePort(self.spawn)
         self.image = self.resolved_image()
         self.root = tempfile.TemporaryDirectory(prefix="v12-oci-engine-")
         self.addCleanup(self.root.cleanup)
+        self.store = ControlStore.open(
+            os.path.join(self.root.name, "control.sqlite3"),
+            incarnation="oci-engine-1",
+            clock=lambda: "2026-08-24T00:00:00.000Z")
+        self.addCleanup(self.store.close)
+        self.group = input_roots.configured_group(self.store)
         self.roots = {name: os.path.join(self.root.name, name)
                       for name in ROOT_NAMES}
         for place in self.roots.values():
             os.mkdir(place)
+        # W33936: the workspace root is put in the configured group at exactly
+        # the mode an execution start proves before the engine.
+        os.chown(self.roots["workspace"], -1, self.group.gid)
+        os.chmod(self.roots["workspace"], workspaces.WORKSPACE_DIR)
 
     # -- the one thing this suite does to the world --------------------------
 
@@ -192,11 +211,39 @@ class EngineCycle:
     def adapter(self, mounts=()):
         return OciAdapter(self.engine, self.port, identity=self.identity(),
                           assignment_roots=dict(self.roots),
-                          posture="execution", mounts=mounts)
+                          posture="execution", mounts=mounts,
+                          workspace_group=self.group,
+                          launch_delivery=self.launched())
+
+    def launched(self, attempt_id=None):
+        """One materialized launch document per adapter. W26291 re-review
+        [P1]: a start REQUIRES one, and a settled delivery is discarded — so a
+        second adapter gets its own rather than a document the first tore
+        down."""
+        home = tempfile.mkdtemp(prefix="v12-oci-engine-launch-")
+        self.addCleanup(self.take_launch_away, home)
+        return launch.materialize(home,
+                                  attempt_id=attempt_id or self.attempt_id,
+                                  session="session-1",
+                                  contract="do the thing",
+                                  role="implementer")
+
+    def take_launch_away(self, home):
+        for current, directories, files in os.walk(home, topdown=False):
+            os.chmod(current, 0o700)
+            for name in files:
+                os.remove(os.path.join(current, name))
+            for name in directories:
+                os.rmdir(os.path.join(current, name))
+        if os.path.lexists(home):
+            os.rmdir(home)
 
     def labels(self, **overrides):
-        return dict(LABELS, runtime_attempt_id=f"{MARK}-{uuid.uuid4().hex[:8]}",
-                    **overrides)
+        # ONE ATTEMPT IDENTITY PER CASE, shared with the launch delivery. A
+        # delivery belongs to one attempt, so a fixture that minted a fresh id
+        # per call would be labelling the runtime for an attempt whose
+        # document it does not carry.
+        return dict(LABELS, runtime_attempt_id=self.attempt_id, **overrides)
 
     def started(self, adapter, labels):
         """Start one runtime and register it for removal by NAME first.

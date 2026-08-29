@@ -32,6 +32,18 @@ import json
 from datetime import datetime, timezone
 
 from .errors import Refusal, label_of, name_of
+from .labels import MAX_LABELS, canonical_label, canonical_label_set
+
+# THE TRUSTED BOOTSTRAP, named once. Creation is the act that brings into
+# existence the Work every later scope resolves against, so there is no prior
+# principal to authorize it -- and saying that in a constant is what lets a
+# reader tell "the deployment created this" from "nobody recorded who did".
+BOOTSTRAP_ENDPOINT = "authority.bootstrap"
+BOOTSTRAP_PRINCIPAL = "principal:authority-bootstrap"
+from .principals import (DEPLOYMENT_SCOPE, DIRECT, M2_GRANTS,
+                         AuthorizationDecision, check_grant_provenance,
+                         check_principal, check_scope,
+                         principal_for_endpoint)
 from .identity import (
     ABSENT, GATE_CONTRACT_RUNTIME, GATE_PLAN_REVISION, GATE_QUIESCENCE,
     MAX_SAFE_INTEGER, V11,
@@ -63,7 +75,15 @@ INTAKE_OUTCOMES = frozenset({"satisfying", "non-satisfying", "rejected",
 # The configured capabilities §7's actor column names.  Exported so a deployment
 # configures them from one list rather than from string literals scattered
 # across its setup.
-CAPABILITIES = ("verify", "review", "approve", "integrate", "close")
+CAPABILITIES = ("verify", "review", "approve", "integrate", "close",
+                # W29400: mutating a Work's labels after creation.
+                # A SEPARATE grant, resolved in the WORK's effective
+                # scope: the contract says Route eligibility, claim
+                # ownership, Handler identity and plain membership
+                # authorize nothing here, and reusing `close` or any
+                # other receipt capability would have made one of
+                # them mean two different permissions.
+                "manage-work-labels")
 _CAPABILITY_SET = frozenset(CAPABILITIES)
 
 
@@ -109,15 +129,24 @@ class Core:
     def certify_contract(self, contract, profile="reference"):
         _text(contract, "a contract")
         _text(profile, "a profile")
-        self._store.transact(lambda: self._store.run(
-            "INSERT INTO certified_contract (contract, profile, certified_at) "
-            "VALUES (?, ?, ?) ON CONFLICT (contract) DO UPDATE SET "
-            "profile = excluded.profile", contract, profile, self._now()))
+        def body():
+            self._store.run(
+                "INSERT INTO certified_contract (contract, profile, "
+                "certified_at) VALUES (?, ?, ?) ON CONFLICT (contract) DO "
+                "UPDATE SET profile = excluded.profile",
+                contract, profile, self._now())
+            self._bump_policy_generation()
+
+        self._store.transact(body)
 
     def withdraw_certification(self, contract):
         _text(contract, "a contract")
-        self._store.transact(lambda: self._store.run(
-            "DELETE FROM certified_contract WHERE contract = ?", contract))
+        def body():
+            self._store.run(
+                "DELETE FROM certified_contract WHERE contract = ?", contract)
+            self._bump_policy_generation()
+
+        self._store.transact(body)
 
     def is_certified(self, contract):
         _text(contract, "a contract")
@@ -128,9 +157,14 @@ class Core:
     def permit_contract_transition(self, from_contract, to_contract):
         _text(from_contract, "a contract")
         _text(to_contract, "a contract")
-        self._store.transact(lambda: self._store.run(
-            "INSERT INTO contract_transition (from_contract, to_contract) "
-            "VALUES (?, ?) ON CONFLICT DO NOTHING", from_contract, to_contract))
+        def body():
+            self._store.run(
+                "INSERT INTO contract_transition (from_contract, to_contract) "
+                "VALUES (?, ?) ON CONFLICT DO NOTHING",
+                from_contract, to_contract)
+            self._bump_policy_generation()
+
+        self._store.transact(body)
 
     def permits_contract_transition(self, from_contract, to_contract):
         _text(from_contract, "a contract")
@@ -142,10 +176,15 @@ class Core:
     def set_policy(self, key, value):
         _text(key, "a policy key")
         # The VALUE is owned data: a policy is durable and is read back as JSON.
-        self._store.transact(lambda: self._store.run(
-            "INSERT INTO policy (key, value) VALUES (?, ?) ON CONFLICT (key) "
-            "DO UPDATE SET value = excluded.value",
-            key, json.dumps(own(value, what="a policy value"))))
+        owned = json.dumps(own(value, what="a policy value"))
+
+        def body():
+            self._store.run(
+                "INSERT INTO policy (key, value) VALUES (?, ?) ON CONFLICT "
+                "(key) DO UPDATE SET value = excluded.value", key, owned)
+            self._bump_policy_generation()
+
+        self._store.transact(body)
 
     def policy(self, key, fallback=None):
         _text(key, "a policy key")
@@ -168,35 +207,387 @@ class Core:
         return check_text(self.policy("canonical_target", "base-1"),
                           "the configured canonical_target")
 
+    # -- the principal mapping (W16821) --------------------------------------
+    #
+    # The endpoint address is the OPERATIONAL name: it routes, it is the
+    # Handler, it fences an assignment and it is the actor on a receipt.  The
+    # principal is WHO acted.  Before this correction one string was both, so
+    # two spellings of one person held two claim slots and one spelling could
+    # not say which scope and which grant authorized an act.
+
+    def principal_of(self, participant):
+        """WHICH principal this endpoint resolves to.  A READ, and it writes
+        nothing.
+
+        A deployment that has bound the endpoint gets the binding; one that has
+        not gets the authority's own default, which is one principal per
+        endpoint -- exactly the behaviour that existed before this correction.
+        The mapping is the AUTHORITY's either way: no operand anywhere names a
+        principal for the endpoint it is acting as, so no caller can choose or
+        widen the identity its acts are attributed to.
+        """
+        check_participant(participant)
+        row = self._store.get(
+            "SELECT principal_id FROM endpoint WHERE participant = ?",
+            participant)
+        return (row["principal_id"] if row is not None
+                else principal_for_endpoint(participant))
+
+    def bind_endpoint(self, participant, principal):
+        """Bind one endpoint address to a canonical principal.
+
+        THE CONFIGURATION ACT THAT MAKES TWO ADDRESSES ONE PERSON.  It lives on
+        the trusted bootstrap face and nowhere else: a session that could
+        rebind its own endpoint could move its claim slot, its grants and its
+        attribution to somebody else's identity.
+
+        Rebinding an endpoint that already HOLDS a slot is refused rather than
+        followed.  Moving the binding under a live claim would move the
+        capacity that claim is occupying, and the deployment would have two
+        principals each believing they hold it.
+        """
+        check_participant(participant)
+        check_principal(principal)
+
+        def body():
+            held = self._store.get(
+                "SELECT work_id FROM claim_slot WHERE participant = ?",
+                participant)
+            if held is not None:
+                raise Refusal(
+                    f"{name_of(participant)} holds a live claim on "
+                    f"{name_of(held['work_id'])}; an endpoint is rebound when "
+                    f"it is holding nothing, or the capacity it occupies would "
+                    f"move to another principal underneath it")
+            self._register_principal(principal)
+            self._store.run(
+                "INSERT INTO endpoint (participant, principal_id, bound_at) "
+                "VALUES (?, ?, ?) ON CONFLICT (participant) DO UPDATE SET "
+                "principal_id = excluded.principal_id, "
+                "bound_at = excluded.bound_at",
+                participant, principal, self._now())
+            self._bump_policy_generation()
+            return self.principal_of(participant)
+
+        return self._store.transact(body)
+
+    def endpoints_of(self, principal):
+        """Every endpoint address bound to one principal, ordered."""
+        check_principal(principal)
+        return [row["participant"] for row in self._store.all(
+            "SELECT participant FROM endpoint WHERE principal_id = ? "
+            "ORDER BY participant", principal)]
+
+    def _register_principal(self, principal):
+        """Record the principal so a foreign key can name it.
+
+        Called from inside a write transaction only.  Registration is not a
+        grant of anything: it says this identity exists, which is what a
+        durable reference to it requires.
+        """
+        self._store.run(
+            "INSERT INTO principal (principal_id, registered_at) "
+            "VALUES (?, ?) ON CONFLICT DO NOTHING", principal, self._now())
+        return principal
+
+    def _principal_for_write(self, participant):
+        """The principal to write a durable row against, registered.
+
+        The read path does not register, because a read that wrote rows would
+        make `principal_of` a mutation with a projection's name.
+        """
+        return self._register_principal(self.principal_of(participant))
+
+    # -- the configuration generation ---------------------------------------
+
+    def policy_generation(self):
+        """WHICH configuration every decision below is being taken under.
+
+        An absent row is generation 1 rather than an error: a store that has
+        never been reconfigured is at its first configuration, and inventing a
+        seed row at open would have had to date it with a clock this authority
+        does not inject.
+        """
+        row = self._store.get("SELECT generation FROM policy_generation")
+        return 1 if row is None else row["generation"]
+
+    def _bump_policy_generation(self):
+        """One configuration act, one generation.  Inside the caller's
+        transaction, so a refused configuration bumps nothing."""
+        self._store.run(
+            "INSERT INTO policy_generation (one, generation, bumped_at) "
+            "VALUES (1, 2, ?) ON CONFLICT (one) DO UPDATE SET "
+            "generation = policy_generation.generation + 1, "
+            "bumped_at = excluded.bumped_at", self._now())
+
+    # -- the decision, recorded and read back --------------------------------
+
+    def _record_decision(self, act, act_id, decision):
+        """Retain the exact decision one authorized act was taken under.
+
+        Review [P0]: the first cut spread four nullable columns across
+        `assignment_event` and three more across `receipt`, so an authorized
+        CLOSE -- which writes neither row when the Work was never claimed --
+        persisted no decision at all, and every future door would have needed
+        its own copy of the same shape.
+
+        IMMUTABLE, and refused rather than overwritten.  A second decision for
+        one act is a second answer to a question that was already decided, and
+        a journal that let the later one win could not say which one the act
+        was actually performed under.
+        """
+        _text(act, "an authorized act")
+        _text(act_id, "an authorized act identity")
+        if self._decision(act, act_id) is not None:
+            # THE ACT KIND IS NOT INTERPOLATED.  It is one of this module's
+            # own constants, but the diagnostic walker cannot prove a parameter
+            # bounded and buying an exception-registry entry for a word is the
+            # wrong trade; the act identity IS caller-derived and goes through
+            # `name_of`, which bounds it.
+            raise Refusal(
+                f"the authorized act {name_of(act_id)} already retains its "
+                f"authorization decision; a decision is what was answered at "
+                f"the instant of the act and is never rewritten")
+        self._register_principal(decision.principal)
+        self._store.run(
+            "INSERT INTO authorization_decision (act, act_id, endpoint, "
+            "principal_id, effective_scope, role, grant_provenance, "
+            "policy_generation, decided_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            act, act_id, decision.endpoint, decision.principal,
+            decision.effective_scope, decision.role, decision.grant,
+            decision.policy_generation, self._now())
+        return decision
+
+    def _act_kind_of(self, act_id):
+        """Which of the three acts wrote this label event, from the journal."""
+        for act in ("work-label", "work-unlabel", "work-create"):
+            if self._decision(act, act_id) is not None:
+                return act
+        return None
+
+    def _decision(self, act, act_id):
+        """The retained decision as a fresh owned document, or `None`.
+
+        READ FROM THE ROW, never rebuilt.  Rebuilding it would consult today's
+        endpoint mapping and today's policy generation, and answer what the act
+        WOULD be authorized under now rather than what it was performed under
+        -- which is the one thing a history is for.
+        """
+        row = self._store.get(
+            "SELECT * FROM authorization_decision WHERE act = ? AND act_id = ?",
+            act, str(act_id))
+        if row is None:
+            return None
+        return {"endpoint": row["endpoint"], "principal": row["principal_id"],
+                "effective_scope": row["effective_scope"], "role": row["role"],
+                "grant": row["grant_provenance"],
+                "policy_generation": row["policy_generation"]}
+
+    def decision_of(self, act, act_id):
+        """PUBLIC: the decision one authorized act was taken under."""
+        _text(act, "an authorized act")
+        _text(act_id, "an authorized act identity")
+        return self._decision(act, act_id)
+
+    def _scope_of(self, proposal):
+        """The scope of the Work a proposal belongs to.
+
+        Taken from the proposal's own EXACT ASSIGNMENT identity rather than
+        from a loose column, because that identity is what the proposal is
+        bound to and is the thing a scope may not drift from.
+        """
+        return self._work(
+            proposal["assignment_ref"]["work_ref"]["work_id"])["scope"]
+
+    def _live_claim_seq(self, expect):
+        """The EXACT claim event this act is being carried out under.
+
+        Resolved AT THE ACT and then stored, which is what makes it exact:
+        right now there is one live assignment and one newest claim event for
+        it, and a reference captured here cannot be re-pointed by anything that
+        happens afterwards.
+
+        Re-review [P0]: the first cut searched for this at READ time instead,
+        by `(work_id, participant, generation)`, newest first.  A v11
+        assignment mints no generation, so a release and a reclaim through the
+        same endpoint gave two claim acts with identical join fields -- and the
+        later claim silently became the apparent authorization of the earlier
+        act's history.
+        """
+        found = self._store.get(
+            "SELECT seq FROM assignment_event WHERE work_id = ? AND "
+            "participant = ? AND IFNULL(generation, -1) = IFNULL(?, -1) AND "
+            "cause = 'claimed' ORDER BY seq DESC",
+            expect["work_ref"]["work_id"], expect["participant"],
+            expect["generation"])
+        if found is None:
+            raise Refusal(
+                "this act is carried out under an assignment whose claim this "
+                "authority never journalled; an act that cannot name the "
+                "exact claim that authorized it is not attributable")
+        return found["seq"]
+
+    def _claim_decision_for(self, row):
+        """The decision the assignment an act was carried out under was claimed
+        with, read through the row's OWN exact reference.
+
+        Assignment-derived acts -- activity, contract events, proposals -- are
+        performed under an assignment somebody else already authorized, so the
+        decision they carry is that claim's.  They durably name the claim event
+        rather than carrying a copy of its decision, because two copies of one
+        fact are two things that can disagree -- and rather than searching for
+        it afterwards, because a search over a nullable tuple is not an
+        identity.
+        """
+        return self._decision("claim", str(row["claim_seq"]))
+
+    # -- the ONE authorization decision seam ---------------------------------
+
+    def authorize(self, participant, *, capability=None, route=None,
+                  scope=None):
+        """Decide ONE act, and answer with the decision rather than a boolean.
+
+        W16821 item 3.  Route membership and capability membership used to be
+        two ad-hoc `SELECT 1` existence checks reading a participant column,
+        answering yes or no.  A boolean cannot be recorded beside the act it
+        authorized: it does not say who acted, in which scope, or by which
+        grant, and the acts therefore recorded the endpoint spelling and
+        nothing else.
+
+        EXACTLY ONE OF `capability` OR `route`.  A call that named both would
+        be two decisions with one answer, and a caller could not tell which one
+        the provenance describes.
+
+        The scope is the WORK's or the deployment's, never the caller's: it is
+        passed in by the transition from the row it read, and there is no
+        operand on any exported surface through which a caller could supply
+        one.
+        """
+        check_participant(participant)
+        named = [one for one in (capability, route) if one is not None]
+        if len(named) != 1:
+            raise Refusal(
+                "an authorization decides one route membership or one "
+                "capability, and names exactly one of them")
+        effective = DEPLOYMENT_SCOPE if scope is None else check_scope(scope)
+        principal = self.principal_of(participant)
+        if capability is not None:
+            self._require_known_capability(capability)
+            row = self._store.get(
+                "SELECT provenance FROM capability WHERE principal_id = ? AND "
+                "capability = ? AND scope = ?",
+                principal, capability, effective)
+            if row is None:
+                return None
+            role, provenance = capability, row["provenance"]
+        else:
+            _text(route, "a route")
+            if self._store.get(
+                    "SELECT 1 AS ok FROM route_handler WHERE route = ? AND "
+                    "participant = ?", route, participant) is None:
+                return None
+            # A configured route handler is a DIRECT grant of that route to
+            # the principal the endpoint resolves to.  When the M6 resolver
+            # arrives it answers here, and the shape it must fill is already
+            # the shape this returns.
+            role, provenance = route, DIRECT
+        return AuthorizationDecision(
+            endpoint=participant, principal=principal,
+            effective_scope=effective, role=role,
+            # READ WIDE, WRITE NARROW.  The column admits inherited and masked
+            # provenance so a resolver can land without a migration; a decision
+            # this cut hands out may only be direct, and that is checked here
+            # rather than trusted from the row.
+            grant=check_grant_provenance(provenance, producible=M2_GRANTS),
+            policy_generation=self.policy_generation())
+
     # -- capabilities --------------------------------------------------------
+    #
+    # THE GRANTEE IS THE PRINCIPAL.  The exported surface still takes an
+    # endpoint address, because that is what a deployment configures and what
+    # every existing caller has; the authority resolves it, and two addresses
+    # bound to one principal therefore share one grant instead of needing two.
 
-    def grant_capability(self, participant, capability):
+    def grant_capability(self, participant, capability, *, scope=None):
         check_participant(participant)
         self._require_known_capability(capability)
-        self._store.transact(lambda: self._store.run(
-            "INSERT INTO capability (participant, capability, granted_at) "
-            "VALUES (?, ?, ?) ON CONFLICT DO NOTHING",
-            participant, capability, self._now()))
+        effective = DEPLOYMENT_SCOPE if scope is None else check_scope(scope)
 
-    def revoke_capability(self, participant, capability):
+        def body():
+            principal = self._principal_for_write(participant)
+            self._store.run(
+                "INSERT INTO capability (principal_id, capability, scope, "
+                "provenance, granted_at) VALUES (?, ?, ?, ?, ?) "
+                "ON CONFLICT DO NOTHING",
+                principal, capability, effective, DIRECT, self._now())
+            self._bump_policy_generation()
+
+        self._store.transact(body)
+
+    def revoke_capability(self, participant, capability, *, scope=None):
         check_participant(participant)
         self._require_known_capability(capability)
-        self._store.transact(lambda: self._store.run(
-            "DELETE FROM capability WHERE participant = ? AND capability = ?",
-            participant, capability))
+        effective = DEPLOYMENT_SCOPE if scope is None else check_scope(scope)
 
-    def holds_capability(self, participant, capability):
+        def body():
+            self._store.run(
+                "DELETE FROM capability WHERE principal_id = ? AND "
+                "capability = ? AND scope = ?",
+                self.principal_of(participant), capability, effective)
+            self._bump_policy_generation()
+
+        self._store.transact(body)
+
+    def holds_capability(self, participant, capability, *, scope=None):
         if type(participant) is not str or type(capability) is not str:
             return False
-        return self._store.get(
-            "SELECT 1 AS ok FROM capability WHERE participant = ? AND "
-            "capability = ?", participant, capability) is not None
+        try:
+            return self.authorize(participant, capability=capability,
+                                  scope=scope) is not None
+        except Refusal:
+            # A malformed participant or an unknown capability is not a holder.
+            # This read answered False for those before the seam existed and
+            # callers depend on it being a question rather than a refusal.
+            return False
+
+    def grants_of(self, participant):
+        """EVERY grant this endpoint's principal holds, with its scope and its
+        provenance.
+
+        Review [P1]: `capabilities_of` answered names alone, so a principal
+        granted `verify` in two scopes projected `['verify', 'verify']` -- a
+        list that neither said where either grant was effective nor told a
+        duplicate from a second scope.  This is the projection; the one below
+        is a deliberately narrower helper.
+        """
+        check_participant(participant)
+        return [{"capability": row["capability"], "scope": row["scope"],
+                 "provenance": row["provenance"]}
+                for row in self._store.all(
+                    "SELECT capability, scope, provenance FROM capability "
+                    "WHERE principal_id = ? ORDER BY capability, scope",
+                    self.principal_of(participant))]
 
     def capabilities_of(self, participant):
+        """WHICH capabilities this endpoint's principal holds anywhere, and
+        deliberately not where.
+
+        A COMPATIBILITY PROJECTION with explicit semantics: the DISTINCT
+        capability names held in any scope, sorted.  It answers "may this
+        principal ever verify" and nothing else -- a deployment asking whether
+        a grant is effective for a particular act must read `grants_of`, or
+        better, let the authorization seam decide, because a name held in some
+        scope authorizes nothing by itself.
+
+        Distinct rather than one row per grant: the duplicate the first cut
+        projected was not information, it was the scope column missing.
+        """
         check_participant(participant)
         return [row["capability"] for row in self._store.all(
-            "SELECT capability FROM capability WHERE participant = ? "
-            "ORDER BY capability", participant)]
+            "SELECT DISTINCT capability FROM capability WHERE "
+            "principal_id = ? ORDER BY capability",
+            self.principal_of(participant))]
 
     def _require_known_capability(self, capability):
         if type(capability) is not str or capability not in _CAPABILITY_SET:
@@ -207,8 +598,8 @@ class Core:
 
     # -- Work and route ------------------------------------------------------
 
-    def create_work(self, work_id, route, *, contract=V11, phase="queued",
-                    gate=None):
+    def create_work(self, work_id, route, *, operation_id, contract=V11,
+                    phase="queued", gate=None, scope=None, labels=()):
         """Mint an UNCLAIMED Work.
 
         The frozen host accepted `phase="active"` and committed a
@@ -226,6 +617,21 @@ class Core:
                 f"{', '.join(sorted(UNCLAIMED_PHASES))}; {name_of(phase)} is "
                 f"not reachable without a Handler")
         self._assert_phase_gate(phase, gate)
+        # W16821 item 2.  The effective scope is AUTHORITY-OWNED and supplied
+        # here, at the trusted bootstrap that creates the Work.  It is NOT
+        # derived from the route, the repository or the participant spelling --
+        # the correction boundary forbids exactly that, and it is why an
+        # omitted scope falls back to the deployment's one named constant
+        # rather than to anything computed from the operands beside it.
+        effective = DEPLOYMENT_SCOPE if scope is None else check_scope(scope)
+        # W29400: VALIDATED BEFORE THE TRANSACTION, because a malformed label
+        # is a refusal about the operands and not about the Work -- and a Work
+        # half-created with some of its labels would be a set nobody asked for.
+        wanted = canonical_label_set(labels, what="the Work's labels")
+        if len(wanted) > MAX_LABELS:
+            raise Refusal(
+                f"a Work holds at most {MAX_LABELS} labels and this creation "
+                f"names {len(wanted)}")
 
         def body():
             if self._store.get("SELECT 1 AS ok FROM work WHERE work_id = ?",
@@ -233,18 +639,285 @@ class Core:
                 raise Refusal(f"Work {name_of(work_id)} already exists")
             self._store.run(
                 "INSERT INTO work (work_id, route, status, phase, gate, "
-                "contract, created_at) VALUES (?, ?, 'open', ?, ?, ?, ?)",
-                work_id, route, phase, gate, contract, self._now())
+                "contract, scope, created_at) "
+                "VALUES (?, ?, 'open', ?, ?, ?, ?, ?)",
+                work_id, route, phase, gate, contract, effective, self._now())
+            # THE CREATION IS ATTRIBUTED, and to a decision rather than to a
+            # string. Review [P0]: create-time labels were filed under
+            # `"create:" + work_id` -- an act id nothing decided and nothing
+            # could join -- so `work_label_events` answered `decision: None`
+            # and the addition was unattributable by the approved contract.
+            #
+            # THE PROVENANCE IS THE TRUSTED BOOTSTRAP, named as such. There is
+            # no actor here by construction: creation is the act that brings
+            # the Work the scope resolves in into existence, so there is
+            # nothing yet to resolve a capability against. What the record has
+            # to say is exactly that, in a shape a reader can join -- not a
+            # null standing for "somebody, somehow".
+            self._record_decision("work-create", operation_id,
+                                  self._bootstrap_decision(effective))
+            # CREATE-TIME LABELS ARE ADDITIONS ATTRIBUTED TO THAT ACT, in the
+            # same transaction: a Work that existed for an instant without the
+            # labels it was created with is a Work a reader could have seen
+            # unlabelled.
+            for one in wanted:
+                self._add_label(work_id, one, act_id=operation_id)
             return self.project_work(work_id)
 
-        return self._store.transact(body)
+        return self._replay(
+            operation_id,
+            signature_of("work-create", {
+                "work_id": work_id, "route": route, "contract": contract,
+                "phase": phase, "gate": gate, "scope": scope,
+                "labels": list(wanted)}),
+            body)
+
+    def _bootstrap_decision(self, effective):
+        """The provenance a Work creation is taken under.
+
+        NAMED RATHER THAN NULL. A trusted bootstrap is a real answer to "under
+        what authority did this happen" -- it says the deployment itself, at
+        the act that has no prior Work to resolve against -- and a reader can
+        tell it apart from a capability-authorized act by its role and its
+        grant. A `None` could not be told apart from a missing row.
+        """
+        return AuthorizationDecision(
+            endpoint=BOOTSTRAP_ENDPOINT, principal=BOOTSTRAP_PRINCIPAL,
+            effective_scope=effective, role="create-work",
+            grant=DIRECT, policy_generation=self.policy_generation())
 
     def add_route_handler(self, route, participant):
         _text(route, "a route")
         check_participant(participant)
-        self._store.transact(lambda: self._store.run(
-            "INSERT INTO route_handler (route, participant) VALUES (?, ?) "
-            "ON CONFLICT DO NOTHING", route, participant))
+
+        def body():
+            # The endpoint's principal is registered HERE, at the configuration
+            # act that first names the address, so the mapping exists durably
+            # before any claim can be decided against it.
+            self._principal_for_write(participant)
+            self._store.run(
+                "INSERT INTO route_handler (route, participant) VALUES (?, ?) "
+                "ON CONFLICT DO NOTHING", route, participant)
+            self._bump_policy_generation()
+
+        self._store.transact(body)
+
+    # -- Work labels (W29400) ------------------------------------------------
+    #
+    # CROSS-CUTTING METADATA AND NOTHING ELSE.  Adding, removing or spelling a
+    # label changes the label set, its journal and nothing whatever about
+    # contract, phase, gate, readiness, Route, Handler, claim, dependency,
+    # outcome or capacity.  No spelling is reserved and no behaviour is
+    # inferred from one, which is why nothing in this section reads a label to
+    # decide anything.
+
+    def labels_of(self, work_id):
+        """One Work's live set, sorted, as a fresh owned list.
+
+        `[]` for a Work with none: absence is an answer, and a caller that had
+        to distinguish "no labels" from "no such member" would be reading the
+        projection's shape instead of the Work's facts.
+        """
+        return [row["label"] for row in self._store.all(
+            "SELECT label FROM work_label WHERE work_id = ? ORDER BY label",
+            self._work(work_id)["work_id"])]
+
+    def _add_label(self, work_id, label, *, act_id):
+        """Add one canonical label inside the caller's transaction.
+
+        Answers whether it CHANGED anything.  Adding a label the Work already
+        holds is a successful no-op that writes no event -- the contract's
+        `changed:false` -- because an event recording that nothing happened
+        makes the journal unable to say what did, and two callers converging on
+        the same set is agreement rather than a conflict.
+
+        THE CARDINALITY IS CHECKED HERE, inside the write, and only when the
+        label is genuinely new.  Checked before the transaction it would be a
+        limit two racing final-slot additions could both pass; charged against
+        a no-op it would refuse a caller asking for a state the Work is already
+        in.
+        """
+        if self._store.get(
+                "SELECT 1 AS ok FROM work_label WHERE work_id = ? AND "
+                "label = ?", work_id, label) is not None:
+            return False
+        held = self._store.get(
+            "SELECT COUNT(*) AS n FROM work_label WHERE work_id = ?",
+            work_id)["n"]
+        if held >= MAX_LABELS:
+            # THE COUNT IS NOT RENDERED.  At this line it IS `MAX_LABELS` --
+            # that is the branch's own condition -- so interpolating it would
+            # add an unproven value to a diagnostic to say something the
+            # constant beside it already says.
+            raise Refusal(
+                f"Work {name_of(work_id)} already holds the maximum "
+                f"{MAX_LABELS} labels; a label is removed before another is "
+                f"added")
+        at = self._now()
+        self._store.run(
+            "INSERT INTO work_label (work_id, label, added_at) "
+            "VALUES (?, ?, ?)", work_id, label, at)
+        self._store.run(
+            "INSERT INTO work_label_event (work_id, label, action, act_id, at) "
+            "VALUES (?, ?, 'added', ?, ?)", work_id, label, act_id, at)
+        return True
+
+    def _remove_label(self, work_id, label, *, act_id):
+        """Remove one canonical label inside the caller's transaction.
+
+        Removing a label the Work does not hold is the same convergent no-op in
+        the other direction, and for the same reason.
+        """
+        # ASKED BEFORE THE DELETE.  `Store.run` answers the cursor rather than
+        # a rowcount, and a cursor is always truthy -- so branching on it made
+        # every removal look like a change, including the convergent no-op the
+        # contract is specifically about.
+        if self._store.get(
+                "SELECT 1 AS ok FROM work_label WHERE work_id = ? AND "
+                "label = ?", work_id, label) is None:
+            return False
+        self._store.run(
+            "DELETE FROM work_label WHERE work_id = ? AND label = ?",
+            work_id, label)
+        self._store.run(
+            "INSERT INTO work_label_event (work_id, label, action, act_id, at) "
+            "VALUES (?, ?, 'removed', ?, ?)",
+            work_id, label, act_id, self._now())
+        return True
+
+    def label_work(self, work_id, label, *, actor, operation_id):
+        """Add one label to one Work, as an authorized attributable act."""
+        return self._label_transition(work_id, label, actor=actor,
+                                      operation_id=operation_id, adding=True)
+
+    def unlabel_work(self, work_id, label, *, actor, operation_id):
+        """Remove one label from one Work, as an authorized attributable act."""
+        return self._label_transition(work_id, label, actor=actor,
+                                      operation_id=operation_id, adding=False)
+
+    def _label_transition(self, work_id, label, *, actor, operation_id,
+                          adding):
+        """The one boundary both label mutations cross.
+
+        AUTHORIZED IN THE WORK'S OWN EFFECTIVE SCOPE, through W16821's seam:
+        the Work is loaded first so there is a target to derive the scope from,
+        which is the correction that Work's review required after a default
+        scope let a receipt resolve in the deployment's.
+
+        PERMITTED WHATEVER THE PHASE, AND AFTER CLOSURE.  The contract says so
+        and gives the reason: a label change is archive metadata, and it
+        reopens, reschedules and re-authorizes nothing.  There is deliberately
+        no status or phase check here, because adding one would be this module
+        inventing a rule the contract explicitly settled the other way.
+        """
+        check_work_id(work_id)
+        canonical = canonical_label(label)
+        act = "work-label" if adding else "work-unlabel"
+        # THE SIGNATURE IS MADE OF CALLER OPERANDS ONLY, which is what lets an
+        # exact retry reach the journal BEFORE today's policy is consulted.
+        #
+        # Review [P0]: it carried `work["scope"]`, read from state, so the Work
+        # had to be loaded and authorized before the signature existed -- and
+        # an operation that already committed was therefore re-authorized
+        # against current policy. A retry after the recorded grant was revoked
+        # got a denial instead of its own committed outcome, which is the
+        # opposite of what effectively-once means. Replay is a fact about an
+        # act that already happened.
+        signature = signature_of(act, {
+            "work_id": work_id, "label": canonical, "actor": actor})
+
+        def body():
+            # AND THE LOOKUP AND THE DECISION ARE INSIDE THE WRITE, which is
+            # the other half of the same finding. Authorization read outside
+            # the transaction let a competing connection revoke the grant
+            # between the decision and the mutation; resolved here, the
+            # decision, the mutation, the event and the decision row serialize
+            # together. This is the ordering `end` and `pass_work` already use.
+            work = self._work(work_id)
+            decision = self._require_capability(
+                actor, "manage-work-labels",
+                "Work label addition" if adding else "Work label removal",
+                scope=work["scope"])
+            changed = (self._add_label(work["work_id"], canonical,
+                                       act_id=operation_id)
+                       if adding else
+                       self._remove_label(work["work_id"], canonical,
+                                          act_id=operation_id))
+            if changed:
+                # THE DECISION IS RETAINED ONLY FOR AN ACT THAT HAPPENED.
+                # A no-op authorized nothing, so a decision row for it would
+                # be evidence of a change the journal correctly does not have.
+                self._record_decision(act, operation_id, decision)
+            return {"work_id": work["work_id"], "label": canonical,
+                    "action": "added" if adding else "removed",
+                    "changed": changed,
+                    "labels": self.labels_of(work["work_id"]),
+                    "decision": decision.as_document()}
+
+        return self._replay(operation_id, signature, body)
+
+    def work_label_events(self, work_id):
+        """The append-only mutation history, with its authorization evidence.
+
+        The decision is JOINED from `authorization_decision` rather than copied
+        onto the event: one shape, one owner, and a history that cannot drift
+        from the decision it names.  `None` for the additions a Work creation
+        made, which are attributed to the creation act rather than to a
+        `manage-work-labels` grant.
+        """
+        return [{"seq": row["seq"], "work_id": row["work_id"],
+                 "label": row["label"], "action": row["action"],
+                 # THE ACT KIND IS PROJECTED, never inferred from an id
+                 # prefix: the three acts that can write a label event each
+                 # have a decision under their own kind, and a create-time
+                 # addition names `work-create` rather than answering `None`.
+                 "act": self._act_kind_of(row["act_id"]),
+                 "decision": (self._decision("work-label", row["act_id"])
+                              or self._decision("work-unlabel", row["act_id"])
+                              or self._decision("work-create", row["act_id"])),
+                 "at": row["at"]}
+                for row in self._store.all(
+                    "SELECT * FROM work_label_event WHERE work_id = ? "
+                    "ORDER BY seq", self._work(work_id)["work_id"])]
+
+    def works_with_labels(self, *, all_of=(), none_of=()):
+        """Every Work id carrying ALL of one set and NONE of another, sorted.
+
+        REPEATED POSITIVES INTERSECT and repeated negatives exclude, which is
+        the contract's rule and deliberately not an implicit OR: a future
+        disjunction gets its own named operand rather than silently changing
+        what a repeated filter has always meant.
+
+        MATCHING IS EXACT MEMBERSHIP over normalized keys -- never a substring,
+        never `LIKE`, never a separator interpretation.  A label is one opaque
+        key, so a filter that matched part of one would be reading structure
+        the grammar refuses to have.
+
+        ONE SNAPSHOT.  Both halves are decided in a single read, so a Work
+        cannot satisfy the positives from before a change and the negatives
+        from after it.
+        """
+        wanted = canonical_label_set(list(all_of), what="the label filter")
+        unwanted = canonical_label_set(list(none_of),
+                                       what="the excluded label filter")
+        both = sorted(set(wanted) & set(unwanted))
+        if both:
+            raise Refusal(
+                f"the filter requires and excludes {name_of(both[0])}; a "
+                f"Work cannot both carry and not carry one label")
+        return self._store.read_snapshot(
+            lambda: self._matching(set(wanted), set(unwanted)))
+
+    def _matching(self, wanted, unwanted):
+        """Both halves decided from ONE read view -- see `read_snapshot`."""
+        held = {}
+        for row in self._store.all("SELECT work_id, label FROM work_label"):
+            held.setdefault(row["work_id"], set()).add(row["label"])
+        return sorted(
+            row["work_id"] for row in self._store.all(
+                "SELECT work_id FROM work")
+            if set(wanted) <= held.get(row["work_id"], set())
+            and not (set(unwanted) & held.get(row["work_id"], set())))
 
     def _assert_phase_gate(self, phase, gate):
         """The ONE place the scheduler cross-product is checked.
@@ -304,7 +977,15 @@ class Core:
         most this one displayed gate.
 
         Returned as fresh owned built-ins, never a live row.
+
+        ONE READ VIEW. Review [P0]: the Work row and its labels were read in
+        separate autocommit statements, so a projection could return an open
+        Work carrying a label added only after that Work closed -- a state
+        that never existed. Every read below is answered from one snapshot.
         """
+        return self._store.read_snapshot(lambda: self._projected(work_id))
+
+    def _projected(self, work_id):
         work = self._work(work_id)
         fenced = self._store.all(
             "SELECT generation, cause, reason FROM fenced_generation WHERE "
@@ -324,6 +1005,20 @@ class Core:
             "rationale": work["rationale"],
             "handler": work["handler"],
             "contract": work["contract"],
+            # W16821: the scope is READ beside the route, never derived from
+            # it.  A consumer that wants the effective scope of this Work's
+            # authorizations reads this; there is nothing to compute.
+            "scope": work["scope"],
+            # W29400: the complete sorted set, always present and `[]` when
+            # empty.  A projection that omitted the member for an unlabelled
+            # Work would make every consumer branch on absence.
+            "labels": self.labels_of(work["work_id"]),
+            # And the decision the close was authorized under, or `None` while
+            # the Work is open.  Review [P0]: an authorized close persisted
+            # nothing at all, so a closed Work could not say who was permitted
+            # to close it -- including the unclaimed close, which writes no
+            # assignment event to carry it.
+            "close_decision": self._decision("close", work["work_id"]),
             "generation_counter": work["generation_counter"],
             "live_generation": work["live_generation"],
             "assignment": self._assignment_of(work),
@@ -401,6 +1096,13 @@ class Core:
                 owned):
             events.append({
                 "seq": row["seq"],
+                # Review [P1]: the row persisted the decision and the
+                # projection discarded it, so the acceptance's public evidence
+                # boundary was only reachable through raw SQL.  `None` for the
+                # authority's own acts -- a fence, a release and an expiry are
+                # not authorized by anybody, and inventing a principal for them
+                # is the inference this correction forbids.
+                "decision": self._decision("claim", str(row["seq"])),
                 "assignment_ref": self._assignment_ref_of(row),
                 "cause": row["cause"],
                 "fenced": row["fenced"] == 1,
@@ -417,10 +1119,23 @@ class Core:
                     "SELECT * FROM gate_evidence WHERE work_id = ? ORDER BY seq",
                     self._work(work_id)["work_id"])]
 
+    def slot_holder_of_principal(self, principal):
+        """Which Work this PRINCIPAL holds, across every address it acts
+        through."""
+        check_principal(principal)
+        row = self._store.get(
+            "SELECT work_id FROM claim_slot WHERE principal_id = ?", principal)
+        return None if row is None else row["work_id"]
+
     def slot_holder(self, participant):
         check_participant(participant)
         row = self._store.get(
-            "SELECT work_id FROM claim_slot WHERE participant = ?", participant)
+            # RESOLVED TO THE PRINCIPAL, not read by address.  Asking by
+            # address would answer "nothing" for a person who is holding a
+            # Work through their other endpoint -- which is the capacity leak
+            # this correction closes, reappearing as a read.
+            "SELECT work_id FROM claim_slot WHERE principal_id = ?",
+            self.principal_of(participant))
         return None if row is None else row["work_id"]
 
     # -- the compare-and-swap ------------------------------------------------
@@ -463,23 +1178,46 @@ class Core:
 
     # -- claim capacity ------------------------------------------------------
 
-    def _take_slot(self, participant, work_id, generation):
-        held = self.slot_holder(participant)
+    def _take_slot(self, decision, work_id, generation):
+        """Deployment-wide capacity, keyed by PRINCIPAL.
+
+        W16821 item 4.  The capacity invariant is unchanged -- one live claim
+        across the whole deployment -- and WHOSE it is has been corrected.  Two
+        endpoint addresses bound to one principal now share one slot; before
+        this they had one each, so the limit could be escaped by being
+        addressed differently.
+
+        The endpoint is stored beside the key rather than dropped: the Handler
+        column, the fence and the assignment identity are all endpoint-
+        addressed, and a release has to name the address that took it.
+        """
+        principal = self._register_principal(decision.principal)
+        held = self.slot_holder_of_principal(principal)
         if held is not None and held != work_id:
             raise Refusal(
-                f"{name_of(participant)} already holds {name_of(held)}; a "
-                f"participant holds ONE "
-                f"active claim at a time")
+                f"{name_of(decision.principal)} already holds "
+                f"{name_of(held)}; a principal holds ONE active claim at a "
+                f"time, across every endpoint address it acts through")
         self._store.run(
-            "INSERT INTO claim_slot (participant, work_id, generation, taken_at) "
-            "VALUES (?, ?, ?, ?) ON CONFLICT (participant) DO UPDATE SET "
+            "INSERT INTO claim_slot (principal_id, participant, work_id, "
+            "generation, taken_at) VALUES (?, ?, ?, ?, ?) "
+            "ON CONFLICT (principal_id) DO UPDATE SET "
+            "participant = excluded.participant, "
             "work_id = excluded.work_id, generation = excluded.generation",
-            participant, work_id, generation, self._now())
+            principal, decision.endpoint, work_id, generation, self._now())
 
     def _release_slot(self, participant, work_id):
+        """Released by PRINCIPAL and Work.
+
+        Deleting by address would leave a slot behind when the endpoint that
+        took it was not the one the Work ended under, and the principal would
+        be permanently at capacity.
+        """
+        if participant is None:
+            return
         self._store.run(
-            "DELETE FROM claim_slot WHERE participant = ? AND work_id = ?",
-            participant, work_id)
+            "DELETE FROM claim_slot WHERE principal_id = ? AND work_id = ?",
+            self.principal_of(participant), work_id)
 
     # -- claim ---------------------------------------------------------------
 
@@ -490,6 +1228,32 @@ class Core:
         wherever an offer was issued.  Checking it at issue alone would make it
         advisory (§10.2), and an advisory limit on how many live claims one
         participant may hold is not a limit.
+
+        W16823, approver rulings M34905 and M35002.  THE ANSWER IS A CLOSED
+        RESULT rather than the bare assignment:
+
+            {assignment, claim_event, decision}
+
+        `assignment` is the UNCHANGED four-part execution fence and nothing
+        about it moves -- §4 fencing is what W16793 found working and said must
+        not be weakened.  `claim_event` is the exact `assignment_event.seq`
+        this claim wrote.  `decision` is W16821's authorization vocabulary byte
+        for byte: endpoint, principal, effective scope, role, grant provenance
+        and policy generation.
+
+        WHY THE CONSUMER CANNOT ASSEMBLE THIS ITSELF.  The decision was already
+        retained here, and a Worker Manager wanting it had only one route: pick
+        a claim event out of `assignment_events` by the four-part identity,
+        newest first.  This module's own re-review refused that join as "not an
+        exact identity" on the authority's side, and it is no more exact on the
+        consumer's.  A caller that must guess which of its own acts it just
+        performed has not been answered.
+
+        ALL THREE MEMBERS ARE WRITTEN AND READ IN THIS TRANSACTION, so the
+        operation journal retains the whole document and an exact retry or a
+        lost-result settlement replays the original bytes rather than
+        recomposing them against today's endpoint mapping and today's policy
+        generation.
         """
         check_work_id(work_id)
         check_participant(participant)
@@ -506,9 +1270,14 @@ class Core:
                          f"cannot be claimed")
             if work["handler"] is not None:
                 raise Refusal("Work is already claimed")
-            if self._store.get(
-                    "SELECT 1 AS ok FROM route_handler WHERE route = ? AND "
-                    "participant = ?", work["route"], participant) is None:
+            # W16821 item 3: THROUGH THE SEAM, which answers with the decision
+            # rather than with a boolean.  The scope comes off the Work's own
+            # row -- the authority-owned value written at creation -- and never
+            # from the caller, so no operand can select the scope an act is
+            # authorized in.
+            decision = self.authorize(participant, route=work["route"],
+                                      scope=work["scope"])
+            if decision is None:
                 raise Refusal(
                     f"route {name_of(work['route'])} does not resolve to "
                     f"{name_of(participant)}")
@@ -527,7 +1296,7 @@ class Core:
                         f"this Work has minted every generation the frozen "
                         f"range allows (up to {MAX_SAFE_INTEGER}); the counter "
                         f"is never reused, so there is no next assignment")
-            self._take_slot(participant, work_id, generation)
+            self._take_slot(decision, work_id, generation)
             self._store.run(
                 "UPDATE work SET handler = ?, phase = 'active', "
                 "generation_counter = ?, live_generation = ? WHERE work_id = ?",
@@ -543,12 +1312,36 @@ class Core:
             #
             # The frozen Node host omits it.  It is executable-reference
             # evidence, not the contract.
+            # W16821: THE DECISION IS RETAINED FOR THE ACT IT AUTHORIZED.
+            # The participant column is unchanged and still names the endpoint
+            # -- relabelling it as the principal is exactly the conflation
+            # being corrected -- and the decision is keyed by the event this
+            # claim wrote, so a Work claimed, released and claimed again keeps
+            # both decisions rather than colliding on its own identity.
             self._store.run(
                 "INSERT INTO assignment_event (work_id, participant, "
                 "generation, cause, fenced, reason, gate, phase, at) "
                 "VALUES (?, ?, ?, 'claimed', 0, NULL, NULL, 'active', ?)",
                 work_id, participant, generation, self._now())
-            return self.assignment_of(work_id)
+            # W16823: THE CLAIM EVENT IS NAMED, and then answered with.
+            #
+            # The seq is read back rather than remembered because SQLite mints
+            # it, and it is the ONE exact immutable identity of this act.  A
+            # v11 assignment mints no generation, so two claims through one
+            # endpoint are two acts whose four-part identities are IDENTICAL --
+            # measured, not supposed -- and a consumer matching on the
+            # assignment alone cannot say which claim it just made.
+            claim_event = self._store.get(
+                "SELECT MAX(seq) AS seq FROM assignment_event")["seq"]
+            self._record_decision("claim", str(claim_event), decision)
+            # THE CLOSED RESULT, and every member is READ BACK FROM THE ROW it
+            # was just written to rather than composed from what is in hand.
+            # `_decision` is the same reader `decision_of` answers history
+            # with, so what a claimant receives and what the journal retains
+            # cannot drift into two spellings of one fact.
+            return {"assignment": self.assignment_of(work_id),
+                    "claim_event": claim_event,
+                    "decision": self._decision("claim", str(claim_event))}
 
         # The operands a fixed claim commits under.  The Work is part of it:
         # this authority holds many Works, and an operation id meaning "claim by
@@ -892,11 +1685,11 @@ class Core:
                             target_contract, work["work_id"])
             self._store.run(
                 "INSERT INTO contract_event (work_id, from_contract, "
-                "to_contract, participant, generation, rationale, at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "to_contract, participant, generation, claim_seq, rationale, "
+                "at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 work["work_id"], expect_contract, target_contract,
-                expect["participant"], expect["generation"], rationale,
-                self._now())
+                expect["participant"], expect["generation"],
+                self._live_claim_seq(expect), rationale, self._now())
             self._end_assignment(expect, phase=phase, gate=gate,
                                  cause="contract-advanced", fence=False,
                                  reason=rationale)
@@ -910,8 +1703,13 @@ class Core:
                           "rationale": rationale}), body)
 
     def contract_events(self, work_id):
+        # `decision` is the CLAIM's, joined through the full exact assignment
+        # identity: a contract transition is carried out under an assignment
+        # somebody already authorized, and copying the decision onto this row
+        # would be a second copy of one fact.
         return [{"seq": row["seq"],
                  "assignment_ref": self._assignment_ref_of(row),
+                 "decision": self._claim_decision_for(row),
                  "from_contract": row["from_contract"],
                  "to_contract": row["to_contract"],
                  "rationale": row["rationale"],
@@ -939,9 +1737,10 @@ class Core:
             work = self._expect(expect)
             self._store.run(
                 "INSERT INTO activity (work_id, participant, generation, "
-                "action_key, at) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING",
+                "claim_seq, action_key, at) VALUES (?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT DO NOTHING",
                 work["work_id"], expect["participant"], expect["generation"],
-                key, self._now())
+                self._live_claim_seq(expect), key, self._now())
             row = self._store.get(
                 "SELECT * FROM activity WHERE work_id = ? AND participant = ? "
                 "AND generation IS ? AND action_key = ?",
@@ -956,6 +1755,7 @@ class Core:
     def activities(self, work_id):
         return [{"seq": row["seq"],
                  "assignment_ref": self._assignment_ref_of(row),
+                 "decision": self._claim_decision_for(row),
                  "action_key": row["action_key"],
                  "at": row["at"]}
                 for row in self._store.all(
@@ -1050,13 +1850,13 @@ class Core:
                         "target": wanted}
             self._store.run(
                 "INSERT INTO proposal (proposal_id, work_id, participant, "
-                "generation, result_id, result_digest, candidate_digest, "
-                "input_digest, policy_digest, target, published_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "generation, claim_seq, result_id, result_digest, "
+                "candidate_digest, input_digest, policy_digest, target, "
+                "published_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 proposal_id, work["work_id"], expect["participant"],
-                expect["generation"], result_id, result_digest,
-                candidate_digest, input_digest, policy_digest, wanted,
-                self._now())
+                expect["generation"], self._live_claim_seq(expect), result_id,
+                result_digest, candidate_digest, input_digest, policy_digest,
+                wanted, self._now())
             return {"proposal_id": proposal_id,
                     "assignment_ref": dict(expect), **digests,
                     "target": wanted}
@@ -1075,6 +1875,9 @@ class Core:
             raise Refusal("no such proposal")
         return {"proposal_id": row["proposal_id"],
                 "assignment_ref": self._assignment_ref_of(row),
+                # The CLAIM's decision: publishing is carried out under an
+                # assignment somebody already authorized.
+                "decision": self._claim_decision_for(row),
                 "result_id": row["result_id"],
                 "result_digest": row["result_digest"],
                 "candidate_digest": row["candidate_digest"],
@@ -1083,9 +1886,21 @@ class Core:
                 "target": row["target"],
                 "published_at": row["published_at"]}
 
+    def _receipt_document(self, row):
+        """One receipt, with the decision it was written under beside it.
+
+        `actor` and `decision["endpoint"]` are the same address and are both
+        present on purpose: a consumer comparing receipts by attributable actor
+        reads `actor`, and one asking who that resolved to reads the decision.
+        Collapsing them is the conflation this Work corrects.
+        """
+        answer = dict(row)
+        answer["decision"] = self._decision(row["kind"], row["receipt_id"])
+        return answer
+
     def receipts(self, proposal_id):
         check_opaque_id(proposal_id, "a proposal id")
-        return [dict(row) for row in self._store.all(
+        return [self._receipt_document(row) for row in self._store.all(
             "SELECT * FROM receipt WHERE proposal_id = ? "
             "ORDER BY recorded_at, kind", proposal_id)]
 
@@ -1095,11 +1910,34 @@ class Core:
         row = self._store.get(
             "SELECT * FROM receipt WHERE proposal_id = ? AND kind = ?",
             proposal_id, kind)
-        return None if row is None else dict(row)
+        return None if row is None else self._receipt_document(row)
 
-    def _require_capability(self, actor, capability, what):
-        """An ORDINARY refusal: it writes nothing, so an actor granted the
-        capability afterwards may simply retry with a NEW operation id."""
+    def _require_capability(self, actor, capability, what, *, scope):
+        """Authorize one attributable act IN A NAMED SCOPE, and ANSWER WITH THE
+        DECISION.
+
+        `scope` IS REQUIRED AND HAS NO DEFAULT.  Review [P0]: it defaulted to
+        the deployment scope, so a receipt on a `scope:platform` Work resolved
+        in `scope:deployment` -- an actor granted the capability only in the
+        Work's own scope was refused, an actor granted it deployment-wide
+        succeeded, and the receipt then recorded `scope:deployment` as the
+        scope it had been authorized in.  That is the scope widening this seam
+        exists to prevent, arriving through a default argument.
+
+        Every caller derives it from the exact target row -- the Work being
+        closed, or the Work the proposal belongs to -- and never from an
+        operand.  `test_principal_scope` walks this module's own AST and
+        requires every call site to pass one.
+
+        An ORDINARY refusal: it writes nothing, so an actor granted the
+        capability afterwards may simply retry with a NEW operation id.
+
+        W16821 item 3: this used to answer nothing at all and its callers
+        recorded the endpoint spelling as the whole of the attribution.  It now
+        returns the authority's decision, so the principal, the effective scope
+        and the grant that carried it can ride the receipt the caller is about
+        to write.
+        """
         # The LABEL is caller text at every exported helper, so it is
         # bound by the rule here, once, where it is accepted.
         what = label_of(what)
@@ -1107,12 +1945,22 @@ class Core:
             raise Refusal(
                 f"a {what} is separately attributable and needs the participant "
                 f"writing it")
-        if not self.holds_capability(actor, capability):
+        decision = None
+        try:
+            decision = self.authorize(actor, capability=capability,
+                                      scope=scope)
+        except Refusal:
+            # A malformed actor is not a holder.  The refusal below is the one
+            # this boundary owes its caller, and it says the same thing it said
+            # before the seam existed.
+            decision = None
+        if decision is None:
             raise Refusal(
                 f"{name_of(actor)} does not hold the {capability} capability; "
                 f"a {what} "
                 f"is written by the configured actor, not by whoever holds the "
                 f"object")
+        return decision
 
     def _write_receipt(self, *, kind, capability, valid, proposal_id,
                        receipt_id, actor, disposition, operation_id,
@@ -1134,15 +1982,26 @@ class Core:
 
         def body():
             check_opaque_id(receipt_id, f"a {kind} receipt needs its own identity, and one")
-            self._require_capability(actor, capability, kind)
+            # THE PROPOSAL FIRST, because the scope this act is authorized in
+            # is the scope of the Work the proposal belongs to.  Review [P0]:
+            # the capability check ran BEFORE this load and therefore had no
+            # target to derive a scope from, so it used the deployment's.
+            proposal = self.proposal(proposal_id)
+            decision = self._require_capability(
+                actor, capability, kind,
+                scope=self._scope_of(proposal))
             if type(disposition) is not str or disposition not in valid:
                 raise Refusal(f"invalid {kind} disposition")
-            proposal = self.proposal(proposal_id)
             if self.receipt(proposal_id, kind) is not None:
                 raise Refusal(f"{kind} receipt is immutable")
             self._require_free_receipt_id(receipt_id, kind)
             if precondition is not None:
                 precondition(proposal)
+            # `actor` is the ENDPOINT that wrote this receipt and stays
+            # exactly what it was: §10.12's four separately attributable
+            # receipts are about addresses a deployment configures.  Which
+            # principal that address resolved to, in which scope and by which
+            # grant is the DECISION, retained under this receipt's own identity.
             self._store.run(
                 "INSERT INTO receipt (receipt_id, kind, proposal_id, actor, "
                 "disposition, candidate_digest, target, policy_generation, "
@@ -1150,6 +2009,7 @@ class Core:
                 receipt_id, kind, proposal_id, actor, disposition,
                 proposal["candidate_digest"], proposal["target"],
                 policy_generation, self._now())
+            self._record_decision(kind, receipt_id, decision)
             return {"kind": kind, "receipt_id": receipt_id,
                     "proposal_id": proposal_id, "actor": actor,
                     "disposition": disposition,
@@ -1262,8 +2122,10 @@ class Core:
         def body():
             check_opaque_id(integration_id,
                             "an integration receipt needs its own identity, and one")
-            self._require_capability(actor, "integrate", "integration")
             proposal = self.proposal(proposal_id)
+            decision = self._require_capability(
+                actor, "integrate", "integration",
+                scope=self._scope_of(proposal))
             if self.receipt(proposal_id, "integration") is not None:
                 raise Refusal("integration receipt is immutable")
             self._require_free_receipt_id(integration_id, "integration")
@@ -1276,10 +2138,19 @@ class Core:
                 raise Refusal("integration requires explicit approval")
             target = self.canonical_target()
             if target != proposal["target"]:
+                # A DURABLE, SEPARATELY ATTRIBUTABLE ACT.  Review [P0]: this
+                # journalled an authorized actor and no decision, so the one
+                # act in this door that survives its own refusal was the one
+                # act that could not say what authorized it.  Its identity is
+                # the integration identity this operation was submitted under,
+                # which is exactly what a retry would collide on.
                 self._store.run(
-                    "INSERT INTO integration_attempt (proposal_id, actor, "
-                    "reason, target, at) VALUES (?, ?, 'stale-target', ?, ?)",
-                    proposal_id, actor, target, self._now())
+                    "INSERT INTO integration_attempt (attempt_id, proposal_id, "
+                    "actor, reason, target, at) "
+                    "VALUES (?, ?, ?, 'stale-target', ?, ?)",
+                    integration_id, proposal_id, actor, target, self._now())
+                self._record_decision("integration-attempt", integration_id,
+                                      decision)
                 # DURABLE: this one journalled its attempt, so the refusal is
                 # itself a committed outcome of this operation identity.
                 raise Refusal("canonical target moved", durable=True)
@@ -1291,6 +2162,7 @@ class Core:
                 "?, ?, NULL, ?)",
                 integration_id, proposal_id, actor,
                 proposal["candidate_digest"], proposal["target"], self._now())
+            self._record_decision("integration", integration_id, decision)
             return {"kind": "integration", "receipt_id": integration_id,
                     "proposal_id": proposal_id, "actor": actor,
                     "disposition": "integrated"}
@@ -1303,9 +2175,11 @@ class Core:
 
     def integration_attempts(self, proposal_id):
         check_opaque_id(proposal_id, "a proposal id")
-        return [dict(row) for row in self._store.all(
-            "SELECT * FROM integration_attempt WHERE proposal_id = ? "
-            "ORDER BY seq", proposal_id)]
+        return [dict(row, decision=self._decision("integration-attempt",
+                                                  row["attempt_id"]))
+                for row in self._store.all(
+                    "SELECT * FROM integration_attempt WHERE proposal_id = ? "
+                    "ORDER BY seq", proposal_id)]
 
     # -- close ----------------------------------------------------------------
 
@@ -1336,8 +2210,14 @@ class Core:
                     f"is for {name_of(work_id)}")
 
         def body():
-            self._require_capability(actor, "close", "close")
+            # THE WORK FIRST.  Review [P0]: the capability check ran before
+            # this load, so a close was authorized in the deployment scope
+            # whatever scope the Work belonged to -- an actor granted `close`
+            # only in the Work's own scope was refused, and a
+            # deployment-scoped grant closed a Work in another scope.
             work = self._work(work_id)
+            decision = self._require_capability(actor, "close", "close",
+                                                scope=work["scope"])
             if work["status"] != "open":
                 raise Refusal("Work is already closed")
             if outcome not in INTAKE_OUTCOMES:
@@ -1359,7 +2239,13 @@ class Core:
                 "UPDATE work SET status = 'closed', phase = NULL, gate = NULL, "
                 "outcome = ?, rationale = ? WHERE work_id = ?",
                 outcome, rationale, work_id)
-            return {"outcome": outcome, "actor": actor, "assignment": live}
+            # RETAINED FOR THE CLOSE ITSELF, whether or not there was ever an
+            # assignment: an unclaimed close is still a directly authorized
+            # act, and it used to leave nothing behind that said who was
+            # allowed to perform it.  Keyed by the Work, which closes once.
+            self._record_decision("close", work_id, decision)
+            return {"outcome": outcome, "actor": actor, "assignment": live,
+                    "decision": decision.as_document()}
 
         return self._replay(
             operation_id,

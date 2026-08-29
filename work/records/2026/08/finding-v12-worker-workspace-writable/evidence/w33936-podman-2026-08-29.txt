@@ -1,0 +1,138 @@
+W33936 — COMPATIBLE PODMAN, RUN RATHER THAN SKIPPED
+===================================================
+
+The review is right that a skip cannot satisfy M34630. Podman cannot be
+installed on this host -- `sudo` here is not setuid, and rootless podman needs
+`newuidmap`/`newgidmap`, which this host does not carry. So the deployment
+moved again, exactly as it did for the dedicated group: podman is provisioned
+in an image (`w33936-podman.Dockerfile`) and the manager runs inside it.
+
+  podman 5.8.4 (Fedora build), on Docker 29.1.3 as the outer runtime
+  the workers are podman containers INSIDE that container rather than
+  siblings, which is the honest shape for podman -- it has no daemon to be a
+  sibling of, and everything the matrix touches is then one filesystem, so the
+  bind paths the manager composes are the paths the engine resolves.
+
+RUNNING PODMAN AT ALL NEEDED `--privileged` ON THE OUTER CONTAINER, and that
+is recorded rather than glossed: `--device /dev/fuse` alone, and
+`--cap-add SYS_ADMIN --cap-add SETUID --cap-add SETGID` with seccomp and
+apparmor unconfined, both failed with `failed to reexec: Permission denied`.
+
+RESULT 1 — ROOTFUL PODMAN: THE RULED MECHANISM HOLDS, EXACTLY
+--------------------------------------------------------------
+
+    --user 65532:65532                    (primary identity untouched)
+    running as [65532, 65532]
+    groups [8291, 65532]                  (the dedicated group APPLIED)
+    /workspace   gid 8291, mode 0770, wrote: True
+    /input, /input/input.json, /run/baton/launch.json,
+    /run/baton/credentials/registry       all denied
+
+That is the same table the Docker run produced, under a different engine.
+
+RESULT 2 — ROOTLESS PODMAN: A REAL CONSTRAINT, AND THE MATRIX FOUND IT
+-----------------------------------------------------------------------
+
+Under ROOTLESS podman the group is still applied -- the worker really holds
+8291 -- but the workspace is not writable:
+
+    running_as [65532, 65532]
+    groups [8291, 65532]                  <- applied
+    root {'mode': '0o2770', 'gid': 65534} <- NOT 8291
+    created False, create_error PermissionError:13
+
+THE GID DOES NOT MAP THROUGH THE USER NAMESPACE. Rootless podman runs the
+container in a userns that maps the invoking user's own uid/gid and its
+subuid/subgid range; a SUPPLEMENTARY group of the manager -- which is exactly
+what the configured workspace group is -- is not in that mapping, so the
+bind-mounted root arrives owned by `nobody` and the setgid group the manager
+established means nothing inside.
+
+So the ruled mechanism holds on Docker and on rootful podman, and does NOT
+hold on rootless podman without a gid mapping this manager does not compose.
+That is a deployment constraint rather than a defect in the correction under
+review, and it is now written into `v12/python/DEPLOYMENT.md` where a
+deployment will meet it. It is reported rather than fixed: composing
+`--userns`/`--gidmap` changes the ruled launch vector and is not this Work's
+to decide.
+
+WHY THE FULL SUITE IS NOT THE ROOTFUL ARTEFACT. `test_input_delivery` refuses
+to run under a root manager -- "these cases establish that ordinary
+permissions DENY a write, and root is not denied by them; run them
+unprivileged" -- and rootful podman requires a root manager. That guard is
+correct and was not weakened. The applied-group PROBE is what runs there
+instead: it measures what the WORKER sees inside the exact argv the manager
+composed, and the worker is 65532 either way.
+
+ONE FIXTURE CORRECTION THIS SURFACED. The shared composition fixture took the
+engine's `image inspect .Id` verbatim; docker answers `sha256:<hex>` and
+podman answers the bare hex. The manager tolerates either from an ENGINE and
+requires the canonical form for a CONFIGURED identity, so the fixture -- which
+stands in for the deployment -- now writes the canonical form. Before that,
+every Podman case failed on the digest rule before reaching the group it was
+about.
+
+ROOTFUL TRANSCRIPT
+==================
+
+uid=0(root) gid=0(root) groups=0(root),8291(baton-workspace)
+
+podman 5.8.4
+
+W33936 — THE WRITABLE ROOT, ASKED OF A REAL CONTAINER
+==========================================================================
+
+the modes the manager's own components declare:
+    workspaces.READ_ONLY_FILE  = 0o444
+    workspaces.READ_ONLY_DIR   = 0o555
+    launch.READ_ONLY_FILE      = 0o444
+    launch.READ_ONLY_DIR       = 0o555
+    credentials.VOLATILE_DIR   = 0o700
+    credentials.VOLATILE_FILE  = 0o600
+    the manager runs as        = 0:0
+
+runProbe (__main__.Probe.runProbe) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 7.524s
+
+OK
+
+THE COMPOSED --user IS '65532:65532'
+
+THE HOST SIDE:
+    inputs root        {'mode': '0o555', 'uid': 0, 'gid': 0}
+    workspace root     {'mode': '0o770', 'uid': 0, 'gid': 8291}
+    assignment home    {'mode': '0o555', 'uid': 0, 'gid': 0}
+    launch root        {'mode': '0o555', 'uid': 0, 'gid': 0}
+    credential root    {'mode': '0o700', 'uid': 0, 'gid': 0}
+
+THE CONTAINER SIDE:
+    running as [65532, 65532] groups [8291, 65532]
+    /input
+      {'mode': '0o555', 'uid': 0, 'gid': 0, 'r': True, 'w': False, 'x': True, 'wrote': 'OSError: 30'}
+    /input/input.json
+      {'mode': '0o444', 'uid': 0, 'gid': 0, 'r': True, 'w': False, 'x': False, 'wrote': 'PermissionError: 13'}
+    /workspace
+      {'mode': '0o770', 'uid': 0, 'gid': 8291, 'r': True, 'w': True, 'x': True, 'wrote': True}
+    /run/baton/launch.json
+      {'mode': '0o444', 'uid': 0, 'gid': 0, 'r': True, 'w': False, 'x': False, 'wrote': 'PermissionError: 13'}
+    /run/baton/credentials/registry
+      {'mode': '0o600', 'uid': 0, 'gid': 0, 'r': False, 'w': False, 'x': False, 'wrote': 'PermissionError: 13'}
+
+
+ROOTLESS TRANSCRIPT (the constraint above)
+===========================================
+
+THE ACCEPTANCE, positive, in the exact composed container.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1362, in test_the_worker_creates_updates_and_removes_in_its_workspace
+    self.assertTrue(answered["created"], answered)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : {'running_as': [65532, 65532], 'groups': [8291, 65532], 'root': {'mode': '0o2770', 'gid': 65534}, 'created': False, 'create_error': 'PermissionError:13'}
+
+----------------------------------------------------------------------
+Ran 19 tests in 8.510s
+
+FAILED (failures=2, errors=2)

@@ -502,3 +502,53 @@ review did not infer them from focused tests.
 **Confirmed operational boundary:** The official `deploy-v11` entry point packages the complete v11 authority, operator documents, and co-deployed ACP bridge. The present checkout contains unrelated uncommitted authority and documentation work, so publishing it would expand this signed-off bridge correction to unreviewed scope. The approver role owns Git and destructive deployment gates; it must select a clean reviewed commit, publish a new immutable release, cut the live home over, and restart the managed services before either live smoke can be meaningful.
 
 **Pending acceptance evidence:** After that cutover, prove (1) an already-pending Work offer is delivered when the participant's live claim slot frees, without a bridge restart, and (2) an unchanged no-claim action is retried after runner-environment repair. No live-smoke result is claimed from the pre-correction processes.
+
+## Deployment cutover and live-smoke baseline — 2026-08-28
+
+**Observed:** The approver deployed immutable release `dd1dc3e`. At
+2026-08-28T05:15:10Z the live Codex dispatcher (PID 2755516), reviewer and
+tuner readiness producers (PIDs 2755905 and 2756009), and ACP bridge (PID
+2756087) all still had their original 2026-08-28T04:28Z start times. Their
+configured Baton operands name the `dd1dc3e` executable and the explicit
+`/home/sl/baton-v11.14aecfb/baton.json` authority.
+
+**Observed — claim-slot smoke precondition:** W26291 was claimed by
+`baton.claude` at 2026-08-28T04:49:56Z. W28681 became ready, queued and
+unclaimed for the same participant at 2026-08-28T04:52:52Z, after that claim
+slot was occupied. The live ACP bridge remained PID 2756087 and did not spend
+a turn on W28681 while W26291 held the slot.
+
+**Pending:** This baseline is not the smoke result. Acceptance still requires
+W28681 (or another Work proved pending during the same held claim) to be
+delivered after the slot frees with PID 2756087 unchanged, plus a separately
+observed unchanged no-claim action retry after runner-environment repair with
+its bridge process unchanged.
+
+**Observed at handoff:** At 2026-08-28T05:39:44Z W26291 still held the claim,
+W28681 remained the same queued, ready, unclaimed episode 28975, and ACP PID
+2756087 retained its 2026-08-28T04:28:10Z start time. This proves the candidate
+was not incorrectly delivered into the occupied slot, but the slot had not
+yet released, so the after-release half remains pending.
+
+**Confirmed operational boundary:** Manufacturing the second smoke requires a
+managed runner to complete a turn without claiming because its Baton CLI or
+config is incompatible, then repairing that runner environment while the
+action key and bridge process remain unchanged. The deployed launcher is
+currently compatible. Tuner authority does not include replacing or
+misconfiguring the installed executable, authority config, or managed runner
+to create the failure. That operator-controlled setup must be supplied; an
+old generation, changed action, or deliberately disobedient model turn is not
+equivalent acceptance evidence.
+
+## Approver closure ruling — 2026-08-28
+
+The approver accepts terminal closure without manufacturing or waiting for the
+two pending live-smoke opportunities. The correction has independent code
+sign-off, complete focused bridge gates, and deployment in immutable release
+`dd1dc3e`; the claim-slot precondition also records that the deployed bridge
+retained W28681 while W26291 occupied the participant's claim slot.
+
+This ruling does **not** relabel either live smoke as passed. The after-release
+delivery and unchanged-action no-claim retry remain unobserved. A naturally
+occurring opportunity may append explicit post-closure evidence to this
+permanent record, but it is no longer a gate on W11910's satisfying outcome.

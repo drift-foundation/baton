@@ -1,0 +1,1174 @@
+[collect] start 1/41 tests.authority.test_assignment
+[collect] start 2/41 tests.authority.test_boundary
+[collect] start 3/41 tests.authority.test_catalog
+[collect] start 4/41 tests.authority.test_claim_result
+[collect] start 5/41 tests.authority.test_contract
+[collect] start 6/41 tests.authority.test_identity
+[collect] start 7/41 tests.authority.test_operations
+[collect] start 8/41 tests.authority.test_principal_scope
+[collect] start 9/41 tests.authority.test_session
+[collect] start 10/41 tests.authority.test_work_labels
+[collect] start 11/41 tests.authority.test_store
+[collect] start 12/41 tests.manager.test_attempts
+[collect] start 13/41 tests.manager.test_boundary_inventory
+[collect] start 14/41 tests.manager.test_canonical
+[collect] start 15/41 tests.manager.test_contracts_inventory
+[collect] start 16/41 tests.manager.test_dependencies
+[collect] start 17/41 tests.manager.test_diagnostic_rendering
+[collect] start 18/41 tests.manager.test_failed_start_destroy
+[collect] start 19/41 tests.manager.test_frozen
+[collect] start 20/41 tests.manager.test_handshake
+[collect] start 21/41 tests.manager.test_credentials
+[collect] start 22/41 tests.manager.test_intake
+[collect] start 23/41 tests.manager.test_launch
+[collect] start 24/41 tests.manager.test_sealing
+[collect] start 25/41 tests.manager.test_interrogation
+[collect] start 26/41 tests.manager.test_manifest_rules
+[collect] start 27/41 tests.manager.test_oci
+[collect] start 28/41 tests.manager.test_offers
+[collect] start 29/41 tests.manager.test_output
+[collect] start 30/41 tests.manager.test_pod
+[collect] start 31/41 tests.manager.test_principal_context
+[collect] start 32/41 tests.manager.test_runtime_lane
+[collect] done  1/41 tests.authority.test_assignment rc=0 in 0.05s
+[collect] done  2/41 tests.authority.test_boundary rc=0 in 0.05s
+[collect] done  3/41 tests.authority.test_catalog rc=0 in 0.05s
+[collect] done  4/41 tests.authority.test_claim_result rc=0 in 0.05s
+[collect] done  5/41 tests.authority.test_identity rc=0 in 0.05s
+[collect] done  6/41 tests.authority.test_principal_scope rc=0 in 0.05s
+[collect] done  7/41 tests.authority.test_work_labels rc=0 in 0.05s
+[collect] start 33/41 tests.manager.test_secrets
+[collect] start 34/41 tests.manager.test_sessions
+[collect] start 35/41 tests.manager.test_store
+[collect] start 36/41 tests.manager.test_text_sweep
+[collect] start 37/41 tests.manager.test_validate
+[collect] start 38/41 tests.manager.test_worker_image
+[collect] start 39/41 tests.manager.test_workspaces
+[collect] done  8/41 tests.manager.test_diagnostic_rendering rc=0 in 0.05s
+[collect] start 40/41 tests.tools.test_parallel_runner
+[collect] done  9/41 tests.authority.test_contract rc=0 in 0.07s
+[collect] done  10/41 tests.authority.test_operations rc=0 in 0.07s
+[collect] done  11/41 tests.authority.test_session rc=0 in 0.06s
+[collect] done  12/41 tests.authority.test_store rc=0 in 0.06s
+[collect] start 41/41 tests.tools.test_worker_image_build
+[collect] done  13/41 tests.manager.test_worker_image rc=0 in 0.05s
+[collect] done  14/41 tests.tools.test_parallel_runner rc=0 in 0.05s
+[collect] done  15/41 tests.tools.test_worker_image_build rc=0 in 0.07s
+[collect] done  16/41 tests.manager.test_launch rc=0 in 0.19s
+[collect] done  17/41 tests.manager.test_interrogation rc=0 in 0.21s
+[collect] done  18/41 tests.manager.test_oci rc=0 in 0.21s
+[collect] done  19/41 tests.manager.test_pod rc=0 in 0.21s
+[collect] done  20/41 tests.manager.test_output rc=0 in 0.22s
+[collect] done  21/41 tests.manager.test_runtime_lane rc=0 in 0.22s
+[collect] done  22/41 tests.manager.test_principal_context rc=0 in 0.23s
+[collect] done  23/41 tests.manager.test_handshake rc=0 in 0.26s
+[collect] done  24/41 tests.manager.test_attempts rc=0 in 0.27s
+[collect] done  25/41 tests.manager.test_canonical rc=0 in 0.27s
+[collect] done  26/41 tests.manager.test_contracts_inventory rc=0 in 0.27s
+[collect] done  27/41 tests.manager.test_dependencies rc=0 in 0.27s
+[collect] done  28/41 tests.manager.test_failed_start_destroy rc=0 in 0.27s
+[collect] done  29/41 tests.manager.test_frozen rc=0 in 0.27s
+[collect] done  30/41 tests.manager.test_credentials rc=0 in 0.27s
+[collect] done  31/41 tests.manager.test_intake rc=0 in 0.26s
+[collect] done  32/41 tests.manager.test_manifest_rules rc=0 in 0.26s
+[collect] done  33/41 tests.manager.test_offers rc=0 in 0.26s
+[collect] done  34/41 tests.manager.test_sealing rc=0 in 0.27s
+[collect] done  35/41 tests.manager.test_boundary_inventory rc=0 in 0.29s
+[collect] done  36/41 tests.manager.test_store rc=0 in 0.24s
+[collect] done  37/41 tests.manager.test_validate rc=0 in 0.24s
+[collect] done  38/41 tests.manager.test_secrets rc=0 in 0.25s
+[collect] done  39/41 tests.manager.test_text_sweep rc=0 in 0.25s
+[collect] done  40/41 tests.manager.test_sessions rc=0 in 0.26s
+[collect] done  41/41 tests.manager.test_workspaces rc=0 in 0.25s
+[parallel] start 1/305 tests.authority.test_assignment.Cancellation
+[parallel] start 2/305 tests.authority.test_assignment.Claiming
+[parallel] start 3/305 tests.authority.test_assignment.Configuration
+[parallel] start 4/305 tests.authority.test_assignment.Creation
+[parallel] start 5/305 tests.authority.test_assignment.CutTwoReviewFindings
+[parallel] start 6/305 tests.authority.test_assignment.EndingAnAssignment
+[parallel] start 7/305 tests.authority.test_assignment.GapsIFoundByProbingMyOwnCut
+[parallel] start 8/305 tests.authority.test_assignment.Gates
+[parallel] start 9/305 tests.authority.test_assignment.Invariants
+[parallel] start 10/305 tests.authority.test_assignment.OwnedAnswers
+[parallel] start 11/305 tests.authority.test_assignment.Restart
+[parallel] start 12/305 tests.authority.test_boundary.Distribution
+[parallel] start 13/305 tests.authority.test_boundary.EveryCallerTextFamilyIsBounded
+[parallel] start 14/305 tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule
+[parallel] start 15/305 tests.authority.test_boundary.ExportedSurface
+[parallel] start 16/305 tests.authority.test_boundary.Isolation
+[parallel] start 17/305 tests.authority.test_catalog.TheMigrationChecklistIsRead
+[parallel] start 18/305 tests.authority.test_claim_result.SchemaFourIsACleanInitializationBoundary
+[parallel] start 19/305 tests.authority.test_claim_result.TheAnswerIsThreeFactsAndNotOne
+[parallel] start 20/305 tests.authority.test_claim_result.TheEventIsWhatTheFenceCannotBe
+[parallel] start 21/305 tests.authority.test_claim_result.TheWholeResultIsWhatReplayReproduces
+[parallel] start 22/305 tests.authority.test_claim_result.TwoAddressesOnePrincipal
+[parallel] start 23/305 tests.authority.test_contract.AuthorizedClose
+[parallel] start 24/305 tests.authority.test_contract.CanonicalActivity
+[parallel] start 25/305 tests.authority.test_contract.ConfiguredCapabilities
+[parallel] start 26/305 tests.authority.test_contract.ContractProgression
+[parallel] start 27/305 tests.authority.test_contract.CutFourReviewFindings
+[parallel] start 28/305 tests.authority.test_contract.GapsIFoundByProbingMyOwnCut
+[parallel] start 29/305 tests.authority.test_contract.Integration
+[parallel] start 30/305 tests.authority.test_contract.PolicyGeneration
+[parallel] start 31/305 tests.authority.test_contract.Publication
+[parallel] start 32/305 tests.authority.test_contract.TheFourReceipts
+[parallel] done  1/305 tests.authority.test_boundary.ExportedSurface rc=0 in 0.05s
+[parallel] start 33/305 tests.authority.test_identity.ExportedHelpersAreBoundaries
+[parallel] done  2/305 tests.authority.test_assignment.Restart rc=0 in 0.05s
+[parallel] start 34/305 tests.authority.test_identity.FrozenIdentities
+[parallel] done  3/305 tests.authority.test_assignment.Cancellation rc=0 in 0.06s
+[parallel] done  4/305 tests.authority.test_assignment.Configuration rc=0 in 0.06s
+[parallel] done  5/305 tests.authority.test_assignment.Invariants rc=0 in 0.06s
+[parallel] done  6/305 tests.authority.test_claim_result.TheAnswerIsThreeFactsAndNotOne rc=0 in 0.06s
+[parallel] done  7/305 tests.authority.test_claim_result.TheWholeResultIsWhatReplayReproduces rc=0 in 0.06s
+[parallel] done  8/305 tests.authority.test_contract.Publication rc=0 in 0.05s
+[parallel] start 35/305 tests.authority.test_identity.Gates
+[parallel] start 36/305 tests.authority.test_identity.OwningOperands
+[parallel] start 37/305 tests.authority.test_identity.Signatures
+[parallel] start 38/305 tests.authority.test_identity.TheLabelBoundIsMeasuredRatherThanChosen
+[parallel] start 39/305 tests.authority.test_operations.EffectivelyOnce
+[parallel] start 40/305 tests.authority.test_operations.FourStates
+[parallel] done  9/305 tests.authority.test_assignment.OwnedAnswers rc=0 in 0.06s
+[parallel] done  10/305 tests.authority.test_claim_result.SchemaFourIsACleanInitializationBoundary rc=0 in 0.06s
+[parallel] done  11/305 tests.authority.test_contract.ContractProgression rc=0 in 0.06s
+[parallel] start 41/305 tests.authority.test_operations.GapsIFoundByProbingMyOwnCut
+[parallel] start 42/305 tests.authority.test_operations.RealProcessRaces
+[parallel] start 43/305 tests.authority.test_operations.Restart
+[parallel] done  12/305 tests.authority.test_assignment.Creation rc=0 in 0.06s
+[parallel] start 44/305 tests.authority.test_operations.Retirement
+[parallel] done  13/305 tests.authority.test_contract.Integration rc=0 in 0.06s
+[parallel] start 45/305 tests.authority.test_operations.Settlement
+[parallel] done  14/305 tests.authority.test_assignment.Claiming rc=0 in 0.08s
+[parallel] done  15/305 tests.authority.test_assignment.GapsIFoundByProbingMyOwnCut rc=0 in 0.08s
+[parallel] done  16/305 tests.authority.test_boundary.Distribution rc=0 in 0.07s
+[parallel] done  17/305 tests.authority.test_claim_result.TheEventIsWhatTheFenceCannotBe rc=0 in 0.07s
+[parallel] done  18/305 tests.authority.test_claim_result.TwoAddressesOnePrincipal rc=0 in 0.07s
+[parallel] done  19/305 tests.authority.test_contract.AuthorizedClose rc=0 in 0.07s
+[parallel] done  20/305 tests.authority.test_contract.CanonicalActivity rc=0 in 0.07s
+[parallel] done  21/305 tests.authority.test_contract.ConfiguredCapabilities rc=0 in 0.07s
+[parallel] done  22/305 tests.authority.test_contract.CutFourReviewFindings rc=0 in 0.07s
+[parallel] done  23/305 tests.authority.test_contract.GapsIFoundByProbingMyOwnCut rc=0 in 0.07s
+[parallel] done  24/305 tests.authority.test_contract.PolicyGeneration rc=0 in 0.07s
+[parallel] start 46/305 tests.authority.test_operations.SettlementRace
+[parallel] start 47/305 tests.authority.test_operations.TwoKindsOfRefusal
+[parallel] start 48/305 tests.authority.test_principal_scope.AV11ReclaimDoesNotRewriteEarlierHistory
+[parallel] start 49/305 tests.authority.test_principal_scope.EveryCapabilityDoorDecidesInTheTargetsScope
+[parallel] start 50/305 tests.authority.test_principal_scope.GrantProvenance
+[parallel] start 51/305 tests.authority.test_principal_scope.NothingAnOperandSaysCanWidenIt
+[parallel] start 52/305 tests.authority.test_principal_scope.OnePrincipalTwoAddresses
+[parallel] start 53/305 tests.authority.test_principal_scope.SchemaTwoIsACleanInitializationBoundary
+[parallel] start 54/305 tests.authority.test_principal_scope.TheDecisionIsRetainedForEveryAuthorizedAct
+[parallel] start 55/305 tests.authority.test_principal_scope.TheDecisionRidesTheAct
+[parallel] start 56/305 tests.authority.test_principal_scope.TheGrantProjectionCarriesScopeAndProvenance
+[parallel] done  25/305 tests.authority.test_assignment.CutTwoReviewFindings rc=0 in 0.08s
+[parallel] done  26/305 tests.authority.test_assignment.EndingAnAssignment rc=0 in 0.08s
+[parallel] done  27/305 tests.authority.test_assignment.Gates rc=0 in 0.08s
+[parallel] done  28/305 tests.authority.test_contract.TheFourReceipts rc=0 in 0.07s
+[parallel] start 57/305 tests.authority.test_session.FinalReviewFindings
+[parallel] start 58/305 tests.authority.test_session.Minting
+[parallel] start 59/305 tests.authority.test_session.OneOwnedOperandDocument
+[parallel] start 60/305 tests.authority.test_session.TheBindingIsTheIdentity
+[parallel] done  29/305 tests.authority.test_identity.ExportedHelpersAreBoundaries rc=0 in 0.05s
+[parallel] done  30/305 tests.authority.test_identity.FrozenIdentities rc=0 in 0.05s
+[parallel] start 61/305 tests.authority.test_session.TheWholeSurfaceWorksThroughTheSession
+[parallel] start 62/305 tests.authority.test_store.AuthorityFace
+[parallel] done  31/305 tests.authority.test_identity.Gates rc=0 in 0.05s
+[parallel] done  32/305 tests.authority.test_identity.OwningOperands rc=0 in 0.05s
+[parallel] done  33/305 tests.authority.test_identity.Signatures rc=0 in 0.05s
+[parallel] start 63/305 tests.authority.test_store.Creation
+[parallel] start 64/305 tests.authority.test_store.Opening
+[parallel] start 65/305 tests.authority.test_store.Transactions
+[parallel] done  34/305 tests.authority.test_catalog.TheMigrationChecklistIsRead rc=0 in 0.12s
+[parallel] done  35/305 tests.authority.test_operations.FourStates rc=0 in 0.06s
+[parallel] done  36/305 tests.authority.test_operations.Retirement rc=0 in 0.06s
+[parallel] done  37/305 tests.authority.test_operations.Settlement rc=0 in 0.06s
+[parallel] start 66/305 tests.authority.test_work_labels.LabellingSurvivesTerminalClosure
+[parallel] start 67/305 tests.authority.test_work_labels.LabelsChangeNothingElse
+[parallel] start 68/305 tests.authority.test_work_labels.ProjectionsAndPredicates
+[parallel] start 69/305 tests.authority.test_work_labels.ReplayAndConvergence
+[parallel] done  38/305 tests.authority.test_operations.GapsIFoundByProbingMyOwnCut rc=0 in 0.06s
+[parallel] start 70/305 tests.authority.test_work_labels.TheAuthorityIsScopeResolved
+[parallel] done  39/305 tests.authority.test_identity.TheLabelBoundIsMeasuredRatherThanChosen rc=0 in 0.07s
+[parallel] done  40/305 tests.authority.test_operations.EffectivelyOnce rc=0 in 0.07s
+[parallel] done  41/305 tests.authority.test_operations.Restart rc=0 in 0.07s
+[parallel] done  42/305 tests.authority.test_operations.TwoKindsOfRefusal rc=0 in 0.06s
+[parallel] done  43/305 tests.authority.test_principal_scope.TheGrantProjectionCarriesScopeAndProvenance rc=0 in 0.06s
+[parallel] done  44/305 tests.authority.test_session.Minting rc=0 in 0.06s
+[parallel] start 71/305 tests.authority.test_work_labels.TheGrammarIsOneOpaqueKey
+[parallel] start 72/305 tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded
+[parallel] start 73/305 tests.manager.test_attempts.ActivationNeedsAllThreeToAgree
+[parallel] start 74/305 tests.manager.test_attempts.CancellationFencesBeforeItStops
+[parallel] start 75/305 tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis
+[parallel] start 76/305 tests.manager.test_attempts.TheAttemptIsRecordedOnce
+[parallel] done  45/305 tests.authority.test_principal_scope.NothingAnOperandSaysCanWidenIt rc=0 in 0.06s
+[parallel] start 77/305 tests.manager.test_attempts.TheAxesAgreeWithTheStore
+[parallel] done  46/305 tests.authority.test_principal_scope.GrantProvenance rc=0 in 0.07s
+[parallel] done  47/305 tests.authority.test_principal_scope.OnePrincipalTwoAddresses rc=0 in 0.07s
+[parallel] done  48/305 tests.authority.test_principal_scope.SchemaTwoIsACleanInitializationBoundary rc=0 in 0.07s
+[parallel] done  49/305 tests.authority.test_principal_scope.TheDecisionRidesTheAct rc=0 in 0.07s
+[parallel] done  50/305 tests.authority.test_session.OneOwnedOperandDocument rc=0 in 0.07s
+[parallel] done  51/305 tests.authority.test_session.TheBindingIsTheIdentity rc=0 in 0.07s
+[parallel] start 78/305 tests.manager.test_attempts.TheFailedStartIsDurablyRecorded
+[parallel] start 79/305 tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled
+[parallel] start 80/305 tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred
+[parallel] start 81/305 tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause
+[parallel] start 82/305 tests.manager.test_boundary_inventory.AnAdoptedRowIsAWholeRow
+[parallel] start 83/305 tests.manager.test_boundary_inventory.AnIdentityIsMoreThanAShape
+[parallel] done  52/305 tests.authority.test_principal_scope.AV11ReclaimDoesNotRewriteEarlierHistory rc=0 in 0.08s
+[parallel] done  53/305 tests.authority.test_principal_scope.TheDecisionIsRetainedForEveryAuthorizedAct rc=0 in 0.08s
+[parallel] done  54/305 tests.authority.test_store.AuthorityFace rc=0 in 0.05s
+[parallel] done  55/305 tests.authority.test_store.Creation rc=0 in 0.05s
+[parallel] start 84/305 tests.manager.test_boundary_inventory.ClosedShapesAreClosedBothWays
+[parallel] start 85/305 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_a_probe_that_is_refused_earlier_fails
+[parallel] start 86/305 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary
+[parallel] start 87/305 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe
+[parallel] done  56/305 tests.authority.test_principal_scope.EveryCapabilityDoorDecidesInTheTargetsScope rc=0 in 0.08s
+[parallel] start 88/305 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_unprobed_entry_is_a_real_owned_entry
+[parallel] done  57/305 tests.authority.test_session.TheWholeSurfaceWorksThroughTheSession rc=0 in 0.07s
+[parallel] done  58/305 tests.authority.test_store.Transactions rc=0 in 0.06s
+[parallel] start 89/305 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail
+[parallel] start 90/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared
+[parallel] done  59/305 tests.authority.test_work_labels.LabellingSurvivesTerminalClosure rc=0 in 0.05s
+[parallel] start 91/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds
+[parallel] done  60/305 tests.authority.test_boundary.EveryCallerTextFamilyIsBounded rc=0 in 0.18s
+[parallel] done  61/305 tests.authority.test_operations.RealProcessRaces rc=0 in 0.12s
+[parallel] done  62/305 tests.authority.test_session.FinalReviewFindings rc=0 in 0.11s
+[parallel] done  63/305 tests.authority.test_work_labels.LabelsChangeNothingElse rc=0 in 0.06s
+[parallel] start 92/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator
+[parallel] start 93/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical
+[parallel] start 94/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale
+[parallel] start 95/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale
+[parallel] done  64/305 tests.authority.test_store.Opening rc=0 in 0.08s
+[parallel] start 96/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice
+[parallel] done  65/305 tests.authority.test_work_labels.TheAuthorityIsScopeResolved rc=0 in 0.08s
+[parallel] done  66/305 tests.authority.test_work_labels.TheGrammarIsOneOpaqueKey rc=0 in 0.06s
+[parallel] start 97/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail
+[parallel] start 98/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators
+[parallel] done  67/305 tests.authority.test_work_labels.ProjectionsAndPredicates rc=1 in 0.08s
+[parallel] start 99/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+[parallel] done  68/305 tests.authority.test_work_labels.ReplayAndConvergence rc=1 in 0.09s
+[parallel] start 100/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too
+[parallel] done  69/305 tests.authority.test_operations.SettlementRace rc=0 in 0.17s
+[parallel] start 101/305 tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness
+[parallel] done  70/305 tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule rc=0 in 0.30s
+[parallel] start 102/305 tests.manager.test_boundary_inventory.StatedRules
+[parallel] done  71/305 tests.authority.test_boundary.Isolation rc=0 in 0.39s
+[parallel] start 103/305 tests.manager.test_boundary_inventory.TheInstantRuleIsThreeProperties
+[parallel] done  72/305 tests.manager.test_attempts.TheAxesAgreeWithTheStore rc=0 in 0.32s
+[parallel] start 104/305 tests.manager.test_boundary_inventory.TheProjectionContractMatchesTheAuthorityItReads
+[parallel] done  73/305 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_a_probe_that_is_refused_earlier_fails rc=0 in 0.31s
+[parallel] start 105/305 tests.manager.test_canonical.TheFrozenHostIsTheOracle
+[parallel] done  74/305 tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis rc=0 in 0.35s
+[parallel] done  75/305 tests.manager.test_attempts.TheAttemptIsRecordedOnce rc=0 in 0.35s
+[parallel] start 106/305 tests.manager.test_canonical.WhatCannotAcquireADigest
+[parallel] start 107/305 tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion
+[parallel] done  76/305 tests.manager.test_boundary_inventory.ClosedShapesAreClosedBothWays rc=0 in 0.36s
+[parallel] start 108/305 tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe
+[parallel] done  77/305 tests.manager.test_attempts.ActivationNeedsAllThreeToAgree rc=0 in 0.38s
+[parallel] start 109/305 tests.manager.test_contracts_inventory.ThePrivateBodyPathIsPinnedStructurally
+[parallel] done  78/305 tests.manager.test_attempts.CancellationFencesBeforeItStops rc=0 in 0.39s
+[parallel] done  79/305 tests.manager.test_boundary_inventory.AnAdoptedRowIsAWholeRow rc=0 in 0.37s
+[parallel] start 110/305 tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared
+[parallel] start 111/305 tests.manager.test_credentials.AFailedMaterializationRemovesBeforeItForgets
+[parallel] done  80/305 tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause rc=0 in 0.38s
+[parallel] start 112/305 tests.manager.test_credentials.AnAssignmentNamesSlotsAndNothingElse
+[parallel] done  81/305 tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness rc=0 in 0.32s
+[parallel] start 113/305 tests.manager.test_credentials.DurableStateNamesTheSlotAndNeverTheBearer
+[parallel] done  82/305 tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled rc=0 in 0.53s
+[parallel] start 114/305 tests.manager.test_credentials.EveryPublicDoorOwnsWhatItIsHanded
+[parallel] done  83/305 tests.manager.test_boundary_inventory.TheInstantRuleIsThreeProperties rc=0 in 0.32s
+[parallel] start 115/305 tests.manager.test_credentials.MaterializationArmsTheRegistryFirst
+[parallel] done  84/305 tests.manager.test_canonical.TheFrozenHostIsTheOracle rc=0 in 0.27s
+[parallel] start 116/305 tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding
+[parallel] done  85/305 tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred rc=0 in 0.60s
+[parallel] start 117/305 tests.manager.test_credentials.OrphanCleanupIsBoundedAndSaysSo
+[parallel] done  86/305 tests.manager.test_canonical.WhatCannotAcquireADigest rc=0 in 0.27s
+[parallel] start 118/305 tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime
+[parallel] done  87/305 tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion rc=0 in 0.29s
+[parallel] done  88/305 tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared rc=0 in 0.26s
+[parallel] start 119/305 tests.manager.test_credentials.RestartAdoptsOnlyAnExactAgreement
+[parallel] start 120/305 tests.manager.test_credentials.TheAuthorizedSetIsBounded
+[parallel] done  89/305 tests.manager.test_boundary_inventory.TheProjectionContractMatchesTheAuthorityItReads rc=0 in 0.34s
+[parallel] done  90/305 tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe rc=0 in 0.28s
+[parallel] start 121/305 tests.manager.test_credentials.ThePermissionsAreTheContractsRatherThanTheCodes
+[parallel] start 122/305 tests.manager.test_credentials.TheRegistrySpansTheOutputLeakChecks
+[parallel] done  91/305 tests.manager.test_contracts_inventory.ThePrivateBodyPathIsPinnedStructurally rc=0 in 0.29s
+[parallel] done  92/305 tests.manager.test_credentials.AFailedMaterializationRemovesBeforeItForgets rc=0 in 0.28s
+[parallel] start 123/305 tests.manager.test_credentials.TheTrustedProfileMapsEverySlot
+[parallel] start 124/305 tests.manager.test_credentials.TheWorkerSeesOnlyTheFixedRoot
+[parallel] done  93/305 tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded rc=0 in 0.68s
+[parallel] done  94/305 tests.manager.test_credentials.AnAssignmentNamesSlotsAndNothingElse rc=0 in 0.29s
+[parallel] start 125/305 tests.manager.test_dependencies.AnExportedLabelIsCallerInput
+[parallel] start 126/305 tests.manager.test_dependencies.NoPublicOperationTakesInternalState
+[parallel] done  95/305 tests.manager.test_credentials.DurableStateNamesTheSlotAndNeverTheBearer rc=0 in 0.26s
+[parallel] start 127/305 tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn
+[parallel] done  96/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale rc=0 in 0.69s
+[parallel] start 128/305 tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure
+[parallel] done  97/305 tests.manager.test_credentials.EveryPublicDoorOwnsWhatItIsHanded rc=0 in 0.26s
+[parallel] start 129/305 tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency
+[parallel] done  98/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators rc=0 in 0.78s
+[parallel] start 130/305 tests.manager.test_diagnostic_rendering.TheMaxDiffCorrectionIsTestLocal
+[parallel] done  99/305 tests.manager.test_attempts.TheFailedStartIsDurablyRecorded rc=0 in 0.85s
+[parallel] done  100/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale rc=0 in 0.81s
+[parallel] done  101/305 tests.manager.test_boundary_inventory.StatedRules rc=0 in 0.70s
+[parallel] done  102/305 tests.manager.test_credentials.MaterializationArmsTheRegistryFirst rc=0 in 0.28s
+[parallel] start 131/305 tests.manager.test_diagnostic_rendering.TheRuledAssertionsRenderThroughSortedCollections
+[parallel] start 132/305 tests.manager.test_diagnostic_rendering.TheRuledFormRendersCompletelyAndIdentically
+[parallel] start 133/305 tests.manager.test_failed_start_destroy.NoFrozenSchemaIsEdited
+[parallel] start 134/305 tests.manager.test_failed_start_destroy.TheDeliveriesUseTheirExistingOrderedTeardown
+[parallel] done  103/305 tests.manager.test_credentials.OrphanCleanupIsBoundedAndSaysSo rc=0 in 0.27s
+[parallel] start 135/305 tests.manager.test_failed_start_destroy.TheExactRuntimeIsRemovedAndProvedGone
+[parallel] done  104/305 tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding rc=0 in 0.29s
+[parallel] start 136/305 tests.manager.test_failed_start_destroy.TheTwoCommandsAreSiblingsAndNotAUnion
+[parallel] done  105/305 tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime rc=0 in 0.28s
+[parallel] start 137/305 tests.manager.test_failed_start_destroy.TheUntrustedResultDirectoryIsLeftExactlyWhereItIs
+[parallel] done  106/305 tests.manager.test_credentials.TheAuthorizedSetIsBounded rc=0 in 0.26s
+[parallel] start 138/305 tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised
+[parallel] done  107/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical rc=0 in 0.87s
+[parallel] start 139/305 tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution
+[parallel] done  108/305 tests.manager.test_credentials.RestartAdoptsOnlyAnExactAgreement rc=0 in 0.29s
+[parallel] start 140/305 tests.manager.test_frozen.TheSemanticRulesAreDerivedFromTheSchema
+[parallel] done  109/305 tests.manager.test_credentials.TheRegistrySpansTheOutputLeakChecks rc=0 in 0.30s
+[parallel] done  110/305 tests.manager.test_credentials.TheTrustedProfileMapsEverySlot rc=0 in 0.28s
+[parallel] start 141/305 tests.manager.test_frozen.TheValidatorIsTheRuledOne
+[parallel] start 142/305 tests.manager.test_handshake.AProfileIsReadBackOnlyWhenAllThreeWitnessesAgree
+[parallel] done  111/305 tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn rc=0 in 0.27s
+[parallel] start 143/305 tests.manager.test_handshake.NegotiationIsAnAnnouncementRatherThanABargain
+[parallel] done  112/305 tests.manager.test_credentials.ThePermissionsAreTheContractsRatherThanTheCodes rc=0 in 0.32s
+[parallel] done  113/305 tests.manager.test_credentials.TheWorkerSeesOnlyTheFixedRoot rc=0 in 0.31s
+[parallel] start 144/305 tests.manager.test_handshake.OneProfileIsCertifiedInOneOrder
+[parallel] start 145/305 tests.manager.test_handshake.TheAdvertisedCapabilityIsExact
+[parallel] done  114/305 tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure rc=0 in 0.26s
+[parallel] start 146/305 tests.manager.test_handshake.TheCompositionIsOnThePublicSurface
+[parallel] done  115/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too rc=0 in 0.93s
+[parallel] start 147/305 tests.manager.test_intake.BlockedOnIntakeIsAStateAndNotARetry
+[parallel] done  116/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read rc=1 in 0.95s
+[parallel] done  117/305 tests.manager.test_diagnostic_rendering.TheMaxDiffCorrectionIsTestLocal rc=0 in 0.18s
+[parallel] start 148/305 tests.manager.test_intake.CleanupIsAuthorizedByProofRatherThanByAsking
+[parallel] start 149/305 tests.manager.test_intake.CustodyIsTakenOfWhatWasFrozen
+[parallel] done  118/305 tests.manager.test_failed_start_destroy.TheDeliveriesUseTheirExistingOrderedTeardown rc=0 in 0.27s
+[parallel] start 150/305 tests.manager.test_intake.EveryJournalledDoorRefusesALiveBearer
+[parallel] done  119/305 tests.manager.test_diagnostic_rendering.TheRuledAssertionsRenderThroughSortedCollections rc=0 in 0.28s
+[parallel] done  120/305 tests.manager.test_failed_start_destroy.NoFrozenSchemaIsEdited rc=0 in 0.28s
+[parallel] done  121/305 tests.manager.test_failed_start_destroy.TheExactRuntimeIsRemovedAndProvedGone rc=0 in 0.27s
+[parallel] start 151/305 tests.manager.test_intake.IndependentContractReview
+[parallel] start 152/305 tests.manager.test_intake.NothingTheAdapterSaysIsAdopted
+[parallel] start 153/305 tests.manager.test_intake.PositiveAbsenceOrNoEnding
+[parallel] done  122/305 tests.manager.test_dependencies.AnExportedLabelIsCallerInput rc=0 in 0.47s
+[parallel] start 154/305 tests.manager.test_intake.RestartOrderingIsPreserved
+[parallel] done  123/305 tests.manager.test_failed_start_destroy.TheUntrustedResultDirectoryIsLeftExactlyWhereItIs rc=0 in 0.26s
+[parallel] start 155/305 tests.manager.test_intake.RetainedAndCompleteAreDifferentEndings
+[parallel] done  124/305 tests.manager.test_failed_start_destroy.TheTwoCommandsAreSiblingsAndNotAUnion rc=0 in 0.28s
+[parallel] start 156/305 tests.manager.test_intake.TakingCustodyHappensOnce
+[parallel] done  125/305 tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised rc=0 in 0.27s
+[parallel] start 157/305 tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean
+[parallel] done  126/305 tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution rc=0 in 0.28s
+[parallel] done  127/305 tests.manager.test_frozen.TheSemanticRulesAreDerivedFromTheSchema rc=0 in 0.27s
+[parallel] start 158/305 tests.manager.test_intake.TheRetentionPolicyIsBoundNeverRead
+[parallel] start 159/305 tests.manager.test_intake.TwoDifferentReasonsMaterialIsStillHere
+[parallel] done  128/305 tests.manager.test_dependencies.NoPublicOperationTakesInternalState rc=0 in 0.53s
+[parallel] start 160/305 tests.manager.test_interrogation.ARestartReadsTheLifecycleBack
+[parallel] done  129/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds rc=0 in 1.19s
+[parallel] start 161/305 tests.manager.test_interrogation.ATimeoutIsAnObservationAndNotACancellation
+[parallel] done  130/305 tests.manager.test_handshake.AProfileIsReadBackOnlyWhenAllThreeWitnessesAgree rc=0 in 0.30s
+[parallel] start 162/305 tests.manager.test_interrogation.BothBindTheExactAssignmentAndSession
+[parallel] done  131/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail rc=0 in 1.20s
+[parallel] start 163/305 tests.manager.test_interrogation.TheAnswerIsSeparateAndCorrelated
+[parallel] done  132/305 tests.manager.test_handshake.OneProfileIsCertifiedInOneOrder rc=0 in 0.30s
+[parallel] done  133/305 tests.manager.test_handshake.TheAdvertisedCapabilityIsExact rc=0 in 0.30s
+[parallel] done  134/305 tests.manager.test_handshake.TheCompositionIsOnThePublicSurface rc=0 in 0.28s
+[parallel] start 164/305 tests.manager.test_interrogation.TheManagerPublishesAndTheWorkerHoldsNothing
+[parallel] start 165/305 tests.manager.test_interrogation.TheOperationIdentityIsEffectivelyOnce
+[parallel] start 166/305 tests.manager.test_interrogation.TheOutcomesAreDistinguished
+[parallel] done  135/305 tests.manager.test_handshake.NegotiationIsAnAnnouncementRatherThanABargain rc=0 in 0.33s
+[parallel] start 167/305 tests.manager.test_interrogation.TheSplitIsTheWholePoint
+[parallel] done  136/305 tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency rc=0 in 0.51s
+[parallel] start 168/305 tests.manager.test_interrogation.TheStoreKnowsItsOwnShape
+[parallel] done  137/305 tests.manager.test_intake.CleanupIsAuthorizedByProofRatherThanByAsking rc=0 in 0.34s
+[parallel] start 169/305 tests.manager.test_launch.TheComponentIsOnThePublicSurface
+[parallel] done  138/305 tests.manager.test_frozen.TheValidatorIsTheRuledOne rc=0 in 0.42s
+[parallel] start 170/305 tests.manager.test_launch.TheDeliveryIsACapabilityAndNotAPath
+[parallel] done  139/305 tests.manager.test_intake.BlockedOnIntakeIsAStateAndNotARetry rc=0 in 0.37s
+[parallel] start 171/305 tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled
+[parallel] done  140/305 tests.manager.test_diagnostic_rendering.TheRuledFormRendersCompletelyAndIdentically rc=0 in 0.59s
+[parallel] start 172/305 tests.manager.test_launch.TheFileIsThisManagersOwn
+[parallel] done  141/305 tests.manager.test_intake.CustodyIsTakenOfWhatWasFrozen rc=0 in 0.45s
+[parallel] start 173/305 tests.manager.test_manifest_rules.ACompletionManifestIsTheWorkersAnswer
+[parallel] done  142/305 tests.manager.test_intake.RestartOrderingIsPreserved rc=0 in 0.37s
+[parallel] start 174/305 tests.manager.test_manifest_rules.ADefinitionIsAClosedSet
+[parallel] done  143/305 tests.manager.test_intake.EveryJournalledDoorRefusesALiveBearer rc=0 in 0.40s
+[parallel] done  144/305 tests.manager.test_intake.TakingCustodyHappensOnce rc=0 in 0.37s
+[parallel] start 175/305 tests.manager.test_manifest_rules.AManifestIdentifiesItself
+[parallel] start 176/305 tests.manager.test_manifest_rules.ExportedSemanticRulesOwnTheirCallers
+[parallel] done  145/305 tests.manager.test_interrogation.ARestartReadsTheLifecycleBack rc=0 in 0.35s
+[parallel] start 177/305 tests.manager.test_manifest_rules.TheCanonicalVectorIsTheBaseline
+[parallel] done  146/305 tests.manager.test_intake.RetainedAndCompleteAreDifferentEndings rc=0 in 0.43s
+[parallel] start 178/305 tests.manager.test_manifest_rules.TheReceiptBindsTheEnvelopeItValidated
+[parallel] done  147/305 tests.manager.test_intake.TwoDifferentReasonsMaterialIsStillHere rc=0 in 0.40s
+[parallel] start 179/305 tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair
+[parallel] done  148/305 tests.manager.test_intake.NothingTheAdapterSaysIsAdopted rc=0 in 0.46s
+[parallel] start 180/305 tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts
+[parallel] done  149/305 tests.manager.test_intake.PositiveAbsenceOrNoEnding rc=0 in 0.48s
+[parallel] done  150/305 tests.manager.test_interrogation.TheManagerPublishesAndTheWorkerHoldsNothing rc=0 in 0.34s
+[parallel] done  151/305 tests.manager.test_interrogation.TheOutcomesAreDistinguished rc=0 in 0.34s
+[parallel] done  152/305 tests.manager.test_launch.TheComponentIsOnThePublicSurface rc=0 in 0.27s
+[parallel] start 181/305 tests.manager.test_oci.AbsenceIsProvedRatherThanInferred
+[parallel] start 182/305 tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity
+[parallel] start 183/305 tests.manager.test_oci.TheEngineIsInjectedAndTyped
+[parallel] start 184/305 tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing
+[parallel] done  153/305 tests.manager.test_interrogation.BothBindTheExactAssignmentAndSession rc=0 in 0.37s
+[parallel] start 185/305 tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted
+[parallel] done  154/305 tests.manager.test_launch.TheDeliveryIsACapabilityAndNotAPath rc=0 in 0.27s
+[parallel] start 186/305 tests.manager.test_oci.TheVectorsAreClosedAndOrdered
+[parallel] done  155/305 tests.manager.test_interrogation.TheAnswerIsSeparateAndCorrelated rc=0 in 0.38s
+[parallel] done  156/305 tests.manager.test_interrogation.TheSplitIsTheWholePoint rc=0 in 0.36s
+[parallel] start 187/305 tests.manager.test_offers.AcceptanceBindsAndConsumes
+[parallel] start 188/305 tests.manager.test_offers.ExpiryIsASettlement
+[parallel] done  157/305 tests.manager.test_interrogation.TheStoreKnowsItsOwnShape rc=0 in 0.34s
+[parallel] start 189/305 tests.manager.test_offers.TheClaimAndItsSettlement
+[parallel] done  158/305 tests.manager.test_interrogation.TheOperationIdentityIsEffectivelyOnce rc=0 in 0.39s
+[parallel] start 190/305 tests.manager.test_offers.TheInjectedCapabilityIsTyped
+[parallel] done  159/305 tests.manager.test_intake.IndependentContractReview rc=0 in 0.54s
+[parallel] done  160/305 tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled rc=0 in 0.30s
+[parallel] start 191/305 tests.manager.test_offers.TheOfferRecordsTheVerifierAndReturnsTheBearer
+[parallel] start 192/305 tests.manager.test_offers.TheParticipantIsTheBinding
+[parallel] done  161/305 tests.manager.test_intake.TheRetentionPolicyIsBoundNeverRead rc=0 in 0.50s
+[parallel] start 193/305 tests.manager.test_offers.TheRestartRulesAreAsymmetric
+[parallel] done  162/305 tests.manager.test_launch.TheFileIsThisManagersOwn rc=0 in 0.25s
+[parallel] start 194/305 tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent
+[parallel] done  163/305 tests.manager.test_manifest_rules.ACompletionManifestIsTheWorkersAnswer rc=0 in 0.26s
+[parallel] start 195/305 tests.manager.test_output.ADigestIsNotARecord
+[parallel] done  164/305 tests.manager.test_interrogation.ATimeoutIsAnObservationAndNotACancellation rc=0 in 0.53s
+[parallel] start 196/305 tests.manager.test_output.EveryDeclarationIsAnsweredAndEveryAnswerDeclared
+[parallel] done  165/305 tests.manager.test_manifest_rules.ADefinitionIsAClosedSet rc=0 in 0.26s
+[parallel] start 197/305 tests.manager.test_output.FreezingIsNotAccepting
+[parallel] done  166/305 tests.manager.test_manifest_rules.AManifestIdentifiesItself rc=0 in 0.25s
+[parallel] done  167/305 tests.manager.test_manifest_rules.ExportedSemanticRulesOwnTheirCallers rc=0 in 0.25s
+[parallel] start 198/305 tests.manager.test_output.MissingOptionalIsAnAnswer
+[parallel] start 199/305 tests.manager.test_output.QuiescenceIsProvedBeforeFreeze
+[parallel] done  168/305 tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean rc=0 in 0.62s
+[parallel] start 200/305 tests.manager.test_output.TheDeclaredLimitsAreEnforcedWhereTheyAreDecidable
+[parallel] done  169/305 tests.manager.test_manifest_rules.TheReceiptBindsTheEnvelopeItValidated rc=0 in 0.25s
+[parallel] start 201/305 tests.manager.test_output.TheRecordIdentityIsTheAct
+[parallel] done  170/305 tests.manager.test_manifest_rules.TheCanonicalVectorIsTheBaseline rc=0 in 0.30s
+[parallel] start 202/305 tests.manager.test_output.TheResultMustBeThisAttemptsResult
+[parallel] done  171/305 tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts rc=0 in 0.29s
+[parallel] done  172/305 tests.manager.test_oci.TheEngineIsInjectedAndTyped rc=0 in 0.26s
+[parallel] done  173/305 tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted rc=0 in 0.26s
+[parallel] start 203/305 tests.manager.test_output.TheSealedObservationIsRetainedNotSummarized
+[parallel] start 204/305 tests.manager.test_output.TheStoreKnowsItsOwnShape
+[parallel] start 205/305 tests.manager.test_pod.ABehaviourBearingContainerNeverEnters
+[parallel] done  174/305 tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair rc=0 in 0.30s
+[parallel] done  175/305 tests.manager.test_oci.AbsenceIsProvedRatherThanInferred rc=0 in 0.28s
+[parallel] done  176/305 tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity rc=0 in 0.28s
+[parallel] start 206/305 tests.manager.test_pod.AnExactRecordCarriesExactlyItsMembers
+[parallel] start 207/305 tests.manager.test_principal_context.ContextThisManagerCanRefuseIsRefused
+[parallel] start 208/305 tests.manager.test_principal_context.EachSchemaVersionIsACleanInitializationBoundary
+[parallel] done  177/305 tests.manager.test_oci.TheVectorsAreClosedAndOrdered rc=0 in 0.27s
+[parallel] start 209/305 tests.manager.test_principal_context.NothingBelowTheAuthorityChoosesTheContext
+[parallel] done  178/305 tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing rc=0 in 0.29s
+[parallel] start 210/305 tests.manager.test_principal_context.TheContextIsPersistedWithTheClaim
+[parallel] done  179/305 tests.manager.test_offers.ExpiryIsASettlement rc=0 in 0.27s
+[parallel] start 211/305 tests.manager.test_principal_context.TheContextRidesEveryReplaySignatureItChanges
+[parallel] done  180/305 tests.manager.test_offers.AcceptanceBindsAndConsumes rc=0 in 0.32s
+[parallel] start 212/305 tests.manager.test_principal_context.TwoEndpointsOnePrincipal
+[parallel] done  181/305 tests.manager.test_offers.TheInjectedCapabilityIsTyped rc=0 in 0.30s
+[parallel] done  182/305 tests.manager.test_offers.TheParticipantIsTheBinding rc=0 in 0.29s
+[parallel] start 213/305 tests.manager.test_principal_context.WhatThisManagerDeliberatelyCannotDecide
+[parallel] start 214/305 tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor
+[parallel] done  183/305 tests.manager.test_offers.TheOfferRecordsTheVerifierAndReturnsTheBearer rc=0 in 0.30s
+[parallel] start 215/305 tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed
+[parallel] done  184/305 tests.manager.test_offers.TheRestartRulesAreAsymmetric rc=0 in 0.29s
+[parallel] start 216/305 tests.manager.test_runtime_lane.TheIdentityIsTheAssignmentAndNotTheAttempt
+[parallel] done  185/305 tests.manager.test_offers.TheClaimAndItsSettlement rc=0 in 0.35s
+[parallel] start 217/305 tests.manager.test_runtime_lane.TheLaneIsTakenBeforeAnythingIsCreated
+[parallel] done  186/305 tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent rc=0 in 0.31s
+[parallel] start 218/305 tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker
+[parallel] done  187/305 tests.manager.test_output.ADigestIsNotARecord rc=0 in 0.34s
+[parallel] start 219/305 tests.manager.test_runtime_lane.TwoAddressesOneLaneAndTwoPrincipalsAreIsolated
+[parallel] done  188/305 tests.manager.test_output.EveryDeclarationIsAnsweredAndEveryAnswerDeclared rc=0 in 0.36s
+[parallel] done  189/305 tests.manager.test_output.FreezingIsNotAccepting rc=0 in 0.34s
+[parallel] start 220/305 tests.manager.test_sealing.ALimitIsARefusalRatherThanATruncation
+[parallel] start 221/305 tests.manager.test_sealing.NothingIsSealedWhileSomethingMayStillBeWriting
+[parallel] done  190/305 tests.manager.test_output.MissingOptionalIsAnAnswer rc=0 in 0.35s
+[parallel] done  191/305 tests.manager.test_pod.ABehaviourBearingContainerNeverEnters rc=0 in 0.25s
+[parallel] start 222/305 tests.manager.test_sealing.OnlyWhatWasDeclaredIsCollected
+[parallel] start 223/305 tests.manager.test_sealing.RetentionEnactsTheDispositionOverCustody
+[parallel] done  192/305 tests.manager.test_output.TheRecordIdentityIsTheAct rc=0 in 0.32s
+[parallel] done  193/305 tests.manager.test_principal_context.EachSchemaVersionIsACleanInitializationBoundary rc=0 in 0.26s
+[parallel] start 224/305 tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt
+[parallel] start 225/305 tests.manager.test_sealing.TheDeclarationsAreOwnedAtConstruction
+[parallel] done  194/305 tests.manager.test_output.TheDeclaredLimitsAreEnforcedWhereTheyAreDecidable rc=0 in 0.36s
+[parallel] done  195/305 tests.manager.test_pod.AnExactRecordCarriesExactlyItsMembers rc=0 in 0.26s
+[parallel] start 226/305 tests.manager.test_sealing.TheObservationIsMeasuredRatherThanDeclared
+[parallel] start 227/305 tests.manager.test_secrets.ARecordedAnswerIsWalkedAtItsOwnBoundary
+[parallel] done  196/305 tests.manager.test_output.QuiescenceIsProvedBeforeFreeze rc=0 in 0.38s
+[parallel] start 228/305 tests.manager.test_secrets.BothHalvesAreNeededAndNeitherImpliesTheOther
+[parallel] done  197/305 tests.manager.test_principal_context.NothingBelowTheAuthorityChoosesTheContext rc=0 in 0.28s
+[parallel] start 229/305 tests.manager.test_secrets.EveryAdoptedRowIsWalkedOnTheWayOut
+[parallel] done  198/305 tests.manager.test_output.TheStoreKnowsItsOwnShape rc=0 in 0.32s
+[parallel] done  199/305 tests.manager.test_principal_context.TheContextRidesEveryReplaySignatureItChanges rc=0 in 0.28s
+[parallel] start 230/305 tests.manager.test_secrets.EveryDurableWriterIsGuarded
+[parallel] start 231/305 tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor
+[parallel] done  200/305 tests.manager.test_principal_context.TheContextIsPersistedWithTheClaim rc=0 in 0.30s
+[parallel] start 232/305 tests.manager.test_secrets.ItIsAWalkAtAnyDepth
+[parallel] done  201/305 tests.manager.test_output.TheResultMustBeThisAttemptsResult rc=0 in 0.37s
+[parallel] start 233/305 tests.manager.test_secrets.NoPublicRefusalQuotesALiveBearer
+[parallel] done  202/305 tests.manager.test_output.TheSealedObservationIsRetainedNotSummarized rc=0 in 0.37s
+[parallel] start 234/305 tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces
+[parallel] done  203/305 tests.manager.test_principal_context.WhatThisManagerDeliberatelyCannotDecide rc=0 in 0.28s
+[parallel] start 235/305 tests.manager.test_secrets.RestartAndCancellationForget
+[parallel] done  204/305 tests.manager.test_principal_context.TwoEndpointsOnePrincipal rc=0 in 0.30s
+[parallel] start 236/305 tests.manager.test_secrets.TheAgentSessionProfileIsWalked
+[parallel] done  205/305 tests.manager.test_principal_context.ContextThisManagerCanRefuseIsRefused rc=0 in 0.45s
+[parallel] start 237/305 tests.manager.test_secrets.TheBearerIsHeldForTheActsThatSpendIt
+[parallel] done  206/305 tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed rc=0 in 0.38s
+[parallel] done  207/305 tests.manager.test_runtime_lane.TheIdentityIsTheAssignmentAndNotTheAttempt rc=0 in 0.37s
+[parallel] done  208/305 tests.manager.test_runtime_lane.TheLaneIsTakenBeforeAnythingIsCreated rc=0 in 0.35s
+[parallel] start 238/305 tests.manager.test_secrets.TheJournalIsADurableSurface
+[parallel] start 239/305 tests.manager.test_secrets.TheManifestCompositeIsTheTrustEntry
+[parallel] start 240/305 tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing
+[parallel] done  209/305 tests.manager.test_runtime_lane.TwoAddressesOneLaneAndTwoPrincipalsAreIsolated rc=0 in 0.30s
+[parallel] start 241/305 tests.manager.test_secrets.TheRegistryHoldsOnlyWhatIsLive
+[parallel] done  210/305 tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker rc=0 in 0.36s
+[parallel] start 242/305 tests.manager.test_secrets.TheValueTestIsContainment
+[parallel] done  211/305 tests.manager.test_sealing.ALimitIsARefusalRatherThanATruncation rc=0 in 0.29s
+[parallel] done  212/305 tests.manager.test_sealing.NothingIsSealedWhileSomethingMayStillBeWriting rc=0 in 0.29s
+[parallel] start 243/305 tests.manager.test_sessions.ALostTransportEndsTheEpoch
+[parallel] start 244/305 tests.manager.test_sessions.CancellationAnnouncesTheSession
+[parallel] done  213/305 tests.manager.test_sealing.TheDeclarationsAreOwnedAtConstruction rc=0 in 0.26s
+[parallel] start 245/305 tests.manager.test_sessions.OpeningASession
+[parallel] done  214/305 tests.manager.test_sealing.OnlyWhatWasDeclaredIsCollected rc=0 in 0.31s
+[parallel] start 246/305 tests.manager.test_sessions.OpeningIsEffectivelyOnce
+[parallel] done  215/305 tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt rc=0 in 0.30s
+[parallel] start 247/305 tests.manager.test_sessions.SessionAbsenceIsNotRuntimeAbsence
+[parallel] done  216/305 tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor rc=0 in 0.49s
+[parallel] done  217/305 tests.manager.test_sealing.RetentionEnactsTheDispositionOverCustody rc=0 in 0.33s
+[parallel] done  218/305 tests.manager.test_sealing.TheObservationIsMeasuredRatherThanDeclared rc=0 in 0.31s
+[parallel] done  219/305 tests.manager.test_secrets.ARecordedAnswerIsWalkedAtItsOwnBoundary rc=0 in 0.31s
+[parallel] start 248/305 tests.manager.test_sessions.TheAdapterProtocolIsTyped
+[parallel] start 249/305 tests.manager.test_sessions.TheAxisIsNotTheRuntime
+[parallel] start 250/305 tests.manager.test_sessions.TheAxisIsTheFrozenOne
+[parallel] start 251/305 tests.manager.test_sessions.TheAxisRefusesARegression
+[parallel] done  220/305 tests.manager.test_secrets.BothHalvesAreNeededAndNeitherImpliesTheOther rc=0 in 0.31s
+[parallel] start 252/305 tests.manager.test_sessions.ThePostureSlotIsItsOwnAxis
+[parallel] done  221/305 tests.manager.test_secrets.EveryAdoptedRowIsWalkedOnTheWayOut rc=0 in 0.31s
+[parallel] start 253/305 tests.manager.test_sessions.TheReferenceBindsAllFourComponents
+[parallel] done  222/305 tests.manager.test_secrets.ItIsAWalkAtAnyDepth rc=0 in 0.31s
+[parallel] start 254/305 tests.manager.test_sessions.TheStoreKnowsItsOwnShape
+[parallel] done  223/305 tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor rc=0 in 0.35s
+[parallel] start 255/305 tests.manager.test_sessions.TheUnsupportedVersionRefusalReachesTheRuntimeEnding
+[parallel] done  224/305 tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces rc=0 in 0.32s
+[parallel] done  225/305 tests.manager.test_secrets.RestartAndCancellationForget rc=0 in 0.32s
+[parallel] done  226/305 tests.manager.test_secrets.TheAgentSessionProfileIsWalked rc=0 in 0.31s
+[parallel] start 256/305 tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer
+[parallel] start 257/305 tests.manager.test_store.OneAtomicBoundary
+[parallel] start 258/305 tests.manager.test_store.OwnershipBeforeAdoption
+[parallel] done  227/305 tests.manager.test_secrets.TheValueTestIsContainment rc=0 in 0.28s
+[parallel] start 259/305 tests.manager.test_store.RealProcessRaces
+[parallel] done  228/305 tests.manager.test_secrets.TheRegistryHoldsOnlyWhatIsLive rc=0 in 0.30s
+[parallel] start 260/305 tests.manager.test_store.WhatSurvivesARestart
+[parallel] done  229/305 tests.manager.test_secrets.TheBearerIsHeldForTheActsThatSpendIt rc=0 in 0.32s
+[parallel] done  230/305 tests.manager.test_secrets.TheJournalIsADurableSurface rc=0 in 0.31s
+[parallel] start 261/305 tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText
+[parallel] start 262/305 tests.manager.test_validate.BothFrozenSchemasAreReachable
+[parallel] done  231/305 tests.manager.test_secrets.TheManifestCompositeIsTheTrustEntry rc=0 in 0.33s
+[parallel] start 263/305 tests.manager.test_validate.TheLibraryDecidesTheContract
+[parallel] done  232/305 tests.manager.test_secrets.EveryDurableWriterIsGuarded rc=0 in 0.54s
+[parallel] start 264/305 tests.manager.test_validate.ThisPackageDecidesTheDiagnostic
+[parallel] done  233/305 tests.manager.test_secrets.NoPublicRefusalQuotesALiveBearer rc=0 in 0.51s
+[parallel] done  234/305 tests.manager.test_sessions.ALostTransportEndsTheEpoch rc=0 in 0.35s
+[parallel] start 265/305 tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated
+[parallel] start 266/305 tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched
+[parallel] done  235/305 tests.manager.test_sessions.OpeningIsEffectivelyOnce rc=0 in 0.31s
+[parallel] start 267/305 tests.manager.test_worker_image.TheAnswerIsValidatedBeforeItIsFramed
+[parallel] done  236/305 tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing rc=0 in 0.41s
+[parallel] done  237/305 tests.manager.test_sessions.CancellationAnnouncesTheSession rc=0 in 0.37s
+[parallel] done  238/305 tests.manager.test_sessions.TheAxisIsTheFrozenOne rc=0 in 0.30s
+[parallel] start 268/305 tests.manager.test_worker_image.TheArtifactNeutralInputIsTheFrozenManifest
+[parallel] start 269/305 tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument
+[parallel] start 270/305 tests.manager.test_worker_image.TheChannelIsFramedAndBounded
+[parallel] done  239/305 tests.manager.test_sessions.OpeningASession rc=0 in 0.35s
+[parallel] start 271/305 tests.manager.test_worker_image.TheClosureIsPerOperation
+[parallel] done  240/305 tests.manager.test_sessions.SessionAbsenceIsNotRuntimeAbsence rc=0 in 0.33s
+[parallel] start 272/305 tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame
+[parallel] done  241/305 tests.manager.test_sessions.TheAxisIsNotTheRuntime rc=0 in 0.32s
+[parallel] start 273/305 tests.manager.test_worker_image.TheFramedAnswerIsNotTheCompletionEnvelope
+[parallel] done  242/305 tests.manager.test_sessions.TheAxisRefusesARegression rc=0 in 0.34s
+[parallel] done  243/305 tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated rc=0 in 0.06s
+[parallel] start 274/305 tests.manager.test_worker_image.TheGateCannotRunAgainstStaleBytecode
+[parallel] start 275/305 tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved
+[parallel] done  244/305 tests.manager.test_sessions.TheAdapterProtocolIsTyped rc=0 in 0.35s
+[parallel] done  245/305 tests.manager.test_sessions.TheStoreKnowsItsOwnShape rc=0 in 0.30s
+[parallel] done  246/305 tests.manager.test_worker_image.TheAnswerIsValidatedBeforeItIsFramed rc=0 in 0.07s
+[parallel] start 276/305 tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon
+[parallel] start 277/305 tests.manager.test_worker_image.TheScriptedFixtures
+[parallel] start 278/305 tests.manager.test_worker_image.TheWorkerHoldsNoneOfTheManagersCapabilities
+[parallel] done  247/305 tests.manager.test_sessions.ThePostureSlotIsItsOwnAxis rc=0 in 0.35s
+[parallel] done  248/305 tests.manager.test_sessions.TheReferenceBindsAllFourComponents rc=0 in 0.34s
+[parallel] done  249/305 tests.manager.test_worker_image.TheArtifactNeutralInputIsTheFrozenManifest rc=0 in 0.06s
+[parallel] done  250/305 tests.manager.test_worker_image.TheClosureIsPerOperation rc=0 in 0.06s
+[parallel] start 279/305 tests.manager.test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations
+[parallel] start 280/305 tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses
+[parallel] start 281/305 tests.manager.test_workspaces.ALimitIsARefusalRatherThanAWalk
+[parallel] start 282/305 tests.manager.test_workspaces.AManifestIsMeasuredRatherThanDeclared
+[parallel] done  251/305 tests.manager.test_worker_image.TheChannelIsFramedAndBounded rc=0 in 0.06s
+[parallel] start 283/305 tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated
+[parallel] done  252/305 tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched rc=0 in 0.09s
+[parallel] start 284/305 tests.manager.test_workspaces.NothingButRegularFilesIsDelivered
+[parallel] done  253/305 tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument rc=0 in 0.08s
+[parallel] done  254/305 tests.manager.test_worker_image.TheFramedAnswerIsNotTheCompletionEnvelope rc=0 in 0.06s
+[parallel] start 285/305 tests.manager.test_workspaces.OneAssignmentOneWorkspace
+[parallel] start 286/305 tests.manager.test_workspaces.TheComponentIsOnThePublicSurface
+[parallel] done  255/305 tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame rc=0 in 0.07s
+[parallel] start 287/305 tests.manager.test_workspaces.TheCopyIsTheMeasurement
+[parallel] done  256/305 tests.manager.test_worker_image.TheGateCannotRunAgainstStaleBytecode rc=0 in 0.06s
+[parallel] done  257/305 tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved rc=0 in 0.06s
+[parallel] start 288/305 tests.manager.test_workspaces.TheCoreManagerDoesNotAcquireSources
+[parallel] start 289/305 tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen
+[parallel] done  258/305 tests.manager.test_worker_image.TheScriptedFixtures rc=0 in 0.05s
+[parallel] start 290/305 tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind
+[parallel] done  259/305 tests.manager.test_worker_image.TheWorkerHoldsNoneOfTheManagersCapabilities rc=0 in 0.06s
+[parallel] start 291/305 tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases
+[parallel] done  260/305 tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer rc=0 in 0.32s
+[parallel] done  261/305 tests.manager.test_store.OwnershipBeforeAdoption rc=0 in 0.32s
+[parallel] done  262/305 tests.manager.test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations rc=0 in 0.06s
+[parallel] start 292/305 tests.tools.test_parallel_runner.AShardThatDiesWithoutAReportIsAFailure
+[parallel] start 293/305 tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind
+[parallel] start 294/305 tests.tools.test_parallel_runner.CollectionRefusesAModuleItCannotLoad
+[parallel] done  263/305 tests.manager.test_store.OneAtomicBoundary rc=0 in 0.35s
+[parallel] start 295/305 tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder
+[parallel] done  264/305 tests.manager.test_validate.BothFrozenSchemasAreReachable rc=0 in 0.27s
+[parallel] start 296/305 tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing
+[parallel] done  265/305 tests.manager.test_store.WhatSurvivesARestart rc=0 in 0.29s
+[parallel] start 297/305 tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly
+[parallel] done  266/305 tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText rc=0 in 0.29s
+[parallel] done  267/305 tests.manager.test_validate.TheLibraryDecidesTheContract rc=0 in 0.27s
+[parallel] start 298/305 tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree
+[parallel] start 299/305 tests.tools.test_parallel_runner.TheRegistryFailsClosed
+[parallel] done  268/305 tests.tools.test_parallel_runner.CollectionRefusesAModuleItCannotLoad rc=0 in 0.10s
+[parallel] start 300/305 tests.tools.test_parallel_runner.TheSerialRegistryOverlapsNothing
+[parallel] done  269/305 tests.tools.test_parallel_runner.TheRegistryFailsClosed rc=0 in 0.05s
+[parallel] start 301/305 tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves
+[parallel] done  270/305 tests.manager.test_sessions.TheUnsupportedVersionRefusalReachesTheRuntimeEnding rc=0 in 0.47s
+[parallel] start 302/305 tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten
+[parallel] done  271/305 tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly rc=0 in 0.07s
+[parallel] start 303/305 tests.tools.test_worker_image_build.TheBuildVectorIsClosed
+[parallel] done  272/305 tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing rc=0 in 0.09s
+[parallel] start 304/305 tests.tools.test_worker_image_build.TheReceiptsAreRemovedAndTheContentIsNot
+[parallel] done  273/305 tests.manager.test_validate.ThisPackageDecidesTheDiagnostic rc=0 in 0.31s
+[parallel] done  274/305 tests.tools.test_parallel_runner.AShardThatDiesWithoutAReportIsAFailure rc=0 in 0.15s
+[parallel] start 305/305 tests.tools.test_worker_image_build.TwoBuildsReachOneIdentity
+[parallel] done  275/305 tests.manager.test_workspaces.AManifestIsMeasuredRatherThanDeclared rc=0 in 0.26s
+[parallel] done  276/305 tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon rc=0 in 0.28s
+[parallel] done  277/305 tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated rc=0 in 0.27s
+[parallel] done  278/305 tests.manager.test_workspaces.NothingButRegularFilesIsDelivered rc=0 in 0.26s
+[parallel] done  279/305 tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses rc=0 in 0.28s
+[parallel] done  280/305 tests.manager.test_workspaces.ALimitIsARefusalRatherThanAWalk rc=0 in 0.29s
+[parallel] done  281/305 tests.manager.test_workspaces.OneAssignmentOneWorkspace rc=0 in 0.28s
+[parallel] done  282/305 tests.tools.test_worker_image_build.TheBuildVectorIsClosed rc=0 in 0.11s
+[parallel] done  283/305 tests.tools.test_worker_image_build.TheReceiptsAreRemovedAndTheContentIsNot rc=0 in 0.10s
+[parallel] done  284/305 tests.manager.test_workspaces.TheComponentIsOnThePublicSurface rc=0 in 0.29s
+[parallel] done  285/305 tests.manager.test_workspaces.TheCopyIsTheMeasurement rc=0 in 0.29s
+[parallel] done  286/305 tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves rc=0 in 0.12s
+[parallel] done  287/305 tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten rc=0 in 0.12s
+[parallel] done  288/305 tests.tools.test_worker_image_build.TwoBuildsReachOneIdentity rc=0 in 0.09s
+[parallel] done  289/305 tests.manager.test_workspaces.TheCoreManagerDoesNotAcquireSources rc=0 in 0.31s
+[parallel] done  290/305 tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen rc=0 in 0.31s
+[parallel] done  291/305 tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree rc=0 in 0.26s
+[parallel] done  292/305 tests.manager.test_store.RealProcessRaces rc=0 in 0.57s
+[parallel] done  293/305 tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind rc=0 in 0.41s
+[parallel] done  294/305 tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases rc=0 in 0.43s
+[parallel] done  295/305 tests.tools.test_parallel_runner.TheSerialRegistryOverlapsNothing rc=0 in 0.93s
+[parallel] done  296/305 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_unprobed_entry_is_a_real_owned_entry rc=0 in 4.33s
+[parallel] done  297/305 tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder rc=0 in 1.77s
+[parallel] done  298/305 tests.manager.test_boundary_inventory.AnIdentityIsMoreThanAShape rc=0 in 4.95s
+[parallel] done  299/305 tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind rc=0 in 9.71s
+[parallel] done  300/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice rc=0 in 185.71s
+[parallel] done  301/305 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe rc=1 in 205.50s
+[parallel] done  302/305 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail rc=1 in 205.60s
+[parallel] done  303/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared rc=1 in 206.61s
+[parallel] done  304/305 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary rc=0 in 280.84s
+[parallel] done  305/305 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator rc=1 in 304.15s
+[collect] 41 parallel modules -> 1844 tests in 305 shards
+[parallel] jobs=32 (available CPUs 32)
+--- parallel source ---
+[pass] tests.authority.test_assignment.Cancellation (3 tests)
+[pass] tests.authority.test_assignment.Claiming (7 tests)
+[pass] tests.authority.test_assignment.Configuration (3 tests)
+[pass] tests.authority.test_assignment.Creation (4 tests)
+[pass] tests.authority.test_assignment.CutTwoReviewFindings (8 tests)
+[pass] tests.authority.test_assignment.EndingAnAssignment (6 tests)
+[pass] tests.authority.test_assignment.GapsIFoundByProbingMyOwnCut (3 tests)
+[pass] tests.authority.test_assignment.Gates (7 tests)
+[pass] tests.authority.test_assignment.Invariants (3 tests)
+[pass] tests.authority.test_assignment.OwnedAnswers (2 tests)
+[pass] tests.authority.test_assignment.Restart (1 tests)
+[pass] tests.authority.test_boundary.Distribution (4 tests)
+[pass] tests.authority.test_boundary.EveryCallerTextFamilyIsBounded (3 tests)
+[pass] tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule (10 tests)
+[pass] tests.authority.test_boundary.ExportedSurface (4 tests)
+[pass] tests.authority.test_boundary.Isolation (3 tests)
+[pass] tests.authority.test_catalog.TheMigrationChecklistIsRead (5 tests)
+[pass] tests.authority.test_claim_result.SchemaFourIsACleanInitializationBoundary (3 tests)
+[pass] tests.authority.test_claim_result.TheAnswerIsThreeFactsAndNotOne (3 tests)
+[pass] tests.authority.test_claim_result.TheEventIsWhatTheFenceCannotBe (2 tests)
+[pass] tests.authority.test_claim_result.TheWholeResultIsWhatReplayReproduces (3 tests)
+[pass] tests.authority.test_claim_result.TwoAddressesOnePrincipal (1 tests)
+[pass] tests.authority.test_contract.AuthorizedClose (7 tests)
+[pass] tests.authority.test_contract.CanonicalActivity (3 tests)
+[pass] tests.authority.test_contract.ConfiguredCapabilities (3 tests)
+[pass] tests.authority.test_contract.ContractProgression (4 tests)
+[pass] tests.authority.test_contract.CutFourReviewFindings (6 tests)
+[pass] tests.authority.test_contract.GapsIFoundByProbingMyOwnCut (2 tests)
+[pass] tests.authority.test_contract.Integration (4 tests)
+[pass] tests.authority.test_contract.PolicyGeneration (2 tests)
+[pass] tests.authority.test_contract.Publication (4 tests)
+[pass] tests.authority.test_contract.TheFourReceipts (4 tests)
+[pass] tests.authority.test_identity.ExportedHelpersAreBoundaries (5 tests)
+[pass] tests.authority.test_identity.FrozenIdentities (7 tests)
+[pass] tests.authority.test_identity.Gates (1 tests)
+[pass] tests.authority.test_identity.OwningOperands (7 tests)
+[pass] tests.authority.test_identity.Signatures (5 tests)
+[pass] tests.authority.test_identity.TheLabelBoundIsMeasuredRatherThanChosen (6 tests)
+[pass] tests.authority.test_operations.EffectivelyOnce (5 tests)
+[pass] tests.authority.test_operations.FourStates (1 tests)
+[pass] tests.authority.test_operations.GapsIFoundByProbingMyOwnCut (3 tests)
+[pass] tests.authority.test_operations.RealProcessRaces (2 tests)
+[pass] tests.authority.test_operations.Restart (4 tests)
+[pass] tests.authority.test_operations.Retirement (3 tests)
+[pass] tests.authority.test_operations.Settlement (5 tests)
+[pass] tests.authority.test_operations.SettlementRace (3 tests)
+[pass] tests.authority.test_operations.TwoKindsOfRefusal (4 tests)
+[pass] tests.authority.test_principal_scope.AV11ReclaimDoesNotRewriteEarlierHistory (5 tests)
+[pass] tests.authority.test_principal_scope.EveryCapabilityDoorDecidesInTheTargetsScope (6 tests)
+[pass] tests.authority.test_principal_scope.GrantProvenance (5 tests)
+[pass] tests.authority.test_principal_scope.NothingAnOperandSaysCanWidenIt (7 tests)
+[pass] tests.authority.test_principal_scope.OnePrincipalTwoAddresses (5 tests)
+[pass] tests.authority.test_principal_scope.SchemaTwoIsACleanInitializationBoundary (7 tests)
+[pass] tests.authority.test_principal_scope.TheDecisionIsRetainedForEveryAuthorizedAct (6 tests)
+[pass] tests.authority.test_principal_scope.TheDecisionRidesTheAct (6 tests)
+[pass] tests.authority.test_principal_scope.TheGrantProjectionCarriesScopeAndProvenance (3 tests)
+[pass] tests.authority.test_session.FinalReviewFindings (7 tests)
+[pass] tests.authority.test_session.Minting (5 tests)
+[pass] tests.authority.test_session.OneOwnedOperandDocument (5 tests)
+[pass] tests.authority.test_session.TheBindingIsTheIdentity (5 tests)
+[pass] tests.authority.test_session.TheWholeSurfaceWorksThroughTheSession (4 tests)
+[pass] tests.authority.test_store.AuthorityFace (2 tests)
+[pass] tests.authority.test_store.Creation (7 tests)
+[pass] tests.authority.test_store.Opening (13 tests)
+[pass] tests.authority.test_store.Transactions (3 tests)
+[pass] tests.authority.test_work_labels.LabellingSurvivesTerminalClosure (2 tests)
+[pass] tests.authority.test_work_labels.LabelsChangeNothingElse (3 tests)
+[FAIL] tests.authority.test_work_labels.ProjectionsAndPredicates (8 tests)
+[FAIL] tests.authority.test_work_labels.ReplayAndConvergence (7 tests)
+[pass] tests.authority.test_work_labels.TheAuthorityIsScopeResolved (5 tests)
+[pass] tests.authority.test_work_labels.TheGrammarIsOneOpaqueKey (6 tests)
+[pass] tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded (37 tests)
+[pass] tests.manager.test_attempts.ActivationNeedsAllThreeToAgree (8 tests)
+[pass] tests.manager.test_attempts.CancellationFencesBeforeItStops (10 tests)
+[pass] tests.manager.test_attempts.ObservationsMoveAlongTheirOwnAxis (11 tests)
+[pass] tests.manager.test_attempts.TheAttemptIsRecordedOnce (3 tests)
+[pass] tests.manager.test_attempts.TheAxesAgreeWithTheStore (3 tests)
+[pass] tests.manager.test_attempts.TheFailedStartIsDurablyRecorded (45 tests)
+[pass] tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled (24 tests)
+[pass] tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred (32 tests)
+[pass] tests.manager.test_attempts.WhatOnlyAnotherWriterCanCause (5 tests)
+[pass] tests.manager.test_boundary_inventory.AnAdoptedRowIsAWholeRow (3 tests)
+[pass] tests.manager.test_boundary_inventory.AnIdentityIsMoreThanAShape (6 tests)
+[pass] tests.manager.test_boundary_inventory.ClosedShapesAreClosedBothWays (4 tests)
+[pass] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_a_probe_that_is_refused_earlier_fails (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_unprobed_entry_is_a_real_owned_entry (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness (1 tests)
+[pass] tests.manager.test_boundary_inventory.StatedRules (62 tests)
+[pass] tests.manager.test_boundary_inventory.TheInstantRuleIsThreeProperties (2 tests)
+[pass] tests.manager.test_boundary_inventory.TheProjectionContractMatchesTheAuthorityItReads (2 tests)
+[pass] tests.manager.test_canonical.TheFrozenHostIsTheOracle (3 tests)
+[pass] tests.manager.test_canonical.WhatCannotAcquireADigest (9 tests)
+[pass] tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion (5 tests)
+[pass] tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe (4 tests)
+[pass] tests.manager.test_contracts_inventory.ThePrivateBodyPathIsPinnedStructurally (2 tests)
+[pass] tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared (4 tests)
+[pass] tests.manager.test_credentials.AFailedMaterializationRemovesBeforeItForgets (2 tests)
+[pass] tests.manager.test_credentials.AnAssignmentNamesSlotsAndNothingElse (4 tests)
+[pass] tests.manager.test_credentials.DurableStateNamesTheSlotAndNeverTheBearer (4 tests)
+[pass] tests.manager.test_credentials.EveryPublicDoorOwnsWhatItIsHanded (4 tests)
+[pass] tests.manager.test_credentials.MaterializationArmsTheRegistryFirst (9 tests)
+[pass] tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding (17 tests)
+[pass] tests.manager.test_credentials.OrphanCleanupIsBoundedAndSaysSo (4 tests)
+[pass] tests.manager.test_credentials.RecoveryIsDrivenAgainstTheLiveRuntime (14 tests)
+[pass] tests.manager.test_credentials.RestartAdoptsOnlyAnExactAgreement (6 tests)
+[pass] tests.manager.test_credentials.TheAuthorizedSetIsBounded (4 tests)
+[pass] tests.manager.test_credentials.ThePermissionsAreTheContractsRatherThanTheCodes (3 tests)
+[pass] tests.manager.test_credentials.TheRegistrySpansTheOutputLeakChecks (2 tests)
+[pass] tests.manager.test_credentials.TheTrustedProfileMapsEverySlot (4 tests)
+[pass] tests.manager.test_credentials.TheWorkerSeesOnlyTheFixedRoot (7 tests)
+[pass] tests.manager.test_dependencies.AnExportedLabelIsCallerInput (2 tests)
+[pass] tests.manager.test_dependencies.NoPublicOperationTakesInternalState (4 tests)
+[pass] tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn (6 tests)
+[pass] tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure (4 tests)
+[pass] tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency (5 tests)
+[pass] tests.manager.test_diagnostic_rendering.TheMaxDiffCorrectionIsTestLocal (2 tests)
+[pass] tests.manager.test_diagnostic_rendering.TheRuledAssertionsRenderThroughSortedCollections (3 tests)
+[pass] tests.manager.test_diagnostic_rendering.TheRuledFormRendersCompletelyAndIdentically (5 tests)
+[pass] tests.manager.test_failed_start_destroy.NoFrozenSchemaIsEdited (2 tests)
+[pass] tests.manager.test_failed_start_destroy.TheDeliveriesUseTheirExistingOrderedTeardown (4 tests)
+[pass] tests.manager.test_failed_start_destroy.TheExactRuntimeIsRemovedAndProvedGone (4 tests)
+[pass] tests.manager.test_failed_start_destroy.TheTwoCommandsAreSiblingsAndNotAUnion (6 tests)
+[pass] tests.manager.test_failed_start_destroy.TheUntrustedResultDirectoryIsLeftExactlyWhereItIs (3 tests)
+[pass] tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised (6 tests)
+[pass] tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution (6 tests)
+[pass] tests.manager.test_frozen.TheSemanticRulesAreDerivedFromTheSchema (4 tests)
+[pass] tests.manager.test_frozen.TheValidatorIsTheRuledOne (2 tests)
+[pass] tests.manager.test_handshake.AProfileIsReadBackOnlyWhenAllThreeWitnessesAgree (5 tests)
+[pass] tests.manager.test_handshake.NegotiationIsAnAnnouncementRatherThanABargain (11 tests)
+[pass] tests.manager.test_handshake.OneProfileIsCertifiedInOneOrder (7 tests)
+[pass] tests.manager.test_handshake.TheAdvertisedCapabilityIsExact (8 tests)
+[pass] tests.manager.test_handshake.TheCompositionIsOnThePublicSurface (2 tests)
+[pass] tests.manager.test_intake.BlockedOnIntakeIsAStateAndNotARetry (3 tests)
+[pass] tests.manager.test_intake.CleanupIsAuthorizedByProofRatherThanByAsking (2 tests)
+[pass] tests.manager.test_intake.CustodyIsTakenOfWhatWasFrozen (7 tests)
+[pass] tests.manager.test_intake.EveryJournalledDoorRefusesALiveBearer (5 tests)
+[pass] tests.manager.test_intake.IndependentContractReview (8 tests)
+[pass] tests.manager.test_intake.NothingTheAdapterSaysIsAdopted (6 tests)
+[pass] tests.manager.test_intake.PositiveAbsenceOrNoEnding (8 tests)
+[pass] tests.manager.test_intake.RestartOrderingIsPreserved (2 tests)
+[pass] tests.manager.test_intake.RetainedAndCompleteAreDifferentEndings (6 tests)
+[pass] tests.manager.test_intake.TakingCustodyHappensOnce (3 tests)
+[pass] tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean (13 tests)
+[pass] tests.manager.test_intake.TheRetentionPolicyIsBoundNeverRead (7 tests)
+[pass] tests.manager.test_intake.TwoDifferentReasonsMaterialIsStillHere (4 tests)
+[pass] tests.manager.test_interrogation.ARestartReadsTheLifecycleBack (6 tests)
+[pass] tests.manager.test_interrogation.ATimeoutIsAnObservationAndNotACancellation (28 tests)
+[pass] tests.manager.test_interrogation.BothBindTheExactAssignmentAndSession (8 tests)
+[pass] tests.manager.test_interrogation.TheAnswerIsSeparateAndCorrelated (7 tests)
+[pass] tests.manager.test_interrogation.TheManagerPublishesAndTheWorkerHoldsNothing (6 tests)
+[pass] tests.manager.test_interrogation.TheOperationIdentityIsEffectivelyOnce (7 tests)
+[pass] tests.manager.test_interrogation.TheOutcomesAreDistinguished (7 tests)
+[pass] tests.manager.test_interrogation.TheSplitIsTheWholePoint (7 tests)
+[pass] tests.manager.test_interrogation.TheStoreKnowsItsOwnShape (3 tests)
+[pass] tests.manager.test_launch.TheComponentIsOnThePublicSurface (1 tests)
+[pass] tests.manager.test_launch.TheDeliveryIsACapabilityAndNotAPath (3 tests)
+[pass] tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled (7 tests)
+[pass] tests.manager.test_launch.TheFileIsThisManagersOwn (11 tests)
+[pass] tests.manager.test_manifest_rules.ACompletionManifestIsTheWorkersAnswer (2 tests)
+[pass] tests.manager.test_manifest_rules.ADefinitionIsAClosedSet (7 tests)
+[pass] tests.manager.test_manifest_rules.AManifestIdentifiesItself (5 tests)
+[pass] tests.manager.test_manifest_rules.ExportedSemanticRulesOwnTheirCallers (10 tests)
+[pass] tests.manager.test_manifest_rules.TheCanonicalVectorIsTheBaseline (13 tests)
+[pass] tests.manager.test_manifest_rules.TheReceiptBindsTheEnvelopeItValidated (4 tests)
+[pass] tests.manager.test_manifest_rules.TheTwoInputDocumentsAreOnePair (6 tests)
+[pass] tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts (18 tests)
+[pass] tests.manager.test_oci.AbsenceIsProvedRatherThanInferred (10 tests)
+[pass] tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity (20 tests)
+[pass] tests.manager.test_oci.TheEngineIsInjectedAndTyped (3 tests)
+[pass] tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing (12 tests)
+[pass] tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted (9 tests)
+[pass] tests.manager.test_oci.TheVectorsAreClosedAndOrdered (11 tests)
+[pass] tests.manager.test_offers.AcceptanceBindsAndConsumes (8 tests)
+[pass] tests.manager.test_offers.ExpiryIsASettlement (4 tests)
+[pass] tests.manager.test_offers.TheClaimAndItsSettlement (16 tests)
+[pass] tests.manager.test_offers.TheInjectedCapabilityIsTyped (6 tests)
+[pass] tests.manager.test_offers.TheOfferRecordsTheVerifierAndReturnsTheBearer (6 tests)
+[pass] tests.manager.test_offers.TheParticipantIsTheBinding (2 tests)
+[pass] tests.manager.test_offers.TheRestartRulesAreAsymmetric (3 tests)
+[pass] tests.manager.test_offers.WhatMustHoldBeforeEntropyIsSpent (17 tests)
+[pass] tests.manager.test_output.ADigestIsNotARecord (8 tests)
+[pass] tests.manager.test_output.EveryDeclarationIsAnsweredAndEveryAnswerDeclared (6 tests)
+[pass] tests.manager.test_output.FreezingIsNotAccepting (4 tests)
+[pass] tests.manager.test_output.MissingOptionalIsAnAnswer (4 tests)
+[pass] tests.manager.test_output.QuiescenceIsProvedBeforeFreeze (11 tests)
+[pass] tests.manager.test_output.TheDeclaredLimitsAreEnforcedWhereTheyAreDecidable (5 tests)
+[pass] tests.manager.test_output.TheRecordIdentityIsTheAct (4 tests)
+[pass] tests.manager.test_output.TheResultMustBeThisAttemptsResult (7 tests)
+[pass] tests.manager.test_output.TheSealedObservationIsRetainedNotSummarized (5 tests)
+[pass] tests.manager.test_output.TheStoreKnowsItsOwnShape (4 tests)
+[pass] tests.manager.test_pod.ABehaviourBearingContainerNeverEnters (14 tests)
+[pass] tests.manager.test_pod.AnExactRecordCarriesExactlyItsMembers (17 tests)
+[pass] tests.manager.test_principal_context.ContextThisManagerCanRefuseIsRefused (10 tests)
+[pass] tests.manager.test_principal_context.EachSchemaVersionIsACleanInitializationBoundary (2 tests)
+[pass] tests.manager.test_principal_context.NothingBelowTheAuthorityChoosesTheContext (3 tests)
+[pass] tests.manager.test_principal_context.TheContextIsPersistedWithTheClaim (5 tests)
+[pass] tests.manager.test_principal_context.TheContextRidesEveryReplaySignatureItChanges (2 tests)
+[pass] tests.manager.test_principal_context.TwoEndpointsOnePrincipal (2 tests)
+[pass] tests.manager.test_principal_context.WhatThisManagerDeliberatelyCannotDecide (2 tests)
+[pass] tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor (9 tests)
+[pass] tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed (3 tests)
+[pass] tests.manager.test_runtime_lane.TheIdentityIsTheAssignmentAndNotTheAttempt (4 tests)
+[pass] tests.manager.test_runtime_lane.TheLaneIsTakenBeforeAnythingIsCreated (3 tests)
+[pass] tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker (6 tests)
+[pass] tests.manager.test_runtime_lane.TwoAddressesOneLaneAndTwoPrincipalsAreIsolated (2 tests)
+[pass] tests.manager.test_sealing.ALimitIsARefusalRatherThanATruncation (3 tests)
+[pass] tests.manager.test_sealing.NothingIsSealedWhileSomethingMayStillBeWriting (3 tests)
+[pass] tests.manager.test_sealing.OnlyWhatWasDeclaredIsCollected (5 tests)
+[pass] tests.manager.test_sealing.RetentionEnactsTheDispositionOverCustody (13 tests)
+[pass] tests.manager.test_sealing.TheCollectionAnswersTheFreezeRatherThanReMeasuringIt (21 tests)
+[pass] tests.manager.test_sealing.TheDeclarationsAreOwnedAtConstruction (5 tests)
+[pass] tests.manager.test_sealing.TheObservationIsMeasuredRatherThanDeclared (8 tests)
+[pass] tests.manager.test_secrets.ARecordedAnswerIsWalkedAtItsOwnBoundary (3 tests)
+[pass] tests.manager.test_secrets.BothHalvesAreNeededAndNeitherImpliesTheOther (4 tests)
+[pass] tests.manager.test_secrets.EveryAdoptedRowIsWalkedOnTheWayOut (7 tests)
+[pass] tests.manager.test_secrets.EveryDurableWriterIsGuarded (5 tests)
+[pass] tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor (6 tests)
+[pass] tests.manager.test_secrets.ItIsAWalkAtAnyDepth (5 tests)
+[pass] tests.manager.test_secrets.NoPublicRefusalQuotesALiveBearer (3 tests)
+[pass] tests.manager.test_secrets.ProtocolIdentityAndPortableRefusalsArePublicSurfaces (6 tests)
+[pass] tests.manager.test_secrets.RestartAndCancellationForget (2 tests)
+[pass] tests.manager.test_secrets.TheAgentSessionProfileIsWalked (1 tests)
+[pass] tests.manager.test_secrets.TheBearerIsHeldForTheActsThatSpendIt (5 tests)
+[pass] tests.manager.test_secrets.TheJournalIsADurableSurface (5 tests)
+[pass] tests.manager.test_secrets.TheManifestCompositeIsTheTrustEntry (3 tests)
+[pass] tests.manager.test_secrets.TheRefusalConstructorIsTheOneCrossing (26 tests)
+[pass] tests.manager.test_secrets.TheRegistryHoldsOnlyWhatIsLive (6 tests)
+[pass] tests.manager.test_secrets.TheValueTestIsContainment (3 tests)
+[pass] tests.manager.test_sessions.ALostTransportEndsTheEpoch (8 tests)
+[pass] tests.manager.test_sessions.CancellationAnnouncesTheSession (7 tests)
+[pass] tests.manager.test_sessions.OpeningASession (12 tests)
+[pass] tests.manager.test_sessions.OpeningIsEffectivelyOnce (3 tests)
+[pass] tests.manager.test_sessions.SessionAbsenceIsNotRuntimeAbsence (6 tests)
+[pass] tests.manager.test_sessions.TheAdapterProtocolIsTyped (7 tests)
+[pass] tests.manager.test_sessions.TheAxisIsNotTheRuntime (4 tests)
+[pass] tests.manager.test_sessions.TheAxisIsTheFrozenOne (6 tests)
+[pass] tests.manager.test_sessions.TheAxisRefusesARegression (4 tests)
+[pass] tests.manager.test_sessions.ThePostureSlotIsItsOwnAxis (8 tests)
+[pass] tests.manager.test_sessions.TheReferenceBindsAllFourComponents (5 tests)
+[pass] tests.manager.test_sessions.TheStoreKnowsItsOwnShape (3 tests)
+[pass] tests.manager.test_sessions.TheUnsupportedVersionRefusalReachesTheRuntimeEnding (13 tests)
+[pass] tests.manager.test_store.ASealedRefusalReproducesTheFirstAnswer (9 tests)
+[pass] tests.manager.test_store.OneAtomicBoundary (23 tests)
+[pass] tests.manager.test_store.OwnershipBeforeAdoption (13 tests)
+[pass] tests.manager.test_store.RealProcessRaces (1 tests)
+[pass] tests.manager.test_store.WhatSurvivesARestart (3 tests)
+[pass] tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText (3 tests)
+[pass] tests.manager.test_validate.BothFrozenSchemasAreReachable (3 tests)
+[pass] tests.manager.test_validate.TheLibraryDecidesTheContract (7 tests)
+[pass] tests.manager.test_validate.ThisPackageDecidesTheDiagnostic (7 tests)
+[pass] tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated (9 tests)
+[pass] tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched (15 tests)
+[pass] tests.manager.test_worker_image.TheAnswerIsValidatedBeforeItIsFramed (7 tests)
+[pass] tests.manager.test_worker_image.TheArtifactNeutralInputIsTheFrozenManifest (3 tests)
+[pass] tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument (11 tests)
+[pass] tests.manager.test_worker_image.TheChannelIsFramedAndBounded (7 tests)
+[pass] tests.manager.test_worker_image.TheClosureIsPerOperation (5 tests)
+[pass] tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame (11 tests)
+[pass] tests.manager.test_worker_image.TheFramedAnswerIsNotTheCompletionEnvelope (3 tests)
+[pass] tests.manager.test_worker_image.TheGateCannotRunAgainstStaleBytecode (2 tests)
+[pass] tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved (9 tests)
+[pass] tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon (8 tests)
+[pass] tests.manager.test_worker_image.TheScriptedFixtures (5 tests)
+[pass] tests.manager.test_worker_image.TheWorkerHoldsNoneOfTheManagersCapabilities (3 tests)
+[pass] tests.manager.test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations (5 tests)
+[pass] tests.manager.test_workspaces.ACeilingBoundsTheWorkItRefuses (8 tests)
+[pass] tests.manager.test_workspaces.ALimitIsARefusalRatherThanAWalk (2 tests)
+[pass] tests.manager.test_workspaces.AManifestIsMeasuredRatherThanDeclared (4 tests)
+[pass] tests.manager.test_workspaces.CleanupTouchesOnlyWhatWasCreated (3 tests)
+[pass] tests.manager.test_workspaces.NothingButRegularFilesIsDelivered (4 tests)
+[pass] tests.manager.test_workspaces.OneAssignmentOneWorkspace (5 tests)
+[pass] tests.manager.test_workspaces.TheComponentIsOnThePublicSurface (1 tests)
+[pass] tests.manager.test_workspaces.TheCopyIsTheMeasurement (13 tests)
+[pass] tests.manager.test_workspaces.TheCoreManagerDoesNotAcquireSources (5 tests)
+[pass] tests.manager.test_workspaces.TheInputRootIsComposedOnceAndThenFrozen (13 tests)
+[pass] tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind (3 tests)
+[pass] tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases (3 tests)
+[pass] tests.tools.test_parallel_runner.AShardThatDiesWithoutAReportIsAFailure (1 tests)
+[pass] tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind (5 tests)
+[pass] tests.tools.test_parallel_runner.CollectionRefusesAModuleItCannotLoad (1 tests)
+[pass] tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder (3 tests)
+[pass] tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing (5 tests)
+[pass] tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly (5 tests)
+[pass] tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree (4 tests)
+[pass] tests.tools.test_parallel_runner.TheRegistryFailsClosed (4 tests)
+[pass] tests.tools.test_parallel_runner.TheSerialRegistryOverlapsNothing (2 tests)
+[pass] tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves (6 tests)
+[pass] tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten (6 tests)
+[pass] tests.tools.test_worker_image_build.TheBuildVectorIsClosed (11 tests)
+[pass] tests.tools.test_worker_image_build.TheReceiptsAreRemovedAndTheContentIsNot (3 tests)
+[pass] tests.tools.test_worker_image_build.TwoBuildsReachOneIdentity (3 tests)
+--- parallel source: failures ---
+=== FAILURE: tests.authority.test_work_labels.ProjectionsAndPredicates.test_label_predicates_read_work_and_labels_from_one_snapshot ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_work_labels.py", line 418, in test_label_predicates_read_work_and_labels_from_one_snapshot
+    self.assertNotIn(new_work, matched)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: '0123abcd-W10' unexpectedly found in ['0123abcd-W10', '0123abcd-W7', '0123abcd-W8', '0123abcd-W9']
+=== FAILURE: tests.authority.test_work_labels.ProjectionsAndPredicates.test_work_and_labels_are_read_from_one_snapshot ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_work_labels.py", line 390, in test_work_and_labels_are_read_from_one_snapshot
+    self.assertIn(observed, {
+    ~~~~~~~~~~~~~^^^^^^^^^^^^
+        ("open", ("release-foo", "v12")),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ("closed", ("archived", "release-foo", "v12")),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    })
+    ^^
+AssertionError: ('open', ('archived', 'release-foo', 'v12')) not found in {('closed', ('archived', 'release-foo', 'v12')), ('open', ('release-foo', 'v12'))}
+=== ERROR: tests.authority.test_work_labels.ReplayAndConvergence.test_an_exact_retry_does_not_reauthorize_after_revocation ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_work_labels.py", line 262, in test_an_exact_retry_does_not_reauthorize_after_revocation
+    self.core.label_work(WORK, "v12", actor=GEMINI,
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         operation_id=operation),
+                         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 742, in label_work
+    return self._label_transition(work_id, label, actor=actor,
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  operation_id=operation_id, adding=True)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 768, in _label_transition
+    decision = self._require_capability(
+        actor, "manage-work-labels",
+        "Work label addition" if adding else "Work label removal",
+        scope=work["scope"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 1877, in _require_capability
+    raise Refusal(
+    ...<3 lines>...
+        f"object")
+baton_v12.authority.errors.Refusal: 'baton.gemini' does not hold the manage-work-labels capability; a Work label addition is written by the configured actor, not by whoever holds the object
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5386, in test_every_owned_entry_has_exactly_one_probe
+    self.assertEqual(sorted(wanted - declared), [], "owned, never probed")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[2723 chars]te")] != []
+
+First list contains 28 additional elements.
+First extra element 0:
+(('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), 'a persisted attempt')
+
+Diff is 2999 characters long. Set self.maxDiff to None to see it. : owned, never probed
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5425, in test_the_missing_probe_check_can_actually_fail
+    self.assertEqual(sorted(wanted - declared), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[2723 chars]te")] != []
+
+First list contains 28 additional elements.
+First extra element 0:
+(('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), 'a persisted attempt')
+
++ []
+- [(('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'),
+-   'a persisted attempt'),
+-  (('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'),
+-   'a persisted attempt'),
+-  (('adopted', 'attempts.py:_attempts', 'attempts.input_digest'),
+-   'a persisted attempt'),
+-  (('adopted', 'attempts.py:_attempts', 'attempts.runtime_attempt_id'),
+-   'a persisted attempt'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.declared_output'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.policy'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.workspace'),
+-   'a retained agent-session profile'),
+-  (('adopted', 'intake.py:retentions_of', 'retentions.retain_operation_id'),
+-   'a persisted retention'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.authority_uuid'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.generation'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.participant'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.posture'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.profile_digest'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.runtime_attempt_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.work_id'),
+-   'a persisted agent session'),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.target'),
+-   "the runtime adapter's start"),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command'), 'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.artifact_ids'),
+-   'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.disposition'),
+-   'a retention disposition'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.runtime_attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'oci.py:OciAdapter.start', 'request.input_root'),
+-   'a start request'),
+-  (('caller', 'oci.py:canonical_source', 'place'), 'a host path'),
+-  (('caller', 'oci.py:canonical_target', 'place'), 'a container path'),
+-  (('caller', 'workspaces.py:compose_input_root', 'assignment'),
+-   "the manager's own assignment"),
+-  (('caller', 'workspaces.py:compose_input_root', 'runtime_attempt_id'),
+-   'a runtime attempt identity'),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy'),
+-   'a  teardown ending'),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy.lifecycle_state'),
+-   "a  teardown ending's state")]
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5261, in test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attempts.py:_plan_agrees', 'document', [1464 chars]nt')] != []
+
+First list contains 24 additional elements.
+First extra element 0:
+('attempts.py:_plan_agrees', 'document', 'a declared runtime mount')
+
+Diff is 1604 characters long. Set self.maxDiff to None to see it. : boundary calls attributed to no entry
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5135, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'lanes.py:_no_predecessor_hol[5524 chars]on')] != []
+
+First list contains 87 additional elements.
+First extra element 0:
+('adopted', 'lanes.py:_no_predecessor_holds', 'runtime_lanes')
+
+Diff is 5909 characters long. Set self.maxDiff to None to see it. : receiving entries with no owner
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5191, in test_the_universe_sees_every_persisted_column_that_is_read
+    self.assertEqual(sorted(scanned - tracked), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "columns this build reads that the universe cannot see")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['operation_id', 'settled_at'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'operation_id'
+
+- ['operation_id', 'settled_at']
++ [] : columns this build reads that the universe cannot see
+[parallel source] 305 shards, 1844 tests, 7 failures, 1 errors, 1 skipped -> FAILED
+[summary] parallel source FAILED; the serial registry did not run
+PARALLEL rc=1
+................................s....s........s...............................ss..............................
+----------------------------------------------------------------------
+Ran 105 tests in 12.004s
+
+OK (skipped=5)
+SERIAL rc=0

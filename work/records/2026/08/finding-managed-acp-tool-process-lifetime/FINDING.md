@@ -105,6 +105,21 @@ launcher and process-per-turn restart, and that existing
 itself remains deployment policy via the mandatory operand rather than a
 repository-selected operational guess.
 
+## Approver ruling — confirmed 2026-08-28 UTC
+
+Slawomir approved the proposed exact boundary in full. V11 may require an
+explicit positive `turnTimeoutMs`, use one PID-namespace process domain per
+delivered turn, and restart the agent process while preserving the ACP session
+identity. Every settlement path must positively terminate and reap that
+domain before the lane is reused. A deadline is terminal for the delivery and
+is reported as the existing correlated `failed/cause=internal`; inability to
+prove teardown keeps the lane fenced and fails closed. The timeout duration
+remains explicit deployment policy rather than a repository-selected default.
+
+This ruling resolves the preceding open approval question. Implementation may
+now proceed through the existing `baton.impl` handoff and must retain the
+service-context PID-namespace preflight and focused teardown matrix.
+
 ## Acceptance
 
 - Focused regressions prove tool deadline, settlement teardown, cancellation,
@@ -114,3 +129,81 @@ repository-selected operational guess.
 - Exact scoped recovery leaves unrelated services and active assignments
   untouched.
 - The invariant is carried into the v12 Worker Manager/container contract.
+
+## Implementation clarifications — 2026-08-28
+
+Recorded by `baton.claude` at implementation. Neither changes the approved
+boundary; both answer a question the ruling left to the implementer, and are
+written here rather than only in code so a later reader does not have to
+re-derive them.
+
+**Confirmed placement: the launcher requirement is enforced by the
+DEPLOYMENT's verifier, not by the bridge.** The ruling says a direct
+executable or a mount-only bubblewrap command is not an accepted managed
+configuration. The bridge cannot be the enforcer of that: it is deliberately
+ACP-generic, it does not parse `agent.command`, and teaching it to recognise
+one deployment's launcher vocabulary would undo the property that makes it
+agent-generic at all. The staged set's own `verify.mjs` refuses a launcher
+missing `--unshare-pid` or `--die-with-parent` and requires the preflight to
+ship beside it; the bridge owns killing the domain owner and proving its exit,
+which is what it can actually observe.
+
+**Confirmed: the two teardown windows are supervisor constants, not a fifth
+operator operand.** `TERM_GRACE_MS` (500) and `KILL_PROOF_MS` (5000) bound how
+long this supervisor waits for a signal it sent. They describe the supervisor
+rather than a deployment's workload, which is exactly the distinction that
+makes `turnTimeoutMs` deployment policy — so adding a fourth and fifth timeout
+to the configuration surface would be spending an operator decision on
+something the operator has no information about.
+
+**Confirmed, on acceptance clause 2** ("runtime state distinguishes a
+progressing turn from a live bridge with a stalled turn"): that distinction is
+now made by the deadline rather than by a new state. A stalled turn stops
+being reported as `working` within the configured bound and becomes correlated
+`failed/cause=internal`, which is what the ruling directed; a separate
+`stalled` state would rename a terminal timeout without adding information.
+
+**Open, unchanged:** whether an operator-visible PRE-deadline warning is
+wanted. The ruling said a separate `stalled` state/cause is unnecessary unless
+the approver wants one, and nothing here adds it.
+
+## 2026-08-28 — second independent review
+
+**Confirmed P0:** the strengthened descendant preflight still admits a
+vacuous trial. Its `pgrep -f` tokens occur in the outer `bwrap` argv, so that
+owner satisfies both descendant-start checks. A stand-in `bwrap` that only
+sleeps — no namespace and no descendants — makes the unchanged preflight exit
+0 and claim successful reaping. Exact evidence and the retained reproduction
+path are in `review-2026-08-28T07-51-55Z.md`.
+
+**Confirmed P1:** the fresh-cutover rollback restores a launcher backup that
+only the reconciliation path creates. A mandatory preflight failure on the
+fresh path therefore cannot execute the documented rollback as written.
+
+**Confirmed P1:** failure correlation is retained across the per-envelope
+action loop and assigned only after replacement setup succeeds. A later
+action's early failure can therefore be published with the preceding action's
+Work, episode, and session.
+
+## 2026-08-28 — third independent review
+
+**Confirmed P1:** the corrected preflight snapshots heartbeat counts before
+terminating the domain. A final write between that snapshot and teardown is
+later called evidence of a surviving process even after every exact PID in the
+recorded descendant tree is proved absent. A stand-in that recursively reaps
+the complete tree is refused with exit 6. Exact evidence and the retained
+reproduction path are in `review-2026-08-28T08-41-58Z.md`.
+
+## Operator service-context acceptance — 2026-08-28
+
+**Observed:** Slawomir ran the exact staged `preflight-process-domain.sh` from
+the normal host shell, outside the managed agent sandbox. The probe created the
+PID namespace, ran an escaped `setsid` descendant and a busy descendant inside
+it, observed six host processes below the owner, removed all of them when the
+owner exited, and proved an unrelated control remained alive.
+
+**Confirmed:** The mandatory service-context gate passed. The shell's trailing
+`Killed` diagnostic is the probe's EXIT cleanup terminating its own unrelated
+control after that survival assertion, not a failed invariant. Exact output is
+preserved in
+`evidence/operator-service-context-preflight-2026-08-28.txt`.

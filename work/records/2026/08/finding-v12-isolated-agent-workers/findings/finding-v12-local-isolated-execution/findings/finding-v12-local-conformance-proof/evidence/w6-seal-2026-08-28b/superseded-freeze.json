@@ -1,0 +1,39 @@
+{
+ "attempt_row": {
+  "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "adapter_name": "acp",
+  "approval": "none",
+  "assignment_generation": 1,
+  "assignment_participant": "baton.claude",
+  "authority_uuid": "43c55d4b000000000000000000000000",
+  "cleanup": "pending",
+  "consent_runtime": "not-started",
+  "created_at": "2026-08-24T00:00:00.000Z",
+  "execution_runtime": "quiescent",
+  "image_digest": null,
+  "input_digest": "sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86",
+  "integration": "none",
+  "observation_seq": 4,
+  "observed_at": "2026-08-24T00:00:00.000Z",
+  "output": "open",
+  "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "proposal": "none",
+  "runtime_attempt_id": "attempt-6fd35f2815",
+  "runtime_id": "6b40403202fc24238d0b78049c915bad6961cebeb4af898630fb660afa5f57d7",
+  "technical_review": "none",
+  "toolchain_digest": null,
+  "verification": "none",
+  "work_id": "43c55d4b-W6636",
+  "worker_disposition": "completed"
+ },
+ "delivered_generation": 1,
+ "durable_rows_after": 18,
+ "durable_rows_before": 18,
+ "live_generation": 2,
+ "message": "the live assignment is a dict and this attempt is fixed to a dict",
+ "refusal": {
+  "category": "stale-assignment",
+  "code": "generation"
+ }
+}

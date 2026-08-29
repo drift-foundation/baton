@@ -1,0 +1,924 @@
+{
+ "assessed": [
+  {
+   "assessment": "passed",
+   "case_id": "A-assignment-manifest-delivered-read-only-beside-the-input",
+   "rationale": "every clause of the expectation held"
+  },
+  {
+   "assessment": "passed",
+   "case_id": "A-input-is-read-only",
+   "rationale": "every clause of the expectation held"
+  },
+  {
+   "assessment": "passed",
+   "case_id": "B-no-authority-capability",
+   "rationale": "every clause of the expectation held"
+  },
+  {
+   "assessment": "passed",
+   "case_id": "B-no-baton-executable",
+   "rationale": "every clause of the expectation held"
+  },
+  {
+   "assessment": "passed",
+   "case_id": "B-no-canonical-repository",
+   "rationale": "every clause of the expectation held"
+  },
+  {
+   "assessment": "passed",
+   "case_id": "A-only-the-authorized-root-is-mounted-at-the-fixed-path",
+   "rationale": "every clause of the expectation held"
+  },
+  {
+   "assessment": "failed",
+   "case_id": "C-decline-carrying-bearer-refused",
+   "rationale": "refusal None is not {'category': 'integrity', 'code': 'schema'}; offer_state not-equals 'declined'"
+  },
+  {
+   "assessment": "passed",
+   "case_id": "E-operation-collision",
+   "rationale": "every clause of the expectation held"
+  },
+  {
+   "assessment": "passed",
+   "case_id": "A-completion-under-a-superseded-generation-refused",
+   "rationale": "every clause of the expectation held"
+  },
+  {
+   "assessment": "passed",
+   "case_id": "A-output-persists-past-the-runtime",
+   "rationale": "every clause of the expectation held"
+  }
+ ],
+ "canary": {
+  "canary_id": "w6-workspace-canary",
+  "found": [
+   "proposal/w6-canary.txt"
+  ],
+  "surface": "workspace",
+  "value_digest": "sha256:7e1b33f38e42aa94a1cb8b8b5653f12f62ff534ce2dbfc9b3966a14b87ef436c"
+ },
+ "certify_report": null,
+ "dropped_from_selection": [],
+ "failed": [
+  "C-decline-carrying-bearer-refused"
+ ],
+ "fixture": {
+  "adapter_build_digest": "sha256:4a8f1d05c19f67cefe4a627b39e357d053b78b7ab73a8ea9ab8264b0e45b8bf0",
+  "agent_session_profile_digest": "sha256:22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+  "canaries": [
+   {
+    "canary_id": "w6-workspace-canary",
+    "surface": "workspace",
+    "value_digest": "sha256:7e1b33f38e42aa94a1cb8b8b5653f12f62ff534ce2dbfc9b3966a14b87ef436c"
+   }
+  ],
+  "created_at": "2026-08-28T00:00:00.000Z",
+  "document": "fixture",
+  "document_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+  "fault_capabilities": [],
+  "fixture_id": "w6-local-oci-capability-pass",
+  "host_identity": {
+   "manager_host_id": "w6-host",
+   "runtime_host_id": "w6-host",
+   "workspace_path_resolves_on_manager": true
+  },
+  "input_manifest_digest": "sha256:911db67722767bcd1b124b6780715af67c38623c891c31edfca2871ea60ce882",
+  "locality": "local",
+  "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "profile": "local-oci",
+  "runtime_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "scripted_agent": {
+   "model_provider_required": false,
+   "script_digest": "sha256:f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+   "speaks": "acp"
+  },
+  "suite_family": "baton.worker-conformance",
+  "version": {
+   "major": 1,
+   "minor": 0
+  },
+  "work_ref": {
+   "authority_uuid": "43c55d4b000000000000000000000000",
+   "work_id": "43c55d4b-W6636"
+  }
+ },
+ "local_oci_portable_core": [
+  "A-assignment-manifest-delivered-read-only-beside-the-input",
+  "A-assignment-manifest-naming-another-runtime-attempt-refused",
+  "A-assignment-minted-against-another-input-refused",
+  "A-collection-ambiguous",
+  "A-completion-answers-every-declaration-once",
+  "A-completion-copies-the-delivered-assignment-identity",
+  "A-completion-identity-must-match-the-declaration",
+  "A-completion-under-a-superseded-generation-refused",
+  "A-completion-with-an-undeclared-answer-refused",
+  "A-consent-sees-neither-input-document",
+  "A-ephemeral-exported-is-collected",
+  "A-ephemeral-not-exported-not-collected",
+  "A-execution-without-the-assignment-manifest-refused",
+  "A-freeze-after-quiescence",
+  "A-freeze-changed-bytes-refused",
+  "A-freeze-digest-recomputes",
+  "A-freeze-exact-replay",
+  "A-frozen-output-chains-as-read-only-input",
+  "A-identifier-only-output-refused",
+  "A-input-is-read-only",
+  "A-input-pair-naming-two-work-items-refused",
+  "A-input-root-authorized-against-the-owned-assignment",
+  "A-interrupted-publish-leaves-no-output-json",
+  "A-malformed-assignment-manifest-refused",
+  "A-manager-acquires-nothing",
+  "A-manager-receipt-is-not-the-worker-envelope",
+  "A-missing-required-output",
+  "A-only-the-authorized-root-is-mounted-at-the-fixed-path",
+  "A-output-json-published-last",
+  "A-output-overlap-refused",
+  "A-output-persists-past-the-runtime",
+  "A-output-symlink-refused",
+  "A-output-traversal-refused",
+  "A-proposal-is-not-a-push",
+  "A-required-declaration-cannot-be-answered-missing",
+  "A-staged-tree-matches-its-manifest",
+  "A-stale-generation-root-refused-before-mount",
+  "A-undeclared-not-collected",
+  "A-wrong-attempt-root-refused-before-mount",
+  "B-cross-worker-isolation",
+  "B-git-metadata-private",
+  "B-network-policy-enforced",
+  "B-no-authority-capability",
+  "B-no-baton-executable",
+  "B-no-canonical-repository",
+  "B-resource-policy-enforced",
+  "B-tool-policy-enforced",
+  "C-activity-changes-no-state",
+  "C-assignment-manifest-after-claim",
+  "C-claim-ambiguous-no-execution",
+  "C-claim-settled-by-operation",
+  "C-decline-carrying-bearer-refused",
+  "C-decline-without-bearer",
+  "C-decline-wrong-binding-refused",
+  "C-no-write-before-activate",
+  "C-preclaim-metadata-only",
+  "C-preclaim-no-execution",
+  "C-stale-activity",
+  "C-stale-proposal",
+  "C-stale-result",
+  "C-token-expired",
+  "C-token-replayed",
+  "C-token-wrong-binding",
+  "D-agent-quiescence-not-runtime",
+  "D-cancel-reply-is-not-death",
+  "D-cancelled-output-sealed",
+  "D-destroyed-clears-gate",
+  "D-discard-requires-policy",
+  "D-fence-before-stop",
+  "D-late-publication-refused",
+  "D-quiescent-is-not-destroyed",
+  "D-replacement-gated",
+  "D-retention-policy",
+  "D-slot-freed-immediately",
+  "D-uncertain-quiescence",
+  "E-adapter-restart-reconciles",
+  "E-agent-transport-lost",
+  "E-cleanup-blocked-on-intake",
+  "E-duplicate-frame",
+  "E-duplicate-observation",
+  "E-duplicate-runtime-start",
+  "E-exact-replay",
+  "E-manager-restart-reconciles",
+  "E-observation-regression",
+  "E-operation-collision",
+  "E-operation-signature-covers-kind",
+  "E-operation-signature-mismatch-refused",
+  "E-partition-reattach-proof",
+  "E-reachability-is-not-identity",
+  "F-canary-each-surface",
+  "F-credential-expiry-mid-run",
+  "F-credential-lifetime",
+  "F-credential-not-reusable-cross-assignment",
+  "F-credential-scoped-to-assignment",
+  "F-leak-refuses-publication",
+  "F-no-credential-in-events",
+  "F-no-credential-in-manifests",
+  "F-residual-risk-reported",
+  "G-approval-payload-valid",
+  "G-approval-race",
+  "G-approval-refused",
+  "G-artifact-store-unavailable",
+  "G-authority-unavailable",
+  "G-capability-refused",
+  "G-error-frames-typed",
+  "G-extension-refused",
+  "G-mode-unavailable",
+  "G-plan-rejected",
+  "G-policy-drift",
+  "G-profile-failure-signal",
+  "G-proposal-integrity",
+  "G-prose-decides-nothing",
+  "G-receipt-immutability",
+  "G-source-provider-unavailable",
+  "G-stale-contract",
+  "G-stale-target",
+  "G-uncertified-profile",
+  "G-untrusted-output",
+  "G-verdict-is-not-policy",
+  "G-version-refused",
+  "H-agent-holds-no-capability",
+  "H-axis-monotonic",
+  "H-cancel-drain-unknown",
+  "H-cancel-observed",
+  "H-capability-withheld",
+  "H-consent-then-execution",
+  "H-disposition-gating",
+  "H-event-integrity",
+  "H-event-normalization",
+  "H-event-overflow-counted",
+  "H-fresh-session",
+  "H-history-methods-refused",
+  "H-provider-id-is-not-identity",
+  "H-turn-outcomes",
+  "H-unadvertised-method-refused"
+ ],
+ "not_a_certification": true,
+ "not_observed": [
+  "A-assignment-manifest-naming-another-runtime-attempt-refused",
+  "A-assignment-minted-against-another-input-refused",
+  "A-collection-ambiguous",
+  "A-completion-answers-every-declaration-once",
+  "A-completion-copies-the-delivered-assignment-identity",
+  "A-completion-identity-must-match-the-declaration",
+  "A-completion-with-an-undeclared-answer-refused",
+  "A-consent-sees-neither-input-document",
+  "A-ephemeral-exported-is-collected",
+  "A-ephemeral-not-exported-not-collected",
+  "A-execution-without-the-assignment-manifest-refused",
+  "A-freeze-after-quiescence",
+  "A-freeze-changed-bytes-refused",
+  "A-freeze-digest-recomputes",
+  "A-freeze-exact-replay",
+  "A-frozen-output-chains-as-read-only-input",
+  "A-identifier-only-output-refused",
+  "A-input-pair-naming-two-work-items-refused",
+  "A-input-root-authorized-against-the-owned-assignment",
+  "A-interrupted-publish-leaves-no-output-json",
+  "A-malformed-assignment-manifest-refused",
+  "A-manager-acquires-nothing",
+  "A-manager-receipt-is-not-the-worker-envelope",
+  "A-missing-required-output",
+  "A-output-json-published-last",
+  "A-output-overlap-refused",
+  "A-output-symlink-refused",
+  "A-output-traversal-refused",
+  "A-proposal-is-not-a-push",
+  "A-required-declaration-cannot-be-answered-missing",
+  "A-staged-tree-matches-its-manifest",
+  "A-stale-generation-root-refused-before-mount",
+  "A-undeclared-not-collected",
+  "A-wrong-attempt-root-refused-before-mount",
+  "B-cross-worker-isolation",
+  "B-git-metadata-private",
+  "B-network-policy-enforced",
+  "B-resource-policy-enforced",
+  "B-tool-policy-enforced",
+  "C-activity-changes-no-state",
+  "C-assignment-manifest-after-claim",
+  "C-claim-ambiguous-no-execution",
+  "C-claim-settled-by-operation",
+  "C-decline-without-bearer",
+  "C-decline-wrong-binding-refused",
+  "C-no-write-before-activate",
+  "C-preclaim-metadata-only",
+  "C-preclaim-no-execution",
+  "C-stale-activity",
+  "C-stale-proposal",
+  "C-stale-result",
+  "C-token-expired",
+  "C-token-replayed",
+  "C-token-wrong-binding",
+  "D-agent-quiescence-not-runtime",
+  "D-cancel-reply-is-not-death",
+  "D-cancelled-output-sealed",
+  "D-destroyed-clears-gate",
+  "D-discard-requires-policy",
+  "D-fence-before-stop",
+  "D-late-publication-refused",
+  "D-quiescent-is-not-destroyed",
+  "D-replacement-gated",
+  "D-retention-policy",
+  "D-slot-freed-immediately",
+  "D-uncertain-quiescence",
+  "E-adapter-restart-reconciles",
+  "E-agent-transport-lost",
+  "E-cleanup-blocked-on-intake",
+  "E-duplicate-frame",
+  "E-duplicate-observation",
+  "E-duplicate-runtime-start",
+  "E-exact-replay",
+  "E-manager-restart-reconciles",
+  "E-observation-regression",
+  "E-operation-signature-covers-kind",
+  "E-operation-signature-mismatch-refused",
+  "E-partition-reattach-proof",
+  "E-reachability-is-not-identity",
+  "F-canary-each-surface",
+  "F-credential-expiry-mid-run",
+  "F-credential-lifetime",
+  "F-credential-not-reusable-cross-assignment",
+  "F-credential-scoped-to-assignment",
+  "F-leak-refuses-publication",
+  "F-no-credential-in-events",
+  "F-no-credential-in-manifests",
+  "F-residual-risk-reported",
+  "G-approval-payload-valid",
+  "G-approval-race",
+  "G-approval-refused",
+  "G-artifact-store-unavailable",
+  "G-authority-unavailable",
+  "G-capability-refused",
+  "G-error-frames-typed",
+  "G-extension-refused",
+  "G-mode-unavailable",
+  "G-plan-rejected",
+  "G-policy-drift",
+  "G-profile-failure-signal",
+  "G-proposal-integrity",
+  "G-prose-decides-nothing",
+  "G-receipt-immutability",
+  "G-source-provider-unavailable",
+  "G-stale-contract",
+  "G-stale-target",
+  "G-uncertified-profile",
+  "G-untrusted-output",
+  "G-verdict-is-not-policy",
+  "G-version-refused",
+  "H-agent-holds-no-capability",
+  "H-axis-monotonic",
+  "H-cancel-drain-unknown",
+  "H-cancel-observed",
+  "H-capability-withheld",
+  "H-consent-then-execution",
+  "H-disposition-gating",
+  "H-event-integrity",
+  "H-event-normalization",
+  "H-event-overflow-counted",
+  "H-fresh-session",
+  "H-history-methods-refused",
+  "H-provider-id-is-not-identity",
+  "H-turn-outcomes",
+  "H-unadvertised-method-refused"
+ ],
+ "passed": [
+  "A-assignment-manifest-delivered-read-only-beside-the-input",
+  "A-completion-under-a-superseded-generation-refused",
+  "A-input-is-read-only",
+  "A-only-the-authorized-root-is-mounted-at-the-fixed-path",
+  "A-output-persists-past-the-runtime",
+  "B-no-authority-capability",
+  "B-no-baton-executable",
+  "B-no-canonical-repository",
+  "E-operation-collision"
+ ],
+ "result": "capability-pass",
+ "run": {
+  "created_at": "2026-08-28T00:00:00.000Z",
+  "document": "run",
+  "document_digest": "sha256:5c3e6a75e5c5b76edda2c8d632a6238d404699080ad60fed393195925a7d790e",
+  "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+  "obligations_digest": "sha256:a78a76e30be8177eb678eb54133f544396ae2de98366e4a9d5f0070468c998fd",
+  "observations": [
+   {
+    "blocked_by": null,
+    "case_digest": "sha256:9c53db259aab4d0a9b85322f417a1c190ae39b5242e0073738aa6cd71ca73eb1",
+    "case_id": "A-assignment-manifest-delivered-read-only-beside-the-input",
+    "document": "observation",
+    "document_digest": "sha256:3e1d533aabf76e4e9cb8f9c99fe384b88e40d53ab2cf8f914bb8860e8038a685",
+    "evidence": [
+     {
+      "artifact": {
+       "artifact_id": "A-assignment-manifest-delivered-read-only-beside-the-input-manifest",
+       "bytes": 1389,
+       "content_digest": "sha256:7b0adeacbf0f996bb2751a526ea151fee1fd0ce54cd7090577bc55e71b75ad1f",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/input-pair.json",
+       "media_type": "application/json"
+      },
+      "purpose": "manifest"
+     },
+     {
+      "artifact": {
+       "artifact_id": "A-assignment-manifest-delivered-read-only-beside-the-input-trace",
+       "bytes": 7823,
+       "content_digest": "sha256:f26cfeb96083afe7effa11201ff2ee2eb41b5d52bae1cbb62e999eb755ce7e7b",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/input-pair-trace.json",
+       "media_type": "application/json"
+      },
+      "purpose": "trace"
+     }
+    ],
+    "facts": {
+     "assignment_manifest_path": "/input/assignment.json",
+     "assignment_manifest_present": true,
+     "assignment_manifest_read_only": true,
+     "input_pair_bindings_agree": true
+    },
+    "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+    "observation_id": "w6-A-assignment-manifest-delivered-read-only-beside-the-input",
+    "observed_at": "2026-08-28T00:00:00.000Z",
+    "reason": "read inside the started execution container, and cross-read against the daemon's own bind record",
+    "status": "observed",
+    "suite_family": "baton.worker-conformance",
+    "version": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   {
+    "blocked_by": null,
+    "case_digest": "sha256:e82c37620489d6fca13e08aef48f0ec1ee2b67a4c014a74a8ab2f306c456f815",
+    "case_id": "A-input-is-read-only",
+    "document": "observation",
+    "document_digest": "sha256:edcf6907d058c15ed9076a6f496664ebc261db5dd45ccf65832b2a440252e98c",
+    "evidence": [
+     {
+      "artifact": {
+       "artifact_id": "A-input-is-read-only-log",
+       "bytes": 3640,
+       "content_digest": "sha256:a396842735a6b676a4e0ec64ef1848f571acf81240c2b7944415605151e4c49f",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/input-write.json",
+       "media_type": "application/json"
+      },
+      "purpose": "log"
+     },
+     {
+      "artifact": {
+       "artifact_id": "A-input-is-read-only-trace",
+       "bytes": 2178,
+       "content_digest": "sha256:dec076f52ad5c8a5d4319ce220f625ec416c6b5611b166a9f3bcaa86ba36f898",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/input-write-trace.json",
+       "media_type": "application/json"
+      },
+      "purpose": "trace"
+     }
+    ],
+    "facts": {
+     "input_write_denied_by": "OSError: [Errno 30] Read-only file system: '/input/w6-probe'",
+     "input_write_succeeded": false
+    },
+    "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+    "observation_id": "w6-A-input-is-read-only",
+    "observed_at": "2026-08-28T00:00:00.000Z",
+    "reason": "a write attempted from inside the runtime at the declared input path, denied with EROFS -- which is the read-only BIND and not a permission -- so the case holds. The control write into /workspace does NOT succeed in this composition and the artifact records why: the writable root is owned by the manager's uid and the container runs as 65532, which is a separate measured defect rather than part of this case",
+    "status": "observed",
+    "suite_family": "baton.worker-conformance",
+    "version": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   {
+    "blocked_by": null,
+    "case_digest": "sha256:48c334db276560bc741444d33b66c2d17da354627c206bdbccaff6762b33538c",
+    "case_id": "B-no-authority-capability",
+    "document": "observation",
+    "document_digest": "sha256:ac93a9a951b79277e9e11257d66af17d303825e7e353529997033a89cadc3be9",
+    "evidence": [
+     {
+      "artifact": {
+       "artifact_id": "B-no-authority-capability-attestation",
+       "bytes": 4534,
+       "content_digest": "sha256:9a397d52d630da42d5e55803e40ab0fc59bc9cb9f309e02ed78d7185c9712123",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/no-authority-attestation.json",
+       "media_type": "application/json"
+      },
+      "purpose": "attestation"
+     },
+     {
+      "artifact": {
+       "artifact_id": "B-no-authority-capability-log",
+       "bytes": 8192,
+       "content_digest": "sha256:82058a87338f01b6c9d424d8806e3a0d346fb18cc2f9a269d69c0b7ec269ad35",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/no-authority.json",
+       "media_type": "application/json"
+      },
+      "purpose": "log"
+     }
+    ],
+    "facts": {
+     "authority_database_reachable": false,
+     "authority_home_reachable": false
+    },
+    "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+    "observation_id": "w6-B-no-authority-capability",
+    "observed_at": "2026-08-28T00:00:00.000Z",
+    "reason": "the manager's own store file and its home directory, named by their exact host paths and resolved from inside the runtime",
+    "status": "observed",
+    "suite_family": "baton.worker-conformance",
+    "version": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   {
+    "blocked_by": null,
+    "case_digest": "sha256:b0c558d7e7c4bf6a4d80f036ca0178ba7d504a8a8065254fdffe6539c3600180",
+    "case_id": "B-no-baton-executable",
+    "document": "observation",
+    "document_digest": "sha256:8182d8ad5040a10c00ae4232b688f787b6e654b548c15de64ddf390a7142de05",
+    "evidence": [
+     {
+      "artifact": {
+       "artifact_id": "B-no-baton-executable-attestation",
+       "bytes": 4534,
+       "content_digest": "sha256:c0e8496f61f7e5363e222a2b5891e83655e766daedbfd5ddca9211c05589eed8",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/no-baton-attestation.json",
+       "media_type": "application/json"
+      },
+      "purpose": "attestation"
+     },
+     {
+      "artifact": {
+       "artifact_id": "B-no-baton-executable-log",
+       "bytes": 8151,
+       "content_digest": "sha256:44103f603b4468313eb86c5700a7ac48e3d0a0f78ce94eb5598e597aaea48e66",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/no-baton.json",
+       "media_type": "application/json"
+      },
+      "purpose": "log"
+     }
+    ],
+    "facts": {
+     "baton_config_reachable": false,
+     "baton_executable_reachable": false
+    },
+    "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+    "observation_id": "w6-B-no-baton-executable",
+    "observed_at": "2026-08-28T00:00:00.000Z",
+    "reason": "the deployment's exact Baton binary and config paths, resolved from inside the runtime, plus a PATH search",
+    "status": "observed",
+    "suite_family": "baton.worker-conformance",
+    "version": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   {
+    "blocked_by": null,
+    "case_digest": "sha256:b7b72b4bbc2b3d9025f74c2cc3bd4101414720e7a84fff1642378ed4761cecd7",
+    "case_id": "B-no-canonical-repository",
+    "document": "observation",
+    "document_digest": "sha256:2db88abf2e8db1e20f293818597dd1e9386eec6f16e74415e6f93c23fead0210",
+    "evidence": [
+     {
+      "artifact": {
+       "artifact_id": "B-no-canonical-repository-attestation",
+       "bytes": 4534,
+       "content_digest": "sha256:5abe576fe4decd332f610a7cfb4c71c82a73c6f9206cdf70994d8d19378145f7",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/no-repository-attestation.json",
+       "media_type": "application/json"
+      },
+      "purpose": "attestation"
+     },
+     {
+      "artifact": {
+       "artifact_id": "B-no-canonical-repository-log",
+       "bytes": 7995,
+       "content_digest": "sha256:ede70c0f3a252351ae57a0b45b5c48d4728789f006dfef59e039ee905380f2df",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/no-repository.json",
+       "media_type": "application/json"
+      },
+      "purpose": "log"
+     }
+    ],
+    "facts": {
+     "canonical_repository_reachable": false
+    },
+    "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+    "observation_id": "w6-B-no-canonical-repository",
+    "observed_at": "2026-08-28T00:00:00.000Z",
+    "reason": "the canonical checkout's exact host path and its metadata directory, resolved from inside the runtime",
+    "status": "observed",
+    "suite_family": "baton.worker-conformance",
+    "version": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   {
+    "blocked_by": null,
+    "case_digest": "sha256:d3ca95569fd50895e3ebcc2f9c201e08cdc60c62933fd98beb574bbb8118c5a3",
+    "case_id": "A-only-the-authorized-root-is-mounted-at-the-fixed-path",
+    "document": "observation",
+    "document_digest": "sha256:226560fb195089d0d1f2abf9a51b46de24eec922dbb128d9eb650647eda47e5c",
+    "evidence": [
+     {
+      "artifact": {
+       "artifact_id": "A-only-the-authorized-root-is-mounted-at-the-fixed-path-log",
+       "bytes": 355,
+       "content_digest": "sha256:012efe2a48054d47286c38b96a64007785746424cbd78661edf5e8b8f4d3ca51",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/authorized-root.json",
+       "media_type": "application/json"
+      },
+      "purpose": "log"
+     },
+     {
+      "artifact": {
+       "artifact_id": "A-only-the-authorized-root-is-mounted-at-the-fixed-path-trace",
+       "bytes": 454,
+       "content_digest": "sha256:1bb41246019f480120dd666084203a4d33d5b15fa101ca0b5cbdb552eb04bcdd",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/authorized-root-trace.json",
+       "media_type": "application/json"
+      },
+      "purpose": "trace"
+     }
+    ],
+    "facts": {
+     "mounted_source_is_authorized": false,
+     "refusal": {
+      "category": "policy",
+      "code": "denied"
+     },
+     "runtimes_started": 0
+    },
+    "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+    "observation_id": "w6-A-only-the-authorized-root-is-mounted-at-the-fixed-path",
+    "observed_at": "2026-08-28T00:00:00.000Z",
+    "reason": "the engine was asked how many runtimes carry this attempt's labels, so 0 is the daemon's answer rather than the manager's",
+    "status": "observed",
+    "suite_family": "baton.worker-conformance",
+    "version": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   {
+    "blocked_by": null,
+    "case_digest": "sha256:f5d3ca120ca3845c1908e36a8902ee90da8263262f9b800d03df6dbac77a02fc",
+    "case_id": "C-decline-carrying-bearer-refused",
+    "document": "observation",
+    "document_digest": "sha256:3c0f989f8f5e1fe39e6c7ff8cb9648354e1aa4247000a8047e32cefad40ccc81",
+    "evidence": [
+     {
+      "artifact": {
+       "artifact_id": "C-decline-carrying-bearer-refused-log",
+       "bytes": 1101,
+       "content_digest": "sha256:896ffaebb4c33db5bf4cfb64f258fba2bd6cd570d9fe1b30c0b89204c192afc8",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/decline-bearer.json",
+       "media_type": "application/json"
+      },
+      "purpose": "log"
+     }
+    ],
+    "facts": {
+     "claim_committed": false,
+     "offer_state": "declined",
+     "refusal": null
+    },
+    "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+    "observation_id": "w6-C-decline-carrying-bearer-refused",
+    "observed_at": "2026-08-28T00:00:00.000Z",
+    "reason": "the production offer boundary was asked to decline while carrying the issued bearer; the offer row is read back out of the store afterwards",
+    "status": "observed",
+    "suite_family": "baton.worker-conformance",
+    "version": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   {
+    "blocked_by": null,
+    "case_digest": "sha256:8397234c4d5e5d22d663a60a7a8e1a48e7a9e09af1af92a07b1e64de79ffa377",
+    "case_id": "E-operation-collision",
+    "document": "observation",
+    "document_digest": "sha256:14590b948a5e7bee80115f67f3d508d8988de4d516c4d173ccbf6a9343efa7c1",
+    "evidence": [
+     {
+      "artifact": {
+       "artifact_id": "E-operation-collision-log",
+       "bytes": 505,
+       "content_digest": "sha256:db3e92bc30f26c8ee4df61cfc2e1646a4fc237d6f5953e483953b0f9e11121f1",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/operation-collision.json",
+       "media_type": "application/json"
+      },
+      "purpose": "log"
+     }
+    ],
+    "facts": {
+     "durable_effects": 0,
+     "refusal": {
+      "category": "refused",
+      "code": "operation-collision"
+     }
+    },
+    "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+    "observation_id": "w6-E-operation-collision",
+    "observed_at": "2026-08-28T00:00:00.000Z",
+    "reason": "the manager's own effectively-once journal, driven at the seam that owns the rule; durable_effects is the change in the TOTAL row count of every table in the store, not a state column",
+    "status": "observed",
+    "suite_family": "baton.worker-conformance",
+    "version": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   {
+    "blocked_by": null,
+    "case_digest": "sha256:a50bf1a67ce79cd45eb0a8dbd7561aeadf7b123cd273208d65503072a115a29a",
+    "case_id": "A-completion-under-a-superseded-generation-refused",
+    "document": "observation",
+    "document_digest": "sha256:0ef459b8344893154ff4f5b8d20e2e5a2a861d2ff9f4a93f32f6a54935410b38",
+    "evidence": [
+     {
+      "artifact": {
+       "artifact_id": "A-completion-under-a-superseded-generation-refused-log",
+       "bytes": 1421,
+       "content_digest": "sha256:167ed7324d19e046fec4d61093430b10fab11b1de9593134fdaaca6b2bb8fbc3",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/superseded-freeze.json",
+       "media_type": "application/json"
+      },
+      "purpose": "log"
+     },
+     {
+      "artifact": {
+       "artifact_id": "A-completion-under-a-superseded-generation-refused-manifest",
+       "bytes": 4201,
+       "content_digest": "sha256:8db515e713538167822d986c5967589a74546d697da92a1e86ca6f31826bd8fc",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/superseded-freeze-manifest.json",
+       "media_type": "application/json"
+      },
+      "purpose": "manifest"
+     }
+    ],
+    "facts": {
+     "durable_effects": 0,
+     "manifest_generation_is_live": false,
+     "refusal": {
+      "category": "stale-assignment",
+      "code": "generation"
+     }
+    },
+    "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+    "observation_id": "w6-A-completion-under-a-superseded-generation-refused",
+    "observed_at": "2026-08-28T00:00:00.000Z",
+    "reason": "the arc ran to a real quiescent runtime with a real published envelope, and only then did the authority supersede the generation; durable_effects is the whole-store row delta across the refused freeze",
+    "status": "observed",
+    "suite_family": "baton.worker-conformance",
+    "version": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   {
+    "blocked_by": null,
+    "case_digest": "sha256:c14fa4940220b31b74fc437fbbb0d45d7fe4f5739d72e43cdb0379472b6908f7",
+    "case_id": "A-output-persists-past-the-runtime",
+    "document": "observation",
+    "document_digest": "sha256:ac74cae9ce0f6f73d5c2a6b41dadc24268b0032aaf47a5d66e5f6f034f945766",
+    "evidence": [
+     {
+      "artifact": {
+       "artifact_id": "A-output-persists-past-the-runtime-manifest",
+       "bytes": 7437,
+       "content_digest": "sha256:0f2372321ad595b6705e51f148364c9e1d1e3f7be005407652eeda6c0859e194",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/persistence-manifest.json",
+       "media_type": "application/json"
+      },
+      "purpose": "manifest"
+     },
+     {
+      "artifact": {
+       "artifact_id": "A-output-persists-past-the-runtime-trace",
+       "bytes": 3877,
+       "content_digest": "sha256:800783b40ec381fb63e2353f435b2755962e5ce4f3f402a4e76fef96b3c9ed2e",
+       "locator": "file:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/persistence-trace.json",
+       "media_type": "application/json"
+      },
+      "purpose": "trace"
+     }
+    ],
+    "facts": {
+     "digests_unchanged_after_destroy": true,
+     "frozen_tree_readable_after_destroy": true,
+     "output_manifest_readable_after_destroy": true
+    },
+    "fixture_digest": "sha256:8d57a9bac768110b3925c92384cc2615590a33c2050681c0c0f90282aeffe76f",
+    "observation_id": "w6-A-output-persists-past-the-runtime",
+    "observed_at": "2026-08-28T00:00:00.000Z",
+    "reason": "the runtime was really destroyed -- the engine reports no container carrying this attempt's labels -- and the custody tree and its manifest were re-read and re-digested from disk afterwards",
+    "status": "observed",
+    "suite_family": "baton.worker-conformance",
+    "version": {
+     "major": 1,
+     "minor": 0
+    }
+   }
+  ],
+  "profile": "local-oci",
+  "run_id": "w6-local-oci-capability-pass",
+  "suite_family": "baton.worker-conformance",
+  "supplemental_cases": [],
+  "version": {
+   "major": 1,
+   "minor": 0
+  }
+ },
+ "sealed_evidence": {
+  "register:cases": {
+   "bytes": 166999,
+   "content_digest": "sha256:67d58fc282ae51a4d54bce2fec971f2e4bbc12f647f8b1ced989fe5f7bed8cb4",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/cases.json"
+  },
+  "register:model": {
+   "bytes": 25641,
+   "content_digest": "sha256:eb4379ebf29a1286b29bf36df573536f54eeb3ef50da830e707988372b9ce2e9",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/conformance_model.py"
+  },
+  "register:obligations": {
+   "bytes": 64464,
+   "content_digest": "sha256:469c4e12636ad02eca18686ab4c580f203508e4e2aa57f5326dce74c4d42d8aa",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/obligations.json"
+  },
+  "register:schema": {
+   "bytes": 30601,
+   "content_digest": "sha256:f542c4a5a6828796aca3c0459ff3cd5c88f098a06d622960de16c8893f4477f7",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/schema/conformance-1.0.schema.json"
+  },
+  "w6636:adapter": {
+   "bytes": 112823,
+   "content_digest": "sha256:4a8f1d05c19f67cefe4a627b39e357d053b78b7ab73a8ea9ab8264b0e45b8bf0",
+   "path": "v12/python/src/baton_v12/worker_manager/oci.py"
+  },
+  "w6636:attempts": {
+   "bytes": 86648,
+   "content_digest": "sha256:ae8ce0e79d6c88dbb6045b3915ab94206b3139b37086c096595799737761cd84",
+   "path": "v12/python/src/baton_v12/worker_manager/attempts.py"
+  },
+  "w6636:composition-evidence": {
+   "bytes": 19084,
+   "content_digest": "sha256:a4be27bb85828d80c7bdaaf4a475e0214522275c2ba3aec4a716014c2da7d935",
+   "path": "work/records/2026/08/finding-v12-local-oci-lifecycle-composition/evidence/w6636-2026-08-27-composition.txt"
+  },
+  "w6636:composition-suite": {
+   "bytes": 97593,
+   "content_digest": "sha256:b7092ead2c0383df6886b731034b26537f54db66566f74ec421e4d3938d66997",
+   "path": "v12/python/tests/manager/test_lifecycle_composition.py"
+  },
+  "w6636:intake": {
+   "bytes": 73064,
+   "content_digest": "sha256:966fe21224a18f41d596ef88727551a85949018a846e327b28519f5fda7dd8cb",
+   "path": "v12/python/src/baton_v12/worker_manager/intake.py"
+  },
+  "w6636:mutation-harness": {
+   "bytes": 7608,
+   "content_digest": "sha256:d479cd5140f361ca4e674a66b5344f340a1ac691f0e82e1dd89ef57570e0f141",
+   "path": "work/records/2026/08/finding-v12-local-oci-lifecycle-composition/evidence/w6636-mutation-harness.py"
+  },
+  "w6636:offers": {
+   "bytes": 37194,
+   "content_digest": "sha256:bc9dc351b4aaa74df42c4fdb067ba2536024536ef7edf52b127a1ef53ce248b4",
+   "path": "v12/python/src/baton_v12/worker_manager/offers.py"
+  },
+  "w6636:scripted-agent": {
+   "bytes": 4564,
+   "content_digest": "sha256:f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+   "path": "v12/worker/scripted_agent.py"
+  },
+  "w6636:store": {
+   "bytes": 38043,
+   "content_digest": "sha256:5ae622902a3ae2d64e2f98ce3aad1065b3fce765b47d0db657df0e7af40cec83",
+   "path": "v12/python/src/baton_v12/worker_manager/store.py"
+  },
+  "w6636:worker-program": {
+   "bytes": 69540,
+   "content_digest": "sha256:f64901578f09a60a19165d2d549bb1287ac52ea3e23fa11e2231e90c513b4d8d",
+   "path": "v12/worker/baton_worker.py"
+  },
+  "w6636:worker-recipe": {
+   "bytes": 4737,
+   "content_digest": "sha256:0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f",
+   "path": "v12/worker/Dockerfile"
+  },
+  "w6636:workspaces": {
+   "bytes": 39843,
+   "content_digest": "sha256:0e2e24efb61b0a2a738be8557d119739a1ef713ea8994daad2db8c2e1fa8b07c",
+   "path": "v12/python/src/baton_v12/worker_manager/workspaces.py"
+  }
+ },
+ "topology_conflicting": {
+  "A-consent-sees-neither-input-document": [
+   "consent_mounts"
+  ],
+  "C-preclaim-no-execution": [
+   "consent_runtime_has_output",
+   "consent_runtime_has_workspace",
+   "consent_runtime_writable_paths"
+  ],
+  "H-consent-then-execution": [
+   "consent_assignment_ref",
+   "consent_epoch"
+  ]
+ },
+ "unable": [],
+ "verdict": "not-certified",
+ "verdict_rationale": "1 portable core case(s) failed"
+}

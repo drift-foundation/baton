@@ -251,3 +251,18 @@ session, and run the bounded first-claim smoke before normal dispatch resumes.
 
 This changes scheduling only. It does not waive, weaken or replace the
 fresh-release acceptance boundary.
+
+## Operator acceptance — 2026-08-28
+
+**Accepted:** the successor `dd1dc3e` stack is healthy with a fresh
+start-scoped Claude ACP context.  Its rendered launcher contract names
+`/home/sl/opt/baton/v11/dd1dc3e/bin/baton`, the exact live
+`/home/sl/baton-v11.14aecfb/baton.json`, `baton.claude`, and `impl`, while the
+deliberately untouched persistent `baton.claude/load.json` still names the
+older `14aecfb` executable and the stable config symlink.
+
+The fresh ACP session used the rendered `dd1dc3e` pair for its first recorded
+standalone claim and has continued to claim and hand off Work through that
+pair.  It did not rediscover or repin the stale persistent launcher file.
+This satisfies the operator-owned rollover boundary; no implementation or
+deployment gate remains on W14828.

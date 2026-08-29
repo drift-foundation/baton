@@ -63,7 +63,7 @@ from ..contracts import (ContractRefusal, canonical_bytes,
                          verify_manifest_digest)
 from ..contracts.errors import name_value
 from . import boundaries, documents, manifests, schema
-from .attempts import TRANSITIONS, observe
+from .attempts import TRANSITIONS, label_context, observe
 from .store import manager_signature
 
 __all__ = ["freeze_operation", "request_freeze", "record_frozen_result",
@@ -204,7 +204,13 @@ def request_freeze(store, port, adapter, *, attempt_id, disposition):
     # second one would give one capability two owners. So the manager stamps
     # the act it is already composing, which is also the more honest account:
     # this is the instant of the freeze THIS manager requested.
+    # W16823: AND THE TRUSTED CONTEXT, from this manager's own activated
+    # attempt row. The seal SELECTS the attempt's runtimes by their whole label
+    # set to prove nothing is still running, and the label set now names the
+    # principal -- so an adapter composing it without this would list nothing
+    # and conclude quiescence from an empty answer.
     sealed = adapter.seal({"attempt_id": attempt_id, "assignment": expect,
+                           "context": label_context(store, attempt_id),
                            "disposition": disposition, "now": store._now(),
                            "operation": dict(operation)})
     return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)

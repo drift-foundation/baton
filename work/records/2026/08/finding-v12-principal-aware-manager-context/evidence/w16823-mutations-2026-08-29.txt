@@ -1,0 +1,30 @@
+W16823 MUTATION HARNESS
+======================================================================
+[CAUGHT       ] the claim event is an act identity
+                ERROR: test_a_claim_event_that_is_not_an_act_identity_is_refused (tests.manager.test_principal_context.ContextThisManagerCanRefuseIsRefused.test_a_claim_event_that_is_not_an_act_identity_is_refused) (what='absent')
+[CAUGHT       ] the endpoint IS the assignment's participant
+                FAIL: test_a_decision_for_another_endpoint_is_refused (tests.manager.test_principal_context.ContextThisManagerCanRefuseIsRefused.test_a_decision_for_another_endpoint_is_refused)
+[CAUGHT       ] the scope is the one this offer froze
+                FAIL: test_a_decision_in_another_scope_is_refused (tests.manager.test_principal_context.ContextThisManagerCanRefuseIsRefused.test_a_decision_in_another_scope_is_refused)
+[CAUGHT       ] the role is the route this offer froze
+                FAIL: test_a_decision_for_another_route_is_refused (tests.manager.test_principal_context.ContextThisManagerCanRefuseIsRefused.test_a_decision_for_another_route_is_refused)
+[CAUGHT       ] the grant provenance is a closed vocabulary
+                ERROR: test_a_grant_provenance_this_build_cannot_place_is_refused (tests.manager.test_principal_context.ContextThisManagerCanRefuseIsRefused.test_a_grant_provenance_this_build_cannot_place_is_refused) (value=None)
+[CAUGHT       ] the policy generation counts from one
+                FAIL: test_a_policy_generation_that_is_not_a_generation_is_refused (tests.manager.test_principal_context.ContextThisManagerCanRefuseIsRefused.test_a_policy_generation_that_is_not_a_generation_is_refused) (what='zero')
+[CAUGHT       ] a committed settlement is the whole result
+                ERROR: test_a_late_recorded_commit_is_held_to_the_same_relations (tests.manager.test_principal_context.ContextThisManagerCanRefuseIsRefused.test_a_late_recorded_commit_is_held_to_the_same_relations) (what='no decision at all')
+[CAUGHT       ] the context rides the offer settlement signature
+                FAIL: test_a_changed_context_collides_rather_than_replaying_the_claim (tests.manager.test_principal_context.TheContextRidesEveryReplaySignatureItChanges.test_a_changed_context_collides_rather_than_replaying_the_claim)
+[CAUGHT       ] the context rides the activation signature
+                FAIL: test_an_activation_under_a_different_principal_collides (tests.manager.test_principal_context.TheContextRidesEveryReplaySignatureItChanges.test_an_activation_under_a_different_principal_collides)
+[CAUGHT       ] an offer with no context activates nothing
+                ERROR: test_an_attempt_whose_offer_retains_no_context_is_refused (tests.manager.test_principal_context.NothingBelowTheAuthorityChoosesTheContext.test_an_attempt_whose_offer_retains_no_context_is_refused)
+[CAUGHT       ] the labels carry the principal
+                ERROR: test_two_endpoints_produce_labels_that_agree_on_the_principal (tests.manager.test_principal_context.TwoEndpointsOnePrincipal.test_two_endpoints_produce_labels_that_agree_on_the_principal)
+[SKIPPED      ] the claim answers the decision it was taken under
+                a deliberate equivalence, not a guard
+[CAUGHT       ] the claim answers the exact claim event
+                FAIL: test_two_claims_through_one_v11_endpoint_have_equal_fences (tests.authority.test_claim_result.TheEventIsWhatTheFenceCannotBe.test_two_claims_through_one_v11_endpoint_have_equal_fences)
+======================================================================
+Every guard is load-bearing.

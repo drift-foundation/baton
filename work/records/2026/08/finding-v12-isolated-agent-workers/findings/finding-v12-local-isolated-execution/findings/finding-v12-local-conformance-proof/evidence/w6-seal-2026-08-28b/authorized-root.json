@@ -1,0 +1,9 @@
+{
+ "durable_rows_after": 11,
+ "durable_rows_before": 11,
+ "message": "the adapter for attempt 'attempt-718507092e' does not mount the authorized input root '/tmp/v12-w6636-38bpzmmj/storage/attempt-718507092e/inputs' read-only at '/input'; the root that was proved is the root that is mounted",
+ "refusal": {
+  "category": "policy",
+  "code": "denied"
+ }
+}

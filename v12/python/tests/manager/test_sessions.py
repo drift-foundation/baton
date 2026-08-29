@@ -27,6 +27,7 @@ import tempfile
 import unittest
 
 import baton_v12.worker_manager as worker_manager
+import baton_v12.worker_manager.handshake as handshake
 from baton_v12.contracts import ContractRefusal, digest
 from baton_v12.worker_manager import (AuthorityPort, ControlStore,
                                       SESSION_STATES, SESSION_SUCCESSORS,
@@ -1028,3 +1029,244 @@ class TheStoreKnowsItsOwnShape(SessionCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheUnsupportedVersionRefusalReachesTheRuntimeEnding(SessionCase):
+    """W32576: a genuine negotiation refusal, carried into the ending.
+
+    THE REFUSAL IS DERIVED FROM THE PERSISTED SESSION, not handed in. The
+    first version took a `ContractRefusal` operand and checked its
+    category/code -- which proves its TYPE and not its PROVENANCE, so any
+    capability holder could manufacture the pair and fence a live attempt.
+    """
+
+    def refused(self, attempt_id=ATTEMPT, version=9, **overrides):
+        self.opened(attempt_id=attempt_id)
+        adapter = self.with_runtime(attempt_id)
+        reference = dict(self.live(attempt_id=attempt_id), **overrides)
+        return adapter, handshake.settle_unsupported_version(
+            self.store, self.port, Agent(), adapter,
+            session_ref=reference, agent_protocol_version=version)
+
+    def test_the_ending_names_the_sessions_own_profile_and_versions(self):
+        _adapter, answer = self.refused()
+        self.assertEqual(answer["decision"], "unsupported-version")
+        self.assertEqual((answer["category"], answer["code"]),
+                         ("refused", "unsupported-version"))
+        # THE SESSION'S OWN PROFILE, which no caller supplied.
+        self.assertEqual(answer["profile_digest"], self.digest)
+        self.assertEqual(answer["pinned_wire_version"], 1)
+        self.assertEqual(answer["agent_protocol_version"], 9)
+        # THE AXIS IT MOVES IS THE RUNTIME'S, never the worker's.
+        attempt = self.store._connection.execute(
+            "SELECT * FROM attempts WHERE runtime_attempt_id = ?",
+            (ATTEMPT,)).fetchone()
+        self.assertEqual(attempt["worker_disposition"], "none")
+        self.assertEqual(attempt["execution_runtime"], "cancel-requested")
+
+    def test_a_version_the_profile_accepts_settles_nothing(self):
+        """The refusal is DERIVED, so a successful negotiation has no ending
+        to settle -- and this seam refuses to invent one."""
+        with self.assertRaises(ContractRefusal) as caught:
+            self.refused(version=1)
+        self.assertIn("negotiated wire version", str(caught.exception))
+        running = self.store._connection.execute(
+            "SELECT execution_runtime FROM attempts "
+            "WHERE runtime_attempt_id = ?", (ATTEMPT,)).fetchone()
+        self.assertEqual(running["execution_runtime"], "running")
+
+    def test_a_reference_the_session_does_not_hold_is_refused(self):
+        """All four parts, proved together. A reference naming a provider
+        session the row does not hold labels somebody else's evidence."""
+        with self.assertRaises(ContractRefusal) as caught:
+            self.refused(provider_session_id="not-this-session")
+        self.assertEqual(caught.exception.code, "identity-mismatch")
+
+    def test_an_unknown_session_is_refused_before_anything_ends(self):
+        for wrong in ({"session_epoch": 7}, {"posture": "consent"},
+                      {"runtime_attempt_id": "attempt-not-mine"}):
+            with self.assertRaises(ContractRefusal):
+                self.refused(**wrong)
+
+    def test_an_exact_retry_replays_the_one_record(self):
+        _adapter, first = self.refused()
+        again = handshake.settle_unsupported_version(
+            self.store, self.port, Agent(), Adapter(),
+            session_ref=self.live(), agent_protocol_version=9)
+        self.assertEqual(again["why"], first["why"])
+        self.assertEqual(self.store._connection.execute(
+            "SELECT COUNT(*) FROM operations WHERE kind = ?",
+            ("session.unsupported-version",)).fetchone()[0], 1)
+
+    def test_a_session_past_its_handshake_cannot_authorize_a_cancellation(
+            self):
+        """Review [P1]: a row that ONCE represented an execution session is
+        not evidence from its handshake.
+
+        `_require_session` proves identity and provider-session equality and
+        deliberately proves no state, so an old epoch in `closed`, `unknown`
+        or any post-handshake state could be named with a mismatching version
+        now and derive a fresh cancellation from history.
+        """
+        for state in ("ready", "prompting", "turn-ended", "cancel-requested",
+                      "agent-quiescent", "unknown", "closed"):
+            case = TheUnsupportedVersionRefusalReachesTheRuntimeEnding(
+                methodName="test_the_ending_names_the_sessions_own_profile"
+                           "_and_versions")
+            case.setUp()
+            try:
+                case.opened()
+                adapter = case.with_runtime()
+                case.store._connection.execute(
+                    "UPDATE agent_sessions SET state = ? "
+                    "WHERE runtime_attempt_id = ?", (state, ATTEMPT))
+                case.store._connection.commit()
+                with case.assertRaises(ContractRefusal) as caught:
+                    handshake.settle_unsupported_version(
+                        case.store, case.port, Agent(), adapter,
+                        session_ref=case.live(), agent_protocol_version=9)
+                # THE REASON IS PINNED, and it is the in-transaction check
+                # that decides now: the state rule has ONE owner, under the
+                # write lock that fixes the record, rather than an optimistic
+                # copy above it.
+                case.assertIn(f"moved to '{state}'", str(caught.exception))
+                # AND NOTHING WAS ENDED on the way to being refused.
+                case.assertEqual(case.store._connection.execute(
+                    "SELECT execution_runtime FROM attempts "
+                    "WHERE runtime_attempt_id = ?",
+                    (ATTEMPT,)).fetchone()["execution_runtime"], "running")
+            finally:
+                case.doCleanups()
+
+    def test_the_profile_is_observed_once_for_verdict_and_signature(self):
+        """Review [P1]: certification is REPLACEABLE state.
+
+        The first version derived the refusal from one read and then read the
+        profile again for `pinned_wire_version`. A withdrawal between them
+        answers `None` and faults on the subscript; a recertification detaches
+        the signed evidence from the snapshot that produced the refusal. One
+        observation now serves both, so a withdrawal AFTER it cannot change
+        what was signed.
+        """
+        _adapter, answer = self.refused()
+        # WITHDRAWN AFTER the record committed.
+        self.store._connection.execute(
+            "DELETE FROM profiles WHERE digest = ?", (self.digest,))
+        self.store._connection.commit()
+        # The record already committed and still names the snapshot it judged.
+        self.assertEqual(answer["profile_digest"], self.digest)
+        self.assertEqual(answer["pinned_wire_version"], 1)
+
+    def test_a_withdrawn_profile_refuses_rather_than_faulting(self):
+        """The other direction: withdrawn BEFORE the observation is a typed
+        refusal, never an untyped `None` subscript."""
+        self.opened()
+        adapter = self.with_runtime()
+        self.store._connection.execute(
+            "DELETE FROM profiles WHERE digest = ?", (self.digest,))
+        self.store._connection.commit()
+        with self.assertRaises(ContractRefusal) as caught:
+            handshake.settle_unsupported_version(
+                self.store, self.port, Agent(), adapter,
+                session_ref=self.live(), agent_protocol_version=9)
+        self.assertEqual(caught.exception.code, "profile-uncertified")
+
+    def test_a_released_slot_cannot_authorize_a_cancellation(self):
+        """Review [P1]: state and slot are SEPARATE axes.
+
+        Runtime-absence evidence releases the posture slot WITHOUT rewriting
+        the session state, so a historical `initializing` row survives the
+        state check while its posture belongs to nobody. A refusal is evidence
+        from the session that currently HOLDS the execution posture.
+        """
+        self.opened()
+        adapter = self.with_runtime()
+        self.store._connection.execute(
+            "UPDATE posture_slots SET occupancy = 'available', "
+            "session_epoch = NULL WHERE runtime_attempt_id = ? "
+            "AND posture = 'execution'", (ATTEMPT,))
+        self.store._connection.commit()
+        with self.assertRaises(ContractRefusal) as caught:
+            handshake.settle_unsupported_version(
+                self.store, self.port, Agent(), adapter,
+                session_ref=self.live(), agent_protocol_version=9)
+        self.assertIn("holds the posture", str(caught.exception))
+
+    def test_a_newer_epoch_holding_the_slot_refuses_the_older_one(self):
+        """The other half: the slot is occupied, by somebody else."""
+        self.opened()
+        adapter = self.with_runtime()
+        self.store._connection.execute(
+            "UPDATE posture_slots SET session_epoch = 2 "
+            "WHERE runtime_attempt_id = ? AND posture = 'execution'",
+            (ATTEMPT,))
+        self.store._connection.commit()
+        with self.assertRaises(ContractRefusal) as caught:
+            handshake.settle_unsupported_version(
+                self.store, self.port, Agent(), adapter,
+                session_ref=self.live(), agent_protocol_version=9)
+        self.assertIn("holds the posture", str(caught.exception))
+
+    def test_a_committed_refusal_replays_after_the_world_moves(self):
+        """Review [P1]: REPLAY IS A FACT ABOUT AN ACT THAT ALREADY HAPPENED.
+
+        The identity and signature used to carry the profile, the pinned
+        version and the refusal text, all read from state — so a committed
+        refusal stopped replaying the moment its session advanced or its
+        profile was withdrawn, which is the opposite of effectively-once. My
+        previous withdrawal case deleted the profile and never retried, so it
+        did not cover the acceptance it named.
+
+        Every mutation the next round could hit is applied at once, and the
+        exact call still replays the one committed record.
+        """
+        _adapter, first = self.refused()
+        connection = self.store._connection
+        connection.execute(
+            "UPDATE agent_sessions SET state = 'closed' "
+            "WHERE runtime_attempt_id = ?", (ATTEMPT,))
+        connection.execute(
+            "UPDATE posture_slots SET occupancy = 'available', "
+            "session_epoch = NULL WHERE runtime_attempt_id = ?", (ATTEMPT,))
+        connection.execute("DELETE FROM profiles WHERE digest = ?",
+                           (self.digest,))
+        connection.commit()
+
+        again = handshake.settle_unsupported_version(
+            self.store, self.port, Agent(), Adapter(),
+            session_ref=self.live(), agent_protocol_version=9)
+        self.assertEqual(again["why"], first["why"])
+        self.assertEqual(again["profile_digest"], first["profile_digest"])
+        self.assertEqual(again["pinned_wire_version"],
+                         first["pinned_wire_version"])
+        self.assertEqual(self.store._connection.execute(
+            "SELECT COUNT(*) FROM operations WHERE kind = ?",
+            ("session.unsupported-version",)).fetchone()[0], 1)
+
+    def test_a_committed_refusal_replays_in_a_new_store_handle(self):
+        """A restart is a new process reading the same file, and replay is
+        durable rather than a memory of this one."""
+        _adapter, first = self.refused()
+        self.store.close()
+        self.store = worker_manager.ControlStore.open(
+            self.path, incarnation="manager-restarted", clock=lambda: NOW)
+        self.addCleanup(self.store.close)
+        again = handshake.settle_unsupported_version(
+            self.store, self.port, Agent(), Adapter(),
+            session_ref=self.live(), agent_protocol_version=9)
+        self.assertEqual(again["why"], first["why"])
+
+    def test_a_changed_answered_version_collides(self):
+        """ONE SESSION, ONE REFUSAL. The identity is the session act and the
+        versions ride in the SIGNATURE, so a second answered version is an
+        operation collision rather than a second incompatible account of what
+        this session refused."""
+        self.refused()
+        with self.assertRaises(ContractRefusal) as caught:
+            handshake.settle_unsupported_version(
+                self.store, self.port, Agent(), Adapter(),
+                session_ref=self.live(), agent_protocol_version=11)
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertEqual(self.store._connection.execute(
+            "SELECT COUNT(*) FROM operations WHERE kind = ?",
+            ("session.unsupported-version",)).fetchone()[0], 1)

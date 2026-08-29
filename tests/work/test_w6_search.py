@@ -312,13 +312,19 @@ def test_the_slash_mode_on_the_real_terminal(tmp_path):
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
 	results = ptyharness.replay(steps[0])
 	flat = "\n".join(results)
-	assert "search: findable — page 1 · 1 shown" in flat, flat[:300]
+	# W29146: the heading NAMES THE TEAM the search was scoped to. W6 has
+	# always scoped this to the viewer's owning team; the header read as
+	# global, so an empty answer read as "nowhere" rather than "not here".
+	assert "search (team lang): findable — page 1 · 1 shown" in flat, \
+		flat[:300]
 	assert any("findable-row" in line for line in results)
 	assert not any("other-row" in line for line in results), \
 		"a nonmatching row painted in the results"
 	assert "Enter details · / new query" in flat
 	empty = "\n".join(ptyharness.replay(steps[1]))
-	assert "(no matches for 'zzz')" in empty
+	# The empty answer says it too, because that is the one an operator is
+	# most likely to misread.
+	assert "(no matches for 'zzz' in team lang)" in empty
 	back = "\n".join(ptyharness.replay(steps[2]))
 	assert "other-row" in back, "Esc did not restore the table"
 	assert "search:" not in back

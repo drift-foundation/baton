@@ -1,0 +1,67 @@
+BASELINE: OK
+
+-- removed: the authority is fenced before anything is destroyed
+   FAILED (errors=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheEndingIsFencedBeforeAnythingIsDestroyed.test_a_live_assignment_refuses_before_the_adapter
+
+-- removed: a terminal cleanup is not revisited
+   FAILED (failures=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheEndingIsFencedBeforeAnythingIsDestroyed.test_a_terminal_cleanup_is_not_revisited
+
+-- removed: an uncertain runtime is never inferred absent
+   FAILED (errors=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheEndingIsFencedBeforeAnythingIsDestroyed.test_an_uncertain_runtime_is_never_inferred_absent
+
+-- removed: the authorizing record must exist
+   FAILED (errors=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_a_session_that_never_refused_has_nothing_to_end
+
+-- removed: the record's kind is verified
+   FAILED (failures=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_a_row_of_another_kind_authorizes_nothing
+
+-- removed: the record is owned as a document before it is read
+   FAILED (errors=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_a_record_of_another_shape_is_not_read_for_an_authorization
+
+-- removed: the record's members are compared against the world
+   FAILED (failures=5)
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_a_record_naming_another_runtime_authorizes_nothing
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_a_record_naming_another_session_authorizes_nothing
+
+-- removed: the adapter's answer names the attached runtime
+   FAILED (failures=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheObservationDecidesTheEnding.test_an_adapter_answering_about_another_runtime_is_refused
+
+-- removed: this ending demands its own adapter capability
+   FAILED (errors=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheDoorsStayClosedAgainstEachOther.test_an_adapter_without_this_capability_is_refused
+
+-- removed: the lane is released only by a settled ending
+   FAILED (failures=1, errors=1)
+   FAILS: tests.manager.test_refused_session_cleanup.ReuseIsOrderedBehindTheEnding.test_a_successor_waits_for_this_ending_and_then_proceeds
+   FAILS: tests.manager.test_refused_session_cleanup.TheRefusedHandshakeReachesTheEnding.test_the_lane_is_given_back_only_by_the_settled_ending
+
+-- removed: the record's closed verdict is required
+   FAILED (failures=2, errors=2)
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_a_record_that_no_longer_says_unsupported_version_authorizes_nothing
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_the_whole_closed_verdict_is_required_not_one_member
+
+-- removed: the recorded wire versions are integers
+   FAILED (failures=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_a_wire_version_that_is_not_an_integer_authorizes_nothing
+
+-- removed: a version pair that agrees authorizes nothing
+   FAILED (failures=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_a_version_pair_that_agrees_is_a_successful_negotiation
+
+-- removed: the refusal was derived against this session's profile
+   FAILED (failures=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_a_refusal_about_another_profile_is_not_this_sessions
+
+-- removed: the refusal record names the runtime it is about
+   FAILED (failures=1)
+   FAILS: tests.manager.test_refused_session_cleanup.TheRecordIsOwnedBeforeItIsBelieved.test_a_refusal_with_no_attached_runtime_records_nothing
+
+15/15 mutations named a failing case
+RESTORED: OK

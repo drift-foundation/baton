@@ -50,6 +50,7 @@ W6631's own record. It does not need to survive as the live module contract.
 
 import json
 import os
+import stat
 
 # W15232: `check_content_manifest` and `validate_fragment` went with the
 # acquisition half. They were how this module READ a `gitSource` or
@@ -58,7 +59,7 @@ import os
 # neither one a manager that receives an already staged directory performs.
 from ..contracts import (ContractRefusal, canonical_bytes, check_input_pair,
                         digest, digest_of_bytes)
-from ..contracts.errors import name_value
+from ..contracts.errors import label_of, name_value
 from . import boundaries
 
 # S_IFMT and S_IFREG, written out. The `stat` module is not on this package's
@@ -91,9 +92,15 @@ _REGULAR = 0o100000
 # read-only staged input tree, the measured `contentManifest` over a directory,
 # containment, and cleanup. None of them knows where the bytes came from.
 __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
+           "HOME_ENTRIES", "ROOT_NAMES", "WORKSPACE_DIR",
+           "adopt_workspace_group", "check_workspace_group",
+           "prove_workspace_group", "WorkspaceGroup",
+           "WORKSPACE_GROUP_KEY", "CONFIGURE_OPERATION",
+           "configure_workspace_group", "configured_workspace_group",
            "MAX_BYTES", "MAX_DEPTH", "READ_ONLY_DIR", "READ_ONLY_FILE",
            "assignment_workspace", "compose_input_root", "copied_manifest",
-           "directory_manifest", "discard_workspace", "read_input_root"]
+           "directory_manifest", "discard_tree", "discard_workspace",
+           "read_input_root"]
 
 # THE TWO MANAGER-AUTHORED PROTOCOL DOCUMENTS, at the names the contract fixes
 # (§7.0). A path a manifest could vary is a path a runtime can be pointed at
@@ -122,8 +129,423 @@ MAX_DEPTH = 64
 # it and nothing writes it again, and the mode says so on disk rather than in a
 # comment. The execute bit stays on directories because a directory nobody may
 # traverse is a directory nobody may read either.
-READ_ONLY_FILE = 0o400
-READ_ONLY_DIR = 0o500
+# WORLD-READABLE, AND THAT IS THE POINT OF THE MODE RATHER THAN A RELAXATION
+# OF IT.  W33935: these were 0o400 and 0o500 -- owner-only -- while the
+# execution container runs as the fixed uid 65532 and the manager writes as
+# whoever it happens to be.  Measured inside the real composed runtime, both
+# `/input` documents were uid 1000 mode 0400 and BOTH READS FAILED WITH EACCES,
+# so no worker could consume either of the two documents it is required to
+# read.  The sibling launch delivery was 0o444 and readable, which is what
+# demonstrated the shape rather than the diagnosis.
+#
+# WHAT MAKES THIS SAFE IS NOT THE MODE.  A worker cannot write here because the
+# root is bind-mounted READ-ONLY -- the same probe got `EROFS` writing to
+# `/input` itself, from the bind and not from any permission -- and it cannot
+# reach the root through any other path because nothing else is mounted.  The
+# mode's job is the HOST side: it says on disk that these bytes are finished,
+# so this manager's own later mistake cannot rewrite the evidence a claim was
+# made against.  Read permission was never part of that job, and taking it away
+# protected nothing while breaking the one consumer.
+#
+# `launch.READ_ONLY_FILE` and `launch.READ_ONLY_DIR` are the same two values
+# for the same reason, and `test_input_delivery` holds the two components to
+# each other so a future edit cannot move one without the other.
+READ_ONLY_FILE = 0o444
+READ_ONLY_DIR = 0o555
+
+# The two roots a container may be given, and every entry the assignment home
+# holds.  They are different lists for a reason: `custody` is the material a
+# worker must never reach after its freeze, and the two credential places are a
+# bearer it is handed at one fixed path instead -- so none of the three is
+# mountable, and all three are siblings under one home that has to be CLOSED
+# once they exist.
+# THE ONE WRITABLE ROOT'S EXACT MODE.  W33936: the workspace was left at
+# whatever the process umask produced -- 0775 on the host this was measured on,
+# and 0700 under the ordinary service umask 077.  Neither is a decision.
+#
+# 0770: OWNER AND GROUP MAY WRITE, AND NOBODY ELSE MAY DO ANYTHING.
+#
+# The narrowing is safe now and was not before, and the difference is the
+# ruling: the execution container is given the configured workspace GROUP as a
+# supplementary group, so it reaches this root through the group bits rather
+# than through `other`.  An earlier cut narrowed to 0770 while the container
+# held no share in the group, and the probe refuted it -- the worker lost read
+# and traverse as well.  Narrowing belongs in the same change as the group, and
+# this is that change.
+#
+# The superseded text below is kept as decision history.
+#
+# 0775 is EXACTLY WHAT THE UMASK HAPPENED TO PRODUCE on the host this was
+# measured on, and that is the point: it is now a decision instead of an
+# accident, and under the ordinary service umask 077 it no longer silently
+# becomes 0700.
+#
+# NOT 0770, WHICH I TRIED FIRST AND THE PROBE REFUTED.  Dropping `other` looks
+# like the narrower answer, and while the container still runs as 65532 with no
+# share in this group it takes away the worker's READ and TRAVERSE as well --
+# measured, `/workspace` went from `r=T x=T` to `r=F x=F`.  Narrowing to 0770
+# belongs with the group wiring, in the same change, because it is only safe
+# once the container holds the group.  The group bits here are what that wiring
+# will use.
+WORKSPACE_DIR = 0o2770
+
+# Review [P0], approver ruling M34630: `02770` EXACTLY, and the setgid bit is
+# not decoration.
+#
+# `0770` gives the group write.  What it does NOT give is the guarantee that
+# what the WORKER creates stays in that group -- a container process whose
+# primary gid is 65532 creates files owned `65532:65532`, and the manager, which
+# is not 65532 and is not in that group, could then not collect the result it
+# is required to collect.  Setgid on the directory makes every entry created
+# inside it inherit the DIRECTORY's group instead, so the worker writes and the
+# manager reads with no widening of anything.  Measured against a real daemon:
+# a file the worker created came back `<worker>:<workspace group>`, and a
+# directory it created carried the setgid bit onward.
+#
+# `other` HAS NOTHING, and that is the second half of the same choice.  This
+# root is reachable only by its owner and by the one configured group; the
+# earlier `0775` gave every process on the host read and traverse over an
+# assignment's writable tree, which is authority nobody asked for.
+
+
+# W33936 review [P1]: THE CONFIGURED GROUP IS A DEPLOYMENT FACT, AND THIS IS
+# WHERE IT LIVES.
+#
+# The defect the review found: every layer took the same raw integer from its
+# caller and every layer agreed, so a manager belonging to the configured group
+# A and to some unrelated authority-bearing service group B could be handed B
+# at allocation and at launch. The workspace was adopted into B, the pre-launch
+# proof passed because it compared against the same operand, and `--group-add
+# B` was composed. Four checks, one caller-selected value, and nothing to
+# reject it with -- `check_workspace_group` can see shape, gid 0 and
+# membership, and membership is exactly what B has.
+#
+# So there is one source of truth now and it is the control store's own
+# metadata, written by a deployment act. `os.getgroups()` says what the manager
+# CAN use; this says what the deployment SAID to use, and only the second
+# authorizes anything.
+WORKSPACE_GROUP_KEY = "workspace-group"
+
+# The token that says this object came from the deployment's own record. A
+# module-private sentinel rather than a flag, because a flag is something a
+# caller can pass.
+_MINT = object()
+
+
+class WorkspaceGroup:
+    """The deployment's configured group, as a FROZEN ANSWER.
+
+    A capability rather than an integer, and that is the whole correction. An
+    integer is a value any caller can compose; this can only be obtained from
+    `configured_workspace_group`, which reads the deployment's own record. So
+    the adapter and the run vector do not validate a number a caller supplied
+    -- they refuse anything that is not this, and the only way to hold one for
+    group B is for the deployment to have configured B.
+
+    The same shape `credentials.Delivery` and `launch.LaunchDelivery` already
+    have at this boundary, for the same reason: what crosses is a thing the
+    manager made, not data describing one.
+    """
+
+    __slots__ = ("gid",)
+
+    def __init__(self, gid, _minted=None):
+        # MINTED ONLY BY THE READ OF THE DEPLOYMENT'S RECORD, which is what
+        # makes this a capability rather than a wrapper. A type any caller can
+        # construct would leave the hole exactly where the review found it:
+        # the caller supplies group B, every layer type-checks happily, and
+        # nothing has consulted what the deployment actually said.
+        if _minted is not _MINT:
+            _denied("a configured workspace group is obtained from this "
+                    "manager's own record of what the deployment configured, "
+                    "and is not constructed; a group a caller can mint is a "
+                    "group a caller chose")
+        object.__setattr__(self, "gid", check_workspace_group(gid))
+
+    def __setattr__(self, name, value):
+        _refuse("a configured workspace group is immutable", code="schema")
+
+    def __repr__(self):
+        return f"WorkspaceGroup({self.gid})"
+
+    def __eq__(self, other):
+        return isinstance(other, WorkspaceGroup) and other.gid == self.gid
+
+    def __hash__(self):
+        return hash(("WorkspaceGroup", self.gid))
+
+
+def configure_workspace_group(store, gid):
+    """The DEPLOYMENT's act: name the one dedicated workspace group.
+
+    Approver rulings M34630 and M34916 divide this exactly: the deployment
+    provisions one dedicated non-authority group and grants this manager
+    permission to use it, and this manager never creates or modifies a host
+    group. It validates what it is configured with -- and now it also RECORDS
+    it, so a later caller cannot substitute another group the manager happens
+    to hold.
+
+    RE-CONFIGURING TO A DIFFERENT GROUP IS REFUSED rather than accepted. A
+    manager already holding workspaces adopted into one group cannot be told
+    the group is now another one without those roots becoming unreachable to
+    the workers they were prepared for; a deployment that means to change it
+    initializes a fresh store, which is the same clean-boundary rule the schema
+    version is under. Re-affirming the SAME group is a no-op and commits.
+    """
+    from .store import manager_signature
+    gid = check_workspace_group(gid)
+    # THE JOURNAL, not the projection. Review [P1]: this asked `meta` whether
+    # the manager was already configured, so a projection edit that made the
+    # record disagree with the deployment's act also unlocked reconfiguring to
+    # whatever the editor had put there. The committed operation is the one
+    # account of this that a caller holding the store cannot rewrite without
+    # the collision the journal is for.
+    held = _committed_workspace_group(store)
+    if held is not None and held != gid:
+        _denied(f"this manager is already configured with workspace group "
+                f"{held} and is being told to use {gid}; workspaces already "
+                f"adopted into the first group would become unreachable to the "
+                f"workers they were prepared for, so a changed group is a "
+                f"fresh store rather than a reconfiguration")
+    signature = manager_signature("workspace-group.configure", {"gid": gid})
+
+    def act(connection):
+        connection.execute(
+            "INSERT INTO meta (key, value) VALUES (?, ?) "
+            "ON CONFLICT (key) DO UPDATE SET value = excluded.value",
+            (WORKSPACE_GROUP_KEY, str(gid)))
+        return {"workspace_group": gid}
+
+    return store.transact("workspace-group.configure",
+                          "workspace-group.configure", signature, act)
+
+
+def _configured_gid(store):
+    found = store._connection.execute(
+        "SELECT value FROM meta WHERE key = ?",
+        (WORKSPACE_GROUP_KEY,)).fetchone()
+    if found is None:
+        return None
+    # ADOPTED, not trusted. This is a persisted value this process did not
+    # write, and a store hand-edited to say `root` is exactly what the read
+    # has to refuse rather than pass on.
+    return check_workspace_group(int(boundaries.text(
+        found["value"], "the configured workspace group's record"))
+        if str(found["value"]).lstrip("-").isdigit() else found["value"],
+        what="the recorded workspace group")
+
+
+CONFIGURE_OPERATION = "workspace-group.configure"
+
+
+def _committed_workspace_group(store):
+    """The DEPLOYMENT'S OWN ACT, read out of the journal.
+
+    Review [P1]: `configured_workspace_group` read `meta` and nothing else, so
+    the capability was minted from a MUTABLE PROJECTION. A caller holding the
+    store could leave the committed operation untouched, edit one row of
+    `meta` to a second group it happened to hold, and be handed a capability
+    for that group -- which then adopts workspaces and crosses `--group-add`.
+    That is the arbitrary-held-service-group defect this Work exists to close,
+    surviving in a second place.
+
+    So the journal is the authority and `meta` is a cache of it. Three things
+    are asked of the committed row, in the order that makes each meaningful:
+
+    THE KIND, because a row of some other kind sitting at this identity is not
+    a configuration however well its result reads.
+
+    THE ANSWER THROUGH `replay`, so the committed result is decoded by the
+    journal's own reader against the recorded signature rather than adopted as
+    stored bytes -- and so a refused configuration is reproduced as the
+    refusal it was rather than read past.
+
+    THE SIGNATURE RECOMPUTED from the gid the answer names. The signature is a
+    deterministic function of the operands, so a `result` column edited in
+    place to name another group no longer agrees with the signature that was
+    written beside it, and the disagreement is visible without a second copy
+    of the value.
+    """
+    from .store import manager_signature
+    held = store.operation_record(CONFIGURE_OPERATION)
+    if held is None:
+        return None
+    if held["kind"] != CONFIGURE_OPERATION:
+        _refuse(f"the journalled operation {CONFIGURE_OPERATION!r} is recorded "
+                f"as kind {name_value(held['kind'])}; a row of another kind is "
+                f"not this deployment's workspace group configuration",
+                code="schema")
+    _, committed = store.replay(CONFIGURE_OPERATION, held["signature"],
+                                kind=CONFIGURE_OPERATION)
+    answer = boundaries.document(committed,
+                                 "the committed workspace group configuration",
+                                 required=("workspace_group",))
+    gid = check_workspace_group(answer["workspace_group"],
+                                what="the committed workspace group")
+    if held["signature"] != manager_signature(CONFIGURE_OPERATION,
+                                              {"gid": gid}):
+        _refuse(f"the journalled workspace group configuration names group "
+                f"{gid}, which is not the group its recorded signature was "
+                f"written for; the committed answer and the operands it was "
+                f"committed under disagree", code="schema")
+    return gid
+
+
+def configured_workspace_group(store):
+    """The deployment's frozen answer, or a refusal.
+
+    THE ONLY WAY TO OBTAIN A `WorkspaceGroup`. Allocation and launch consume
+    this; nothing else mints one, which is what makes "the configured group"
+    a fact about the deployment rather than about whoever called.
+
+    THE TWO ACCOUNTS MUST AGREE. The committed operation is the deployment's
+    act and `meta` is this manager's projection of it, and a capability is
+    minted only when they name the same group. A disagreement is `integrity/
+    schema` and NOT a repair: this manager cannot say which of the two
+    describes the deployment, and picking the journal silently would let an
+    edit that should have been refused become an edit that was tolerated.
+    Every direction of disagreement fails closed, including a projection that
+    is merely absent -- a record this build cannot cross-check is not a record
+    it will mint a group grant from.
+    """
+    projected = _configured_gid(store)
+    committed = _committed_workspace_group(store)
+    if projected is None and committed is None:
+        _denied("this manager has no configured workspace group; the "
+                "deployment provisions one dedicated non-authority group and "
+                "records it before any execution workspace is allocated, and "
+                "a group inferred from what the manager happens to hold is "
+                "not a workspace grant")
+    if committed is None:
+        _refuse(f"this manager's record names workspace group {projected} with "
+                f"no committed configuration behind it; a projection nobody "
+                f"configured is not a deployment's act", code="schema")
+    if projected is None:
+        _refuse(f"the deployment configured workspace group {committed} and "
+                f"this manager's record of it is gone; a configuration this "
+                f"build cannot cross-check is not one it mints a group grant "
+                f"from", code="schema")
+    if projected != committed:
+        _refuse(f"this manager's record names workspace group {projected} and "
+                f"the deployment's committed configuration names {committed}; "
+                f"a group the record was edited to name is not a group the "
+                f"deployment configured", code="schema")
+    return WorkspaceGroup(committed, _MINT)
+
+
+def check_workspace_group(gid, *, what="the configured workspace group"):
+    """The deployment's dedicated workspace group, validated and owned.
+
+    W33936, approver ruling M34916.  The deployment provisions ONE dedicated
+    non-authority group and grants this manager permission to use it.  This
+    manager NEVER creates or modifies a host group: it validates the one it was
+    configured with and fails closed on everything else.
+
+    THERE IS NO DEFAULT, and that absence is the correction.  The rejected
+    design read the workspace root's own gid, which measured as a user's LOGIN
+    group -- reaching that user's home and everything in it, and on a gid-0
+    manager reaching root's.  A group inherited from a service directory is not
+    a workspace grant, so this refuses to infer one at all.
+
+    THREE REFUSALS, each a different way for a configured value to be wrong:
+
+      * gid 0 is the root group and carries authority over the whole host;
+      * a gid this manager is not a member of is unusable -- it could neither
+        `chgrp` the root to it nor be granted it -- and a configuration nobody
+        can act on is a silent no-op rather than a policy;
+      * a non-integer, a bool or a negative number is not a group id.
+    """
+    what = label_of(what)
+    if type(gid) is bool or type(gid) is not int or gid < 0:
+        _refuse(f"{what} is {name_value(gid)}; a group id is a non-negative "
+                f"integer", code="schema")
+    if gid == 0:
+        _refuse(f"{what} is the root group; the workspace group is a "
+                f"dedicated non-authority group provisioned for this purpose, "
+                f"and root is the opposite of that", code="schema")
+    held = set(os.getgroups()) | {os.getgid()}
+    if gid not in held:
+        _refuse(f"{what} is not a group this manager holds; a group it cannot "
+                f"use is a configuration nothing can act on, and this manager "
+                f"never creates or modifies a host group to make one work",
+                code="schema")
+    return gid
+
+
+def prove_workspace_group(place, gid, *, what="the workspace root"):
+    """The exact root still carries the configured group, and can be written.
+
+    Review [P0], approver ruling M34630: "before the engine call, the adapter
+    must prove that the canonical workspace root's group equals the configured
+    group".  A grant established at allocation is not a grant at LAUNCH: a
+    restart, a redeployment under a changed configuration, or an operator
+    `chgrp` between the two leaves a root the worker cannot write and a
+    container that finds out by failing halfway through its work.
+
+    THE EXACT ROOT, and `lstat` rather than `stat`.  A symlink whose target
+    carries the right group is not this root carrying it -- and this is the
+    path the engine is about to bind, so what the engine will act on is what
+    has to be proved.
+
+    THE MODE IS PROVED TOO, because the group alone is not the grant.  A root
+    in the right group at `0700` denies exactly what this whole correction is
+    for, and it fails at the worker rather than here unless it is checked.
+    """
+    what = label_of(what)
+    check_workspace_group(gid)
+    try:
+        found = os.lstat(place)
+    except OSError as failure:
+        _refuse(f"{what} at {name_value(place)} could not be measured before "
+                f"the engine call: {type(failure).__name__}; a runtime is not "
+                f"started over a root this manager cannot describe",
+                code="path")
+    if not stat.S_ISDIR(found.st_mode):
+        _refuse(f"{what} at {name_value(place)} is not a directory", code="path")
+    if found.st_gid != gid:
+        # `policy.denied` rather than an integrity code, and the pairing is the
+        # reason: nothing here is malformed. The root is well-formed and this
+        # deployment is not permitted to run a worker over it, which is what
+        # §9's policy category means.
+        _denied(f"{what} carries group {found.st_gid} and this deployment is "
+                f"configured with {gid}; the worker is granted the configured "
+                f"group and would find the root in another one")
+    if found.st_mode & 0o7777 != WORKSPACE_DIR:
+        _denied(f"{what} is mode {oct(found.st_mode & 0o7777)} and an "
+                f"execution workspace is {oct(WORKSPACE_DIR)}; the group's "
+                f"write and the setgid inheritance are the grant, and a root "
+                f"without them denies the worker the work it was started for")
+    return place
+
+
+def adopt_workspace_group(roots, gid):
+    """Put the writable root in the configured group, exactly.
+
+    `os.chown` with `-1` for the owner changes only the GROUP, which an
+    unprivileged manager may do for a group it is a member of -- which
+    `check_workspace_group` has already proved.  The mode is established here
+    too, because group-writable is the whole point of the group and leaving it
+    to the umask is what W33935 corrected at the two protocol documents.
+    """
+    place = roots["workspace"]
+    gid = check_workspace_group(gid)
+    try:
+        os.chown(place, -1, gid)
+    except OSError as failure:
+        # NAMED, not swallowed.  A deployment whose manager cannot put its own
+        # workspace in the configured group has a provisioning fault, and a
+        # silently un-adopted root is the original defect arriving later and
+        # from further away.
+        _denied(f"the manager could not put {name_value(place)} in the "
+                f"configured workspace group {gid}: "
+                f"{type(failure).__name__}; the deployment provisions this "
+                f"group and grants this manager membership, and without it "
+                f"the worker cannot write the outputs it must declare")
+    os.chmod(place, WORKSPACE_DIR)
+    return place
+
+ROOT_NAMES = ("inputs", "workspace")
+HOME_ENTRIES = ("credential-state", "credentials", "custody") + ROOT_NAMES
 
 
 def _refuse(message, code="path"):
@@ -175,6 +597,64 @@ def _contained(path, root, what):
     return real
 
 
+# -- the ceilings, and the ORDER they are applied in --------------------------
+
+
+def _entry_ceilings(what, taken, max_entries):
+    """The entry ceilings, checked BEFORE the next file is opened.
+
+    TWO CEILINGS, TWO REFUSALS, and the difference is not cosmetic. This
+    module's own `MAX_*` are POLICY -- what this build will handle at all,
+    whoever asked. A caller's ceiling is part of a DELIVERY's declared
+    contract, and a tree that exceeds it is an integrity failure of that
+    delivery rather than a request this build declines. The taxonomy already
+    distinguishes them and callers already depend on which one they get. When
+    both are crossed the global one answers, because what this build will not
+    do at all is decided before what this delivery was allowed.
+
+    Review [P1]: this ran AFTER the crossing file had already been read, so
+    the file the ceiling exists to refuse was read first -- work and memory a
+    worker chose, spent on material this manager had already decided it would
+    not take. `taken` is the count already accepted, so the file about to be
+    opened is number `taken + 1`.
+    """
+    if taken + 1 > MAX_ENTRIES:
+        _denied(f"{what} carries more than {MAX_ENTRIES} files")
+    if max_entries is not None and taken + 1 > max_entries:
+        _refuse(f"{what} carries more than the {max_entries} files its "
+                f"declaration allows", code="limit")
+
+
+def _byte_allowance(total, max_bytes):
+    """How many more bytes this pass may accept, over BOTH ceilings.
+
+    The SMALLER remaining allowance, because a read bounded by only one of
+    them is unbounded with respect to the other. The reader takes this plus
+    one byte: one byte past the line is what proves the line was crossed, and
+    reading any further is work the crossing already made pointless.
+    """
+    allowance = MAX_BYTES - total
+    if max_bytes is not None:
+        allowance = min(allowance, max_bytes - total)
+    return allowance
+
+
+def _byte_ceilings(what, total, added, max_bytes):
+    """The byte ceilings, over what the bounded read actually returned.
+
+    This one CANNOT move before the read -- how large a file is, is what the
+    read finds out. What makes it a bound rather than an observation is that
+    the read it judges was itself given `_byte_allowance`, so `added` is at
+    most one byte past the line however large the file grew while open. The
+    same global-before-declared precedence `_entry_ceilings` states.
+    """
+    if total + added > MAX_BYTES:
+        _denied(f"{what} carries more than {MAX_BYTES} bytes")
+    if max_bytes is not None and total + added > max_bytes:
+        _refuse(f"{what} carries more than the {max_bytes} bytes its "
+                f"declaration allows", code="limit")
+
+
 # -- measuring a directory ----------------------------------------------------
 
 
@@ -190,21 +670,25 @@ def directory_manifest(root):
     and the order the tree digest is taken over. Sorting by anything else would
     produce a manifest that recomputes to a different digest on a different
     locale.
+
+    THE CEILINGS BOUND THE MEASUREMENT ITSELF rather than judging it after the
+    fact: the entry count is checked before the next file is opened, and each
+    read is given only the allowance still remaining. See `_entry_ceilings`
+    and `_byte_allowance`.
     """
     what = "a source directory"
     real = _real(root, what)
     entries = []
     total = 0
     for place, relative in _walk(real, what):
-        content = _read_exactly(place, relative, what)
+        _entry_ceilings(what, len(entries), None)
+        content = _read_exactly(place, relative, what,
+                                allowance=_byte_allowance(total, None))
+        _byte_ceilings(what, total, len(content), None)
         entries.append({"path": relative,
                         "bytes": len(content),
                         "content_digest": digest_of_bytes(content)})
         total += len(content)
-        if len(entries) > MAX_ENTRIES:
-            _denied(f"{what} carries more than {MAX_ENTRIES} files")
-        if total > MAX_BYTES:
-            _denied(f"{what} carries more than {MAX_BYTES} bytes")
     entries.sort(key=lambda entry: entry["path"].encode("utf-8"))
     return {"entries": entries,
             "entry_count": len(entries),
@@ -239,7 +723,10 @@ def copied_manifest(root, into, *, max_entries=None, max_bytes=None,
     `max_entries` and `max_bytes` are the CALLER's declared ceilings, enforced
     as the walk runs rather than after it. A tree that exceeds them stops being
     copied at the entry that crosses the line, instead of being written whole
-    and refused afterwards.
+    and refused afterwards. Review [P1] tightened "as the walk runs" into
+    BEFORE THE WORK IT REFUSES: the entry ceilings answer with nothing opened,
+    and the read is handed the smaller remaining allowance so a file the
+    worker grows while it is open cannot outrun the byte ceiling either.
 
     `admits(relative, content)` is a rule the caller applies to each file's
     bytes before they are written, and it raises to refuse. It exists so a
@@ -256,24 +743,17 @@ def copied_manifest(root, into, *, max_entries=None, max_bytes=None,
     total = 0
     os.makedirs(into, exist_ok=True)
     for place, relative in _walk(real, what):
-        content = _read_exactly(place, relative, what)
-        # TWO CEILINGS, TWO REFUSALS, and the difference is not cosmetic. This
-        # module's own MAX_* are POLICY -- what this build will handle at all,
-        # whoever asked. A caller's ceiling is part of a DELIVERY's declared
-        # contract, and a tree that exceeds it is an integrity failure of that
-        # delivery rather than a request this build declines. The taxonomy
-        # already distinguishes them and callers already depend on which one
-        # they get.
-        if len(entries) + 1 > MAX_ENTRIES:
-            _denied(f"{what} carries more than {MAX_ENTRIES} files")
-        if total + len(content) > MAX_BYTES:
-            _denied(f"{what} carries more than {MAX_BYTES} bytes")
-        if max_entries is not None and len(entries) + 1 > max_entries:
-            _refuse(f"{what} carries more than the {max_entries} files its "
-                    f"declaration allows", code="limit")
-        if max_bytes is not None and total + len(content) > max_bytes:
-            _refuse(f"{what} carries more than the {max_bytes} bytes its "
-                    f"declaration allows", code="limit")
+        # THE CEILING COMES BEFORE THE FILE IT REFUSES. Review [P1]: both
+        # ceilings used to be judged on a file this loop had already read, so
+        # the over-limit entry was opened and held in memory before anything
+        # declined it -- and the byte read it judged had no bound of its own,
+        # so a file growing while open could keep that refusal from ever being
+        # reached. The entry count is decided here, with nothing opened; the
+        # read below is given only what is left.
+        _entry_ceilings(what, len(entries), max_entries)
+        content = _read_exactly(place, relative, what,
+                                allowance=_byte_allowance(total, max_bytes))
+        _byte_ceilings(what, total, len(content), max_bytes)
         if admits is not None:
             admits(relative, content)
         target = os.path.join(into, relative)
@@ -374,7 +854,7 @@ def _open_directory(parent, name, relative, what):
                 f"follows")
 
 
-def _read_exactly(place, relative, what):
+def _read_exactly(place, relative, what, *, allowance):
     """One file, opened once, with the descriptor deciding what it was.
 
     `O_NOFOLLOW` refuses a link AT the open rather than after it, and the
@@ -386,12 +866,34 @@ def _read_exactly(place, relative, what):
     property of the inode and the descriptor is what has one. A second name for
     the same inode is the same disclosure a symlink is, with nothing on the
     directory entry to see.
+
+    `O_NONBLOCK` IS WHAT MAKES THE `fstat` REFUSAL REACHABLE. Review [P1]:
+    `O_NOFOLLOW` protects only against a final symbolic link, and the walk's
+    `is_file` answer is about the moment it LISTED the entry. A name that was a
+    regular file then and is a FIFO now blocks this open until somebody writes
+    -- so the descriptor-level proof below, the one guard a racing replacement
+    cannot defeat, never runs at all, and one `mkfifo` stalls the manager
+    indefinitely. This is the same interval `_open_directory` already covers
+    for directories, on the file side of the walk. On a regular file the flag
+    changes nothing: regular files are always ready, and the kind is proved
+    from the descriptor before a byte is read either way.
+
+    `allowance` IS A BOUND ON THE READ, and it is required because a reader
+    with no bound is the defect. Review [P1]: `st_size` below was the only
+    thing standing between a worker and an unbounded read, and it is not a
+    bound at all -- it is one observation of a file the worker may keep
+    writing to while this descriptor is open. The caller passes what is left
+    of the smaller of its two ceilings; at most that plus one byte is taken,
+    so growth after the `fstat` widens neither the work nor the memory, and
+    the caller's refusal is reached rather than outrun.
     """
     # RELATIVE TO THE DIRECTORY WE OPENED, so the file is the one that
     # directory holds rather than the one its name resolves to now.
     parent, name = place
     try:
-        descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent)
+        descriptor = os.open(name,
+                             os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                             dir_fd=parent)
     except OSError as error:
         _refuse(f"{what} cannot read {name_value(relative)}: "
                 f"{error.strerror}")
@@ -412,25 +914,34 @@ def _read_exactly(place, relative, what):
         if stated.st_size > MAX_BYTES:
             _denied(f"{what} entry {name_value(relative)} is larger "
                     f"than {MAX_BYTES} bytes")
-        content = _read_all(descriptor)
+        content = _read_all(descriptor, allowance)
     finally:
         os.close(descriptor)
     return content
 
 
-def _read_all(descriptor):
+def _read_all(descriptor, allowance):
+    """At most `allowance` + 1 bytes, however large the file becomes.
+
+    ONE BYTE PAST THE LINE is exactly what the caller needs and no more: it
+    proves the ceiling was crossed without reading however far past it the
+    file went. A file that fits answers whole, because it stops at EOF first.
+    """
+    remaining = allowance + 1
     pieces = []
-    while True:
-        piece = os.read(descriptor, 1 << 20)
+    while remaining > 0:
+        piece = os.read(descriptor, min(remaining, 1 << 20))
         if not piece:
-            return b"".join(pieces)
+            break
         pieces.append(piece)
+        remaining -= len(piece)
+    return b"".join(pieces)
 
 
 # -- one private workspace per assignment -------------------------------------
 
 
-def assignment_workspace(storage, assignment_id):
+def assignment_workspace(workspace_group, storage, assignment_id):
     """TWO ROOTS, private to one assignment and never overlapping.
 
     `inputs` is read-only evidence and `workspace` is the only writable tree.
@@ -453,16 +964,143 @@ def assignment_workspace(storage, assignment_id):
     protocol vocabulary this manager provisions.
     """
     boundaries.identity(assignment_id, "an assignment identity")
+    # W33936 review [P0] then [P1]: THE GROUP IS THE DEPLOYMENT'S, AND THIS
+    # FUNCTION READS IT RATHER THAN BEING TOLD IT.
+    #
+    # [P0] made it a required operand, because the previous cut left
+    # `adopt_workspace_group` reachable and uncalled -- a grant that existed as
+    # a function and not as a permission bit. That was necessary and not
+    # sufficient: a required operand still lets a caller name any group the
+    # manager happens to hold, including an authority-bearing service group,
+    # and every later check agreed because every later check compared against
+    # the same supplied value.
+    #
+    # So what crosses now is the FROZEN ANSWER rather than a number. Only
+    # `configured_workspace_group` mints a `WorkspaceGroup`, and it mints one
+    # by reading the deployment's own record -- so a caller holding one for
+    # group B means the deployment configured B, and a caller that wants the
+    # workspace in another group has to change the deployment.
+    #
+    # THE CAPABILITY RATHER THAN THE STORE, and the difference is not
+    # cosmetic. This function is a filesystem operation; giving it a store
+    # would give it a thread affinity it has no other reason to have, and a
+    # concurrent allocation is exactly what it already promises to be safe
+    # for. Consuming the answer is what the correction asks for; holding the
+    # thing that produced it is not.
+    if type(workspace_group) is not WorkspaceGroup:
+        _denied(f"an assignment workspace is allocated into the deployment's "
+                f"configured group, obtained from this manager's own record; "
+                f"this is {name_value(workspace_group)}")
+    workspace_group = workspace_group.gid
     root = _real(storage, "the manager's workspace storage")
     if not os.path.isdir(root):
         _refuse("the manager's workspace storage is not a directory")
     home = os.path.join(root, assignment_id)
     made = {}
-    for name in ("inputs", "workspace"):
+    # EVERY ENTRY THE HOME WILL EVER HOLD IS PROVISIONED HERE, and the two
+    # mountable roots are still the only thing this function ANSWERS with.
+    #
+    # W33935 re-review [P0]: freezing the `inputs` directory protects what is
+    # inside it and nothing else -- rename and replacement of the entry ITSELF
+    # are permissions of its PARENT, and the home was left at the process
+    # default.  So the whole `0555` root could be renamed aside and a writable
+    # one put at the same canonical path with different bytes in it.
+    #
+    # A parent can only be closed once nothing more needs to be created in it,
+    # which is why `custody`, `credentials` and `credential-state` are made
+    # now.  Those three are the adapter's and the credential home's, and
+    # naming them here is coupling made explicit rather than coupling avoided:
+    # the home is ONE directory with ONE layout, and
+    # `test_input_delivery.TheHomeLayoutIsDeclaredWhereItIsFrozen` holds the
+    # other two components to this list rather than trusting this comment.
+    # EXCLUSIVE FIRST ALLOCATION, SEPARATED FROM RESTART LOOKUP.
+    #
+    # Approver ruling M34768 asks for unique never-reused per-attempt
+    # directories and exclusive creation with collision refusal.  My first cut
+    # put a publication check here, the restart path refuted it, and I then
+    # concluded the two could not be separated at all -- which was wrong, and
+    # the re-review proved it with a case I had not thought of: a stale home
+    # whose `inputs` entry is a SYMLINK to another attempt's root.  That alias
+    # is still contained by manager storage, so containment accepted it and a
+    # second attempt received the first attempt's input root.
+    #
+    # The two ARE separable, and the proof is structural rather than a new
+    # durable record.  A home is named by its attempt, so a home at this path
+    # IS this attempt's -- provided its entries are genuinely its own
+    # directories.  So every entry that already exists must be a real
+    # directory, not a link, resolving to exactly the path under this home; an
+    # entry that is anything else is stale or aliased state and fails closed.
+    # An entry that does not exist is created here, which is the first
+    # allocation.
+    #
+    # THIS KEEPS THE RESTART PATH, which is what the previous cut broke: a
+    # restarted manager asking for the same attempt's roots finds real
+    # directories at their own paths and is answered, because reopening an
+    # attempt is not reusing an identity.
+    # THE HOME IS PROVED BEFORE IT ANCHORS ANYTHING.
+    #
+    # Re-review [P0]: the first cut of this proof checked only
+    # `os.path.isdir(home)`, which FOLLOWS SYMLINKS -- so a home that was
+    # itself a link to another attempt passed, and the child proofs then
+    # anchored on `realpath(home)`, which is the wrong sibling. Both sides of
+    # every child comparison were relocated together and compared equal. A
+    # structural proof applied to the children and not to the thing they are
+    # measured against is not applied.
+    expected_home = os.path.join(os.path.realpath(root), assignment_id)
+    _own_directory(home, expected_home, "assignment home")
+    for name in HOME_ENTRIES:
         place = os.path.join(home, name)
-        os.makedirs(place, exist_ok=True)
-        made[name] = _contained(place, root, f"the assignment's {name} root")
+        _own_directory(place, os.path.join(expected_home, name),
+                       f"{name} root")
+        held = _contained(place, root, f"the assignment's {name} root")
+        if name in ROOT_NAMES:
+            made[name] = held
+    # ESTABLISHED, NOT REQUESTED, and the GROUP with it.  `os.makedirs`
+    # filters its mode through the umask; `os.chmod` on a directory that
+    # already exists is exact, which is the same distinction W33935 corrected
+    # at the two protocol documents.  `adopt_workspace_group` performs both,
+    # so allocation and the grant are one step and a workspace this function
+    # returns is one the worker can write.
+    adopt_workspace_group(made, workspace_group)
     return made
+
+
+def _own_directory(place, expected, what):
+    """Create this directory, or PROVE the one already there is ours.
+
+    ONE OPERATION, not a test and then a create.  Re-review [P1]: those were
+    two steps -- `lexists` and then `makedirs` -- and two callers could both
+    observe absence, after which one created the directory and the other
+    received a raw `FileExistsError` from the OS.  An ordinary manager race
+    became an unexpected fault, and a fault is not a contract answer.
+
+    So the create is ATTEMPTED and its collision is the branch.  A caller that
+    loses the race falls through to exactly the proof a pre-existing directory
+    gets, and reopens it when it really is this attempt's own -- which is the
+    same question, asked once, whether the directory has been there for a
+    week or for a microsecond.
+
+    THE PROOF IS NO-LINK AND EXACT-PATH.  A link is refused even when it
+    points inside manager storage: what makes a root private is that it IS
+    this attempt's directory, not that it lands somewhere this manager owns.
+    """
+    try:
+        os.mkdir(place)
+        return place
+    except FileExistsError:
+        pass
+    except OSError as failure:
+        _refuse(f"the manager's {what} could not be created at "
+                f"{name_value(place)}: {type(failure).__name__}", code="path")
+    if os.path.islink(place) or not os.path.isdir(place) \
+            or os.path.realpath(place) != expected:
+        _refuse(
+            f"{name_value(place)} already exists and is not this attempt's "
+            f"own {what} at its own path; a stale or aliased "
+            f"directory is refused rather than adopted, because material "
+            f"under it would be another attempt's",
+            code="path")
+    return place
 
 
 def compose_input_root(inputs, input_manifest, assignment_manifest, *,
@@ -546,6 +1184,43 @@ def compose_input_root(inputs, input_manifest, assignment_manifest, *,
                     f"change the evidence the result is measured by",
                     code="path")
         written.append(_write_read_only(place, canonical_bytes(owned), name))
+    # AND THEN THE ROOT IS FROZEN, which is the half the file modes cannot do.
+    #
+    # W33935 review [P0]: `READ_ONLY_DIR` existed, was exported, and NOTHING
+    # applied it -- this function wrote both documents at 0444 and returned,
+    # leaving the root at 0775.  A 0444 file inside a writable directory is not
+    # protected: unlink and rename are permissions of the DIRECTORY, so the
+    # manager's own uid, or anything sharing its group, could remove either
+    # document and put a different one at the same name -- underneath a worker
+    # that had already mounted it.  The read-only bind stops the container
+    # writing; it does not stop the host replacing a bound file.
+    #
+    # AFTER BOTH DOCUMENTS ARE DURABLY INSTALLED, because a root frozen between
+    # them could not receive the second one.  §7.0 fixes that order: the pair
+    # is composed and only then is the whole surface exposed.
+    #
+    # `os.chmod` ON THE ROOT is exact and was never umask-filtered -- the umask
+    # applies to CREATION, and this directory already exists.  0555 rather than
+    # 0500 for the same reason the files are 0444: the container's fixed uid is
+    # not this manager's, and a root it cannot traverse is a root whose
+    # readable documents it cannot reach.
+    #
+    # THE CLEANUP PATH IS UNAFFECTED AND THAT IS MEASURED, not assumed:
+    # `_remove` makes each directory writable as it goes, inside a tree
+    # `discard_workspace` has already proved contained, so a frozen root is
+    # removable by the manager that owns it and by nothing else.
+    os.chmod(root, READ_ONLY_DIR)
+    # AND THE PARENT, which is the only thing that governs the root's own
+    # ENTRY.  Re-review [P0]: `0555` on `inputs` denies create, unlink and
+    # rename INSIDE it; renaming or replacing `inputs` itself is a write to
+    # the home, and the home was writable -- so the frozen root could be moved
+    # aside and a `0775` one put at the same canonical path.
+    #
+    # Safe to close now because `assignment_workspace` provisioned every entry
+    # this home will ever hold.  What still happens afterwards -- an attempt's
+    # custody tree, a volatile credential root, a durable credential record --
+    # is created INSIDE those entries, which this mode does not govern.
+    os.chmod(os.path.dirname(root.rstrip("/")), READ_ONLY_DIR)
     return tuple(written)
 
 
@@ -599,8 +1274,25 @@ def _write_read_only(place, payload, name):
     the host copy from this manager's own later mistake.
     """
     staged = place + ".composing"
-    handle = os.open(staged, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
-                     READ_ONLY_FILE)
+    # CREATED UNREADABLE AND NO-FOLLOW, then made evidence on the DESCRIPTOR.
+    #
+    # W33935, and it is the second time this exact defect has been corrected in
+    # this distribution: W26291 review [P0] found it at the launch delivery and
+    # fixed it there, and the same line here was never revisited.  A creation
+    # mode is FILTERED BY THE PROCESS UMASK, so passing `READ_ONLY_FILE` to
+    # `os.open` authors 0444 under umask 022 and 0400 under the ordinary
+    # service umask 077 -- the unreadable document arriving silently, and only
+    # on some hosts.  Requesting a mode is not establishing one.
+    #
+    # `O_NOFOLLOW` so a link left at the staging name is refused rather than
+    # written through, mode 0 so the file is never readable while it is still
+    # partial, and `fchmod` ON THE DESCRIPTOR THIS FUNCTION WROTE rather than a
+    # second `chmod` by name -- the name could be something else by then and
+    # the descriptor cannot be.  It runs after the last byte, so the document
+    # becomes readable exactly when it becomes complete.
+    handle = os.open(staged,
+                     os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                     0o000)
     try:
         written = 0
         while written < len(payload):
@@ -610,6 +1302,7 @@ def _write_read_only(place, payload, name):
                         f"written whole", code="limit")
             written += moved
         os.fsync(handle)
+        os.fchmod(handle, READ_ONLY_FILE)
     finally:
         os.close(handle)
     os.replace(staged, place)
@@ -634,19 +1327,101 @@ def discard_workspace(storage, assignment_id):
     return True
 
 
+def discard_tree(place):
+    """Remove one tree this manager owns, whatever its modes are now.
+
+    W26283. `copied_manifest` refuses a destination that already holds an
+    entry, so a caller whose earlier attempt stopped part-way needs a way to
+    take that prefix away -- and custody is FROZEN READ-ONLY when it is
+    complete, so a partial tree from a stopped process may be unwritable too.
+    `_remove` already makes each directory writable as it goes and never
+    follows a link out of the tree, which is the whole duty.
+
+    It is here rather than in the caller because the caller would otherwise
+    reach for `shutil.rmtree`, and the manager's ruled dependency set does not
+    include it -- a rule the repository enforces and which caught exactly that
+    import. `rmtree` would also be the weaker answer: it has followed links
+    out of a tree before, and this module already owns not doing that.
+
+    Answers whether anything was there, so an absent tree is the state asked
+    for rather than a refusal.
+    """
+    if not os.path.isdir(place):
+        return False
+    _remove(place)
+    return True
+
+
+def _thaw(place):
+    """Open this directory enough to empty it, IF this manager may.
+
+    W33936: it may not always, and that is a fact about the corrected
+    mechanism rather than a fault here.  `chmod` is the OWNER's operation, and
+    once the worker can write the workspace it creates directories it owns --
+    so a manager holding only the configured group is refused `EPERM` on them.
+    Swallowing that is right: the thaw is an ATTEMPT to make removal possible,
+    and whether removal is possible is answered by removal.  What is not right
+    is letting the raw error out of a helper whose caller cannot tell it from
+    a missing directory, which is why the two are separated here.
+    """
+    try:
+        os.chmod(place, 0o700)
+    except PermissionError:
+        return False
+    return True
+
+
 def _remove(place):
     """A depth-first removal that never follows a link out of the tree."""
     for current, directories, files in os.walk(place, topdown=False,
                                                followlinks=False):
+        # THAWED ONCE, BEFORE ANYTHING IN IT IS REMOVED.  Unlinking a file and
+        # removing a subdirectory are both writes to THIS directory, so the
+        # thaw belongs here rather than inside the file loop -- W33935
+        # re-review: once the assignment home was frozen, a home holding only
+        # directories never reached that loop and `rmdir` on its children was
+        # denied by the home's own mode.
+        _thaw(current)
         for name in files:
-            os.chmod(current, 0o700)
-            os.unlink(os.path.join(current, name))
+            _unlink(os.path.join(current, name), current)
         for name in directories:
             child = os.path.join(current, name)
             if os.path.islink(child):
-                os.unlink(child)
+                _unlink(child, current)
                 continue
-            os.chmod(child, 0o700)
-            os.rmdir(child)
-    os.chmod(place, 0o700)
+            # The child was already thawed when the walk visited it; this is
+            # the one it could not have reached, a directory that is empty.
+            _thaw(child)
+            _unlink(child, current, directory=True)
+    _thaw(place)
     os.rmdir(place)
+
+
+def _unlink(child, parent, *, directory=False):
+    """Remove one entry, and say WHOSE it is when it cannot be removed.
+
+    W33936: a raw `PermissionError` out of a cleanup walk names a path and
+    nothing else, and the situation this correction creates is specific enough
+    to deserve a sentence.  The workspace is writable by the configured group,
+    so the worker creates content this manager DOES NOT OWN -- and a directory
+    the worker created under its own umask can be one the manager may neither
+    open for writing nor `chmod`.  The removal fails closed, which is right;
+    what a diagnostic has to add is which party owns the thing in the way, so
+    an operator is not left comparing modes by hand.
+    """
+    try:
+        os.rmdir(child) if directory else os.unlink(child)
+        return
+    except PermissionError:
+        # ONLY THIS ONE IS REWORDED.  A non-empty directory, a vanished entry
+        # or a device error mean what they say and are the walk's to raise; a
+        # permission refusal is the one whose cause is invisible in the message.
+        pass
+    held = os.lstat(child)
+    owner, mode = held.st_uid, oct(held.st_mode & 0o7777)
+    _denied(f"the manager could not remove {name_value(child)}: it is owned "
+            f"by uid {owner} at mode {mode} and this manager is uid "
+            f"{os.getuid()}. A workspace the worker may write holds content "
+            f"the worker owns, and neither `chmod` nor a write inside it is "
+            f"this manager's to perform. Cleanup fails closed rather than "
+            f"leaving a partly-removed tree.")

@@ -1,0 +1,48 @@
+W36540 — THE CUSTODY HELPER, ASKED OF A REAL DAEMON
+===================================================
+
+host           slryzen, Ubuntu 25.10
+docker         29.1.3
+the manager    uid 1000
+
+PLAN 1 AND 2, and deliberately BEFORE anything was wired: the question is
+whether the ruled mechanism actually removes the measured defect, asked of the
+real thing rather than reasoned about. A worker creates a populated directory
+at a mode it chooses; the manager's own removal is tried before and after one
+custody act; nothing else changes between the two.
+
+TWO DESIGN CORRECTIONS CAME OUT OF THIS, and both were found by running it:
+
+1. THE CUSTODIAN MUST NOT TOUCH WHAT IT DOES NOT OWN. The first cut normalized
+   every entry under the mount and then the mount itself, and died with EPERM
+   on the mount -- which is the attempt directory the MANAGER owns. Ownership
+   is the rule now, and it is the same rule that makes the act unconditional:
+   an owner may always chmod its own object, and nothing else is the
+   custodian's business. The transcript reports `not_ours: 5`.
+
+2. THE CUSTODIAN NEEDS THE CONFIGURED WORKSPACE GROUP. The first cut composed
+   no group, and the helper could not so much as ENTER the workspace: the root
+   is `02770` and manager-owned, so uid 65532 without the group has no `x` on
+   it. It listed the attempt home, reported five entries that were none of its
+   business, and never reached the worker's. It takes W33936's WorkspaceGroup
+   capability now, on that Work's rule that a group a caller can name is a
+   group a caller chose.
+
+W36540 — CUSTODY OVER WHAT THE WORKER LEAVES
+============================================================
+engine docker   workspace group 1000   manager 1000
+
+the worker ran: worker done 65532 65532
+what it left: worker-made-dir uid=65534 mode=0o2755  (manager is uid 1000)
+
+BEFORE CUSTODY — the manager's own removal:
+    REFUSED: the manager could not remove '/tmp/w36540-5ad0fc74/attempt-1/workspace/worker-made-dir/ne…: it is owned by uid 65534 at mode 0o700 and this manager is...
+
+WHAT THE CUSTODIAN SEES:
+    {"custody": "inspect", "entries": [{"path": "workspace/worker-made-dir/nested/deep.txt", "mode": "0o644", "uid": 65532, "gid": 1000}, {"path": "workspace/worker-made-dir/nested", "mode": "0o700", "uid": 65532, "gid": 1000}, {"path": "workspace/worker-made-dir", "mode": "0o2755", "uid": 65532, "gid": 1000}, {"path": "credential-state", "mode": "0o775", "uid": 1000, "gid": 1000}, {"path": "credentials", "mode": "0o775", "uid": 1000, "gid": 1000}, {"path": "custody", "mode": "0o775", "uid": 1000, "gid": 1000}, {"path": "inputs", "mode": "0o775", "uid": 1000, "gid": 1000}, {"path": "workspace", "m
+
+THE CUSTODY ACT:
+    exit 0: {"custody": "normalize", "entries": 3, "not_ours": 5, "running_as": [65532, 65532]}
+
+AFTER CUSTODY — the same removal, unchanged:
+    REMOVED = True; the tree is gone: True

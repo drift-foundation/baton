@@ -1,0 +1,8 @@
+assignment-identities-equal True
+claim-principals ['principal:baton.claude', 'principal:one-person']
+first-before principal:baton.claude
+activity-principals-after ['principal:one-person', 'principal:one-person']
+Traceback (most recent call last):
+  File "evidence/w16821-v11-reclaim-history-repro.py", line 43, in <module>
+    assert after[0]["decision"] == before, after
+AssertionError: the first activity projects the second claim's decision

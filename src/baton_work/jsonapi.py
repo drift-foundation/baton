@@ -266,7 +266,13 @@ from baton_work.authority import Authority, WorkError
 # ignores them reads exactly what it read before -- and no database schema
 # changes, because these are DERIVED CURRENT FACTS rather than stored
 # workflow state.
-PROJECTION_VERSION = "12.7"
+# W29146 adds `team` to the `search` result: the viewer team the search was
+# scoped to, which W6 has always scoped it to and the result never said. It is
+# additive in the same sense as every MINOR before it -- a consumer that
+# ignores it reads exactly what it read before -- and no predicate, no
+# authorization and no database schema changes, because this publishes a fact
+# the call already had.
+PROJECTION_VERSION = "12.8"
 
 
 def require_version(requested: str | None) -> None:

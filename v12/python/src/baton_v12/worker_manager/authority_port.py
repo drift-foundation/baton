@@ -32,7 +32,8 @@ from ..contracts.errors import name_value, type_name_of
 from . import boundaries
 
 __all__ = ["AuthorityPort", "SESSION_MEMBERS", "SESSION_OPERATIONS",
-           "PROJECTION_READ", "PROJECTION_UNREAD", "SETTLEMENT", "FENCE"]
+           "PROJECTION_READ", "PROJECTION_UNREAD", "SETTLEMENT", "FENCE",
+           "CLAIM_RESULT", "DECISION", "GRANT_PROVENANCE"]
 
 # The session surface cut C uses, written out -- and split, because a bound
 # value and an operation are different things to check.
@@ -68,10 +69,30 @@ SESSION_MEMBERS = ("participant",) + SESSION_OPERATIONS
 # Naming the unread ten rather than ignoring them is the point. An authority
 # that stops sending one of them, or starts sending an eleventh, is a build this
 # one was not written against -- and the five we read may not mean what they did.
-PROJECTION_READ = ("authority_uuid", "status", "phase", "handler", "gate")
-PROJECTION_UNREAD = ("work_id", "route", "outcome", "rationale", "contract",
+#
+# W16823 is the separate later Work W16821 named, and `scope` and `route` MOVE
+# HERE because it consumes them.  They are what an offer freezes about the Work
+# it is issued against, and what the claim decision is later held to: a claim
+# authorized in another scope, or for another route, is not the claim this
+# offer promised however well-formed it is.  Reading them is what makes
+# "relationally inconsistent context" a thing this manager can actually refuse
+# rather than a phrase.
+PROJECTION_READ = ("authority_uuid", "status", "phase", "handler", "gate",
+                   "scope", "route")
+PROJECTION_UNREAD = ("work_id", "outcome", "rationale", "contract",
                      "generation_counter", "live_generation", "assignment",
-                     "fenced_generations", "ready")
+                     "fenced_generations", "ready",
+                     # ...and the decision a closed Work's close was
+                     # authorized under.  UNREAD for the same reason `scope`
+                     # is: the manager consuming the new projection is separate
+                     # later Work, and naming a member is not consuming it.
+                     "close_decision",
+                     # ...and W29400's Work labels.  UNREAD for the same reason
+                     # and with the same boundary: user metadata carries no
+                     # runtime meaning, the Worker Manager's own `labels` are
+                     # OCI execution identity and are a different thing
+                     # entirely, and naming a member is not consuming it.
+                     "labels")
 
 # EACH VARIANT'S OWN SHAPE, because knowing WHICH answer arrived tells you
 # nothing about what it carries.
@@ -105,6 +126,31 @@ SETTLEMENT = {
 # shaped, because a well-formed identity for somebody else is still not ours.
 CLAIM_ANSWER = ("work_ref", "participant", "generation")
 CLAIM_WORK_REF = ("authority_uuid", "work_id")
+
+# W16823: THE CLOSED CLAIM RESULT, and it is three facts rather than one.
+#
+# The `assignment` is the unchanged four-part fence and its rules above are
+# untouched. `claim_event` is the authority's exact immutable identity for the
+# act -- the thing that lets this manager say WHICH of its own claims the
+# context belongs to, which a v11 assignment tuple cannot because it mints no
+# generation. `decision` is the authority's own authorization vocabulary,
+# consumed rather than respelled.
+CLAIM_RESULT = ("assignment", "claim_event", "decision")
+DECISION = ("endpoint", "principal", "effective_scope", "role", "grant",
+            "policy_generation")
+
+# WHERE A GRANT CAN HAVE COME FROM, spelled here for the same reason
+# `SETTLEMENT`'s kinds are: this manager persists the value into a durable
+# column and a later reader reasons from it, so a provenance this build cannot
+# place is not one it can store as evidence of anything.
+#
+# NOT the authority's grammar for principals and scopes, and the difference is
+# the whole trust boundary. A closed vocabulary is a fact about the WIRE. The
+# mapping from an endpoint to a principal is the authority's private
+# configuration, and a manager that reconstructed enough of it to second-guess
+# an internally consistent answer would be a second authority on the question
+# -- which is the correction this Work exists to make, applied backwards.
+GRANT_PROVENANCE = ("direct", "inherited", "masked")
 
 
 class AuthorityPort:
@@ -185,6 +231,13 @@ class AuthorityPort:
         # than whatever POD happened to arrive in that slot.
         boundaries.identity(projection["authority_uuid"],
                             "the projection's authority")
+        # W16823: AND THE TWO AN OFFER FREEZES. They become NOT NULL TEXT
+        # columns on the offer and the operands of the relational check the
+        # claim decision is later held to, so what they must BE is durable
+        # text rather than whatever POD arrived in the slot -- the same rule
+        # `authority_uuid` is under and for the same reason.
+        boundaries.text(projection["scope"], "the projection's effective scope")
+        boundaries.text(projection["route"], "the projection's route")
         return projection
 
     def assignment_of(self, work_id, authority_uuid):
@@ -252,18 +305,115 @@ class AuthorityPort:
 
     # -- the two transitions cut C performs ----------------------------------
 
-    def claim(self, work_id, operation_id, authority_uuid):
+    def claim(self, work_id, operation_id, authority_uuid, scope, role):
         """Take the claim, as the identity this session is bound to.
 
         The manager supplies no participant. It could not: the session takes its
         claimant from its binding and REFUSES a supplied one, which is the whole
         reason an offer's participant is checked against the binding rather than
         carried beside it.
+
+        W16823: AND THE ANSWER IS THE CLOSED RESULT, owned whole. `scope` and
+        `role` are what THIS offer froze from the Work projection at issuance,
+        and they are what the returned decision is held to -- see
+        `_claim_result`.
         """
-        return self._assignment(
-            self._session.claim({"work_id": work_id,
-                                 "operation_id": operation_id}),
-            work_id, authority_uuid, "the claim answer")
+        answer = self._session.claim({"work_id": work_id,
+                                      "operation_id": operation_id})
+        # THE THREE OWNERS ARE CALLED FROM HERE, one level down each, and that
+        # is not a style choice. The boundary inventory attributes a crossing
+        # to the public door through ONE private helper; a chain two deep is a
+        # crossing it can no longer name, and a rule that is applied and cannot
+        # be SEEN to be applied is one the next reviewer takes on trust.
+        taken = boundaries.document(answer, "the claim answer's result",
+                                    required=CLAIM_RESULT)
+        self._assignment(taken["assignment"], work_id, authority_uuid,
+                         "the claim answer")
+        return self._decided(taken, scope, role, "the claim answer")
+
+    def _decided(self, taken, scope, role, what):
+        """The closed claim result, owned at the crossing that receives it.
+
+        W16823. The result is three facts and each is owned by the rule that
+        fits what this manager DOES with it. THE ASSIGNMENT keeps every rule it
+        had and is owned by the caller, one level from the public door, for the
+        inventory reason recorded there. The other two are owned here.
+
+        THE CLAIM EVENT is an act identity this manager persists and compares,
+        so it is a whole number counting from one. Zero and negatives are not
+        acts; `bool` is excluded because `True == 1` would compare equal to the
+        first event ever written.
+
+        THE DECISION is checked for its closed shape, for the durable
+        provenance vocabulary, and for THREE RELATIONS this manager can
+        establish without acquiring any new authority:
+
+          * the endpoint IS this assignment's participant.  Two spellings of
+            one fact are two places for it to be wrong, so the manager stores
+            one and proves the other equals it;
+          * the effective scope IS the scope this offer froze from the Work;
+          * the role IS the route it froze.
+
+        AND ONE THING IT DELIBERATELY DOES NOT CHECK, which is the acceptance
+        clarification approver ruling M34905 made. The principal is the only
+        principal fact that crosses this boundary. Deciding that a well-formed,
+        internally consistent principal from the trusted authority is the
+        WRONG one would take a second, independent endpoint-to-principal
+        mapping -- and a manager holding that is a second authority, which is
+        the conflation this correction exists to end rather than to relocate.
+        """
+        assignment = taken["assignment"]
+        event = taken["claim_event"]
+        if type(event) is bool or type(event) is not int or event < 1:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what}'s claim event is {name_value(event)}; it is the "
+                f"authority's exact identity for the act, counting from one, "
+                f"and it is the only thing that says which of this "
+                f"participant's claims the context beside it belongs to")
+        decision = boundaries.document(taken["decision"],
+                                       f"{what}'s decision", required=DECISION)
+        boundaries.text(decision["endpoint"], f"{what}'s decision endpoint")
+        boundaries.text(decision["principal"], f"{what}'s principal")
+        boundaries.text(decision["effective_scope"],
+                        f"{what}'s effective scope")
+        boundaries.text(decision["role"], f"{what}'s decided role")
+        if decision["grant"] not in GRANT_PROVENANCE:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what}'s grant provenance is "
+                f"{name_value(decision['grant'])}; this manager retains it as "
+                f"durable evidence of how the claim was authorized, and a "
+                f"provenance it cannot place is evidence of nothing")
+        policy = decision["policy_generation"]
+        if type(policy) is bool or type(policy) is not int or policy < 1:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what}'s policy generation is {name_value(policy)}; it is "
+                f"the configuration generation the decision was taken under, "
+                f"counting from one")
+        if decision["endpoint"] != assignment["participant"]:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what} was decided for endpoint "
+                f"{name_value(decision['endpoint'])} and fences "
+                f"{name_value(assignment['participant'])}; the endpoint is "
+                f"the assignment's participant, and a decision about somebody "
+                f"else does not authorize this claim")
+        if decision["effective_scope"] != scope:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what} was decided in scope "
+                f"{name_value(decision['effective_scope'])} and this offer "
+                f"was issued against {name_value(scope)}; an authorization in "
+                f"another scope is not the one this offer promised")
+        if decision["role"] != role:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what} was decided for role {name_value(decision['role'])} "
+                f"and this offer was issued against route {name_value(role)}; "
+                f"a claim authorized as another route is not this offer's")
+        return taken
 
     def _assignment(self, answer, work_id, authority_uuid, what):
         """One assignment identity, owned part by part.
@@ -347,7 +497,7 @@ class AuthorityPort:
             "a published answer reference")
 
     def settle_operation(self, operation_id, signature, reason, disposition,
-                         may_retire, work_id, authority_uuid):
+                         may_retire, work_id, authority_uuid, scope, role):
         answer = boundaries.alternative(
             self._session.settle_operation(
                 {"operation_id": operation_id, "signature": signature,
@@ -355,12 +505,17 @@ class AuthorityPort:
                  "may_retire": may_retire}),
             "the session's settlement answer", SETTLEMENT)
         if answer["kind"] == "committed":
-            # THE SAME ASSIGNMENT DOCUMENT, arriving by the other path. A commit
+            # THE SAME CLOSED RESULT, arriving by the other path. A commit
             # this manager never saw is recorded LATE from this answer, so an
             # unowned result reaches exactly the columns the claim answer's
-            # would.
-            self._assignment(answer["result"], work_id, authority_uuid,
+            # would -- W16823 included, which is why this is the whole result
+            # owner rather than the assignment's.
+            result = boundaries.document(answer["result"],
+                                         "the committed claim's result",
+                                         required=CLAIM_RESULT)
+            self._assignment(result["assignment"], work_id, authority_uuid,
                              "the committed claim")
+            self._decided(result, scope, role, "the committed claim")
         if answer["kind"] == "refused" and answer["detail"] is not None:
             # Becomes the recorded decision reason, so it is storable text or it
             # is nothing.

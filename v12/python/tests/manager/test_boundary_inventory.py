@@ -52,11 +52,12 @@ from baton_v12.contracts import digest as _contracts_digest
 from baton_v12.worker_manager import (AuthorityPort, ControlStore, boundaries,
                                       certify_profile, documents, schema)
 
-from baton_v12.worker_manager import workspaces
+from baton_v12.worker_manager import lanes, workspaces
 
 from .test_handshake import acp_profile
 from .test_output import (AUTHORITY, COMPLETION, JOB, POLICY, OutputCase)
-from .test_offers import (FakeSession, PROFILE, UUID, WHO, WORK,
+from .test_offers import (FakeSession, PRINCIPAL, PROFILE, ROUTE, SCOPE,
+                          UUID, WHO, WORK, decision,
                           fake_claim_signature)
 
 NOW = "2026-08-24T00:00:00.000Z"
@@ -78,6 +79,10 @@ CONTRACT_VECTORS = (pathlib.Path(__file__).resolve().parents[4] / "work"
 OWNED_ASSIGNMENT = {"work_ref": {"authority_uuid": "43c55d4b1234567890abcdef12345678",
                                  "work_id": "43c55d4b-W1439"},
                     "participant": "baton.claude", "generation": 1}
+
+# W16823: a sentinel that means "take this member out", so a probe can reach
+# a document owner's member-set rule rather than the envelope's value rule.
+_DROP = object()
 
 RETENTION_POLICY = "sha256:" + "7" * 64
 RECEIPT = "sha256:" + "6" * 64
@@ -1207,6 +1212,24 @@ STATED_OWNERS = {
         "proved to BE a credentials.Delivery, whose constructor owned every "
         "member; teardown acts on an object this manager materialized rather "
         "than on a document a caller composed",
+    # -- W26291: the worker's launch document --------------------------------
+    ("caller", "launch.py:LaunchDelivery.__init__", "attempt_id"):
+        "constructed only by launch.materialize, which owned every one of "
+        "these before a byte was written -- this object is what the manager "
+        "MADE, not a document a caller composed, and the doors that receive it "
+        "prove its kind rather than re-walking its members",
+    ("caller", "launch.py:LaunchDelivery.__init__", "root"): "the same",
+    ("caller", "launch.py:LaunchDelivery.__init__", "place"): "the same",
+    ("caller", "launch.py:LaunchDelivery.__init__", "document"): "the same",
+    ("caller", "launch.py:discard", "root"):
+        "a root this module created and froze. Removal is by name inside a "
+        "directory this module made and never a walk of something else could "
+        "have replaced, and absence is the state asked for rather than a "
+        "refusal -- so there is nothing here a caller decides",
+    ("caller", "oci.py:OciAdapter.__init__", "launch_delivery"):
+        "proved to BE a launch.LaunchDelivery, whose materializer owned every "
+        "member; the adapter composes one read-only mount out of an object "
+        "this manager made rather than out of a document a caller composed",
     ("caller", "oci.py:OciAdapter.__init__", "credential_delivery"):
         "the same -- and this adapter deliberately does not resolve "
         "credentials at all: the assignment names slots, the trusted profile "
@@ -1518,6 +1541,25 @@ NO_PROBE = {
         "the rule; the contract still owns it for any later reader",
     ("adopted", "attempts.py:_attempts", "attempts.assignment_generation"):
         "the same: a generation column SQLite will not let a writer spoil",
+    # W35557: THE ATTEMPT TABLE'S LOOKUP KEY, at each of the three sites that
+    # adopt a row from it. Every one of them selects
+    # `WHERE runtime_attempt_id = ?`, so a spoiled value is not a malformed row
+    # this build adopts -- it is a row the query does not return, and the
+    # caller receives "no runtime attempt", which is a different boundary
+    # answering a different question. No reader of this table finds a row by
+    # anything else, so there is nothing to drive the probe with. The same
+    # exemption `outputs` and `intakes` already carry, for the same reason and
+    # in the same words.
+    # ONE ENTRY, NOT THREE. I declared the same exemption at all three sites
+    # that adopt this row, and `test_every_unprobed_entry_is_a_real_owned_entry`
+    # refused two of them: the inventory attributes this column's crossing to
+    # `attempts.py:_attempts` alone, so exemptions at the other two named
+    # nothing. That guard exists precisely so "no probe" cannot become a way to
+    # retire an entry by declaring it, and it caught me trying.
+    ("adopted", "attempts.py:_attempts", "attempts.runtime_attempt_id"):
+        "the one read of this table SELECTS BY this column, so a spoiled value "
+        "makes the row unfindable and a probe would prove absence rather than "
+        "the rule; the contract still owns it for any later reader",
     ("adopted", "interrogation.py:_row", "interrogations.session_epoch"):
         "the same: a session epoch column SQLite will not let a writer spoil",
     # -- W6629: intake, retention and cleanup --------------------------------
@@ -1527,6 +1569,24 @@ NO_PROBE = {
         "the one read of this table SELECTS BY this column, so a spoiled value "
         "makes the row unfindable and a probe would prove absence rather than "
         "the rule; the contract still owns it for any later reader",
+    # -- W26294 re-review [P0]: a refusal DELIBERATELY ABSORBED ---------------
+    #
+    # These two owners still run and still decide what the adapter answered.
+    # What changed is where their refusal goes: an observation this build
+    # cannot read is now a durable `uncertain` rather than an exception, and a
+    # probe asserting that the refusal ESCAPES would be asserting the exact
+    # defect the correction removed -- a failed observation leaving the axis at
+    # whatever it said before, including `running`.
+    #
+    # The rule is covered where the behaviour actually is: `test_attempts`'s
+    # `test_an_answer_that_is_not_a_document_is_uncertain_and_says_so` requires
+    # the durable state to be `uncertain` and the EXACT reason to name what was
+    # wrong, which is what tells the document rule from the member rule.
+    ("injected", "attempts.py:_observed", "adapter.observe.state"):
+        "the refusal is absorbed into a durable `uncertain` observation by "
+        "design; test_attempts asserts the state and the exact reason instead",
+    ("injected", "attempts.py:_observed", "adapter.observe.why"):
+        "the same",
 }
 
 DELEGATED = {
@@ -1579,8 +1639,31 @@ DELEGATED = {
     # assignment root it lives under, and a credential is not assignment
     # material -- so every target is proved an entry of the fixed
     # `/run/baton/credentials` root instead.
+    # W26291: the launch document's three values share ONE PRIVATE OWNER
+    # under one literal label. `launch._value` states the rule -- bounded
+    # non-empty text, a per-member ceiling, and no NUL -- and both the
+    # authoring function and the materializer are attributed to it, which is
+    # what keeps one rule one rule rather than three copies of it.
+    ("caller", "launch.py:launch_document", "session"):
+        ("launch.py:_value", "caller:given"),
+    ("caller", "launch.py:launch_document", "contract"):
+        ("launch.py:_value", "caller:given"),
+    ("caller", "launch.py:launch_document", "role"):
+        ("launch.py:_value", "caller:given"),
+    ("caller", "launch.py:materialize", "session"):
+        ("launch.py:_value", "caller:given"),
+    ("caller", "launch.py:materialize", "contract"):
+        ("launch.py:_value", "caller:given"),
+    ("caller", "launch.py:materialize", "role"):
+        ("launch.py:_value", "caller:given"),
     ("caller", "oci.py:run_vector", "credentials_delivered"):
         ("oci.py:_credential_mounts", "caller:pairs"),
+    # W26291: the same shape for the launch document. The typed capability
+    # crosses to the ADAPTER; what reaches this argv composer is the pair that
+    # capability answered with, owned by one private site exactly as a
+    # credential delivery's pairs are.
+    ("caller", "oci.py:run_vector", "launch_delivered"):
+        ("oci.py:_launch_mount", "caller:pair"),
     ("caller", "oci.py:OciAdapter.__init__", "run"):
         ("oci.py:EnginePort.__init__", "caller:run"),
     # The ONE resolved identity a delivery is made under, owned once at
@@ -2197,8 +2280,10 @@ class BoundaryCase(unittest.TestCase):
     # capacity this manager provisioned for every assignment.
     OCI_ROOTS = {"inputs": "/srv/a-1/inputs",
                  "workspace": "/srv/a-1/workspace"}
+    # W16823 adds the principal and the effective scope, beside the fence.
     OCI_LABELS = {"runtime_attempt_id": "attempt-1", "authority_uuid": UUID,
                   "work_id": WORK, "participant": WHO, "generation": 1,
+                  "principal": PRINCIPAL, "effective_scope": SCOPE,
                   "profile_digest": "sha256:" + "b" * 64,
                   "policy_digest": "sha256:" + "d" * 64,
                   "adapter_digest": "sha256:" + "c" * 64}
@@ -2216,7 +2301,13 @@ class BoundaryCase(unittest.TestCase):
         operands = dict(image_digest=self.OCI_IMAGE,
                         labels=dict(self.OCI_LABELS),
                         assignment_roots=dict(self.OCI_ROOTS),
-                        posture="execution", name="baton-op-1")
+                        posture="execution",
+                        # W33936: an execution vector without the configured
+                        # workspace group refuses before every rule these
+                        # probes name, so a probe that omitted it would land
+                        # on that refusal rather than on its own boundary.
+                        workspace_group=self.configured_group(),
+                        name="baton-op-1")
         engine = spoiled.pop("engine", "docker")
         operands.update(spoiled)
         return lambda: oci.run_vector(engine, **operands)
@@ -2302,17 +2393,33 @@ class BoundaryCase(unittest.TestCase):
             "a runtime id", self.seam("observe", SURROGATE))
         # W6629 review [P1]: this seam receives `runtimeDestroyBody` now, so
         # the identity is spoiled INSIDE the command rather than instead of it.
-        found[(at(f"{A}:OciAdapter.destroy", "runtime_id"),
-               "a runtime id")] = (
-            "a runtime id", self.seam("destroy", {
-                "assignment_ref": {
-                    "work_ref": {"authority_uuid": "u" * 32,
-                                 "work_id": "u" * 32 + "-W1"},
-                    "participant": "baton.claude", "generation": 1},
-                "runtime_attempt_id": "attempt-1",
-                "runtime_id": SURROGATE,
-                "intake_receipt_digest": RECEIPT,
-                "retention_policy_digest": RETENTION_POLICY}))
+        #
+        # W34998: AND THERE ARE TWO SEAMS NOW, because a failed start has a
+        # runtime to remove and no intake receipt to authorize it with. The
+        # two commands are siblings with closed member sets, so each gets its
+        # own envelope probe and its own spoiled identity -- probing one and
+        # trusting the other is exactly the shape "no fallback" forbids.
+        assignment = {"work_ref": {"authority_uuid": "u" * 32,
+                                   "work_id": "u" * 32 + "-W1"},
+                      "participant": "baton.claude", "generation": 1}
+        for method, label, digest_member, digest_value in (
+                ("destroy", "a destroy command",
+                 "intake_receipt_digest", RECEIPT),
+                ("destroy_failed_start", "a failed-start destroy command",
+                 "failed_start_record_digest", RECEIPT),
+                # W32576: the third sibling, probed as one rather than trusted
+                # because it resembles the other two.
+                ("destroy_refused_session", "a refused-session destroy command",
+                 "refusal_record_digest", RECEIPT)):
+            body = {"assignment_ref": assignment,
+                    "runtime_attempt_id": "attempt-1",
+                    "runtime_id": SURROGATE,
+                    digest_member: digest_value,
+                    "retention_policy_digest": RETENTION_POLICY}
+            found[(at(f"{A}:OciAdapter.{method}", "command.runtime_id"),
+                   label)] = (label, self.seam(method, dict(body)))
+            found[(at(f"{A}:OciAdapter.{method}", "command"), label)] = (
+                label, self.seam(method, "not a document"))
         # The frozen label document, at both vectors that carry one.
         found[(at(f"{A}:run_vector", "labels"), "a runtime's labels")] = (
             "a runtime's labels", self.running_vector(labels="not a document"))
@@ -2703,11 +2810,16 @@ class BoundaryCase(unittest.TestCase):
         """
         self.session._work = {"status": "open", "phase": "queued",
                               "handler": None, "gate": None,
-                              "authority_uuid": AUTHORITY}
-        self.session.claim_answer = {
-            "work_ref": {"authority_uuid": AUTHORITY, "work_id": JOB},
-            "participant": WHO, "generation": 1}
-        self.session.live_assignment = dict(self.session.claim_answer)
+                              "authority_uuid": AUTHORITY,
+                              # W16823: what the offer freezes about the Work.
+                              "scope": SCOPE, "route": ROUTE}
+        live = {"work_ref": {"authority_uuid": AUTHORITY, "work_id": JOB},
+                "participant": WHO, "generation": 1}
+        # W16823: the closed claim result.
+        self.session.claim_answer = {"assignment": dict(live),
+                                     "claim_event": 1,
+                                     "decision": decision()}
+        self.session.live_assignment = dict(live)
         declaration = OutputCase.published()
         self.declaration = declaration
         self.input_digest = worker_manager.retain_manifest(
@@ -2728,7 +2840,7 @@ class BoundaryCase(unittest.TestCase):
         worker_manager.submit_claim(self.store, self.port, offer_id="offer-o")
         worker_manager.activate_assignment(
             self.store, self.port, attempt_id="attempt-1",
-            expect=dict(self.session.claim_answer))
+            expect=dict(self.session.claim_answer["assignment"]))
         for axis, value in (("execution_runtime", "running"),
                             ("execution_runtime", "quiescent"),
                             ("worker_disposition", "completed")):
@@ -2936,7 +3048,147 @@ class BoundaryCase(unittest.TestCase):
                                          collected=collected)
         return run
 
+    def failed_start_world(self):
+        """An attempt whose start CREATED a runtime and then failed.
+
+        W32648. Built through the production writers rather than by hand: the
+        runtime is attached by an observation and the failure is recorded by
+        `attempts._record_start_failure`, which is what
+        `request_runtime_start` calls when a start fails. A probe aimed at this
+        ending has to reach it, and the ending's first act is to look for that
+        record.
+        """
+        from baton_v12.worker_manager import attempts as attempts_module
+        attempt_id = self.output_world()
+        # THE ATTACHED IDENTITY AND THE AXIS TOGETHER, written behind the
+        # build's back for the reason `corrupt` gives: `output_world` leaves
+        # this attempt `quiescent`, and the frozen axis has no transition from
+        # there back to a live runtime. What this probe needs is the STATE a
+        # failed start leaves -- an attached identity on a runtime that is not
+        # yet destroyed -- rather than the sequence that produces it, which
+        # `test_attempts` drives through `request_runtime_start` for real.
+        self.corrupt("UPDATE attempts SET runtime_id = ?, "
+                     "execution_runtime = 'running' "
+                     "WHERE runtime_attempt_id = ?", "runtime-1", attempt_id)
+        attempts_module._record_start_failure(
+            self.store, attempt_id,
+            {"kind": "fault", "fault": "RuntimeError",
+             "message": "the socket went"})
+        # THE ASSIGNMENT IS OVER, which this ending requires before it runs --
+        # so a probe aimed at anything past the fence has to get past it.
+        self.session.live_assignment = None
+        return attempt_id
+
+    def refused_session_world(self):
+        """An attempt whose HANDSHAKE this manager refused, runtime attached.
+
+        W32576. Built through the production writers: the session is opened
+        against a certified ACP profile pinned to wire version 1 and the
+        answered version is 9, so the refusal that reaches the record is one
+        `negotiate_acp` DERIVED rather than one this fixture handed in. A
+        probe aimed at this ending has to reach it, and the ending's first act
+        after the operand checks is to look for that record.
+        """
+        attempt_id = self.output_world()
+        # THE ATTACHED IDENTITY AND THE AXIS TOGETHER, behind the build's back
+        # for the reason `failed_start_world` gives: `output_world` leaves this
+        # attempt `quiescent` and the frozen axis has no transition back to a
+        # live runtime. What this ending needs is a RUNNING container with an
+        # identity, which is the state a handshake refusal happens in.
+        self.corrupt("UPDATE attempts SET runtime_id = ?, "
+                     "execution_runtime = 'running' "
+                     "WHERE runtime_attempt_id = ?", "runtime-1", attempt_id)
+        profile = acp_profile()
+        worker_manager.certify_agent_session_profile(self.store, profile)
+        worker_manager.open_agent_session(
+            self.store, self.port, attempt_id=attempt_id, posture="execution",
+            profile_digest=profile["document_digest"],
+            intent="open-execution-1")
+        reference = {"runtime_attempt_id": attempt_id, "posture": "execution",
+                     "session_epoch": 1, "provider_session_id": None}
+        # THE FENCE ANSWERS ABOUT THE WORK `output_world` RE-POINTED THE
+        # SESSION AT. The default fixture answer names the shared offer
+        # fixtures' authority, and the ending runs `request_cancellation`,
+        # which refuses an assignment another authority made -- so without
+        # this every probe below would be proving that refusal instead of the
+        # one it names.
+        self.session.fence_answer = {
+            "cause": "cancelled",
+            "assignment": {"work_ref": {"authority_uuid": AUTHORITY,
+                                        "work_id": JOB},
+                           "participant": WHO, "generation": 1},
+            "phase": "block", "gate": "runtime-quiescence:1", "fenced": True}
+        worker_manager.settle_unsupported_version(
+            self.store, self.port, FakeAgent(), FakeAdapter(self),
+            session_ref=dict(reference), agent_protocol_version=9)
+        # THE ASSIGNMENT IS OVER, which this ending requires before it runs.
+        self.session.live_assignment = None
+        return reference
+
+    def destroying_refused_session(self, **answer):
+        """One refused-session destroy answer with exactly one member spoiled.
+
+        The same closed-envelope rule the other two state: a probe aimed at a
+        RUNTIME member carries both provider endings, or the envelope refuses
+        it and the member's own rule is never reached.
+        """
+        if answer:
+            answer = {"credentials": {"lifecycle_state": "not-delivered"},
+                      "launch": {"lifecycle_state": "not-delivered"},
+                      **answer}
+
+        class _RefusedSessionCustodian:
+            def destroy_refused_session(self, command):
+                return answer or None
+
+        def run():
+            reference = self.refused_session_world()
+            worker_manager.authorize_refused_session_cleanup(
+                self.store, self.port, _RefusedSessionCustodian(),
+                session_ref=reference,
+                retention_policy_digest=RETENTION_POLICY)
+        return run
+
+    def destroying_failed_start(self, **answer):
+        """One failed-start destroy answer with exactly one member spoiled.
+
+        The same closed-envelope rule `destroying` states: a probe aimed at a
+        RUNTIME member carries both provider endings, or the envelope refuses
+        it and the member's own rule is never reached.
+        """
+        if answer:
+            answer = {"credentials": {"lifecycle_state": "not-delivered"},
+                      "launch": {"lifecycle_state": "not-delivered"},
+                      **answer}
+
+        class _FailedStartCustodian:
+            def destroy_failed_start(self, command):
+                return answer or None
+
+        def run():
+            attempt_id = self.failed_start_world()
+            worker_manager.authorize_failed_start_cleanup(
+                self.store, self.port, _FailedStartCustodian(),
+                attempt_id=attempt_id,
+                retention_policy_digest=RETENTION_POLICY)
+        return run
+
     def destroying(self, **answer):
+        """One destroy answer with exactly one member spoiled.
+
+        W6636: the destroy answer's member contract is CLOSED -- every
+        provider ending answers on every destroy -- so a probe aimed at a
+        RUNTIME member has to carry both provider endings or it is refused by
+        the envelope and the member's own rule is never reached. That is the
+        vacuous-probe shape this file exists to catch, and it is the same
+        reason the spoiling values here are ones the envelope accepts. A probe
+        that IS about a provider ending overrides its own.
+        """
+        if answer:
+            answer = {"credentials": {"lifecycle_state": "not-delivered"},
+                      "launch": {"lifecycle_state": "not-delivered"},
+                      **answer}
+
         def run():
             attempt_id = self.decided()
             # W6629 review [P1]: cleanup refuses while the fixed assignment is
@@ -2983,6 +3235,8 @@ class BoundaryCase(unittest.TestCase):
 
         def freeze(drop=None, **spoiled):
             body = {"attempt_id": "attempt-1", "assignment": assignment,
+                    "context": {"principal": PRINCIPAL,
+                                "effective_scope": SCOPE},
                     "disposition": "completed", "now": NOW,
                     "operation": operation}
             body.update(spoiled)
@@ -3075,6 +3329,71 @@ class BoundaryCase(unittest.TestCase):
             found[(at(f"{S}:declared_outputs", subject), label)] = (
                 label, drive)
 
+        return found
+
+    def launch_probes(self):
+        """One probe per (entry, label) W26291's launch document added.
+
+        NOTHING HERE TOUCHES A FILESYSTEM, and that is part of what is
+        asserted: `materialize` owns its two operands before it decides where
+        anything goes, so a delivery whose operands this module cannot read is
+        refused before a root exists to clean up.
+
+        The three VALUES the document carries are not probed here because they
+        are not entries of this site: they are owned inside `_value` under one
+        literal label, which is the rule a shared owner has to follow, and
+        `test_launch` drives each of them by name.
+        """
+        from baton_v12.worker_manager import launch, oci
+        L = "launch.py"
+
+        def at(site, subject):
+            return ("caller", site, subject)
+
+        def making(**overrides):
+            body = {"storage": "/srv/launch", "attempt_id": "attempt-1",
+                    "session": "session-1", "contract": "do the thing",
+                    "role": "implementer"}
+            body.update(overrides)
+            place = body.pop("storage")
+            return lambda: launch.materialize(place, **body)
+
+        def authored(**overrides):
+            body = {"session": "session-1", "contract": "do the thing",
+                    "role": "implementer"}
+            body.update(overrides)
+            return lambda: launch.launch_document(**body)
+
+        found = {
+            (at(f"{L}:materialize", "attempt_id"), "a launch attempt id"): (
+                "a launch attempt id", making(attempt_id=7)),
+            (at(f"{L}:materialize", "storage"),
+             "the manager's launch storage"): (
+                "the manager's launch storage", making(storage=7)),
+        }
+        # THE THREE VALUES, at both sites that receive them and through the one
+        # private owner both are attributed to. `materialize` forwards rather
+        # than owning a second time, so the SAME refusal has to arrive through
+        # it -- which is what makes the delegation a fact rather than a note.
+        for name in ("session", "contract", "role"):
+            found[(at(f"{L}:launch_document", name),
+                   "a launch document value")] = (
+                "a launch document value", authored(**{name: 7}))
+            found[(at(f"{L}:materialize", name),
+                   "a launch document value")] = (
+                "a launch document value", making(**{name: 7}))
+        # And the pair the adapter's capability answers with, owned where the
+        # argv is composed exactly as a credential delivery's pairs are.
+        found[(("caller", "oci.py:run_vector", "launch_delivered"),
+               "a launch document target")] = (
+            "a launch document target",
+            lambda: oci.run_vector(
+                "docker", image_digest=self.OCI_IMAGE,
+                labels=dict(self.OCI_LABELS),
+                assignment_roots=dict(self.OCI_ROOTS), posture="execution",
+                workspace_group=self.configured_group(),
+                launch_delivered=("/srv/launch/launch.json", 7),
+                name="baton-op-1"))
         return found
 
     def credential_probes(self):
@@ -3302,13 +3621,21 @@ class BoundaryCase(unittest.TestCase):
             body = {"attempt_id": "attempt-1",
                     "assignment": {"work_ref": {"authority_uuid": AUTHORITY,
                                                 "work_id": JOB},
-                                   "participant": WHO, "generation": 1}}
+                                   "participant": WHO, "generation": 1},
+                    "context": {"principal": PRINCIPAL,
+                                "effective_scope": SCOPE}}
             for path, value in spoiled.items():
                 at_document = body
                 pieces = path.split(".")
                 for piece in pieces[:-1]:
                     at_document = at_document[piece]
-                at_document[pieces[-1]] = value
+                # `_DROP` REMOVES the member rather than spoiling it, which is
+                # what reaches a document owner's member-set rule; an
+                # unencodable value reaches the envelope first.
+                if value is _DROP:
+                    at_document.pop(pieces[-1])
+                else:
+                    at_document[pieces[-1]] = value
             return lambda: recovering().recover_credentials(body)
 
         found[(("caller", "oci.py:OciAdapter.recover_credentials", "request"),
@@ -3359,7 +3686,25 @@ class BoundaryCase(unittest.TestCase):
                 ("request.assignment.work_ref.authority_uuid",
                  "a recovery work ref", without("work_ref.authority_uuid")),
                 ("request.assignment.work_ref.work_id",
-                 "a recovery work ref", without("work_ref.work_id"))):
+                 "a recovery work ref", without("work_ref.work_id")),
+                # W16823: the trusted context, owned at this door beside the
+                # assignment because the label set this recovery SELECTS on
+                # now names the principal. Each member is reached under both
+                # the envelope's label and the context document's own, exactly
+                # as the assignment's members are.
+                ("request.context", "a recovery authorization context",
+                 recovery(context="not a document")),
+                ("request.context.principal",
+                 "a recovery authorization context",
+                 recovery(**{"context.principal": _DROP})),
+                ("request.context.effective_scope",
+                 "a recovery authorization context",
+                 recovery(**{"context.effective_scope": _DROP})),
+                ("request.context.principal", "a credential recovery request",
+                 recovery(**{"context.principal": SURROGATE})),
+                ("request.context.effective_scope",
+                 "a credential recovery request",
+                 recovery(**{"context.effective_scope": SURROGATE}))):
             found[((R[0], R[1], entry), label)] = (label, drive)
         found[(("caller", "oci.py:OciAdapter.recover_credentials",
                 "request.attempt_id"), "a credential attempt id")] = (
@@ -3383,6 +3728,13 @@ class BoundaryCase(unittest.TestCase):
                "toolchain_digest": None, "created_at": NOW,
                "work_id": JOB, "authority_uuid": AUTHORITY,
                "assignment_participant": WHO, "assignment_generation": 1,
+               # W16823: activation fixes the context with the fence, so a row
+               # carrying one and not the other is not a persisted attempt.
+               "assignment_claim_event_seq": 1,
+               "assignment_principal": PRINCIPAL,
+               "assignment_scope": SCOPE, "assignment_role": ROUTE,
+               "assignment_grant": "direct",
+               "assignment_policy_generation": 1,
                "runtime_id": "runtime-1", "observation_seq": 0,
                "observed_at": None}
         for axis in schema.ATTEMPT_AXES:
@@ -3525,6 +3877,143 @@ class BoundaryCase(unittest.TestCase):
             lambda: worker_manager.authorize_cleanup(
                 self.store, self.port, _Custodian(), attempt_id="attempt-1",
                 retention_policy_digest=SURROGATE))
+        # W32648: THE FAILED-START ENDING, its three operands and its own
+        # derived identity. The sibling of `authorize_cleanup` and
+        # `destroy_operation` above, and probed as one rather than trusted
+        # because it resembles them.
+        class _FailedStartCustodian:
+            def destroy_failed_start(self, command):
+                return None
+
+        found[(at(f"{I}:authorize_failed_start_cleanup", "attempt_id"),
+               "a runtime attempt id")] = (
+            "a runtime attempt id",
+            lambda: worker_manager.authorize_failed_start_cleanup(
+                self.store, self.port, _FailedStartCustodian(),
+                attempt_id=SURROGATE,
+                retention_policy_digest=RETENTION_POLICY))
+        found[(at(f"{I}:authorize_failed_start_cleanup", "adapter"),
+               "the runtime adapter's failed-start destroy")] = (
+            "the runtime adapter's failed-start destroy",
+            lambda: worker_manager.authorize_failed_start_cleanup(
+                self.store, self.port, object(), attempt_id="attempt-1",
+                retention_policy_digest=RETENTION_POLICY))
+        found[(at(f"{I}:authorize_failed_start_cleanup",
+                  "retention_policy_digest"), "a retention policy digest")] = (
+            "a retention policy digest",
+            lambda: worker_manager.authorize_failed_start_cleanup(
+                self.store, self.port, _FailedStartCustodian(),
+                attempt_id="attempt-1", retention_policy_digest=SURROGATE))
+        found[(at(f"{I}:failed_start_destroy_operation", "attempt"),
+               "a persisted attempt")] = (
+            "a persisted attempt",
+            lambda: worker_manager.failed_start_destroy_operation(
+                "not a row", RECEIPT, RETENTION_POLICY))
+        for member in ("runtime_attempt_id", "work_id", "authority_uuid",
+                       "assignment_participant", "assignment_generation",
+                       "runtime_id"):
+            found[(at(f"{I}:failed_start_destroy_operation",
+                      f"attempt.{member}"), "a persisted attempt")] = (
+                "a persisted attempt",
+                lambda member=member:
+                worker_manager.failed_start_destroy_operation(
+                    dict(row, **{member: SURROGATE}), RECEIPT,
+                    RETENTION_POLICY))
+        found[(at(f"{I}:failed_start_destroy_operation",
+                  "failed_start_record_digest"),
+               "a failed-start record digest")] = (
+            "a failed-start record digest",
+            lambda: worker_manager.failed_start_destroy_operation(
+                dict(row), SURROGATE, RETENTION_POLICY))
+        found[(at(f"{I}:failed_start_destroy_operation",
+                  "retention_policy_digest"), "a retention policy digest")] = (
+            "a retention policy digest",
+            lambda: worker_manager.failed_start_destroy_operation(
+                dict(row), RECEIPT, SURROGATE))
+        # W32576: THE REFUSED-SESSION ENDING, the third sibling. Its two
+        # caller operands are checked BEFORE any session is looked up -- the
+        # reference is owned, then the policy digest, then the capability --
+        # so these probes need a well-shaped reference and no world at all.
+        class _RefusedSessionCustodian:
+            def destroy_refused_session(self, command):
+                return None
+
+        reference = {"runtime_attempt_id": "attempt-1",
+                     "posture": "execution", "session_epoch": 1,
+                     "provider_session_id": None}
+        found[(at(f"{I}:authorize_refused_session_cleanup",
+                  "retention_policy_digest"), "a retention policy digest")] = (
+            "a retention policy digest",
+            lambda: worker_manager.authorize_refused_session_cleanup(
+                self.store, self.port, _RefusedSessionCustodian(),
+                session_ref=dict(reference),
+                retention_policy_digest=SURROGATE))
+        found[(at(f"{I}:authorize_refused_session_cleanup", "adapter"),
+               "the runtime adapter's refused-session destroy")] = (
+            "the runtime adapter's refused-session destroy",
+            lambda: worker_manager.authorize_refused_session_cleanup(
+                self.store, self.port, object(), session_ref=dict(reference),
+                retention_policy_digest=RETENTION_POLICY))
+        found[(at(f"{I}:refused_session_destroy_operation", "attempt"),
+               "a persisted attempt")] = (
+            "a persisted attempt",
+            lambda: worker_manager.refused_session_destroy_operation(
+                "not a row", RECEIPT, RETENTION_POLICY))
+        for member in ("runtime_attempt_id", "work_id", "authority_uuid",
+                       "assignment_participant", "assignment_generation",
+                       "runtime_id"):
+            found[(at(f"{I}:refused_session_destroy_operation",
+                      f"attempt.{member}"), "a persisted attempt")] = (
+                "a persisted attempt",
+                lambda member=member:
+                worker_manager.refused_session_destroy_operation(
+                    dict(row, **{member: SURROGATE}), RECEIPT,
+                    RETENTION_POLICY))
+        found[(at(f"{I}:refused_session_destroy_operation",
+                  "refusal_record_digest"), "a refusal record digest")] = (
+            "a refusal record digest",
+            lambda: worker_manager.refused_session_destroy_operation(
+                dict(row), SURROGATE, RETENTION_POLICY))
+        found[(at(f"{I}:refused_session_destroy_operation",
+                  "retention_policy_digest"), "a retention policy digest")] = (
+            "a retention policy digest",
+            lambda: worker_manager.refused_session_destroy_operation(
+                dict(row), RECEIPT, SURROGATE))
+        # ...AND WHAT ITS ADAPTER ANSWERED, envelope and members, exactly as
+        # the receipt-authorized crossing's are.
+        found[(at(f"{I}:_destroyed_failed_start",
+                  "adapter.destroy_failed_start", "injected"),
+               "a failed-start destroy observation")] = (
+            "a failed-start destroy observation",
+            self.destroying_failed_start())
+        for member, label, spoiled in (
+                ("runtime_id", "an observed runtime id",
+                 dict(runtime_id=5, state="absent", why="gone")),
+                ("state", "a destroy observation's state",
+                 dict(runtime_id="runtime-1", state=5, why="gone")),
+                ("why", "a destroy observation's reason",
+                 dict(runtime_id="runtime-1", state="absent", why=5))):
+            found[(at(f"{I}:_destroyed_failed_start",
+                      f"adapter.destroy_failed_start.{member}", "injected"),
+                   label)] = (label,
+                              self.destroying_failed_start(**spoiled))
+        # W32576: ...and the third sibling's answer, the same way.
+        found[(at(f"{I}:_destroyed_refused_session",
+                  "adapter.destroy_refused_session", "injected"),
+               "a refused-session destroy observation")] = (
+            "a refused-session destroy observation",
+            self.destroying_refused_session())
+        for member, label, spoiled in (
+                ("runtime_id", "an observed runtime id",
+                 dict(runtime_id=5, state="absent", why="gone")),
+                ("state", "a destroy observation's state",
+                 dict(runtime_id="runtime-1", state=5, why="gone")),
+                ("why", "a destroy observation's reason",
+                 dict(runtime_id="runtime-1", state="absent", why=5))):
+            found[(at(f"{I}:_destroyed_refused_session",
+                      f"adapter.destroy_refused_session.{member}", "injected"),
+                   label)] = (label,
+                              self.destroying_refused_session(**spoiled))
         # WHAT THE ADAPTER ANSWERED, envelope and members.
         #
         # A MEMBER IS SPOILED WITH SOMETHING THE ENVELOPE OWNER ACCEPTS. The
@@ -3547,16 +4036,10 @@ class BoundaryCase(unittest.TestCase):
                "a destroy observation's reason")] = (
             "a destroy observation's reason",
             self.destroying(runtime_id="runtime-1", state="absent", why=5))
-        # THE PERSISTED ROWS CROSSING BACK IN.
-        for column in ("cleanup", "execution_runtime", "input_digest",
-                       "output", "policy_digest", "runtime_id",
-                       "worker_disposition"):
-            found[(at(f"{I}:_attempt_of", f"attempts.{column}", "adopted"),
-                   "a persisted attempt")] = (
-                "a persisted attempt", self.spoiling_intake_attempt(column))
-        found[(at(f"{I}:_attempt_of", "attempts", "adopted"),
-               "a persisted attempt")] = (
-            "a persisted attempt", self.spoiling_intake_attempt("output"))
+        # THE PERSISTED ROWS CROSSING BACK IN -- W35557 moved the attempt
+        # columns to `attempt_probes`, which derives them from
+        # `ATTEMPT_COLUMNS` for every site that adopts one. This hand-written
+        # list named seven of them and had drifted; a derivation cannot.
         for column in ("custody", "intake_operation_id", "manifest_digest",
                        "receipt_digest", "recoverable", "result_id", "why"):
             found[(at(f"{I}:intake_receipt_of", f"intakes.{column}",
@@ -3598,6 +4081,13 @@ class BoundaryCase(unittest.TestCase):
                "toolchain_digest": None, "created_at": NOW,
                "work_id": JOB, "authority_uuid": AUTHORITY,
                "assignment_participant": WHO, "assignment_generation": 1,
+               # W16823: activation fixes the context with the fence, so a row
+               # carrying one and not the other is not a persisted attempt.
+               "assignment_claim_event_seq": 1,
+               "assignment_principal": PRINCIPAL,
+               "assignment_scope": SCOPE, "assignment_role": ROUTE,
+               "assignment_grant": "direct",
+               "assignment_policy_generation": 1,
                "runtime_id": None, "observation_seq": 0, "observed_at": None}
         for axis in schema.ATTEMPT_AXES:
             row[axis] = next(iter(schema.ATTEMPT_COLUMNS[axis].allowed))
@@ -3668,16 +4158,8 @@ class BoundaryCase(unittest.TestCase):
             found[(at(f"{O}:freeze_operation", f"attempt.{member}"),
                    "a persisted attempt")] = (
                 "a persisted attempt", deriving(**{member: SURROGATE}))
-        for column in ("work_id", "authority_uuid", "input_digest",
-                       "policy_digest", "output", "worker_disposition",
-                       "execution_runtime"):
-            for subject in (f"attempts.{column}",):
-                found[(at(f"{O}:_attempt_of", subject, "adopted"),
-                       "a persisted attempt")] = (
-                    "a persisted attempt", self.spoiling_output_attempt(column))
-        found[(at(f"{O}:_attempt_of", "attempts", "adopted"),
-               "a persisted attempt")] = (
-            "a persisted attempt", self.spoiling_output_attempt("work_id"))
+        # W35557: the attempt columns are derived in `attempt_probes` now, for
+        # this site and the two others that adopt the same row.
         for column in ("result_id", "disposition", "manifest_digest",
                        "freeze_operation_id", "frozen_at"):
             found[(at(f"{O}:frozen_output_of", f"outputs.{column}", "adopted"),
@@ -3696,6 +4178,19 @@ class BoundaryCase(unittest.TestCase):
                "a persisted output artifact")] = (
             "a persisted output artifact", self.spoiling_artifact("locator"))
         return found
+
+    def configured_group(self):
+        """The deployment's configured workspace group, for a probe.
+
+        W33936 review [P1]: the group is a capability read from this manager's
+        own record rather than an integer, so a probe that needs one
+        configures it and reads it back -- which is also what stops a probe
+        from proving a boundary with a value no deployment ever chose.
+        """
+        from . import input_roots
+        if getattr(self, "_group", None) is None:
+            self._group = input_roots.configured_group(self.store)
+        return self._group
 
     def corrupt(self, statement, *operands):
         """Change persisted bytes behind this build's back.
@@ -3902,6 +4397,45 @@ class BoundaryCase(unittest.TestCase):
                                              attempt_id="attempt-1")
         return run
 
+    def observing(self, answer):
+        """An adapter whose OBSERVATION is whatever this probe needs. W26294.
+
+        The listing is the ordinary one, so what the probe drives is the
+        answer `reconcile_runtime` now asks for about the exact runtime rather
+        than infers from membership.
+        """
+        def run():
+            self.bound_attempt()
+            adapter = FakeAdapter(self)
+            # THE LISTING HAS TO MATCH, or reconciliation never reaches the
+            # observation at all. `FakeAdapter.list` answers `[]` until
+            # something has been started through it, so a probe that only set
+            # the observation took the "nothing is listed" path and never
+            # touched the boundary it names -- measured: the probe was
+            # declared and did not arrive.
+            adapter.list = lambda operands: [
+                {"runtime_id": adapter.runtime_id,
+                 "labels": adapter.labels_for()}]
+            adapter.observation = answer
+            worker_manager.reconcile_runtime(self.store, adapter,
+                                             attempt_id="attempt-1")
+        return run
+
+    def observing_without_observe(self):
+        """An adapter that LISTS and cannot observe. W26294.
+
+        `object()` would be refused by `reconcile_runtime`'s own `list`
+        capability check first and would probe that instead, so the probe
+        needs one that gets past the listing and then has nothing to answer
+        with.
+        """
+        def run():
+            self.bound_attempt()
+            worker_manager.reconcile_runtime(self.store,
+                                             _WithoutObserve(self),
+                                             attempt_id="attempt-1")
+        return run
+
     def fencing(self, **spoiled):
         def run():
             self.attached()
@@ -3949,12 +4483,38 @@ class BoundaryCase(unittest.TestCase):
         def at(site, subject, domain="caller"):
             return (domain, site, subject)
 
+        # W16823: THE ANSWER NESTS ONE LEVEL DEEPER, so the spoilers say which
+        # level they reach.
+        #
+        #   whole=       replaces the whole closed result
+        #   assignment=  replaces the assignment inside it
+        #   decision=    replaces the decision inside it
+        #   anything else spoils a MEMBER, of the decision when the decision
+        #   names it and of the assignment otherwise
+        #
+        # One composer rather than three, because the claim path and the
+        # late-commit path receive the same document and every probe below has
+        # to reach the same owner by either door.
+        def spoiling(held, **answer):
+            if "whole" in answer:
+                return answer["whole"]
+            result = dict(held)
+            for member, value in answer.items():
+                if member in ("assignment", "decision"):
+                    result[member] = value
+                elif member in held["decision"]:
+                    result["decision"] = dict(result["decision"],
+                                              **{member: value})
+                else:
+                    result["assignment"] = dict(result["assignment"],
+                                                **{member: value})
+            return result
+
         def claiming(offer_id, **answer):
             def run():
                 self.accepted(offer_id)
-                self.session.claim_answer = (
-                    answer["whole"] if "whole" in answer
-                    else dict(self.session.claim_answer, **answer))
+                self.session.claim_answer = spoiling(
+                    self.session.claim_answer, **answer)
                 worker_manager.submit_claim(store, port, offer_id=offer_id)
             return run
 
@@ -3974,8 +4534,7 @@ class BoundaryCase(unittest.TestCase):
                 self.accepted(offer_id)
                 self.session.settle_answer = {
                     "kind": "committed",
-                    "result": (result["whole"] if "whole" in result
-                               else dict(self.session.claim_answer, **result))}
+                    "result": spoiling(self.session.claim_answer, **result)}
                 worker_manager.settle_claim(store, port, offer_id=offer_id,
                                             now=NOW)
             return run
@@ -4018,7 +4577,7 @@ class BoundaryCase(unittest.TestCase):
              "an assignment identity"):
                 ("an assignment identity",
                  lambda: workspaces.assignment_workspace(
-                     self.root, SURROGATE)),
+                     self.configured_group(), self.root, SURROGATE)),
             (at("workspaces.py:discard_workspace", "assignment_id"),
              "an assignment identity"):
                 ("an assignment identity",
@@ -4109,7 +4668,8 @@ class BoundaryCase(unittest.TestCase):
                 lambda: workspaces.directory_manifest(SURROGATE)),
             (at("workspaces.py:assignment_workspace", "storage"),
              "a filesystem root"): ("a filesystem root",
-                lambda: workspaces.assignment_workspace(SURROGATE, "a-1")),
+                lambda: workspaces.assignment_workspace(
+                    self.configured_group(), SURROGATE, "a-1")),
             (at("workspaces.py:discard_workspace", "storage"),
              "a filesystem root"): ("a filesystem root",
                 lambda: workspaces.discard_workspace(SURROGATE, "a-1")),
@@ -4279,29 +4839,69 @@ class BoundaryCase(unittest.TestCase):
                  lambda: (setattr(self.session, "_work",
                                   dict(self.session._work, authority_uuid=7)),
                           self.issued("offer-pa"))),
+            # W16823: the two members this manager now READS out of the
+            # projection, because an offer freezes them and the claim decision
+            # is held to them.
+            (at(f"{A}.project_work", "project_work.scope", "injected"),
+             "the projection's effective scope"):
+                ("the projection's effective scope",
+                 lambda: (setattr(self.session, "_work",
+                                  dict(self.session._work, scope=7)),
+                          self.issued("offer-ps"))),
+            (at(f"{A}.project_work", "project_work.route", "injected"),
+             "the projection's route"):
+                ("the projection's route",
+                 lambda: (setattr(self.session, "_work",
+                                  dict(self.session._work, route=7)),
+                          self.issued("offer-pr"))),
             (at(f"{A}.slot_holder", "slot_holder", "injected"),
              "the session's slot holder"): ("the session's slot holder",
                 lambda: (setattr(self.session, "_held", 7),
                          self.issued("offer-sh"))),
-            (at(f"{A}.claim", "claim", "injected"), "'s identity"):
-                ("the claim answer's identity", claiming("offer-ca", whole=7)),
-            (at(f"{A}.claim", "claim.work_ref", "injected"),
+            # W16823: THE RESULT'S OWN ENVELOPE, and then each nested owner
+            # under the member it now lives in. The fence's rules did not
+            # change; the document it arrives inside did, so the subjects say
+            # `claim.assignment.*` where they used to say `claim.*`.
+            (at(f"{A}.claim", "claim", "injected"),
+             "the claim answer's result"):
+                ("the claim answer's result", claiming("offer-cr", whole=7)),
+            (at(f"{A}.claim", "claim.assignment", "injected"), "'s identity"):
+                ("the claim answer's identity",
+                 claiming("offer-ca", assignment=7)),
+            (at(f"{A}.claim", "claim.assignment.work_ref", "injected"),
              "'s Work reference"): ("the claim answer's Work reference",
                 claiming("offer-cw", work_ref=7)),
-            (at(f"{A}.claim", "claim.work_ref.authority_uuid", "injected"),
+            (at(f"{A}.claim", "claim.assignment.work_ref.authority_uuid",
+                "injected"),
              "'s authority"): ("the claim answer's authority",
                 claiming("offer-cu",
                          work_ref={"authority_uuid": 7, "work_id": WORK})),
-            (at(f"{A}.claim", "claim.work_ref.work_id", "injected"),
+            (at(f"{A}.claim", "claim.assignment.work_ref.work_id", "injected"),
              "'s Work id"): ("the claim answer's Work id",
                 claiming("offer-ci",
                          work_ref={"authority_uuid": UUID, "work_id": 7})),
-            (at(f"{A}.claim", "claim.participant", "injected"),
+            (at(f"{A}.claim", "claim.assignment.participant", "injected"),
              "'s participant"): ("the claim answer's participant",
                 claiming("offer-cp", participant=7)),
-            (at(f"{A}.claim", "claim.generation", "injected"),
+            (at(f"{A}.claim", "claim.assignment.generation", "injected"),
              "'s generation"): ("the claim answer's generation",
                 claiming("offer-cg", generation="not-a-generation")),
+            # ...and the decision, which is new rather than moved.
+            (at(f"{A}.claim", "claim.decision", "injected"), "'s decision"):
+                ("the claim answer's decision",
+                 claiming("offer-cd", decision=7)),
+            (at(f"{A}.claim", "claim.decision.endpoint", "injected"),
+             "'s decision endpoint"): ("the claim answer's decision endpoint",
+                claiming("offer-ce", endpoint=7)),
+            (at(f"{A}.claim", "claim.decision.principal", "injected"),
+             "'s principal"): ("the claim answer's principal",
+                claiming("offer-cn", principal=7)),
+            (at(f"{A}.claim", "claim.decision.effective_scope", "injected"),
+             "'s effective scope"): ("the claim answer's effective scope",
+                claiming("offer-cv", effective_scope=7)),
+            (at(f"{A}.claim", "claim.decision.role", "injected"),
+             "'s decided role"): ("the claim answer's decided role",
+                claiming("offer-co", role=7)),
             (at(f"{A}.settle_operation", "settle_operation", "injected"),
              "the session's settlement answer"):
                 ("the session's settlement answer",
@@ -4337,32 +4937,66 @@ class BoundaryCase(unittest.TestCase):
                           worker_manager.settle_claim(store, port,
                                                       offer_id="offer-rd",
                                                       now=NOW))),
+            # W16823: the same twelve, by the other door. A commit this
+            # manager never saw reaches exactly the columns a submitted claim
+            # does, so it is owned exactly as one -- and probing only the
+            # claim path would be a rule enforced at one of its two entrances.
             (at(f"{A}.settle_operation", "settle_operation.result",
+                "injected"), "the committed claim's result"):
+                ("the committed claim's result",
+                 committing("offer-mr", whole=7)),
+            (at(f"{A}.settle_operation", "settle_operation.result.assignment",
                 "injected"), "'s identity"):
                 ("the committed claim's identity",
-                 committing("offer-mi", whole=7)),
-            (at(f"{A}.settle_operation", "settle_operation.result.work_ref",
-                "injected"), "'s Work reference"):
+                 committing("offer-mi", assignment=7)),
+            (at(f"{A}.settle_operation",
+                "settle_operation.result.assignment.work_ref", "injected"),
+             "'s Work reference"):
                 ("the committed claim's Work reference",
                  committing("offer-mw", work_ref=7)),
             (at(f"{A}.settle_operation",
-                "settle_operation.result.work_ref.authority_uuid", "injected"),
+                "settle_operation.result.assignment.work_ref.authority_uuid",
+                "injected"),
              "'s authority"): ("the committed claim's authority",
                 committing("offer-mu",
                            work_ref={"authority_uuid": 7, "work_id": WORK})),
             (at(f"{A}.settle_operation",
-                "settle_operation.result.work_ref.work_id", "injected"),
+                "settle_operation.result.assignment.work_ref.work_id",
+                "injected"),
              "'s Work id"): ("the committed claim's Work id",
                 committing("offer-mk",
                            work_ref={"authority_uuid": UUID, "work_id": 7})),
             (at(f"{A}.settle_operation",
-                "settle_operation.result.participant", "injected"),
+                "settle_operation.result.assignment.participant", "injected"),
              "'s participant"): ("the committed claim's participant",
                 committing("offer-mp", participant=7)),
-            (at(f"{A}.settle_operation", "settle_operation.result.generation",
-                "injected"), "'s generation"):
+            (at(f"{A}.settle_operation",
+                "settle_operation.result.assignment.generation", "injected"),
+             "'s generation"):
                 ("the committed claim's generation",
                  committing("offer-mg", generation="not-a-generation")),
+            (at(f"{A}.settle_operation", "settle_operation.result.decision",
+                "injected"), "'s decision"):
+                ("the committed claim's decision",
+                 committing("offer-md", decision=7)),
+            (at(f"{A}.settle_operation",
+                "settle_operation.result.decision.endpoint", "injected"),
+             "'s decision endpoint"):
+                ("the committed claim's decision endpoint",
+                 committing("offer-me", endpoint=7)),
+            (at(f"{A}.settle_operation",
+                "settle_operation.result.decision.principal", "injected"),
+             "'s principal"): ("the committed claim's principal",
+                committing("offer-mn", principal=7)),
+            (at(f"{A}.settle_operation",
+                "settle_operation.result.decision.effective_scope",
+                "injected"),
+             "'s effective scope"): ("the committed claim's effective scope",
+                committing("offer-mv", effective_scope=7)),
+            (at(f"{A}.settle_operation",
+                "settle_operation.result.decision.role", "injected"),
+             "'s decided role"): ("the committed claim's decided role",
+                committing("offer-mo", role=7)),
             (at(f"{A}.claim_signature", "claim_signature", "injected"),
              "the authority's claim signature"):
                 ("the authority's claim signature",
@@ -4552,6 +5186,14 @@ class BoundaryCase(unittest.TestCase):
              "a runtime attempt id"): ("a runtime attempt id",
                 lambda: worker_manager.reconcile_runtime(
                     store, FakeAdapter(self), attempt_id=SURROGATE)),
+            # W26294: reconciliation calls a SECOND capability now. `list`
+            # answers which containers carry these labels; `observe` answers
+            # what one of them is, and an adapter with one and not the other
+            # is a narrow adapter this seam cannot use.
+            (at("attempts.py:reconcile_runtime", "adapter"),
+             "the runtime adapter's observe"):
+                ("the runtime adapter's observe",
+                 self.observing_without_observe()),
             (at("attempts.py:reconcile_runtime", "minted"),
              "a minted runtime id"): ("a minted runtime id",
                 lambda: (self.bound_attempt(),
@@ -4607,6 +5249,13 @@ class BoundaryCase(unittest.TestCase):
                 "injected"), "a listed runtime's labels"):
                 ("a listed runtime's labels",
                  self.listing([{"runtime_id": "runtime-1", "labels": 7}])),
+            # -- W26294: the exact runtime's own state -----------------------
+            #
+            # Its two members are in `NO_PROBE`, not here. The re-review
+            # required every failed or unrecognised exact observation to become
+            # a durable `uncertain` rather than a propagated refusal, so these
+            # owners still DECIDE and their refusals no longer escape -- see
+            # the reason recorded there.
             (at(f"{A}.cancel", "cancel", "injected"),
              "the session's fence answer"): ("the session's fence answer",
                 self.fencing(whole=7)),
@@ -4685,6 +5334,14 @@ class FakeAdapter:
         self.case = case
         self.runtime_id = runtime_id
         self.started = []
+        # W26294: reconciliation now ASKS this adapter what the exact runtime
+        # IS instead of reading `running` off a listing that includes exited
+        # containers. Every case here that starts a runtime reconciles, so the
+        # narrow adapter needs the capability; `running` is the answer that
+        # preserves what these cases are about, which is the cancellation
+        # crossing rather than the runtime's state.
+        self.observation = {"state": "running", "why": "it is up",
+                            "mounts": None}
 
     def labels_for(self, attempt_id="attempt-1"):
         beside = sqlite3.connect(self.case.path, isolation_level=None)
@@ -4714,8 +5371,23 @@ class FakeAdapter:
         return [{"runtime_id": self.runtime_id,
                  "labels": self.started[0]["labels"]}]
 
+    def observe(self, runtime_id):
+        return self.observation
+
     def stop(self, operands):
         return {"stopped": True}
+
+
+class _WithoutObserve(FakeAdapter):
+    """W26294: an adapter that lists and cannot observe.
+
+    The capability probe needs an adapter that gets PAST the listing and then
+    has nothing to answer with -- `object()` would be refused by
+    `reconcile_runtime`'s own `list` capability check first, and would probe
+    that instead.
+    """
+
+    observe = None
 
 
 class FakeAgent:
@@ -4903,12 +5575,205 @@ class EveryProbeProvesItArrived(BoundaryCase):
     probe -- an unowned adopted crossing coexisted with a green gate.
     """
 
+    # W35557: EVERY SITE THAT ADOPTS AN ATTEMPT ROW, and the driver that
+    # reaches it. Three modules read this one table through
+    # `boundaries.row(..., ATTEMPT_COLUMNS)`, and each was covered differently
+    # -- two by hand-written column lists that drifted out of date, and the
+    # third not at all.
+    ATTEMPT_ROW_SITES = ("attempts.py:_attempts", "intake.py:_attempt_of",
+                         "output.py:_attempt_of")
+
+    # THE COLUMNS A CORRUPTION PROBE CANNOT DRIVE ARE `NO_PROBE`'S, and this
+    # derivation reads that table rather than keeping a second list. An
+    # exemption declared in two places is one that can be lifted in one of
+    # them -- and `test_every_unprobed_entry_is_a_real_owned_entry` already
+    # holds every `NO_PROBE` entry to being live and owned, which is exactly
+    # the "explicit, justified, and checked" this correction is asked for.
+
+    def attempt_probes(self):
+        """One probe per adopted ATTEMPT column, per site that adopts one.
+
+        DERIVED FROM THE TABLE CONTRACT, for the reason `column_probes` gives
+        for offers and operations: a column added to a contract and never
+        spoiled is exactly the gap this file keeps being corrected for. Two of
+        these three sites had hand-written lists, and both had drifted -- one
+        was missing four columns and the other was declaring seven the
+        inventory no longer attributes to it.
+        """
+        entries = receiving_entries()
+        found = {}
+        for site in self.ATTEMPT_ROW_SITES:
+            driver = self.spoiling_attempt_at(site)
+            for name in sorted(schema.ATTEMPT_COLUMNS):
+                entry = ("adopted", site, f"attempts.{name}")
+                if entry not in entries or entry in NO_PROBE \
+                        or self.owned_by_sqlite(schema.ATTEMPT_COLUMNS[name]):
+                    continue
+                found[(entry, "a persisted attempt")] = (
+                    "a persisted attempt", driver(name))
+            envelope = ("adopted", site, "attempts")
+            if envelope in entries:
+                found[(envelope, "a persisted attempt")] = (
+                    "a persisted attempt", driver("execution_runtime"))
+        return found
+
+    def spoiling_attempt_at(self, site):
+        """The driver that reaches ONE site's adoption of the attempt row.
+
+        Each module reads the table through its own private crossing, so a
+        probe has to enter through that module's own public operation --
+        driving somebody else's would prove somebody else's owner.
+        """
+        if site == "intake.py:_attempt_of":
+            return self.spoiling_intake_attempt
+        if site == "output.py:_attempt_of":
+            return self.spoiling_output_attempt
+        return self.spoiling_attempts_attempt
+
+    def spoiling_attempts_attempt(self, column):
+        """`attempts.py`'s own crossing, driven through `observe`.
+
+        The cheapest public operation in that module that reads the row and
+        does nothing else first: `_require_attempt` adopts it before any axis
+        rule runs, so a spoiled column is refused at the row rather than at a
+        transition.
+        """
+        def run():
+            self.output_world()
+            self.corrupt(f"UPDATE attempts SET {column} = ?",
+                         self.SPOILED[schema.ATTEMPT_COLUMNS[column].kind])
+            worker_manager.observe(self.store, attempt_id="attempt-1",
+                                   axis="consent_runtime", value="running")
+        return run
+
+    def lane_probes(self):
+        """W32649: one probe per `runtime_lanes` column this build reads.
+
+        DERIVED FROM THE TABLE CONTRACT rather than listed, for the reason the
+        offers and operations columns are: a column added to a contract and
+        never spoiled is exactly the gap this file keeps being corrected for.
+
+        BOTH READING SITES GET THEIR OWN ENTRY and share one probe, because
+        they share one LABEL -- `runtime_lane` asks the holder first and the
+        Work's lanes second, so a spoiled column is refused at whichever runs
+        first and the refusal names the same document either way. The entry is
+        what the inventory tracks; the label is what a probe proves it reached.
+        """
+        entries = receiving_entries()
+        found = {}
+        # W32649 review [P2]: FOUR READS, not two. The projection pair reads
+        # this relation to ANSWER about it; the start pair reads it to DECIDE
+        # whether a runtime may exist. An inventory that enumerated only the
+        # first two is exactly how the second two came to use partial rows.
+        for site, probe in (("lanes.py:_no_predecessor_holds",
+                             self.spoiling_predecessor_lane),
+                            ("lanes.py:_occupy_lane",
+                             self.spoiling_colliding_lane)):
+            for name in sorted(schema.RUNTIME_LANE_COLUMNS):
+                entry = ("adopted", site, f"runtime_lanes.{name}")
+                if entry not in entries or self.owned_by_sqlite(
+                        schema.RUNTIME_LANE_COLUMNS[name]):
+                    continue
+                found[(entry, "a persisted runtime lane")] = (
+                    "a persisted runtime lane", probe(name))
+            entry = ("adopted", site, "runtime_lanes")
+            if entry in entries:
+                found[(entry, "a persisted runtime lane")] = (
+                    "a persisted runtime lane", probe("holder"))
+        for site in ("lanes.py:_holder_of", "lanes.py:_work_lanes"):
+            for name in sorted(schema.RUNTIME_LANE_COLUMNS):
+                entry = ("adopted", site, f"runtime_lanes.{name}")
+                if entry not in entries or self.owned_by_sqlite(
+                        schema.RUNTIME_LANE_COLUMNS[name]):
+                    continue
+                found[(entry, "a persisted runtime lane")] = (
+                    "a persisted runtime lane", self.spoiling_lane(name))
+            entry = ("adopted", site, "runtime_lanes")
+            if entry in entries:
+                found[(entry, "a persisted runtime lane")] = (
+                    "a persisted runtime lane", self.spoiling_lane("holder"))
+        return found
+
+    def spoiling_predecessor_lane(self, column):
+        """A PREDECESSOR's lane row, spoiled, read by a successor's start.
+
+        The row is held by another attempt over the same Work, so the
+        predecessor query selects it -- and a start that reaches it must own
+        the whole relation before reporting a holder from it.
+        """
+        def run():
+            attempt_id = self.bound_attempt()
+            row = self.attempt_row_of(attempt_id)
+            self.corrupt(
+                "INSERT INTO runtime_lanes (lane_id, authority_uuid, work_id, "
+                "principal, effective_scope, holder, reason, occupied_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "lane:predecessor", row["authority_uuid"], row["work_id"],
+                row["assignment_principal"], row["assignment_scope"],
+                "attempt-predecessor", "held for a probe", NOW)
+            self.corrupt(f"UPDATE runtime_lanes SET {column} = ?",
+                         self.SPOILED[
+                             schema.RUNTIME_LANE_COLUMNS[column].kind])
+            worker_manager.request_runtime_start(
+                self.store, FakeAdapter(self), attempt_id=attempt_id)
+        return run
+
+    def spoiling_colliding_lane(self, column):
+        """A row this attempt's own start COLLIDES with, spoiled.
+
+        Held by this attempt, so the predecessor query excludes it -- which is
+        precisely the path the review found: a row that evades the first
+        query and is met at the primary key instead. `lane_id` is the derived
+        one, so the insert really conflicts.
+        """
+        def run():
+            attempt_id = self.bound_attempt()
+            row = self.attempt_row_of(attempt_id)
+            reference = worker_manager.lane_reference(row)
+            self.corrupt(
+                "INSERT INTO runtime_lanes (lane_id, authority_uuid, work_id, "
+                "principal, effective_scope, holder, reason, occupied_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                lanes._lane_id(reference), row["authority_uuid"],
+                row["work_id"], row["assignment_principal"],
+                row["assignment_scope"], attempt_id, "held for a probe", NOW)
+            self.corrupt(f"UPDATE runtime_lanes SET {column} = ?",
+                         self.SPOILED[
+                             schema.RUNTIME_LANE_COLUMNS[column].kind])
+            worker_manager.request_runtime_start(
+                self.store, FakeAdapter(self), attempt_id=attempt_id)
+        return run
+
+    def spoiling_lane(self, column):
+        def run():
+            attempt_id = self.output_world()
+            row = self.attempt_row_of(attempt_id)
+            self.corrupt(
+                "INSERT INTO runtime_lanes (lane_id, authority_uuid, work_id, "
+                "principal, effective_scope, holder, reason, occupied_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "lane:probe", row["authority_uuid"], row["work_id"],
+                row["assignment_principal"], row["assignment_scope"],
+                attempt_id, "held for a probe", NOW)
+            self.corrupt(f"UPDATE runtime_lanes SET {column} = ?",
+                         self.SPOILED[
+                             schema.RUNTIME_LANE_COLUMNS[column].kind])
+            worker_manager.runtime_lane(self.store, attempt_id)
+        return run
+
+    def attempt_row_of(self, attempt_id):
+        found = self.store._connection.execute(
+            "SELECT * FROM attempts WHERE runtime_attempt_id = ?",
+            (attempt_id,)).fetchone()
+        return {key: found[key] for key in found.keys()}
+
     def all_probes(self):
         return {**self.probes(), **self.column_probes(),
+                **self.attempt_probes(), **self.lane_probes(),
                 **self.session_probes(), **self.output_probes(),
                 **self.interrogation_probes(), **self.oci_probes(),
                 **self.intake_probes(), **self.sealing_probes(),
-                **self.credential_probes()}
+                **self.credential_probes(), **self.launch_probes()}
 
     def expected(self):
         """(entry, label) for every entry the LAYER or a DELEGATE owns.
@@ -5277,6 +6142,19 @@ WITNESSES = {
         "test_a_teardown_acts_on_a_delivery_this_manager_materialized",
     ("caller", "oci.py:OciAdapter.__init__", "credential_delivery"):
         "test_a_teardown_acts_on_a_delivery_this_manager_materialized",
+    # -- W26291: the worker's launch document --------------------------------
+    ("caller", "launch.py:LaunchDelivery.__init__", "attempt_id"):
+        "test_a_launch_mount_acts_on_a_delivery_this_manager_materialized",
+    ("caller", "launch.py:LaunchDelivery.__init__", "root"):
+        "test_a_launch_mount_acts_on_a_delivery_this_manager_materialized",
+    ("caller", "launch.py:LaunchDelivery.__init__", "place"):
+        "test_a_launch_mount_acts_on_a_delivery_this_manager_materialized",
+    ("caller", "launch.py:LaunchDelivery.__init__", "document"):
+        "test_a_launch_mount_acts_on_a_delivery_this_manager_materialized",
+    ("caller", "launch.py:discard", "root"):
+        "test_discarding_a_root_this_module_did_not_make_is_absence",
+    ("caller", "oci.py:OciAdapter.__init__", "launch_delivery"):
+        "test_a_launch_mount_acts_on_a_delivery_this_manager_materialized",
     ("caller", "sealing.py:sealed_result", "roots"):
         "test_a_declaration_is_owned_once_at_construction",
     ("caller", "sealing.py:sealed_result", "roots.workspace"):
@@ -5405,6 +6283,8 @@ class StatedRules(BoundaryCase):
     # case here refuse for the label document's reason instead of its own.
     OCI_LABELS = {"runtime_attempt_id": "attempt-1", "authority_uuid": UUID,
                   "work_id": WORK, "participant": WHO, "generation": 1,
+                  # W16823 adds these two, beside the fence.
+                  "principal": PRINCIPAL, "effective_scope": SCOPE,
                   "profile_digest": "sha256:" + "b" * 64,
                   "policy_digest": "sha256:" + "d" * 64,
                   "adapter_digest": "sha256:" + "c" * 64}
@@ -5414,7 +6294,14 @@ class StatedRules(BoundaryCase):
         operands = dict(image_digest="sha256:" + "e" * 64,
                         labels=dict(self.OCI_LABELS),
                         assignment_roots=dict(self.OCI_ROOTS),
-                        posture="execution", name="baton-op-1")
+                        posture="execution",
+                        # W33936: an execution vector is given the
+                        # deployment's configured workspace group, and one
+                        # without it refuses before every rule below -- so a
+                        # probe that omitted it would land on that refusal
+                        # rather than on the boundary it names.
+                        workspace_group=self.configured_group(),
+                        name="baton-op-1")
         operands.update(overrides)
         return oci.run_vector("docker", **operands)
 
@@ -5493,6 +6380,73 @@ class StatedRules(BoundaryCase):
                     with self.assertRaises(ContractRefusal):
                         self.a_delivery(bearers=spoiled)
 
+    def test_a_launch_value_is_bounded_text_with_no_nul(self):
+        """W26291. One owner for all three values, and one literal label.
+
+        The ceilings differ -- `session` is what every frame binds to and is
+        held to the WORKER's own identity bound, while a contract line and a
+        role are operator prose -- but the rule is one rule and it lives at
+        one site.
+        """
+        from baton_v12.worker_manager import launch
+
+        def authored(**spoiled):
+            body = {"session": "session-1", "contract": "do the thing",
+                    "role": "implementer"}
+            body.update(spoiled)
+            return lambda: launch.launch_document(**body)
+
+        for name in ("session", "contract", "role"):
+            for spoiled, why in ((None, "null"), ("", "empty"), (7, "not text"),
+                                 ("nul\x00inside", "a NUL")):
+                with self.subTest(name=name, why=why):
+                    with self.assertRaises(ContractRefusal):
+                        authored(**{name: spoiled})()
+        # THE TWO CEILINGS, and that they are different is the point.
+        with self.assertRaises(ContractRefusal):
+            authored(session="s" * (launch.MAX_SESSION + 1))()
+        with self.assertRaises(ContractRefusal):
+            authored(role="r" * (launch.MAX_LAUNCH_VALUE + 1))()
+        # AND THE SAME REFUSALS ARRIVE THROUGH `materialize`, which forwards
+        # rather than owning a second time.
+        with self.assertRaises(ContractRefusal):
+            launch.materialize("/srv/launch", attempt_id="attempt-1",
+                               session="", contract="c", role="r")
+
+    def test_a_launch_mount_acts_on_a_delivery_this_manager_materialized(self):
+        """What proves a launch delivery is that it IS one.
+
+        Everything inside it was owned when `materialize` authored it, so the
+        rule at these doors is identity of kind rather than a re-walk of
+        members a constructor already proved -- and a mapping or a PATH would
+        be exactly the caller-selected locator the fixed target removes.
+        """
+        from baton_v12.worker_manager import launch, oci
+
+        composed = {"attempt_id": "attempt-1", "root": "/srv/launch",
+                    "place": "/srv/launch/launch.json", "document": {}}
+        # `None` IS AN ANSWER HERE: an assignment that authorizes no document
+        # has none to expose, and absence is absence rather than a default.
+        self.adapter(launch_delivery=None)()
+        for spoiled in (composed, "/srv/launch/launch.json", 7):
+            with self.subTest(spoiled=type(spoiled).__name__):
+                with self.assertRaises(ContractRefusal):
+                    self.adapter(launch_delivery=spoiled)()
+        self.assertIsNot(type(composed), launch.LaunchDelivery)
+        self.assertIsNotNone(oci.run_vector)
+
+    def test_discarding_a_root_this_module_did_not_make_is_absence(self):
+        """W26291. `discard` answers whether the root is gone.
+
+        It removes by name inside a directory this module created and never
+        walks anything else could have replaced, so a path that was never a
+        launch root is ABSENCE rather than a refusal -- there is nothing here
+        a caller decides and nothing to own.
+        """
+        from baton_v12.worker_manager import launch
+
+        self.assertTrue(launch.discard("/srv/no-such-launch-root"))
+
     def test_a_teardown_acts_on_a_delivery_this_manager_materialized(self):
         """What proves a delivery is that it IS one.
 
@@ -5535,8 +6489,18 @@ class StatedRules(BoundaryCase):
                                           "reference": "kv/one"}}),
             attempt_id="attempt-1",
             credential_provider=lambda one, two: "z" * 40)
+        # W26291 re-review [P1]: a start REQUIRES a materialized launch
+        # document, so this witness carries one — otherwise it would refuse
+        # for the missing document and prove nothing about the attempt
+        # relationship it exists for.
+        from baton_v12.worker_manager import launch
+        launch_home = tempfile.mkdtemp(prefix="w26291-witness-launch-")
+        delivery = launch.materialize(
+            launch_home, attempt_id="attempt-1", session="session-1",
+            contract="do the thing", role="implementer")
         try:
-            built = self.adapter(credential_delivery=delivered)()
+            built = self.adapter(credential_delivery=delivered,
+                                 launch_delivery=delivery)()
             labels = dict(self.OCI_LABELS, runtime_attempt_id="attempt-2")
             with self.assertRaises(ContractRefusal) as caught:
                 built.start({"labels": labels, "operation_id": "op-1"})
@@ -5544,6 +6508,9 @@ class StatedRules(BoundaryCase):
             self.assertIn("attempt-1", caught.exception.message)
         finally:
             home.tear_down(delivered)
+            launch.discard(delivery.root)
+            if os.path.lexists(launch_home):
+                os.rmdir(launch_home)
 
     def test_a_credential_mount_is_an_entry_of_the_fixed_root(self):
         """A SEPARATE OWNER FROM `_mounts`, and the separation is the point.
@@ -6425,11 +7392,14 @@ class StatedRules(BoundaryCase):
         somebody else's claim to this offer.
         """
         self.accepted("offer-ow")
+        # W16823: a late-recorded commit is the same closed result, and the
+        # member this case spoils is the fence inside it.
         self.session.settle_answer = {
             "kind": "committed",
-            "result": {"work_ref": {"authority_uuid": UUID,
-                                    "work_id": "0000000a-W9"},
-                       "participant": WHO, "generation": 1}}
+            "result": dict(self.session.claim_answer,
+                           assignment={"work_ref": {"authority_uuid": UUID,
+                                                    "work_id": "0000000a-W9"},
+                                       "participant": WHO, "generation": 1})}
         with self.assertRaises(ContractRefusal) as caught:
             worker_manager.settle_claim(self.store, self.port,
                                         offer_id="offer-ow", now=NOW)
@@ -6447,9 +7417,11 @@ class StatedRules(BoundaryCase):
         """
         elsewhere = "f" * 32
         self.accepted("offer-fa")
-        self.session.claim_answer = {
-            "work_ref": {"authority_uuid": elsewhere, "work_id": WORK},
-            "participant": WHO, "generation": 1}
+        self.session.claim_answer = dict(
+            self.session.claim_answer,
+            assignment={"work_ref": {"authority_uuid": elsewhere,
+                                     "work_id": WORK},
+                        "participant": WHO, "generation": 1})
         with self.assertRaises(ContractRefusal) as caught:
             worker_manager.submit_claim(self.store, self.port,
                                         offer_id="offer-fa")
@@ -6461,9 +7433,10 @@ class StatedRules(BoundaryCase):
         self.accepted("offer-fb")
         self.session.settle_answer = {
             "kind": "committed",
-            "result": {"work_ref": {"authority_uuid": elsewhere,
-                                    "work_id": WORK},
-                       "participant": WHO, "generation": 1}}
+            "result": dict(self.session.claim_answer,
+                           assignment={"work_ref": {"authority_uuid": elsewhere,
+                                                    "work_id": WORK},
+                                       "participant": WHO, "generation": 1})}
         with self.assertRaises(ContractRefusal) as caught:
             worker_manager.settle_claim(self.store, self.port,
                                         offer_id="offer-fb", now=NOW)
@@ -6820,7 +7793,11 @@ class TheProjectionContractMatchesTheAuthorityItReads(BoundaryCase):
         self.session._work = {member: None
                               for member in self.authority_projection()}
         self.session._work.update({"status": "open", "phase": "queued",
-                                   "authority_uuid": UUID})
+                                   "authority_uuid": UUID,
+                                   # W16823: two more members this manager now
+                                   # READS, so a null is not a whole
+                                   # projection any more than a missing one is.
+                                   "scope": SCOPE, "route": ROUTE})
         self.assertEqual(self.issued("offer-full"), "offer-full")
 
 
@@ -6834,7 +7811,10 @@ class AnIdentityIsMoreThanAShape(BoundaryCase):
 
     def claiming(self, offer_id, **answer):
         self.accepted(offer_id)
-        self.session.claim_answer = dict(self.session.claim_answer, **answer)
+        self.session.claim_answer = dict(
+            self.session.claim_answer,
+            assignment=dict(self.session.claim_answer["assignment"],
+                            **answer))
         return lambda: worker_manager.submit_claim(self.store, self.port,
                                                    offer_id=offer_id)
 
@@ -6857,7 +7837,13 @@ class AnIdentityIsMoreThanAShape(BoundaryCase):
 
     def test_the_frozen_range_is_owned_where_the_document_is(self):
         # And the property is still enforced -- by ONE owner, one layer up.
-        self.refusing("the claim answer's identity",
+        #
+        # W16823 moved which layer that is, and nothing else about this case.
+        # The claim answer is now the CLOSED RESULT, so the outermost exact-POD
+        # owner is the result rather than the identity nested inside it -- and
+        # the range is still owned exactly once, by whichever document is
+        # outermost. That is the property; the label names where it lives.
+        self.refusing("the claim answer's result",
                       self.claiming("offer-big",
                                     generation=boundaries.MAX_SAFE_INTEGER + 1))
 

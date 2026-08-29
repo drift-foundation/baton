@@ -1,0 +1,19 @@
+Command:
+  cd v12/python
+  PYTHONPATH=src python3 -m unittest tests.manager.test_workspaces
+
+Observed:
+  Ran 59 tests in 0.147s
+  FAILED (failures=1)
+
+Failing case:
+  tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.
+  test_the_projection_cannot_rewrite_the_journalled_group
+
+Failure:
+  AssertionError: ContractRefusal not raised
+
+The case commits workspace group 1000, confirms the journal result remains
+{"workspace_group": 1000}, then changes only the `meta` projection to the
+second usable held group 65534. `configured_workspace_group` accepts the
+projection and mints a capability instead of refusing the disagreement.

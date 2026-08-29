@@ -436,6 +436,36 @@ class NegotiationIsAnAnnouncementRatherThanABargain(CompositionCase):
         # crosses.
         self.assertEqual(own(answer), answer)
 
+    def test_the_public_door_cannot_be_handed_profile_bytes(self):
+        """W32576 [P0], and it was mine to cause.
+
+        A correction gave `negotiate_acp` an optional `profile=` operand so
+        one snapshot could serve a verdict and the evidence signed beside it.
+        `negotiate_acp` is on the public surface, so that let ANY caller pair
+        an uncertified digest with arbitrary bytes and receive a verdict from
+        them — a behaviour-bearing mapping included, since the rule subscripts
+        what it is given. A single-snapshot requirement is not a licence to
+        widen a trust boundary.
+
+        Asserted black-box rather than by reading the signature: a caller who
+        tries it gets a TypeError, and an uncertified digest is refused
+        whatever else is passed.
+        """
+        forged = acp_profile(pinned_wire_version=99)
+        with self.assertRaises(TypeError):
+            negotiate_acp(self.store, forged["document_digest"],
+                          agent_protocol_version=99,
+                          agent_session_capabilities=sorted(
+                              SESSION_CAPABILITIES),
+                          profile=forged)
+        # AND THE DIGEST ALONE BUYS NOTHING: it was never certified here.
+        with self.assertRaises(ContractRefusal) as caught:
+            negotiate_acp(self.store, forged["document_digest"],
+                          agent_protocol_version=99,
+                          agent_session_capabilities=sorted(
+                              SESSION_CAPABILITIES))
+        self.assertEqual(caught.exception.code, "profile-uncertified")
+
     def test_the_emitted_capabilities_come_from_the_profile_structurally(self):
         """THE MUTANT THAT COULD NOT BE KILLED BEHAVIOURALLY, and why.
 
@@ -455,9 +485,15 @@ class NegotiationIsAnAnnouncementRatherThanABargain(CompositionCase):
         rule.
         """
         source = pathlib.Path(handshake.__file__).read_text(encoding="utf-8")
+        # W32576 [P0]: the RULE moved to the private `_negotiated_against`
+        # when the public door stopped accepting a caller-supplied profile,
+        # so this looks where the emission now lives. The property asserted
+        # below is unchanged -- exactly one emission, and it is
+        # `check_client_capabilities` over the profile's own member.
         negotiate = next(
             node for node in ast.parse(source).body
-            if isinstance(node, ast.FunctionDef) and node.name == "negotiate_acp")
+            if isinstance(node, ast.FunctionDef)
+            and node.name == "_negotiated_against")
         emitted = [
             keyword.value for piece in ast.walk(negotiate)
             if isinstance(piece, ast.Call)

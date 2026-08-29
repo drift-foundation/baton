@@ -768,3 +768,218 @@ def test_a_real_terminal_shows_the_tabs_and_switches_them(tmp_path):
 	assert "[Inbox *]" in inbox[0], inbox[0]
 	assert any("are you awake?" in line for line in inbox), inbox[:8]
 	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+
+
+# -- W34884: the Inbox is the caller, and Back restores it ----------------
+
+
+def _work_bearing(view, kind):
+	"""Put the cursor on an Inbox row of one kind that carries Work."""
+	chosen = select(view, lambda row: row["kind"] == kind and row["work"],
+	                f"Work-bearing {kind}")
+	return chosen
+
+
+def test_an_obligation_row_restores_the_inbox_that_opened_it(world):
+	"""W34884. W292 ruled this a handoff into Jobs and Back landed there;
+	the universal browser-history model supersedes that, because Back
+	describes the path the operator actually took."""
+	born = make_work(world)
+	ask(world, born)
+	view = console(world, tab="inbox")
+	opened = _work_bearing(view, "obligation")
+	before = view.inbox_key
+	view.handle(10)
+	assert view.tab == "jobs" and view.mode == "detail"
+	assert view.detail_work == opened["work"]
+
+	view.handle(27)
+	assert view.tab == "inbox" and view.mode == "table"
+	assert view.nav == [], "one Esc left navigation history behind"
+	assert view.inbox_key == before
+	assert view._inbox_selected()["selector"] == opened["selector"]
+
+
+def test_a_message_row_restores_the_inbox_too(world):
+	"""Paired with the obligation, because the branch is shared and a
+	case for one of them would not say the other reaches it."""
+	born = make_work(world)
+	ask(world, born)
+	view = console(world, tab="inbox")
+	opened = _work_bearing(view, "message")
+	before = view.inbox_key
+	view.handle(10)
+	assert view.tab == "jobs" and view.mode == "detail"
+
+	view.handle(27)
+	assert view.tab == "inbox" and view.inbox_key == before
+	assert view._inbox_selected()["selector"] == opened["selector"]
+
+
+def test_the_restored_selection_reanchors_by_key_and_not_by_ordinal(world):
+	"""The cursor is an ordinal and the key is the identity.
+
+	Restoring the ordinal alone would select whatever had moved into that
+	position, so this proves the restored selection is driven by the key:
+	the cursor is moved away after the restore and `_inbox_selected`
+	pulls it back to the captured row.
+
+	NOT COVERED HERE, and stated rather than left as a silent gap: the
+	FINDING asks for a row INSERTED while the detail is open. A `Console`
+	reads its Inbox from the snapshot it was constructed with and this
+	suite has no in-session reload, so a row created mid-walk does not
+	appear and a case built on one would assert against a list that never
+	changed. The reanchoring mechanism is measured here; the live-insertion
+	path needs a reload seam this suite does not have."""
+	born = make_work(world)
+	asked = ask(world, born)
+	view = console(world, tab="inbox")
+	opened = _work_bearing(view, "message")
+	before = view.inbox_key
+	ordinal = view.inbox_cursor
+	assert ordinal > 0, "the caller is already first; nothing can move ahead"
+	view.handle(10)
+
+	view.handle(27)
+	assert view.tab == "inbox"
+	assert view.inbox_key == before
+	restored = view._inbox_selected()
+	assert restored["selector"] == opened["selector"]
+	# THE CURSOR POINTS AT WHERE THAT ROW IS, derived from the rows rather
+	# than trusted from the captured number.
+	rows = view.inbox_rows()
+	assert rows[view.inbox_cursor]["selector"] == opened["selector"]
+
+	# AND THE KEY IS WHAT THE REANCHORING USES, driven directly: a cursor
+	# left pointing somewhere else is pulled back to the key's row.
+	view.inbox_cursor = 0 if ordinal else len(rows) - 1
+	assert view._inbox_selected()["selector"] == opened["selector"]
+	assert view.inbox_cursor == ordinal
+
+
+def test_a_deeper_walk_unwinds_in_order_and_reaches_inbox_once(world):
+	"""Inbox -> Work detail -> dependency page. Back unwinds the pages in
+	visit order and returns to Inbox exactly once, rather than jumping
+	over the detail or landing on Jobs because the entity is Work."""
+	born = make_work(world)
+	ask(world, born)
+	view = console(world, tab="inbox")
+	_work_bearing(view, "obligation")
+	before = view.inbox_key
+	view.handle(10)
+	assert view.mode == "detail"
+	view._open_graph(born["work_id"])
+	assert view.mode == "links"
+
+	view.handle(27)
+	assert view.mode == "detail" and view.tab == "jobs"
+	view.handle(27)
+	assert view.tab == "inbox" and view.mode == "table"
+	assert view.inbox_key == before and view.nav == []
+
+
+def test_a_poke_row_still_navigates_nowhere(world):
+	"""The no-Work branch is untouched: a poke names a participant."""
+	poke(world)
+	view = console(world, tab="inbox")
+	select(view, lambda row: row["kind"] == "poke", "poke")
+	view.handle(10)
+	assert view.tab == "inbox" and view.nav == []
+	assert "no Work context" in view.status
+
+
+def test_entering_from_the_inbox_mutates_nothing(world):
+	"""Navigation is client-only and read-only.
+
+	The authority sequence and the viewer's seen cursor are the two
+	things an accidental mutation would move, so both are compared
+	across the whole walk rather than merely at the end."""
+	born = make_work(world)
+	ask(world, born)
+	view = console(world, tab="inbox")
+	_work_bearing(view, "obligation")
+	sequence = world["store"].last_seq()
+	seen = console(world, tab="inbox").inbox_view()
+	view.handle(10)
+	view._open_graph(born["work_id"])
+	view.handle(27)
+	view.handle(27)
+	assert world["store"].last_seq() == sequence
+	assert console(world, tab="inbox").inbox_view() == seen
+
+
+def test_a_refreshed_row_inserted_ahead_restores_the_same_inbox_key(world):
+	"""The live movement acceptance case, through the console refresh seam.
+
+	The opened message begins after one owed obligation. While detail is open,
+	a second owed obligation is inserted and the console's ordinary refresh path
+	is scheduled. Back must re-read the Inbox and reanchor the captured message
+	key at its new ordinal, including the derived visible window.
+	"""
+	first = make_work(world, title="the stable caller")
+	ask(world, first)
+	view = console(world, tab="inbox")
+	opened = _work_bearing(view, "message")
+	key = view.inbox_key
+	old_cursor = view.inbox_cursor
+	view.handle(10)
+
+	second = make_work(world, title="inserted ahead")
+	ask(world, second)
+	view.schedule_refresh()
+	view.handle(27)
+
+	selected = view._inbox_selected()
+	assert view.tab == "inbox" and selected["selector"] == opened["selector"]
+	assert view.inbox_key == key
+	assert view.inbox_cursor > old_cursor, \
+		"the new owed row did not move the captured message"
+	assert any(opened["selector"] in line
+	           for line in painted(view, height=9)), \
+		"the cursor-derived window did not keep the restored row visible"
+
+
+def test_inbox_caller_survives_bounded_history_eviction(world):
+	"""The custom Inbox frame is the caller kept outside the bounded stack."""
+	born = make_work(world)
+	ask(world, born)
+	view = console(world, tab="inbox")
+	opened = _work_bearing(view, "obligation")
+	key = view.inbox_key
+	view.handle(10)
+	for index in range(app.NAV_HISTORY_LIMIT + 8):
+		view._nav_push("review-step", f"step-{index}")
+	assert len(view.nav) == app.NAV_HISTORY_LIMIT
+	while view.nav:
+		view.handle(27)
+	assert view.tab == "inbox" and view.mode == "table"
+	assert view.inbox_key == key
+	assert view._inbox_selected()["selector"] == opened["selector"]
+
+
+@pytest.mark.skipif(not hasattr(_pty, "fork"), reason="no pty support")
+def test_real_terminal_esc_and_left_restore_inbox(world):
+	"""Drive both Back byte forms from an Inbox-opened Work detail."""
+	born = make_work(world, title="terminal inbox caller")
+	ask(world, born)
+	before = world["store"].last_seq()
+	text, status, steps = ptyharness.drive(world["config"], "lang.ada", [
+		(b"]]", 0.6),             # Inbox, first owed row selected
+		(b"\r", 0.6),             # Work detail
+		(b"\x1b", 0.5),           # bare Esc -> Inbox
+		(b"\r", 0.6),             # Work detail again
+		(b"\x1b[D", 0.5),         # decoded Left -> Inbox
+		(b"qy", 0.4),
+	])
+	detail_one = ptyharness.replay(steps[1])
+	restored_esc = ptyharness.replay(steps[2])
+	detail_two = ptyharness.replay(steps[3])
+	restored_left = ptyharness.replay(steps[4])
+	assert detail_one[0].startswith("Jobs > "), detail_one[0]
+	assert detail_two[0].startswith("Jobs > "), detail_two[0]
+	for restored in (restored_esc, restored_left):
+		assert restored[0].startswith("[Jobs "), restored[0]
+		assert "[Inbox *]" in restored[0], restored[0]
+		assert any("owes" in line for line in restored), restored[:10]
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, text[-600:]
+	assert world["store"].last_seq() == before

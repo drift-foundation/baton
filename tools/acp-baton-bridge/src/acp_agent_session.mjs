@@ -22,6 +22,14 @@ import {
 
 class PolicyViolation extends Error {}
 class SessionSetupError extends Error {}
+// W28681: the turn's WALL-CLOCK bound was exceeded. Typed, because the
+// bridge must report it as a terminal delivery failure with its own
+// detail rather than folding it into "the agent died".
+class TurnDeadlineError extends Error {}
+// W28681: the process domain could not be PROVED gone. Typed, because
+// this is the fail-closed case: the lane is fenced, no replacement is
+// started, and nothing is settled on an assumption.
+class DomainTeardownError extends Error {}
 // W27: a session-SELECTION fault, distinct from a setup fault. Retrying
 // cannot fix a launch that would replace somebody's continuity, so the
 // bridge never folds one of these into its ordinary retry loop.
@@ -353,12 +361,20 @@ export class AcpAgentSession {
 
 	// Busy sessions serialize ordinary Baton wakes (acceptance 5): one
 	// turn at a time, strictly in arrival order; a queued wake is never
-	// dropped and never steers the running turn. A turn has no
-	// arbitrary work deadline, but it races the agent's DEATH so a
-	// killed or crashed subprocess rejects instead of hanging (R4).
+	// dropped and never steers the running turn. The turn races the
+	// agent's DEATH so a killed or crashed subprocess rejects instead of
+	// hanging (R4), and W28681 added the third racer: the configured
+	// WALL-CLOCK deadline.
+	//
+	// WHY WALL-CLOCK RATHER THAN AN ACTIVITY RESET. A legitimate tool may
+	// be silent for a long time, and an infinite but chatty one can
+	// produce ACP updates forever — so a timer that streamed updates
+	// reset would be a timer the exact failure mode this Work exists for
+	// keeps alive. Updates stay diagnostics; only the clock ends a turn.
 	promptText(text) {
 		const run = this.turn.then(async () => {
 			this.policyFailure = null;
+			const deadlineMs = this.config.turnTimeoutMs;
 			const turnDone = this.connection.prompt({
 				sessionId: this.sessionId,
 				prompt: [{ type: "text", text }],
@@ -368,29 +384,84 @@ export class AcpAgentSession {
 					`the agent exited (${JSON.stringify(exit)}) `
 					+ `mid-turn`);
 			});
-			const response = await Promise.race([turnDone, death]);
-			if (this.policyFailure) throw this.policyFailure;
-			return response;
+			let timer;
+			const deadline = new Promise((_resolve, reject) => {
+				timer = setTimeout(() => reject(new TurnDeadlineError(
+					`configured ACP turn deadline exceeded `
+					+ `(${deadlineMs}ms)`)), deadlineMs);
+			});
+			try {
+				const response = await Promise.race(
+					[turnDone, death, deadline]);
+				if (this.policyFailure) throw this.policyFailure;
+				return response;
+			} finally {
+				clearTimeout(timer);
+			}
 		});
 		// The queue survives individual failures.
 		this.turn = run.then(() => undefined, () => undefined);
 		return run;
 	}
 
+	// W28681: TEARDOWN IS PROVED, NOT ATTEMPTED.
+	//
+	// This kills the DIRECT configured child, which is the whole point of
+	// requiring the configured launcher to be a descendant-owning process
+	// domain: with bubblewrap's `--unshare-pid` that child is the
+	// namespace's PID 1 reaper, so its exit is the namespace's exit and
+	// nothing inside it survives. A tool that called `setsid` escapes a
+	// process group and a session; it does not escape a PID namespace.
+	// Without such a launcher this call proves only what it always
+	// proved, which is why the configuration contract requires one.
+	//
+	// AND AN UNPROVABLE EXIT IS A FAILURE RATHER THAN A RETURN. The old
+	// version awaited `this.exited` after `SIGKILL` with no bound at all:
+	// a child in uninterruptible sleep would have hung the bridge inside
+	// teardown, which is the same shape as the defect one layer down.
+	// Now the wait is bounded and a domain that cannot be shown to have
+	// exited raises — the caller fences the lane rather than starting a
+	// replacement beside something still running.
 	async stop() {
 		this.ready = false;
-		if (this.child && this.child.exitCode === null
-				&& !this.spawnError) {
-			this.child.kill("SIGTERM");
-			const grace = new Promise((resolve) =>
-				setTimeout(resolve, 500));
-			const exit = await Promise.race([this.exited, grace]);
-			if (exit === undefined && this.child.exitCode === null) {
-				this.child.kill("SIGKILL");
-				await this.exited;
-			}
+		if (!this.child || this.child.exitCode !== null || this.spawnError) {
+			return;
+		}
+		this.child.kill("SIGTERM");
+		if (await this.#exitedWithin(TERM_GRACE_MS)) return;
+		this.child.kill("SIGKILL");
+		if (await this.#exitedWithin(KILL_PROOF_MS)) return;
+		throw new DomainTeardownError(
+			`the ACP agent process domain (pid ${this.child.pid}) did not `
+			+ `exit within ${TERM_GRACE_MS + KILL_PROOF_MS}ms of SIGTERM `
+			+ `and SIGKILL; its exit cannot be proved, so nothing is `
+			+ `settled and no replacement is started`);
+	}
+
+	// A bounded wait for the one fact that matters. `this.exited`
+	// resolves with an object, so the sentinel below cannot collide with
+	// a real exit.
+	async #exitedWithin(ms) {
+		let timer;
+		const late = new Promise((resolve) => {
+			timer = setTimeout(() => resolve(PENDING), ms);
+		});
+		try {
+			return await Promise.race([this.exited, late]) !== PENDING;
+		} finally {
+			clearTimeout(timer);
 		}
 	}
 }
 
-export { PolicyViolation, SessionSetupError, SessionStateError };
+// How long a domain is given to end politely, and then how long its
+// forced exit is waited for before this component stops claiming to know
+// anything about it. Both are properties of THIS supervisor rather than
+// of a deployment's workload, so they are constants here rather than a
+// fifth timeout an operator has to reason about.
+const TERM_GRACE_MS = 500;
+const KILL_PROOF_MS = 5000;
+const PENDING = Symbol("still running");
+
+export { DomainTeardownError, PolicyViolation, SessionSetupError,
+         SessionStateError, TurnDeadlineError };

@@ -26,6 +26,7 @@ earlier reason.
 
 import ast
 import inspect
+import json
 import pathlib
 import unittest
 
@@ -49,6 +50,16 @@ WORK_REF = {"authority_uuid": UUID, "work_id": UUID[:8] + "-W4"}
 MANIFEST = {"entries": [], "entry_count": 0, "total_bytes": 0,
             "tree_digest": "sha256:" + __import__("hashlib").sha256(
                 b"[]").hexdigest()}
+CONTRACT_VECTORS = (pathlib.Path(__file__).resolve().parents[4] / "work"
+                    / "records" / "2026" / "08"
+                    / "finding-v12-isolated-agent-workers" / "findings"
+                    / "finding-v12-worker-contract" / "findings"
+                    / "finding-worker-control-api-manifests" / "evidence"
+                    / "vectors.json")
+INPUT_MANIFEST = next(
+	case["document"]
+	for case in json.loads(CONTRACT_VECTORS.read_text(encoding="utf-8"))["valid"]
+	if case["document"].get("schema") == "baton.worker-manifest/input")
 
 # Parameters that are this package's own PROSE about an operand rather than an
 # operand: `what` names the thing a refusal is about. It is still owned --
@@ -133,6 +144,12 @@ OWNERS = {
 	("check_content_manifest", "content"): "the frozen contentManifest "
 	                                       "fragment, then §12 rule 6",
 	("check_content_manifest", "what"): "label_of",
+	("check_input_pair", "input_manifest"): "the frozen inputManifest "
+	                                        "definition, then the pair binding",
+	("check_input_pair", "assignment_manifest"): "the frozen "
+	                                             "assignmentManifest definition, "
+	                                             "then the pair binding",
+	("check_input_pair", "what"): "label_of",
 	("check_manifest_structure", "document"): "the named frozen definition",
 	("check_manifest_structure", "definition"): "a closed set: the frozen "
 	                                            "document's own $defs keys",
@@ -251,6 +268,12 @@ class EveryOwnerIsProvedByANonVacuousProbe(unittest.TestCase):
 				lambda: contracts.check_content_manifest({"entries": []}),
 			("check_content_manifest", "what"):
 				lambda: contracts.check_content_manifest([], what=SURROGATE),
+			("check_input_pair", "input_manifest"):
+				lambda: contracts.check_input_pair([], {}),
+			("check_input_pair", "assignment_manifest"):
+				lambda: contracts.check_input_pair(INPUT_MANIFEST, []),
+			("check_input_pair", "what"):
+				lambda: contracts.check_input_pair([], {}, what=SURROGATE),
 			("check_manifest_structure", "document"):
 				lambda: contracts.check_manifest_structure(
 					[], "contentManifest"),

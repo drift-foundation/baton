@@ -99,6 +99,16 @@ _TRANSITIONS = {
                     "optional": ("reason",)},
     "review": {"required": ("proposal_id", "review_id", "disposition",
                             "operation_id"), "optional": (), "actor": True},
+    # W29400: the two Work-label mutations.  THE ACTOR IS THE BINDING, like
+    # every other attributable act here -- a session cannot label Work as
+    # somebody else, and the authority resolves that endpoint to a principal
+    # and decides in the WORK's own effective scope.  Neither operand set
+    # carries a scope or a principal, which is the contract's rule that a
+    # caller supplies neither.
+    "label_work": {"required": ("work_id", "label", "operation_id"),
+                   "optional": (), "actor": True},
+    "unlabel_work": {"required": ("work_id", "label", "operation_id"),
+                     "optional": (), "actor": True},
     "satisfy_gate": {"required": ("work_id", "operation_id", "gate",
                                   "evidence"), "optional": ()},
     "settle_operation": {"required": ("operation_id", "signature"),
@@ -120,12 +130,17 @@ _READS = {
     "fenced_generations": ("work_id",),
     "gate_evidence": ("work_id",),
     "integration_attempts": ("proposal_id",),
+    # W29400 reads.  `works_with_labels` is deliberately NOT here: it answers
+    # about the whole deployment rather than about one Work, and the runtime
+    # face reads facts, not inventories.
+    "labels_of": ("work_id",),
     "operation_record": ("operation_id",),
     "operation_result": ("operation_id",),
     "project_work": ("work_id",),
     "proposal": ("proposal_id",),
     "receipt": ("proposal_id", "kind"),
     "receipts": ("proposal_id",),
+    "work_label_events": ("work_id",),
     "slot_holder": ("participant",),
 }
 
@@ -276,7 +291,8 @@ class Session:
         if name in _ASSIGNMENT_FIRST:
             expect = keywords.pop("expect")
             return method(expect, **keywords)
-        if name in ("install_gate", "satisfy_gate"):
+        if name in ("install_gate", "satisfy_gate", "label_work",
+                    "unlabel_work"):
             work_id = keywords.pop("work_id")
             return method(work_id, **keywords)
         if name == "close":

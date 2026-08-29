@@ -1,0 +1,16 @@
+W34998 MUTATION HARNESS
+======================================================================
+[CAUGHT       ] the failed-start body is closed to its own five
+                FAIL: test_a_missing_or_extra_member_refuses_before_the_engine (tests.manager.test_failed_start_destroy.TheTwoCommandsAreSiblingsAndNotAUnion.test_a_missing_or_extra_member_refuses_before_the_engine) (missing='failed_start_record_digest')
+[CAUGHT       ] the receipt-authorized body stays closed to ITS five
+                FAIL: test_neither_method_accepts_the_other_s_body (tests.manager.test_failed_start_destroy.TheTwoCommandsAreSiblingsAndNotAUnion.test_neither_method_accepts_the_other_s_body) (method='destroy')
+[CAUGHT       ] the runtime identity is owned before the engine
+                FAIL: test_a_null_runtime_refuses_before_the_engine (tests.manager.test_failed_start_destroy.TheTwoCommandsAreSiblingsAndNotAUnion.test_a_null_runtime_refuses_before_the_engine) (runtime_id=None)
+[CAUGHT       ] the failure digest never enters the receipt document
+                FAIL: test_each_document_is_closed_to_its_own_five_members (tests.manager.test_failed_start_destroy.TheTwoCommandsAreSiblingsAndNotAUnion.test_each_document_is_closed_to_its_own_five_members) (document='destroy.command')
+[CAUGHT       ] the two methods share ONE removal core
+                FAIL: test_no_second_teardown_owner_is_introduced (tests.manager.test_failed_start_destroy.TheDeliveriesUseTheirExistingOrderedTeardown.test_no_second_teardown_owner_is_introduced)
+[CAUGHT       ] only positive absence settles the deliveries
+                FAIL: test_a_surviving_runtime_leaves_the_delivery_unresolved (tests.manager.test_failed_start_destroy.TheDeliveriesUseTheirExistingOrderedTeardown.test_a_surviving_runtime_leaves_the_delivery_unresolved)
+======================================================================
+Every guard is load-bearing.

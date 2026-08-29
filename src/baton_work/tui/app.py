@@ -337,8 +337,8 @@ def breadcrumb_window(items: list[dict], selected_key: str,
 			for right in range(selected, len(items)):
 				pieces = (["…"] if left else []) + labels[left:right + 1] \
 					+ (["…"] if right + 1 < len(items) else [])
-				cells = sum(len(piece) for piece in pieces) \
-					+ len(NAV_SEPARATOR) * max(0, len(pieces) - 1)
+				cells = sum(_cells(piece) for piece in pieces) \
+					+ _cells(NAV_SEPARATOR) * max(0, len(pieces) - 1)
 				if cells > room:
 					continue
 				count = right - left + 1
@@ -1170,6 +1170,29 @@ def layout_fits(width: int, id_width: int = 0,
 	return width - fixed - lead - 1 >= MIN_TITLE
 
 
+def layout_minimum(id_width: int = 0, terminal: bool = False) -> int:
+	"""The smallest width `layout_fits` accepts for this exact lead.
+
+	W26328 [P1 of the second review]: the too-narrow REFUSAL tells an
+	operator how wide the terminal must be, and that number was assembled
+	by hand from `id_width` while the judgment above was made against the
+	whole leading allocation. Once `Mine` joined that allocation the two
+	disagreed, so widening to the stated minimum produced the same refusal
+	-- a diagnostic that is worse than none, because it is followed.
+
+	So it is DERIVED FROM `layout_fits`' own expression, against the same
+	`id_width` the failing judgment was given, and there is no second
+	arithmetic to keep in step. The width argument is 1 deliberately: past
+	the budget every droppable column is already gone, so the minimum is
+	decided by the columns that CANNOT drop, and asking for the set at an
+	impossible width is how that set is named without a second copy of the
+	drop rule."""
+	lead = id_width + 1 if id_width else 0
+	columns = visible_columns(1, id_width, terminal)
+	fixed = sum(w for _n, w in columns) + len(columns)
+	return fixed + lead + MIN_TITLE + 1
+
+
 # WS-1 approved compact vocabulary — PRESENTATION ONLY, capped at five
 # display cells, never a protocol identity and never a mutation value. Both
 # maps are CLOSED (R5 ruling): an unmapped canonical value fails visibly —
@@ -1511,9 +1534,16 @@ class Console:
 		self.search_after = 0
 		self.search_next: int | None = None
 		self.search_page = 1
-		# W26328: the flattened all-team `Awaiting me` page.
-		self.mine_after = 0
-		self.mine_next: int | None = None
+		# W29146: the team the last search was answered for. Seeded from
+		# the viewer so a header drawn before any search still says
+		# something true.
+		self.search_team = viewer_team
+		# W26328: the flattened all-team `Awaiting me` page. The cursor
+		# is the authority's OPAQUE continuation token, held and handed
+		# back verbatim -- `None` is the first page. The console never
+		# reads it, adds to it, or invents one.
+		self.mine_after: str | None = None
+		self.mine_next: str | None = None
 		self.mine_page = 1
 		self.mine_total = 0
 		self.search_limit = 100
@@ -1741,11 +1771,14 @@ class Console:
 			ids = [entry["id"] for entry in trail]
 			already = len(covered) \
 				if covered and ids[:len(covered)] == covered else 0
-			for entry in trail[already:]:
+			for trail_index, entry in enumerate(trail[already:], start=already):
 				target = _nav_copy(self.location[:index])
 				target.append({"kind": "work", "label": entry["title"],
 				               "work": entry["id"]})
-				items.append({"key": f"work:{entry['id']}",
+				# One Work may occur more than once after graph recentering.
+				# Frame and ancestry positions distinguish those structural
+				# occurrences while remaining stable across repaint and resize.
+				items.append({"key": f"work:{index}:{trail_index}:{entry['id']}",
 				              "label": entry["title"],
 				              "compact": entry["id"].rsplit("-", 1)[-1],
 				              "kind": "work", "work": entry["id"],
@@ -1836,6 +1869,10 @@ class Console:
 			self._jump_to_crumb(items[at])
 		elif key in (curses.KEY_DOWN, ord("j")):
 			self._leave_breadcrumb()
+		elif key in (curses.KEY_UP, ord("k")):
+			# The breadcrumb is the upper boundary of every focus graph.
+			# Consume Up here so it cannot move a hidden body selection.
+			pass
 		else:
 			return False
 		return True
@@ -2041,6 +2078,11 @@ class Console:
 				work_filter=effective,
 				after=self.search_after, limit=self.search_limit))
 		self.search_next = window["next_after"]
+		# W29146: THE SCOPE THE AUTHORITY ANSWERED, held for the header.
+		# Read from the result rather than assumed from `self.team`: the
+		# whole defect this corrects is a client believing it knows the
+		# scope of an answer it did not ask about.
+		self.search_team = window["team"]
 		rows = list(window["rows"])
 		self._spend_owed_cycle(owed)
 		self._observe_phases(rows)
@@ -2393,7 +2435,7 @@ class Console:
 		"""The columns the tab bar may use before the right-aligned
 		identity begins. One space separates them, so a label and a
 		name never abut."""
-		return max(0, width - 1 - len(self.participant) - 1)
+		return max(0, width - 1 - _cells(self.participant) - 1)
 
 	def _render_header(self, screen, width: int, summary) -> None:
 		"""Row 0: the location, with the participant identity
@@ -2459,14 +2501,14 @@ class Console:
 		# rather than under it. W292: the drilled header paints the same
 		# tag from the same definition.
 		if tag:
-			at = width - 2 - len(tag) - len(self.participant)
+			at = width - 2 - _cells(tag) - _cells(self.participant)
 			screen.addnstr(0, max(0, at), tag, width - 1, curses.A_BOLD)
 		if dispatch:
-			at = (width - 2 - len(dispatch) - len(self.participant)
-			      - (len(tag) + 1 if tag else 0))
+			at = (width - 2 - _cells(dispatch) - _cells(self.participant)
+			      - (_cells(tag) + 1 if tag else 0))
 			if at > 0:
 				screen.addnstr(0, at, dispatch, width - 1, curses.A_BOLD)
-		screen.addnstr(0, max(0, width - 1 - len(self.participant)),
+		screen.addnstr(0, max(0, width - 1 - _cells(self.participant)),
 		               self.participant, width - 1, curses.A_BOLD)
 
 	def dispatch_view(self) -> dict:
@@ -2522,28 +2564,28 @@ class Console:
 		tag = self._filter_tag()
 		dispatch = self._dispatch_tag()
 		room = max(0, self._tab_budget(width)
-		           - (len(tag) + 1 if tag else 0)
-		           - (len(dispatch) + 1 if dispatch else 0))
+		           - (_cells(tag) + 1 if tag else 0)
+		           - (_cells(dispatch) + 1 if dispatch else 0))
 		items = self.breadcrumb_items()
 		selected = self.crumb_key if self.crumb_focus else items[-1]["key"]
 		window = breadcrumb_window(items, selected, room)
 		if not window:
 			refusal = "(breadcrumb too narrow)"
-			if len(refusal) <= room:
-				screen.addnstr(0, 0, refusal, room, curses.A_BOLD)
+			if _cells(refusal) <= room:
+				screen.addnstr(0, 0, refusal, len(refusal), curses.A_BOLD)
 		else:
 			column = 0
 			for index, piece in enumerate(window):
 				if index:
 					screen.addnstr(0, column, NAV_SEPARATOR,
-					               room - column, curses.A_BOLD)
-					column += len(NAV_SEPARATOR)
+					               len(NAV_SEPARATOR), curses.A_BOLD)
+					column += _cells(NAV_SEPARATOR)
 				attr = curses.A_BOLD
 				if self.crumb_focus and piece["key"] == selected:
 					attr |= curses.A_REVERSE
 				screen.addnstr(0, column, piece["text"],
-				               room - column, attr)
-				column += len(piece["text"])
+				               len(piece["text"]), attr)
+				column += _cells(piece["text"])
 		self._render_right_edge(screen, width)
 
 	# -- rendering ------------------------------------------------------------
@@ -2615,8 +2657,15 @@ class Console:
 				else ""
 			# R3: the bounded truth — a page label and the SHOWN
 			# count, never a page count masquerading as a total.
+			# W29146: THE SCOPE IS IN THE HEADING. W6 scopes this
+			# search to the viewer's owning team and always has; the
+			# header said `search: QUERY`, which reads global. An
+			# operator chasing a deployment-global Teams star searched
+			# for the Work causing it, got nothing, and had no way to
+			# learn the question had been narrower than it looked.
 			screen.addnstr(1, 0,
-			               f"search: {self.search_query} — page "
+			               f"search (team {self.search_team}): "
+			               f"{self.search_query} — page "
 			               f"{self.search_page} · {len(visible)} "
 			               f"shown{more}",
 			               width - 1, curses.A_DIM)
@@ -2624,9 +2673,12 @@ class Console:
 				self._render_table(screen, height, width, rows,
 				                   top=2)
 			else:
+				# AND THE EMPTY ANSWER SAYS IT TOO, because that is the
+				# one an operator is most likely to misread as "nowhere".
 				screen.addnstr(3, 0,
 				               f"(no matches for "
-				               f"{self.search_query!r})", width - 1)
+				               f"{self.search_query!r} in team "
+				               f"{self.search_team})", width - 1)
 			screen.addnstr(
 				height - 2, 0,
 				"j/k select · Enter details · / new query · "
@@ -2838,22 +2890,119 @@ class Console:
 
 	# -- W25: the Teams tab ----------------------------------------------
 
-	def team_rows(self) -> list[dict]:
-		"""The roster, own team first (ruled default) and every other
-		configured team after it — deliberate navigation, not a wall of
-		strangers on open."""
+	def _roster(self) -> list[dict]:
+		"""The configured teams, own team first, from the ONE cached read
+		the star and the rows both come from."""
 		roster = self._cached(("teams",), lambda: projection.teams(
 			self.store, viewer_team=self.team,
 			viewer_member=self.member))["teams"]
+		return sorted(roster, key=lambda team: not team["mine"])
+
+	@staticmethod
+	def _overdue(member: dict) -> bool:
+		"""W2938's canonical state, read and never re-derived."""
+		return (member.get("pickup") or {}).get("state") == "overdue"
+
+	def team_rows(self) -> list[dict]:
+		"""The roster, own team first (ruled default) and every other
+		configured team after it — deliberate navigation, not a wall of
+		strangers on open.
+
+		W29146: PLUS EVERY OVERDUE FOREIGN MEMBER, in the default own-team
+		mode. `[Teams *]` is deployment-global by W2938's ruling — it stars
+		when ANY participant is overdue — while this view dropped every
+		non-own team, so the marker could point at a cause the destination
+		refused to show and the team-scoped Jobs search could not find. The
+		operator was left with their own bold row, which is an identity cue
+		and never the reason for the star.
+
+		EVERY overdue member is included rather than the first, because one
+		star must never conceal a second cause. Pending and ordinary foreign
+		members stay hidden: a grace period nobody has missed is not
+		attention, and this exception exists for exactly what the marker
+		promises.
+
+		A PRESENTATION EXCEPTION OVER DATA `teams` ALREADY RETURNS. The
+		projection reads every configured team in one snapshot and always
+		did; this stops discarding the part the marker is about. No
+		authority, roster, pickup derivation or privacy boundary moves.
+		"""
 		rows = []
-		for entry in sorted(roster, key=lambda team: not team["mine"]):
-			if self.teams_own_only and not entry["mine"]:
-				continue
+		for entry in self._roster():
 			for member in entry["members"]:
-				rows.append(member)
+				if entry["mine"] or not self.teams_own_only:
+					rows.append(member)
+				elif self._overdue(member):
+					rows.append(member)
 		return rows
 
+	def team_exceptions(self) -> list[dict]:
+		"""The foreign overdue members the default view is showing anyway.
+
+		Named separately from `team_rows` because the scope line has to say
+		how many there are and the entry focus has to land on the first of
+		them, and re-deriving "which of these are exceptions" at each of
+		those sites is three places to disagree about one answer.
+		"""
+		if not self.teams_own_only:
+			return []
+		return [member for entry in self._roster() if not entry["mine"]
+		        for member in entry["members"] if self._overdue(member)]
+
+	def _focus_attention(self) -> None:
+		"""W29146: a starred Teams tab OPENS ON A CAUSE.
+
+		The marker promises actionable participant attention, and the
+		destination used to paint the viewer's own roster with the operator
+		left to find who it meant -- which, when the cause was in another
+		team, they could not do at all. Entry now selects the first overdue
+		member in canonical visible-row order, so the page immediately
+		names one cause and spells out its pickup detail.
+
+		THE FIRST IN ROW ORDER, not the first foreign one. The star is
+		deployment-global and own team sorts first, so an own-team cause is
+		the one an operator should be looking at when there is one.
+
+		Every other overdue row stays visible and bold: this moves the
+		CURSOR and hides nothing, so one star can never conceal a second
+		cause.
+
+		SILENT WHEN NOTHING IS OVERDUE. An unstarred entry keeps whatever
+		selection the operator had, because there is no attention to lead
+		them to and moving their cursor would be inventing some.
+		"""
+		first = next((row for row in self.team_rows()
+		              if self._overdue(row)), None)
+		if first is not None:
+			self.team_member = first["participant"]
+
+	def _team_scope(self) -> str:
+		"""What this roster IS, in words, including the exceptions.
+
+		A line that said `own team` while showing a foreign row would be
+		the same defect one layer down: the operator would see a stranger
+		and have nothing telling them why it is there.
+		"""
+		if not self.teams_own_only:
+			return "every team"
+		exceptions = len(self.team_exceptions())
+		if not exceptions:
+			return "own team"
+		return (f"own team + {exceptions} overdue elsewhere"
+		        if exceptions > 1 else "own team + 1 overdue elsewhere")
+
 	def _team_selected(self) -> dict | None:
+		"""The selected member, and the deterministic fallback when the
+		one that was selected is no longer here.
+
+		W29146: an exception row VANISHES when its participant stops being
+		overdue — claimed, rerouted, blocked, parked or closed under the
+		ordinary pickup rules — and the refresh that removes it must not
+		leave a stale hidden participant selected. The fallback is the
+		viewer's own participant when present, and the first visible row
+		otherwise, so what the operator is looking at after a refresh is
+		always something the roster still contains.
+		"""
 		rows = self.team_rows()
 		if not rows:
 			return None
@@ -2861,7 +3010,10 @@ class Console:
 			if row["participant"] == self.team_member:
 				self.team_cursor = index
 				return row
-		self.team_cursor = min(self.team_cursor, len(rows) - 1)
+		mine = next((index for index, row in enumerate(rows)
+		             if row["participant"] == f"{self.team}.{self.member}"),
+		            None)
+		self.team_cursor = mine if mine is not None else 0
 		chosen = rows[self.team_cursor]
 		self.team_member = chosen["participant"]
 		return chosen
@@ -2913,7 +3065,7 @@ class Console:
 
 	def _render_teams(self, screen, height, width) -> None:
 		rows = self.team_rows()
-		scope = "own team" if self.teams_own_only else "every team"
+		scope = self._team_scope()
 		screen.addnstr(1, 0, f"teams — {len(rows)} member(s), {scope}",
 		               width - 1, curses.A_DIM)
 		footer = height - 2
@@ -2989,6 +3141,11 @@ class Console:
 					break
 				screen.addnstr(top + offset, 0, line, width - 1)
 		bits = ["j/k select", "p poke"]
+		# ADVERTISED ONLY WHEN IT EXISTS. A member with no suggestion has
+		# no Work to open, and a key that does nothing is worse than an
+		# absent one -- the operator learns the wrong thing about the row.
+		if (selected.get("pickup") or {}).get("next_work"):
+			bits.append("Enter open suggested Work")
 		if self._pending_poke_to(selected) is not None:
 			bits.append("x withdraw")
 		bits.append("t own/all teams")
@@ -3374,7 +3531,7 @@ class Console:
 		prefix = (f"breadcrumb {at + 1}/{len(items)}: "
 		          f"{items[at]['compact']}")
 		available = max(0, width - 1)
-		if len(prefix) > available:
+		if _cells(prefix) > available:
 			text = "(breadcrumb too narrow)"
 		else:
 			clauses = [prefix, "h/l select", "Enter open", "Down page",
@@ -3382,7 +3539,7 @@ class Console:
 			text = clauses[0]
 			for clause in clauses[1:]:
 				candidate = text + " · " + clause
-				if len(candidate) > available:
+				if _cells(candidate) > available:
 					break
 				text = candidate
 		# Replace the page-specific help row completely; command/status
@@ -3475,9 +3632,10 @@ class Console:
 			cue_width = 0
 		lead = mandatory + ((1 + cue_width) if cue_width else 0)
 		if not layout_fits(width, lead, terminal):
-			columns = visible_columns(width, lead, terminal)
-			need = sum(w for _n, w in columns) + len(columns) + \
-				MIN_TITLE + id_width + 2
+			# W26328: the SAME lead the judgment above refused, so the
+			# stated minimum carries the mandatory `Mine` allocation and
+			# the wait cue exactly as the fit judgment counted them.
+			need = layout_minimum(lead, terminal)
 			# The explicit too-narrow REFUSAL (ruled): identities are
 			# never truncated into ambiguity to fake a fit — and (W4
 			# R2) an over-wide identity refuses the table rather than
@@ -4005,7 +4163,7 @@ class Console:
 		tree the operator pressed `m` on."""
 		self._nav_push("mine", "awaiting me")
 		self.mode = "mine"
-		self.mine_after = 0
+		self.mine_after = None
 		self.mine_page = 1
 		self.cursor = 0
 		self.selected_id = None
@@ -4032,7 +4190,7 @@ class Console:
 			self.cursor = 0
 			self.selected_id = None
 		elif key == ord("p"):
-			self.mine_after = 0
+			self.mine_after = None
 			self.mine_page = 1
 			self.cursor = 0
 			self.selected_id = None
@@ -5665,8 +5823,36 @@ class Console:
 				# The row LINKS to its context rather than reproducing
 				# it: Jobs owns Work, and this hands the operator over
 				# to it with the right row already open.
+				#
+				# W34884: AND THE CALLER IS INBOX, not Jobs. This used
+				# to set `self.tab = "jobs"` FIRST, so `_nav_push`
+				# captured a frame that already said Jobs -- and Back
+				# then landed on a tab the operator had not been on.
+				# W292 specified that handoff deliberately; the later
+				# universal browser-history model supersedes it, because
+				# Inbox now opens real obligation and message detail and
+				# Back describes the path actually taken.
+				#
+				# THE SAME SHAPE `_handle_teams` USES, and deliberately
+				# not a second Back branch or a return flag: capture the
+				# caller explicitly, then switch the live detail handler
+				# to Jobs. `tab`, `inbox_cursor` and `inbox_key` are the
+				# whole of the Inbox frame -- `_render_inbox` derives its
+				# visible window from the cursor and the terminal height,
+				# and `_inbox_selected` reanchors that cursor from the
+				# key when rows move, so the key is what makes the
+				# restored selection stable rather than ordinal.
+				#
+				# THEY STAY OUT OF `NAV_STATE_FIELDS`. Putting a
+				# top-level tab there makes every existing frame restore
+				# a tab it never captured, which is how this broke the
+				# first time it was tried.
+				self._enter_detail(
+					selected["work"], came_from="table",
+					restore={**self._nav_capture(), "tab": "inbox",
+					         "inbox_cursor": self.inbox_cursor,
+					         "inbox_key": self.inbox_key})
 				self.tab = "jobs"
-				self._enter_detail(selected["work"], came_from="table")
 		elif key == ord("a") and selected:
 			if selected["kind"] == "incident":
 				# W415: authored, because a dismissal that records why
@@ -5719,6 +5905,45 @@ class Console:
 			self.team_cursor = max(0, self.team_cursor - 1)
 			if rows:
 				self.team_member = rows[self.team_cursor]["participant"]
+		elif key in (curses.KEY_ENTER, 10, 13) and selected:
+			# W29146: THE EXPLICIT CROSS-TEAM LINK. The suggested Work is
+			# already in this row -- the projection publishes it as
+			# `pickup.next_work` -- and following it is the confirmed
+			# cross-team navigation mechanism, so an overdue foreign
+			# participant leads to the Work causing it without widening
+			# search, granting a claim, or listing another team's Jobs.
+			# The detail's own available actions remain the authority's
+			# answer for this viewer.
+			suggested = (selected.get("pickup") or {}).get("next_work")
+			if not suggested:
+				self.status = (f"{selected['participant']} has no "
+				               f"suggested Work; the pickup obligation "
+				               f"is the participant's, and this row "
+				               f"names no Work to open")
+			else:
+				# BOTH CALLERS ARE CAPTURED, and Jobs is only the live
+				# Work-detail handler in each. A Teams row is a diagnostic
+				# detour and Back returns to the roster it was opened
+				# from; an Inbox row opens an obligation or a message and
+				# Back returns to that row. W292 once ruled the Inbox side
+				# the other way -- a handover into Jobs that Back left you
+				# in -- and W34884 superseded it, so which one happens is
+				# an ARGUMENT rather than a consequence of statement
+				# order, and the two handlers now make the same one.
+				#
+				# The tab and the roster selection are NOT in
+				# `NAV_STATE_FIELDS`: putting them there would have made
+				# every existing frame restore a tab it never meant to,
+				# which is how the Inbox ruling broke the first time this
+				# was tried. They ride in this one frame, named here, where
+				# the decision is.
+				self._enter_detail(
+					suggested["work"], came_from="table",
+					restore={**self._nav_capture(), "tab": "teams",
+					         "team_cursor": self.team_cursor,
+					         "team_member": self.team_member,
+					         "teams_own_only": self.teams_own_only})
+				self.tab = "jobs"
 		elif key == ord("t"):
 			self.teams_own_only = not self.teams_own_only
 			self.team_cursor = 0
@@ -6369,6 +6594,8 @@ class Console:
 				and not self.context_work():
 			step = -1 if key == ord("[") else 1
 			self.tab = TABS[(TABS.index(self.tab) + step) % len(TABS)]
+			if self.tab == "teams":
+				self._focus_attention()
 			return True
 		if self.tab == "inbox":
 			return self._handle_inbox(key)
@@ -6721,7 +6948,8 @@ class Console:
 			self.event_skip = 0
 		return True
 
-	def _enter_detail(self, work_id: str, *, came_from: str) -> None:
+	def _enter_detail(self, work_id: str, *, came_from: str,
+	                  restore: dict | None = None) -> None:
 		"""Open Work detail FRESH on one Work — the one place the three
 		entry paths (Jobs, search, Inbox) agree about what a fresh entry
 		means.
@@ -6761,7 +6989,8 @@ class Console:
 		than assembled from Back steps — so nothing is lost from the
 		trail and two intermediate Works the operator never opened no
 		longer become two Backs they have to spend."""
-		self._nav_push("work", self._work_title(work_id), work=work_id)
+		self._nav_push("work", self._work_title(work_id), work=work_id,
+		               restore=restore)
 		self._nav_restore(self._fresh_detail_state(work_id))
 		self.detail_return = came_from
 

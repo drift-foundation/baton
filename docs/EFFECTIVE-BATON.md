@@ -466,6 +466,127 @@ discovered trust boundary, operator surface or reusable correction normally
 deserves a child or sibling; a correction within the current acceptance result
 stays with the current Job.
 
+### Capability passes preserve the big picture
+
+A proof-of-concept campaign advances through explicit CAPABILITY PASSES, not
+through an unbounded queue of locally desirable corrections. Before a pass
+starts, its campaign record names:
+
+- the concrete end-to-end demonstration that marks its finish line;
+- the minimum assertions required to prove that result is real;
+- what maturity claim the pass earns, such as “design is promising”; and
+- the known robustness work deliberately assigned to later passes.
+
+Work TOP-DOWN through a thin vertical slice. Connect the major boundaries
+soon enough to discover whether the architecture can produce a useful result,
+then revisit that working path repeatedly to improve correctness, resilience,
+portability and operations. Do not perfect each lower layer in isolation
+before the system has crossed its first end-to-end boundary. A million local
+tests cannot validate a missing or mistaken downstream seam, and a redesign
+found only after bottom-up hardening can discard most of that investment.
+
+Tests serve the capability claim of the current pass. Build enough focused
+evidence to make its demonstration honest and repeatable; do not treat maximal
+scenario coverage as progress independent of a useful integrated result.
+Later passes add the failure, race, restart and scale matrices against an
+architecture that has first earned further investment. This is engineering
+toward a useful product, not an academic pursuit of perfection detached from
+whether the whole design works.
+
+Capture “TODO,” “improve,” “come back and fix,” “do not hard-code,” and similar
+concerns as durable Work while building the slice. Give each material concern
+an owning finding or lightweight Job, link it to the pass where it was found,
+and assign it to a later pass unless it can falsify the current demonstration.
+An inline source comment may point to that Work; it is not a second backlog and
+must not be the concern's only durable locator.
+
+Later design changes may make a recorded concern irrelevant. Close it as
+superseded or cancelled with the reason rather than implementing it from habit
+or silently forgetting it. Throwing away an unstarted note is cheap and leaves
+an intelligible decision trail; throwing away prematurely written production
+code, exhaustive tests and hardened interfaces is not. Baton's value here is
+memory without forced execution: it preserves what deserves another look
+without confusing every observation with immediate critical-path work.
+
+Make the smallest useful end-to-end happy path its own critical-path Job. Do
+not make it wait for every restart, race, alternate-runtime and
+defensive-hardening matrix once the positive path can be accepted honestly.
+Represent those robustness outcomes as separate bounded Jobs, preserve every
+discovered defect and invariant in their owning records, and schedule them
+concurrently where their file and decision ownership does not overlap.
+
+Every new detail gets one immediate classification:
+
+1. If it can make the current demonstration falsely succeed, it blocks the
+   current pass and is corrected before that finish line.
+2. If it improves resilience, portability, scale or operations without
+   invalidating the current demonstration, record it in an owning finding and
+   a planned or parked Job for a NAMED later pass.
+3. If it is unrelated to the campaign's promised capability, route it outside
+   the campaign rather than growing either pass.
+
+Nothing discovered is silently ignored, but “recorded” does not mean “put on
+today's critical path.” At every handoff, report the pass-level result first:
+what can now be demonstrated, what still prevents that demonstration, and
+which newly found requirements moved to later passes. Individual corrections
+and test counts are supporting evidence, not the campaign's big picture.
+
+Crossing the first finish line means **the design is promising**, not
+production-ready. It validates the general architecture before the campaign
+spends heavily on exhaustive protections whose underlying decisions may still
+change in the next phase. After that gate, walk back through the parked or
+parallel hardening Jobs and make the design solid. Pass 2 may make failure
+behavior dependable; later passes may add restart recovery, alternate
+runtimes, scale or production operations. Do not optimize pass N while pass
+N−1 still cannot demonstrate a promising solution.
+
+“Happy path first” narrows scheduling scope; it never permits false success,
+suppresses a known defect, weakens the assertions required to prove the path,
+or deletes a later-pass requirement. This sequencing reduces throw-away work
+without confusing prototype acceptance with production readiness.
+
+An accepted early pass may become infrastructure for the next passes. Use a
+promising isolated-worker path in a controlled dogfood lane to develop the
+platform itself while its hardening Jobs continue. This is not a production
+cutover: keep the known-good authority and recovery path until the later
+adoption gate says otherwise, and restrict early use to work whose candidate
+result can be discarded without harming the canonical checkout or ledger.
+
+The concurrency goal is at least two independently scheduled coding workers
+and two independently scheduled reviewers. They use distinct runtime and
+participant identities, isolated candidate workspaces, and separately claimed
+leaf Jobs; “two workers” never means two contexts sharing one claim or writing
+the same checkout. Review capacity is independently schedulable too, so one
+long review does not serialize every implementation result. Feed what this
+early use reveals back into recorded later-pass Work rather than waiting for a
+nominally complete platform before learning how it behaves under parallel use.
+
+Stage-scoped dependencies make REVIEW-AHEAD part of that pipeline. When a
+predecessor gates only implementation, reviewers may already validate the
+dependent Job's plan, contracts, acceptance boundary, fixtures and proposed
+verification while its implementation offer remains ineligible. An outcome
+dependency still blocks that preparation when the predecessor's result can
+change what should be built. Technical review of produced code or artifacts
+still waits for an actual immutable proposal; review-ahead never fabricates an
+implementation result. It removes avoidable waiting before coding starts and
+lets implementation begin against a reviewed contract as soon as its exact
+gate opens.
+
+Use two coding ROUTES for the two pass intents:
+
+- `impl` delivers the smallest honest vertical slice and records every
+  material deferred concern as later Work; and
+- `harden` takes one bounded recorded concern and strengthens a design whose
+  useful path has already been validated.
+
+These are scheduling capabilities, not permanent personas. A member may hold
+either or both, and the pools may overlap. `impl` never excuses a known
+false-success defect. `harden` preserves the accepted capability and returns
+through plan revision when a finding requires redesign rather than silently
+changing the seam. Keep `tuner` for documentation, packaging and polish; it is
+not the hardening coder. Do not call the second route `impl2`: a backup
+provider and a different work intent are separate concepts.
+
 Never split scope underneath a live claimant. Let the current bounded
 correction finish, pass or release, then create and order the remaining Jobs.
 The practical test is simple: if an outcome could be reviewed, accepted,
@@ -808,12 +929,37 @@ Press `m`, or ask directly:
 
     $BATON actionable-work
     $BATON actionable-work limit=25
-    $BATON actionable-work after=25
+    $BATON actionable-work after=dzEfMR8xHzE3H2ZlZmVmZWZlLVc0
 
 Every match appears with its complete root-first breadcrumb, across every owning
 team, in the same canonical order `wait` offers — so the list and the wake agree.
 Paging is 100 by default (1..500) and each page is one snapshot; a refresh
 restarts at the first page rather than pretending to continue one that has moved.
+
+**`after=` is the previous page's `next_after`, verbatim, and it is yours.**
+It is an opaque token naming WHOSE question it continues and WHERE that
+question got to — not a count of rows already seen. Do not read it, add to it,
+build one, or pass another participant's along: this answer is relative to who
+is asking, so a cursor from somebody else's page is refused rather than
+followed. It would otherwise hide every Work of yours that sorts before
+wherever they had got to. That is what makes the guarantee
+hold under the shared-route race this view exists to expose: when another
+handler claims one of the Work items on a page you have already read, the next
+page still begins exactly where yours ended, so nothing between the two is lost.
+A token from an older Baton, or one edited by hand, is refused rather than
+quietly answered with page one — the token names a Work and a place in the
+canonical order, and both are checked against what this authority actually
+holds, so a well-shaped invention cannot hide live Work behind an empty page.
+`next_after` is `null` on the last page.
+
+**One refusal is ordinary, and it is `refresh to read from the current first
+page`.** A Work leaving your actionable set between pages — somebody else
+claimed it, or it was rerouted — does not disturb the continuation, because it
+did not move in the canonical order. A Work whose ORDER changes does: raise its
+priority, or claim one that was holding others up, and the position your token
+names is no longer where that Work is. Continuing past it would skip or repeat
+the rows in between with no way for you to notice, so Baton refuses and says
+so. Start again from the first page; nothing is lost.
 
 **A Work counts when it is open, ready, queued, unclaimed, and its current Route
 resolves to you** — including an alternate somebody deliberately selected. That

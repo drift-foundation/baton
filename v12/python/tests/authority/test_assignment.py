@@ -55,7 +55,7 @@ class AuthorityCase(unittest.TestCase):
 
     def work(self, work_id=WORK, *, contract=V12, route=ROUTE, phase="queued",
              gate=None, handlers=(CLAUDE,)):
-        self.core.create_work(work_id, route, contract=contract, phase=phase,
+        self.core.create_work(work_id, route, contract=contract, phase=phase, operation_id=("create-" + str(work_id))[:160],
                               gate=gate)
         for participant in handlers:
             self.core.add_route_handler(route, participant)
@@ -68,13 +68,19 @@ class AuthorityCase(unittest.TestCase):
 
     def claimed(self, work_id=WORK, participant=CLAUDE, **kwargs):
         self.work(work_id, **kwargs)
-        return self.core.claim(work_id, participant, operation_id=self.op("claim"))
+        # W16823: the claim answers a CLOSED RESULT now -- assignment, exact
+        # claim event and the decision it was authorized under.  This fixture's
+        # callers want the FENCE, so it names the member rather than every
+        # caller learning the result's shape.
+        return self.core.claim(
+            work_id, participant,
+            operation_id=self.op("claim"))["assignment"]
 
 
 class Creation(AuthorityCase):
 
     def test_a_work_is_created_unclaimed(self):
-        projected = self.core.create_work(WORK, ROUTE, contract=V12)
+        projected = self.core.create_work(WORK, ROUTE, contract=V12, operation_id=("create-" + str(WORK))[:160])
         self.assertEqual(projected["work_id"], WORK)
         self.assertEqual(projected["phase"], "queued")
         self.assertIsNone(projected["handler"])
@@ -89,10 +95,10 @@ class Creation(AuthorityCase):
         # the corruption was already durable.  INVARIANTS ARE A BACKSTOP; the
         # transition is where an impossible state is refused.
         with self.assertRaises(Refusal):
-            self.core.create_work(WORK, ROUTE, phase="active")
+            self.core.create_work(WORK, ROUTE, phase="active", operation_id=("create-" + str(WORK))[:160])
         # And the refusal wrote nothing, so the id is still free.
         self.assertEqual(sorted(UNCLAIMED_PHASES), ["block", "parked", "queued"])
-        self.core.create_work(WORK, ROUTE, phase="queued")
+        self.core.create_work(WORK, ROUTE, phase="queued", operation_id=("create-" + str(WORK))[:160])
 
     def test_a_gate_and_a_phase_are_one_cross_product(self):
         # A gate is a REASON the Work cannot run, so a gate without `block` and
@@ -107,20 +113,23 @@ class Creation(AuthorityCase):
                 ("an unknown phase", "invented", None)]:
             with self.subTest(what=what):
                 with self.assertRaises(Refusal):
-                    self.core.create_work(f"0123abcd-W{abs(hash(what)) % 900 + 99}",
-                                          ROUTE, phase=phase, gate=gate)
+                    named = f"0123abcd-W{abs(hash(what)) % 900 + 99}"
+                    self.core.create_work(named, ROUTE, phase=phase,
+                                          gate=gate,
+                                          operation_id=("create-" + named)[:160])
         # And the pairing that IS coherent is accepted.
         projected = self.core.create_work(
-            WORK, ROUTE, phase="block", gate=gate_token(GATE_QUIESCENCE, "1"))
+            WORK, ROUTE, phase="block", gate=gate_token(GATE_QUIESCENCE, "1"),
+            operation_id=("create-" + WORK)[:160])
         self.assertEqual(projected["gate"],
                          {"token": f"{GATE_QUIESCENCE}:1",
                           "kind": GATE_QUIESCENCE, "detail": "1"})
         self.assertFalse(projected["ready"])
 
     def test_one_work_id_is_created_once(self):
-        self.core.create_work(WORK, ROUTE)
+        self.core.create_work(WORK, ROUTE, operation_id=("create-" + str(WORK))[:160])
         with self.assertRaises(Refusal):
-            self.core.create_work(WORK, "other-route")
+            self.core.create_work(WORK, "other-route", operation_id=("create-" + str(WORK))[:160])
         self.assertEqual(self.core.project_work(WORK)["route"], ROUTE)
 
 
@@ -132,7 +141,8 @@ class Claiming(AuthorityCase):
         self.work()
         seen = []
         for _ in range(3):
-            assignment = self.core.claim(WORK, CLAUDE, operation_id=self.op())
+            assignment = self.core.claim(
+                WORK, CLAUDE, operation_id=self.op())["assignment"]
             seen.append(assignment["generation"])
             self.core.end(assignment, operation_id=self.op())
         self.assertEqual(seen, [1, 2, 3])
@@ -140,7 +150,8 @@ class Claiming(AuthorityCase):
 
     def test_a_v11_claim_mints_no_generation(self):
         self.work(contract=V11)
-        assignment = self.core.claim(WORK, CLAUDE, operation_id=self.op())
+        assignment = self.core.claim(
+            WORK, CLAUDE, operation_id=self.op())["assignment"]
         self.assertIsNone(assignment["generation"])
         self.assertEqual(self.core.project_work(WORK)["generation_counter"], 0)
         self.core.assert_invariants(WORK)
@@ -309,7 +320,8 @@ class EndingAnAssignment(AuthorityCase):
         # participant is identical.
         first = self.claimed()
         self.core.end(first, operation_id=self.op())
-        second = self.core.claim(WORK, CLAUDE, operation_id=self.op())
+        second = self.core.claim(
+            WORK, CLAUDE, operation_id=self.op())["assignment"]
         self.assertEqual(second["generation"], 2)
         with self.assertRaises(Refusal) as caught:
             self.core.end(first, operation_id=self.op())
@@ -354,7 +366,8 @@ class EndingAnAssignment(AuthorityCase):
         # And the route move is not committed when the ending refuses, because
         # both are one transaction.
         self.core.add_route_handler("rview", CLAUDE)
-        second = self.core.claim(WORK, CLAUDE, operation_id=self.op())
+        second = self.core.claim(
+            WORK, CLAUDE, operation_id=self.op())["assignment"]
         with self.assertRaises(Refusal):
             self.core.pass_work(assignment, to_route="somewhere-else", operation_id=self.op())
         self.assertEqual(self.core.project_work(WORK)["route"], "rview")
@@ -382,7 +395,8 @@ class Cancellation(AuthorityCase):
         # the typed gate the cancellation installed.
         self.work(WORK)
         self.work(OTHER)
-        assignment = self.core.claim(WORK, CLAUDE, operation_id=self.op())
+        assignment = self.core.claim(
+            WORK, CLAUDE, operation_id=self.op())["assignment"]
         self.core.cancel(assignment, reason="lost", operation_id=self.op())
         self.assertIsNone(self.core.slot_holder(CLAUDE))
         self.core.claim(OTHER, CLAUDE, operation_id=self.op())
@@ -718,7 +732,7 @@ class GapsIFoundByProbingMyOwnCut(AuthorityCase):
                                              clock=lambda answer=answer: answer)
                 self.addCleanup(authority.dispose)
                 with self.assertRaises(Refusal):
-                    authority.create_work(WORK, ROUTE)
+                    authority.create_work(WORK, ROUTE, operation_id=("create-" + str(WORK))[:160])
                 connection = sqlite3.connect(path)
                 rows = connection.execute("SELECT created_at FROM work").fetchall()
                 connection.close()
@@ -737,7 +751,7 @@ class GapsIFoundByProbingMyOwnCut(AuthorityCase):
         authority = Authority.create(path, authority_uuid=UUID, clock=explode)
         self.addCleanup(authority.dispose)
         with self.assertRaises(RuntimeError):
-            authority.create_work(WORK, ROUTE)
+            authority.create_work(WORK, ROUTE, operation_id=("create-" + str(WORK))[:160])
         connection = sqlite3.connect(path)
         rows = connection.execute("SELECT work_id FROM work").fetchall()
         connection.close()
@@ -746,7 +760,7 @@ class GapsIFoundByProbingMyOwnCut(AuthorityCase):
         # transaction open would not be.
         working = Authority.open(path, clock=lambda: NOW)
         self.addCleanup(working.dispose)
-        working.create_work(WORK, ROUTE)
+        working.create_work(WORK, ROUTE, operation_id=("create-" + str(WORK))[:160])
         working.assert_invariants(WORK)
 
 
@@ -771,8 +785,10 @@ class CutTwoReviewFindings(AuthorityCase):
                 self.work(WORK)
                 self.work(OTHER)
                 self.core.add_route_handler(ROUTE, GEMINI)
-                x = self.core.claim(WORK, CLAUDE, operation_id=self.op()) if claim_x else None
-                y = self.core.claim(OTHER, GEMINI, operation_id=self.op())
+                x = (self.core.claim(WORK, CLAUDE, operation_id=self.op())["assignment"]
+                     if claim_x else None)
+                y = self.core.claim(
+                    OTHER, GEMINI, operation_id=self.op())["assignment"]
                 with self.assertRaises(Refusal) as caught:
                     self.core.install_gate(
                         WORK, gate=gate_token(GATE_QUIESCENCE, "1"), operation_id=self.op(), expect=y)
@@ -802,7 +818,8 @@ class CutTwoReviewFindings(AuthorityCase):
             "UPDATE work SET generation_counter = ? WHERE work_id = ?",
             (MAX_SAFE_INTEGER - 1, WORK))
         # The LAST generation the range allows is still minted.
-        last = self.core.claim(WORK, CLAUDE, operation_id=self.op())
+        last = self.core.claim(
+            WORK, CLAUDE, operation_id=self.op())["assignment"]
         self.assertEqual(last["generation"], MAX_SAFE_INTEGER)
         self.core.end(last, operation_id=self.op())
         # And the next one refuses rather than producing an unusable number.
@@ -826,9 +843,10 @@ class CutTwoReviewFindings(AuthorityCase):
         bad = "x\ud800y"
         assignment = self.claimed()
         for what, call in [
-                ("a route", lambda: self.core.create_work(OTHER, bad)),
+                ("a route", lambda: self.core.create_work(
+                OTHER, bad, operation_id=("create-" + OTHER)[:160])),
                 ("a contract",
-                 lambda: self.core.create_work(OTHER, ROUTE, contract=bad)),
+                 lambda: self.core.create_work(OTHER, ROUTE, contract=bad, operation_id=("create-" + OTHER)[:160])),
                 ("a policy key", lambda: self.authority.set_policy(bad, 1)),
                 ("a release reason",
                  lambda: self.core.end(assignment, reason=bad, operation_id=self.op())),
@@ -851,7 +869,7 @@ class CutTwoReviewFindings(AuthorityCase):
         self.assertEqual(self.core.assignment_of(WORK), assignment)
         # AND ORDINARY NON-ASCII TEXT IS DATA, NOT A HAZARD.  A rule that
         # refused it would be a bug wearing a fix.
-        self.core.create_work(OTHER, "révision-plan")
+        self.core.create_work(OTHER, "révision-plan", operation_id=("create-" + str(OTHER))[:160])
         self.core.end(assignment, reason="perdu — le runtime a disparu 😀", operation_id=self.op())
         self.assertEqual(self.core.project_work(OTHER)["route"], "révision-plan")
         self.assertIn("😀", self.core.assignment_events(WORK)[-1]["reason"])
@@ -916,7 +934,8 @@ class CutTwoReviewFindings(AuthorityCase):
         # with the NEW generation, so the two assignments are distinguishable
         # in the history -- which is the point of recording the identity.
         self.core.end(assignment, operation_id=self.op())
-        second = self.core.claim(WORK, CLAUDE, operation_id=self.op())
+        second = self.core.claim(
+            WORK, CLAUDE, operation_id=self.op())["assignment"]
         causes = [event["cause"] for event in self.core.assignment_events(WORK)]
         self.assertEqual(causes, ["claimed", "release", "claimed"])
         generations = [event["assignment_ref"]["generation"]

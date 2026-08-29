@@ -27,7 +27,9 @@ __all__ = ["STORE_KIND", "SCHEMA_VERSION", "SCHEMA", "TABLES",
            "OPERATION_STATES", "ATTEMPT_COLUMNS", "OBSERVATION_COLUMNS",
            "POSTURES", "SESSION_STATES", "SLOT_OCCUPANCY",
            "AGENT_SESSION_COLUMNS", "POSTURE_SLOT_COLUMNS",
+           "RUNTIME_LANE_COLUMNS",
            "OUTPUT_STATUSES", "OUTPUT_TYPES", "DISPOSITIONS",
+           "CLAIM_CONTEXT",
            "MANIFEST_COLUMNS", "OUTPUT_COLUMNS", "OUTPUT_ARTIFACT_COLUMNS",
            "INTERROGATION_KINDS", "INTERROGATION_OUTCOMES",
            "INTERROGATION_COLUMNS",
@@ -56,12 +58,27 @@ STORE_KIND = "baton.v12.python.worker-manager"
 # W6627's confirmed interrogation split needs a durable lifecycle of its own.
 # Eleven, because W6629 added the intake receipt, the artifacts this manager
 # took custody of, and the retention decisions cleanup is authorized by.
-SCHEMA_VERSION = 11
+# TWELVE, because W16823 persists the AUTHORIZATION CONTEXT the authority's
+# closed claim result now carries: the exact claim event, and the principal,
+# effective scope, role, grant provenance and policy generation the claim was
+# authorized under. A schema-11 store holds a claimed offer and an activated
+# attempt with NO context and no way to supply one -- the decision it was
+# taken under is at the authority, keyed by an event identity this build would
+# have to guess. Approver ruling M35002 keeps this a clean initialization
+# boundary rather than a migration.
+# THIRTEEN, because W32649 adds the RUNTIME LANE: one capacity identity that
+# spans a predecessor and a successor attempt, keyed by the assignment's
+# authority, Work, canonical principal and effective scope rather than by an
+# attempt id that changes with every attempt. A schema-12 store holds no lane
+# at all, so a manager reading one would believe every lane free -- and the
+# state this exists to prevent is precisely two executions over one
+# assignment's material.
+SCHEMA_VERSION = 13
 
 TABLES = ("meta", "operations", "offers", "attempts", "observations",
           "profiles", "agent_sessions", "posture_slots", "manifests",
           "outputs", "output_artifacts", "interrogations", "intakes",
-          "intake_artifacts", "retentions")
+          "intake_artifacts", "retentions", "runtime_lanes")
 
 # THE TWO OPERATOR INTERROGATIONS, and they are two because v11's `poke`
 # conflated two facts: whether the adapter and session can be OBSERVED now,
@@ -239,6 +256,17 @@ CREATE TABLE offers (
     verifier           TEXT NOT NULL,
     verifier_spent     INTEGER NOT NULL DEFAULT 0
                        CHECK (verifier_spent IN (0, 1)),
+    -- W16823: WHAT THIS OFFER FROZE ABOUT THE WORK IT WAS ISSUED AGAINST.
+    --
+    -- The authority-owned effective scope and the route, taken from the same
+    -- projection the issue decision was made on. NOT NULL because every offer
+    -- is issued from a projection and there is no path that has one without
+    -- them. They exist so the claim decision can be HELD to them: a claim
+    -- authorized in another scope, or as another route, is not the claim this
+    -- offer promised, and without the frozen pair "relationally inconsistent"
+    -- would be a phrase rather than a refusal.
+    work_scope         TEXT NOT NULL,
+    work_route         TEXT NOT NULL,
     issued_at          TEXT NOT NULL,
     expires_at         TEXT NOT NULL,
     state              TEXT NOT NULL CHECK (state IN (
@@ -251,6 +279,27 @@ CREATE TABLE offers (
     claim_operation_id TEXT,
     claim_signature    TEXT,
     claim_generation   INTEGER,
+    -- W16823: THE AUTHORIZATION CONTEXT THE CLAIM WAS TAKEN UNDER.
+    --
+    -- The endpoint is NOT among them, deliberately. It is already this row's
+    -- `participant`, and a second column holding the same fact is a second
+    -- place for it to be wrong; the port PROVES the decision's endpoint is
+    -- that participant instead, which is the relation rather than a copy.
+    --
+    -- `claim_event_seq` is the authority's exact immutable act identity,
+    -- under a name of this table's own: the authority's document member is
+    -- `claim_event`, and one name meaning both a wire member and a column is
+    -- one the inventory's flat column scan cannot tell apart. It is
+    -- what makes the rest of these attributable: a v11 assignment mints no
+    -- generation, so `(work, participant, generation)` is not unique across
+    -- two claims through one endpoint, and without this the manager could not
+    -- say WHICH claim the context beside it belongs to.
+    claim_event_seq        INTEGER,
+    claim_principal        TEXT,
+    claim_scope            TEXT,
+    claim_role             TEXT,
+    claim_grant            TEXT,
+    claim_policy_generation INTEGER,
     decision_reason    TEXT,
     decided_at         TEXT,
     -- ACCEPTANCE FREEZES ALL FIVE OR NONE, and this is the CHECK that says so.
@@ -275,7 +324,26 @@ CREATE TABLE offers (
                    'settlement-expired')
          AND intent_digest IS NOT NULL AND accepted_at IS NOT NULL
          AND settle_by IS NOT NULL AND claim_operation_id IS NOT NULL
-         AND claim_signature IS NOT NULL))
+         AND claim_signature IS NOT NULL)),
+    -- W16823: A CLAIMED OFFER CARRIES ITS WHOLE CONTEXT, AND NO OTHER STATE
+    -- CARRIES ANY OF IT.
+    --
+    -- The same all-or-none reasoning the acceptance fields are under, for the
+    -- same reason: a row naming the principal but not the scope it was
+    -- authorized in would be an authorization nobody can reconstruct, and a
+    -- refused or expired settlement authorized nothing at all -- context on
+    -- one of those would be evidence of a claim that never committed.
+    CHECK (
+        (state = 'claimed'
+         AND claim_event_seq IS NOT NULL
+         AND claim_principal IS NOT NULL
+         AND claim_scope IS NOT NULL AND claim_role IS NOT NULL
+         AND claim_grant IS NOT NULL
+         AND claim_policy_generation IS NOT NULL)
+     OR (state <> 'claimed'
+         AND claim_event_seq IS NULL AND claim_principal IS NULL
+         AND claim_scope IS NULL AND claim_role IS NULL
+         AND claim_grant IS NULL AND claim_policy_generation IS NULL))
 ) STRICT;
 
 -- ONE LIVE OFFER PER WORK. A partial index, because terminal offers are history
@@ -308,6 +376,17 @@ CREATE TABLE attempts (
     authority_uuid         TEXT,
     assignment_participant TEXT,
     assignment_generation  INTEGER,
+    -- W16823: ...AND THE CONTEXT ARRIVES WITH THEM, from the claimed offer
+    -- this attempt belongs to. Fixed by the same act, so it is in the same
+    -- all-or-none CHECK below: an attempt that knows which generation it is
+    -- fenced to but not which principal it runs for is exactly the conflation
+    -- W16793 found, arriving one row later.
+    assignment_claim_event_seq INTEGER,
+    assignment_principal    TEXT,
+    assignment_scope        TEXT,
+    assignment_role         TEXT,
+    assignment_grant        TEXT,
+    assignment_policy_generation INTEGER,
     runtime_id             TEXT,
     observation_seq        INTEGER NOT NULL DEFAULT 0,
     observed_at            TEXT,
@@ -340,10 +419,20 @@ CREATE TABLE attempts (
                     'failed')),
     CHECK (
         (work_id IS NULL AND authority_uuid IS NULL
-         AND assignment_participant IS NULL AND assignment_generation IS NULL)
+         AND assignment_participant IS NULL AND assignment_generation IS NULL
+         AND assignment_claim_event_seq IS NULL
+         AND assignment_principal IS NULL
+         AND assignment_scope IS NULL AND assignment_role IS NULL
+         AND assignment_grant IS NULL
+         AND assignment_policy_generation IS NULL)
      OR (work_id IS NOT NULL AND authority_uuid IS NOT NULL
          AND assignment_participant IS NOT NULL
-         AND assignment_generation IS NOT NULL))
+         AND assignment_generation IS NOT NULL
+         AND assignment_claim_event_seq IS NOT NULL
+         AND assignment_principal IS NOT NULL
+         AND assignment_scope IS NOT NULL AND assignment_role IS NOT NULL
+         AND assignment_grant IS NOT NULL
+         AND assignment_policy_generation IS NOT NULL))
 ) STRICT;
 
 -- ONE ATTEMPT PER CLAIMED OFFER. The offers table names its attempt, and two
@@ -359,6 +448,43 @@ CREATE UNIQUE INDEX offers_one_claim_per_attempt
 -- that identity refuses. That is what makes "the same observation again"
 -- answerable at all, and it is a fact about the identity rather than about
 -- where the axis happens to be today.
+-- W32649: THE RUNTIME LANE. One row means one lane is HELD; no row means it is
+-- free. There is no `available` state, because a lane nobody has taken and a
+-- lane that has been given back are the same fact and two spellings of it
+-- would be two things to keep true.
+--
+-- THE PRIMARY KEY IS THE COMPARE-AND-SWAP. `lane_id` is derived from the four
+-- identity parts, so two managers racing one successor compute the same key
+-- and actually contend; `INSERT` is the acquisition and SQLite decides the
+-- winner. A read-then-write would have a window, and this has none.
+--
+-- THE FOUR PARTS ARE STORED BESIDE THE DERIVED NAME rather than only hashed
+-- into it. A digest cannot be read back, and the acceptance requires a
+-- projection that explains the current holder and the blocking predecessor --
+-- which needs the Work and the principal in a form an operator can see.
+CREATE TABLE runtime_lanes (
+    lane_id         TEXT PRIMARY KEY,
+    authority_uuid  TEXT NOT NULL,
+    work_id         TEXT NOT NULL,
+    principal       TEXT NOT NULL,
+    effective_scope TEXT NOT NULL,
+    -- WHO holds it. A lane row without a holder would be capacity nobody can
+    -- attribute, which is the shape the posture slot was corrected for.
+    holder          TEXT NOT NULL,
+    reason          TEXT NOT NULL,
+    occupied_at     TEXT NOT NULL
+) STRICT;
+
+-- The predecessor interlock reads by Work rather than by lane, so it gets its
+-- own index: a successor's start asks this on every attempt.
+CREATE INDEX runtime_lanes_by_work
+    ON runtime_lanes (authority_uuid, work_id);
+
+-- ONE LANE PER ATTEMPT. An attempt holding two lanes would mean it belonged to
+-- two assignments, and choosing between them is a question with no answer.
+CREATE UNIQUE INDEX runtime_lanes_one_per_holder
+    ON runtime_lanes (holder);
+
 CREATE TABLE observations (
     runtime_attempt_id TEXT NOT NULL,
     incarnation        TEXT NOT NULL,
@@ -705,6 +831,8 @@ OFFER_COLUMNS = {
     "profile_digest": Column("text"),
     "verifier": Column("text"),
     "verifier_spent": Column("flag"),
+    "work_scope": Column("text"),
+    "work_route": Column("text"),
     "issued_at": Column("instant"),
     "expires_at": Column("instant"),
     "state": Column("text", allowed=OFFER_STATES),
@@ -717,9 +845,39 @@ OFFER_COLUMNS = {
     "claim_operation_id": Column("text", nullable=True),
     "claim_signature": Column("text", nullable=True),
     "claim_generation": Column("count", nullable=True),
+    # W16823's context. Nullable HERE because the STATE decides whether they
+    # are present, exactly as the acceptance five are -- the relationship is
+    # the SQL CHECK's and what each one IS is this table's.
+    "claim_event_seq": Column("count", nullable=True),
+    "claim_principal": Column("text", nullable=True),
+    "claim_scope": Column("text", nullable=True),
+    "claim_role": Column("text", nullable=True),
+    "claim_grant": Column("text", nullable=True),
+    "claim_policy_generation": Column("count", nullable=True),
     "decision_reason": Column("text", nullable=True),
     "decided_at": Column("instant", nullable=True),
 }
+
+# W16823: THE AUTHORIZATION CONTEXT, AS ONE TABLE.
+#
+# Each entry is (the offer's column, the attempt's column, the member of the
+# composed context). Three spellings of one fact are three places for it to
+# drift, so they are written down together and every writer and copier reads
+# this rather than repeating them.
+#
+# `claim_event_seq` is this build's name for the authority's `claim_event`
+# wire member. They are deliberately different: one is a column and one is a
+# document member, and the frozen `assignmentManifest` already calls the same
+# fact `claim_event_seq` -- so this is the vocabulary's own spelling rather
+# than an invented one.
+CLAIM_CONTEXT = (
+    ("claim_event_seq", "assignment_claim_event_seq", "claim_event_seq"),
+    ("claim_principal", "assignment_principal", "principal"),
+    ("claim_scope", "assignment_scope", "effective_scope"),
+    ("claim_role", "assignment_role", "role"),
+    ("claim_grant", "assignment_grant", "grant"),
+    ("claim_policy_generation", "assignment_policy_generation",
+     "policy_generation"))
 
 OPERATION_COLUMNS = {
     "operation_id": Column("identity"),
@@ -762,6 +920,12 @@ ATTEMPT_COLUMNS = {
     "authority_uuid": Column("text", nullable=True),
     "assignment_participant": Column("text", nullable=True),
     "assignment_generation": Column("count", nullable=True),
+    "assignment_claim_event_seq": Column("count", nullable=True),
+    "assignment_principal": Column("text", nullable=True),
+    "assignment_scope": Column("text", nullable=True),
+    "assignment_role": Column("text", nullable=True),
+    "assignment_grant": Column("text", nullable=True),
+    "assignment_policy_generation": Column("count", nullable=True),
     "runtime_id": Column("text", nullable=True),
     "observation_seq": Column("count"),
     "observed_at": Column("instant", nullable=True),
@@ -790,6 +954,17 @@ for _axis, _values in {
                     "failed"),
 }.items():
     ATTEMPT_COLUMNS[_axis] = Column("text", allowed=_values)
+
+RUNTIME_LANE_COLUMNS = {
+    "lane_id": Column("identity"),
+    "authority_uuid": Column("text"),
+    "work_id": Column("identity"),
+    "principal": Column("text"),
+    "effective_scope": Column("text"),
+    "holder": Column("identity"),
+    "reason": Column("text"),
+    "occupied_at": Column("instant"),
+}
 
 OBSERVATION_COLUMNS = {
     "runtime_attempt_id": Column("identity"),

@@ -399,6 +399,19 @@ class Opening(StoreCase):
 
 class Transactions(StoreCase):
 
+    def test_a_write_cannot_silently_join_a_read_snapshot(self):
+        store = Store.create(self.path, authority_uuid=UUID)
+        self.addCleanup(store.close)
+
+        def write():
+            store.run("INSERT INTO policy (key, value) VALUES (?, ?)",
+                      "apparently-committed", "1")
+            return "committed"
+
+        with self.assertRaises(Refusal):
+            store.read_snapshot(lambda: store.transact(write))
+        self.assertEqual(store.all("SELECT key FROM policy"), [])
+
     def test_nested_transactions_join_the_outer_one_and_commit_once(self):
         store = Store.create(self.path, authority_uuid=UUID)
         self.addCleanup(store.close)

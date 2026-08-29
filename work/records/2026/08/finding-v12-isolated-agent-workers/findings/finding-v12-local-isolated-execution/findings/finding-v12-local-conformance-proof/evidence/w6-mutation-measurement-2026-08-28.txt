@@ -1,0 +1,56 @@
+W6 SEAL - MEASURED BY REMOVAL
+==========================================================================
+
+Each mutation deletes ONE production guard, re-derives ONE sealed
+verdict through the frozen assessor, and restores the file.
+
+[NOT CAUGHT] oci: the input root is mounted writable
+          A-input-is-read-only -> PASSED
+          ['oci.py'] ['4a8f1d05c19f67ce'] -> mutated -> ['4a8f1d05c19f67ce'] (restored)
+            | A-input-is-read-only
+            | input_write_denied_by = "PermissionError: [Errno 13] Permission denied: '/input/w6-probe'"
+            | input_write_succeeded = False
+            | PASSED  A-input-is-read-only
+            | A-input-is-read-only
+
+[survives, by design] attempts: the declared plan is not held to the authorized root
+          A-only-the-authorized-root-is-mounted-at-the-fixed-path -> PASSED
+          ['attempts.py'] ['ae8ce0e79d6c88db'] -> mutated -> ['ae8ce0e79d6c88db'] (restored)
+            | A-only-the-authorized-root-is-mounted-at-the-fixed-path
+            | PASSED  A-only-the-authorized-root-is-mounted-at-the-fixed-path
+            | A-only-the-authorized-root-is-mounted-at-the-fixed-path
+
+[caught] store: a reused operation id with another signature is not a collision
+          E-operation-collision -> FAILED
+          ['store.py'] ['5ae622902a3ae2d6'] -> mutated -> ['5ae622902a3ae2d6'] (restored)
+
+[caught] output: the freeze does not hold the attempt to the live generation
+          A-completion-under-a-superseded-generation-refused -> FAILED
+          ['output.py'] ['a8eb2433dca2a543'] -> mutated -> ['a8eb2433dca2a543'] (restored)
+
+[survives, by design] oci: the ADAPTER's own seam does not hold the mount to the proved root
+          A-only-the-authorized-root-is-mounted-at-the-fixed-path -> PASSED
+          ['oci.py'] ['4a8f1d05c19f67ce'] -> mutated -> ['4a8f1d05c19f67ce'] (restored)
+            | A-only-the-authorized-root-is-mounted-at-the-fixed-path
+            | PASSED  A-only-the-authorized-root-is-mounted-at-the-fixed-path
+            | A-only-the-authorized-root-is-mounted-at-the-fixed-path
+
+[caught] oci: `retain` does not keep the material
+          A-output-persists-past-the-runtime -> PROBE-FAILED
+          ['oci.py'] ['4a8f1d05c19f67ce'] -> mutated -> ['4a8f1d05c19f67ce'] (restored)
+
+[caught] oci: the canonical checkout is mounted into the runtime
+          B-no-canonical-repository -> FAILED
+          ['oci.py'] ['4a8f1d05c19f67ce'] -> mutated -> ['4a8f1d05c19f67ce'] (restored)
+
+[caught] manager AND adapter: neither holds the mount to the proved root
+          A-only-the-authorized-root-is-mounted-at-the-fixed-path -> FAILED
+          ['attempts.py', 'oci.py'] ['ae8ce0e79d6c88db', '4a8f1d05c19f67ce'] -> mutated -> ['ae8ce0e79d6c88db', '4a8f1d05c19f67ce'] (restored)
+
+==========================================================================
+caught 5 of 8
+survived by design -- a second guard refuses the same case, and removing BOTH does flip the verdict:
+  attempts: the declared plan is not held to the authorized root
+  oci: the ADAPTER's own seam does not hold the mount to the proved root
+NOT CAUGHT, and each is a verdict that rests on something other than the guard named:
+  oci: the input root is mounted writable (A-input-is-read-only)

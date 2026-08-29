@@ -1,0 +1,34 @@
+W36540 round 1 — GATES
+======================
+
+  tests.manager.test_custody               17 tests  OK
+      the vocabulary, the single mount, the identity, the restrictions,
+      and the operands that do not exist
+  tests.manager.test_custody_engine         6 tests  OK (1 Podman skip)
+      the manager's removal REFUSED before the act and succeeding after it,
+      at every mode a worker can choose including 0000
+  tests.manager.test_workspaces            69 tests  OK
+  tests.manager.test_secrets               90 tests  OK
+  tests.manager.test_dependencies          21 tests  OK (1 skip)
+  tests.manager.test_text_sweep             3 tests  OK
+  tests.tools.test_parallel_runner         36 tests  OK
+
+  the complete serial registry, now ELEVEN modules, driven directly because
+  the parallel runner does not reach it after a failing parallel phase:
+
+      Ran 195 tests in 49.796s — OK (skipped=12)
+
+The previous round's registry ran 189; the six added are this Work's real
+Docker acceptance and the twelfth skip is its Podman class.
+
+A FALSE PASS CAUGHT AND FIXED, recorded because it is the kind that reads as
+evidence. PodmanCustody first reported six passes on a host with no Podman:
+the suite's helpers used the module-level ENGINE constant instead of
+self.engine, so the Podman class was silently running Docker. It inherits the
+engine-parameterized gate now and SKIPS.
+
+...........................................................sssss....................................s....s........s.......................s......s........................ss..............................
+----------------------------------------------------------------------
+Ran 195 tests in 49.796s
+
+OK (skipped=12)

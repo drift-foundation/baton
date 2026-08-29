@@ -1,0 +1,40 @@
+BASELINE: OK
+
+-- removed: the committed row's kind is verified
+   FAILED (failures=1)
+   FAILS: tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_row_of_another_kind_is_not_a_configuration
+
+-- removed: the committed answer is owned as a document
+   FAILED (errors=1)
+   FAILS: tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_committed_answer_of_another_shape_is_not_read_for_a_group
+
+-- removed: the committed gid obeys the group rules
+   FAILED (failures=1)
+   FAILS: tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_rewritten_result_with_a_matching_signature_is_still_checked
+
+-- removed: the signature is recomputed from the committed answer
+   FAILED (failures=1)
+   FAILS: tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_rewritten_result_no_longer_agrees_with_its_signature
+
+-- removed: the answer is decoded through the journal's own reader
+   FAILED (errors=1)
+   FAILS: tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_refused_configuration_replays_as_the_refusal_it_was
+
+-- removed: a projection with no committed act mints nothing
+   FAILED (failures=1)
+   FAILS: tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_record_nobody_configured_mints_nothing
+
+-- removed: a committed act with no projection mints nothing
+   FAILED (failures=1)
+   FAILS: tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_a_configuration_whose_record_is_gone_mints_nothing
+
+-- removed: the two accounts must name the same group
+   FAILED (failures=1)
+   FAILS: tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_the_projection_cannot_rewrite_the_journalled_group
+
+-- removed: reconfiguration is guarded by the journal, not the projection
+   FAILED (failures=1)
+   FAILS: tests.manager.test_workspaces.TheConfiguredWorkspaceGroupRecord.test_the_projection_cannot_unlock_reconfiguration
+
+9/9 mutations named a failing case
+RESTORED: OK

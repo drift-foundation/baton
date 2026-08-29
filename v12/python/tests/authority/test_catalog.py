@@ -140,9 +140,26 @@ class TheMigrationChecklistIsRead(unittest.TestCase):
         # them and nothing sits outside the gate claiming to cover something.
         files = sorted(path.name for path in SUITE.glob("test_*.py"))
         self.assertEqual(files, ["test_assignment.py", "test_boundary.py",
-                                 "test_catalog.py", "test_contract.py",
+                                 "test_catalog.py",
+                                 # W16823's closed claim result and the
+                                 # schema-4 boundary it forced. No frozen Node
+                                 # counterpart: the frozen host answers a bare
+                                 # assignment and has no decision to carry.
+                                 "test_claim_result.py",
+                                 "test_contract.py",
                                  "test_identity.py", "test_operations.py",
-                                 "test_session.py", "test_store.py"])
+                                 # W16821's correction: the principal/scope
+                                 # seam and the schema-2 initialization
+                                 # boundary.  It carries no frozen Node
+                                 # counterpart because the frozen host has no
+                                 # principal to port -- which is the finding.
+                                 "test_principal_scope.py",
+                                 "test_session.py", "test_store.py",
+                                 # W29400's Work-label authority model. Like
+                                 # the principal seam, it carries no frozen
+                                 # Node counterpart: the frozen host has no
+                                 # Work labels to port.
+                                 "test_work_labels.py"])
         self.assertEqual([path.name for path in
                           DISTRIBUTION.glob("tests/test_*.py")], [])
 

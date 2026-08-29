@@ -1,0 +1,12 @@
+{
+ "durable_rows_after": 10,
+ "durable_rows_before": 10,
+ "first_signature": "{\"kind\":\"w6.probe\",\"operands\":{\"operand\":\"one\"}}",
+ "message": "operation 'operation-7972432538' is already recorded with a different kind or signature; reusing an id with different operands changes nothing (\u00a74.2)",
+ "operation": "operation-7972432538",
+ "refusal": {
+  "category": "refused",
+  "code": "operation-collision"
+ },
+ "second_signature": "{\"kind\":\"w6.probe\",\"operands\":{\"operand\":\"two\"}}"
+}

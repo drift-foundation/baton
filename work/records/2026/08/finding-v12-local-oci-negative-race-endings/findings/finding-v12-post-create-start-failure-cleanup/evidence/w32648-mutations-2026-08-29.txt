@@ -1,0 +1,20 @@
+W32648 MUTATION HARNESS
+======================================================================
+[CAUGHT       ] the record is what authorizes the removal
+                ERROR: test_without_the_record_there_is_no_authorization (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_without_the_record_there_is_no_authorization)
+[CAUGHT       ] the assignment is fenced before anything is destroyed
+                FAIL: test_the_assignment_is_fenced_before_anything_is_destroyed (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_assignment_is_fenced_before_anything_is_destroyed)
+[CAUGHT       ] an uncertain attempt has nothing to remove
+                FAIL: test_an_uncertain_attempt_has_nothing_to_remove (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_uncertain_attempt_has_nothing_to_remove)
+[CAUGHT       ] the ending is retained rather than complete
+                FAIL: test_a_restart_between_the_removal_and_the_ending_converges (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_restart_between_the_removal_and_the_ending_converges)
+[CAUGHT       ] only positive absence is an ending
+                FAIL: test_a_surviving_runtime_is_a_failed_cleanup_and_not_an_ending (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_surviving_runtime_is_a_failed_cleanup_and_not_an_ending)
+[CAUGHT       ] the record's kind is verified
+                FAIL: test_a_row_of_another_kind_authorizes_nothing (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_a_row_of_another_kind_authorizes_nothing)
+[CAUGHT       ] the record's facts are this attempt's own
+                FAIL: test_the_record_must_name_the_runtime_being_destroyed (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_the_record_must_name_the_runtime_being_destroyed)
+[CAUGHT       ] the failed-start journal identity is stable for one start act
+                ERROR: test_an_exact_retry_replays_and_a_changed_policy_collides (tests.manager.test_attempts.TheFailedStartReachesTheRuledEnding.test_an_exact_retry_replays_and_a_changed_policy_collides)
+======================================================================
+Every guard is load-bearing.

@@ -1,0 +1,215 @@
+{
+ "after": {
+  "proposal/result.txt": "sha256:cae1ea40861fa306c438e08b0458b8aec10461a0b29234983373484b8cb2c6f8",
+  "proposal/w6-canary.txt": "sha256:7e1b33f38e42aa94a1cb8b8b5653f12f62ff534ce2dbfc9b3966a14b87ef436c"
+ },
+ "before": {
+  "proposal/result.txt": "sha256:cae1ea40861fa306c438e08b0458b8aec10461a0b29234983373484b8cb2c6f8",
+  "proposal/w6-canary.txt": "sha256:7e1b33f38e42aa94a1cb8b8b5653f12f62ff534ce2dbfc9b3966a14b87ef436c"
+ },
+ "custody_root": "/tmp/v12-w6636-n63_qzsr/storage/attempt-3358e00887/custody/attempt-3358e00887",
+ "custody_tree": [
+  "proposal/result.txt",
+  "proposal/w6-canary.txt",
+  "sealed.json"
+ ],
+ "envelope": {
+  "assignment_ref": {
+   "generation": 1,
+   "participant": "baton.claude",
+   "work_ref": {
+    "authority_uuid": "43c55d4b000000000000000000000000",
+    "work_id": "43c55d4b-W6636"
+   }
+  },
+  "created_at": "2026-08-24T00:00:00.000Z",
+  "disposition": "completed",
+  "extensions": {},
+  "manifest_digest": "sha256:2d0ad5fde8542573c27177b439ce4b0246d1b455f4b57cdbdaee3d4fa1e1457d",
+  "manifest_id": "completion-attempt-3358e00887",
+  "outputs": [
+   {
+    "content_manifest": {
+     "entries": [
+      {
+       "bytes": 19,
+       "content_digest": "sha256:cae1ea40861fa306c438e08b0458b8aec10461a0b29234983373484b8cb2c6f8",
+       "path": "result.txt"
+      },
+      {
+       "bytes": 42,
+       "content_digest": "sha256:7e1b33f38e42aa94a1cb8b8b5653f12f62ff534ce2dbfc9b3966a14b87ef436c",
+       "path": "w6-canary.txt"
+      }
+     ],
+     "entry_count": 2,
+     "total_bytes": 61,
+     "tree_digest": "sha256:3276ee328dcc231d450e08d83263dc52e869ebed7ff8551d9c1d485afbe52fde"
+    },
+    "name": "proposal",
+    "path": "workspace/output",
+    "result_metadata": {},
+    "status": "present",
+    "type": "directory-result"
+   }
+  ],
+  "schema": "baton.worker-manifest/completion",
+  "version": {
+   "major": 1,
+   "minor": 0
+  }
+ },
+ "manifest_after": {
+  "assignment_ref": {
+   "generation": 1,
+   "participant": "baton.claude",
+   "work_ref": {
+    "authority_uuid": "43c55d4b000000000000000000000000",
+    "work_id": "43c55d4b-W6636"
+   }
+  },
+  "completion_manifest_digest": "sha256:2d0ad5fde8542573c27177b439ce4b0246d1b455f4b57cdbdaee3d4fa1e1457d",
+  "created_at": "2026-08-24T00:00:00.000Z",
+  "disposition": "completed",
+  "evidence": [],
+  "extensions": {},
+  "freeze_operation": {
+   "operation_id": "output.freeze:f57ea84e1a37209f9551afc2450eb80643ceeafea95378073f2da4ed463492fc",
+   "signature_digest": "sha256:d1ed8328206072e6bb4c2a0003177f8740c021d374d99a5ea7d1f28df982994f"
+  },
+  "input_manifest_digest": "sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86",
+  "manager_observed_at": "2026-08-24T00:00:00.000Z",
+  "manifest_digest": "sha256:70106be338967554f4db3af69d4f1386fdc3218508bc8767ff9ec01d9db00d9b",
+  "manifest_id": "result-attempt-3358e00887",
+  "outputs": [
+   {
+    "artifact": {
+     "artifact_id": "attempt-3358e00887:proposal",
+     "bytes": 61,
+     "content_digest": "sha256:3276ee328dcc231d450e08d83263dc52e869ebed7ff8551d9c1d485afbe52fde",
+     "locator": "file:///tmp/v12-w6636-n63_qzsr/storage/attempt-3358e00887/custody/attempt-3358e00887/proposal",
+     "media_type": "application/octet-stream"
+    },
+    "content_manifest": {
+     "entries": [
+      {
+       "bytes": 19,
+       "content_digest": "sha256:cae1ea40861fa306c438e08b0458b8aec10461a0b29234983373484b8cb2c6f8",
+       "path": "result.txt"
+      },
+      {
+       "bytes": 42,
+       "content_digest": "sha256:7e1b33f38e42aa94a1cb8b8b5653f12f62ff534ce2dbfc9b3966a14b87ef436c",
+       "path": "w6-canary.txt"
+      }
+     ],
+     "entry_count": 2,
+     "total_bytes": 61,
+     "tree_digest": "sha256:3276ee328dcc231d450e08d83263dc52e869ebed7ff8551d9c1d485afbe52fde"
+    },
+    "name": "proposal",
+    "result_metadata": {},
+    "status": "present",
+    "type": "directory-result"
+   }
+  ],
+  "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "result_id": "result-attempt-3358e00887",
+  "schema": "baton.worker-manifest/result",
+  "version": {
+   "major": 1,
+   "minor": 0
+  }
+ },
+ "manifest_before": {
+  "assignment_ref": {
+   "generation": 1,
+   "participant": "baton.claude",
+   "work_ref": {
+    "authority_uuid": "43c55d4b000000000000000000000000",
+    "work_id": "43c55d4b-W6636"
+   }
+  },
+  "completion_manifest_digest": "sha256:2d0ad5fde8542573c27177b439ce4b0246d1b455f4b57cdbdaee3d4fa1e1457d",
+  "created_at": "2026-08-24T00:00:00.000Z",
+  "disposition": "completed",
+  "evidence": [],
+  "extensions": {},
+  "freeze_operation": {
+   "operation_id": "output.freeze:f57ea84e1a37209f9551afc2450eb80643ceeafea95378073f2da4ed463492fc",
+   "signature_digest": "sha256:d1ed8328206072e6bb4c2a0003177f8740c021d374d99a5ea7d1f28df982994f"
+  },
+  "input_manifest_digest": "sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86",
+  "manager_observed_at": "2026-08-24T00:00:00.000Z",
+  "manifest_digest": "sha256:70106be338967554f4db3af69d4f1386fdc3218508bc8767ff9ec01d9db00d9b",
+  "manifest_id": "result-attempt-3358e00887",
+  "outputs": [
+   {
+    "artifact": {
+     "artifact_id": "attempt-3358e00887:proposal",
+     "bytes": 61,
+     "content_digest": "sha256:3276ee328dcc231d450e08d83263dc52e869ebed7ff8551d9c1d485afbe52fde",
+     "locator": "file:///tmp/v12-w6636-n63_qzsr/storage/attempt-3358e00887/custody/attempt-3358e00887/proposal",
+     "media_type": "application/octet-stream"
+    },
+    "content_manifest": {
+     "entries": [
+      {
+       "bytes": 19,
+       "content_digest": "sha256:cae1ea40861fa306c438e08b0458b8aec10461a0b29234983373484b8cb2c6f8",
+       "path": "result.txt"
+      },
+      {
+       "bytes": 42,
+       "content_digest": "sha256:7e1b33f38e42aa94a1cb8b8b5653f12f62ff534ce2dbfc9b3966a14b87ef436c",
+       "path": "w6-canary.txt"
+      }
+     ],
+     "entry_count": 2,
+     "total_bytes": 61,
+     "tree_digest": "sha256:3276ee328dcc231d450e08d83263dc52e869ebed7ff8551d9c1d485afbe52fde"
+    },
+    "name": "proposal",
+    "result_metadata": {},
+    "status": "present",
+    "type": "directory-result"
+   }
+  ],
+  "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "result_id": "result-attempt-3358e00887",
+  "schema": "baton.worker-manifest/result",
+  "version": {
+   "major": 1,
+   "minor": 0
+  }
+ },
+ "receipt": {
+  "artifacts": [
+   {
+    "artifact_id": "attempt-3358e00887:proposal",
+    "bytes": 61,
+    "content_digest": "sha256:3276ee328dcc231d450e08d83263dc52e869ebed7ff8551d9c1d485afbe52fde",
+    "custody_locator": "file:///tmp/v12-w6636-n63_qzsr/storage/attempt-3358e00887/custody/attempt-3358e00887/proposal"
+   }
+  ],
+  "assignment": {
+   "generation": 1,
+   "participant": "baton.claude",
+   "work_ref": {
+    "authority_uuid": "43c55d4b000000000000000000000000",
+    "work_id": "43c55d4b-W6636"
+   }
+  },
+  "attempt_id": "attempt-3358e00887",
+  "custody": "accepted",
+  "manifest_digest": "sha256:70106be338967554f4db3af69d4f1386fdc3218508bc8767ff9ec01d9db00d9b",
+  "operation": {
+   "operation_id": "intake.record:f57ea84e1a37209f9551afc2450eb80643ceeafea95378073f2da4ed463492fc",
+   "signature_digest": "sha256:e57ccc3c196221aa467c4d35f26f07ed81a26a4763293eab6004c826ae738337"
+  },
+  "receipt_digest": "sha256:e49742bd9eed7a39092adaeeacf7d8d4690f1a9b1b36cc722b7d270dcfcb2375",
+  "recoverable": false,
+  "result_id": "result-attempt-3358e00887",
+  "why": "collected under the live assignment this attempt is fixed to"
+ }
+}

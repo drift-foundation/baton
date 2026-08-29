@@ -96,7 +96,8 @@ two-carrier assertion to make the documentation gate match its claim.
 5. [done, signed off] Independent repository review is complete with no open
 implementation finding.
 
-6. [parked, operator-owned 2026-08-26] At the next independently necessary
-full-stack restart, publish the successor build and perform the fresh
-session/stale-persistent-file/first-claim rollover smoke exactly as specified.
-Do not interrupt a healthy stack only for this certification.
+6. [done, operator acceptance 2026-08-28] The successor `dd1dc3e` stack
+   started a fresh start-scoped Claude ACP session while the stale persistent
+   `load.json` still named `14aecfb`.  The rendered prompt/environment contract
+   named the exact `dd1dc3e` binary, live config, participant, and role, and the
+   session's first recorded standalone claim succeeded through that pair.

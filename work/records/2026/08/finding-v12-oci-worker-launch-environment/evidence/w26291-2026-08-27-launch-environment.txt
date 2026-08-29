@@ -1,0 +1,92 @@
+W26291 — the reference worker's launch environment, delivered. 2026-08-27.
+
+No Git history or index was mutated.
+
+=== 1. PLAN 1 — BOTH ENDS OF THE SEAM, REVALIDATED
+
+  The worker names exactly four values for BOTH postures and refuses a
+  BATON_WORKER_* member outside the set, so a container carrying a fifth
+  is one built wrong:
+    150:ENVIRONMENT = {
+    151-    "consent": ("BATON_WORKER_POSTURE", "BATON_WORKER_SESSION",
+    152-                "BATON_WORKER_CONTRACT", "BATON_WORKER_ROLE"),
+    153-    "execution": ("BATON_WORKER_POSTURE", "BATON_WORKER_SESSION",
+    154-                  "BATON_WORKER_CONTRACT", "BATON_WORKER_ROLE"),
+    155-}
+
+  AND THE SEAM IS NOT PROTOCOL STATE. The frozen runtimeStartBody has
+  additionalProperties: false and no environment member, so this is the
+  manager/adapter seam the finding says it is rather than something the
+  worker-control contract carries. Typed at the one boundary that
+  composes the engine vector.
+
+=== 2. THE SEAM, AND THE ONE FACT WITH ONE OWNER
+
+  The caller supplies THREE. BATON_WORKER_POSTURE is deliberately absent
+  from the request: this adapter has owned `posture` since construction,
+  and taking it again per call would let the environment and the mount
+  rules disagree about what kind of container this is.
+    594:LAUNCH_VALUES = ("BATON_WORKER_SESSION", "BATON_WORKER_CONTRACT",
+    595-                 "BATON_WORKER_ROLE")
+    596-
+
+  No arbitrary pass-through: an unexpected member refuses HERE rather
+  than failing inside the container after it started, where this manager
+  can no longer say why.
+
+=== 3. THE ACCEPTANCE'S POSITIVE REGRESSION
+
+  'A positive real-Docker regression replaces the current expected
+  launch failure and proves the reference worker becomes runnable.'
+
+  W6636's test_the_adapter_starts_no_worker_that_can_run asserted the
+  defect — that the vector carried no environment flag and the container
+  exited 2 with empty stdout and stderr. Asserting that now would be
+  asserting the defect, so it is REPLACED by
+  test_the_adapter_starts_a_worker_that_actually_runs. That replacement
+  is authorized by this Work's own acceptance rather than being my
+  judgement, which is the difference from the last one I had to flag.
+
+  EXIT 0 IS THE PROOF, and the difference from exit 2 is the whole
+  finding: 2 was 'I was started without the four values and cannot
+  correlate anything I say'; 0 is a worker that started, found its
+  environment, read EOF on a closed stdin and shut down cleanly.
+
+=== 4. THE LEAK CLAUSE, CHECKED RATHER THAN ASSUMED
+
+  'Credential or other secret material cannot enter this environment
+  seam.' Section 13 already walks the whole start vector, so this needed
+  no second rule — but nothing established that the existing walk covers
+  a channel that did not exist when it was written. Driven: a live bearer
+  in BATON_WORKER_CONTRACT refuses with secret-leak.
+
+=== 5. ONE SECOND MECHANISM REMOVED, FOUND BY MEASUREMENT
+
+  My first version sorted the environment items AND rebuilt the document
+  over the fixed LAUNCH_VALUES tuple — two statements of one property.
+  The measurement showed it: removing the sort changed no verdict,
+  because the tuple had already decided the order. The sort is gone and
+  the mutation now points at the real mechanism, which IS caught.
+
+=== 6. MEASURED BY REMOVAL
+             test_exactly_the_four_reach_the_engine, test_the_adapter_starts_a_worker_that_actually_runs, test_the_worker_and_this_adapter_name
+    
+    all 9 mutations caught
+
+    source fingerprint before: 23be878546a520f973dae45665294357308817d6dae41d959cb3448867ade341
+    source fingerprint after : 23be878546a520f973dae45665294357308817d6dae41d959cb3448867ade341
+    IDENTICAL — every mutation was reverted.
+
+=== 7. GATES
+    full v12 tree : Ran 1578 tests in 907.675s
+    failures      : 7, exactly the accepted baseline (six boundary
+                    inventory, one contracts inventory for
+                    check_input_pair, the W19784 leftover)
+
+=== 8. WHAT THIS WORK DID NOT DO
+    It does not change the reference worker, and it does not decide
+    WHERE the three caller-supplied values come from in manager state.
+    request_runtime_start carries them as an operand; which session,
+    contract line and role a real delivery uses is the lifecycle's
+    question and the finding's boundary keeps it outside this Work.
+    Flagged rather than assumed.

@@ -111,3 +111,17 @@ sufficient for the end-to-end smoke. The child finding
 `findings/finding-codex-launcher-contract/` owns the Codex bootstrap defect;
 W10198 remains open until that correction is independently reviewed and the
 fresh smoke reaches `pc.ops`.
+
+## Final fresh-context acceptance — 2026-08-28
+
+The child launcher-contract correction W12229 passed independent review and
+closed satisfying after fresh smoke W12181 completed the exact
+`pc.plan -> pc.code -> pc.plan -> pc.ops` path. Both Codex and ACP contexts
+received their explicit absolute Baton launcher contract; `pc.code` operated
+from `/home/sl/src/pushcoin`; canonical access succeeded without credential
+failure; the no-config negative control refused ambient fallback; and no
+application file was changed by the smoke.
+
+All W10198 acceptance conditions are now established. The one contained Work
+is terminal satisfying, no open dependency remains, and the central Pushcoin
+runner stack is accepted for satisfying closure.

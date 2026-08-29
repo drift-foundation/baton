@@ -255,6 +255,50 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
                 (store, {}, "inputManifest"), {}, [2]),
             "load_manifest": (
                 (store, "sha256:" + "a" * 64, "inputManifest"), {}, [1, 2]),
+            # W33936 review [P1]: the deployment's configuration act and the
+            # read of it. Neither takes caller text -- the group is an
+            # integer and the store is a capability.
+            # The capability itself takes no caller text at all: the only
+            # thing that constructs one is this manager's own read of the
+            # deployment record, and a direct construction refuses.
+            "WorkspaceGroup": ((0,), {}, []),
+            "configure_workspace_group": ((store, 0), {}, []),
+            "configured_workspace_group": ((store,), {}, []),
+            # W32648: the failed-start ending and its operation identity. The
+            # ending takes the attempt id and the retention policy digest; the
+            # identity takes the attempt row and two digests.
+            "authorize_failed_start_cleanup": (
+                (store, port, _NoAdapter()),
+                dict(attempt_id="attempt-1",
+                     retention_policy_digest="sha256:" + "7" * 64), []),
+            "failed_start_destroy_operation": (
+                ({}, "sha256:" + "9" * 64, "sha256:" + "7" * 64), {}, [1, 2]),
+            # W32576: the refused-session ending and its two identities. The
+            # ending takes the session reference and the retention policy
+            # digest; the operation identity takes the attempt row and two
+            # digests; the record identity takes the reference alone.
+            "authorize_refused_session_cleanup": (
+                (store, port, _NoAdapter()),
+                dict(session_ref={"runtime_attempt_id": "attempt-1",
+                                  "posture": "execution", "session_epoch": 1,
+                                  "provider_session_id": None},
+                     retention_policy_digest="sha256:" + "7" * 64), []),
+            "refused_session_destroy_operation": (
+                ({}, "sha256:" + "9" * 64, "sha256:" + "7" * 64), {}, [1, 2]),
+            "unsupported_version_operation_id": (
+                ({"runtime_attempt_id": "attempt-1", "posture": "execution",
+                  "session_epoch": 1, "provider_session_id": None},), {}, []),
+            "settle_unsupported_version": (
+                (store, port, _NoAdapter(), _NoAdapter()),
+                dict(session_ref={"runtime_attempt_id": "attempt-1",
+                                  "posture": "execution", "session_epoch": 1,
+                                  "provider_session_id": None},
+                     agent_protocol_version=9), []),
+            # W32649: both take one caller text -- the attempt id -- and the
+            # lane's own four parts come off the row that id names.
+            "lane_reference": (({"runtime_attempt_id": "attempt-1",
+                                 "assignment_principal": None},), {}, []),
+            "runtime_lane": ((store, "attempt-1"), {}, [1]),
             "request_freeze": (
                 (store, port, _NoAdapter()),
                 dict(attempt_id="attempt-1", disposition="completed"),

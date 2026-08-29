@@ -1,0 +1,4 @@
+original-mode 0o555
+replacement-mode 0o775
+replacement-bytes replacement
+AssertionError: the delivered input root was replaceable by name

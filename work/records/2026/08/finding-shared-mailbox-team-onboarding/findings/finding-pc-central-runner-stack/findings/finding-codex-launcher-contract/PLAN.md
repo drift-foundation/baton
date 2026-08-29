@@ -74,3 +74,16 @@ an existing thread does not satisfy the fresh-context acceptance.
 finding remains. Item 6 is still pending. Before deploying the shared tree,
 the concurrent W11910 claim-slot regression newly present in the full Codex
 suite must also be green; see `review-2026-08-26T02-49-05Z.md`.
+
+## Fresh-context acceptance — 2026-08-28
+
+11. [done operator] W12181 completed the fresh
+    `pc.plan -> pc.code -> pc.plan -> pc.ops` path with exact absolute launcher
+    operands, correct participant and role, configured Pushcoin working
+    directory, successful canonical access, and a no-ambient-fallback negative
+    control.
+12. [done independent review] `pc.plan` signed off W12181 and returned it to
+    `pc.ops`; no application change occurred.
+13. [next operators] Close W12181 satisfying under `pc.slaw`, then close
+    W12229 satisfying under `baton.slaw`. This ordering satisfies W12229's
+    recorded dependency rather than bypassing it.

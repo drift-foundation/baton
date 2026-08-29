@@ -1,0 +1,67 @@
+W11910 live-smoke evidence
+captured 2026-08-28T05:15:10Z
+
+DEPLOYED PROCESS BASELINE
+
+PID 2755516  started Thu Aug 27 22:28:05 2026 local
+  node /home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge
+  --config /home/sl/baton-v11.14aecfb/run/context/dispatcher.json
+
+PID 2755905  started Thu Aug 27 22:28:06 2026 local
+  codex-baton-bridge --baton /home/sl/opt/baton/v11/dd1dc3e/bin/baton
+  --config /home/sl/baton-v11.14aecfb/baton.json
+  --participant baton.codex --target baton-reviewer
+
+PID 2756009  started Thu Aug 27 22:28:07 2026 local
+  codex-baton-bridge --baton /home/sl/opt/baton/v11/dd1dc3e/bin/baton
+  --config /home/sl/baton-v11.14aecfb/baton.json
+  --participant baton.tuner --target baton-tuner
+
+PID 2756087  started Thu Aug 27 22:28:10 2026 local
+  /home/sl/opt/baton/v11/dd1dc3e/lib/acp-baton-bridge/src/acp_baton_bridge.mjs
+  --config /home/sl/baton-v11.14aecfb/run/context/claude-acp.json
+
+CLAIM-SLOT SMOKE: PRE-RELEASE SNAPSHOT
+
+W26291
+  phase=active
+  handler=baton.claude
+  episode_seq=27166
+  claimed_at=2026-08-28T04:49:56Z
+  last_change_seq=28962
+  bridge configured fact="acp-baton-bridge pid 2756087"
+
+W28681
+  phase=queued
+  ready=true
+  handler=null
+  route=baton.impl / baton.claude
+  priority=high
+  episode_seq=28975
+  last_changed_at=2026-08-28T04:52:52.088Z
+
+The candidate became pending after W26291 occupied baton.claude's one claim
+slot. This snapshot is a precondition, not a pass. A pass requires W28681 (or
+another candidate whose pending-before-release state is captured) to receive
+a turn after W26291 releases, with ACP bridge PID 2756087 unchanged.
+
+UNCHANGED NO-CLAIM SMOKE
+
+Pending. The result must name one exact action key on both attempts, the first
+completed no-claim outcome, the runner-environment repair performed between
+attempts, the later delivery/claim outcome, and one unchanged bridge PID.
+
+HANDOFF SNAPSHOT 2026-08-28T05:39:44Z
+
+W26291 still held baton.claude's claim. W28681 was still the same queued,
+ready, unclaimed episode 28975, with last_change_seq 28975 and no handler.
+ACP bridge PID 2756087 still had its original Thu Aug 27 22:28:10 2026 local
+start time. Therefore the candidate was correctly retained during the held
+claim, but no after-release delivery is claimed: the natural W26291 gate had
+not yet completed.
+
+The deployed runner has a compatible dd1dc3e launcher. Producing the second
+smoke by making that installed executable or authority config incompatible is
+an operator mutation outside tuner authority. An operator-controlled fixture
+is still required; a changed episode/generation or a turn instructed to ignore
+the valid launcher would not prove the acceptance case.

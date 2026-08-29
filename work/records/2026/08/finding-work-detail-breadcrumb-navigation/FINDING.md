@@ -192,6 +192,18 @@ a grandchild is now three segments out, not one.
 inputs. `_switch_tab`, the detail pane handlers, the local `[`/`]` grammar,
 W2597's fresh-entry defaults and W110's bracket vocabulary are untouched.
 
+## Inbox Back exception superseded — 2026-08-28
+
+The earlier statements that Inbox entry is a handoff into Jobs and that Back
+must not return to Inbox are superseded. Inbox now opens real obligation and
+message detail, so it participates in the same universal browser-history
+contract as every other list-to-detail transition. Opening from Inbox records
+the exact Inbox frame; Esc/Back restores that page, selection, filter, scroll
+and focus state. The linked Work still supplies the detail content and
+breadcrumb, but it does not replace the actual caller with Jobs. The owning
+correction and acceptance are recorded at
+`work/records/2026/08/finding-inbox-detail-back-history/`.
+
 ## Superseded test expectations — 2026-08-21
 
 Three existing cases asserted the global tab row inside a drilled view, which

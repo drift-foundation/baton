@@ -387,6 +387,70 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         "authority_uuid",
         # the contracts layer's shared pairing question
         "category", "code", "definition", "manifest",
+        # W26283: the output-custody copy. `into` is the destination the caller
+        # owns; `max_entries` and `max_bytes` are the DECLARED ceilings of one
+        # delivery, distinct from this build's own policy ceilings; and
+        # `admits` is the caller's own rule over each file's bytes -- §13
+        # live-secret scanning, for the one caller that has such a rule --
+        # applied at the single moment the content is in hand. None of the four
+        # is traversal state: the walk owns its own descent entirely.
+        "into", "max_entries", "max_bytes", "admits",
+        # W26291: the reference worker's launch document. `session`, `contract`
+        # and `role` are the three non-secret values a caller supplies and this
+        # manager AUTHORS the document out of -- operands rather than
+        # bookkeeping, because they are what a caller says and the module
+        # decides the shape. `launch_delivery` is the materialized document
+        # crossing to the adapter as one typed capability.
+        #
+        # `environment` IS GONE rather than kept beside them. It was this
+        # Work's first correction -- four `BATON_WORKER_*` values as `--env`
+        # arguments -- and the dossier superseded that transport before
+        # acceptance with no compatibility path. This table refuses an entry
+        # nothing uses, which is how a leftover operand would have been found.
+        "session", "contract", "role",
+        # `launch_delivered` is the PAIR the adapter's capability answers with,
+        # reaching the argv composer exactly as a credential delivery's pairs
+        # do. The capability itself is adapter construction and is not an
+        # operand here, for the same reason `credential_delivery` is not.
+        "launch_delivered",
+        # W33936: the deployment's configured workspace GROUP, added to an
+        # execution container as a SUPPLEMENTARY group so the container's fixed
+        # non-root uid can write a root this manager owns -- the primary
+        # identity `65532:65532` is untouched, which is the difference from the
+        # rejected `--user 65532:<gid>` design.
+        #
+        # An OPERAND rather than a `stat` inside the composer, because a run
+        # vector is provable without a filesystem; and an operand of ALLOCATION
+        # too, because a workspace is put in the group when it is created.
+        # `gid` is what the two workspace helpers call it, where the value is
+        # already known to be a group id and naming it twice would say less.
+        "workspace_group", "gid",
+        # W32648: the digest of the manager's own durable failed-start record,
+        # which is what authorizes the no-envelope removal -- never an intake
+        # receipt, which means something the opposite.
+        "failed_start_record_digest",
+        # W32576: the digest of the manager's own durable
+        # `session.unsupported-version` record. A THIRD word rather than a
+        # reuse of the one above, for the reason the two commands are
+        # siblings: a failure record says a start did not happen and a refusal
+        # record says an agent answered a wire version this manager never
+        # certified, and an operand name shared between them would be the one
+        # place the two endings stopped being distinguishable.
+        "refusal_record_digest",
+        # W36540: the two operands a custody act is made of. `operation` is a
+        # VERB from a closed vocabulary rather than a command -- the whole
+        # point of M36166's "never a worker-supplied command" -- and
+        # `attempt_root` is the single host directory the helper mounts.
+        "operation", "which",
+        # W16823: the two facts an offer FREEZES about the Work it was issued
+        # against, and the operands the claim decision is later held to.
+        # `role` is already declared above for the launch document and means
+        # the same kind of thing here -- a route or capability a decision was
+        # about -- so it is not repeated. `scope` is the authority-owned
+        # effective scope: an operand rather than something this manager
+        # derives, because deriving it would be reconstructing the authority's
+        # mapping, which is the conflation this correction ends.
+        "scope",
         # §12's manifest rules
         "uri", "content",
         # cut D: the runtime attempt

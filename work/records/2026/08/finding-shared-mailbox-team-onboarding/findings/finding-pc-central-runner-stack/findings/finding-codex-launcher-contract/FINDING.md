@@ -261,3 +261,20 @@ and fresh-context acceptance smoke. The current shared tree's aggregate Codex
 gate has a concurrent, untracked W11910 claim-slot regression failure; that
 other Work must be green before deployment, but it is not a W12229 finding.
 See `review-2026-08-26T02-49-05Z.md`.
+
+## Fresh-context operator acceptance — 2026-08-28
+
+**Observed:** The deployed fresh-context smoke W12181 completed the required
+`pc.plan -> pc.code -> pc.plan -> pc.ops` path. The new `pc.code` context
+received exact absolute `BATON_BIN` and `BATON_CONFIG` values, its own
+`BATON_PARTICIPANT=pc.code` and `BATON_ROLE=impl`, and the configured
+`/home/sl/src/pushcoin` working directory. Standalone canonical `detail`,
+`thread`, `claim`, `home`, and `resolve` operations succeeded without a
+credential failure, while the no-`--config` negative control refused rather
+than using ambient state.
+
+**Confirmed:** Independent `pc.plan` review signed off the smoke and found no
+application changes. W12181 is the fresh-context acceptance evidence required
+by PLAN item 6; an existing context was not substituted. Once `pc.slaw` closes
+that provider Work, W12229 has no remaining implementation or operational
+gate.

@@ -1,0 +1,146 @@
+W26328 — the 2026-08-28 independent review, corrected and measured
+==================================================================
+
+The two files beside this one from 2026-08-27 —
+`w26328-2026-08-27-console.txt`, `w26328-authority-mutation-run.txt` and
+`w26328-console-mutation-run.txt` — are KEPT EXACTLY AS PRODUCED. They are
+the account of the first implementation and of the measurement that
+established it. The measurement was honest; it was not sufficient, and this
+file carries what is true now.
+
+The reviewer's own `w26328-review-pagination.py` is likewise untouched. It
+asserts the DEFECT as an expectation, so on the corrected tree it fails at
+`assert first["next_after"] == 2` — which is the correction landing, not a
+regression. `w26328-corrected-pagination.py` beside it measures the same
+thing with the two required assertions inverted.
+
+
+--- 1. WHY THIRTY-THREE CAUGHT MUTATIONS DID NOT CATCH EITHER DEFECT
+
+Twelve authority and twenty-one console mutations were caught on 2026-08-27,
+and both reviewed defects were live the whole time. The reason is a property
+of what was chosen to break, not of how many were chosen.
+
+  NO MUTATION MOVED THE SET BETWEEN TWO PAGES. Every paging case walked an
+  UNDISTURBED set, where an offset and a position are the same answer.
+  `test_paging_traverses_every_match_once` is a real case and it passes on
+  the defective code, because nothing claims or reroutes anything while it
+  walks. The defect only exists at the boundary between two reads, and no
+  case crossed one. The five new cases each cross it deliberately: a claim, a
+  reroute, a claim of the very row the cursor names, an arrival ahead of the
+  cursor, and a tie in the ordering itself.
+
+  THE NARROW CASES ASKED WHETHER THE TABLE REFUSED, NEVER WHAT IT SAID.
+  `test_no_width_that_draws_a_table_drops_it` skips exactly the widths where
+  the refusal is drawn — `pytest.skip(f"{width} refuses the table whole")` —
+  so the one line carrying the number was never read by any case. The
+  refusal was measured as a BEHAVIOUR and never as a STATEMENT, and the
+  defect was entirely in the statement.
+
+
+--- 2. THE CORRECTED MEASUREMENTS
+
+Authority, `w26328-mutation-harness.py`, six mutations added:
+
+  16 of 18 mutations caught; 2 expected-unseen and named above
+
+  [caught] the continuation is ignored and every page is page one
+  [caught] the page walks a partial order, so a tied position is skipped
+  [caught] a continuation this authority never minted is answered with page one
+  [caught] a token from a superseded scheme is read as a current one
+  [caught] no page ever offers a continuation
+  [caught] the page reads one row past its own limit
+
+  The two expected-unseen are UNCHANGED from 2026-08-27 and are still named
+  in the harness: with `phase='queued'` present, removing `handler_team IS
+  NULL` changes nothing; with `ready=1` present, removing `status='open'`
+  changes nothing.
+
+Console, `w26328-console-mutation-harness.py`, six mutations added:
+
+  27 of 27 mutations caught, none expected-unseen
+
+  [caught] the stated minimum forgets the mandatory Mine allocation
+  [caught] the stated minimum is one cell short of sufficient
+  [caught] the stated minimum is padded past what the table needs
+  [caught] the diagnostic keeps arithmetic of its own
+  [caught] the console invents a continuation instead of passing one back
+  [caught] returning to the first page keeps the old continuation
+
+  The third is deliberately the OPPOSITE defect. A number safely above the
+  requirement satisfies "widening to it admits the table" while telling an
+  operator to surrender cells the table does not need, so the cases assert
+  the minimum is the SMALLEST sufficient width rather than merely a
+  sufficient one.
+
+
+--- 3. MEASURED AGAINST THE PRE-FIX SOURCE, NOT ONLY AGAINST THE FIX
+
+A regression that passes on the corrected tree has established nothing until
+it is shown to fail on the tree that had the defect. Both suites were run
+against `git show HEAD:` copies of the two files, restored immediately after.
+
+  authority, the two new classes:  15 of 17 fail on the pre-fix source
+    The two that pass are `test_the_last_page_says_so` and
+    `test_a_full_page_with_nothing_after_it_offers_no_continuation`. Both are
+    boundary guards that held before and after; neither is the defect, and
+    they are named here rather than counted as evidence.
+
+  console, the new class:  2 of 3 fail on the pre-fix source
+    The pre-fix message reads `(terminal too narrow: need 29 cel` where the
+    table actually needs 35 — the six-cell understatement the review
+    predicted, which is `1 + len("me+12")` exactly.
+
+And the reviewer's two named removal shapes, on the pre-fix source directly:
+
+    BEFORE / claim:   page two = ['W5']; W4 skipped = True
+    BEFORE / reroute: page two = ['W5']; W4 skipped = True
+
+
+--- 4. A TEST THAT HUNG RATHER THAN FAILED, AND WHY IT IS WORTH NAMING
+
+The first run of the corrected authority harness DID NOT FINISH. The
+"continuation is ignored" mutation makes every page return page one, so
+`next_after` is never `None` and `test_paging_traverses_every_match_once`
+looped forever; the harness aborted on its own 900-second subprocess
+timeout. The source was restored correctly by the harness's `finally`, and
+that was verified before continuing.
+
+The lesson is not about the harness. An unbounded `while True` over a
+continuation does not FAIL when the continuation stops advancing — it hangs,
+and a suite that hangs reports nothing at all. Both walks now go through one
+bounded `walk()` helper whose page bound is its own assertion, so that
+defect is a named failure. This was an addition to an existing case's loop
+control, not a change to any assertion it makes.
+
+
+--- 5. GATES ON THE FINAL TREE
+
+    tests/work, parallel (-m "not serial")   3272 passed
+    tests/work, serial                         54 passed
+    tools/acp-baton-bridge, npm test           89 pass / 0 fail
+
+    tests/work/test_w26328_actionable_discovery.py   42 passed
+    tests/work/test_w26328_actionable_console.py     42 passed
+      (64 before; the two new authority classes and the new console class
+       add twenty)
+
+    evidence/w26328-corrected-pagination.py          OK, exit 0
+    evidence/w26328-review-pagination.py             fails at its own
+      `assert first["next_after"] == 2`, which is the correction landing
+
+
+--- 6. WHAT WAS NOT DONE, DELIBERATELY
+
+THE REFUSAL SENTENCE STILL TRUNCATES ON A VERY NARROW TERMINAL. It is drawn
+with `addnstr` at `width - 1`, so below about twenty-one columns the message
+is cut and below about twenty-nine the number is cut with it. That is
+pre-existing presentation, it is not what the review raised, and widening or
+wrapping the message is a presentation question this Work did not open. The
+cases therefore compare against the whole intended line and tolerate only the
+cut the terminal itself made, and skip the widths where there is no number on
+screen to be right or wrong about.
+
+NO GIT HISTORY OR INDEX WAS MUTATED. The pre-fix comparisons used
+`git show HEAD:<path>` into a copy and restored the working file immediately;
+`git show` reads and writes nothing.

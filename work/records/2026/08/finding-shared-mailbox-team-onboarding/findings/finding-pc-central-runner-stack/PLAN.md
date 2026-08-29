@@ -25,6 +25,11 @@
 10. [done] At an operator drain boundary, install the corrected ACP template
    and Pushcoin policy, start with the isolated credential gate satisfied, and
    prove the rendered `pc.code` launcher contract.
-11. [pending] Correct the fresh Codex-context launcher contract through
+11. [done] Correct the fresh Codex-context launcher contract through
    `findings/finding-codex-launcher-contract/`, then repeat W12181 through
    `pc.rsrch -> pc.impl -> pc.rsrch -> pc.ops` before closure.
+12. [done 2026-08-28] W12229 closed satisfying after W12181's fresh planning,
+    implementation, independent review and operator path passed with exact
+    launcher identity and no application changes.
+13. [next approver] Close W10198 satisfying; its child, dependency, runtime,
+    credential, policy and end-to-end smoke gates are all complete.

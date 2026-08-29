@@ -253,10 +253,47 @@ class TheRealRegistryDescribesTheRealTree(unittest.TestCase):
         # manager's ordered lifecycle, including a case that asks the engine
         # how many containers carry one assignment's labels. Both reasons the
         # first two are serial apply to it at once.
+        #
+        # W26283 added the fourth: `test_output_custody_engine` runs the
+        # reference worker for real and seals what it wrote, so it owns
+        # containers and the built image for the same two reasons again.
+        #
+        # W26284 added the fifth: `test_credentials_engine` starts real
+        # containers carrying a delivered credential and asks the DAEMON what
+        # it recorded about them.
+        #
+        # W32385 added the seventh: `test_ended_runtime_adoption` restarts a
+        # manager over the same store and asks the daemon whether the exact
+        # ENDED container is still there, which a concurrent suite removing
+        # containers would answer for it.
+        #
+        # W32382 added the sixth: `test_negative_race_endings` subclasses
+        # W6636's composition fixture and drives the same daemon through the
+        # endings the positive arc does not reach, counting containers for one
+        # assignment's labels exactly as it does.
+        #
+        # W33935 added the eighth: `test_input_delivery` reuses W6636's engine
+        # fixture, builds the same worker image and starts containers over the
+        # manager's own composed argv -- and one of its cases asks the daemon
+        # how many containers carry an assignment's labels, which a concurrent
+        # suite creating or removing them would answer for it.
+        #
+        # W34998 added the ninth: `test_failed_start_destroy_engine` builds the
+        # worker image and creates real containers in order to remove them,
+        # so it owns the same two artefacts the eight before it do. It runs
+        # straight after the image gate that produces the one it needs.
         self.assertEqual(SERIAL_MODULES,
                          ("tests.manager.test_worker_container",
+                          "tests.manager.test_failed_start_destroy_engine",
                           "tests.manager.test_oci_engine",
-                          "tests.manager.test_lifecycle_composition"))
+                          "tests.manager.test_lifecycle_composition",
+                          "tests.manager.test_negative_race_endings",
+                          "tests.manager.test_ended_runtime_adoption",
+                          "tests.manager.test_output_custody_engine",
+                          "tests.manager.test_credentials_engine",
+                          "tests.manager.test_refused_session_engine",
+                          "tests.manager.test_custody_engine",
+                          "tests.manager.test_input_delivery"))
         for module in SERIAL_MODULES:
             with self.subTest(module=module):
                 self.assertNotIn(module, PARALLEL_MODULES)

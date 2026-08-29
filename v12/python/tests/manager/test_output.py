@@ -39,7 +39,8 @@ from baton_v12.worker_manager import (AuthorityPort, ControlStore,
 from baton_v12.worker_manager import schema
 
 from .test_attempts import ADAPTER, ATTEMPT
-from .test_offers import (FakeSession, NOW, PROFILE, WHO,
+from .test_offers import (FakeSession, NOW, PROFILE, ROUTE, SCOPE, WHO,
+                          decision,
                           fake_claim_signature)
 
 # THE PUBLISHED VECTOR'S OWN Work, and its authority. §12 rule 1 makes a Work
@@ -108,11 +109,16 @@ class OutputCase(unittest.TestCase):
                                        PROFILE)
         self.session = FakeSession(
             work={"status": "open", "phase": "queued", "handler": None,
-                  "gate": None, "authority_uuid": AUTHORITY})
-        self.session.claim_answer = {
-            "work_ref": {"authority_uuid": AUTHORITY, "work_id": JOB},
-            "participant": WHO, "generation": 1}
-        self.session.live_assignment = dict(self.session.claim_answer)
+                  "gate": None, "authority_uuid": AUTHORITY,
+                  # W16823: what the offer freezes about the Work.
+                  "scope": SCOPE, "route": ROUTE})
+        live = {"work_ref": {"authority_uuid": AUTHORITY, "work_id": JOB},
+                "participant": WHO, "generation": 1}
+        # W16823: the closed claim result.
+        self.session.claim_answer = {"assignment": dict(live),
+                                     "claim_event": 1,
+                                     "decision": decision()}
+        self.session.live_assignment = dict(live)
         self.port = AuthorityPort(self.session, fake_claim_signature)
         self.declaration = self.published()
         self.input_digest = retain_manifest(

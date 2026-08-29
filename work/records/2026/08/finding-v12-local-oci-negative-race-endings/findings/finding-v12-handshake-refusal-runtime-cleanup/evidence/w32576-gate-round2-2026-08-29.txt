@@ -1,0 +1,28 @@
+W32576 round 2 — GATES AFTER THE VERDICT AND CONSOLIDATION ROUND
+=================================================================
+
+  tests.manager.test_refused_session_cleanup    31 tests  OK
+  tests.manager.test_sessions                   86 tests  OK
+  tests.manager.test_handshake                  33 tests  OK
+  tests.manager.test_intake                     74 tests  OK
+  tests.manager.test_attempts                  228 tests  OK
+  tests.manager.test_dependencies               21 tests  OK (1 skip)
+  tests.manager.test_text_sweep                  3 tests  OK
+  tests.manager.test_secrets                    90 tests  OK
+  tests.manager.test_oci                        83 tests  OK
+
+  the complete serial registry, all ten modules, driven directly because the
+  parallel runner does not reach it after a failing parallel phase
+      Ran 189 tests in 47.139s — OK (skipped=11, all Podman)
+
+`test_attempts` and `test_intake` matter here beyond the usual: this round
+DELETED `_settle_failed_start_cleanup` and pointed W32648's ending at the
+shared `_settle_recordless_cleanup`. Those two suites plus the failed-start
+engine module in the registry are what prove the closed Work's ending still
+settles exactly as it did.
+
+...........................................................sssss....................................s....s........s.......................s........................ss..............................
+----------------------------------------------------------------------
+Ran 189 tests in 47.139s
+
+OK (skipped=11)

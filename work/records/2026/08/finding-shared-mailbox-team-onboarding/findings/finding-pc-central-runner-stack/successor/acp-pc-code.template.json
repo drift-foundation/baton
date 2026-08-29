@@ -31,9 +31,11 @@
     "/home/sl/.config/baton/acp/pc.code/policy/block-git-commit.sh",
     "/home/sl/.config/baton/acp/pc.code/policy/git_guard.py",
     "/home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh",
-    "/home/sl/.config/baton/acp/pc.code/policy/protected-paths.txt"
+    "/home/sl/.config/baton/acp/pc.code/policy/protected-paths.txt",
+    "/home/sl/.config/baton/acp/pc.code/policy/preflight-process-domain.sh"
   ],
   "stateDir": "/home/sl/baton-v11.14aecfb/run/acp/{{start.id}}/pc.code",
   "setupTimeoutMs": 90000,
-  "retryMs": 2000
+  "retryMs": 2000,
+  "turnTimeoutMs": 3600000
 }

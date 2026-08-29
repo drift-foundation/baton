@@ -8,9 +8,10 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync,
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { validateConfig } from "../src/config.mjs";
+import { MAX_TURN_TIMEOUT_MS, validateConfig } from "../src/config.mjs";
 import { runBridge as productionRunBridge } from "../src/acp_baton_bridge.mjs";
-import { AcpAgentSession } from "../src/acp_agent_session.mjs";
+import { AcpAgentSession, DomainTeardownError }
+	from "../src/acp_agent_session.mjs";
 import { episodeStillLive, episodeVerdict, validateEnvelope } from "../src/baton_readiness.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -94,8 +95,14 @@ test("ACP readiness accepts projection 11 and still refuses an unsupported futur
 // W101: `role` is a required launch input, so the rig supplies one by
 // default. A test that cares about its absence builds the config
 // directly and asserts the refusal.
+// W28681: `turnTimeoutMs` is MANDATORY configuration with no default, so
+// the rig names one. Generous by default — a case about session
+// selection or the launcher contract must not fail because a fake agent
+// was slow — and overridden to a few milliseconds by the cases that are
+// about the deadline itself.
 function rig({ env = {}, participant = "baton.claude",
-               role = "impl", sessionMode = "new", policyResources } = {}) {
+               role = "impl", sessionMode = "new", policyResources,
+               turnTimeoutMs = 120000 } = {}) {
 	const home = mkdtempSync(join(tmpdir(), "acp-bridge-"));
 	const log = join(home, "agent-log.jsonl");
 	writeFileSync(log, "");
@@ -113,6 +120,7 @@ function rig({ env = {}, participant = "baton.claude",
 		policyResources: policy,
 		stateDir: join(home, "state"),
 		retryMs: 25,
+		turnTimeoutMs,
 	});
 	return { home, log, config };
 }
@@ -713,6 +721,9 @@ async () => {
 		permissionMode: "bypassPermissions",
 		policyResources: [policy],
 		stateDir: join(home, "state"),
+		// W28681: named so this case is refused for the launcher path it
+		// is about rather than for the deadline it is not.
+		turnTimeoutMs: 60000,
 	};
 	for (const [key, value] of [["binary", "bin/baton"],
 	                            ["binary", "./bin/baton"],
@@ -1044,6 +1055,7 @@ test("policy configuration refuses absent, empty, blank and bad env forms", () =
 			session: config.session, permissionMode: config.permissionMode,
 			policyResources: config.policyResources,
 			stateDir: config.stateDir, retryMs: config.retryMs,
+			turnTimeoutMs: config.turnTimeoutMs,
 		}));
 	};
 	const absent = base();
@@ -1747,6 +1759,7 @@ test("W101: the ACP launch configuration must name an explicit role", () => {
 			session: config.session, permissionMode: config.permissionMode,
 			policyResources: config.policyResources,
 			stateDir: config.stateDir, retryMs: config.retryMs,
+			turnTimeoutMs: config.turnTimeoutMs,
 		}));
 	};
 	const absent = base();
@@ -1893,6 +1906,7 @@ test("the deployment configuration validates runtime identity metadata",
 			permissionMode: "bypassPermissions",
 			policyResources: [policy],
 			stateDir: join(home, "state"),
+			turnTimeoutMs: 60000,
 		};
 		const ok = validateConfig({ ...base, runtime: {
 			provider: "Anthropic", model: "claude-opus-5",
@@ -2040,4 +2054,432 @@ test("an envelope carrying a refresh must declare it wakes no model",
 		}]);
 		assert.throws(() => validateEnvelope(bad, "baton.claude"),
 			/wakes_model/);
+	});
+
+// -- W28681: the managed tool-process lifetime -------------------------------
+//
+// The incident: a managed turn published `working` for the better part of an
+// hour while five tool process groups it had left behind survived 34-36 hours,
+// one of them holding a full core. Four of them had called `setsid`, so they
+// were not in the bridge's process group or session at all. The turn itself
+// had no deadline — `promptText` raced only the agent's death — and a healthy
+// agent process was RETAINED across turns, so nothing could correlate a
+// surviving child with the turn that made it, let alone destroy it.
+//
+// The ruled boundary has three parts and these cases are written to them:
+// a mandatory wall-clock turn deadline that is deployment policy rather than
+// a repository guess; ONE process domain per delivered turn, destroyed and
+// PROVED gone before anything is settled; and a teardown that cannot be proved
+// fencing the lane instead of being assumed.
+
+test("W28681: the turn deadline is mandatory configuration with no default",
+	() => {
+		// EVERY other timeout here has a default because a wrong guess is
+		// merely slow. A wrong guess HERE either kills legitimate long work
+		// or leaves this defect open, so an undecided deployment does not
+		// start.
+		const { config } = rig();
+		const base = JSON.parse(JSON.stringify({
+			baton: config.baton, agent: config.agent,
+			session: config.session, permissionMode: config.permissionMode,
+			policyResources: config.policyResources,
+			stateDir: config.stateDir, retryMs: config.retryMs,
+		}));
+		assert.throws(() => validateConfig(base),
+			/turnTimeoutMs must be a positive integer/);
+		for (const bad of [0, -1, 1.5, "60000", null, Number.NaN,
+		                   Number.MAX_SAFE_INTEGER + 2]) {
+			assert.throws(
+				() => validateConfig({ ...base, turnTimeoutMs: bad }),
+				/turnTimeoutMs must be a positive integer/,
+				`turnTimeoutMs ${JSON.stringify(bad)} was accepted`);
+		}
+		assert.equal(validateConfig({ ...base, turnTimeoutMs: 1 })
+			.turnTimeoutMs, 1);
+	});
+
+test("W28681: a deadline this runtime cannot hold is refused", () => {
+	// Review [P1]: every positive safe integer was accepted, and a Node timer
+	// interval is a SIGNED 32-BIT millisecond value. `2147483648` validated,
+	// `setTimeout` warned about the overflow, and the deadline became ONE
+	// MILLISECOND — the longest an operator can express turning into the
+	// shortest there is, without a refusal anywhere.
+	//
+	// REFUSED RATHER THAN CLAMPED: clamping would substitute this
+	// repository's number for the operator's, which is exactly what giving
+	// this operand no default was for.
+	const { config } = rig();
+	const base = JSON.parse(JSON.stringify({
+		baton: config.baton, agent: config.agent,
+		session: config.session, permissionMode: config.permissionMode,
+		policyResources: config.policyResources,
+		stateDir: config.stateDir, retryMs: config.retryMs,
+	}));
+	assert.equal(MAX_TURN_TIMEOUT_MS, 2147483647);
+	// THE EXACT BOUNDARY, both sides.
+	assert.equal(
+		validateConfig({ ...base, turnTimeoutMs: MAX_TURN_TIMEOUT_MS })
+			.turnTimeoutMs, MAX_TURN_TIMEOUT_MS);
+	assert.throws(
+		() => validateConfig({ ...base,
+			turnTimeoutMs: MAX_TURN_TIMEOUT_MS + 1 }),
+		/at most 2147483647 milliseconds/);
+	assert.throws(
+		() => validateConfig({ ...base,
+			turnTimeoutMs: Number.MAX_SAFE_INTEGER }),
+		/at most 2147483647 milliseconds/);
+	// AND THE CEILING IS THE RUNTIME'S OWN, measured rather than asserted
+	// about: one past it is the value Node truncates.
+	const overflowed = [];
+	const warn = process.emitWarning;
+	process.emitWarning = (message, ...rest) => {
+		overflowed.push(String(message));
+		return warn.call(process, message, ...rest);
+	};
+	const timer = setTimeout(() => {}, MAX_TURN_TIMEOUT_MS + 1);
+	clearTimeout(timer);
+	process.emitWarning = warn;
+	assert.ok(overflowed.some((one) => /TimeoutOverflow|does not fit/i
+		.test(one)),
+		"this runtime no longer truncates past the pinned ceiling; "
+		+ "re-derive MAX_TURN_TIMEOUT_MS rather than leaving it a guess");
+});
+
+test("W28681: a turn that never returns hits its deadline and ends", async () => {
+	// The defect, driven. Without the deadline this case does not finish:
+	// the fake agent's prompt returns a promise that never settles and the
+	// agent stays perfectly healthy, which is exactly the state the incident
+	// found projected as `working` for an hour.
+	const { config } = rig({ env: { FAKE_ACP_NEVER_FINISH: "1" },
+	                         turnTimeoutMs: 150 });
+	const spy = runtimeSpy();
+	const { signal, runWait } = script([
+		envelope([workAction("7ba67cb8-W163")]),
+		envelope([workAction("7ba67cb8-W163")]),
+	]);
+	await runBridge(config, { signal, runWait, logger: quiet,
+	                          runtime: spy.runtime });
+	const failed = spy.published.filter(([state]) => state === "failed");
+	assert.ok(failed.length >= 1, "the deadline published no failure");
+	assert.equal(failed[0][1].cause, "internal");
+	assert.match(failed[0][1].detail, /turn deadline exceeded/);
+	// THE CORRELATION SURVIVES: which assignment held the lane until it
+	// timed out is the whole operator question.
+	assert.equal(failed[0][1].work, "7ba67cb8-W163");
+	assert.equal(failed[0][1].episode, 1);
+	// AND NO `idle` WAS PUBLISHED for a turn that did not finish.
+	const idleBeforeFailure = spy.published
+		.slice(0, spy.published.indexOf(failed[0]))
+		.some(([state]) => state === "idle");
+	assert.equal(idleBeforeFailure, false,
+		"a timed-out turn reported itself idle");
+});
+
+test("W28681: streamed updates never extend the deadline", async () => {
+	// A watchdog that reset on ACP activity would keep this turn alive
+	// forever: the agent is hung AND talking. The bound is wall-clock, so
+	// the chatter is a diagnostic and nothing more.
+	const { config, log } = rig({
+		env: { FAKE_ACP_NEVER_FINISH: "1", FAKE_ACP_CHATTY_MS: "20" },
+		turnTimeoutMs: 200 });
+	const spy = runtimeSpy();
+	const { signal, runWait } = script([
+		envelope([workAction("7ba67cb8-W163")]),
+	]);
+	const seen = [];
+	await runBridge(config, { signal, runWait, logger: quiet,
+	                          runtime: spy.runtime,
+	                          onUpdate: (line) => seen.push(line) });
+	// THE ACTIVITY WAS REAL, and that assertion is the case. Review [P1]:
+	// the first version emitted an update missing `toolCallId`, the SDK
+	// refused every one, and the deadline was reached over a SILENT agent —
+	// so the case proved the timer worked and nothing about whether streamed
+	// activity extends it.
+	const beats = events(log).filter((one) => one.event === "tool/update");
+	const refused = events(log).filter(
+		(one) => one.event === "tool/update-refused");
+	assert.equal(refused.length, 0,
+		`the agent's updates were refused: ${JSON.stringify(refused[0])}`);
+	assert.ok(beats.length >= 2,
+		"the agent never streamed a valid update, so nothing was extended");
+	assert.ok(seen.length >= 1, "no update reached the bridge's handler");
+	// AND THE DEADLINE STILL ENDED IT.
+	assert.ok(spy.published.some(([state, options]) =>
+		state === "failed" && /turn deadline exceeded/.test(options.detail)),
+		"a talkative infinite turn outlived its deadline");
+	assert.ok(events(log).some((one) => one.event === "prompt/hung"));
+});
+
+test("W28681: the domain is destroyed before a delivered turn is settled",
+	async () => {
+		// A prompt that RETURNED says the model stopped talking. It says
+		// nothing about what its tools left running, so `idle` must not be
+		// published beside a domain that is still alive.
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const stops = [];
+		const { signal, runWait } = script([
+			envelope([workAction("7ba67cb8-W163")]),
+		]);
+		await runBridge(config, { signal, runWait, logger: quiet,
+			runtime: spy.runtime,
+			sessionFactory: (cfg, hooks) => {
+				const session = new AcpAgentSession(cfg, hooks);
+				const real = session.stop.bind(session);
+				session.stop = async () => {
+					stops.push(spy.published.map(([state]) => state));
+					return await real();
+				};
+				return session;
+			} });
+		assert.ok(stops.length >= 1, "the domain was never torn down");
+		// THE ORDER IS THE ASSERTION: at the first teardown, `working` had
+		// been published and `idle` had not.
+		assert.ok(stops[0].includes("working"));
+		assert.equal(stops[0].includes("idle"), false,
+			"idle was published before the domain was destroyed");
+		assert.ok(spy.published.some(([state]) => state === "idle"),
+			"the delivered turn never reported idle");
+	});
+
+test("W28681: one process domain serves at most one delivered turn", async () => {
+	// ACP session continuity is not PROCESS continuity: the run retains one
+	// session id and the replacement resumes it. That is what makes a
+	// per-turn domain legal, and it is what the incident's retained agent
+	// process was trading away.
+	const { config, log } = rig({ sessionMode: "new" });
+	const { signal, runWait } = script([
+		envelope([workAction("7ba67cb8-W163")]),
+		envelope([workAction("7ba67cb8-W164")]),
+	]);
+	await runBridge(config, { signal, runWait, logger: quiet });
+	const seen = events(log);
+	const created = seen.filter((one) => one.event === "session/new");
+	const loaded = seen.filter((one) => one.event === "session/load");
+	// TWO TURNS, TWO PROCESSES, ONE SESSION. The first bootstraps and the
+	// second resumes exactly what the first published — never a rotation.
+	assert.equal(created.length, 1, "a replacement process created a session");
+	assert.equal(loaded.length, 1, "the replacement did not resume");
+	assert.equal(loaded[0].sessionId, created[0].sessionId);
+	assert.equal(seen.filter((one) => one.event === "prompt/start").length, 2);
+});
+
+test("W28681: a failed turn destroys its domain before it is reported",
+	async () => {
+		// A turn that failed left exactly the descendants a turn that
+		// succeeded would have. Reporting first would publish a settlement
+		// beside a live domain.
+		const { config } = rig({ env: { FAKE_ACP_PERMISSION: "1" } });
+		const spy = runtimeSpy();
+		const stops = [];
+		const { signal, runWait } = script([
+			envelope([workAction("7ba67cb8-W163")]),
+		]);
+		await runBridge(config, { signal, runWait, logger: quiet,
+			runtime: spy.runtime,
+			sessionFactory: (cfg, hooks) => {
+				const session = new AcpAgentSession(cfg, hooks);
+				const real = session.stop.bind(session);
+				session.stop = async () => {
+					stops.push(spy.published.map(([state]) => state));
+					return await real();
+				};
+				return session;
+			} });
+		const failed = spy.published.filter(([state]) => state === "failed");
+		assert.ok(failed.length >= 1);
+		assert.ok(stops.some((before) => !before.includes("failed")),
+			"every teardown happened after the failure was already reported");
+	});
+
+test("W28681: a teardown that cannot be proved fences the lane", async () => {
+	// THE FAIL-CLOSED CASE. Everything after an unprovable teardown would be
+	// built on an assumption about a process that may still be running, so
+	// there is no `idle`, no acknowledgement of the offer, and no
+	// replacement domain — the delivery lane stops instead.
+	const { config } = rig();
+	const spy = runtimeSpy();
+	const abandoned = [];
+	let built = 0;
+	const { signal, runWait } = script([
+		envelope([workAction("7ba67cb8-W163")]),
+		envelope([workAction("7ba67cb8-W163")]),
+	]);
+	await assert.rejects(runBridge(config, { signal, runWait, logger: quiet,
+		runtime: spy.runtime,
+		sessionFactory: (cfg, hooks) => {
+			built += 1;
+			const session = new AcpAgentSession(cfg, hooks);
+			abandoned.push(session);
+			session.stop = async () => {
+				session.ready = false;
+				throw new DomainTeardownError(
+					"the ACP agent process domain did not exit");
+			};
+			return session;
+		} }), /did not exit/);
+	// THE FIXTURE CLEANS UP WHAT THE BRIDGE CORRECTLY REFUSED TO. A domain
+	// this bridge could not prove gone is one it leaves alone, so the real
+	// subprocess is still alive here — which is the assertion, and also why
+	// this suite has to reap it rather than leak it into the runner.
+	for (const one of abandoned) one.child?.kill("SIGKILL");
+	assert.equal(built, 1, "a replacement domain was started anyway");
+	const failed = spy.published.filter(([state]) => state === "failed");
+	assert.ok(failed.length >= 1);
+	assert.equal(failed[0][1].cause, "internal");
+	assert.match(failed[0][1].detail, /could not prove/);
+	assert.match(failed[0][1].detail, /fenced/);
+	assert.equal(spy.published.some(([state]) => state === "idle"), false,
+		"an unprovable teardown still reported idle");
+});
+
+test("W28681: an unprovable exit is a refusal rather than an unbounded wait",
+	async () => {
+		// The old teardown awaited the child's exit after SIGKILL with no
+		// bound at all, which is the same shape as the defect one layer
+		// down: a supervisor that can hang inside its own recovery. This
+		// drives a session whose child never reports an exit.
+		const { config } = rig();
+		const session = new AcpAgentSession(config, { logger: quiet });
+		session.child = { pid: 424242, exitCode: null, kill() {} };
+		session.exited = new Promise(() => {});
+		session.ready = true;
+		const started = Date.now();
+		await assert.rejects(session.stop(), /cannot be proved/);
+		// Bounded, and the bound is this supervisor's own rather than a
+		// fifth timeout an operator has to reason about.
+		assert.ok(Date.now() - started < 30000);
+	});
+
+test("W28681: operator shutdown destroys the last domain", async () => {
+	const { config } = rig();
+	const stops = [];
+	const { signal, runWait } = script([
+		envelope([workAction("7ba67cb8-W163")]),
+	]);
+	await runBridge(config, { signal, runWait, logger: quiet,
+		sessionFactory: (cfg, hooks) => {
+			const session = new AcpAgentSession(cfg, hooks);
+			const real = session.stop.bind(session);
+			session.stop = async () => { stops.push(1); return await real(); };
+			return session;
+		} });
+	assert.ok(stops.length >= 1);
+});
+
+test("W28681: a tool descendant that escaped to its own session", async (t) => {
+	// THE INCIDENT'S EXACT SHAPE, driven against real processes: a tool
+	// child that made itself a session leader, which is what all four
+	// surviving polling shells had done.
+	//
+	// WHAT THIS CASE CAN AND CANNOT ESTABLISH is the point of its two
+	// halves. The bridge destroying its direct child is portable and is
+	// asserted unconditionally. Whether that reaches a `setsid` descendant
+	// depends on the configured launcher being a PID namespace, which is a
+	// property of the LAUNCH CONTEXT -- this suite runs inside a managed
+	// sandbox that cannot create one, and a case that silently passed here
+	// would be claiming a boundary it never crossed.
+	const home = mkdtempSync(join(tmpdir(), "acp-descendant-"));
+	const pidFile = join(home, "descendant.pid");
+	const { config } = rig({ env: { FAKE_ACP_LEAVE_DESCENDANT: pidFile } });
+	const sessions = [];
+	const { signal, runWait } = script([
+		envelope([workAction("7ba67cb8-W163")]),
+	]);
+	await runBridge(config, { signal, runWait, logger: quiet,
+		sessionFactory: (cfg, hooks) => {
+			const session = new AcpAgentSession(cfg, hooks);
+			sessions.push(session);
+			return session;
+		} });
+	// THE PORTABLE HALF: the domain owner is gone, proved by the exit this
+	// bridge waited for rather than by a later look at the process table.
+	assert.ok(sessions.length >= 1);
+	for (const one of sessions) {
+		assert.notEqual(one.child?.exitCode ?? "gone", null,
+			"the agent process was left running after the turn");
+	}
+	const descendant = Number(readFileSync(pidFile, "utf8").trim());
+	assert.ok(Number.isInteger(descendant) && descendant > 1);
+	// THE HALF THAT NEEDS A DOMAIN. Reported either way rather than hidden:
+	// a skip that names its reason is evidence, and a green assertion that
+	// never ran is not.
+	let contained;
+	try {
+		process.kill(descendant, 0);
+		contained = false;
+	} catch {
+		contained = true;
+	}
+	if (!contained) {
+		// Reap what this environment could not contain, then say so.
+		try { process.kill(descendant, "SIGKILL"); } catch { /* gone */ }
+		t.diagnostic("this environment gave the agent no PID namespace, so a "
+			+ "setsid descendant survived the turn -- which is the defect, and "
+			+ "is why the configured launcher must pass --unshare-pid; run "
+			+ "preflight-process-domain.sh in the service launch context");
+	}
+});
+
+test("W28681: a later failure never names the preceding action's episode",
+	async () => {
+		// Re-review [P1]: `correlation` lived outside the per-action loop and
+		// was set only after `ensureSession()` succeeded. So after one
+		// DELIVERED action, a later one failing during revalidation or
+		// replacement setup published the FIRST action's work, episode and
+		// session — affirmative operator evidence pointing at the wrong
+		// assignment, which is worse than the uncorrelated failure these
+		// paths produced before this Work existed.
+		const { config } = rig();
+		const spy = runtimeSpy();
+		let built = 0;
+		// ONE ENVELOPE, TWO ACTIONS. That is the shape the defect needs and
+		// the shape my first version of this case got wrong: `correlation`
+		// was declared per ENVELOPE, so two actions in two envelopes each got
+		// a fresh one and the case passed against the broken code. Measured
+		// against the pre-fix source before being trusted.
+		// ONE ENVELOPE, TWO ACTIONS, and the second is a POKE. That is the
+		// shape the defect needs, and it is the shape my first version of
+		// this case got wrong twice: `correlation` was declared per ENVELOPE,
+		// so two actions in two envelopes each got a fresh one; and two WORK
+		// actions do not both deliver, because the second waits behind the
+		// first's claim slot. A poke delivers beside Work and carries no work
+		// or episode of its own — so anything it publishes came from
+		// somewhere else. Measured against the pre-fix source before being
+		// trusted.
+		const { signal, runWait } = script([
+			envelope([workAction("7ba67cb8-W163", { episode: 1 }),
+			          pokeAction(9)]),
+		]);
+		await runBridge(config, { signal, runWait, logger: quiet,
+			runtime: spy.runtime,
+			sessionFactory: (cfg, hooks) => {
+				built += 1;
+				const session = new AcpAgentSession(cfg, hooks);
+				if (built > 1) {
+					// The REPLACEMENT domain cannot be established. Nothing
+					// about the second action ever reaches a session, so the
+					// bridge knows no session id for it — and must not borrow
+					// the first one's.
+					session.start = async () => {
+						throw new Error("replacement setup failed");
+					};
+				}
+				return session;
+			} });
+		const failed = spy.published.filter(([state]) => state === "failed");
+		assert.ok(failed.length >= 1, "the second action reported no failure");
+		for (const [, options] of failed) {
+			assert.equal(options.work ?? null, null,
+				"a failure named a Work it did not serve");
+			assert.equal(options.episode ?? null, null,
+				"a failure named an episode it did not serve");
+			assert.equal(options.session ?? null, null,
+				"a failure named a session it never had");
+		}
+		// AND THE FIRST DELIVERY WAS REAL, so this is not passing because
+		// nothing happened.
+		assert.ok(spy.published.some(([state, options]) =>
+			state === "working" && options.work === "7ba67cb8-W163"));
+		assert.ok(spy.published.some(([state]) => state === "idle"));
 	});

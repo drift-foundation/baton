@@ -90,7 +90,8 @@ def composed(case, storage, *, work_ref, participant, generation,
         work_ref=work_ref, participant=participant, generation=generation,
         runtime_attempt_id=runtime_attempt_id, given=given,
         policy_digest=policy_digest, profile_digest=profile_digest)
-    inputs = assignment_workspace(storage, runtime_attempt_id)["inputs"]
+    inputs = assignment_workspace(
+        configured_group(case.store), storage, runtime_attempt_id)["inputs"]
     compose_input_root(inputs, given, assignment,
                        assignment=dict(assignment["assignment_ref"]),
                        runtime_attempt_id=runtime_attempt_id)
@@ -115,3 +116,50 @@ def _forcibly_remove(place):
         for name in files:
             os.chmod(os.path.join(current, name), 0o600)
     shutil.rmtree(place, ignore_errors=True)
+
+
+def configured_group(store):
+    """The deployment's configured workspace group, for a fixture.
+
+    W33936 review [P1]: a fixture cannot mint a `WorkspaceGroup` any more than
+    a caller can, and that is the correction. It has to CONFIGURE one -- the
+    deployment's act -- and then read the manager's own record, which is
+    exactly the sequence a real deployment performs.
+
+    WHICH GID, AND WHY IT COMES FROM THE ENVIRONMENT. M34630 requires a
+    DEDICATED non-authority group, which is a property of a DEPLOYMENT -- so
+    the deployment is what names it here. `BATON_V12_WORKSPACE_GROUP` is the
+    same operand a real deployment passes to `configure_workspace_group`, and
+    a run that sets it to a provisioned dedicated group proves the ruled
+    boundary rather than an approximation of it.
+
+    THE FALLBACK IS NAMED RATHER THAN SILENT. Without it the fixture
+    configures `os.getgid()`, the group this process can actually `chgrp` to,
+    so every step stays real on a workstation that has no provisioned group.
+    That fallback proves the MECHANISM and says nothing about whether a
+    manager's own primary group is an acceptable production configuration.
+    `evidence/w33936-dedicated-group-*.txt` is the run that sets the variable.
+    """
+    from baton_v12.worker_manager import (configure_workspace_group,
+                                          configured_workspace_group)
+    configure_workspace_group(store, deployment_workspace_group())
+    return configured_workspace_group(store)
+
+
+def deployment_workspace_group():
+    """The gid the deployment configures, or this process's own group.
+
+    A malformed value is a REFUSAL rather than a fallback: a run that meant to
+    prove a dedicated group and quietly proved the login group instead is the
+    exact substitution this Work exists to close.
+    """
+    named = os.environ.get("BATON_V12_WORKSPACE_GROUP")
+    if named is None:
+        return os.getgid()
+    if not named.lstrip("-").isdigit():
+        raise AssertionError(
+            f"BATON_V12_WORKSPACE_GROUP is {named!r}; the deployment's "
+            f"configured workspace group is a group id, and a fixture that "
+            f"fell back to os.getgid() here would report a login-group run as "
+            f"a dedicated-group one")
+    return int(named)

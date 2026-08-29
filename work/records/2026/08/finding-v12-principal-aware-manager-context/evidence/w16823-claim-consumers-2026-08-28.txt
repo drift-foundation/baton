@@ -1,0 +1,57 @@
+W16823 — SIZING THE COUPLED CHANGE, 2026-08-28
+======================================================================
+
+REVALIDATED, because the ruling's version allocation rests on it:
+  authority SCHEMA_VERSION on the tree     : 3
+    -> 3 is W29400's Work-label boundary, so M35002's schema 4 is
+       the correct cumulative allocation and is still unused.
+  claim still answers the bare assignment  : True
+
+WHAT THE CLOSED RESULT TOUCHES. `claim` answering
+{assignment, claim_event, decision} changes the value every one of
+these binds -- and the ones that pass it on as `expect` need the
+assignment member instead, in the SAME change or the suite is broken
+part-way.
+
+  test_assignment.py:143  assignment
+  test_assignment.py:312  second
+  test_assignment.py:357  second
+  test_assignment.py:385  assignment
+  test_assignment.py:805  last
+  test_assignment.py:919  second
+  test_assignment.py:135  assignment
+  test_assignment.py:775  y
+  test_boundary.py:1167  held
+  test_boundary.py:1235  again
+  test_contract.py:325  second
+  test_contract.py:911  other
+  test_operations.py:63  first
+  test_operations.py:64  second
+  test_operations.py:99  assignment
+  test_operations.py:113  assignment
+  test_operations.py:138  assignment
+  test_operations.py:249  assignment
+  test_operations.py:422  assignment
+  test_operations.py:490  assignment
+  test_operations.py:523  assignment
+  test_operations.py:528  first
+  test_operations.py:541  assignment
+  test_operations.py:569  one
+  test_operations.py:570  two
+  test_session.py:177  assignment
+  test_session.py:208  mine
+  test_session.py:244  mine
+  test_session.py:258  own
+  test_session.py:267  mine
+  test_session.py:298  mine
+  test_session.py:323  mine
+  test_session.py:369  mine
+  test_session.py:482  mine
+  test_session.py:516  mine
+  test_session.py:554  mine
+  test_work_labels.py:450  answer
+
+37 binding sites across 6 accepted suites.
+
+Plus the manager consumer: authority_port.claim and
+offers.submit_claim, which own the answer's closed shape.

@@ -23,23 +23,45 @@ import tempfile
 import unittest
 
 from baton_v12.contracts import ContractRefusal
-from baton_v12.worker_manager import documents, oci
+from baton_v12.worker_manager import (ControlStore, documents, launch,
+                                      oci, workspaces)
+
+from . import input_roots
 from baton_v12.worker_manager.oci import (ENGINES, LABEL_PREFIX,
                                           MAX_DIAGNOSTIC, RESTRICTIONS,
                                           ROOT_NAMES, EnginePort, OciAdapter,
                                           destroy_vector, inspect_vector,
                                           list_vector, run_vector, stop_vector)
 
+# A sentinel for "the fixture's own authorized root", so a case can ask for
+# the default and a case can ask for none, and the two are different requests.
+_UNSET = object()
+
 IMAGE = "sha256:" + "a" * 64
 # The assignment's own roots, as `assignment_workspace` answers with them, and
 # the posture that decides which of them a container may see. Both are REQUIRED
 # inputs since the 2026-08-25 ruling: roots alone cannot choose the topology.
+# W33936: the deployment's configured workspace group. An execution start
+# without one refuses before the engine, so every execution vector below names
+# it -- and this module composes ARGV rather than touching a filesystem, so
+# what it proves is the composition. The write itself is proved against a real
+# daemon in `test_input_delivery`.
+# The deployment's configured workspace group. Obtained per case from the
+# manager's own record -- see `Adapting.setUp` -- because it is a capability
+# rather than an integer; `GROUP` names the class attribute the vector cases
+# read so they say which one they mean.
+GROUP = None
+
 ROOTS = {"inputs": "/srv/a-1/inputs", "workspace": "/srv/a-1/workspace",
          }
 LABELS = {"runtime_attempt_id": "attempt-1",
           "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
           "work_id": "2b077949-W4", "participant": "baton.claude",
-          "generation": 1, "profile_digest": "sha256:" + "b" * 64,
+          "generation": 1,
+          # W16823: the principal and effective scope the claim was authorized
+          # for, beside the four-part fence.
+          "principal": "principal:org-a", "effective_scope": "scope:deployment",
+          "profile_digest": "sha256:" + "b" * 64,
           "policy_digest": "sha256:" + "d" * 64,
           "adapter_digest": "sha256:" + "c" * 64}
 
@@ -87,14 +109,35 @@ def inspection(running, runtime_id="runtime-1"):
     return json.dumps({"Id": runtime_id, "State": {"Running": running}})
 
 
-class TheVectorsAreClosedAndOrdered(unittest.TestCase):
+class Configured(unittest.TestCase):
+    """A case that holds the deployment's configured workspace group.
+
+    W33936 review [P1] made that group a capability read from this manager's
+    own record rather than an integer a caller composes -- so even a suite that
+    proves ARGV without touching a filesystem needs the record, because the
+    group is now a deployment fact and not an operand. The store here exists
+    for exactly that one read.
+    """
+
+    def setUp(self):
+        self._configured = tempfile.TemporaryDirectory(prefix="v12-w6632-cfg-")
+        self.addCleanup(self._configured.cleanup)
+        self.store = ControlStore.open(
+            os.path.join(self._configured.name, "control.sqlite3"),
+            incarnation="vector-1",
+            clock=lambda: "2026-08-24T00:00:00.000Z")
+        self.addCleanup(self.store.close)
+        self.group = input_roots.configured_group(self.store)
+
+
+class TheVectorsAreClosedAndOrdered(Configured):
     """GOLDEN VECTORS. No shell, so nothing to escape out of."""
 
     def test_the_run_vector_is_exact_for_both_engines(self):
         for engine in ENGINES:
             with self.subTest(engine=engine):
                 argv = run_vector(engine, image_digest=IMAGE, labels=LABELS,
-                                  assignment_roots=ROOTS, posture="execution", 
+                                  assignment_roots=ROOTS, posture="execution", workspace_group=self.group,
                                   name="baton-op-1")
                 self.assertEqual(argv[:5],
                                  [engine, "run", "--detach", "--name",
@@ -102,19 +145,28 @@ class TheVectorsAreClosedAndOrdered(unittest.TestCase):
                 # THE IMAGE IS LAST and is a digest, so no caller value can be
                 # read as an argument to the engine itself.
                 self.assertEqual(argv[-1], IMAGE)
-                # 5 for the head, 20 for the restrictions, 16 for the EIGHT
+                # 5 for the head, 2 for the configured workspace group,
+                # 20 for the restrictions, 20 for the TEN
                 # labels, 1 for the image and 1 for `--read-only`, which is the
                 # only flag carrying no value. Eight since review [P1] put the
                 # policy digest among them: the engine reports the image it is
                 # running and has never heard of a policy, so a label is the
                 # only way that half of the resolved identity survives a
-                # restart.
-                self.assertEqual(len(argv), 43)
+                # restart. TEN since W16823 put the principal and the effective
+                # scope beside the four-part fence: two endpoint addresses the
+                # authority maps to one principal produced two unrelated label
+                # sets, so one principal's runtimes read as two independent
+                # identities to anything listing them.
+                # W33936 adds `--group-add <gid>`: an execution runtime is
+                # given the deployment's configured workspace group, and one
+                # without it refuses before the engine rather than starting a
+                # worker that cannot write its own workspace.
+                self.assertEqual(len(argv), 49)
 
     def test_every_restriction_is_present_and_unconditional(self):
         """A policy a caller can turn off is a default."""
         argv = run_vector("docker", image_digest=IMAGE, labels=LABELS,
-                          assignment_roots=ROOTS, posture="execution", 
+                          assignment_roots=ROOTS, posture="execution", workspace_group=self.group,
                           name="baton-op-1")
         # PAIRWISE, because two restrictions share the `--security-opt` flag
         # and two share `--tmpfs`: asking for the first occurrence would let a
@@ -134,7 +186,7 @@ class TheVectorsAreClosedAndOrdered(unittest.TestCase):
 
     def test_the_labels_are_the_frozen_contracts_own_set_in_its_own_order(self):
         argv = run_vector("docker", image_digest=IMAGE, labels=LABELS,
-                          assignment_roots=ROOTS, posture="execution", 
+                          assignment_roots=ROOTS, posture="execution", workspace_group=self.group,
                           name="baton-op-1")
         written = [argv[at + 1] for at, piece in enumerate(argv)
                    if piece == "--label"]
@@ -153,13 +205,14 @@ class TheVectorsAreClosedAndOrdered(unittest.TestCase):
             with self.subTest(what=what):
                 with self.assertRaises(ContractRefusal):
                     run_vector("docker", image_digest=IMAGE, labels=labels,
-                               assignment_roots=ROOTS, posture="execution", 
+                               assignment_roots=ROOTS, posture="execution", workspace_group=self.group,
                                name="baton-op-1")
 
     def test_a_label_carrying_a_line_break_is_refused(self):
         with self.assertRaises(ContractRefusal) as caught:
             run_vector("docker", image_digest=IMAGE,
-                       assignment_roots=ROOTS, posture="execution", 
+                       assignment_roots=ROOTS, posture="execution",
+                       workspace_group=self.group,
                        labels={**LABELS, "work_id": "W4\nW5"},
                        name="baton-op-1")
         self.assertIn("line break", caught.exception.message)
@@ -171,7 +224,7 @@ class TheVectorsAreClosedAndOrdered(unittest.TestCase):
             with self.subTest(image=image):
                 with self.assertRaises(ContractRefusal):
                     run_vector("docker", image_digest=image, labels=LABELS,
-                               assignment_roots=ROOTS, posture="execution", 
+                               assignment_roots=ROOTS, posture="execution", workspace_group=self.group,
                                name="baton-op-1")
 
     def test_an_engine_this_adapter_does_not_speak_is_refused(self):
@@ -255,18 +308,18 @@ class TheVectorsAreClosedAndOrdered(unittest.TestCase):
                 with self.assertRaises(ContractRefusal):
                     run_vector("docker", image_digest=IMAGE,
                                labels={**LABELS, name: value},
-                               assignment_roots=ROOTS, posture="execution",
+                               assignment_roots=ROOTS, posture="execution", workspace_group=self.group,
                                name="baton-op-1")
 
 
-class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
+class AMountIsCanonicalAndNeverTheHosts(Configured):
 
     def mount(self, **overrides):
         one = {"source": "/srv/a-1/workspace", "target": "/workspace",
                "writable": True}
         one.update(overrides)
         return run_vector("docker", image_digest=IMAGE, labels=LABELS,
-                          assignment_roots=ROOTS, posture="execution",
+                          assignment_roots=ROOTS, posture="execution", workspace_group=self.group,
                           name="baton-op-1", mounts=[one])
 
     def test_the_assignment_root_contract_is_artifact_neutral(self):
@@ -277,7 +330,7 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
             "docker", image_digest=IMAGE, labels=LABELS,
             assignment_roots={"inputs": "/srv/a-1/inputs",
                               "workspace": "/srv/a-1/workspace"},
-            posture="execution", name="baton-op-1")
+            posture="execution", workspace_group=self.group, name="baton-op-1")
 
     def test_a_writable_and_a_read_only_mount_are_spelled_apart(self):
         self.assertIn("type=bind,source=/srv/a-1/workspace,"
@@ -399,11 +452,11 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
         for what, call in [
                 ("no roots", lambda: run_vector(
                     "docker", image_digest=IMAGE, labels=LABELS,
-                    posture="execution", name="baton-op-1",
+                    posture="execution", workspace_group=self.group, name="baton-op-1",
                     assignment_roots={"inputs": "/srv/a-1/inputs"})),
                 ("a root that is not absolute", lambda: run_vector(
                     "docker", image_digest=IMAGE, labels=LABELS,
-                    posture="execution", name="baton-op-1",
+                    posture="execution", workspace_group=self.group, name="baton-op-1",
                     assignment_roots={**ROOTS, "workspace": "workspace"})),
                 ("a posture this build does not have", lambda: run_vector(
                     "docker", image_digest=IMAGE, labels=LABELS,
@@ -424,7 +477,7 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
                        }
         with self.assertRaises(ContractRefusal):
             run_vector("docker", image_digest=IMAGE, labels=LABELS,
-                       assignment_roots=overlapping, posture="execution",
+                       assignment_roots=overlapping, posture="execution", workspace_group=self.group,
                        name="baton-op-1")
 
     def test_a_symlink_descendant_cannot_escape_an_assignment_root(self):
@@ -446,7 +499,7 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
             with self.assertRaises(ContractRefusal):
                 run_vector(
                     "docker", image_digest=IMAGE, labels=LABELS,
-                    assignment_roots=roots, posture="execution",
+                    assignment_roots=roots, posture="execution", workspace_group=self.group,
                     name="baton-op-1",
                     mounts=[{"source": escape, "target": "/workspace",
                              "writable": True}])
@@ -467,7 +520,7 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
             os.mkdir(tree)
             argv = run_vector(
                 "docker", image_digest=IMAGE, labels=LABELS,
-                assignment_roots=roots, posture="execution",
+                assignment_roots=roots, posture="execution", workspace_group=self.group,
                 name="baton-op-1",
                 mounts=[{"source": tree, "target": "/workspace",
                          "writable": True}])
@@ -482,7 +535,7 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
         same["workspace"] = same["inputs"]
         with self.assertRaises(ContractRefusal) as caught:
             run_vector("docker", image_digest=IMAGE, labels=LABELS,
-                       assignment_roots=same, posture="execution",
+                       assignment_roots=same, posture="execution", workspace_group=self.group,
                        name="baton-op-1")
         self.assertIn("no unique posture authority", caught.exception.message)
 
@@ -501,7 +554,7 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
             roots = {name: os.path.join(linked, name) for name in ROOT_NAMES}
             argv = run_vector(
                 "docker", image_digest=IMAGE, labels=LABELS,
-                assignment_roots=roots, posture="execution",
+                assignment_roots=roots, posture="execution", workspace_group=self.group,
                 name="baton-op-1",
                 mounts=[{"source": os.path.join(real, "workspace", "tree"),
                          "target": "/workspace", "writable": True}])
@@ -525,13 +578,13 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
             with self.subTest(what=what):
                 with self.assertRaises(ContractRefusal):
                     run_vector("docker", image_digest=IMAGE, labels=LABELS,
-                               assignment_roots=ROOTS, posture="execution",
+                               assignment_roots=ROOTS, posture="execution", workspace_group=self.group,
                                name="baton-op-1", mounts=mounts)
 
     def test_two_mounts_cannot_land_on_one_target(self):
         with self.assertRaises(ContractRefusal) as caught:
             run_vector("docker", image_digest=IMAGE, labels=LABELS,
-                       assignment_roots=ROOTS, posture="execution",
+                       assignment_roots=ROOTS, posture="execution", workspace_group=self.group,
                        name="baton-op-1",
                        mounts=[{"source": "/srv/a-1/workspace/a",
                                 "target": "/w", "writable": True},
@@ -540,7 +593,31 @@ class AMountIsCanonicalAndNeverTheHosts(unittest.TestCase):
         self.assertIn("would hide the first", caught.exception.message)
 
 
-class Adapting(unittest.TestCase):
+class Adapting(Configured):
+    """The adapter's own doors, over a fake engine and REAL roots.
+
+    RECERTIFIED, and the word matters. Approver ruling M34916 authorizes a
+    fresh certification of this module because its uncommitted assertions were
+    destroyed and no authoritative copy exists; nothing below is a
+    reconstruction of what they said. What they were is recorded as
+    unavailable and stays that way.
+
+    What changed, and why the fixture grew two things it did not have:
+
+      * W26291 made a launch document REQUIRED of every execution start. The
+        adapter refuses without one, so a fixture that has none proves the
+        refusal and nothing past it -- which is what the twelve stale cases
+        were doing.
+      * W33936 makes an execution start prove its workspace root's group and
+        mode immediately before the engine. That is a question about a real
+        directory, so this fixture allocates one through the canonical
+        `assignment_workspace` rather than naming a path that does not exist.
+
+    The ENGINE stays fake, which is this module's whole design: the adapter's
+    boundary is the vector it composes and the answer it reads, and a real
+    daemon proves the same thing more slowly and less exactly. What is real
+    here is only what the adapter now insists on being real.
+    """
 
     # ONE RESOLVED IDENTITY, and it AGREES with `LABELS` — because that is
     # the contract now: what a delivery is started under and what its runtime
@@ -551,7 +628,47 @@ class Adapting(unittest.TestCase):
                 "policy_digest": LABELS["policy_digest"],
                 "adapter_digest": LABELS["adapter_digest"]}
 
-    def adapter(self, *answers, engine="docker", identity=None):
+    def setUp(self):
+        super().setUp()
+        self._home = tempfile.TemporaryDirectory(prefix="v12-w6632-")
+        self.addCleanup(self._cleanup)
+        self.home = self._home.name
+        self.storage = os.path.join(self.home, "storage")
+        os.makedirs(self.storage)
+        self.live_roots = workspaces.assignment_workspace(
+            self.group, self.storage, "attempt-1")
+        self._launches = 0
+
+    def _cleanup(self):
+        for current, directories, files in os.walk(self.home):
+            for name in directories + files:
+                try:
+                    os.chmod(os.path.join(current, name), 0o700)
+                except OSError:
+                    pass
+            try:
+                os.chmod(current, 0o700)
+            except OSError:
+                pass
+        self._home.cleanup()
+
+    def launched(self):
+        """One materialized launch document, authored by the manager.
+
+        Per adapter rather than per attempt: a refused start DISCARDS the
+        delivery, so handing a second adapter the same one would hand it a
+        document the first tore down.
+        """
+        self._launches += 1
+        home = os.path.join(self.home, f"launch-{self._launches}")
+        os.makedirs(home, exist_ok=True)
+        return launch.materialize(
+            home, attempt_id="attempt-1", session="session-attempt-1",
+            contract="exercise the constrained OCI adapter",
+            role="implementer")
+
+    def adapter(self, *answers, engine="docker", identity=None, roots=None,
+                launch_delivery=False, workspace_group=_UNSET):
         self.engine = Engine(answers)
         # The identity is passed THROUGH rather than copied, so a case may
         # hand this door something that is not a document at all -- which is
@@ -559,8 +676,15 @@ class Adapting(unittest.TestCase):
         return OciAdapter(engine, self.engine,
                           identity=self.IDENTITY if identity is None
                           else identity,
-                          assignment_roots=ROOTS,
-                          posture="execution")
+                          assignment_roots=dict(roots if roots is not None
+                                                else self.live_roots),
+                          posture="execution",
+                          workspace_group=(self.group
+                                           if workspace_group is _UNSET
+                                           else workspace_group),
+                          launch_delivery=(self.launched()
+                                           if launch_delivery is False
+                                           else launch_delivery))
 
 
 class TheRootThatWasProvedIsTheRootThatIsMounted(Adapting):
@@ -581,7 +705,7 @@ class TheRootThatWasProvedIsTheRootThatIsMounted(Adapting):
     def mounted(self, source, target="/input", writable=False):
         return {"source": source, "target": target, "writable": writable}
 
-    def started(self, mounts, authorized=ROOTS["inputs"], answers=None):
+    def started(self, mounts, authorized=_UNSET, answers=None):
         # The duplicate probe runs FIRST and answers an empty listing, then the
         # run itself. Both are the ordinary shape; this rule sits before both,
         # so the refusing cases never consume either.
@@ -589,9 +713,12 @@ class TheRootThatWasProvedIsTheRootThatIsMounted(Adapting):
                                     answer(stdout="runtime-1\n")])
         self.engine = engine
         adapter = OciAdapter("docker", engine, identity=self.IDENTITY,
-                             assignment_roots=ROOTS, posture="execution",
-                             mounts=mounts)
+                             assignment_roots=dict(self.live_roots),
+                             posture="execution", workspace_group=self.group,
+                             launch_delivery=self.launched(), mounts=mounts)
         request = {"labels": LABELS, "operation_id": "runtime.start:1"}
+        if authorized is _UNSET:
+            authorized = self.live_roots["inputs"]
         if authorized is not None:
             request["input_root"] = authorized
         return adapter.start(request)
@@ -599,17 +726,17 @@ class TheRootThatWasProvedIsTheRootThatIsMounted(Adapting):
     def test_the_authorized_root_reaches_the_engine_argv_exactly(self):
         """The bytes, not the intention. This is the integration half the
         review asked for: what the engine is actually told."""
-        self.started([self.mounted(ROOTS["inputs"])])
+        self.started([self.mounted(self.live_roots["inputs"])])
         argv = self.engine.vectors[-1]
         binds = [argv[at + 1] for at, flag in enumerate(argv)
                  if flag == "--mount"]
         self.assertIn(
-            f"type=bind,source={ROOTS['inputs']},target=/input,readonly=true",
-            binds)
+            f"type=bind,source={self.live_roots['inputs']},"
+            f"target=/input,readonly=true", binds)
         # AND EXACTLY ONE lands there, so the engine is never the party
         # deciding which of two the worker reads.
         self.assertEqual([one for one in binds if ",target=/input," in one],
-                         [f"type=bind,source={ROOTS['inputs']},"
+                         [f"type=bind,source={self.live_roots['inputs']},"
                           f"target=/input,readonly=true"])
 
     def test_a_plan_naming_the_sibling_workspace_never_reaches_the_engine(
@@ -1068,7 +1195,13 @@ class TheEngineReportsFactsAndDecidesNothing(Adapting):
             adapter.start({"labels": LABELS, "operation_id": "op-1"})
         self.assertEqual((caught.exception.category, caught.exception.code),
                          ("policy", "denied"))
-        self.assertEqual(len(self.engine.vectors), 1,
+        # TWO VECTORS, and neither is a `run`: the duplicate probe, and the
+        # launch delivery's own teardown when the refusal discards it. W26291
+        # gave a refused start an ending, so counting vectors is no longer the
+        # same question as "did anything start" -- which is what this case is
+        # about, and it is now asked directly.
+        self.assertEqual([one for one in self.engine.vectors
+                          if "run" in one], [],
                          "a duplicate start reached the engine's run vector")
 
     def test_an_engine_that_names_nothing_started_nothing_nameable(self):
@@ -1079,12 +1212,20 @@ class TheEngineReportsFactsAndDecidesNothing(Adapting):
         # W6634: the answer gained a `credentials` member, because a start that
         # produced no runtime id is a FAILURE ENDING for the delivery too --
         # nothing later could adopt or tear down a delivery it cannot name.
-        # This adapter was built without one, so it says so.
+        # This adapter was built without a credential delivery, so it says so.
+        #
+        # W26291 added the second: an execution start REQUIRES a launch
+        # document, so this fixture now has one -- and a start that produced
+        # no runtime id ends that delivery for the same reason it ends the
+        # credential one. `torn-down` is the ending, and reporting it is what
+        # lets a caller tell a document that was cleaned up from one that was
+        # never made.
         self.assertEqual(adapter.start({"labels": LABELS,
                                         "operation_id": "op-1"}),
                          {"runtime_id": None, "labels": None,
                           "credentials": {"lifecycle_state":
-                                          "not-delivered"}})
+                                          "not-delivered"},
+                          "launch": {"lifecycle_state": "torn-down"}})
 
     def test_a_refused_start_is_reported_with_bounded_prose(self):
         adapter = self.adapter(answer(stdout=""),

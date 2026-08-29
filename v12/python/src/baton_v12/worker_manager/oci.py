@@ -49,10 +49,13 @@ import os
 import re
 
 from ..contracts import ContractRefusal, check_no_durable_secret
+from ..contracts.pod import own
 from ..contracts.errors import name_value
-from . import boundaries, credentials, documents, sealing
+from . import (boundaries, credentials, documents, launch, sealing,
+               workspaces)
 
-__all__ = ["ENGINES", "EnginePort", "LABEL_PREFIX", "MAX_DIAGNOSTIC",
+__all__ = ["ENGINES", "EnginePort", "LABEL_PREFIX", "LABEL_CONTEXT",
+           "MAX_DIAGNOSTIC",
            "POSTURES", "ROOT_NAMES", "MOUNTABLE", "RESOLVED_IDENTITY",
            "RESTRICTIONS", "OciAdapter", "destroy_vector", "inspect_vector",
            "list_vector", "run_vector", "stop_vector"]
@@ -73,6 +76,20 @@ _DIGEST = _IMAGE
 # its contents.
 LABEL_PREFIX = "baton.v12."
 
+# W16823: THE TRUSTED CONTEXT AN ADAPTER REQUEST CARRIES, and it is exactly the
+# two label members the manager cannot derive from the assignment fence.
+#
+# WHY IT ARRIVES AS AN OPERAND rather than being looked up: this adapter holds
+# no control store and no authority session, and giving it either so it could
+# fetch a principal would be handing the isolation layer a capability the whole
+# topology exists to keep out of it. The manager reads its own activated
+# attempt row and passes what it read.
+#
+# THE WORKER SUPPLIES NONE OF IT. These requests are composed by the manager
+# from durable columns the port is the only writer of; nothing a container
+# says reaches this document.
+LABEL_CONTEXT = ("principal", "effective_scope")
+
 # How much engine prose ever reaches a refusal. Engine stderr is unbounded
 # caller-controlled text and a refusal is the thing most likely to be logged --
 # the same rule W1593 established for every other diagnostic in this manager.
@@ -90,6 +107,15 @@ RESTRICTIONS = (
     ("--security-opt", "label=disable"),
     # A fixed non-root user. Root inside a user namespace is still root against
     # anything the namespace does not cover.
+    #
+    # W33936: the UID is fixed here and the GID is composed in `run_vector`
+    # for an execution container, because a group is the only least-privilege
+    # way to let uid 65532 write a root this manager owns. The manager cannot
+    # `chown` without privilege it does not have, and the alternatives are
+    # worse: world-writable widens the root to every local account, and a
+    # matching uid would give the worker the manager's own identity. This
+    # entry stays because a consent container -- which mounts nothing and has
+    # nothing to write -- keeps exactly this pair.
     ("--user", "65532:65532"),
     # The root filesystem is evidence, not scratch: the workspace mount is the
     # one writable place, and it is named per assignment.
@@ -240,6 +266,21 @@ def _refuse(message, code="schema"):
     raise ContractRefusal("integrity", code, message)
 
 
+# W6636: the three retention dispositions, and which of them KEEP the bytes.
+# `retain` is policy keeping them and `quarantine` is doubt keeping them; the
+# third discards. Spelled here rather than imported from `intake`, because this
+# core answers facts about an engine and its own custody and does not depend on
+# the manager that calls it.
+#
+# THE CLOSED SET IS THE POINT. Re-review [P1]: this branched on membership of
+# the keeping pair and let EVERYTHING ELSE fall through to the discard, so a
+# typo or a value from a later vocabulary removed the material and reported
+# success. An adapter boundary that owns a destructive command may not make
+# unknown mean delete.
+_KEEPS_MATERIAL = ("retain", "quarantine")
+_RETENTION_DISPOSITIONS = ("discard-after-intake",) + _KEEPS_MATERIAL
+
+
 def _denied(message):
     raise ContractRefusal("policy", "denied", message)
 
@@ -256,7 +297,25 @@ class EnginePort:
         self._run = boundaries.capability(run, "the engine's run operation")
 
     def __call__(self, argv):
-        """Answer `(status, stdout, stderr)` for one closed vector."""
+        """Answer `(status, stdout, stderr)` for one closed vector.
+
+        §13 OVER EVERY ARGV THAT REACHES AN ENGINE, and this is the one place
+        that can say that. Review [P1]: `run_vector` swept the vector it
+        composed, and nothing swept the others — so `start`'s duplicate probe
+        and the refusal path's own listing reached the engine unswept. The
+        candidate selector puts `runtime_attempt_id` into a `--filter`
+        argument, and a provider answer is explicitly untrusted, so a bearer
+        equal to that identity was handed to the daemon by the very call that
+        was supposed to run before anything happened.
+
+        MOVED HERE RATHER THAN COPIED. Adding the sweep to `list_vector`
+        beside `run_vector`'s would have been four more copies of one rule and
+        a fifth waiting for the next vector somebody adds. Every process on the
+        host can read another's command line, so the property is about
+        INVOCATION rather than composition — and invocation is exactly what
+        this port is.
+        """
+        check_no_durable_secret(list(argv), what="an engine vector")
         answer = self._run(argv)
         taken = boundaries.document(answer, "the engine's answer",
                                     required=("status", "stdout", "stderr"))
@@ -571,8 +630,64 @@ def _credential_mounts(pairs):
     return tuple(taken)
 
 
+# W26291: THE REFERENCE WORKER'S LAUNCH DOCUMENT, and it is a MOUNT rather
+# than an environment.
+#
+# W6636's composition found that this adapter delivered nothing the reference
+# worker needed, so every execution container it started from the reference
+# image exited at once with no frame -- two closed components that could not
+# meet. The first correction delivered four `BATON_WORKER_*` values as `--env`
+# arguments and the dossier SUPERSEDED it before acceptance: one versioned
+# document at a fixed read-only path, with no environment fallback and no
+# compatibility path.
+#
+# NOT IN THE FROZEN `runtimeStartBody`, which has `additionalProperties: false`
+# and no launch member. This is a manager/adapter seam rather than protocol
+# state, which is what the finding says it is -- so the delivery is typed at
+# `launch.py` and this boundary composes exactly one mount out of it.
+#
+# THE TARGET IS THIS CONTRACT'S CONSTANT and never an operand. `launch.py` owns
+# it, the worker reads it, and the pair this adapter is handed is a source and
+# that constant -- there is no caller-selected locator to point a container at
+# something else.
+
+
+def _launch_mount(pair):
+    """The one read-only bind a launch delivery authorizes.
+
+    THE SAME SHAPE `_credential_mounts` HAS, and for the same reason. What
+    crosses to the ADAPTER is a typed capability -- a path operand would be the
+    caller-selected locator the fixed target exists to remove, and a mapping
+    would be the environment channel this Work replaced wearing a different
+    name. What crosses to THIS function, which composes argv and nothing else,
+    is the pair that capability answered with, owned here exactly as a
+    credential delivery's pairs are.
+    """
+    if type(pair) not in (list, tuple) or len(pair) != 2:
+        _refuse(f"a launch mount is a source and a target; this is "
+                f"{name_value(pair)}")
+    source = canonical_source(pair[0], "a launch document source")
+    target = boundaries.text(pair[1], "a launch document target")
+    if target != launch.LAUNCH_TARGET:
+        _denied(f"a launch delivery lands on {name_value(target)}; the worker "
+                f"reads its launch document at "
+                f"{name_value(launch.LAUNCH_TARGET)}, which is a constant of "
+                f"this contract rather than an operand")
+    # A REGULAR FILE, PROVED HERE. A directory bound over the worker's fixed
+    # document path is a path the worker cannot read a document out of, and a
+    # link is a source this manager would be resolving on the worker's behalf.
+    # `canonical_source` already resolved it, so this is the object that will
+    # actually be mounted.
+    if not os.path.isfile(source):
+        _refuse(f"a launch delivery names {name_value(source)}, which is not "
+                f"a regular file; the worker's launch document is one "
+                f"document at one path", code="path")
+    return source, target
+
+
 def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
-               mounts=(), credentials_delivered=(), name):
+               mounts=(), credentials_delivered=(), launch_delivered=None,
+               name, workspace_group=None):
     """The closed argv that STARTS one runtime, restrictions and all.
 
     The image is named BY DIGEST. A tag is a name somebody can move, and a
@@ -591,13 +706,77 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                 f"exactly", code="digest")
     boundaries.identity(name, "a runtime name")
     argv = [engine, "run", "--detach", "--name", name]
+    # THE CONFIGURED WORKSPACE GROUP, AS A SUPPLEMENTARY GROUP.
+    #
+    # W33936, approver ruling M34916.  The container's fixed 65532 is not this
+    # manager's uid, so an engine-writable workspace bind was denied by
+    # ordinary permissions and the worker could not write the outputs it is
+    # required to declare.
+    #
+    # `--group-add`, AND THE PRIMARY IDENTITY IS UNTOUCHED.  My rejected cut
+    # composed `--user 65532:<gid>`, which changes the pinned runtime identity
+    # W6632 fixes and W6633's image asserts alongside it -- and it inherited
+    # whatever group the workspace happened to carry, measured to be a user's
+    # LOGIN group.  Measured against a real daemon, the supplementary form
+    # leaves `uid_gid` at exactly `[65532, 65532]` and adds the group beside
+    # it, which is the whole difference between the two.
+    #
+    # AN OPERAND RATHER THAN A `stat` HERE, and an earlier cut got that wrong
+    # by reading the directory inside this function: every one of W6632's
+    # vector cases broke, because a vector is provable without a filesystem.
+    # The group is deployment CONFIGURATION and is validated by
+    # `workspaces.check_workspace_group`, which refuses gid 0, a gid this
+    # manager does not hold, and anything that is not a group id -- and which
+    # has no default at all, because a group inherited from a service
+    # directory is not a workspace grant.
+    #
+    # EXECUTION ONLY.  A consent container mounts nothing, so a group there
+    # would be a grant with no object, and the ruling says so in terms.
+    #
+    # AN UNCONFIGURED EXECUTION REFUSES HERE, and my last cut had this exactly
+    # backwards.
+    #
+    # I argued that composing no group left an unconfigured deployment
+    # "unchanged", and that refusing would be this manager failing closed on
+    # somebody else's provisioning step.  Review [P0] is right and the argument
+    # was wrong: unchanged IS the defect.  A start with no group deterministically
+    # produces the container this Work exists to correct -- one that cannot
+    # write the workspace it was given -- and calling that a legacy posture
+    # makes the correction opt-in.  There is no execution this manager may
+    # start without knowing which group the worker holds, so there is no
+    # default and no fallback; a deployment that has not provisioned the group
+    # is told so before the engine is invoked rather than by a worker failing
+    # halfway through its work.
+    #
+    # CONSENT IS NOT THE SAME QUESTION and is unaffected: it mounts nothing, so
+    # a group there would be a grant with no object, and it is refused for that
+    # reason rather than permitted for lack of one.
     for flag, value in RESTRICTIONS:
         argv.append(flag)
         if value is not None:
             argv.append(value)
+    roots, posture = _roots(assignment_roots, posture)
+    if posture == "execution":
+        if workspace_group is None:
+            _denied("an execution runtime is given the deployment's configured "
+                    "workspace group and this start names none; without it the "
+                    "worker holds no share in its own workspace and cannot "
+                    "write the outputs this assignment requires it to declare")
+        # THE SAME CAPABILITY AT THE VECTOR, because a vector is composed
+        # from operands and this one decides an authorization. Validating an
+        # integer here would be validating whatever the caller chose.
+        if type(workspace_group) is not workspaces.WorkspaceGroup:
+            _denied(f"an execution runtime is given the deployment's "
+                    f"configured workspace group, read from this manager's "
+                    f"own record; this start names "
+                    f"{name_value(workspace_group)}")
+        argv += ["--group-add",
+                 str(workspaces.check_workspace_group(workspace_group.gid))]
+    elif workspace_group is not None:
+        _denied("a consent runtime mounts nothing and is given no "
+                "supplementary group; a grant with no object is still a grant")
     for key, value in _label_pairs(_labels(labels)):
         argv += ["--label", f"{key}={value}"]
-    roots, posture = _roots(assignment_roots, posture)
     assigned = _mounts(mounts, roots, posture)
     for source, target, writable in assigned:
         argv += ["--mount",
@@ -617,15 +796,33 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                         f"nor the engine says which")
         argv += ["--mount",
                  f"type=bind,source={source},target={target},readonly=true"]
+    # W26291: THE LAUNCH DOCUMENT, ALWAYS READ-ONLY and always at the fixed
+    # target. Composed LAST of the three mount families and refused outright
+    # if either of the others would contain it -- an assignment or credential
+    # mount over the worker's launch path would decide what the worker reads
+    # there, which is the one thing a fixed target exists to take away from
+    # everybody else. Read-only is not a parameter: a worker that could
+    # rewrite its own launch document could change what it is between reading
+    # that document and being asked about it.
+    if launch_delivered is not None:
+        source, target = _launch_mount(launch_delivered)
+        for _source, taken, _writable in assigned:
+            if taken == target or _within(target, taken):
+                _denied(f"a launch document lands on {name_value(target)}, "
+                        f"which this assignment already mounts; the worker "
+                        f"would read one of the two and neither this manager "
+                        f"nor the engine says which")
+        argv += ["--mount",
+                 f"type=bind,source={source},target={target},readonly=true"]
     # THE IMAGE, LAST and by digest. Every flag precedes it, so nothing a
     # caller supplies can be read as an argument to the engine itself.
     argv.append(image_digest)
-    # §13 OVER THE WHOLE VECTOR, and this is the argv half of the ruling said
-    # as a rule rather than as an intention. Every process on the host can read
-    # another's command line, so an argv carrying a live bearer is a durable
-    # surface -- and this walk runs while the registry is live, because
-    # `credentials.materialize` registers before anything is delivered.
-    check_no_durable_secret(argv, what="a runtime start vector")
+    # NO §13 SWEEP HERE ANY MORE, and its absence is the correction rather
+    # than an omission. Review [P1]: this function swept the argv IT composed
+    # and no other, so `start`'s duplicate probe reached the engine first and
+    # unswept. One rule with one owner is `EnginePort.__call__`, which is what
+    # every vector — this one, the listing, the inspect, the stop, the
+    # destroy, and whatever is added next — actually passes through.
     return argv
 
 
@@ -868,7 +1065,8 @@ class OciAdapter:
 
     def __init__(self, engine, run, *, identity, assignment_roots,
                  posture, mounts=(), outputs=(), input_manifest_digest=None,
-                 credential_delivery=None):
+                 credential_delivery=None, launch_delivery=None,
+                 workspace_group=None):
         self.engine = _engine(engine)
         self.run = run if isinstance(run, EnginePort) else EnginePort(run)
         # ONE RESOLVED IDENTITY, owned at construction and never re-supplied
@@ -915,6 +1113,46 @@ class OciAdapter:
             _refuse(f"a credential delivery is one this manager materialized; "
                     f"this is {name_value(credential_delivery)}")
         self.credential_delivery = credential_delivery
+        # W26291: THE LAUNCH DOCUMENT, OWNED AT CONSTRUCTION for exactly the
+        # reasons the credential delivery is, and NOT as a member of the start
+        # REQUEST.
+        #
+        # The start request is a document boundary -- `boundaries.document`
+        # takes exact built-in data and refuses anything carrying behaviour --
+        # and that rule is right rather than in the way. A capability is not
+        # data, and a delivery reduced to something that fits in a JSON
+        # document would be a PATH: a caller-selected locator, which is the one
+        # thing the fixed target exists to remove.
+        #
+        # So what crosses is a delivery that already exists, authored,
+        # bounded, §13-walked and frozen by `launch.materialize`, and what this
+        # adapter owns is composing exactly one read-only bind out of it.
+        if launch_delivery is not None \
+                and type(launch_delivery) is not launch.LaunchDelivery:
+            _refuse(f"a launch delivery is one this manager materialized; "
+                    f"this is {name_value(launch_delivery)}")
+        self.launch_delivery = launch_delivery
+        # W33936: DEPLOYMENT CONFIGURATION, held like the resolved identity
+        # and the assignment roots -- assignment-scoped, fixed, and proved
+        # when the adapter is built rather than at every call.  `None` is a
+        # consent adapter, which is given none.
+        #
+        # REVIEW [P1]: A `WorkspaceGroup`, NEVER AN INTEGER. An integer is a
+        # value any caller can compose, so typing it here validated shape and
+        # membership and nothing else -- and membership is exactly what an
+        # unrelated authority-bearing service group the manager belongs to
+        # also has. This capability can only be obtained from
+        # `workspaces.configured_workspace_group`, which reads the
+        # deployment's own record, so holding one for group B means the
+        # deployment configured B. The same rule the credential and launch
+        # deliveries are already under, for the same reason: what crosses is a
+        # thing the manager made rather than data describing one.
+        if workspace_group is not None \
+                and type(workspace_group) is not workspaces.WorkspaceGroup:
+            _refuse(f"a workspace group is the deployment's configured one, "
+                    f"read from this manager's own record; this is "
+                    f"{name_value(workspace_group)}")
+        self.workspace_group = workspace_group
 
     def _mounts_the_authorized_root(self, authorized):
         """The one input bind this delivery may carry, and it is the proved one.
@@ -1000,6 +1238,18 @@ class OciAdapter:
         # BEFORE the vector is composed and therefore before the engine can
         # have created anything.
         self._mounts_the_authorized_root(taken.get("input_root"))
+        # W26291 re-review [P1]: A START WITHOUT A LAUNCH DOCUMENT IS REFUSED
+        # HERE, and until this existed the canonical seam could create exactly
+        # the unrunnable reference worker this Work exists to fix.
+        #
+        # The operand is optional at CONSTRUCTION because the runtime half of
+        # this adapter -- list, observe, stop, destroy, seal, collect -- is
+        # constructible without one, exactly as `outputs` is. It is not
+        # optional at START: a container launched with nothing at
+        # `/run/baton/launch.json` cannot correlate a single thing it says, and
+        # "the worker refuses it later" is a container that died rather than a
+        # delivery this manager declined.
+        #
         # THE LABELS MUST BE THIS ADAPTER'S OWN IDENTITY. A runtime labelled
         # with a profile or adapter digest other than the one it is started
         # under is a runtime reconciliation would describe wrongly for the
@@ -1017,6 +1267,19 @@ class OciAdapter:
         # these are the wrong attempt's: an empty answer about attempt-2 says
         # nothing about whether attempt-1's runtime holds the mount. A refusal
         # that acted on it would be inferring absence from the wrong question.
+        # W26291: THE SAME RULE FOR THE LAUNCH DOCUMENT. One delivery belongs
+        # to one attempt, and a container labelled for attempt 2 that mounts
+        # attempt 1's launch document would be answering under attempt 1's
+        # session -- every frame on the worker-entry channel binds to it, so
+        # the mismatch would surface as a worker refusing its own manager.
+        if self.launch_delivery is not None \
+                and self.launch_delivery.attempt_id \
+                != labels["runtime_attempt_id"]:
+            _denied(f"this start labels the runtime for attempt "
+                    f"{name_value(labels['runtime_attempt_id'])} and carries "
+                    f"the launch document of attempt "
+                    f"{name_value(self.launch_delivery.attempt_id)}; one "
+                    f"delivery belongs to one attempt")
         if self.credential_delivery is not None \
                 and self.credential_delivery.attempt_id \
                 != labels["runtime_attempt_id"]:
@@ -1027,6 +1290,30 @@ class OciAdapter:
                     f"delivery belongs to one attempt, and the credential "
                     f"lifecycle is untouched because nothing here can prove "
                     f"anything about the other attempt's runtimes")
+        # W26291 second re-review [P1]: A MISSING LAUNCH DOCUMENT REFUSES
+        # THROUGH THE SETTLEMENT, not past it.
+        #
+        # This check used to sit above, calling `_denied` directly, with a
+        # comment saying "nothing has been created yet, so there is nothing to
+        # settle". That is true only when no OTHER provider has materialized
+        # anything -- and a canonical adapter may already hold a credential
+        # delivery whose root and live registration exist before `start` is
+        # called at all. The refusal therefore stranded a bearer on a path
+        # with no runtime id for the ordinary destroy crossing to name, which
+        # is exactly the W26284 invariant this manager was corrected for once.
+        #
+        # AND IT SITS AFTER BOTH ATTEMPT CHECKS, deliberately. `_refused_start`
+        # settles by asking which runtimes carry THESE labels, so a delivery
+        # belonging to a different attempt must refuse ABOVE this line: an
+        # empty answer about attempt 2 says nothing about attempt 1's runtime,
+        # and acting on it would be inferring absence from the wrong question.
+        if self.launch_delivery is None:
+            self._refused_start(
+                labels,
+                f"this start carries no launch document; the worker reads "
+                f"what it is from {name_value(launch.LAUNCH_TARGET)}, and a "
+                f"container started without one cannot correlate anything it "
+                f"says")
         for name in _LABELLED_IDENTITY:
             if labels[name] != self.identity[name]:
                 self._refused_start(
@@ -1053,13 +1340,43 @@ class OciAdapter:
         # duplicate probe has already proved the candidate set empty, so they
         # are the ones where settling is both safe and most obviously owed.
         try:
+            # W33936 review [P0]: THE ROOT IS PROVED IMMEDIATELY BEFORE THE
+            # ENGINE, and argv is not the proof.
+            #
+            # `--group-add` grants the container a share in a group. It says
+            # nothing about the directory the engine is about to bind, and a
+            # root whose group was changed after allocation -- by a restart
+            # under a different configuration, by an operator, by a
+            # redeployment -- produces a container holding a group its
+            # workspace does not carry. That fails at the WORKER, mid-work,
+            # with an assignment already live; here it is an ordinary refusal
+            # with nothing started.
+            #
+            # EXECUTION ONLY, because consent mounts nothing and holds no
+            # group: there is no root for it to be about.
+            if self.posture == "execution":
+                if self.workspace_group is None:
+                    _denied(
+                        "an execution runtime is given the deployment's "
+                        "configured workspace group and this adapter holds "
+                        "none; without it the worker holds no share in its own "
+                        "workspace and cannot write the outputs this "
+                        "assignment requires it to declare")
+                workspaces.prove_workspace_group(
+                    self.assignment_roots["workspace"],
+                    self.workspace_group.gid,
+                    what="this assignment's workspace root")
             delivered = (self.credential_delivery.mounts()
                          if self.credential_delivery is not None else ())
             argv = run_vector(
                 self.engine, image_digest=self.image_digest, labels=labels,
                 assignment_roots=self.assignment_roots, posture=self.posture,
                 mounts=self.mounts, credentials_delivered=delivered,
-                name=_runtime_name(taken["operation_id"]))
+                launch_delivered=(self.launch_delivery.mount()
+                                  if self.launch_delivery is not None
+                                  else None),
+                name=_runtime_name(taken["operation_id"]),
+                workspace_group=self.workspace_group)
         except ContractRefusal as refusal:
             self._refused_start(labels, refusal.message)
         # FROM HERE THE ENGINE MAY ALREADY HAVE CREATED SOMETHING.
@@ -1089,8 +1406,11 @@ class OciAdapter:
             # runtime id to write a lifecycle record against, so nothing later
             # could ever adopt or tear this delivery down by name -- the whole
             # reason the record is written after the engine answers.
+            # W26291 re-review [P1]: AND FOR THE LAUNCH DOCUMENT TOO, for the
+            # same reason and on the same evidence -- two manager-owned mounts,
+            # two named endings, one absence question.
             return {"runtime_id": None, "labels": None,
-                    "credentials": self._undelivered(labels)}
+                    **self._undelivered(labels)}
         # THE LIFECYCLE RECORD, WRITTEN ONLY ONCE THERE IS A RUNTIME TO NAME.
         # It exists so a restarted manager can prove the attempt, container,
         # mount and root agree before it adopts anything; a record written
@@ -1133,7 +1453,8 @@ class OciAdapter:
         is the one act worse than leaving it.
         """
         taken = boundaries.document(request, "a credential recovery request",
-                                    required=("attempt_id", "assignment"))
+                                    required=("attempt_id", "assignment",
+                                              "context"))
         attempt = boundaries.identity(taken["attempt_id"],
                                       "a credential attempt id")
         # THE ASSIGNMENT IS OWNED AT THIS DOOR rather than inside the helper
@@ -1147,9 +1468,16 @@ class OciAdapter:
                                                "generation"))
         work = boundaries.document(expect["work_ref"], "a recovery work ref",
                                    required=("authority_uuid", "work_id"))
+        # W16823: THE TRUSTED CONTEXT, owned at this door beside the
+        # assignment and for the same reason -- it is now part of the label set
+        # this recovery SELECTS on, so a recovery carrying the wrong principal
+        # would list nothing and conclude a delivery was never made.
+        context = boundaries.document(taken["context"],
+                                      "a recovery authorization context",
+                                      required=LABEL_CONTEXT)
         home = self._credential_home()
         record = home.read_state(attempt)
-        labels = self._attempt_labels(attempt, expect, work)
+        labels = self._attempt_labels(attempt, expect, work, context)
         if record is None:
             # NOTHING TO ADOPT IS NOT NOTHING TO DO. A root with no record is
             # an attempt that was materialized and never launched, or one whose
@@ -1223,13 +1551,14 @@ class OciAdapter:
             f"{'settled by cleanup' if gone else 'UNRESOLVED'} after "
             f"discarding {len(orphans['discarded'])} orphaned root(s)")
 
-    def _attempt_labels(self, attempt_id, expect, work):
+    def _attempt_labels(self, attempt_id, expect, work, context):
         """The frozen label set that selects THIS attempt's runtimes.
 
         The same composition `_quiesced` performs: the request carries the
-        attempt and the four parts of the assignment, and this adapter has
-        owned the three resolved digests since construction. Both operands
-        arrive already proved -- see the caller.
+        attempt, the four parts of the assignment and W16823's trusted
+        authorization context, and this adapter has owned the three resolved
+        digests since construction. Every operand arrives already proved -- see
+        the caller.
         """
         return documents.runtime_labels(
             runtime_attempt_id=attempt_id,
@@ -1237,6 +1566,8 @@ class OciAdapter:
             work_id=work["work_id"],
             participant=expect["participant"],
             generation=expect["generation"],
+            principal=context["principal"],
+            effective_scope=context["effective_scope"],
             profile_digest=self.identity["profile_digest"],
             policy_digest=self.identity["policy_digest"],
             adapter_digest=self.identity["adapter_digest"])
@@ -1254,7 +1585,8 @@ class OciAdapter:
         """
         settled = self._undelivered(labels)
         _denied(f"{why}; the credential delivery is "
-                f"{settled['lifecycle_state']}")
+                f"{settled['credentials']['lifecycle_state']} and the launch "
+                f"document is {settled['launch']['lifecycle_state']}")
 
     def _undelivered(self, labels):
         """W6634: the credential ending for a start that produced no runtime.
@@ -1278,18 +1610,68 @@ class OciAdapter:
         distinguishable from one that failed cleanly -- which is exactly what
         "cleanup uncertainty is not settlement" requires.
         """
-        if self.credential_delivery is None:
-            return {"lifecycle_state": "not-delivered"}
+        # ONE LISTING, TWO ENDINGS. W26291 re-review [P1]: the launch root had
+        # no ending at all, so a refused start left it behind -- and it is not
+        # the credential's dependent, because a delivery with no credential
+        # still has a launch document. The absence question is asked once and
+        # both mounts are settled on the answer.
+        undelivered = {"lifecycle_state": "not-delivered"}
+        if self.credential_delivery is None and self.launch_delivery is None:
+            return {"credentials": undelivered, "launch": undelivered}
+        why = None
         try:
             existing = self.list({"labels": labels})
         except ContractRefusal as refusal:
-            return {"lifecycle_state": "unresolved", "why": refusal.message}
-        if existing:
-            return {"lifecycle_state": "unresolved",
-                    "why": f"{len(existing)} runtime(s) carry this attempt's "
-                           f"labels after a start this adapter did not "
-                           f"complete, and any of them may hold the mount"}
-        return self._credential_home().tear_down(self.credential_delivery)
+            why = refusal.message
+        else:
+            if existing:
+                why = (f"{len(existing)} runtime(s) carry this attempt's "
+                       f"labels after a start this adapter did not complete, "
+                       f"and any of them may hold the mount")
+        launched = self._launch_ended(why is None, why)
+        if why is not None:
+            return {"credentials": ({"lifecycle_state": "unresolved",
+                                     "why": why}
+                                    if self.credential_delivery is not None
+                                    else undelivered),
+                    "launch": launched}
+        if self.credential_delivery is None:
+            return {"credentials": undelivered, "launch": launched}
+        return {"credentials": self._credential_home()
+                                   .tear_down(self.credential_delivery),
+                "launch": launched}
+
+    def _launch_ended(self, proved_absent, why):
+        """W26291 re-review [P1]: the launch root's ONE ending.
+
+        `launch.discard` existed and nothing production ever called it, so a
+        refused start and a runtime proved absent both left an attempt-private
+        root and a world-readable document behind for good -- unbounded manager
+        storage, and an implementation claim that was simply false.
+
+        DISCARDED ONLY ON THE EVIDENCE THAT NOTHING CAN HOLD THE MOUNT, which
+        is why this is called from the two places that establish it rather than
+        from `destroy` or `_refused_start` directly. A document removed under a
+        container that may still be reading it is an ending reported before it
+        happened -- the same rule the credential root is held to, on the mount
+        beside it.
+
+        Answers a state rather than nothing, so a caller can tell a launch
+        document that ended from one that was never delivered.
+        """
+        if self.launch_delivery is None:
+            # NOT `absent`, which is what the RUNTIME state beside this says.
+            # One word meaning two things in one document is how a reader
+            # concludes a launch document was removed because a container was.
+            return {"lifecycle_state": "not-delivered"}
+        if not proved_absent:
+            return {"lifecycle_state": "unresolved", "why": why}
+        if launch.discard(self.launch_delivery.root):
+            return {"lifecycle_state": "torn-down"}
+        return {"lifecycle_state": "unresolved",
+                "why": f"the launch root "
+                       f"{name_value(self.launch_delivery.root)} is still "
+                       f"present after removal"}
 
     def list(self, request):
         """Every runtime carrying EXACTLY these labels, each one typed."""
@@ -1405,18 +1787,113 @@ class OciAdapter:
         rest is the manager's authorization travelling with its command rather
         than being reconstructed on this side.
         """
+        # W6636: THE OPERATION RIDES BESIDE THE BODY, and this contract has to
+        # say so. `intake.authorize_cleanup` delivers
+        # `{**destroy_command(...), "operation": ...}` -- which this very
+        # docstring describes -- while the member list named only the body, and
+        # `boundaries.document` refuses an unrecognised member rather than
+        # ignoring it. So the composed lifecycle refused at the destroy
+        # crossing, one step past the retention seam that was missing
+        # altogether. Surfaced by composing the arc; invisible to either side's
+        # own suite, because each was right about its own half.
         taken = boundaries.document(command, "a destroy command",
-                                    required=("assignment_ref",
-                                              "runtime_attempt_id",
-                                              "runtime_id",
-                                              "intake_receipt_digest",
-                                              "retention_policy_digest"))
-        runtime_id = boundaries.identity(taken["runtime_id"], "a runtime id")
+                                    required=documents.DESTROY_COMMAND,
+                                    optional=("operation",))
+        return self._removed(taken["runtime_id"], "a destroyed")
+
+    def destroy_failed_start(self, command):
+        """W34998: remove the runtime a FAILED START created, and prove it.
+
+        A start that reached the engine, created a container and then failed
+        leaves an exact runtime and NO INTAKE RECEIPT -- nothing was frozen,
+        collected or admitted, so there is no receipt to authorize a removal
+        with. `destroy` requires one, correctly, so this ending had no way
+        through it at all: that is the gap approver ruling M34998/M34999
+        creates this method to close.
+
+        A SIBLING, AND DELIBERATELY NOT A UNION. `destroy` does not learn to
+        accept this body and this does not fall back to `destroy`. A receiver
+        that took either would let a caller authorize a removal with whichever
+        digest it happened to be holding -- and the two digests mean opposite
+        things: a receipt says material was taken into custody under a policy,
+        a failure record says a start did not happen. Keeping the member sets
+        closed is what makes a cross-called body a refusal rather than a
+        silently accepted authorization.
+
+        THE SAME CORE, ONE STEP LATER. What follows the body -- force-remove
+        the exact identity, observe it, settle the credential and launch
+        deliveries on positive absence and only on that -- is `_removed`,
+        shared with `destroy` rather than written twice. Two implementations of
+        an ordered teardown are two orders that agree until they do not.
+
+        AND NOTHING HERE TOUCHES THE RESULT DIRECTORY. The unique directory a
+        failed start left behind was created untrusted and stays in place
+        untrusted: this method does not read, copy, validate, freeze, collect,
+        admit, quarantine or delete it. W32648 owns what becomes of it.
+        """
+        taken = boundaries.document(
+            command, "a failed-start destroy command",
+            required=documents.FAILED_START_DESTROY_COMMAND,
+            optional=("operation",))
+        return self._removed(taken["runtime_id"], "a failed-start")
+
+    def destroy_refused_session(self, command):
+        """W32576: remove the runtime a REFUSED HANDSHAKE leaves running.
+
+        THE THIRD SIBLING, and a sibling for the reason the second one is. A
+        session that answered a wire version this manager never certified has
+        no intake receipt -- nothing was frozen, collected or admitted -- and
+        it is not a failed start either: the container is RUNNING, and running
+        an agent this manager cannot speak to. Neither existing body describes
+        that, and a receiver that accepted whichever body arrived would let a
+        caller spend one ending's authorization on another's.
+
+        THE SAME CORE, AND THE SAME ORDER. `_removed` force-removes the exact
+        identity, observes it, and settles the credential and launch
+        deliveries on positive absence and only on that. Running is not a
+        different teardown; it is the same teardown, and `docker rm --force`
+        is what makes it one.
+
+        AND NOTHING HERE TOUCHES THE RESULT DIRECTORY. Whatever the worker
+        wrote before the handshake refused was written by a worker this
+        manager never negotiated with, so it began untrusted and stays
+        untrusted and in place. W32576 owns what becomes of it.
+        """
+        taken = boundaries.document(
+            command, "a refused-session destroy command",
+            required=documents.REFUSED_SESSION_DESTROY_COMMAND,
+            optional=("operation",))
+        return self._removed(taken["runtime_id"], "a refused-session")
+
+    def _removed(self, named, what):
+        """Force-remove one exact identity and answer what became of it.
+
+        NOTHING IN THE COMMAND IS INTERPRETED HERE. This core answers facts
+        about an engine and decides nothing: the identity is what it acts on,
+        and the rest of either body is the manager's authorization travelling
+        with its command rather than being reconstructed on this side.
+
+        A LITERAL IN THE LABEL, even though the noun is the caller's. A shared
+        owner that served two crossings with `what` alone would carry a label
+        the boundary inventory cannot attribute and a probe cannot assert --
+        which the inventory said in as many words the moment this helper was
+        factored. The caller names WHICH command it is; the literal says what
+        the value is.
+        """
+        runtime_id = boundaries.identity(named, f"{what} runtime id")
         self.run(destroy_vector(self.engine, runtime_id=runtime_id))
         observed = self.observe(runtime_id)
         return {"runtime_id": runtime_id, "state": observed["state"],
                 "why": observed["why"],
-                "credentials": self._torn_down(observed)}
+                "credentials": self._torn_down(observed),
+                # W26291 re-review [P1]: TWO MOUNTS, TWO ENDINGS, ONE PROOF.
+                # The launch document is a separate manager-owned root and had
+                # none at all, so a destroyed runtime left it behind for good.
+                # It is settled on the SAME absence evidence and reported
+                # beside the credential ending rather than folded into it: a
+                # delivery with no credential still has a launch document.
+                "launch": self._launch_ended(observed["state"] == "absent",
+                                             observed["why"])}
 
     def _torn_down(self, observed):
         """W6634: the credential ending, ordered AFTER container removal.
@@ -1502,21 +1979,26 @@ class OciAdapter:
         one crossing each, and a second module calling them would give one
         capability two owners. Inside this adapter they are its own methods.
 
-        The eight frozen label members split exactly -- the request carries the
-        attempt and the four parts of the assignment, this adapter has owned
-        the three resolved digests since construction -- so the selector
-        composes without the manager passing a runtime id it deliberately does
-        not pass. Nothing is remembered between calls, so a manager restarted
+        The ten frozen label members split exactly -- the request carries the
+        attempt, the four parts of the assignment and W16823's trusted
+        principal and effective scope, this adapter has owned the three
+        resolved digests since construction -- so the selector composes without
+        the manager passing a runtime id it deliberately does not pass. Nothing is remembered between calls, so a manager restarted
         between start and freeze gates exactly as well as one that was never
         restarted.
         """
         expect = request["assignment"]
+        context = boundaries.document(request["context"],
+                                      "a seal authorization context",
+                                      required=LABEL_CONTEXT)
         labels = documents.runtime_labels(
             runtime_attempt_id=request["attempt_id"],
             authority_uuid=expect["work_ref"]["authority_uuid"],
             work_id=expect["work_ref"]["work_id"],
             participant=expect["participant"],
             generation=expect["generation"],
+            principal=context["principal"],
+            effective_scope=context["effective_scope"],
             profile_digest=self.identity["profile_digest"],
             policy_digest=self.identity["policy_digest"],
             adapter_digest=self.identity["adapter_digest"])
@@ -1535,6 +2017,122 @@ class OciAdapter:
         return sealing.collected_result(
             operands, custody=self._custody(operands["attempt_id"]),
             declared=self.declared_outputs)
+
+    def retain(self, command):
+        """W6636: the retention decision, delivered to the side holding the
+        material.
+
+        THE SEAM EXISTED ON THE MANAGER'S SIDE AND NOWHERE ELSE. `intake.
+        decide_retention` types `adapter.retain` as a capability and delivers
+        `outputRetainBody` to it, and this adapter simply had no such method --
+        so a composed one-container lifecycle refused at retention and could
+        never reach the destroy crossing at all. Surfaced by composing the arc,
+        which is the only place a missing seam between two accepted components
+        is visible.
+
+        AND IT ENACTS THE DISPOSITION. The first version validated the command
+        and returned `{"delivered": True}` for every disposition, which I
+        recorded as an unspecified retention semantics. Review [P0]: it is not
+        unspecified, and the manager's OWN settlement rule says so --
+        `complete` means nothing was kept. An arc that discarded and then
+        reported `complete` over surviving bytes was a false clean ending, not
+        a policy question. W6629 already decided the boundary: `output.retain`
+        is delivered to the side holding the material BECAUSE retention decides
+        what happens to that material.
+
+        THE PATH IS DERIVED, NEVER TAKEN. An artifact identity is
+        `attempt:name` and the tree is this adapter's own custody place for
+        that name -- so a caller cannot name a path, cannot reach another
+        attempt's material, and cannot discard something this assignment never
+        declared. Each of those is refused rather than resolved.
+
+        ABSENCE IS ESTABLISHED, not ordered. `discard_tree` removes the tree
+        and this asks the filesystem afterwards, for the same reason every
+        other ending here does: a removal that returned is not evidence that
+        anything is gone.
+
+        AND IT IS IDEMPOTENT. An exact retry discards an already-absent tree,
+        which is the state it asked for rather than a failure -- the manager
+        delivers this before its own journal, so a crash between the two makes
+        the next authorization repeat it.
+        """
+        taken = boundaries.document(
+            command, "a retain command",
+            required=("assignment_ref", "runtime_attempt_id", "artifact_ids",
+                      "disposition", "retention_policy_digest"),
+            optional=("operation",))
+        attempt_id = boundaries.identity(taken["runtime_attempt_id"],
+                                         "a runtime attempt id")
+        disposition = boundaries.text(taken["disposition"],
+                                      "a retention disposition")
+        # BEFORE ANY FILESYSTEM MUTATION, and before the names are even
+        # resolved. An unknown word is not a discard.
+        if disposition not in _RETENTION_DISPOSITIONS:
+            _denied(f"{name_value(disposition)} is not a retention "
+                    f"disposition; the three this build enacts are "
+                    f"{', '.join(sorted(_RETENTION_DISPOSITIONS))}")
+        names = self._custodied(taken["artifact_ids"], attempt_id)
+        home = self._custody(attempt_id)
+        if disposition in _KEEPS_MATERIAL:
+            # KEPT MEANS STILL THERE, AND THAT IS OBSERVED. Re-review [P0]:
+            # this returned without looking, so custody that vanished between
+            # intake and retention was journalled as kept -- and cleanup then
+            # derived `retained`, whose whole meaning is that the material is
+            # still there. That is the keep-side twin of the false `complete`
+            # the previous review found, and it fails the same way: an ending
+            # reported over bytes nobody saw.
+            #
+            # REFUSED BEFORE THE MANAGER JOURNALS, which is what makes it
+            # actionable: `decide_retention` delivers this command and only
+            # then records the decision, so a refusal here means no decision
+            # was written about material that is not there.
+            for name in names:
+                place = os.path.join(home, name)
+                if not os.path.isdir(place):
+                    _denied(f"artifact "
+                            f"{name_value(f'{attempt_id}:{name}')} is to be "
+                            f"kept and its custody tree is not there; "
+                            f"{name_value(disposition)} is an ending about "
+                            f"material that still exists")
+            return {"delivered": True, "discarded": []}
+        discarded = []
+        for name in names:
+            place = os.path.join(home, name)
+            workspaces.discard_tree(place)
+            if os.path.exists(place):
+                _denied(f"the custody tree for artifact "
+                        f"{name_value(f'{attempt_id}:{name}')} is still "
+                        f"present after removal; a discard that cannot be "
+                        f"proved is not a discard")
+            discarded.append(name)
+        return {"delivered": True, "discarded": sorted(discarded)}
+
+    def _custodied(self, artifact_ids, attempt_id):
+        """The declared output names these artifact identities name.
+
+        ONE SHAPE, AND IT IS `attempt:name`. `sealing.collected_result` mints
+        every identity that way, so anything else is not an identity this
+        adapter ever issued -- and resolving it anyway is how a caller-selected
+        path gets in.
+        """
+        taken = own(artifact_ids, what="the retained artifact ids")
+        if type(taken) is not list:
+            _denied(f"a retention names a list of artifact ids; this is "
+                    f"{name_value(artifact_ids)}")
+        names = []
+        for one in taken:
+            identity = boundaries.text(one, "a retained artifact id")
+            attempt, _, name = identity.partition(":")
+            if not name or attempt != attempt_id:
+                _denied(f"artifact {name_value(identity)} is not this "
+                        f"attempt's; a retention acts on the material this "
+                        f"adapter took custody of and nothing else")
+            if name not in self.declared_outputs:
+                _denied(f"artifact {name_value(identity)} names output "
+                        f"{name_value(name)}, which this assignment does not "
+                        f"declare")
+            names.append(name)
+        return names
 
     def observe(self, runtime_id):
         """POSITIVE ABSENCE, or an honest `uncertain`.

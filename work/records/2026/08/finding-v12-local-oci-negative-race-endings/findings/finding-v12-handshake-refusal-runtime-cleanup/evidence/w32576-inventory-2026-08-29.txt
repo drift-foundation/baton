@@ -1,0 +1,134 @@
+W32576 — THE BOUNDARY INVENTORY, MEASURED BEFORE AND AFTER
+==========================================================
+
+THE INVENTORY IS RED AT BASELINE for other Works' entries, so "the suite
+passes" is not a claim available here. What IS available is the DELTA, by name
+and by count.
+
+BEFORE: 47 owned-but-never-probed entries, of which NINETEEN were this round's
+new surface. The full list is below; the nineteen are every caller operand of
+`authorize_refused_session_cleanup` and `refused_session_destroy_operation`,
+both crossings of `OciAdapter.destroy_refused_session`, and every member of
+what `_destroyed_refused_session` receives back.
+
+AFTER: 30, and only TWO of this round's remain:
+
+    ('injected', 'intake.py:_destroyed_refused_session',
+     'adapter.destroy_refused_session')            'a  teardown ending'
+    ('injected', 'intake.py:_destroyed_refused_session',
+     'adapter.destroy_refused_session.lifecycle_state')
+                                                   "a  teardown ending's state"
+
+THOSE TWO ARE NOT THIS ROUND'S GAP, and the transcript proves it rather than
+asserting it: ALL THREE destroy paths leave exactly the same pair unprobed --
+`_destroyed` for the receipt-authorized ending, `_destroyed_failed_start` for
+W32648's, and `_destroyed_refused_session` for this one. It is one gap in the
+shared `_provider_ending` shape, which each sibling inherits by calling it.
+
+AND THE PROBES WERE PROVED TO ARRIVE, which is the half that matters:
+`test_every_declared_probe_reaches_its_named_boundary` — 1 test, OK, 411s.
+
+THE INVENTORY CAUGHT A DEFECT IN MY OWN FIXTURE, and it is worth recording
+because it is exactly what that check exists for. My first `refused_session_
+world()` left the session's fence answer naming the shared offer fixtures'
+authority while `output_world` had re-pointed the session at its own Work. So
+all four injected probes were refused by `request_cancellation` for an
+authority mismatch and never reached the observation boundaries they named --
+a probe that fails for an earlier reason proves the earlier reason. Four
+failures, named, before the fence answer was aligned.
+
+THE REMEASURED LIST FOLLOWS.
+
+F
+======================================================================
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5742, in test_every_owned_entry_has_exactly_one_probe
+    self.assertEqual(sorted(wanted - declared), [], "owned, never probed")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'handshake.py:certified_agen[3045 chars]te")] != []
+
+First list contains 30 additional elements.
+First extra element 0:
+(('adopted', 'handshake.py:certified_agent_session_profile', 'profiles.body.postures'), 'a retained agent-session profile')
+
++ []
+- [(('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.declared_output'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.policy'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.workspace'),
+-   'a retained agent-session profile'),
+-  (('adopted', 'intake.py:retentions_of', 'retentions.retain_operation_id'),
+-   'a persisted retention'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.authority_uuid'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.generation'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.participant'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.posture'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.profile_digest'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.runtime_attempt_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.work_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta'),
+-   "the configured workspace group's record"),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta.value'),
+-   "the configured workspace group's record"),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.target'),
+-   "the runtime adapter's start"),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command'), 'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.artifact_ids'),
+-   'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.disposition'),
+-   'a retention disposition'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.runtime_attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'oci.py:OciAdapter.start', 'request.input_root'),
+-   'a start request'),
+-  (('caller', 'oci.py:canonical_source', 'place'), 'a host path'),
+-  (('caller', 'oci.py:canonical_target', 'place'), 'a container path'),
+-  (('caller', 'workspaces.py:compose_input_root', 'assignment'),
+-   "the manager's own assignment"),
+-  (('caller', 'workspaces.py:compose_input_root', 'runtime_attempt_id'),
+-   'a runtime attempt identity'),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy'),
+-   'a  teardown ending'),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start'),
+-   'a  teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session'),
+-   'a  teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session.lifecycle_state'),
+-   "a  teardown ending's state")] : owned, never probed
+
+----------------------------------------------------------------------
+Ran 1 test in 192.661s
+
+FAILED (failures=1)

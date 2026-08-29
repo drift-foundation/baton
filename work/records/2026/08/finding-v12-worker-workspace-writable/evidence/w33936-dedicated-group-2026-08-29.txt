@@ -1,0 +1,223 @@
+W33936 — THE RULED ENGINE PROOF, UNDER AN ACTUAL DEDICATED NON-AUTHORITY GROUP
+============================================================================
+
+WHY THE DEPLOYMENT MOVED INSTEAD OF THE FIXTURE. The standing review item
+requires this matrix to run against "an actual dedicated non-authority group".
+This workstation has none and this manager may not create one: `sudo` here is
+not setuid ("sudo must be owned by uid 0 and have the setuid bit set"),
+`newuidmap`/`newgidmap` are absent, and creating a host group is precisely what
+approver ruling M34630 forbids the manager to do. So the group was provisioned
+in a DEPLOYMENT IMAGE -- `w33936-dedicated-group.Dockerfile` -- and the manager
+was run inside it. Its workers are launched as SIBLINGS on the same real host
+daemon, over the same socket, with the same host bind paths, so the engine half
+of the proof is unchanged; only the manager's own account and groups moved.
+
+THE PROVISIONED DEPLOYMENT
+--------------------------
+
+    uid=1000(batonmgr) gid=1000(batonmgr) \
+        groups=1000(batonmgr),119(enginesocket),8291(baton-workspace)
+
+    baton-workspace:x:8291:batonmgr      <- the configured workspace group
+    enginesocket:x:119:batonmgr          <- the engine socket group
+
+    BATON_V12_WORKSPACE_GROUP=8291
+
+gid 8291 IS DEDICATED AND NON-AUTHORITY, and both halves are measured rather
+than asserted:
+
+  * `getent group 8291` on the host: NONE. The gid names no group here, and no
+    account outside the manager image holds it.
+  * `find / -xdev -group 8291`: 0 files across the root filesystem. It owns
+    nothing until the manager allocates the first workspace.
+  * it is not the manager's primary group (1000) and not a service group.
+
+gid 119 IS THE CONTRAST, and it is what makes the negative case mean something.
+It is the container engine's socket group -- membership in it is full control
+of the daemon. The manager holds it because it must talk to the engine. So
+`test_a_second_held_group_refuses_despite_being_usable` now refuses a group
+that really does carry authority, rather than a second harmless one.
+
+A CORRECTION TO MY OWN FIRST MEASUREMENT. I first recorded the socket as
+`65534:65534` and said membership in 65534 was what granted the engine. That
+was this session's own user namespace re-mapping the owner: read from inside a
+container the socket is `0:119`, and 119 is the real group. The image grants
+119 and the earlier figure is wrong.
+
+WHAT THE HOST ITSELF IS
+-----------------------
+host:            slryzen  Ubuntu 25.10
+docker client:   29.1.3
+docker server:   29.1.3
+podman:          ABSENT — no compatible engine on this deployment
+
+THE PROBE, INSIDE THE EXACT ARGV THE MANAGER COMPOSED
+-----------------------------------------------------
+W33936 — THE WRITABLE ROOT, ASKED OF A REAL CONTAINER
+==========================================================================
+
+the modes the manager's own components declare:
+    workspaces.READ_ONLY_FILE  = 0o444
+    workspaces.READ_ONLY_DIR   = 0o555
+    launch.READ_ONLY_FILE      = 0o444
+    launch.READ_ONLY_DIR       = 0o555
+    credentials.VOLATILE_DIR   = 0o700
+    credentials.VOLATILE_FILE  = 0o600
+    the manager runs as        = 1000:1000
+
+runProbe (__main__.Probe.runProbe) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.241s
+
+OK
+
+THE COMPOSED --user IS '65532:65532'
+
+THE HOST SIDE:
+    inputs root        {'mode': '0o555', 'uid': 1000, 'gid': 1000}
+    workspace root     {'mode': '0o770', 'uid': 1000, 'gid': 8291}
+    assignment home    {'mode': '0o555', 'uid': 1000, 'gid': 1000}
+    launch root        {'mode': '0o555', 'uid': 1000, 'gid': 1000}
+    credential root    {'mode': '0o700', 'uid': 1000, 'gid': 1000}
+
+THE CONTAINER SIDE:
+    running as [65532, 65532] groups [8291, 65532]
+    /input
+      {'mode': '0o555', 'uid': 1000, 'gid': 1000, 'r': True, 'w': False, 'x': True, 'wrote': 'OSError: 30'}
+    /input/input.json
+      {'mode': '0o444', 'uid': 1000, 'gid': 1000, 'r': True, 'w': False, 'x': False, 'wrote': 'PermissionError: 13'}
+    /workspace
+      {'mode': '0o770', 'uid': 1000, 'gid': 8291, 'r': True, 'w': True, 'x': True, 'wrote': True}
+    /run/baton/launch.json
+      {'mode': '0o444', 'uid': 1000, 'gid': 1000, 'r': True, 'w': False, 'x': False, 'wrote': 'PermissionError: 13'}
+    /run/baton/credentials/registry
+      {'mode': '0o600', 'uid': 1000, 'gid': 1000, 'r': False, 'w': False, 'x': False, 'wrote': 'PermissionError: 13'}
+
+
+THE FULL MATRIX, RUN BY THE PROVISIONED MANAGER
+------------------------------------------------
+
+    docker run --rm --user batonmgr \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      -v /usr/bin/docker:/usr/bin/docker:ro \
+      -v /home/sl/src/baton:/home/sl/src/baton:ro \
+      -v /tmp/w33936-dedicated:/tmp/w33936-dedicated \
+      -w /home/sl/src/baton/v12/python \
+      -e PYTHONPATH=src -e TMPDIR=/tmp/w33936-dedicated \
+      -e BATON_V12_WORKSPACE_GROUP=8291 \
+      baton-w33936-dedicated:1 \
+      python3 -m unittest tests.manager.test_input_delivery -v
+test_a_consent_runtime_is_given_no_supplementary_group (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_consent_runtime_is_given_no_supplementary_group) ... ok
+test_a_restarted_manager_reuses_a_delivery_that_is_still_readable (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable)
+Restart and retry reuse. ... ok
+test_a_root_that_left_the_group_refuses_before_the_engine (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_root_that_left_the_group_refuses_before_the_engine)
+The pre-launch proof, driven by the thing it exists to catch. ... ok
+test_a_second_held_group_refuses_despite_being_usable (tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_second_held_group_refuses_despite_being_usable)
+THE REVIEW'S NAMED NEGATIVE. ... ok
+test_allocation_puts_the_workspace_in_the_configured_group (tests.manager.test_input_delivery.DockerConfiguredGroup.test_allocation_puts_the_workspace_in_the_configured_group)
+The wiring the review found missing, at the canonical boundary. ... ok
+test_an_allocation_takes_only_the_deployments_own_answer (tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_allocation_takes_only_the_deployments_own_answer)
+Review [P1], and this is the case it asked for. ... ok
+test_an_owner_only_output_fails_closed_rather_than_widening (tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_owner_only_output_fails_closed_rather_than_widening)
+The ruling's negative half. ... ok
+test_an_unconfigured_execution_refuses_before_the_engine (tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_unconfigured_execution_refuses_before_the_engine)
+Review [P0], and my last cut had this exactly backwards. ... ok
+test_manager_cleanup_of_worker_content_is_measured_not_assumed (tests.manager.test_input_delivery.DockerConfiguredGroup.test_manager_cleanup_of_worker_content_is_measured_not_assumed)
+The cleanup half of the acceptance, and it does NOT come out clean. ... ok
+test_neither_document_is_writable_and_neither_is_the_root (tests.manager.test_input_delivery.DockerConfiguredGroup.test_neither_document_is_writable_and_neither_is_the_root)
+Readable did not become writable -- asked TWICE, of two different ... ok
+test_one_assignment_workspace_reaches_no_other (tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_assignment_workspace_reaches_no_other)
+Sibling isolation, with both roots in the SAME configured group. ... ok
+test_one_runtime_reaches_no_other_assignments_input_root (tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_runtime_reaches_no_other_assignments_input_root)
+Sibling isolation. ... ok
+test_the_applied_group_is_asked_of_the_engine_and_the_process (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_applied_group_is_asked_of_the_engine_and_the_process)
+`--group-add` composed is one fact; applied is the one that counts. ... ok
+test_the_grant_reaches_no_surface_but_the_workspace (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_grant_reaches_no_surface_but_the_workspace)
+Correction boundary: the group grants write HERE and nowhere else. ... ok
+test_the_group_is_validated_and_never_inferred (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_group_is_validated_and_never_inferred) ... ok
+test_the_launch_document_and_the_input_pair_agree_on_the_mode (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_launch_document_and_the_input_pair_agree_on_the_mode)
+Two manager-owned read-only deliveries, one rule. ... ok
+test_the_worker_creates_updates_and_removes_in_its_workspace (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_creates_updates_and_removes_in_its_workspace)
+THE ACCEPTANCE, positive, in the exact composed container. ... ok
+test_the_worker_identity_reads_both_delivered_documents (tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_identity_reads_both_delivered_documents)
+The defect, kept. ... ok
+test_what_the_worker_creates_inherits_the_workspace_group (tests.manager.test_input_delivery.DockerConfiguredGroup.test_what_the_worker_creates_inherits_the_workspace_group)
+The ruling's own required proof, and the reason for the setgid bit. ... ok
+test_a_restarted_manager_reuses_a_delivery_that_is_still_readable (tests.manager.test_input_delivery.DockerDelivery.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable)
+Restart and retry reuse. ... ok
+test_neither_document_is_writable_and_neither_is_the_root (tests.manager.test_input_delivery.DockerDelivery.test_neither_document_is_writable_and_neither_is_the_root)
+Readable did not become writable -- asked TWICE, of two different ... ok
+test_one_runtime_reaches_no_other_assignments_input_root (tests.manager.test_input_delivery.DockerDelivery.test_one_runtime_reaches_no_other_assignments_input_root)
+Sibling isolation. ... ok
+test_the_launch_document_and_the_input_pair_agree_on_the_mode (tests.manager.test_input_delivery.DockerDelivery.test_the_launch_document_and_the_input_pair_agree_on_the_mode)
+Two manager-owned read-only deliveries, one rule. ... ok
+test_the_worker_identity_reads_both_delivered_documents (tests.manager.test_input_delivery.DockerDelivery.test_the_worker_identity_reads_both_delivered_documents)
+The defect, kept. ... ok
+setUpClass (tests.manager.test_input_delivery.PodmanConfiguredGroup) ... skipped 'podman is not on PATH'
+setUpClass (tests.manager.test_input_delivery.PodmanDelivery) ... skipped 'podman is not on PATH'
+test_every_home_entry_the_other_components_name_is_declared (tests.manager.test_input_delivery.TheHomeLayoutIsDeclaredWhereItIsFrozen.test_every_home_entry_the_other_components_name_is_declared) ... ok
+test_cleanup_removes_a_frozen_root_and_thaws_nothing_else (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_cleanup_removes_a_frozen_root_and_thaws_nothing_else)
+Retry and cleanup still work, and reach exactly one tree. ... ok
+test_recomposition_is_still_refused_rather_than_forced (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_recomposition_is_still_refused_rather_than_forced)
+The freeze is not what makes a second composition impossible, and ... ok
+test_the_frozen_root_denies_create_unlink_rename_and_replacement (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_the_frozen_root_denies_create_unlink_rename_and_replacement)
+The four ways a directory's write bit lets somebody change what a ... ok
+test_the_manager_can_still_read_and_traverse_what_it_froze (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_the_manager_can_still_read_and_traverse_what_it_froze)
+0555 and not 0500: the container's fixed uid is not this manager's, ... ok
+test_the_root_is_frozen_to_the_declared_mode (tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_the_root_is_frozen_to_the_declared_mode) ... ok
+test_a_restrictive_umask_cannot_author_an_unreadable_document (tests.manager.test_input_delivery.TheModeIsEstablishedRatherThanRequested.test_a_restrictive_umask_cannot_author_an_unreadable_document) ... ok
+test_the_delivered_mode_grants_read_and_no_write_to_anybody (tests.manager.test_input_delivery.TheModeIsEstablishedRatherThanRequested.test_the_delivered_mode_grants_read_and_no_write_to_anybody)
+The claim the mode itself makes, stated as bits. ... ok
+test_cleanup_reaches_exactly_one_frozen_home (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_cleanup_reaches_exactly_one_frozen_home) ... ok
+test_the_home_is_frozen_once_its_entries_exist (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_the_home_is_frozen_once_its_entries_exist) ... ok
+test_the_root_entry_itself_cannot_be_renamed_or_replaced (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_the_root_entry_itself_cannot_be_renamed_or_replaced)
+The reviewer's reproduction, as a permanent case. ... ok
+test_what_the_frozen_home_still_permits (tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_what_the_frozen_home_still_permits)
+The home's mode governs its ENTRIES and nothing deeper. ... ok
+test_a_colliding_home_cannot_alias_another_attempts_home (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_colliding_home_cannot_alias_another_attempts_home)
+The attempt home itself is part of the exclusive boundary. ... ok
+test_a_colliding_home_cannot_alias_another_attempts_root (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_colliding_home_cannot_alias_another_attempts_root)
+Exclusive allocation refuses stale names rather than adopting them. ... ok
+test_a_home_that_is_not_a_directory_is_refused (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_home_that_is_not_a_directory_is_refused) ... ok
+test_a_partial_pair_is_never_published (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_partial_pair_is_never_published)
+Both documents or neither: §7.0's order, and the rule that a mount ... ok
+test_a_published_delivery_is_not_recomposed (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_published_delivery_is_not_recomposed) ... ok
+test_a_second_attempt_cannot_publish_over_a_published_delivery (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_second_attempt_cannot_publish_over_a_published_delivery)
+The collision refusal, at the boundary where a collision is ... ok
+test_a_stale_entry_of_any_other_kind_is_refused_too (tests.manager.test_input_delivery.TheRuledTrustModel.test_a_stale_entry_of_any_other_kind_is_refused_too)
+The alias is one shape of stale state; these are the others. ... ok
+test_an_aliased_home_is_refused_by_every_shape_it_can_take (tests.manager.test_input_delivery.TheRuledTrustModel.test_an_aliased_home_is_refused_by_every_shape_it_can_take)
+The reviewer's whole-home case, and its siblings. ... ok
+test_cleanup_never_reaches_outside_the_storage_root (tests.manager.test_input_delivery.TheRuledTrustModel.test_cleanup_never_reaches_outside_the_storage_root) ... ok
+test_cleanup_reaches_one_attempt_and_retries_cleanly (tests.manager.test_input_delivery.TheRuledTrustModel.test_cleanup_reaches_one_attempt_and_retries_cleanly) ... ok
+test_first_allocation_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_first_allocation_race_answers_or_refuses_in_contract)
+An exclusive mkdir collision is a refusal, not a raw OS fault. ... ok
+test_provisioning_is_idempotent_because_a_restart_needs_it (tests.manager.test_input_delivery.TheRuledTrustModel.test_provisioning_is_idempotent_because_a_restart_needs_it)
+Asking twice is not reusing an identity. ... ok
+test_the_child_create_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_child_create_race_answers_or_refuses_in_contract)
+The same contract one level down, which the review asks for by name. ... ok
+test_the_home_create_race_answers_or_refuses_in_contract (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_home_create_race_answers_or_refuses_in_contract) ... ok
+test_the_loser_of_a_create_race_reopens_rather_than_refusing (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_loser_of_a_create_race_reopens_rather_than_refusing)
+Both callers get roots, because both are the same attempt. ... ok
+test_the_published_documents_carry_no_write_bit_for_anybody (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_published_documents_carry_no_write_bit_for_anybody) ... ok
+test_the_restart_lookup_still_answers_the_same_roots (tests.manager.test_input_delivery.TheRuledTrustModel.test_the_restart_lookup_still_answers_the_same_roots)
+The path the previous cut broke, kept green beside the new guard. ... ok
+test_two_attempts_receive_two_private_roots (tests.manager.test_input_delivery.TheRuledTrustModel.test_two_attempts_receive_two_private_roots) ... ok
+
+----------------------------------------------------------------------
+Ran 54 tests in 3.687s
+
+OK (skipped=2)
+
+
+WHAT IS STILL NOT PROVED, NAMED RATHER THAN REPRESENTED AS A PASS
+-----------------------------------------------------------------
+
+COMPATIBLE PODMAN IS ABSENT AND CANNOT BE OBTAINED HERE. `PodmanConfiguredGroup`
+and `PodmanDelivery` skip. Installing it needs root this deployment does not
+grant, and ROOTLESS Podman needs `newuidmap`/`newgidmap`, which are not on this
+host -- so there is no path to a compatible Podman from inside these
+constraints. Two of the matrix's engines are one engine here. That is an
+operational limit of this deployment and it is not closure; the reproducible
+command is in `v12/python/DEPLOYMENT.md` for a deployment that has both.

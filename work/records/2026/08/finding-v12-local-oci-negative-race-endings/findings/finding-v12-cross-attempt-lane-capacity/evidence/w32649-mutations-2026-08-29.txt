@@ -1,0 +1,24 @@
+W32649 MUTATION HARNESS
+======================================================================
+[CAUGHT       ] the predecessor interlock is asked at all
+                FAIL: test_a_blocked_successor_authorizes_no_input_root (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_blocked_successor_authorizes_no_input_root)
+[CAUGHT       ] the interlock is asked of the WORK, not of the lane
+                FAIL: test_concurrent_principals_still_produce_one_work_holder (tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed.test_concurrent_principals_still_produce_one_work_holder)
+[CAUGHT       ] the release is bound to the holder
+                FAIL: test_a_release_is_bound_to_the_holder (tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed.test_a_release_is_bound_to_the_holder)
+[CAUGHT       ] the principal is part of the identity
+                ERROR: test_a_blocked_successor_authorizes_no_input_root (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_blocked_successor_authorizes_no_input_root)
+[CAUGHT       ] the lane is taken when a start is requested
+                FAIL: test_a_blocked_successor_authorizes_no_input_root (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_blocked_successor_authorizes_no_input_root)
+[CAUGHT       ] the early check refuses before anything durable
+                FAIL: test_a_blocked_successor_authorizes_no_input_root (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_blocked_successor_authorizes_no_input_root)
+[CAUGHT       ] the lane is released when cleanup ends
+                FAIL: test_a_settled_cleanup_releases_the_lane_and_the_successor_starts (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_settled_cleanup_releases_the_lane_and_the_successor_starts)
+[CAUGHT       ] the stored name must derive from the stored parts
+                FAIL: test_a_persisted_lane_must_derive_from_its_stored_identity (tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker.test_a_persisted_lane_must_derive_from_its_stored_identity)
+[CAUGHT       ] a whole consistent row is still read
+                ERROR: test_a_whole_consistent_row_is_still_read (tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker.test_a_whole_consistent_row_is_still_read)
+[CAUGHT       ] a failed cleanup does NOT release
+                FAIL: test_a_failed_cleanup_keeps_the_lane (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_failed_cleanup_keeps_the_lane)
+======================================================================
+Every guard is load-bearing.

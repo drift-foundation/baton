@@ -1,0 +1,54 @@
+{
+ "/input/assignment.json": {
+  "gid": 1000,
+  "mode": "0o444",
+  "readable": true,
+  "uid": 1000
+ },
+ "/input/input.json": {
+  "gid": 1000,
+  "mode": "0o444",
+  "readable": true,
+  "uid": 1000
+ },
+ "/run/baton/launch.json": {
+  "gid": 1000,
+  "mode": "0o444",
+  "readable": true,
+  "uid": 1000
+ },
+ "assignment_path": "/input/assignment.json",
+ "assignment_present": true,
+ "assignment_write_denied": true,
+ "assignment_write_error": "PermissionError: [Errno 13] Permission denied: '/input/assignment.json'",
+ "bindings_agree": true,
+ "compared": {
+  "input_digest": [
+   "sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86",
+   "sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86"
+  ],
+  "policy_digest": [
+   "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+   "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  ],
+  "runtime_profile_digest": [
+   "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+   "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "work_ref": [
+   {
+    "authority_uuid": "43c55d4b000000000000000000000000",
+    "work_id": "43c55d4b-W6636"
+   },
+   {
+    "authority_uuid": "43c55d4b000000000000000000000000",
+    "work_id": "43c55d4b-W6636"
+   }
+  ]
+ },
+ "input_present": true,
+ "running_as": [
+  65532,
+  65532
+ ]
+}

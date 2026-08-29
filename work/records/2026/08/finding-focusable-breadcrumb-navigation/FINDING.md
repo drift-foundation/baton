@@ -123,3 +123,38 @@ also update W292, W1151 and W4996 expectations where a page suffix becomes its
 own selectable crumb or the breadcrumb becomes a real focus stop. Verification
 is retained in `evidence/w26331-2026-08-28-tuner.txt`. No protocol, schema,
 projection or workflow code changed.
+
+## Tuner review correction — 2026-08-28 UTC
+
+**Revalidated:** the independent review's three findings are defects inside
+the approved generic breadcrumb contract, not new scope. Work crumb keys now
+include their stable location-frame and ancestry positions, so repeated Work
+occurrences produced by graph recentering remain independently selectable and
+navigable across repaint, resize and Back restoration. Focused Up/k is consumed
+at the breadcrumb's upper boundary and cannot mutate a hidden body selection.
+
+Viewport choice, right-edge reservation, paint columns and footer fitting now
+use the TUI's existing terminal-cell metric. Wide labels fall back to their
+exact compact selector, combining sequences remain whole, and dispatch, filter
+and participant units retain their reserved region. Requested repeated-graph,
+all-single-body/dual-Up, wide-character and combining-character regressions are
+in `tests/work/test_w26331_focusable_breadcrumb.py`; complete correction
+verification is appended to
+`evidence/w26331-2026-08-28-tuner.txt`.
+
+## Progress ownership ruling — confirmed 2026-08-28 UTC
+
+The prior repository rule reserving `PROGRESS.md` to `baton.claude` is
+superseded. Progress belongs to the participant that actually makes the
+implementation change under the authorized Work claim. This includes a tuner,
+reviewer, approver, prompt participant, or another Handler when that
+participant is the change author. Across serial claim episodes, each actual
+change author may append an attributable account but may not rewrite another
+author's history. A participant that only reviews or discusses the change
+still does not write progress.
+
+W26331 was explicitly assigned to and implemented by `baton.tuner`; requiring
+Claude to reconstruct that work would create false authorship. The tuner is
+therefore the required writer of this dossier's missing `PROGRESS.md`. Once
+that truthful record is present, the independent application sign-off is
+sufficient for satisfying closure.

@@ -56,7 +56,9 @@ class SessionCase(unittest.TestCase):
         return f"{label}.{self._ops}"
 
     def work(self, work_id=WORK, *, contract=V12, handlers=(CLAUDE, GEMINI)):
-        self.authority.create_work(work_id, ROUTE, contract=contract)
+        self.authority.create_work(
+            work_id, ROUTE, contract=contract,
+            operation_id=("create-" + work_id)[:160])
         for participant in handlers:
             self.authority.add_route_handler(ROUTE, participant)
         return work_id
@@ -92,13 +94,17 @@ class Minting(SessionCase):
             "activity", "advance_contract", "approve", "cancel", "claim",
             "close", "end", "install_gate", "integrate", "pass_work",
             "publish", "reject_plan", "review", "satisfy_gate",
-            "settle_operation", "verify"]))
+            "settle_operation", "verify",
+            # W29400: the two Work-label mutations, entered deliberately.
+            "label_work", "unlabel_work"]))
         self.assertEqual(list(SESSION_READS), sorted([
             "activities", "assert_invariants", "assignment_events",
             "assignment_of", "canonical_target", "contract_events",
             "fenced_generations", "gate_evidence", "integration_attempts",
             "operation_record", "operation_result", "project_work", "proposal",
-            "receipt", "receipts", "slot_holder"]))
+            "receipt", "receipts", "slot_holder",
+            # W29400: one Work's live set and its mutation history.
+            "labels_of", "work_label_events"]))
         public = sorted(name for name in dir(self.claude)
                         if not name.startswith("_"))
         self.assertEqual(
@@ -121,7 +127,28 @@ class Minting(SessionCase):
             "certify_contract", "create_work", "dispose", "grant_capability",
             "holds_capability", "is_certified", "permit_contract_transition",
             "permits_contract_transition", "policy", "revoke_capability",
-            "set_lookup_available", "set_policy", "withdraw_certification"})
+            "set_lookup_available", "set_policy", "withdraw_certification",
+            # W16821: the principal seam is CONFIGURATION, all six of it.
+            # `bind_endpoint` moves an identity's claim capacity, its grants
+            # and its attribution, so a session holding it would be a session
+            # that could act as somebody else.  `authorize` is the decision
+            # seam itself: a session that could ask it would be probing the
+            # deployment's grant table without acting, and the transitions that
+            # need it call it on the caller's behalf.  The four reads are here
+            # rather than on the session because they answer about OTHER
+            # principals and endpoints; `slot_holder` stays a session read
+            # because it answers about the session's own address.
+            "authorize", "bind_endpoint", "endpoints_of", "policy_generation",
+            "principal_of", "slot_holder_of_principal",
+            # W16821 review: `decision_of` and `grants_of` answer about acts
+            # and grants a session did not perform and does not hold, which is
+            # a deployment question.
+            "decision_of", "grants_of",
+            # W29400: `works_with_labels` is a DEPLOYMENT-WIDE inventory --
+            # which Work carries which labels -- so it stays on the
+            # configuration side.  The two mutations and the two per-Work reads
+            # are on the session, where an attributable act belongs.
+            "works_with_labels"})
         self.assertEqual(session_public & configuration, set())
         # And the session module's own public names match its `__all__`, so the
         # surface claim checks rather than merely being written down.
@@ -150,14 +177,15 @@ class TheBindingIsTheIdentity(SessionCase):
     def test_the_claimant_is_the_binding(self):
         self.work()
         assignment = self.claude.claim({"work_id": WORK,
-                                        "operation_id": self.op()})
+                                        "operation_id": self.op()})["assignment"]
         self.assertEqual(assignment["participant"], CLAUDE)
         self.assertEqual(self.authority.slot_holder(CLAUDE), WORK)
         # And gemini's session claims as gemini, on its own Work.
         self.work(OTHER)
         self.assertEqual(
             self.gemini.claim({"work_id": OTHER,
-                               "operation_id": self.op()})["participant"],
+                               "operation_id": self.op()}
+                              )["assignment"]["participant"],
             GEMINI)
 
     def test_a_supplied_identity_is_refused_and_never_dropped(self):
@@ -180,7 +208,7 @@ class TheBindingIsTheIdentity(SessionCase):
         # not a secret, so a session that could act on somebody else's would
         # make the binding decorative.
         self.work()
-        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})
+        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})["assignment"]
         for name, operands in [
                 ("end", {"expect": mine, "operation_id": self.op()}),
                 ("cancel", {"expect": mine, "operation_id": self.op()}),
@@ -216,7 +244,7 @@ class TheBindingIsTheIdentity(SessionCase):
         # closing a Work somebody else is executing is the ORDINARY case, and
         # the identity is what stops them closing blindly.
         self.work()
-        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})
+        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})["assignment"]
         self.authority.grant_capability(GEMINI, "close")
         answer = self.gemini.close({"work_id": WORK,
                                     "operation_id": self.op(),
@@ -230,7 +258,7 @@ class TheBindingIsTheIdentity(SessionCase):
         self.assertEqual(self.authority.project_work(WORK)["status"], "closed")
         # And a session without the capability cannot close, even its own.
         self.work(OTHER)
-        own = self.claude.claim({"work_id": OTHER, "operation_id": self.op()})
+        own = self.claude.claim({"work_id": OTHER, "operation_id": self.op()})["assignment"]
         with self.assertRaises(Refusal) as caught:
             self.claude.close({"work_id": OTHER, "operation_id": self.op(),
                                "outcome": "cancelled", "rationale": "mine",
@@ -239,7 +267,7 @@ class TheBindingIsTheIdentity(SessionCase):
 
     def test_the_receipt_actor_is_the_binding(self):
         self.work()
-        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})
+        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})["assignment"]
         self.claude.publish({"expect": mine, "operation_id": self.op(),
                              "proposal_id": "proposal-1", **DIGESTS})
         for capability in CAPABILITIES:
@@ -270,7 +298,7 @@ class OneOwnedOperandDocument(SessionCase):
         # the check and then acted on somebody else's assignment.  Python's
         # version of that hazard is a dict SUBCLASS, and it never enters.
         self.work()
-        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})
+        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})["assignment"]
 
         class Lying(dict):
             def __init__(self, *args, **kwargs):
@@ -295,7 +323,7 @@ class OneOwnedOperandDocument(SessionCase):
 
     def test_an_operand_supplied_and_ignored_would_be_one_the_caller_chose(self):
         self.work()
-        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})
+        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})["assignment"]
         for what, operands in [
                 ("an invented key", {"expect": mine,
                                      "operation_id": self.op(),
@@ -341,7 +369,7 @@ class OneOwnedOperandDocument(SessionCase):
 
     def test_the_answers_are_fresh_owned_built_ins(self):
         self.work()
-        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})
+        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})["assignment"]
         mine["participant"] = "tampered"
         self.assertEqual(self.authority.assignment_of(WORK)["participant"],
                          CLAUDE)
@@ -358,9 +386,15 @@ class FinalReviewFindings(SessionCase):
 
     def test_bootstrap_collision_refusal_is_bounded_by_the_rule(self):
         huge = "0123abcd-W" + "1" * 1_000_000
-        self.authority.create_work(huge, ROUTE)
+        # TWO DIFFERENT ACTS, so two identities. W29400 made creation
+        # effectively-once: the SAME identity would replay the first answer,
+        # which is correct and is not what this case is about -- it is about a
+        # second attempt to create a Work that already exists, and the bound
+        # on the refusal it produces.
+        self.authority.create_work(huge, ROUTE, operation_id="create-huge-1")
         with self.assertRaises(Refusal) as caught:
-            self.authority.create_work(huge, ROUTE)
+            self.authority.create_work(huge, ROUTE,
+                                       operation_id="create-huge-2")
         message = str(caught.exception)
         self.assertLess(len(message), 500)
         self.assertNotIn(huge, message)
@@ -454,7 +488,7 @@ class TheWholeSurfaceWorksThroughTheSession(SessionCase):
         self.work()
         for capability in CAPABILITIES:
             self.authority.grant_capability(GEMINI, capability)
-        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})
+        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})["assignment"]
         self.claude.activity({"expect": mine, "key": "wrote-the-file"})
         self.claude.publish({"expect": mine, "operation_id": self.op(),
                              "proposal_id": "proposal-1", **DIGESTS})
@@ -488,7 +522,7 @@ class TheWholeSurfaceWorksThroughTheSession(SessionCase):
 
     def test_the_gate_and_settlement_surfaces_are_reachable(self):
         self.work()
-        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})
+        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})["assignment"]
         self.claude.cancel({"expect": mine, "operation_id": self.op(),
                             "reason": "lost the runtime"})
         gate = gate_token(GATE_QUIESCENCE, "1")
@@ -526,7 +560,7 @@ class TheWholeSurfaceWorksThroughTheSession(SessionCase):
 
     def test_every_read_answers_through_the_session(self):
         self.work()
-        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})
+        mine = self.claude.claim({"work_id": WORK, "operation_id": self.op()})["assignment"]
         self.claude.publish({"expect": mine, "operation_id": self.op(),
                              "proposal_id": "proposal-1", **DIGESTS})
         answers = {
@@ -540,6 +574,8 @@ class TheWholeSurfaceWorksThroughTheSession(SessionCase):
             "gate_evidence": self.claude.gate_evidence(WORK),
             "integration_attempts":
                 self.claude.integration_attempts("proposal-1"),
+            "labels_of": self.claude.labels_of(WORK),
+            "work_label_events": self.claude.work_label_events(WORK),
             "operation_record": self.claude.operation_record("op.1"),
             "operation_result": self.claude.operation_result("op.1"),
             "project_work": self.claude.project_work(WORK),

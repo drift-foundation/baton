@@ -315,3 +315,14 @@ real-Docker evidence exercises the duplicate-start selector against Docker
 module skips under the record's explicit availability rule. **Signed off; no
 W6632 finding remains.** Full review:
 `review-2026-08-26T03-38-48Z.md`.
+
+## 2026-08-28 — fixed-user clarification for workspace authority
+
+Approver response M34630 under W33936 preserves this record's fixed primary
+runtime identity exactly: `--user 65532:65532` does not change. An execution
+container may additionally receive one explicit deployment-configured,
+nonzero, non-authority workspace group through supplementary `--group-add`,
+after the adapter proves its canonical workspace root carries that exact
+group. Consent receives no such group, and an arbitrary manager/filesystem gid
+is never inherited. This clarifies the fixed-user boundary; it does not
+supersede the image/adapter primary identity or any mount-authority ruling.

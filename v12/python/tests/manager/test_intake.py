@@ -21,6 +21,7 @@ import unittest
 from unittest.mock import patch
 
 from baton_v12.contracts import ContractRefusal, digest, held_secret
+from baton_v12.worker_manager import ControlStore
 from baton_v12.worker_manager import (authorize_cleanup, decide_retention,
                                       intake_operation, intake_receipt_of,
                                       manager_signature, observe,
@@ -31,7 +32,7 @@ from baton_v12.worker_manager import (authorize_cleanup, decide_retention,
 from baton_v12.worker_manager import documents
 from baton_v12.worker_manager import load_manifest
 
-from .test_offers import WHO
+from .test_offers import NOW, WHO
 from .test_attempts import Adapter as RuntimeAdapter
 from .test_output import (ATTEMPT, AUTHORITY, JOB, Collector, OutputCase)
 from . import input_roots
@@ -73,10 +74,21 @@ class Custodian:
         # command, so a case asserting what crossed asserts what crossed.
         self.destroyed_with.append(command)
         runtime_id = command["runtime_id"]
+        # W6636 re-review [P0]: EVERY PROVIDER ANSWERS ON EVERY DESTROY, and
+        # an attempt with no such provider says `not-delivered` explicitly.
+        #
+        # THE DEFAULT ANSWER CARRIES BOTH; A NAMED ONE IS TAKEN VERBATIM. A
+        # double that quietly completed whatever a case named would be a
+        # double that hides contract violations -- and it did: filling the
+        # members in made the reviewer's own omission reproduction stop
+        # reproducing, because the omission never reached the manager. A case
+        # about the providers names every ending it means.
         if self.destroyed is None:
             return {"runtime_id": runtime_id, "state": "absent",
                     "why": "the engine answered that this exact identity does "
-                           "not exist"}
+                           "not exist",
+                    "credentials": {"lifecycle_state": "not-delivered"},
+                    "launch": {"lifecycle_state": "not-delivered"}}
         return {"runtime_id": runtime_id, **self.destroyed}
 
 
@@ -323,8 +335,10 @@ class TwoDifferentReasonsMaterialIsStillHere(IntakeCase):
 
     def test_material_from_another_generation_is_quarantined(self):
         self.frozen_attempt()
+        # W16823: the claim answers a closed result; the live assignment is
+        # the FENCE out of it.
         self.session.live_assignment = {
-            **dict(self.session.claim_answer), "generation": 2}
+            **dict(self.session.claim_answer["assignment"]), "generation": 2}
         receipt, _ = self.intaken_now()
         self.assertEqual(receipt["custody"], "quarantined")
         self.assertIn("generation 2", receipt["why"])
@@ -544,6 +558,274 @@ class BlockedOnIntakeIsAStateAndNotARetry(IntakeCase):
         self.assertEqual(self.attempt_axis("cleanup"), "complete")
 
 
+class TheDeliveryProvidersMustEndBeforeCleanupIsClean(IntakeCase):
+    """W6636 [P0]: the shared start/destroy settlement crossing.
+
+    `OciAdapter.destroy` removes the container, proves the exact identity
+    absent, and then settles the two mounted roots on that same evidence --
+    answering `credentials` and `launch` endings beside the runtime state. The
+    manager read the runtime state and nothing else.
+
+    TWO DEFECTS, NOT ONE, and the dossier named only the second. The contract
+    for the destroy answer did not NAME the two endings at all, and
+    `boundaries.document` refuses an unrecognised member rather than ignoring
+    it -- so `authorize_cleanup` could not complete against the real adapter
+    at all. Behind that refusal sat the defect the dossier describes: nothing
+    would have read them if they had been admitted.
+    """
+
+    def settled(self, **endings):
+        self.retained_ready("discard-after-intake")
+        self.ended()
+        return authorize_cleanup(
+            self.store, self.port,
+            # Both endings default to `not-delivered` and a case overrides
+            # the one it is about, because the contract is closed: an answer
+            # missing a provider is refused, not read as "no such provider".
+            Custodian(destroyed={"state": "absent",
+                                 "why": "the engine answered that this exact "
+                                        "identity does not exist",
+                                 **{"credentials":
+                                    {"lifecycle_state": "not-delivered"},
+                                    "launch":
+                                    {"lifecycle_state": "not-delivered"}},
+                                 **endings}),
+            attempt_id=ATTEMPT, retention_policy_digest=RETENTION)
+
+    def test_the_real_adapter_s_answer_is_admitted_at_all(self):
+        """The shape `OciAdapter.destroy` actually returns.
+
+        Before the crossing named them, this exact document was refused for
+        carrying `credentials` and `launch` -- so the composed lifecycle could
+        not reach any cleanup ending, clean or otherwise.
+        """
+        answer = self.settled(
+            credentials={"attempt_id": ATTEMPT, "lifecycle_state":
+                         "torn-down", "slots": ["registry"]},
+            launch={"lifecycle_state": "torn-down"})
+        self.assertEqual(answer["cleanup"], "complete")
+        self.assertEqual(self.attempt_axis("cleanup"), "complete")
+
+    def test_an_adapter_with_no_providers_still_settles(self):
+        """The endings are OPTIONAL, and they have to be: an adapter that
+        delivers neither root legitimately answers about the runtime alone,
+        and every case above this one is written that way."""
+        answer = self.settled()
+        self.assertEqual(answer["cleanup"], "complete")
+
+    def test_a_provider_that_never_delivered_is_not_a_reason_to_wait(self):
+        """`not-delivered` is terminal. There is no root to prove gone, and
+        treating "this attempt had no credential" as unfinished business would
+        strand every attempt that needed none."""
+        answer = self.settled(
+            credentials={"lifecycle_state": "not-delivered"},
+            launch={"lifecycle_state": "torn-down"})
+        self.assertEqual(answer["cleanup"], "complete")
+
+    def test_an_unresolved_launch_root_keeps_cleanup_open(self):
+        """THE DEFECT. Positive container absence with a launch root still on
+        disk was recorded `complete`: an attempt reported cleaned up, its lane
+        reusable, and manager storage nothing would ever come back for."""
+        answer = self.settled(
+            credentials={"lifecycle_state": "not-delivered"},
+            launch={"lifecycle_state": "unresolved",
+                    "why": "the launch root is still present after removal"})
+        self.assertNotIn("cleanup", answer)
+        self.assertIn("still present", answer["why"])
+        # THE RUNTIME OBSERVATION STANDS. The container really is gone and
+        # that axis says so; it is CLEANUP that has not finished, and leaving
+        # it where it is offers the retry exactly as uncertainty does.
+        self.assertEqual(self.attempt_axis("execution_runtime"), "destroyed")
+        self.assertEqual(self.attempt_axis("cleanup"), "pending")
+
+    def test_an_unresolved_credential_root_keeps_cleanup_open(self):
+        """The other root, driven separately: one guard covering both would
+        pass with either half missing."""
+        answer = self.settled(
+            credentials={"lifecycle_state": "unresolved",
+                         "why": "the credential root could not be removed"},
+            launch={"lifecycle_state": "torn-down"})
+        self.assertNotIn("cleanup", answer)
+        self.assertIn("credential root", answer["why"])
+        self.assertEqual(self.attempt_axis("cleanup"), "pending")
+
+    def test_both_unresolved_roots_are_named(self):
+        """Two roots can be unresolved for two different reasons, and an
+        operator has to act on both -- so the reasons are a list rather than
+        a boolean."""
+        answer = self.settled(
+            credentials={"lifecycle_state": "unresolved",
+                         "why": "the credential root could not be removed"},
+            launch={"lifecycle_state": "unresolved",
+                    "why": "the launch root is still present after removal"})
+        self.assertIn("credentials:", answer["why"])
+        self.assertIn("launch:", answer["why"])
+
+    def test_a_pending_cleanup_re_enters_provider_teardown_every_time(self):
+        """RE-REVIEW [P0]: the retry skipped the adapter entirely.
+
+        `_destroyed` short-circuited on `execution_runtime == "destroyed"` and
+        answered a synthetic `absent` with NO provider endings -- and the
+        endings are optional, so the retry that was supposed to finish the
+        teardown recorded `complete` with no provider retried at all. The
+        first destroy truthfully moves the runtime axis, which is what made
+        the bypass reachable: the shape this round introduced defeated itself
+        one call later.
+
+        Three destroys, and the ADAPTER CALL COUNT is the assertion. The
+        submitted retry case supplied a second positive answer and never
+        checked that anything was asked, so it passed straight through the
+        bypass -- which is exactly why the count is what this asserts.
+        """
+        self.retained_ready("discard-after-intake")
+        self.ended()
+        stuck = {"state": "absent", "why": "gone",
+                 "credentials": {"lifecycle_state": "not-delivered"},
+                 "launch": {"lifecycle_state": "unresolved",
+                            "why": "the launch root is still present"}}
+        calls = []
+        for round_number in (1, 2):
+            adapter = Custodian(destroyed=dict(stuck))
+            answer = authorize_cleanup(self.store, self.port, adapter,
+                                       attempt_id=ATTEMPT,
+                                       retention_policy_digest=RETENTION)
+            calls.append(len(adapter.destroyed_with))
+            self.assertNotIn("cleanup", answer, round_number)
+            # The runtime axis moves on the FIRST pass and stays there. It is
+            # a fact about the container and says nothing about the roots.
+            self.assertEqual(self.attempt_axis("execution_runtime"),
+                             "destroyed")
+            self.assertEqual(self.attempt_axis("cleanup"), "pending")
+        self.assertEqual(calls, [1, 1],
+                         "a pending cleanup skipped the provider teardown")
+
+        finished = Custodian(destroyed={
+            "state": "absent", "why": "gone",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "torn-down"}})
+        settled = authorize_cleanup(self.store, self.port, finished,
+                                    attempt_id=ATTEMPT,
+                                    retention_policy_digest=RETENTION)
+        self.assertEqual(len(finished.destroyed_with), 1)
+        self.assertEqual(settled["cleanup"], "complete")
+        self.assertEqual(self.attempt_axis("cleanup"), "complete")
+
+    def test_a_destroyed_runtime_is_still_asked_about(self):
+        """The narrow fact underneath the case above, on its own.
+
+        An identity the engine no longer has is safe to ask about -- `destroy`
+        is `rm --force` followed by an inspection, and a gone identity answers
+        `absent` -- so the short-circuit bought nothing and cost the second
+        half of the ending.
+        """
+        self.retained_ready("discard-after-intake")
+        self.ended()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="destroyed")
+        adapter = Custodian()
+        authorize_cleanup(self.store, self.port, adapter, attempt_id=ATTEMPT,
+                          retention_policy_digest=RETENTION)
+        self.assertEqual(len(adapter.destroyed_with), 1)
+
+    def test_an_unsettled_cleanup_can_be_retried_once_the_root_is_gone(self):
+        """The axis staying where it is IS the offer to try again, which is
+        the whole reason failing closed here is affordable."""
+        first = self.settled(
+            launch={"lifecycle_state": "unresolved", "why": "still present"})
+        self.assertNotIn("cleanup", first)
+        again = authorize_cleanup(
+            self.store, self.port,
+            Custodian(destroyed={"state": "absent", "why": "gone",
+                                 "credentials":
+                                 {"lifecycle_state": "not-delivered"},
+                                 "launch": {"lifecycle_state": "torn-down"}}),
+            attempt_id=ATTEMPT, retention_policy_digest=RETENTION)
+        # The retry is EXACT -- same receipt, same policy -- so this only
+        # passes because nothing that failed to settle was journalled.
+        self.assertEqual(again["cleanup"], "complete")
+
+    def test_an_omitted_provider_is_refused_rather_than_read_as_absent(self):
+        """RE-REVIEW [P0]: omission erased a teardown that was owed.
+
+        The endings were OPTIONAL, so a first answer of runtime `absent` with
+        launch `unresolved` correctly left cleanup pending -- and a later
+        answer that simply left `launch` out settled it `complete`, because an
+        absent member read as "no such provider". The adapter WAS called; what
+        was lost was the knowledge that a launch teardown was required.
+
+        The manager cannot remember applicability without inventing durable
+        state for it, so the contract says it: every provider answers on every
+        destroy, and no provider is spelled `not-delivered` out loud.
+        """
+        with self.assertRaises(ContractRefusal) as caught:
+            self.retained_ready("discard-after-intake")
+            self.ended()
+            authorize_cleanup(
+                self.store, self.port,
+                Custodian(destroyed={"state": "absent", "why": "gone"}),
+                attempt_id=ATTEMPT, retention_policy_digest=RETENTION)
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertIn("credentials", str(caught.exception))
+        self.assertEqual(self.attempt_axis("cleanup"), "pending")
+
+    def test_an_omission_after_an_unresolved_ending_survives_a_restart(self):
+        """The review's exact required regression.
+
+        Unresolved first; the manager is REOPENED, which is what makes this
+        about durable applicability rather than about one process's memory;
+        then an omitting answer must not settle. Only an explicit terminal
+        ending may.
+        """
+        self.retained_ready("discard-after-intake")
+        self.ended()
+        first = authorize_cleanup(
+            self.store, self.port,
+            Custodian(destroyed={
+                "state": "absent", "why": "gone",
+                "credentials": {"lifecycle_state": "not-delivered"},
+                "launch": {"lifecycle_state": "unresolved",
+                           "why": "the launch root is still present"}}),
+            attempt_id=ATTEMPT, retention_policy_digest=RETENTION)
+        self.assertNotIn("cleanup", first)
+
+        self.store.close()
+        self.store = ControlStore.open(self.path, incarnation="manager-2",
+                                       clock=lambda: NOW)
+        self.addCleanup(self.store.close)
+
+        omitting = Custodian(destroyed={"state": "absent", "why": "gone"})
+        with self.assertRaises(ContractRefusal):
+            authorize_cleanup(self.store, self.port, omitting,
+                              attempt_id=ATTEMPT,
+                              retention_policy_digest=RETENTION)
+        self.assertEqual(self.attempt_axis("cleanup"), "pending")
+
+        settled = authorize_cleanup(
+            self.store, self.port,
+            Custodian(destroyed={
+                "state": "absent", "why": "gone",
+                "credentials": {"lifecycle_state": "not-delivered"},
+                "launch": {"lifecycle_state": "torn-down"}}),
+            attempt_id=ATTEMPT, retention_policy_digest=RETENTION)
+        self.assertEqual(settled["cleanup"], "complete")
+
+    def test_an_ending_this_build_does_not_recognise_is_refused(self):
+        """Not read as unresolved and not read as settled.
+
+        A word this build does not know is a provider it was not written
+        against, and guessing which of the two it meant is the choice the
+        boundary exists to refuse.
+        """
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settled(launch={"lifecycle_state": "mostly-gone"})
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertIn("mostly-gone", str(caught.exception))
+
+    def test_an_ending_that_is_not_a_document_is_refused(self):
+        with self.assertRaises(ContractRefusal):
+            self.settled(launch="torn-down")
+
+
 class RetainedAndCompleteAreDifferentEndings(IntakeCase):
 
     def settle(self, disposition, **kwargs):
@@ -675,7 +957,9 @@ class PositiveAbsenceOrNoEnding(IntakeCase):
         """Positively still there. The destroy was ordered and the runtime
         survived it, which is a settled failure rather than an unknown."""
         answer = self.settle(self.ready(destroyed={
-            "state": "running", "why": "the engine still lists it"}))
+            "state": "running", "why": "the engine still lists it",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "not-delivered"}}))
         self.assertEqual(answer["cleanup"], "failed")
         self.assertEqual(self.attempt_axis("cleanup"), "failed")
         self.assertNotEqual(self.attempt_axis("execution_runtime"),
@@ -687,11 +971,40 @@ class PositiveAbsenceOrNoEnding(IntakeCase):
         question would record an ending nobody observed. The offer to try again
         is the axis staying where it is."""
         answer = self.settle(self.ready(destroyed={
-            "state": "uncertain", "why": "the engine refused to inspect it"}))
+            "state": "uncertain", "why": "the engine refused to inspect it",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "not-delivered"}}))
         self.assertEqual(answer["state"], "uncertain")
         self.assertNotIn("cleanup", answer)
         self.assertEqual(self.attempt_axis("cleanup"), "pending")
         self.assertEqual(self.attempt_axis("execution_runtime"), "quiescent")
+
+    def test_an_uncertain_destroy_can_actually_be_tried_again(self):
+        """W6636: the sentence above was true of the AXIS and false of the
+        OPERATION.
+
+        `_settle` returned the unsettled document from inside the transaction,
+        so the destroy committed with "it did not settle" as its result -- and
+        the retry that was supposed to finish the cleanup is the same receipt
+        under the same policy, which is an exact retry and replays it. Cleanup
+        stayed `pending` and could never leave it, which is a stuck attempt
+        rather than a retryable one.
+
+        Nothing that did not settle is journalled now, so this walks the whole
+        offer rather than asserting the axis and stopping where the defect
+        began.
+        """
+        self.settle(self.ready(destroyed={
+            "state": "uncertain", "why": "the engine refused to inspect it",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "not-delivered"}}))
+        self.assertEqual(self.attempt_axis("cleanup"), "pending")
+        # THE SAME RECEIPT UNDER THE SAME POLICY, which is what a retry of
+        # this cleanup IS -- so it is an exact retry, and that is precisely
+        # why journalling the non-ending made it permanent.
+        again = self.settle(Custodian())
+        self.assertEqual(again["cleanup"], "complete", again)
+        self.assertEqual(self.attempt_axis("cleanup"), "complete")
 
     def test_an_uncertain_runtime_cannot_be_cleaned_up_at_all(self):
         """THE FROZEN ASYMMETRY, refused rather than worked around. `uncertain`
@@ -712,7 +1025,9 @@ class PositiveAbsenceOrNoEnding(IntakeCase):
         adapter = self.ready()
         adapter.destroyed = {"state": "absent", "why": "gone"}
         with patch.object(adapter, "destroy", lambda runtime_id: {
-                "runtime_id": "runtime-9", "state": "absent", "why": "gone"}):
+                "runtime_id": "runtime-9", "state": "absent", "why": "gone",
+                "credentials": {"lifecycle_state": "not-delivered"},
+                "launch": {"lifecycle_state": "not-delivered"}}):
             with self.assertRaises(ContractRefusal) as caught:
                 self.settle(adapter)
         self.assertEqual(caught.exception.code, "identity-mismatch")
@@ -1004,8 +1319,14 @@ class IndependentContractReview(IntakeCase):
         class ProtocolCustodian(Custodian):
             def destroy(self, command):
                 self.destroyed_with.append(command)
+                # Both provider endings, because the destroy answer's member
+                # contract is closed: this case is about the COMMAND that
+                # crosses, and an answer that could not be read would stop it
+                # before it got there.
                 return {"runtime_id": command["runtime_id"], "state": "absent",
-                        "why": "the exact runtime is absent"}
+                        "why": "the exact runtime is absent",
+                        "credentials": {"lifecycle_state": "not-delivered"},
+                        "launch": {"lifecycle_state": "not-delivered"}}
 
         receipt = self.retained_ready("discard-after-intake")
         self.session.live_assignment = None
@@ -1077,7 +1398,7 @@ class IndependentContractReview(IntakeCase):
                            "runtime_attempt_id": foreign_id}
         operation = retain_operation(
             foreign_attempt, RETENTION, ["artifact-1"], "retain")
-        expect = dict(self.session.claim_answer)
+        expect = dict(self.session.claim_answer["assignment"])
         signature = manager_signature(
             "output.retain",
             {"attempt_id": foreign_id, "expect": expect,

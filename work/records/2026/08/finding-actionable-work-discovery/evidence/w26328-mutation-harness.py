@@ -75,6 +75,86 @@ MUTATIONS = MUTATIONS[:-1] + [
 
     ("the endpoint resolution is not memoized", "projection.py",
      "        if key not in resolved:", "        if True:"),
+
+    # --- 2026-08-28, the independent review's [P1]: the continuation ------
+    # Each of these breaks ONE rule the corrected paging rests on. They are
+    # separate because they fail differently, and a single "paging is wrong"
+    # mutation would have said which of the four was actually measured.
+
+    ("the continuation is ignored and every page is page one",
+     "projection.py",
+     "            if since is not None and _position(row) <= since[\"position\"]:\n"
+     "                continue",
+     "            if False:\n                continue"),
+
+    ("the page walks a partial order, so a tied position is skipped",
+     "projection.py",
+     '\treturn (row["order_priority"], row["order_blocking"],\n'
+     '\t        row["created_seq"], row["id"])',
+     '\treturn (row["order_priority"], row["order_blocking"],\n'
+     '\t        row["created_seq"], "")'),
+
+    ("a continuation this authority never minted is answered with page one",
+     "projection.py",
+     "	if not isinstance(token, str):\n		raise broken",
+     "	if not isinstance(token, str):\n		return None"),
+
+    ("a token from a superseded scheme is read as a current one",
+     "projection.py",
+     "	if len(parts) != _CURSOR_MEMBERS or parts[0] != _CURSOR_SCHEME:\n"
+     "		raise broken",
+     "	if len(parts) != _CURSOR_MEMBERS:\n		raise broken"),
+
+    ("no page ever offers a continuation",
+     "projection.py",
+     '            "next_after": _cursor(page[-1], viewer_team, viewer_member)\n'
+     '            if remaining else None,',
+     '            "next_after": None,'),
+
+    ("the page reads one row past its own limit", "projection.py",
+     "            if len(page) == limit:",
+     "            if len(page) == limit + 1:"),
+
+    # --- 2026-08-28, the re-review's [P1]: shape is not provenance --------
+    ("a well-shaped cursor is never bound to a Work at all", "projection.py",
+     "        _cursor_bound(store, since)\n", "        pass\n"),
+
+    ("the cursor's Work is looked up but its position is not compared",
+     "projection.py",
+     "\tif row is None or _position(row) != wanted:",
+     "\tif row is None:"),
+
+    ("a cursor naming no Work at all is followed", "projection.py",
+     "\tif row is None or _position(row) != wanted:",
+     "\tif row is not None and _position(row) != wanted:"),
+
+    # The binding must NOT be written against the actionable set: a claimed
+    # or rerouted row is exactly the ordinary continuation this feature
+    # exists for, and binding to claimability would refuse it.
+    ("the binding is written against the actionable set", "projection.py",
+     '\t\tf"SELECT id, created_seq, {WORK_ORDER_KEY} FROM work WHERE id=?",',
+     '\t\tf"SELECT id, created_seq, {WORK_ORDER_KEY} FROM work WHERE id=? "\n'
+     '\t\t"AND handler_team IS NULL AND phase=\'queued\'",'),
+
+    # --- 2026-08-28, the third review's [P1]: whose question is this -----
+    ("the continuation is not bound to its participant view",
+     "projection.py",
+     "\tif since[\"viewer\"] != (viewer_team, viewer_member):",
+     "\tif False:"),
+
+    ("the view check is skipped for the call that reads the cursor",
+     "projection.py",
+     "    _cursor_view(since, viewer_team, viewer_member)\n",
+     "    pass\n"),
+
+    ("the token carries a viewer it does not read back", "projection.py",
+     '\traw = "\\x1f".join((_CURSOR_SCHEME, viewer_team, viewer_member,',
+     '\traw = "\\x1f".join((_CURSOR_SCHEME, "any", "one",'),
+
+    # A shape change without a scheme change is the silent-misread case the
+    # tag exists to stop, so the tag has to actually move with the shape.
+    ("the scheme did not move with the shape", "projection.py",
+     '_CURSOR_SCHEME = "w2"', '_CURSOR_SCHEME = "w1"'),
 ]
 
 

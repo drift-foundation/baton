@@ -1,0 +1,82 @@
+W16821 — THE PRINCIPAL/SCOPE SEAM, MEASURED BY REMOVAL
+==========================================================================
+
+BASELINE  OK
+
+[caught] capacity: the claim slot is keyed by the ENDPOINT again
+         OnePrincipalTwoAddresses
+
+[caught] capacity: the slot READ answers by address instead of by principal
+         OnePrincipalTwoAddresses.test_the_slot_is_visible_through_either_address
+
+[caught] mapping: an endpoint holding a live claim may be rebound
+         OnePrincipalTwoAddresses.test_an_endpoint_holding_a_claim_cannot_be_rebound
+
+[caught] grants: a capability is held by the ENDPOINT again
+         OnePrincipalTwoAddresses.test_one_principal_grants_reach_every_address_it_holds
+
+[caught] scope: the claim decides in the deployment scope rather than the Work's
+         NothingAnOperandSaysCanWidenIt.test_the_effective_scope_comes_off_the_work_and_not_the_caller
+
+[caught] scope: a grant in one scope authorizes every scope
+         NothingAnOperandSaysCanWidenIt.test_a_grant_in_one_scope_does_not_authorize_another
+
+[caught] provenance: this cut hands out a grant kind it cannot resolve
+         GrantProvenance
+
+[caught] evidence: the claim retains no decision
+         TheDecisionRidesTheAct.test_a_claim_records_endpoint_principal_scope_grant_and_generation
+
+[caught] evidence: a receipt retains no decision
+         GrantProvenance.test_a_receipt_carries_the_decision_beside_its_actor
+
+[caught] generation: a configuration act leaves the generation where it was
+         TheDecisionRidesTheAct.test_every_configuration_act_advances_the_generation
+
+[caught] decision: a caller may edit the provenance it was handed
+         TheDecisionRidesTheAct.test_a_decision_cannot_be_edited_after_it_is_answered
+
+[caught] boundary: a store of another schema version is adopted
+         SchemaTwoIsACleanInitializationBoundary
+
+[caught] boundary: the configuration generation is rewound on every open
+         SchemaTwoIsACleanInitializationBoundary.test_reopening_a_store_does_not_rewind_its_configuration_generation
+
+[caught] grammar: a participant address is accepted as a principal
+         NothingAnOperandSaysCanWidenIt.test_a_participant_address_is_refused_where_a_principal_is_required
+
+[caught] target scope: a receipt decides in the deployment scope again
+         EveryCapabilityDoorDecidesInTheTargetsScope
+
+[caught] target scope: a close decides in the deployment scope again
+         EveryCapabilityDoorDecidesInTheTargetsScope.test_close_decides_in_the_works_own_scope
+
+[caught] close: the decision is not retained
+         TheDecisionIsRetainedForEveryAuthorizedAct.test_an_unclaimed_close_retains_and_projects_its_decision
+
+[caught] claim: the public projection discards the decision again
+         TheDecisionRidesTheAct.test_a_claim_records_endpoint_principal_scope_grant_and_generation
+
+[caught] assignment-derived acts: the link to the claim is dropped
+         TheDecisionIsRetainedForEveryAuthorizedAct.test_an_assignment_derived_act_exposes_the_claim_it_ran_under
+
+[caught] the durable refused integration attempt loses its attribution
+         TheDecisionIsRetainedForEveryAuthorizedAct.test_a_durably_refused_integration_attempt_carries_its_decision
+
+[caught] the grant projection collapses scope and provenance again
+         TheGrantProjectionCarriesScopeAndProvenance
+
+[caught] the exact claim reference is searched for at read time instead
+         AV11ReclaimDoesNotRewriteEarlierHistory
+
+[caught] the reference is captured at read time rather than at the act
+         AV11ReclaimDoesNotRewriteEarlierHistory.test_two_v11_claims_keep_two_distinct_histories
+
+[caught] an act whose claim was never journalled is written anyway
+         AV11ReclaimDoesNotRewriteEarlierHistory.test_an_act_that_cannot_name_its_claim_is_refused
+
+[caught] history is re-derived from today's mapping instead of read
+         TheDecisionIsRetainedForEveryAuthorizedAct.test_history_survives_release_reconfiguration_and_close
+
+==========================================================================
+caught 25 of 25

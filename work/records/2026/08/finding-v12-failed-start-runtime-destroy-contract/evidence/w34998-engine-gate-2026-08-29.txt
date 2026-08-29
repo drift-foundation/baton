@@ -1,0 +1,44 @@
+W34998 — the required real-engine gate, run and retained
+======================================================================
+
+WHY THIS FILE EXISTS. The review is right: I reported 83 serial tests
+and kept no transcript, so the claim was unreviewable. The parallel
+runner does not run the serial registry after a failing parallel phase
+-- which it always does, because of the accepted boundary-inventory
+baseline -- so the serial suites have to be driven directly and their
+output retained, which is what follows.
+
+HOST AND DAEMON, named rather than assumed:
+  run at            2026-08-29T03:13:51Z
+  uid/gid           1000/1000
+  docker client     Docker version 29.1.3, build 29.1.3-0ubuntu3~25.10.1
+  docker server     29.1.3 linux/amd64
+  podman            /bin/bash: line 1: podman: command not found
+absent -- the Podman half of every matrix skips narrowly
+
+======================================================================
+tests.manager.test_failed_start_destroy_engine, verbose
+======================================================================
+test_a_receipt_authorized_body_is_refused_before_the_engine (tests.manager.test_failed_start_destroy_engine.ARealContainerIsRemovedAndProvedGone.test_a_receipt_authorized_body_is_refused_before_the_engine)
+No fallback, against the real thing. ... ok
+test_repeating_it_answers_the_same_absence (tests.manager.test_failed_start_destroy_engine.ARealContainerIsRemovedAndProvedGone.test_repeating_it_answers_the_same_absence) ... ok
+test_the_exact_container_is_gone_and_the_daemon_says_so (tests.manager.test_failed_start_destroy_engine.ARealContainerIsRemovedAndProvedGone.test_the_exact_container_is_gone_and_the_daemon_says_so) ... ok
+test_the_untrusted_result_directory_survives_the_removal (tests.manager.test_failed_start_destroy_engine.ARealContainerIsRemovedAndProvedGone.test_the_untrusted_result_directory_survives_the_removal)
+The acceptance's sentinel, over a real removal. ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.261s
+
+OK
+rc=0
+
+======================================================================
+...and every engine-owning serial module together, which is the 83
+tests the previous round asserted and did not evidence.
+======================================================================
+...........................................................sssss...................s
+----------------------------------------------------------------------
+Ran 83 tests in 35.866s
+
+OK (skipped=6)
+rc=0

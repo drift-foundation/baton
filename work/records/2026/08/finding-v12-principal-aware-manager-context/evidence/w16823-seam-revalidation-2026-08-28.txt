@@ -1,0 +1,57 @@
+W16823 — THE AUTHORITY SEAM, AS THE MANAGER SEES IT
+==========================================================================
+
+=== 1. WHAT `claim` ANSWERS, which is what the port owns
+    members : ['generation', 'participant', 'work_ref']
+    the port requires exactly: ['generation', 'participant', 'work_ref']
+    answer  : {"work_ref": {"authority_uuid": "0123456789abcdef0123456789abcdef", "work_id": "0123abcd-W7"}, "participant": "org_a.worker", "generation": 1}
+
+    NO AUTHORIZATION CONTEXT. The four-part fence and nothing else.
+
+=== 2. WHERE THE DECISION ACTUALLY IS
+    assignment_events -> 1 claim event(s)
+      seq 1  {"endpoint": "org_a.worker", "principal": "principal:one", "effective_scope": "scope:platform", "role": "impl", "grant": "direct", "policy_generation": 5}
+
+    Complete and exact -- and reachable only by picking a claim
+    event out of a list. The event's own `seq` is the exact
+    identity W16821's re-review established, and the claim answer
+    carries no way to name it.
+
+=== 3. THE AMBIGUITY THAT MAKES 'PICK THE NEWEST' UNSOUND
+    A v11 assignment mints no generation, so two claims through one
+    endpoint are two acts with identical four-part identities.
+    first claim answer  : {"work_ref": {"authority_uuid": "0123456789abcdef0123456789abcdef", "work_id": "0123abcd-W8"}, "participant": "org_a.worker", "generation": null}
+    second claim answer : {"work_ref": {"authority_uuid": "0123456789abcdef0123456789abcdef", "work_id": "0123abcd-W8"}, "participant": "org_a.worker", "generation": null}
+    identical           : True
+    claim events        : [3, 5]
+    Both events match the same answer, so a manager matching on the
+    answer cannot say WHICH claim it just made. That is exactly the
+    join W16821's own re-review refused as 'not an exact identity'.
+
+=== 4. WHAT IS ALREADY PRINCIPAL-GLOBAL WITHOUT ANY CHANGE
+    slot_holder('org_a.worker') -> '0123abcd-W8'
+    slot_holder('org_b.worker') -> '0123abcd-W8'
+    Capacity is ALREADY observable principal-globally: asking
+    through the OTHER endpoint answers about the same held Work,
+    because W16821 keyed the slot by principal. The manager needs
+    no new member for that half of the correction.
+
+=== 5. WHAT THE PROJECTION CARRIES
+    project_work members: ['assignment', 'authority_uuid', 'close_decision', 'contract', 'fenced_generations', 'gate', 'generation_counter', 'handler', 'live_generation', 'outcome', 'phase', 'rationale', 'ready', 'route', 'scope', 'status', 'work_id']
+    scope               : 'scope:platform'
+    close_decision      : None
+    the port reads      : ['authority_uuid', 'gate', 'handler', 'phase', 'status']
+    the port names unread: ['assignment', 'close_decision', 'contract', 'fenced_generations', 'generation_counter', 'live_generation', 'outcome', 'rationale', 'ready', 'route', 'scope', 'work_id']
+
+=== 6. WHAT THE SESSION DOES NOT EXPOSE
+    principal_of               ABSENT
+    grants_of                  ABSENT
+    decision_of                ABSENT
+    endpoints_of               ABSENT
+    policy_generation          ABSENT
+    slot_holder_of_principal   ABSENT
+
+    All six are CONFIGURATION on the bootstrap face, which the
+    manager never holds -- correctly, and not the gap: the manager
+    should not be able to ask about other principals. What it needs
+    is the decision for the claim IT just made.

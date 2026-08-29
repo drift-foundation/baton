@@ -320,6 +320,105 @@ class TestTheMineColumnIsMandatory:
 		assert "awaiting me: 4 total" in lines[1], lines[1]
 
 
+# -- the refusal: the width it names has to be the width it needs ------------
+
+class TestTheTooNarrowRefusalStatesASufficientWidth:
+	"""Independent review [P2]: the refusal understated the requirement.
+
+	The table correctly refuses rather than clipping identities. The
+	number it hands the operator was assembled from `id_width` alone,
+	while the judgment that produced the refusal was made against the
+	whole leading allocation — which since W26328 includes the mandatory
+	`Mine` column and its separator. So the one action the message asks
+	for produced the same message again, which is worse than no number at
+	all because an operator follows it.
+
+	MEASURED AGAINST THE WIDTH THAT ACTUALLY DRAWS, found by widening the
+	terminal a cell at a time until the table appears. That is the fact
+	the operator is being told, so it is the fact these cases compare the
+	message to — no test-side arithmetic that could be wrong the same way
+	the message was.
+
+	The message itself is drawn with `addnstr` and a very narrow terminal
+	truncates it; that is pre-existing presentation and not this review's
+	concern, so the comparison is against the whole intended line and
+	tolerates only the cut the terminal itself made.
+	"""
+
+	def drawn_at(self, world, width, member="ada"):
+		"""`(lines, table_drawn, the refusal line or its visible part)`.
+
+		A terminal narrower than the sentence cuts the sentence, so the
+		refusal is not always detectable by its own text — the TABLE is,
+		and the header is what "drew" means.
+		"""
+		lines = painted(console(world, member), height=20, width=width)
+		drew = any("Title" in line for line in lines)
+		said = next((line for line in lines if "narrow" in line), None)
+		return lines, drew, said
+
+	def smallest_drawing_width(self, world, member="ada"):
+		"""The narrowest terminal that draws the table at all.
+
+		`layout_fits` is monotone in width, so the first width that draws
+		is THE minimum — and the cases below assert that monotonicity
+		rather than assume it.
+		"""
+		for width in range(12, 200):
+			_lines, drew, _said = self.drawn_at(world, width, member)
+			if drew:
+				return width
+		raise AssertionError("the table never drew; nothing was measured")
+
+	def test_the_message_names_the_width_that_draws_the_table(self, world):
+		chain(world, 3)
+		smallest = self.smallest_drawing_width(world)
+		whole = f"(terminal too narrow: need {smallest} cells)"
+		compared = 0
+		for width in range(12, smallest):
+			_lines, drew, said = self.drawn_at(world, width)
+			assert not drew, (width, smallest)
+			if said is None:
+				# Narrower than the word "narrow" itself; there is no
+				# number on screen to be right or wrong about.
+				continue
+			compared += 1
+			# The terminal may have cut the sentence. It may not have
+			# changed the number in it.
+			assert whole.startswith(said.rstrip()), (width, said, whole)
+		assert compared, "no width showed the message; nothing was compared"
+
+	def test_widening_to_the_stated_minimum_admits_the_whole_table(self,
+	                                                               world):
+		chain(world, 3)
+		smallest = self.smallest_drawing_width(world)
+		drawn, drew, _said = self.drawn_at(world, smallest)
+		assert drew
+		# The MANDATORY column is present at the minimum, which is the
+		# whole reason its allocation belongs in the arithmetic.
+		assert "Mine" in header_of(drawn)
+		assert cells(drawn, "Mine")[0] == "me+2", drawn
+
+	def test_a_wide_mine_allocation_is_counted(self, world):
+		"""The exact shape the review names.
+
+		`me+12` is five cells plus a separator the old arithmetic left out
+		entirely, so the number it printed was six short — far past any
+		rounding, and an operator who widened to it was refused again.
+		"""
+		root = make(world, "root")
+		for index in range(12):
+			make(world, f"child {index}", parent=root)
+		smallest = self.smallest_drawing_width(world)
+		_lines, drew, said = self.drawn_at(world, smallest - 1)
+		assert not drew and said is not None
+		whole = f"(terminal too narrow: need {smallest} cells)"
+		assert whole.startswith(said.rstrip()), (said, whole)
+		drawn, drew, _said = self.drawn_at(world, smallest)
+		assert drew
+		assert cells(drawn, "Mine")[0] == "me+12", drawn
+
+
 # -- the page: everything awaiting you, with the path to each ----------------
 
 class TestTheFlattenedPageFindsWhatTheTreeCannot:

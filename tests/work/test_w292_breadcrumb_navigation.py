@@ -481,18 +481,39 @@ def test_a_replacement_query_relabels_one_segment(world):
 	assert view.nav == [] and view.mode == "table"
 
 
-def test_the_inbox_handoff_lands_in_jobs_and_backs_out_there(world):
-	"""The ruled exception, stated: an Inbox row LINKS into Jobs. Back
-	returns to Jobs, which is where the operator now is — not to the
-	Inbox they were handed over from."""
+def test_the_inbox_handoff_restores_the_inbox_that_opened_it(world):
+	"""W34884 SUPERSEDES the W292 exception this case used to state.
+
+	W292 ruled an Inbox row a handoff INTO Jobs, and Back landed there.
+	The later universal browser-history model makes Back describe the
+	path the operator took, and Inbox now opens real obligation and
+	message detail — so the caller beneath the Work detail is Inbox.
+
+	THE ENTRY IS DRIVEN THROUGH THE REAL HANDLER, which is why the
+	superseded version could pass after the fix: it set `tab` by hand
+	and called `_enter_detail` directly, so it never exercised the
+	ordering that was wrong. This presses Enter on an Inbox row.
+
+	The Work breadcrumb still reads from Jobs, deliberately: the linked
+	Work is the detail's content and structural root, and that is not
+	the same question as which page called it."""
 	view = console(world)
 	view.tab = "inbox"
-	view._enter_detail(world["root"]["work_id"], came_from="table")
-	view.tab = "jobs"
+	rows = view.inbox_rows()
+	assert rows, "the fixture Inbox is empty"
+	opened = next((row for row in rows if row["work"]), None)
+	assert opened is not None, "no Work-bearing Inbox row"
+	view.inbox_cursor = rows.index(opened)
+	view._inbox_anchor(rows)
+	before = view.inbox_key
+	view.handle(10)
+	assert view.tab == "jobs" and view.mode == "detail"
 	assert view.nav_segments() == ["Jobs", "the root"]
+
 	view.handle(27)
-	assert view.nav == [] and view.tab == "jobs" and view.mode == "table"
-	assert header(view).startswith("[Jobs ")
+	assert view.tab == "inbox" and view.mode == "table"
+	assert view.nav == []
+	assert view.inbox_key == before
 
 
 def test_the_links_page_is_a_segment_too(world):

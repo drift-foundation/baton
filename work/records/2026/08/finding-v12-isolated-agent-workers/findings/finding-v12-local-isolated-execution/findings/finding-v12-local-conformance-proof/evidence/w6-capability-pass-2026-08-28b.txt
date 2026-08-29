@@ -1,0 +1,346 @@
+W6 - THE RULED BOUNDED CAPABILITY PASS
+==========================================================================
+
+Approver ruling M33739. This is a capability pass over an exact
+named subset. It is not a certification run and its formal result
+is published below whatever it turns out to be.
+
+=== 1. THE SEALED EVIDENCE, BOUND BY CONTENT DIGEST
+    register:cases
+      work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/cases.json
+      166999 bytes  sha256:67d58fc282ae51a4d54bce2fec971f2e4bbc12f647f8b1ced989fe5f7bed8cb4
+    register:model
+      work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/conformance_model.py
+      25641 bytes  sha256:eb4379ebf29a1286b29bf36df573536f54eeb3ef50da830e707988372b9ce2e9
+    register:obligations
+      work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/obligations.json
+      64464 bytes  sha256:469c4e12636ad02eca18686ab4c580f203508e4e2aa57f5326dce74c4d42d8aa
+    register:schema
+      work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/schema/conformance-1.0.schema.json
+      30601 bytes  sha256:f542c4a5a6828796aca3c0459ff3cd5c88f098a06d622960de16c8893f4477f7
+    w6636:adapter
+      v12/python/src/baton_v12/worker_manager/oci.py
+      112823 bytes  sha256:4a8f1d05c19f67cefe4a627b39e357d053b78b7ab73a8ea9ab8264b0e45b8bf0
+    w6636:attempts
+      v12/python/src/baton_v12/worker_manager/attempts.py
+      86648 bytes  sha256:ae8ce0e79d6c88dbb6045b3915ab94206b3139b37086c096595799737761cd84
+    w6636:composition-evidence
+      work/records/2026/08/finding-v12-local-oci-lifecycle-composition/evidence/w6636-2026-08-27-composition.txt
+      19084 bytes  sha256:a4be27bb85828d80c7bdaaf4a475e0214522275c2ba3aec4a716014c2da7d935
+    w6636:composition-suite
+      v12/python/tests/manager/test_lifecycle_composition.py
+      97593 bytes  sha256:b7092ead2c0383df6886b731034b26537f54db66566f74ec421e4d3938d66997
+    w6636:intake
+      v12/python/src/baton_v12/worker_manager/intake.py
+      73064 bytes  sha256:966fe21224a18f41d596ef88727551a85949018a846e327b28519f5fda7dd8cb
+    w6636:mutation-harness
+      work/records/2026/08/finding-v12-local-oci-lifecycle-composition/evidence/w6636-mutation-harness.py
+      7608 bytes  sha256:d479cd5140f361ca4e674a66b5344f340a1ac691f0e82e1dd89ef57570e0f141
+    w6636:offers
+      v12/python/src/baton_v12/worker_manager/offers.py
+      37194 bytes  sha256:bc9dc351b4aaa74df42c4fdb067ba2536024536ef7edf52b127a1ef53ce248b4
+    w6636:scripted-agent
+      v12/worker/scripted_agent.py
+      4564 bytes  sha256:f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c
+    w6636:store
+      v12/python/src/baton_v12/worker_manager/store.py
+      38043 bytes  sha256:5ae622902a3ae2d64e2f98ce3aad1065b3fce765b47d0db657df0e7af40cec83
+    w6636:worker-program
+      v12/worker/baton_worker.py
+      69540 bytes  sha256:f64901578f09a60a19165d2d549bb1287ac52ea3e23fa11e2231e90c513b4d8d
+    w6636:worker-recipe
+      v12/worker/Dockerfile
+      4737 bytes  sha256:0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f
+    w6636:workspaces
+      v12/python/src/baton_v12/worker_manager/workspaces.py
+      39843 bytes  sha256:0e2e24efb61b0a2a738be8557d119739a1ef713ea8994daad2db8c2e1fa8b07c
+
+=== 2. THE REGISTER, MEASURED RATHER THAN QUOTED
+    total cases in the register      : 136
+    applicable to local-oci          : 135
+    the local-oci portable core      : 135
+    requiring the SUPERSEDED consent topology : 3
+      A-consent-sees-neither-input-document
+        reads consent_mounts
+      C-preclaim-no-execution
+        reads consent_runtime_has_output, consent_runtime_has_workspace, consent_runtime_writable_paths
+      H-consent-then-execution
+        reads consent_assignment_ref, consent_epoch
+
+    Derived from the register, not listed: a case conflicts when
+    its expectation reads a fact only a consent runtime can
+    produce, and the approved direct claim-to-one-container
+    topology has no consent runtime to produce it.
+
+=== 3. THE PROBES, AGAINST A REAL DAEMON
+probe_assignment_manifest_beside_the_input (__main__.Seal.probe_assignment_manifest_beside_the_input) ... ok
+probe_input_is_read_only (__main__.Seal.probe_input_is_read_only) ... ok
+probe_no_authority_capability (__main__.Seal.probe_no_authority_capability) ... ok
+probe_no_baton_executable (__main__.Seal.probe_no_baton_executable) ... ok
+probe_no_canonical_repository (__main__.Seal.probe_no_canonical_repository) ... ok
+probe_only_the_authorized_root (__main__.Seal.probe_only_the_authorized_root)
+An agreeing plan over a root this attempt never authorized. ... ok
+probe_decline_carrying_bearer (__main__.Seal.probe_decline_carrying_bearer) ... ok
+probe_operation_collision (__main__.Seal.probe_operation_collision) ... ok
+probe_superseded_generation_freeze (__main__.Seal.probe_superseded_generation_freeze)
+The whole arc to the edge of the freeze, and THEN the supersession. ... ok
+probe_output_persists_past_the_runtime (__main__.Seal.probe_output_persists_past_the_runtime)
+Freeze, take custody, RETAIN, destroy -- then read it all again. ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.615s
+
+OK
+
+=== 4. WHAT WAS MEASURED
+    A-assignment-manifest-delivered-read-only-beside-the-input
+      assignment_manifest_path = '/input/assignment.json'
+      assignment_manifest_present = True
+      assignment_manifest_read_only = True
+      input_pair_bindings_agree = True
+    A-input-is-read-only
+      input_write_denied_by = "OSError: [Errno 30] Read-only file system: '/input/w6-probe'"
+      input_write_succeeded = False
+    B-no-authority-capability
+      authority_database_reachable = False
+      authority_home_reachable = False
+    B-no-baton-executable
+      baton_config_reachable = False
+      baton_executable_reachable = False
+    B-no-canonical-repository
+      canonical_repository_reachable = False
+    A-only-the-authorized-root-is-mounted-at-the-fixed-path
+      mounted_source_is_authorized = False
+      refusal = {'category': 'policy', 'code': 'denied'}
+      runtimes_started = 0
+    C-decline-carrying-bearer-refused
+      claim_committed = False
+      offer_state = 'declined'
+      refusal = None
+    E-operation-collision
+      durable_effects = 0
+      refusal = {'category': 'refused', 'code': 'operation-collision'}
+    A-completion-under-a-superseded-generation-refused
+      durable_effects = 0
+      manifest_generation_is_live = False
+      refusal = {'category': 'stale-assignment', 'code': 'generation'}
+    A-output-persists-past-the-runtime
+      digests_unchanged_after_destroy = True
+      frozen_tree_readable_after_destroy = True
+      output_manifest_readable_after_destroy = True
+
+    canary planted in the workspace surface only: w6-workspace-canary
+      value digest sha256:7e1b33f38e42aa94a1cb8b8b5653f12f62ff534ce2dbfc9b3966a14b87ef436c
+      found in retained custody at: ['proposal/w6-canary.txt']
+
+=== 5. THE SELECTION, REFUSING ITSELF WHERE IT CANNOT DECIDE
+    every measured case supplied its case's exact required
+    facts and its exact deciding evidence purposes
+    sealed observations: 10
+
+=== 6. THE FROZEN ASSESSOR, ASKED TO CERTIFY
+    REFUSED: ConformanceError: a fixture plants a canary in every named surface; missing ['caches', 'declared-output', 'events', 'evidence', 'git-objects', 'manifests', 'proposal', 'retained-logs', 'retained-runtime-layers']
+
+    THIS IS A RESULT, NOT AN OBSTACLE. The frozen suite
+    admits no partial fixture: a fixture that cannot inject
+    the whole mandatory fault set, or plant a canary in
+    every named surface, is refused BEFORE any case is
+    assessed. Declaring capabilities this pass does not
+    have would have got past it, and that is the one move
+    the ruling forbids.
+    mandatory faults for local-oci: 21
+      ['adapter-restart', 'artifact-store-unavailable', 'authority-unavailable', 'canary-plant', 'canonical-target-move', 'clock-advance', 'concurrent-assignment', 'credential-expire', 'credential-reuse', 'duplicate-runtime-start', 'frame-delay', 'frame-duplicate', 'manager-restart', 'network-deny', 'output-suppress', 'plan-reject', 'process-kill', 'profile-decertify', 'source-provider-unavailable', 'transport-drop', 'transport-partition']
+    canary surfaces required: 10
+      ['caches', 'declared-output', 'events', 'evidence', 'git-objects', 'manifests', 'proposal', 'retained-logs', 'retained-runtime-layers', 'workspace']
+    planted by this pass: ['workspace']
+
+=== 7. THE PER-CASE VERDICTS, DERIVED BY THE FROZEN ASSESSOR
+    PASSED  A-assignment-manifest-delivered-read-only-beside-the-input
+            every clause of the expectation held
+    PASSED  A-input-is-read-only
+            every clause of the expectation held
+    PASSED  B-no-authority-capability
+            every clause of the expectation held
+    PASSED  B-no-baton-executable
+            every clause of the expectation held
+    PASSED  B-no-canonical-repository
+            every clause of the expectation held
+    PASSED  A-only-the-authorized-root-is-mounted-at-the-fixed-path
+            every clause of the expectation held
+    FAILED  C-decline-carrying-bearer-refused
+            refusal None is not {'category': 'integrity', 'code': 'schema'}; offer_state not-equals 'declined'
+    PASSED  E-operation-collision
+            every clause of the expectation held
+    PASSED  A-completion-under-a-superseded-generation-refused
+            every clause of the expectation held
+    PASSED  A-output-persists-past-the-runtime
+            every clause of the expectation held
+
+=== 8. THE FORMAL RESULT
+    VERDICT: not-certified
+    1 portable core case(s) failed
+
+    observed and passed (9):
+      A-assignment-manifest-delivered-read-only-beside-the-input
+      A-input-is-read-only
+      B-no-authority-capability
+      B-no-baton-executable
+      B-no-canonical-repository
+      A-only-the-authorized-root-is-mounted-at-the-fixed-path
+      E-operation-collision
+      A-completion-under-a-superseded-generation-refused
+      A-output-persists-past-the-runtime
+    observed and FAILED (1):
+      C-decline-carrying-bearer-refused
+    observed and UNDECIDABLE (0):
+
+    NOT OBSERVED (125) - every one named, no count aliases:
+      A-assignment-manifest-naming-another-runtime-attempt-refused
+      A-assignment-minted-against-another-input-refused
+      A-collection-ambiguous
+      A-completion-answers-every-declaration-once
+      A-completion-copies-the-delivered-assignment-identity
+      A-completion-identity-must-match-the-declaration
+      A-completion-with-an-undeclared-answer-refused
+      A-consent-sees-neither-input-document [CONFLICTS WITH THE APPROVED TOPOLOGY]
+      A-ephemeral-exported-is-collected
+      A-ephemeral-not-exported-not-collected
+      A-execution-without-the-assignment-manifest-refused
+      A-freeze-after-quiescence
+      A-freeze-changed-bytes-refused
+      A-freeze-digest-recomputes
+      A-freeze-exact-replay
+      A-frozen-output-chains-as-read-only-input
+      A-identifier-only-output-refused
+      A-input-pair-naming-two-work-items-refused
+      A-input-root-authorized-against-the-owned-assignment
+      A-interrupted-publish-leaves-no-output-json
+      A-malformed-assignment-manifest-refused
+      A-manager-acquires-nothing
+      A-manager-receipt-is-not-the-worker-envelope
+      A-missing-required-output
+      A-output-json-published-last
+      A-output-overlap-refused
+      A-output-symlink-refused
+      A-output-traversal-refused
+      A-proposal-is-not-a-push
+      A-required-declaration-cannot-be-answered-missing
+      A-staged-tree-matches-its-manifest
+      A-stale-generation-root-refused-before-mount
+      A-undeclared-not-collected
+      A-wrong-attempt-root-refused-before-mount
+      B-cross-worker-isolation
+      B-git-metadata-private
+      B-network-policy-enforced
+      B-resource-policy-enforced
+      B-tool-policy-enforced
+      C-activity-changes-no-state
+      C-assignment-manifest-after-claim
+      C-claim-ambiguous-no-execution
+      C-claim-settled-by-operation
+      C-decline-without-bearer
+      C-decline-wrong-binding-refused
+      C-no-write-before-activate
+      C-preclaim-metadata-only
+      C-preclaim-no-execution [CONFLICTS WITH THE APPROVED TOPOLOGY]
+      C-stale-activity
+      C-stale-proposal
+      C-stale-result
+      C-token-expired
+      C-token-replayed
+      C-token-wrong-binding
+      D-agent-quiescence-not-runtime
+      D-cancel-reply-is-not-death
+      D-cancelled-output-sealed
+      D-destroyed-clears-gate
+      D-discard-requires-policy
+      D-fence-before-stop
+      D-late-publication-refused
+      D-quiescent-is-not-destroyed
+      D-replacement-gated
+      D-retention-policy
+      D-slot-freed-immediately
+      D-uncertain-quiescence
+      E-adapter-restart-reconciles
+      E-agent-transport-lost
+      E-cleanup-blocked-on-intake
+      E-duplicate-frame
+      E-duplicate-observation
+      E-duplicate-runtime-start
+      E-exact-replay
+      E-manager-restart-reconciles
+      E-observation-regression
+      E-operation-signature-covers-kind
+      E-operation-signature-mismatch-refused
+      E-partition-reattach-proof
+      E-reachability-is-not-identity
+      F-canary-each-surface
+      F-credential-expiry-mid-run
+      F-credential-lifetime
+      F-credential-not-reusable-cross-assignment
+      F-credential-scoped-to-assignment
+      F-leak-refuses-publication
+      F-no-credential-in-events
+      F-no-credential-in-manifests
+      F-residual-risk-reported
+      G-approval-payload-valid
+      G-approval-race
+      G-approval-refused
+      G-artifact-store-unavailable
+      G-authority-unavailable
+      G-capability-refused
+      G-error-frames-typed
+      G-extension-refused
+      G-mode-unavailable
+      G-plan-rejected
+      G-policy-drift
+      G-profile-failure-signal
+      G-proposal-integrity
+      G-prose-decides-nothing
+      G-receipt-immutability
+      G-source-provider-unavailable
+      G-stale-contract
+      G-stale-target
+      G-uncertified-profile
+      G-untrusted-output
+      G-verdict-is-not-policy
+      G-version-refused
+      H-agent-holds-no-capability
+      H-axis-monotonic
+      H-cancel-drain-unknown
+      H-cancel-observed
+      H-capability-withheld
+      H-consent-then-execution [CONFLICTS WITH THE APPROVED TOPOLOGY]
+      H-disposition-gating
+      H-event-integrity
+      H-event-normalization
+      H-event-overflow-counted
+      H-fresh-session
+      H-history-methods-refused
+      H-provider-id-is-not-identity
+      H-turn-outcomes
+      H-unadvertised-method-refused
+
+=== 9. RETAINED
+    work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution/findings/finding-v12-local-conformance-proof/evidence/w6-seal/w6-capability-pass-report.json
+    36494 bytes  sha256:82fc922bb40a5d7ff86e897b689f60e657173b89015cfa981d3addb27f75d6fb
+    authorized-root-trace.json  454 bytes  sha256:1bb41246019f480120dd666084203a4d33d5b15fa101ca0b5cbdb552eb04bcdd
+    authorized-root.json  355 bytes  sha256:012efe2a48054d47286c38b96a64007785746424cbd78661edf5e8b8f4d3ca51
+    decline-bearer.json  1101 bytes  sha256:896ffaebb4c33db5bf4cfb64f258fba2bd6cd570d9fe1b30c0b89204c192afc8
+    input-pair-trace.json  7823 bytes  sha256:f26cfeb96083afe7effa11201ff2ee2eb41b5d52bae1cbb62e999eb755ce7e7b
+    input-pair.json  1389 bytes  sha256:7b0adeacbf0f996bb2751a526ea151fee1fd0ce54cd7090577bc55e71b75ad1f
+    input-write-trace.json  2178 bytes  sha256:dec076f52ad5c8a5d4319ce220f625ec416c6b5611b166a9f3bcaa86ba36f898
+    input-write.json  3640 bytes  sha256:a396842735a6b676a4e0ec64ef1848f571acf81240c2b7944415605151e4c49f
+    no-authority-attestation.json  4534 bytes  sha256:9a397d52d630da42d5e55803e40ab0fc59bc9cb9f309e02ed78d7185c9712123
+    no-authority.json  8192 bytes  sha256:82058a87338f01b6c9d424d8806e3a0d346fb18cc2f9a269d69c0b7ec269ad35
+    no-baton-attestation.json  4534 bytes  sha256:c0e8496f61f7e5363e222a2b5891e83655e766daedbfd5ddca9211c05589eed8
+    no-baton.json  8151 bytes  sha256:44103f603b4468313eb86c5700a7ac48e3d0a0f78ce94eb5598e597aaea48e66
+    no-repository-attestation.json  4534 bytes  sha256:5abe576fe4decd332f610a7cfb4c71c82a73c6f9206cdf70994d8d19378145f7
+    no-repository.json  7995 bytes  sha256:ede70c0f3a252351ae57a0b45b5c48d4728789f006dfef59e039ee905380f2df
+    operation-collision.json  505 bytes  sha256:db3e92bc30f26c8ee4df61cfc2e1646a4fc237d6f5953e483953b0f9e11121f1
+    persistence-manifest.json  7437 bytes  sha256:0f2372321ad595b6705e51f148364c9e1d1e3f7be005407652eeda6c0859e194
+    persistence-trace.json  3877 bytes  sha256:800783b40ec381fb63e2353f435b2755962e5ce4f3f402a4e76fef96b3c9ed2e
+    superseded-freeze-manifest.json  4201 bytes  sha256:8db515e713538167822d986c5967589a74546d697da92a1e86ca6f31826bd8fc
+    superseded-freeze.json  1421 bytes  sha256:167ed7324d19e046fec4d61093430b10fab11b1de9593134fdaaca6b2bb8fbc3
+    w6-capability-pass-report.json  36494 bytes  sha256:82fc922bb40a5d7ff86e897b689f60e657173b89015cfa981d3addb27f75d6fb
+

@@ -827,6 +827,22 @@ class TheBearerIsHeldForTheActsThatSpendIt(SecretCase):
 # journal, each naming it. An entry here is a decision somebody made, and it is
 # checked to name a writer that exists.
 COVERED_ELSEWHERE = {
+    # W32649: the runtime lane. Every column it writes is either derived from
+    # the assignment's own authority-owned identity -- the four lane parts and
+    # the digest over them -- or composed by this manager from the operation it
+    # is journalling. No caller operand reaches any of them, and the occupancy
+    # happens inside the start transaction whose signature is walked.
+    ("lanes.py", "_occupy_lane", "runtime_lanes"):
+        "the four identity parts come off the activated attempt row, which was "
+        "written from the authority's closed claim result; the reason is this "
+        "manager's own sentence about the operation it is committing",
+    # W33936 review [P1]: the deployment's configured workspace group. The
+    # only value written is an integer this manager has already proved is a
+    # group id it holds, and it rides the act's manager signature into the
+    # journal, which is walked.
+    ("workspaces.py", "configure_workspace_group", "meta"):
+        "a validated group id, written by a deployment act whose signature "
+        "the journal walks",
     ("store.py", "ControlStore._initialize", "meta"):
         "this build's own schema marker and version, written once at creation "
         "from constants -- no caller operand reaches it",
@@ -1004,6 +1020,43 @@ CONSTRUCTS_A_PORTABLE_ARTEFACT = {
 # composed into a durable or portable artefact — or it deliberately returns the
 # secret to the one party entitled to it.
 RETURNS_NO_CONSTRUCTED_ARTEFACT = {
+    # W32649. Both answer with values read from the attempt row and the lane
+    # table -- an assignment identity, a holder's attempt id and this manager's
+    # own reason -- and construct nothing a caller supplied any part of.
+    # W32648. `authorize_failed_start_cleanup` answers the same
+    # `cleanup.settled` document the receipt-authorized ending does, composed
+    # from an observation the adapter made and this manager's own axis values;
+    # `failed_start_destroy_operation` derives an identity and a signature
+    # digest, and its own `check_no_durable_secret` runs at the constructor for
+    # the reason every other operation identity's does.
+    "authorize_failed_start_cleanup":
+        "answers the frozen cleanup ending, from an adapter observation and "
+        "this manager's own axis values",
+    "failed_start_destroy_operation":
+        "derives an operation identity and walks it for §13 at the "
+        "constructor, exactly as `destroy_operation` does",
+    # W32576. The same three statements, one ending further along.
+    "authorize_refused_session_cleanup":
+        "answers the frozen cleanup ending, from an adapter observation and "
+        "this manager's own axis values",
+    "refused_session_destroy_operation":
+        "derives an operation identity and walks it for §13 at the "
+        "constructor, exactly as `destroy_operation` does",
+    "unsupported_version_operation_id":
+        "derives one identity from the four-part session reference and "
+        "answers that text",
+    "settle_unsupported_version":
+        "answers the manager's own refusal record, composed from the "
+        "persisted session's certified profile and a refusal this manager "
+        "derived rather than one it was handed",
+    "configure_workspace_group":
+        "records one validated group id; the answer is that integer",
+    "configured_workspace_group":
+        "answers the recorded group as a capability holding one integer",
+    "WorkspaceGroup": "an immutable capability over one validated group id",
+    "lane_reference": "projects four authority-owned identity parts off the "
+                      "attempt row; there is no operand to construct from",
+    "runtime_lane": "the same, plus who holds the lane and what blocks it",
     "AuthorityPort": "a capability wrapper; it constructs no document",
     "ControlStore": "opens a store; it constructs no document",
     "issue_offer":

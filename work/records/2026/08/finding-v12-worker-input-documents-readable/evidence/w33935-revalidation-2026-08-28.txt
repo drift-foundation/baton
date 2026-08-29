@@ -1,0 +1,35 @@
+W33935 — THE DELIVERED /input PAIR, ASKED OF A REAL CONTAINER
+==========================================================================
+
+the constants this delivery is written with:
+    workspaces.READ_ONLY_FILE = 0o444
+    workspaces.READ_ONLY_DIR  = 0o555
+    launch.READ_ONLY_FILE     = 0o444
+    launch.READ_ONLY_DIR      = 0o555
+
+runProbe (__main__.Probe.runProbe) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.248s
+
+OK
+
+THE HOST SIDE, as the manager wrote it:
+    inputs root      {'mode': '0o555', 'uid': 1000, 'gid': 1000}
+    input.json       {'mode': '0o444', 'uid': 1000, 'gid': 1000}
+    assignment.json  {'mode': '0o444', 'uid': 1000, 'gid': 1000}
+    workspace        {'mode': '0o775', 'uid': 1000, 'gid': 1000}
+    launch.json      {'mode': '0o444', 'uid': 1000, 'gid': 1000}
+
+THE CONTAINER SIDE, as a worker would find it:
+    running as       [65532, 65532]
+    /input
+      {'mode': '0o555', 'uid': 1000, 'gid': 1000, 'listable': ['assignment.json', 'input.json'], 'writable': "OSError: [Errno 30] Read-only file system: '/input/w33935-probe'"}
+    /input/input.json
+      {'mode': '0o444', 'uid': 1000, 'gid': 1000, 'read_bytes': 2651, 'writable': "PermissionError: [Errno 13] Permission denied: '/input/input.json'"}
+    /input/assignment.json
+      {'mode': '0o444', 'uid': 1000, 'gid': 1000, 'read_bytes': 969, 'writable': "PermissionError: [Errno 13] Permission denied: '/input/assignment.json'"}
+    /workspace
+      {'mode': '0o775', 'uid': 1000, 'gid': 1000, 'listable': [], 'writable': "PermissionError: [Errno 13] Permission denied: '/workspace/w33935-probe'"}
+    /run/baton/launch.json
+      {'mode': '0o444', 'uid': 1000, 'gid': 1000, 'read_bytes': 139, 'writable': "PermissionError: [Errno 13] Permission denied: '/run/baton/launch.json'"}

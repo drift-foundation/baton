@@ -61,6 +61,7 @@ install -m 600 /home/sl/baton-v11.14aecfb/infra.json /home/sl/baton-v11.14aecfb/
 install -m 600 /home/sl/baton-v11.14aecfb/codex-event-bridge.template.json /home/sl/baton-v11.14aecfb/codex-event-bridge.template.json.pre-pc-W10198
 install -m 600 /home/sl/.codex/rules/baton.rules /home/sl/.codex/rules/baton.rules.pre-pc-W10198
 install -m 600 /home/sl/src/pushcoin/AGENTS.md /home/sl/baton-v11.14aecfb/pushcoin-AGENTS.md.pre-pc-W10198
+if test -e /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh; then install -m 700 /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh /home/sl/baton-v11.14aecfb/launch-agent-sandboxed.sh.pre-domain-W28681; fi
 ```
 
 Install and byte-verify the durable Pushcoin policy before any new context or
@@ -83,6 +84,7 @@ install -m 700 /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-te
 install -m 600 /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/git_guard.py /home/sl/.config/baton/acp/pc.code/policy/git_guard.py
 install -m 700 /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/launch-agent-sandboxed.sh /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh
 install -m 600 /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/protected-paths.txt /home/sl/.config/baton/acp/pc.code/policy/protected-paths.txt
+install -m 700 /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/preflight-process-domain.sh /home/sl/.config/baton/acp/pc.code/policy/preflight-process-domain.sh
 ```
 
 Provision the deployment-owned credential into the isolated profile without
@@ -132,6 +134,43 @@ cmp /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboardi
 cmp /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pushcoin-AGENTS.md /home/sl/src/pushcoin/AGENTS.md
 ```
 
+### The process-domain preflight (W28681) — MANDATORY, in the service context
+
+The ACP launcher owns the agent's PROCESS DOMAIN as well as its mount
+boundary, and whether this host permits an unprivileged PID namespace is a
+property of THIS launch context. It cannot be established from a nested
+sandbox, from a managed agent turn, or by reading the script: a managed
+reviewer and a managed implementer both get "No permissions to create new
+namespace" and neither result says anything about the service.
+
+Run it as the user and in the context the service starts under, AFTER the
+policy files are installed and BEFORE anything is started:
+
+```bash
+/home/sl/.config/baton/acp/pc.code/policy/preflight-process-domain.sh
+```
+
+It creates the exact domain the launcher composes, starts an escaped
+(setsid) descendant and a busy descendant inside it, terminates the domain
+owner, and requires both to be gone while an unrelated process of the same
+shape is untouched. It removes everything it starts.
+
+**A nonzero result keeps dispatch paused and stops this cutover.** Do not
+start the stack, do not resume, and do not install the changed template: a
+launcher that contains the agent's writes but not its processes is what let
+five tool process groups outlive their turns by 34-36 hours, and that is the
+defect W28681 exists to close. Its exit codes name the reason — 2 missing
+tooling, 3 no namespace in this context, 4 the probe could not start its own
+descendants, 5 the owner ignored SIGTERM, 6 a descendant survived, 7 the
+teardown reached an unrelated process.
+
+Byte-compare the two policy files this change installs:
+
+```bash
+cmp /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/launch-agent-sandboxed.sh /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh
+cmp /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/preflight-process-domain.sh /home/sl/.config/baton/acp/pc.code/policy/preflight-process-domain.sh
+```
+
 ## 5. Start, verify, then resume
 
 ```bash
@@ -179,6 +218,8 @@ install -m 600 /home/sl/baton-v11.14aecfb/infra.json.pre-pc-W10198 /home/sl/bato
 install -m 600 /home/sl/baton-v11.14aecfb/codex-event-bridge.template.json.pre-pc-W10198 /home/sl/baton-v11.14aecfb/codex-event-bridge.template.json
 install -m 600 /home/sl/.codex/rules/baton.rules.pre-pc-W10198 /home/sl/.codex/rules/baton.rules
 install -m 664 /home/sl/baton-v11.14aecfb/pushcoin-AGENTS.md.pre-pc-W10198 /home/sl/src/pushcoin/AGENTS.md
+if test -e /home/sl/baton-v11.14aecfb/launch-agent-sandboxed.sh.pre-domain-W28681; then install -m 700 /home/sl/baton-v11.14aecfb/launch-agent-sandboxed.sh.pre-domain-W28681 /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh; else rm -f /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh; fi
+rm -f /home/sl/.config/baton/acp/pc.code/policy/preflight-process-domain.sh
 python3 /home/sl/src/baton/tools/infra.py start /home/sl/baton-v11.14aecfb
 python3 /home/sl/src/baton/tools/infra.py status /home/sl/baton-v11.14aecfb
 /home/sl/opt/baton/v11/14aecfb/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.slaw runtime
@@ -187,6 +228,14 @@ python3 /home/sl/src/baton/tools/infra.py resume /home/sl/baton-v11.14aecfb --re
 
 Skip the first `stop` when no service was launched. Do not resume unless the
 restored Baton-only stack is healthy.
+
+W28681: the launcher backup in section 3 is CONDITIONAL because a genuinely
+fresh install has no launcher to back up. Both rollbacks are conditional in the
+same way and for the same reason: with a backup, restore it; without one,
+remove the launcher this cutover installed rather than leaving a changed file
+behind under a stack that is being rolled back. `verify.mjs` checks that every
+backup a rollback restores is produced on the same path, so the two halves
+cannot drift apart again.
 
 ## 7. Reconcile an already-installed stack
 
@@ -211,19 +260,41 @@ reviewed successors:
 ```bash
 install -m 600 /home/sl/baton-v11.14aecfb/acp-pc-code.template.json /home/sl/baton-v11.14aecfb/acp-pc-code.template.json.pre-launch-contract-W10198
 install -m 600 /home/sl/src/pushcoin/AGENTS.md /home/sl/baton-v11.14aecfb/pushcoin-AGENTS.md.pre-launch-contract-W10198
+install -m 600 /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh /home/sl/baton-v11.14aecfb/launch-agent-sandboxed.sh.pre-domain-W28681
 test -s /home/sl/.claude/.credentials.json
 if ! test -s /home/sl/.local/state/acp-baton-bridge/pc.code/claude/.credentials.json; then install -m 600 /home/sl/.claude/.credentials.json /home/sl/.local/state/acp-baton-bridge/pc.code/claude/.credentials.json; fi
 test -s /home/sl/.local/state/acp-baton-bridge/pc.code/claude/.credentials.json
 test "$(stat -c %a /home/sl/.local/state/acp-baton-bridge/pc.code/claude/.credentials.json)" = 600
 install -m 600 /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/acp-pc-code.template.json /home/sl/baton-v11.14aecfb/acp-pc-code.template.json
 install -m 664 /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pushcoin-AGENTS.md /home/sl/src/pushcoin/AGENTS.md
+install -m 700 /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/launch-agent-sandboxed.sh /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh
+install -m 700 /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/preflight-process-domain.sh /home/sl/.config/baton/acp/pc.code/policy/preflight-process-domain.sh
 cmp /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/acp-pc-code.template.json /home/sl/baton-v11.14aecfb/acp-pc-code.template.json
 cmp /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pushcoin-AGENTS.md /home/sl/src/pushcoin/AGENTS.md
+cmp /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/launch-agent-sandboxed.sh /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh
+cmp /home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/preflight-process-domain.sh /home/sl/.config/baton/acp/pc.code/policy/preflight-process-domain.sh
 ```
+
+W28681 makes the changed launcher own the agent's process domain, and the
+template now names the preflight as a required policy resource — so BOTH
+files above are installed here, and the ACP bridge refuses to start if either
+is missing or unreadable.
+
+Then run the MANDATORY process-domain preflight from section 4, in the service
+context, before starting anything:
+
+```bash
+/home/sl/.config/baton/acp/pc.code/policy/preflight-process-domain.sh
+```
+
+A nonzero result keeps dispatch paused and ends this reconciliation: restore
+the backups below rather than starting a stack whose launcher does not own its
+descendants.
 
 Run the lifecycle preflight from section 4, start the stack, and run every
 status, canonical runtime, rendered-context, and fresh smoke gate from section
-5. Resume only after the exact launcher variables and authentication succeed.
+5. Resume only after the exact launcher variables, the process-domain
+preflight, and authentication all succeed.
 
 If reconciliation fails, keep dispatch paused, stop any partial start, restore
 the two reconciliation backups, start and verify the previously working stack,
@@ -233,6 +304,8 @@ and only then resume:
 python3 /home/sl/src/baton/tools/infra.py stop /home/sl/baton-v11.14aecfb
 install -m 600 /home/sl/baton-v11.14aecfb/acp-pc-code.template.json.pre-launch-contract-W10198 /home/sl/baton-v11.14aecfb/acp-pc-code.template.json
 install -m 664 /home/sl/baton-v11.14aecfb/pushcoin-AGENTS.md.pre-launch-contract-W10198 /home/sl/src/pushcoin/AGENTS.md
+if test -e /home/sl/baton-v11.14aecfb/launch-agent-sandboxed.sh.pre-domain-W28681; then install -m 700 /home/sl/baton-v11.14aecfb/launch-agent-sandboxed.sh.pre-domain-W28681 /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh; else rm -f /home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh; fi
+rm -f /home/sl/.config/baton/acp/pc.code/policy/preflight-process-domain.sh
 python3 /home/sl/src/baton/tools/infra.py start /home/sl/baton-v11.14aecfb
 python3 /home/sl/src/baton/tools/infra.py status /home/sl/baton-v11.14aecfb
 /home/sl/opt/baton/v11/14aecfb/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.slaw runtime

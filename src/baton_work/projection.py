@@ -22,6 +22,7 @@ noise control, not a wall.
 
 from __future__ import annotations
 
+import base64
 import contextlib
 import json as _json
 import re
@@ -380,15 +381,40 @@ _BLOCKING_PREDICATE = (
 	"ON blocked.id = edges.work "
 	"WHERE edges.blocker = work.id AND blocked.status='open')")
 
+# The two rank expressions the canonical ordering is BUILT FROM, named
+# once. W26328 needs the same ranks as SELECTED VALUES so a continuation
+# can name a place in this order (see `WORK_ORDER_KEY`), and a second
+# hand-written copy of the CASE arms would be a second definition of the
+# canonical order to keep honest.
+_PRIORITY_RANK = ("CASE priority WHEN 'high' THEN 0 "
+                  "WHEN 'normal' THEN 1 ELSE 2 END")
+_BLOCKING_RANK = f"CASE WHEN {_BLOCKING_PREDICATE} THEN 0 ELSE 1 END"
+
 # The canonical Work ordering. Explicit priority is the PRIMARY pool and
 # is never rewritten or inherited (rule 1); the blocker preference orders
 # only WITHIN one pool (rule 2); stable creation order is the final
 # tie-break (rule 4). Every human Work list and the participant readiness
 # projection sort by exactly this, which is rule 5.
-WORK_ORDER = ("ORDER BY CASE priority WHEN 'high' THEN 0 "
-              "WHEN 'normal' THEN 1 ELSE 2 END, "
-              f"CASE WHEN {_BLOCKING_PREDICATE} THEN 0 ELSE 1 END, "
-              "created_seq")
+WORK_ORDER = (f"ORDER BY {_PRIORITY_RANK}, {_BLOCKING_RANK}, created_seq")
+
+# W26328: the canonical position of a row, as COLUMNS. A keyset
+# continuation names the last position returned rather than how many rows
+# preceded it, so an earlier row removed between pages cannot shift the
+# rows after it out of view.
+WORK_ORDER_KEY = (f"{_PRIORITY_RANK} AS order_priority, "
+                  f"{_BLOCKING_RANK} AS order_blocking")
+
+# W26328: the canonical order made TOTAL. A keyset continuation compares
+# positions, so the order it walks has to decide EVERY pair -- two rows the
+# order calls equal are two rows a cursor can skip or repeat. Today no mint
+# produces that tie: `created_seq` is the event sequence and the identity is
+# minted from it (`…-W{seq}`), so it is already unique. That is a property
+# of how ids happen to be spelled, not of the ordering, and the cursor
+# depends on the ordering -- so the identity is named as the final tie-break
+# and the requirement stops being a coincidence. It is never consulted where
+# `WORK_ORDER` decides, so this refines the canonical order and cannot
+# reorder it.
+WORK_ORDER_TOTAL = f"{WORK_ORDER}, id"
 
 
 def _blocking(row: dict, open_dependents: int) -> bool:
@@ -792,6 +818,16 @@ def search(store: Authority, query, *, viewer_team: str,
 	finally:
 		store.conn.execute("ROLLBACK")
 	return {"query": query, "rows": [view for _seq, view in page],
+	        # W29146: THE SCOPE IS PART OF THE ANSWER. This search is
+	        # team-scoped by W6's own ruling, and the result said so
+	        # nowhere — so an empty page read as "no such Work anywhere"
+	        # when it means "no such Work in this team". An operator
+	        # chasing a global Teams star searched for the Work causing
+	        # it, got nothing, and had no way to learn the question had
+	        # been narrower than it looked. Published rather than left to
+	        # caller knowledge, because the caller that most needs it is
+	        # the one that did not know to ask.
+	        "team": viewer_team,
 	        "filter": active, "next_after": next_after,
 	        "snapshot_seq": snapshot_seq}
 
@@ -1598,14 +1634,168 @@ def links(store: Authority, work_id: str) -> dict:
 MAX_PAGE = 500
 
 
+def _limit_bound(limit) -> int:
+	"""The page-size half of the R63 pagination contract, stated ONCE.
+
+	It is separate from the cursor because the two halves are separate
+	questions: W26328 keeps this rule exactly and answers "where do I
+	continue" with an opaque position instead of a sequence number."""
+	if not isinstance(limit, int) or limit < 1 or limit > MAX_PAGE:
+		raise WorkError(f"the page limit is between 1 and {MAX_PAGE}")
+	return limit
+
+
 def _page_bounds(after, limit) -> tuple[int, int]:
 	"""R63: pagination is a CONTRACT — non-negative cursor, bounded
 	positive limit, explicit continuation state on every page."""
 	if not isinstance(after, int) or after < 0:
 		raise WorkError("the pagination cursor is a non-negative integer")
-	if not isinstance(limit, int) or limit < 1 or limit > MAX_PAGE:
-		raise WorkError(f"the page limit is between 1 and {MAX_PAGE}")
-	return after, limit
+	return after, _limit_bound(limit)
+
+
+# W26328: the opaque continuation. The token names WHOSE QUESTION it
+# continues and WHERE that question got to -- the resolved viewer, then the
+# ranks, the creation sequence and the identity of the last row returned --
+# and NOTHING a client is invited to compute with. It is deliberately
+# encoded rather than spelled: the contract is that a caller passes back
+# exactly what it was handed, and an integer a caller can read is an integer
+# a caller will do arithmetic on.
+#
+# THE VIEWER IS IN THE TOKEN because `actionable-work` is a
+# PARTICIPANT-RELATIVE question. Third review [P1]: a position alone is a
+# fact about the canonical order, which every viewer shares -- so a real,
+# authority-minted, unedited cursor from one participant's page was a valid
+# cursor in another's, and every row before that position dropped out of
+# their answer. Two disjoint Routes are enough: Grace's page-one cursor
+# names a Work that sorts after everything Ada can claim, and Ada reading
+# through it gets an empty page while her own Work is still waiting.
+#
+# THE SCHEME BUMPS WITH THE SHAPE. `w1` tokens name a position and no
+# viewer, so a `w1` token cannot be read as a `w2` one -- it is refused,
+# which is the whole reason the tag is checked before anything is decoded
+# from the parts beside it.
+_CURSOR_SCHEME = "w2"
+_CURSOR_MEMBERS = 7
+
+
+def _cursor(row, viewer_team, viewer_member) -> str:
+	"""The opaque continuation naming this viewer's place in this order."""
+	raw = "\x1f".join((_CURSOR_SCHEME, viewer_team, viewer_member,
+	                    str(row["order_priority"]),
+	                    str(row["order_blocking"]),
+	                    str(row["created_seq"]), row["id"]))
+	return base64.urlsafe_b64encode(raw.encode()).decode().rstrip("=")
+
+
+def _cursor_position(token) -> dict | None:
+	"""What a continuation names -- `{"viewer": ..., "position": ...}` -- or
+	None for the first page.
+
+	A token this authority did not mint is REFUSED rather than rounded to
+	the beginning: silently answering page one to a client that asked to
+	continue is exactly the skipped-Work failure in another costume.
+
+	SHAPE ONLY. Whether the viewer is this call's viewer and whether the
+	position is one this authority still holds are two separate questions,
+	asked by `_cursor_view` and `_cursor_bound` -- the first before the
+	second, because "this is not your cursor" is a different thing to tell a
+	client than "the Work you were at has moved".
+	"""
+	if token is None or token == "":
+		return None
+	broken = WorkError("the continuation is the opaque token a previous "
+	                   "page returned; it is never constructed by hand")
+	if not isinstance(token, str):
+		raise broken
+	try:
+		padded = token + "=" * (-len(token) % 4)
+		parts = base64.urlsafe_b64decode(padded.encode()).decode().split(
+			"\x1f")
+	except Exception:
+		raise broken from None
+	if len(parts) != _CURSOR_MEMBERS or parts[0] != _CURSOR_SCHEME:
+		raise broken
+	try:
+		return {"viewer": (parts[1], parts[2]),
+		        "position": (int(parts[3]), int(parts[4]), int(parts[5]),
+		                     parts[6])}
+	except ValueError:
+		raise broken from None
+
+
+def _cursor_view(since, viewer_team, viewer_member) -> None:
+	"""Prove the continuation is THIS participant's.
+
+	Third review [P1]: the row binding fixed an INVENTED position and still
+	let a genuine cursor from a different query recreate the discovery
+	failure. The token was real, authority-minted and unedited; it simply
+	answered somebody else's question, and a position is a fact about the
+	canonical order rather than about a viewer.
+
+	ASKED BEFORE THE ROW IS LOOKED UP, deliberately. A cursor belonging to
+	another participant is not a snapshot that moved, and telling its holder
+	to refresh would send them round a loop that cannot terminate -- their
+	next page would be this page again. The refusal names the actual
+	mistake instead.
+	"""
+	if since is None:
+		return
+	if since["viewer"] != (viewer_team, viewer_member):
+		raise WorkError(
+			"this continuation belongs to a different participant's "
+			"`actionable-work` page; the answer is relative to who is "
+			"asking, so a cursor is only valid for the view that "
+			"produced it")
+
+
+def _position(row) -> tuple:
+	"""One row's canonical position, in the shape a cursor compares."""
+	return (row["order_priority"], row["order_blocking"],
+	        row["created_seq"], row["id"])
+
+
+def _cursor_bound(store, since) -> None:
+	"""Prove the continuation names a place this authority actually holds.
+
+	RE-REVIEW [P1]: SHAPE IS NOT PROVENANCE. `_cursor_position` established
+	that a token decodes and carries this scheme, and stopped there — so a
+	client could compose a well-formed one with impossible ranks, a future
+	sequence and an id belonging to nobody, and every real row compared as
+	"at or before" it. The page came back empty while Work was still
+	actionable, which is the exact discovery failure the offset arithmetic
+	caused, reached through the cursor instead.
+
+	So the token is bound to its Work: the named row must exist and its
+	CURRENT total-order position must be the one the token names.
+
+	A ROW THAT MERELY STOPPED BEING ACTIONABLE IS STILL A VALID CURSOR, and
+	that is the whole ordinary case — a claim or a reroute on a shared Route
+	moves a row out of the actionable set without moving it in the canonical
+	order, so continuing after it means exactly what it meant. The lookup is
+	deliberately over `work` rather than over the actionable set for that
+	reason.
+
+	A ROW WHOSE POSITION MOVED IS REFUSED, and the refusal says to refresh.
+	Continuing past a position the row no longer occupies is not continuing:
+	the rows between the two places are either handed back twice or skipped,
+	and neither is something a client can detect. The contract already names
+	deliberate refresh as the answer for a snapshot that has moved, and this
+	is that case arriving as a fact rather than as a judgement call.
+
+	Called INSIDE the read snapshot, so the position it proves and the rows
+	compared against it come from one state of the world.
+	"""
+	if since is None:
+		return
+	wanted = since["position"]
+	row = store.conn.execute(
+		f"SELECT id, created_seq, {WORK_ORDER_KEY} FROM work WHERE id=?",
+		(wanted[3],)).fetchone()
+	if row is None or _position(row) != wanted:
+		raise WorkError(
+			"the continuation names a position this authority does not "
+			"hold; the Work it points at is gone or has moved in the "
+			"canonical order — refresh to read from the current first page")
 
 
 def completes_by(flavor: str) -> list:
@@ -4844,7 +5034,7 @@ def _actionable_rollup(store: Authority, claimable: set) -> dict:
 
 
 def actionable_work(store: Authority, *, viewer_team: str, viewer_member: str,
-                    after: int = 0, limit: int = 100) -> dict:
+                    after: str | None = None, limit: int = 100) -> dict:
     """Every Work awaiting this participant, flattened, with its breadcrumb.
 
     THE ORDINARY TREE CANNOT ANSWER THIS, which is why the verb exists.
@@ -4860,19 +5050,51 @@ def actionable_work(store: Authority, *, viewer_team: str, viewer_member: str,
     ONE PAGE IS ONE SNAPSHOT. The continuation is opaque and a client that
     refreshes restarts at the first page rather than pretending to continue a
     snapshot that has moved.
+
+    THE CONTINUATION IS A POSITION, NEVER AN OFFSET, and the difference is
+    the feature. A positional cursor answers "skip the first N" against the
+    set as it stands NOW, so a row before the cursor that stops being
+    actionable between pages -- claimed by another handler on a shared Route,
+    or rerouted -- pulls every later row one place forward and the next page
+    begins one row too late. The Work that moved across the boundary is then
+    in no page at all, which defeats the one promise this verb exists to
+    keep. A keyset over `WORK_ORDER_TOTAL` asks "after THIS position"
+    instead: removals before it change nothing, and an insertion before it is
+    already behind the cursor, so it cannot repeat a row a page returned.
+
+    A row whose own rank changes across the boundary is the one case the
+    cursor cannot follow -- it moved, so continuing means something else --
+    and `_cursor_bound` makes that a refusal that names the refresh rather
+    than a silent skip.
     """
-    start, size = _page_bounds(after, limit)
+    limit = _limit_bound(limit)
+    since = _cursor_position(after)
+    # WHOSE CURSOR, THEN WHERE IT IS. The view check needs nothing from the
+    # database, so it is answered before the snapshot opens -- and a cursor
+    # from another participant's page is a different mistake from a snapshot
+    # that moved, so the two never share a refusal.
+    _cursor_view(since, viewer_team, viewer_member)
     with _read_snapshot(store):
+        _cursor_bound(store, since)
         claimable = _claimable(store, viewer_team, viewer_member)
-        rows = []
+        page, remaining = [], False
         for row in store.conn.execute(
-                "SELECT * FROM work WHERE status='open' AND ready=1 "
+                f"SELECT *, {WORK_ORDER_KEY} FROM work "
+                "WHERE status='open' AND ready=1 "
                 "AND phase='queued' AND handler_team IS NULL "
-                "AND route_team=? " + WORK_ORDER, (viewer_team,)):
+                "AND route_team=? " + WORK_ORDER_TOTAL, (viewer_team,)):
             if row["id"] not in claimable:
                 continue
-            rows.append(row)
-        page = rows[start:start + size]
+            if since is not None and _position(row) <= since["position"]:
+                continue
+            if len(page) == limit:
+                # ONE row past the page, and it is read for exactly one
+                # reason: to say whether a continuation exists. Counting the
+                # whole tail would be a second, larger read to answer a
+                # yes/no.
+                remaining = True
+                break
+            page.append(row)
         answered = [{**_row_view(store, dict(row), viewer_team,
                                  viewer_member),
                      # THE COMPLETE PATH, root-first, in the shape every other
@@ -4883,6 +5105,6 @@ def actionable_work(store: Authority, *, viewer_team: str, viewer_member: str,
         snapshot_seq = store.last_seq()
     return {"rows": answered,
             "actionable_for_viewer": len(claimable),
-            "next_after": start + len(page) if start + size < len(rows)
-            else None,
+            "next_after": _cursor(page[-1], viewer_team, viewer_member)
+            if remaining else None,
             "snapshot_seq": snapshot_seq}

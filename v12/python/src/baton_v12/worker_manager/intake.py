@@ -62,7 +62,7 @@ worked around by writing the terminal value some other way.
 from ..contracts import (ContractRefusal, check_no_durable_secret, digest,
                          own)
 from ..contracts.errors import name_value
-from . import boundaries, documents, schema
+from . import boundaries, documents, lanes, schema
 from .attempts import observe
 from .output import frozen_output_of
 from .store import manager_signature
@@ -70,7 +70,10 @@ from .store import manager_signature
 __all__ = ["collect_operation", "intake_operation", "request_intake",
            "record_intake", "intake_receipt_of", "retain_operation",
            "decide_retention", "retentions_of", "destroy_operation",
-           "authorize_cleanup"]
+           "authorize_cleanup", "failed_start_destroy_operation",
+           "authorize_failed_start_cleanup",
+           "refused_session_destroy_operation",
+           "authorize_refused_session_cleanup"]
 
 # The two dispositions that mean the material STAYS. `retain` is policy keeping
 # it; `quarantine` is doubt keeping it. Cleanup ends `retained` for either,
@@ -107,6 +110,40 @@ def _disposition(disposition):
 # build cannot read, and reading it would mean guessing which side of
 # "positively gone" it falls on.
 _DESTROY_STATES = ("absent", "quiescent", "running", "uncertain")
+
+# W6636: the two delivery providers' endings, as they arrive on the destroy
+# answer. `destroy` removes the container and then settles each mounted root
+# on that same absence evidence, so a manager reading only the RUNTIME state
+# is reading one third of what the adapter just told it.
+#
+# THE TERMINAL ONES AND THE ONE THAT IS NOT. `not-delivered` means this
+# attempt never had that provider and there is nothing to end; `torn-down`
+# means the root is proved gone. `unresolved` is the adapter saying it could
+# not establish either, and it is the whole reason these are read: a launch
+# root that survives its runtime is manager storage nobody will ever free.
+_PROVIDER_ENDINGS = ("not-delivered", "torn-down", "unresolved")
+_PROVIDER_SETTLED = ("not-delivered", "torn-down")
+# Named where they arrive, because each provider answers its own shape:
+# credentials carry the attempt and the slots they released, launch carries
+# neither, and both explain an unresolved ending.
+_PROVIDER_MEMBERS = ("lifecycle_state",), ("why", "attempt_id", "slots")
+
+# The destroy answer's own member contract, named ONCE and CLOSED.
+#
+# Re-review [P0]: the two provider endings were OPTIONAL, and optional is
+# exactly the hole. A first answer of runtime `absent` with launch
+# `unresolved` correctly left cleanup pending; a later answer that simply
+# OMITTED `launch` then settled it `complete`, because an absent member reads
+# as "no such provider" and the manager remembers nothing. The adapter was
+# called -- what was lost was the knowledge that a launch teardown was owed.
+#
+# THE MANAGER CANNOT REMEMBER APPLICABILITY WITHOUT INVENTING DURABLE STATE
+# FOR IT, so the contract says it instead: every provider answers on every
+# destroy, and an attempt that has no such provider says so with the explicit
+# `not-delivered` ending. `authorize_cleanup` is a generic public boundary and
+# `OciAdapter` always answering both is a habit of one implementation, not an
+# invariant -- and a durable invariant that rests on a habit is not one.
+_DESTROY_MEMBERS = ("runtime_id", "state", "why", "credentials", "launch"), ()
 
 
 def _chosen(artifact_ids):
@@ -365,6 +402,83 @@ def destroy_operation(attempt, receipt_digest, retention_policy_digest):
                          "intake_receipt_digest": receipt_digest,
                          "retention_policy_digest": retention_policy_digest,
                          "operation_id": operation_id}}))
+
+
+def failed_start_destroy_operation(attempt, failed_start_record_digest,
+                                   retention_policy_digest):
+    """W32648: the `runtime.destroy-failed-start` identity, over W34998's body.
+
+    THE SIBLING OF `destroy_operation`, and a sibling for the same reason its
+    command is one: a start that created a container and then failed has no
+    intake receipt, because nothing was frozen, collected or admitted. What
+    authorizes this removal is the manager's own durable `runtime.start-failed`
+    record, and its digest rides the identity exactly as the receipt's does
+    above -- destroying under a different failure record or a different policy
+    is a different act.
+    """
+    taken = boundaries.document(attempt, "a persisted attempt",
+                                required=tuple(schema.ATTEMPT_COLUMNS))
+    boundaries.text(failed_start_record_digest,
+                    "a failed-start record digest")
+    boundaries.text(retention_policy_digest, "a retention policy digest")
+    assignment = _fixed_assignment(taken)
+    operands = {"attempt_id": taken["runtime_attempt_id"],
+                "expect": assignment,
+                "runtime_id": taken["runtime_id"],
+                "failed_start_record_digest": failed_start_record_digest,
+                "retention_policy_digest": retention_policy_digest}
+    check_no_durable_secret({"kind": "runtime.destroy-failed-start",
+                             "operands": operands},
+                            what="an operation signature")
+    operation_id = "runtime.destroy-failed-start:" + digest({
+        "attempt_id": taken["runtime_attempt_id"],
+        "assignment": assignment,
+        "failed_start_record_digest": failed_start_record_digest,
+        "retention_policy_digest": retention_policy_digest,
+    })[len("sha256:"):]
+    return documents.operation(
+        operation_id=operation_id,
+        signature_digest=digest({
+            "kind": "runtime.destroy-failed-start",
+            "operands": {**operands, "operation_id": operation_id}}))
+
+
+def refused_session_destroy_operation(attempt, refusal_record_digest,
+                                     retention_policy_digest):
+    """W32576: the `runtime.destroy-refused-session` identity.
+
+    THE THIRD SIBLING OF `destroy_operation`, and a sibling for the reason the
+    second one is. A handshake this manager refused has no intake receipt --
+    nothing was frozen, collected or admitted -- and it is not a failed start:
+    the container is running. What authorizes this removal is the manager's own
+    durable `session.unsupported-version` record, and its digest rides the
+    identity exactly as the receipt's and the failure record's do -- destroying
+    under a different refusal or a different policy is a different act.
+    """
+    taken = boundaries.document(attempt, "a persisted attempt",
+                                required=tuple(schema.ATTEMPT_COLUMNS))
+    boundaries.text(refusal_record_digest, "a refusal record digest")
+    boundaries.text(retention_policy_digest, "a retention policy digest")
+    assignment = _fixed_assignment(taken)
+    operands = {"attempt_id": taken["runtime_attempt_id"],
+                "expect": assignment,
+                "runtime_id": taken["runtime_id"],
+                "refusal_record_digest": refusal_record_digest,
+                "retention_policy_digest": retention_policy_digest}
+    check_no_durable_secret({"kind": "runtime.destroy-refused-session",
+                             "operands": operands},
+                            what="an operation signature")
+    operation_id = "runtime.destroy-refused-session:" + digest({
+        "attempt_id": taken["runtime_attempt_id"],
+        "assignment": assignment,
+        "refusal_record_digest": refusal_record_digest,
+        "retention_policy_digest": retention_policy_digest,
+    })[len("sha256:"):]
+    return documents.operation(
+        operation_id=operation_id,
+        signature_digest=digest({
+            "kind": "runtime.destroy-refused-session",
+            "operands": {**operands, "operation_id": operation_id}}))
 
 
 # -- intake -------------------------------------------------------------------
@@ -1046,11 +1160,630 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     # trade this ordering makes.
     observed = _destroyed(adapter, attempt, attempt_id, operation,
                           receipt["receipt_digest"], retention_policy_digest)
+    # AN UNSETTLED CLEANUP IS NOT JOURNALLED, and W6636 found out why the hard
+    # way. `_settle` returned `cleanup_unsettled` from INSIDE the transaction,
+    # so the operation committed with that document as its result -- and an
+    # exact retry, which is the same receipt under the same policy, replayed it
+    # forever. "The offer to try again is the axis staying where it is" was
+    # true of the axis and false of the operation: cleanup stayed `pending` and
+    # could never leave it.
+    #
+    # So a destroy that did not settle returns WITHOUT committing, which puts
+    # it in exactly the state the ordering note above already describes as safe
+    # -- the same one a crash between the engine call and this journal leaves.
+    # The next authorization runs the destroy again, and a destroy is
+    # `rm --force` followed by an inspection of the exact identity, so an
+    # identity already gone answers `absent`.
+    #
+    # A POSITIVELY SURVIVING RUNTIME IS NOT THIS CASE. That is a settled
+    # failure of this cleanup, `failed` is what the frozen axis calls it, and
+    # it is journalled like any other ending.
+    pending = _not_an_ending(store, attempt, attempt_id, observed, operation)
+    if pending is not None:
+        return pending
     return store.transact(
         operation["operation_id"], "runtime.destroy", signature,
         lambda connection: _settle(store, connection, attempt_id, receipt,
                                    retention_policy_digest, observed,
                                    operation))
+
+
+def authorize_failed_start_cleanup(store, port, adapter, *, attempt_id,
+                                   retention_policy_digest):
+    """W32648: end the attempt a start FAILED after creating a container.
+
+    Approver ruling M33800, and the ending it fixes is precise. A start that
+    reached the engine, created a container and then failed leaves an exact
+    runtime, NO worker disposition this manager may invent, NO frozen result,
+    NO intake receipt -- and therefore no way through `authorize_cleanup`,
+    whose whole authorization is that receipt. The regression that used to
+    cover this manufactured a disposition and a frozen output to get through,
+    which is the fabrication this Work exists to remove.
+
+    WHAT AUTHORIZES IT INSTEAD is the manager's own durable
+    `runtime.start-failed` record. It is a fact this manager wrote about its
+    own act, and its digest rides the operation identity exactly as the
+    receipt's does on the other path.
+
+    THE ORDER IS THE RULING'S. Fence at the AUTHORITY before anything
+    destructive -- asked of the authority rather than inferred from an axis,
+    because whether an assignment is still authorized is not something this
+    manager stores. Then remove the exact attached runtime, positively observe
+    its absence, and settle the delivery roots on that absence and nothing
+    else.
+
+    AND THE RESULT DIRECTORY IS LEFT WHERE IT IS. M33800 makes the existing
+    unique per-generation, per-attempt directory the custody boundary: it began
+    untrusted and stays untrusted after a start fault, so this ends at
+    `retained` -- the frozen axis's own word for material kept on purpose --
+    and deletes nothing. A later explicit retention cleanup owns that deletion.
+    Nothing here writes a worker disposition, freezes an output, creates a
+    second result, or admits one byte to the proposal pipeline.
+    """
+    boundaries.identity(attempt_id, "a runtime attempt id")
+    boundaries.text(retention_policy_digest, "a retention policy digest")
+    # W34998'S CAPABILITY, and not `destroy`. The two commands are siblings
+    # with closed member sets precisely so a caller cannot authorize one
+    # removal with the other's digest, and typing the wrong one here would
+    # undo that at the only place it matters.
+    boundaries.capability(getattr(adapter, "destroy_failed_start", None),
+                          "the runtime adapter's failed-start destroy")
+    attempt = _attempt_of(store._connection, attempt_id)
+    expect = _require_assignment(attempt, attempt_id)
+    _require_participant(port, expect, attempt_id)
+    record = _failed_start_record(store, attempt, attempt_id)
+    operation = failed_start_destroy_operation(attempt, record["digest"],
+                                               retention_policy_digest)
+    signature = manager_signature(
+        "runtime.destroy-failed-start",
+        {"attempt_id": attempt_id, "expect": expect,
+         "runtime_id": attempt["runtime_id"],
+         "failed_start_record_digest": record["digest"],
+         "retention_policy_digest": retention_policy_digest})
+    found, already = store.replay(operation["operation_id"], signature,
+                                  kind="runtime.destroy-failed-start")
+    if found:
+        return already
+    # EVERY CHECK BELOW THIS LINE APPLIES TO A GENUINELY NEW REMOVAL, which is
+    # the ordering `authorize_cleanup` establishes and the reason it gives:
+    # an exact retry of a removal that already settled replays its answer, and
+    # only a different one -- another policy, another record -- waits.
+    live = port.assignment_of(expect["work_ref"]["work_id"],
+                              expect["work_ref"]["authority_uuid"])
+    if live == expect:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} is still the live assignment "
+            f"for {expect['participant']} generation {expect['generation']}; "
+            f"a failed start is fenced at the authority before anything is "
+            f"destroyed, and this assignment is still authorized to execute")
+    if attempt["cleanup"] not in ("pending", "blocked-on-intake"):
+        raise ContractRefusal(
+            "refused", "already-terminal",
+            f"attempt {name_value(attempt_id)} cleanup is "
+            f"{attempt['cleanup']}, which is terminal; an ending is not "
+            f"revisited")
+    # THE SAME FROZEN ASYMMETRY. `uncertain` never becomes `destroyed`,
+    # because destruction is a fact about the world and inferring it from a
+    # failure to look would report a cleaned-up runtime that is still running
+    # somebody's code. A failed start reaches `uncertain` exactly when
+    # reconciliation could not establish what exists -- so this is the case,
+    # not an edge of it.
+    if attempt["execution_runtime"] == "uncertain":
+        raise ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            f"attempt {name_value(attempt_id)} execution runtime is uncertain; "
+            f"the failed start attached no identity this manager can name, so "
+            f"there is nothing to remove and nothing to prove absent")
+    if attempt["runtime_id"] is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} has no attached runtime; this "
+            f"ending exists for a start that CREATED a container, and a start "
+            f"that created none has no exact identity to remove")
+    observed = _destroyed_failed_start(adapter, attempt, attempt_id, operation,
+                                       record["digest"],
+                                       retention_policy_digest)
+    pending = _not_an_ending(store, attempt, attempt_id, observed, operation)
+    if pending is not None:
+        return pending
+    return store.transact(
+        operation["operation_id"], "runtime.destroy-failed-start", signature,
+        lambda connection: _settle_recordless_cleanup(
+            store, connection, attempt_id, observed, operation,
+            why="failed-start cleanup settled retained"))
+
+
+def authorize_refused_session_cleanup(store, port, adapter, *, session_ref,
+                                     retention_policy_digest):
+    """W32576: end the attempt whose handshake this manager REFUSED.
+
+    THE ENDING THIS WORK EXISTS FOR. `settle_unsupported_version` derives the
+    refusal from the persisted session's own certified profile, records it, and
+    fences the assignment at the authority. That is where it stopped: a
+    `cancel-requested` axis and a stop order are not an ending. This is the
+    rest of it -- exact force-removal, positive absence, credential and launch
+    settlement, and the lane given back only after all three.
+
+    IT TAKES THE SESSION REFERENCE RATHER THAN THE ATTEMPT, and that is the
+    correction the shape of the record forces. The refusal is filed under the
+    session act -- attempt, posture, epoch, provider session -- so an ending
+    named by attempt alone would have to GUESS which session's refusal it was
+    settling on an attempt that had more than one. The attempt is read from the
+    proved session row, never taken as a free operand.
+
+    WHY NOT `authorize_cleanup`. Its whole authorization is an intake receipt,
+    and there is none: `request_intake` needs a frozen result, `request_freeze`
+    needs a terminal worker disposition already recorded, and a handshake this
+    manager could not complete produces neither. Writing a disposition to open
+    that door is the fabrication W32648 exists to remove, and it would be a
+    lie besides -- the worker did not cancel, complete, or reject a plan. It
+    never got to say anything.
+
+    WHY NOT `authorize_failed_start_cleanup` EITHER. A start that failed and a
+    handshake that refused are different facts with different records, and
+    W34998's ruling makes the member sets closed against each other precisely
+    so one authorization cannot be spent on the other's ending.
+
+    AND THE RESULT DIRECTORY IS LEFT WHERE IT IS, on the same rule M33800 set
+    for the sibling. Whatever the worker wrote before the handshake refused was
+    written by a worker this manager never negotiated with: it began untrusted
+    and stays untrusted. So this ends at `retained` -- the frozen axis's own
+    word for material kept on purpose -- and deletes nothing, freezes nothing,
+    and admits not one byte to the proposal pipeline.
+    """
+    from .handshake import unsupported_version_operation_id
+    from .sessions import _require_session, _session_ref
+    reference = _session_ref(session_ref)
+    boundaries.text(retention_policy_digest, "a retention policy digest")
+    # W34998'S RULE, one sibling further along. Typing the wrong capability
+    # here would undo the closed member sets at the only place it matters.
+    boundaries.capability(getattr(adapter, "destroy_refused_session", None),
+                          "the runtime adapter's refused-session destroy")
+    row = _require_session(store._connection, reference)
+    attempt_id = row["runtime_attempt_id"]
+    attempt = _attempt_of(store._connection, attempt_id)
+    expect = _require_assignment(attempt, attempt_id)
+    _require_participant(port, expect, attempt_id)
+    record = _refused_session_record(
+        store, attempt, attempt_id,
+        unsupported_version_operation_id(reference), reference, row)
+    operation = refused_session_destroy_operation(attempt, record["digest"],
+                                                  retention_policy_digest)
+    signature = manager_signature(
+        "runtime.destroy-refused-session",
+        {"attempt_id": attempt_id, "expect": expect,
+         "runtime_id": attempt["runtime_id"],
+         "refusal_record_digest": record["digest"],
+         "retention_policy_digest": retention_policy_digest})
+    found, already = store.replay(operation["operation_id"], signature,
+                                  kind="runtime.destroy-refused-session")
+    if found:
+        return already
+    # EVERY CHECK BELOW THIS LINE APPLIES TO A GENUINELY NEW REMOVAL, which is
+    # the ordering both siblings establish and for the reason they give: an
+    # exact retry of a removal that already settled replays its answer, and
+    # only a different one waits.
+    live = port.assignment_of(expect["work_ref"]["work_id"],
+                              expect["work_ref"]["authority_uuid"])
+    if live == expect:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} is still the live assignment "
+            f"for {expect['participant']} generation {expect['generation']}; "
+            f"a refused handshake is fenced at the authority before anything "
+            f"is destroyed, and this assignment is still authorized to "
+            f"execute")
+    if attempt["cleanup"] not in ("pending", "blocked-on-intake"):
+        raise ContractRefusal(
+            "refused", "already-terminal",
+            f"attempt {name_value(attempt_id)} cleanup is "
+            f"{attempt['cleanup']}, which is terminal; an ending is not "
+            f"revisited")
+    # THE SAME FROZEN ASYMMETRY BOTH SIBLINGS ARE UNDER. `uncertain` never
+    # becomes `destroyed`, because destruction is a fact about the world and
+    # inferring it from a failure to look would report a cleaned-up runtime
+    # that is still running somebody's code.
+    if attempt["execution_runtime"] == "uncertain":
+        raise ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            f"attempt {name_value(attempt_id)} execution runtime is "
+            f"uncertain; this manager cannot say what exists, so there is "
+            f"nothing to remove and nothing to prove absent")
+    if attempt["runtime_id"] is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} has no attached runtime; a "
+            f"refused handshake is an ending for a session that was speaking "
+            f"to a container, and there is none to remove")
+    observed = _destroyed_refused_session(adapter, attempt, attempt_id,
+                                          operation, record["digest"],
+                                          retention_policy_digest)
+    pending = _not_an_ending(store, attempt, attempt_id, observed, operation)
+    if pending is not None:
+        return pending
+    return store.transact(
+        operation["operation_id"], "runtime.destroy-refused-session",
+        signature,
+        lambda connection: _settle_recordless_cleanup(
+            store, connection, attempt_id, observed, operation,
+            why="refused-session cleanup settled retained"))
+
+
+def _refused_session_record(store, attempt, attempt_id, operation_id,
+                            reference, row):
+    """The durable record that AUTHORIZES this removal, and its digest.
+
+    READ FROM THE JOURNAL, never recomposed, and owned before it is believed.
+    W32648 review [P0] settled the rules this follows: the row's KIND is
+    verified, its answer is decoded through the journal's own reader rather
+    than adopted as stored bytes, and the members that must agree with the
+    world are compared against the attempt and the reference.
+
+    THE RUNTIME IS THE MEMBER THAT MATTERS. A record written when this session
+    was speaking to one container must not authorize destroying a different
+    one, so `runtime_id` is compared with what the attempt is attached to NOW
+    and a disagreement is `integrity/schema` rather than a reason to recompose.
+    """
+    held = store.operation_record(operation_id)
+    if held is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} has no recorded "
+            f"unsupported-version refusal for this session; the ending is "
+            f"authorized by the record this manager wrote when it refused, "
+            f"and a manager that never refused has nothing to end")
+    if held["kind"] != "session.unsupported-version":
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the journalled operation authorizing this ending is recorded as "
+            f"kind {name_value(held['kind'])}; a row of another kind is not a "
+            f"handshake refusal however well its result reads")
+    _, committed = store.replay(operation_id, held["signature"],
+                                kind="session.unsupported-version")
+    record = boundaries.document(committed, "a committed refusal record",
+                                 required=documents.SESSION_UNSUPPORTED_VERSION)
+    for member, mine in (("attempt_id", attempt_id),
+                         ("assignment", _fixed_assignment(attempt)),
+                         ("runtime_id", attempt["runtime_id"]),
+                         ("posture", reference["posture"]),
+                         ("session_epoch", reference["session_epoch"]),
+                         ("provider_session_id",
+                          reference["provider_session_id"])):
+        if record[member] != mine:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the recorded refusal names {member} "
+                f"{name_value(record[member])} and this ending is for "
+                f"{name_value(mine)}; the record and the act it authorizes "
+                f"must describe one runtime and one session")
+    # AND WHAT IT DECIDED, not only who it is about.
+    #
+    # Review [P1]: the six comparisons above prove the record names this
+    # attempt, this runtime and this session -- and nothing proved it still
+    # SAYS the thing that authorizes destroying them. The contract carries
+    # `decision`, `category` and `code` precisely so a later reader can know
+    # what was decided, and this reader digested them without reading them:
+    # a row whose decision had become `accepted` retained its exact member set
+    # and all six identities, and authorized a removal.
+    #
+    # THE CLOSED VERDICT, all three members together. `refused` alone is a
+    # category shared with every other refusal this manager can raise, and
+    # `unsupported-version` in `decision` alone is a word the record could
+    # carry while its typed pair said something else. The three agree or this
+    # is not the document its kind promises.
+    for member, expected in (("decision", "unsupported-version"),
+                             ("category", "refused"),
+                             ("code", "unsupported-version")):
+        if record[member] != expected:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the recorded refusal says {member} "
+                f"{name_value(record[member])}; only a committed "
+                f"{name_value('unsupported-version')} refusal authorizes this "
+                f"ending, and a record that no longer says so is not one")
+    # THE VERSIONS ARE THE REFUSAL'S OWN EVIDENCE, and they must still be a
+    # refusal's. An unsupported-version answer is exactly a wire version that
+    # is NOT the pinned one, so two integers that agree describe a successful
+    # negotiation and authorize nothing.
+    for member in ("pinned_wire_version", "agent_protocol_version"):
+        if type(record[member]) is not int or type(record[member]) is bool:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the recorded refusal names {member} "
+                f"{name_value(record[member])}; a wire version is an integer")
+    if record["pinned_wire_version"] == record["agent_protocol_version"]:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the recorded refusal names the same wire version "
+            f"{record['pinned_wire_version']} as pinned and as answered; a "
+            f"version this manager certified is a negotiation that SUCCEEDED "
+            f"and is not an ending to authorize")
+    # AND THE PROFILE IS THE SESSION'S OWN, compared against the persisted row
+    # rather than against a certification lookup. Review [P1] asks for this on
+    # the RETAINED evidence for a reason worth keeping: reading certification
+    # here would make an exact retry stop replaying the moment the profile was
+    # withdrawn, which is the effectively-once defect this Work already
+    # corrected once on the recording side.
+    if record["profile_digest"] != row["profile_digest"]:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the recorded refusal was derived against profile "
+            f"{name_value(record['profile_digest'])} and this session holds "
+            f"{name_value(row['profile_digest'])}; a refusal about another "
+            f"profile is not evidence about this session")
+    return {"record": record, "digest": digest(record)}
+
+
+def _destroyed_refused_session(adapter, attempt, attempt_id, operation,
+                               record_digest, retention_policy_digest):
+    """The refused-session crossing, and the same observation rules.
+
+    THE WHOLE BODY CROSSES, as it does on both siblings: what makes this
+    removal authorized rather than merely requested is the digest of the
+    refusal record, and the operation rides beside the body so the delivery is
+    effectively-once at the adapter too.
+    """
+    answer = boundaries.document(
+        adapter.destroy_refused_session({
+            **documents.refused_session_destroy_command(
+                assignment_ref=_fixed_assignment(attempt),
+                runtime_attempt_id=attempt_id,
+                runtime_id=attempt["runtime_id"],
+                refusal_record_digest=record_digest,
+                retention_policy_digest=retention_policy_digest),
+            "operation": dict(operation)}),
+        "a refused-session destroy observation",
+        required=_DESTROY_MEMBERS[0], optional=_DESTROY_MEMBERS[1])
+    boundaries.identity(answer["runtime_id"], "an observed runtime id")
+    boundaries.text(answer["why"], "a destroy observation's reason")
+    boundaries.text(answer["state"], "a destroy observation's state")
+    if answer["state"] not in _DESTROY_STATES:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{name_value(answer['state'])} is not a destroy observation; the "
+            f"four this build reads are {', '.join(_DESTROY_STATES)}")
+    for provider in ("credentials", "launch"):
+        _provider_ending(answer[provider], provider)
+    if answer["runtime_id"] != attempt["runtime_id"]:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"the adapter answered about {name_value(answer['runtime_id'])} "
+            f"and this attempt is attached to "
+            f"{name_value(attempt['runtime_id'])}")
+    return answer
+
+
+def _settle_recordless_cleanup(store, connection, attempt_id, observed,
+                               operation, *, why):
+    """The ending for a removal NO INTAKE RECEIPT authorized.
+
+    `_settle` chooses between `complete` and `retained` from what retention
+    kept. There is nothing to count on these endings: no intake happened, no
+    artifact was decided, and the untrusted result directory itself is the
+    material that stays. So the ending is `retained` unconditionally -- the
+    frozen axis's own word for material kept on purpose -- and reporting it as
+    `complete` would erase the reason the directory still exists.
+
+    ONE OWNER FOR BOTH RECORDLESS ENDINGS, which is what it should have been.
+    A failed start and a refused handshake reach exactly the same terminal
+    state check, the same axis transitions and the same lane release; only the
+    reason written beside the release differs, and that is an operand.
+
+    IT WAS BRIEFLY TWO. I wrote a copy of `_settle_failed_start_cleanup`
+    rather than merge, on the ground that W32648 owned that code and was out
+    for review -- and review [P2] caught that the ground had already gone:
+    W32648 closed satisfying at seq 36991 and this Work was claimed at 37155.
+    I checked that the BLOCK had cleared and did not check that the REVIEW
+    had, which is the kind of stale premise a comment states confidently and
+    nobody re-reads. Two separately editable copies of a terminal-state check
+    are two orders that agree until one is edited.
+    """
+    attempt = _attempt_of(connection, attempt_id)
+    if attempt["cleanup"] not in ("pending", "blocked-on-intake"):
+        raise ContractRefusal(
+            "refused", "already-terminal",
+            f"attempt {name_value(attempt_id)} cleanup is "
+            f"{attempt['cleanup']}, which is terminal; an ending is not "
+            f"revisited")
+    state = observed["state"]
+    if state != "absent":
+        observe(store, attempt_id=attempt_id, axis="cleanup", value="failed")
+        return documents.cleanup_settled(
+            attempt_id=attempt_id, cleanup="failed", state=state,
+            why=observed["why"], kept=[], operation=dict(operation))
+    if attempt["execution_runtime"] != "destroyed":
+        observe(store, attempt_id=attempt_id, axis="execution_runtime",
+                value="destroyed")
+    observe(store, attempt_id=attempt_id, axis="cleanup", value="retained")
+    # W32649: the lane is given back only after positive absence and every
+    # applicable provider ending -- reuse is ordered behind the proof, not
+    # beside it.
+    lanes._release_lane(connection, attempt_id=attempt_id,
+                        reference=lanes.lane_reference(attempt), why=why)
+    return documents.cleanup_settled(
+        attempt_id=attempt_id, cleanup="retained", state=state,
+        why=observed["why"], kept=[], operation=dict(operation))
+
+
+def _failed_start_record(store, attempt, attempt_id):
+    """The durable record that AUTHORIZES this removal, and its digest.
+
+    READ FROM THE JOURNAL, never recomposed. The record is what
+    `request_runtime_start` wrote when the start failed, under an operation
+    identity derived from the attempt and its fixed start operation -- so a
+    restarted manager finds the same row, and a manager that never had the
+    failure finds nothing and is told so rather than proceeding.
+
+    THE DIGEST IS OVER THE RETAINED RESULT, which is the fact this act is
+    authorized by. Recomputing it from the attempt row would be this manager
+    asserting what it once decided instead of reading it.
+    """
+    from .attempts import start_failure_operation_id
+    operation_id = start_failure_operation_id(attempt)
+    held = store.operation_record(operation_id)
+    if held is None or held.get("state") != "committed" \
+            or held.get("result") is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} holds no committed failed-start "
+            f"record; this ending is authorized by the manager's own account "
+            f"of the start that failed, and without one there is nothing "
+            f"saying this runtime came from a failed start rather than a "
+            f"live one")
+    # ITS KIND, because an identity is not a warrant. Review [P0]: this read a
+    # committed row under a derived id and asked nothing else about it -- so a
+    # row this manager committed as something else, under an id that happened
+    # to collide, would have authorized a destroy. The same rule `_committed`
+    # already applies to intake and retention decisions.
+    if held.get("kind") != "runtime.start-failed":
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"attempt {name_value(attempt_id)} names operation "
+            f"{name_value(operation_id)}, which this manager committed as "
+            f"{name_value(held.get('kind'))} rather than a failed-start "
+            f"record")
+    # THE DECODED RESULT, through the journal's own reader. `operation_record`
+    # hands back the stored bytes; `store.replay` is what turns a committed
+    # answer back into the document this manager composed, and it is the same
+    # reader `_committed` uses for intake and retention decisions.
+    _, committed = store.replay(operation_id, held["signature"],
+                                kind="runtime.start-failed")
+    if committed is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"attempt {name_value(attempt_id)} names operation "
+            f"{name_value(operation_id)}, which this manager committed with "
+            f"no recorded answer to authorize a removal with")
+    record = boundaries.document(committed,
+                                 "a committed failed-start record",
+                                 required=documents.RUNTIME_START_FAILED)
+    # ...AND THE FACTS IT NAMES ARE THIS ATTEMPT'S OWN.
+    #
+    # Review [P0], and the defect is worth stating exactly: the digest of the
+    # record was cited as the authorization while the command was built from
+    # the CURRENT `attempt["runtime_id"]`. Nothing compared the two, so a
+    # record written when the failed start attached `runtime-1` authorized
+    # destroying whatever the row named later. Two independently read facts,
+    # combined into one authorization, is the shape every crossing in this
+    # module has been corrected for.
+    #
+    # A DISAGREEMENT IS AN INTEGRITY FAILURE, not a reason to recompose. The
+    # journal is the source of the failure identity and its digest; if the row
+    # it is meant to authorize has moved, the honest answer is that this
+    # manager cannot say which of the two describes the world.
+    for member, mine in (("attempt_id", attempt_id),
+                         ("expect", _fixed_assignment(attempt)),
+                         ("start_operation_id",
+                          _start_operation_id_of(attempt)),
+                         ("runtime_id", attempt["runtime_id"])):
+        if record[member] != mine:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the failed-start record for attempt "
+                f"{name_value(attempt_id)} names {member} "
+                f"{name_value(record[member])} and this attempt now carries "
+                f"{name_value(mine)}; the record is what authorizes this "
+                f"removal, and one that describes another act cannot "
+                f"authorize this one")
+    # `execution_runtime` IS DELIBERATELY NOT COMPARED, and the reason is that
+    # it is the one member of the record that is allowed to move. It captures
+    # the axis at the instant the failure settled; a later reconciliation may
+    # legitimately observe the runtime again, so requiring the two to agree
+    # would refuse a cleanup for having looked. What the axis must be NOW is
+    # checked directly by the caller -- `uncertain` refuses and an unattached
+    # runtime refuses -- which is a stronger statement than agreeing with a
+    # stale one.
+    return {"record": record, "digest": digest(record)}
+
+
+def _start_operation_id_of(attempt):
+    from .attempts import _start_operation_id
+    return _start_operation_id(attempt)
+
+
+def _destroyed_failed_start(adapter, attempt, attempt_id, operation,
+                            record_digest, retention_policy_digest):
+    """W34998's crossing, and the same observation rules `_destroyed` applies.
+
+    THE WHOLE BODY CROSSES, as it does on the receipt-authorized path: what
+    makes this removal authorized rather than merely requested is the digest
+    of the failed-start record, and the operation rides beside the body so the
+    delivery is effectively-once at the adapter too.
+    """
+    answer = boundaries.document(
+        adapter.destroy_failed_start({
+            **documents.failed_start_destroy_command(
+                assignment_ref=_fixed_assignment(attempt),
+                runtime_attempt_id=attempt_id,
+                runtime_id=attempt["runtime_id"],
+                failed_start_record_digest=record_digest,
+                retention_policy_digest=retention_policy_digest),
+            "operation": dict(operation)}),
+        "a failed-start destroy observation",
+        required=_DESTROY_MEMBERS[0], optional=_DESTROY_MEMBERS[1])
+    boundaries.identity(answer["runtime_id"], "an observed runtime id")
+    boundaries.text(answer["why"], "a destroy observation's reason")
+    boundaries.text(answer["state"], "a destroy observation's state")
+    if answer["state"] not in _DESTROY_STATES:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{name_value(answer['state'])} is not a destroy observation; the "
+            f"four this build reads are {', '.join(_DESTROY_STATES)}")
+    for provider in ("credentials", "launch"):
+        _provider_ending(answer[provider], provider)
+    if answer["runtime_id"] != attempt["runtime_id"]:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"the adapter answered about {name_value(answer['runtime_id'])} "
+            f"and this attempt is attached to "
+            f"{name_value(attempt['runtime_id'])}")
+    return answer
+
+
+def _not_an_ending(store, attempt, attempt_id, observed, operation):
+    """The destroy answers that leave cleanup where it is, or None.
+
+    ONE OWNER FOR "THIS DID NOT SETTLE", and it sits outside the journal for
+    the reason above. Both members of it are the same statement about
+    evidence: the engine could not say what the runtime is, or it said the
+    runtime is gone while a root this manager delivered is not.
+    """
+    state = observed["state"]
+    if state == "uncertain":
+        # NOT AN ENDING. The engine's account did not settle the question, and
+        # a cleanup axis that moved anyway would be recording an answer nobody
+        # observed.
+        return documents.cleanup_unsettled(
+            attempt_id=attempt_id, state=state, why=observed["why"],
+            operation=dict(operation))
+    if state != "absent":
+        return None
+    waiting = _unsettled_providers(observed)
+    if not waiting:
+        return None
+    # W6636 [P0]: POSITIVE CONTAINER ABSENCE IS NOT THE WHOLE ENDING.
+    #
+    # The container is the attempt's process domain and proving it gone is
+    # what makes it SAFE to settle the roots it mounted -- but it is not
+    # evidence that they were settled. `destroy` answers all three, and a
+    # manager that read only the runtime recorded `complete` while a launch
+    # root was still on disk: an attempt reported cleaned up, its lane
+    # reusable, and manager storage nothing would ever come back for.
+    #
+    # RECORDED ON THE AXIS THAT IS TRUE AND NOT ON THE ONE THAT IS NOT. The
+    # runtime really is destroyed and that observation stands; it is CLEANUP
+    # that has not finished. Failing closed here costs a retry; succeeding
+    # closed loses the root.
+    if attempt["execution_runtime"] != "destroyed":
+        observe(store, attempt_id=attempt_id, axis="execution_runtime",
+                value="destroyed")
+    return documents.cleanup_unsettled(
+        attempt_id=attempt_id, state=state,
+        why=f"the runtime is absent and its delivery teardown is not settled "
+            f"({'; '.join(waiting)}); cleanup is not complete until every "
+            f"delivered root is proved gone",
+        operation=dict(operation))
 
 
 def _block_on_intake(store, attempt, attempt_id):
@@ -1092,6 +1825,50 @@ def _authorized(store, attempt_id, receipt, retention_policy_digest):
                 f"{name_value(retention_policy_digest)}")
 
 
+def _provider_ending(ending, provider):
+    """One delivery provider's ending, owned where it arrives.
+
+    W6636 owns the crossing rather than the providers, and this is the whole
+    of what the crossing needs to know: which of three endings the provider
+    reached. The members beyond `lifecycle_state` are the provider's own
+    account -- the credential ending names the slots it released -- and they
+    are named so the contract stays closed without this build pretending each
+    provider answers the same shape.
+    """
+    required, optional = _PROVIDER_MEMBERS
+    taken = boundaries.document(ending, f"a {provider} teardown ending",
+                                required=required, optional=optional)
+    state = boundaries.text(taken["lifecycle_state"],
+                            f"a {provider} teardown ending's state")
+    if state not in _PROVIDER_ENDINGS:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{name_value(state)} is not a {provider} teardown ending; the "
+            f"three this build reads are {', '.join(_PROVIDER_ENDINGS)}")
+    return state
+
+
+def _unsettled_providers(answer):
+    """Every provider that did NOT reach a terminal ending, with its reason.
+
+    A LIST RATHER THAN A BOOLEAN, because two roots can be unresolved for two
+    different reasons and an operator has to act on both.
+
+    EVERY PROVIDER IS PRESENT BY CONTRACT, so there is no absent member to
+    interpret here. `not-delivered` is how an attempt with no such provider
+    says so, and it is terminal; the reading that used to be inferred from an
+    omission is now stated by the adapter that knows it.
+    """
+    waiting = []
+    for provider in ("credentials", "launch"):
+        ending = answer[provider]
+        if ending["lifecycle_state"] not in _PROVIDER_SETTLED:
+            waiting.append(
+                f"{provider}: "
+                f"{ending.get('why') or ending['lifecycle_state']}")
+    return waiting
+
+
 def _destroyed(adapter, attempt, attempt_id, operation, receipt_digest,
                retention_policy_digest):
     """What became of the runtime, as an OBSERVATION rather than a status.
@@ -1104,11 +1881,40 @@ def _destroyed(adapter, attempt, attempt_id, operation, receipt_digest,
     A RUNTIME THAT WAS NEVER STARTED IS ALREADY ABSENT, and asking an engine to
     remove an identity this manager never attached would be asking about
     something that has no name.
+
+    BUT AN ATTACHED IDENTITY IS ALWAYS ASKED ABOUT, EVEN ONCE IT IS DESTROYED.
+    Review [P0]: this short-circuited on `execution_runtime == "destroyed"` and
+    answered a synthetic `absent` WITHOUT CALLING THE ADAPTER -- and that
+    answer carries no provider endings, which are optional. So the exact shape
+    this round introduced defeated itself: a first destroy that truthfully
+    moved the runtime axis to `destroyed` while a provider reported
+    `unresolved` left cleanup pending, and the retry that was supposed to
+    finish the teardown skipped the adapter entirely and recorded `complete`
+    with no provider retried at all.
+
+    The runtime axis is a fact about the CONTAINER and says nothing about the
+    roots it mounted. Removing an identity the engine no longer has is safe --
+    `destroy` is `rm --force` followed by an inspection of the exact identity,
+    and an identity already gone answers `absent` -- so the cheap short-circuit
+    bought nothing and cost the second half of the ending.
+
+    THE OUTSTANDING ENDING SURVIVES BY BEING RE-ASKED rather than remembered.
+    The provider's state is the provider's fact, so a restart that re-runs the
+    destroy gets the current answer from the adapter instead of replaying a
+    manager's note about it.
     """
-    if attempt["execution_runtime"] == "destroyed":
-        return {"state": "absent", "why": "this attempt already observed its "
-                                          "runtime destroyed"}
     if attempt["runtime_id"] is None:
+        # NO IDENTITY MEANS NO DELIVERY EITHER. A runtime that was never
+        # started mounted nothing, so both providers are `not-delivered` --
+        # said explicitly, because this module holds every other answer to
+        # that same rule.
+        undelivered = {"credentials": {"lifecycle_state": "not-delivered"},
+                       "launch": {"lifecycle_state": "not-delivered"}}
+        if attempt["execution_runtime"] == "destroyed":
+            return {"state": "absent",
+                    "why": "this attempt already observed its runtime "
+                           "destroyed and never attached an identity",
+                    **undelivered}
         if attempt["execution_runtime"] != "not-started":
             raise ContractRefusal(
                 "refused", "precondition",
@@ -1116,7 +1922,8 @@ def _destroyed(adapter, attempt, attempt_id, operation, receipt_digest,
                 f"{attempt['execution_runtime']} and no runtime is attached; "
                 f"there is no identity to destroy and no absence to prove")
         return {"state": "absent",
-                "why": "no runtime was ever started for this attempt"}
+                "why": "no runtime was ever started for this attempt",
+                **undelivered}
     # THE WHOLE AUTHORIZING BODY CROSSES -- review [P1]. A bare runtime id
     # omits both digests `runtimeDestroyBody` requires, which are precisely
     # what makes this destroy authorized rather than merely requested, and it
@@ -1132,7 +1939,11 @@ def _destroyed(adapter, attempt, attempt_id, operation, receipt_digest,
             retention_policy_digest=retention_policy_digest),
             "operation": dict(operation)}),
         "a destroy observation",
-        required=("runtime_id", "state", "why"))
+        # W6636 [P0]: THE PROVIDER ENDINGS ARE NAMED AND REQUIRED. They were
+        # not named at all first -- so `boundaries.document` refused the real
+        # adapter's answer outright -- and then named but optional, which let
+        # an omission erase a teardown the previous answer said was owed.
+        required=_DESTROY_MEMBERS[0], optional=_DESTROY_MEMBERS[1])
     # EVERY MEMBER OWNED WHERE IT ARRIVES, not just the envelope. An envelope
     # owner proves the members are present; it says nothing about what they
     # are, and all three decide something here.
@@ -1144,6 +1955,8 @@ def _destroyed(adapter, attempt, attempt_id, operation, receipt_digest,
             "integrity", "schema",
             f"{name_value(answer['state'])} is not a destroy observation; the "
             f"four this build reads are {', '.join(_DESTROY_STATES)}")
+    for provider in ("credentials", "launch"):
+        _provider_ending(answer[provider], provider)
     if answer["runtime_id"] != attempt["runtime_id"]:
         raise ContractRefusal(
             "runtime-observation", "identity-mismatch",
@@ -1163,14 +1976,11 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
             f"attempt {name_value(attempt_id)} cleanup is "
             f"{attempt['cleanup']}, which is terminal; an ending is not "
             f"revisited")
+    # THE ANSWERS THAT DO NOT SETTLE ARE `_not_an_ending`'S, and they are
+    # decided before this transaction opens -- an unsettled outcome must not
+    # be journalled, or the exact retry that is supposed to finish the cleanup
+    # replays the fact that it did not. What reaches here is an ending.
     state = observed["state"]
-    if state == "uncertain":
-        # NOT AN ENDING. The engine's account did not settle the question, and
-        # a cleanup axis that moved anyway would be recording an answer nobody
-        # observed. The offer to try again is the axis staying where it is.
-        return documents.cleanup_unsettled(
-            attempt_id=attempt_id, state=state, why=observed["why"],
-            operation=dict(operation))
     if state != "absent":
         # POSITIVELY STILL THERE. The destroy was ordered and the runtime
         # survived it, which is a settled failure of this cleanup rather than
@@ -1191,6 +2001,24 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     ending = "retained" if kept or receipt["custody"] == "quarantined" \
         else "complete"
     observe(store, attempt_id=attempt_id, axis="cleanup", value=ending)
+    # W32649: AND THE LANE IS GIVEN BACK, in the same write as the ending.
+    #
+    # THIS is the release condition the boundary names: positive runtime
+    # ABSENCE -- proved above, `state == "absent"` and nothing else reaches
+    # here -- plus every applicable provider ending, which `_unsettled_providers`
+    # has already required, plus the custody and retention decisions this
+    # ending is composed from. Not one of those alone is enough, and the
+    # ending is the only place all of them are true at once.
+    #
+    # `retained` RELEASES AND `failed` DOES NOT, which is the ruled difference
+    # between them. Retained material lives in CUSTODY -- a manager-owned
+    # sibling the worker never sees -- so a successor collides with nothing;
+    # a failed cleanup means the runtime survived its destroy, and a lane
+    # released while a container is still there is the overlap this exists to
+    # prevent. The `failed` branch above returns before this line.
+    lanes._release_lane(connection, attempt_id=attempt_id,
+                       reference=lanes.lane_reference(attempt),
+                       why=f"cleanup settled {ending}")
     return documents.cleanup_settled(
         attempt_id=attempt_id, cleanup=ending, state=state,
         why=observed["why"], kept=list(kept), operation=dict(operation))

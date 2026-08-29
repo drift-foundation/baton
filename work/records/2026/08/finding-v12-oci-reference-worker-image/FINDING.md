@@ -534,3 +534,13 @@ This ruling does not certify the broader manager lifecycle, credential
 recovery, or end-to-end orchestration. W6636 owns lifecycle composition and
 W17110 owns the live ping-pong proof; a failure there becomes separately
 bounded Work rather than reopening this twelve-round campaign.
+
+## 2026-08-28 — primary image identity preserved under W33936
+
+Approver response M34630 does not change this image's `USER 65532:65532` or
+the adapter's matching primary `--user 65532:65532`. W33936 may grant one
+deployment-configured, nonzero, non-authority workspace group as supplementary
+execution-only authority after proving the mounted workspace carries it.
+Consent receives no such group. The extra runtime group is an adapter/workspace
+capability and never an image-default identity, so the exact primary alignment
+this record accepted remains live.

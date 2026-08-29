@@ -1,0 +1,86 @@
+W26294 — exact OCI runtime observation. 2026-08-27.
+
+No Git history or index was mutated.
+
+=== 1. PLAN 1 FOUND A BLOCKER BEFORE ANY CODE CHANGED
+
+  The axis could not record what observe answers. execution_runtime had
+  no transition from start-requested to quiescent, and none from
+  not-started either -- so the truthful answer for a container that
+  finished between the start and the reconciliation was
+  unrepresentable, and the manager would have had to go on recording
+  running for a container it had just been told is not.
+
+  That is now the ORDINARY case rather than an edge one: W26291
+  delivered the launch environment, so the reference worker starts,
+  finds no frames on a closed stdin and exits within milliseconds.
+    84:        # W26294 ADDS `quiescent` TO BOTH, and it is a discovery rather than
+    85-        # a new act. Reconciliation now ASKS the engine about the exact
+    86-        # runtime instead of reading `running` off a listing, so a container
+    87-        # that finished between the start and the reconciliation is something
+
+  absent maps to destroyed because it is POSITIVE evidence about one
+  exact identity -- the adapter answers it only when the engine says
+  that container does not exist. What stays forbidden is inferring
+  destruction from a failure to LOOK, and that is uncertain, which the
+  map still refuses to let become destroyed.
+
+=== 2. THE DEFECT SURVIVED INSIDE THE FIX FOR IT
+
+  My first version recorded the observed state INSIDE _attach, where the
+  axis move already lived. That looked right -- the existing comment
+  explains, for good reasons, why the move must be in the attachment's
+  transaction.
+
+  It was wrong. _attach is effectively-once on (attempt, runtime), so
+  the second reconciliation REPLAYS the first answer without running
+  the action: the state froze at whatever it was when the runtime was
+  first attached, and a container that exited afterwards stayed running
+  forever. THE DIAGNOSTIC CASE THIS WORK WAS MEANT TO CONVERT STILL
+  PASSED, which is what exposed it.
+
+  An observation is not part of an attachment: the identity is settled
+  once and the state changes underneath it.
+
+=== 3. THE FULL GATE FOUND WHAT A FOCUSED RUN COULD NOT
+
+  Adding a required capability broke a fake adapter in
+  test_boundary_inventory, and the probe-coverage cases cascaded off it:
+  7 failures became 21. Registering the seam then took three passes,
+  each about fourteen minutes, and each found something real:
+    the two receiving entries needed a probe DRIVER THAT REACHES THEM. My
+      first one never started a runtime, so the fake listed nothing and
+      reconciliation took the 'nothing is listed' path without touching the
+      boundary it named -- a probe declared and not arrived.
+    
+    the capability check sat in a PRIVATE function the inventory's universe
+      does not see, so it was an orphan call. It now lives at the public
+      boundary beside the existing list check, which is also the shape
+      request_runtime_start already uses: one place where both capabilities
+      are proved before either is asked anything.
+
+=== 4. MEASURED BY REMOVAL
+             test_an_adapter_without_observe_refuses_as_a_capability
+    
+    all 9 mutations caught
+
+    source fingerprint before: 8c33c164b67e5e38bc7256d9e6a2fa8a210cbf35c21af0c6d9d473043b0a8bcc
+    source fingerprint after : 8c33c164b67e5e38bc7256d9e6a2fa8a210cbf35c21af0c6d9d473043b0a8bcc
+    IDENTICAL — every mutation was reverted.
+
+=== 5. GATES
+    full v12 tree : Ran 1606 tests in 898.874s
+    failures      : 6
+
+    THE BASELINE IS NOW SIX, NOT SEVEN. check_input_pair's three
+    receiving parameters -- the W19784 leftover I reported while holding
+    W6636 and in every Work since -- have been registered in the
+    contracts inventory by someone else, and that check passes. The
+    remaining six are test_boundary_inventory's long-accepted set, and
+    this Work's seam appears in none of them.
+
+=== 6. WHAT THIS WORK DID NOT DO
+    It establishes observation, not policy. It does not retry, remove a
+    runtime, discard output, release or reassign Work, or reinterpret
+    uncertainty as absence. W6636 retains those consequences and now has
+    four truthful states to act on instead of one assumption.

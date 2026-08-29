@@ -30,6 +30,7 @@ import concurrent.futures
 import json
 import os
 import pathlib
+import signal
 import tempfile
 import unittest
 
@@ -40,6 +41,9 @@ import unittest
 from baton_v12.contracts import (ContractRefusal, check_content_manifest,
                                  digest)
 from baton_v12.worker_manager import workspaces
+from baton_v12.worker_manager import ControlStore
+
+from . import input_roots
 from baton_v12.worker_manager.workspaces import (
     ASSIGNMENT_MANIFEST, INPUT_MANIFEST, MAX_DEPTH, MAX_ENTRIES,
     READ_ONLY_DIR, READ_ONLY_FILE, assignment_workspace, compose_input_root,
@@ -53,6 +57,18 @@ VECTORS = (pathlib.Path(__file__).resolve().parents[4] / "work" / "records"
 
 
 
+# W33936: THE CONFIGURED WORKSPACE GROUP, for a fixture deployment.
+#
+# `os.getgid()` is what this process can actually `chgrp` to, so every case
+# below exercises the real adoption rather than a mocked one. It is NOT a
+# statement that a manager's own primary group is an acceptable production
+# configuration -- approver ruling M34630 requires a DEDICATED non-authority
+# group, and that is a property of a deployment which no code here can measure.
+# What `check_workspace_group` can refuse, it does: gid 0, a gid this manager
+# does not hold, and anything that is not a group id.
+WORKSPACE_GROUP = os.getgid()
+
+
 class Workspace(unittest.TestCase):
 
     def setUp(self):
@@ -61,6 +77,16 @@ class Workspace(unittest.TestCase):
         self.root = root.name
         self.storage = os.path.join(self.root, "storage")
         os.makedirs(self.storage)
+        # W33936 review [P1]: the workspace group is the DEPLOYMENT's, read
+        # from this manager's own record, so allocation needs the store that
+        # holds it. A fixture configures it and then reads it, which is the
+        # sequence a deployment performs.
+        self.store = ControlStore.open(
+            os.path.join(self.root, "control.sqlite3"),
+            incarnation="workspaces-1",
+            clock=lambda: "2026-08-24T00:00:00.000Z")
+        self.addCleanup(self.store.close)
+        self.group = input_roots.configured_group(self.store)
 
     def _forcibly_remove(self, root):
         # The component delivers READ-ONLY trees on purpose, so the fixture
@@ -108,7 +134,7 @@ class Workspace(unittest.TestCase):
         return into
 
     def workspace(self, assignment="assignment-1"):
-        return assignment_workspace(self.storage, assignment)
+        return assignment_workspace(self.group, self.storage, assignment)
 
     def open_descriptors_below(self, root):
         """This process's live descriptors into one fixture tree."""
@@ -122,6 +148,230 @@ class Workspace(unittest.TestCase):
             if opened == target or opened.startswith(target + os.sep):
                 found += 1
         return found
+
+
+class TheConfiguredWorkspaceGroupRecord(unittest.TestCase):
+
+    def test_the_projection_cannot_rewrite_the_journalled_group(self):
+        """A second held service group is not a deployment configuration.
+
+        The configuration operation is the independent durable account of
+        what the deployment selected.  Editing only its `meta` projection to
+        another usable group must fail closed rather than minting a capability
+        that can adopt workspaces and cross `--group-add` for that group.
+        """
+        groups = set(os.getgroups()) | {os.getgid()}
+        other = next((gid for gid in sorted(groups)
+                      if gid not in (0, WORKSPACE_GROUP)), None)
+        if other is None:
+            self.skipTest("this process holds no second usable group")
+        root = tempfile.TemporaryDirectory(prefix="v12-workspace-group-")
+        self.addCleanup(root.cleanup)
+        store = ControlStore.open(
+            os.path.join(root.name, "control.sqlite3"),
+            incarnation="workspace-group-1",
+            clock=lambda: "2026-08-29T00:00:00.000Z")
+        self.addCleanup(store.close)
+        workspaces.configure_workspace_group(store, WORKSPACE_GROUP)
+        committed = store.operation_record("workspace-group.configure")
+        self.assertEqual(json.loads(committed["result"]),
+                         {"workspace_group": WORKSPACE_GROUP})
+        store._connection.execute(
+            "UPDATE meta SET value = ? WHERE key = ?",
+            (str(other), workspaces.WORKSPACE_GROUP_KEY))
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.configured_workspace_group(store)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
+        self.assertEqual(store.operation_record(
+            "workspace-group.configure")["result"], committed["result"])
+
+    # W33936 round 3 -- the guards the correction above added, each measured by
+    # removal. The reviewer's case proves the reader refuses a projection that
+    # was edited away from the journal; these prove the JOURNAL side is not
+    # simply believed in its place, and that the reader still fails closed when
+    # the two accounts are missing rather than merely different.
+
+    def configured(self, gid=WORKSPACE_GROUP):
+        """A store whose deployment really committed `gid`."""
+        root = tempfile.TemporaryDirectory(prefix="v12-workspace-group-")
+        self.addCleanup(root.cleanup)
+        store = ControlStore.open(
+            os.path.join(root.name, "control.sqlite3"),
+            incarnation="workspace-group-1",
+            clock=lambda: "2026-08-29T00:00:00.000Z")
+        self.addCleanup(store.close)
+        if gid is not None:
+            workspaces.configure_workspace_group(store, gid)
+        return store
+
+    def second_group(self):
+        groups = set(os.getgroups()) | {os.getgid()}
+        other = next((gid for gid in sorted(groups)
+                      if gid not in (0, WORKSPACE_GROUP)), None)
+        if other is None:
+            self.skipTest("this process holds no second usable group")
+        return other
+
+    def corrupt(self, store, **columns):
+        """Edit the committed row behind the build's back."""
+        assignments = ", ".join(f"{column} = ?" for column in columns)
+        store._connection.execute(
+            f"UPDATE operations SET {assignments} WHERE operation_id = ?",
+            (*columns.values(), workspaces.CONFIGURE_OPERATION))
+
+    def refused(self, store):
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.configured_workspace_group(store)
+        return caught.exception
+
+    def test_a_row_of_another_kind_is_not_a_configuration(self):
+        """The identity is derived, so what sits at it must be asked.
+
+        A committed row of some other kind reached through this identity would
+        be read for a `workspace_group` member it never promised.
+        """
+        store = self.configured()
+        self.corrupt(store, kind="workspace-group.something-else")
+        refusal = self.refused(store)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("integrity", "schema"))
+        self.assertIn("another kind", refusal.message)
+
+    def test_a_rewritten_result_no_longer_agrees_with_its_signature(self):
+        """The journal is not believed just for being the journal.
+
+        Editing `result` in place is the same edit as the projection one, made
+        one table over. The signature was written for the operands the
+        operation really ran with, so recomputing it from the answer is what
+        makes the rewrite visible without keeping a second copy of the gid.
+        """
+        other = self.second_group()
+        store = self.configured()
+        self.corrupt(store, result=json.dumps({"workspace_group": other}))
+        refusal = self.refused(store)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("integrity", "schema"))
+        self.assertIn("recorded signature", refusal.message)
+
+    def test_a_rewritten_result_with_a_matching_signature_is_still_checked(self):
+        """The gid rules apply to the journal's own answer.
+
+        An edit that also recomputes the signature agrees with itself and
+        still cannot name root: `check_workspace_group` runs on the COMMITTED
+        value, not only on what a caller passes to `configure`.
+        """
+        from baton_v12.worker_manager.store import manager_signature
+        store = self.configured()
+        self.corrupt(
+            store, result=json.dumps({"workspace_group": 0}),
+            signature=manager_signature(workspaces.CONFIGURE_OPERATION,
+                                        {"gid": 0}))
+        refusal = self.refused(store)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("integrity", "schema"))
+        self.assertIn("root group", refusal.message)
+
+    def test_a_committed_answer_of_another_shape_is_not_read_for_a_group(self):
+        store = self.configured()
+        self.corrupt(store, result=json.dumps({"group": WORKSPACE_GROUP}))
+        refusal = self.refused(store)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("integrity", "schema"))
+        self.assertIn("workspace group configuration", refusal.message)
+
+    def test_a_configuration_whose_record_is_gone_mints_nothing(self):
+        """Fail closed in BOTH directions.
+
+        Trusting the journal alone here would be the mirror of the defect: a
+        deleted projection would be repaired silently, and an edit that should
+        have been refused would become an edit that was tolerated.
+        """
+        store = self.configured()
+        store._connection.execute("DELETE FROM meta WHERE key = ?",
+                                  (workspaces.WORKSPACE_GROUP_KEY,))
+        refusal = self.refused(store)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("integrity", "schema"))
+        self.assertIn("cannot cross-check", refusal.message)
+
+    def test_a_record_nobody_configured_mints_nothing(self):
+        """`meta` written directly, with no deployment act behind it."""
+        store = self.configured(gid=None)
+        store._connection.execute(
+            "INSERT INTO meta (key, value) VALUES (?, ?)",
+            (workspaces.WORKSPACE_GROUP_KEY, str(WORKSPACE_GROUP)))
+        refusal = self.refused(store)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("integrity", "schema"))
+        self.assertIn("nobody configured", refusal.message)
+
+    def test_a_refused_configuration_replays_as_the_refusal_it_was(self):
+        """The committed answer is decoded by the journal's own reader.
+
+        A refused operation has no result to read, and reaching past `replay`
+        for the `result` column would fault on that absence instead of
+        reproducing the deployment's first answer.
+        """
+        store = self.configured()
+        self.corrupt(store, state="refused", result=None,
+                     refusal=json.dumps({"category": "policy",
+                                         "code": "denied",
+                                         "durable": True,
+                                         "message": "the deployment refused "
+                                                    "this configuration"},
+                                        sort_keys=True))
+        refusal = self.refused(store)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("policy", "denied"))
+        self.assertEqual(refusal.message,
+                         "the deployment refused this configuration")
+
+    def test_an_unconfigured_manager_is_denied_rather_than_faulted(self):
+        """The ordinary un-provisioned case keeps its own answer.
+
+        Neither account exists, which is not a disagreement -- it is a
+        deployment that has not been provisioned, and it stays `policy/denied`
+        so the two are distinguishable by a caller.
+        """
+        refusal = self.refused(self.configured(gid=None))
+        self.assertEqual((refusal.category, refusal.code),
+                         ("policy", "denied"))
+        self.assertIn("no configured workspace group", refusal.message)
+
+    def test_the_projection_cannot_unlock_reconfiguration(self):
+        """The other door onto the same defect.
+
+        `configure_workspace_group` refuses a CHANGED group, and it used to ask
+        the projection whether one was already configured. Editing `meta` to
+        the second group therefore also made configuring that group look like
+        a first configuration rather than a change.
+        """
+        other = self.second_group()
+        store = self.configured()
+        store._connection.execute(
+            "UPDATE meta SET value = ? WHERE key = ?",
+            (str(other), workspaces.WORKSPACE_GROUP_KEY))
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.configure_workspace_group(store, other)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+        self.assertIn(f"already configured with workspace group "
+                      f"{WORKSPACE_GROUP}", caught.exception.message)
+
+    def test_the_agreeing_accounts_still_mint_the_capability(self):
+        """The correction refuses divergence and nothing else.
+
+        Re-affirming the same group is still a committing no-op, and the
+        capability the two agreeing accounts mint is the configured one.
+        """
+        store = self.configured()
+        self.assertEqual(
+            workspaces.configure_workspace_group(store, WORKSPACE_GROUP),
+            {"workspace_group": WORKSPACE_GROUP})
+        held = workspaces.configured_workspace_group(store)
+        self.assertIsInstance(held, workspaces.WorkspaceGroup)
+        self.assertEqual(held.gid, WORKSPACE_GROUP)
 
 
 class AManifestIsMeasuredRatherThanDeclared(Workspace):
@@ -301,7 +551,7 @@ class OneAssignmentOneWorkspace(Workspace):
                                os.path.join(self.root, "absent"))]:
             with self.subTest(what=what):
                 with self.assertRaises(ContractRefusal):
-                    assignment_workspace(storage, "assignment-x")
+                    assignment_workspace(self.group, storage, "assignment-x")
 
 
 class CleanupTouchesOnlyWhatWasCreated(Workspace):
@@ -352,7 +602,8 @@ class TheInputRootIsComposedOnceAndThenFrozen(Workspace):
         return given, assignment
 
     def inputs(self):
-        return assignment_workspace(self.storage, "assignment-1")["inputs"]
+        return assignment_workspace(
+            self.group, self.storage, "assignment-1")["inputs"]
 
     def owned(self, assignment):
         """The manager's own copy of the identity it is composing for.
@@ -677,6 +928,53 @@ class TheCopyIsTheMeasurement(Workspace):
         self.assertIn("neither a regular file nor a directory",
                       str(caught.exception))
 
+    def test_a_file_replaced_by_a_pipe_after_listing_does_not_block(self):
+        """THE INTERVAL the case above does NOT establish.
+
+        Review [P1]: creating the FIFO before the walk lists it proves only
+        that the walk refuses what it SEES. The dangerous window is between the
+        entry being accepted as a regular file and its name being opened --
+        worker-owned storage, so the replacement is the worker's to make. A
+        blocking open there never reaches the descriptor-level refusal, and the
+        manager waits for a writer that never comes.
+
+        The real walk runs; only the yield boundary is interposed on, so the
+        entry really was accepted as a regular file by the code under test.
+        The parent directory descriptor is unchanged by the replacement, which
+        is what puts the FIFO exactly where the open will land.
+
+        BOUNDED, because a regression here is a HANG rather than a failure, and
+        a hanging case takes the whole gate with it. The alarm raises out of
+        the blocked syscall, so this fails in three seconds instead of never.
+        """
+        place = self.origin({"answer.txt": b"regular when listed"})
+        original = workspaces._walk
+
+        def racing(real, what):
+            for found, relative in original(real, what):
+                if relative == "answer.txt":
+                    os.unlink(os.path.join(real, relative))
+                    os.mkfifo(os.path.join(real, relative))
+                yield found, relative
+
+        def ring(_number, _frame):
+            raise TimeoutError("the post-listing FIFO blocked the open")
+
+        workspaces._walk = racing
+        previous = signal.signal(signal.SIGALRM, ring)
+        signal.alarm(3)
+        try:
+            with self.assertRaises(ContractRefusal) as caught:
+                workspaces.copied_manifest(place, self.into())
+        finally:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, previous)
+            workspaces._walk = original
+        # The DESCRIPTOR's answer, which is the one the race cannot change.
+        self.assertIn("is not a regular file", str(caught.exception))
+        self.assertFalse(os.path.exists(
+            os.path.join(self.into(), "answer.txt")))
+
     def test_a_destination_that_is_a_link_is_not_written_through(self):
         """The copy makes bytes the caller's OWN, so a link left at a
         destination name must not become the thing written to."""
@@ -804,6 +1102,220 @@ class TheCopyIsTheMeasurement(Workspace):
         self.assertTrue(os.path.isdir(into))
 
 
+
+
+class ACeilingBoundsTheWorkItRefuses(Workspace):
+    """W26283 re-review [P1]: a guard AFTER an unbounded operation is not a
+    bound on that operation.
+
+    Both ceilings were checked on a file this component had already read
+    whole. The entry ceiling therefore opened and held the very file it exists
+    to refuse, and the byte ceiling was worse than late: `_read_exactly` took
+    one `fstat` size and then read to EOF, and the size of a worker-controlled
+    regular file is a fact about the instant it was taken. A worker that keeps
+    appending to a file this manager is reading never reaches EOF, so the
+    refusal is not merely late -- it is never reached at all, and the process
+    grows for as long as the worker cares to write.
+
+    The corrected order is: the entry ceilings answer with nothing opened, and
+    the read is handed the SMALLER remaining global/declared allowance and
+    takes at most that plus one byte. One byte past the line is what proves
+    the line was crossed; anything further is work the crossing already made
+    pointless.
+
+    The growth cases BOUND THEMSELVES WITH AN ALARM for the same reason the
+    post-listing FIFO case does: a regression here is a hang rather than a
+    failure, and a hanging case takes the whole gate with it -- and an alarm
+    is also what keeps the matching mutation measurable instead of stalling
+    the harness.
+    """
+
+    def into(self, name="custody"):
+        return os.path.join(self.root, name)
+
+    def _recording(self):
+        """Every file this component actually OPENS, in walk order."""
+        original = workspaces._read_exactly
+        read = []
+
+        def observed(place, relative, what, **rest):
+            read.append(relative)
+            return original(place, relative, what, **rest)
+
+        workspaces._read_exactly = observed
+        self.addCleanup(setattr, workspaces, "_read_exactly", original)
+        return read
+
+    def _endlessly_growing(self, path):
+        """The `os` THIS MODULE sees, over a file a worker never stops writing.
+
+        The file grows after `fstat` returns and after every read, so the size
+        this component measured is true when it is taken and false one
+        instruction later -- which is the whole of the race. A reader with no
+        bound of its own never reaches the end of this file.
+
+        The interposition replaces the module's own `os` NAME rather than
+        patching the `os` module itself, so nothing outside the component
+        under test reads a different filesystem for the duration.
+        """
+        module = workspaces.os
+        counted = []
+
+        def grow():
+            with open(path, "ab") as appending:
+                appending.write(b"x" * 64)
+
+        class Growing:
+
+            def __getattr__(self, name):
+                return getattr(module, name)
+
+            def fstat(self, descriptor):
+                stated = module.fstat(descriptor)
+                grow()
+                return stated
+
+            def read(self, descriptor, amount):
+                piece = module.read(descriptor, amount)
+                counted.append(len(piece))
+                grow()
+                return piece
+
+        workspaces.os = Growing()
+        self.addCleanup(setattr, workspaces, "os", module)
+        return counted
+
+    def _lowered(self, **ceilings):
+        for name, value in ceilings.items():
+            self.addCleanup(setattr, workspaces, name,
+                            getattr(workspaces, name))
+            setattr(workspaces, name, value)
+
+    def _within(self, seconds, complaint):
+        """The case fails in `seconds` rather than hanging the gate."""
+        def ring(_number, _frame):
+            raise TimeoutError(complaint)
+
+        previous = signal.signal(signal.SIGALRM, ring)
+        signal.alarm(seconds)
+        self.addCleanup(signal.signal, signal.SIGALRM, previous)
+        self.addCleanup(signal.alarm, 0)
+
+    def test_the_file_that_crosses_a_declared_entry_ceiling_is_never_read(self):
+        """The over-limit file is not opened, not read and not held.
+
+        Reading it first spends exactly the work and memory the ceiling exists
+        to decline, on material a worker chose the size of.
+        """
+        place = self.origin({"a.txt": b"one", "b.txt": b"two"})
+        read = self._recording()
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into(), max_entries=1)
+        self.assertEqual(read, ["a.txt"])
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "limit"))
+
+    def test_the_file_that_crosses_this_builds_entry_ceiling_is_never_read(
+            self):
+        """The same order for the POLICY ceiling, and the same taxonomy."""
+        place = self.origin({"a.txt": b"one", "b.txt": b"two"})
+        self._lowered(MAX_ENTRIES=1)
+        read = self._recording()
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into())
+        self.assertEqual(read, ["a.txt"])
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+
+    def test_the_measuring_pass_also_refuses_before_it_reads(self):
+        """`directory_manifest` measures worker-controlled trees too.
+
+        It had the same late check, one function above the copy, so fixing
+        only the copy would leave the identical defect on the path that
+        measures a delivered input root.
+        """
+        place = self.origin({"a.txt": b"one", "b.txt": b"two"})
+        self._lowered(MAX_ENTRIES=1)
+        read = self._recording()
+        with self.assertRaises(ContractRefusal) as caught:
+            directory_manifest(place)
+        self.assertEqual(read, ["a.txt"])
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+
+    def test_a_file_that_never_stops_growing_cannot_outrun_the_byte_ceiling(
+            self):
+        """The `fstat` size is an observation, and the read needs a BOUND.
+
+        Unbounded, this case does not finish: the worker appends faster than
+        the ceiling is consulted, so the refusal below is never reached and
+        the bytes accumulate for as long as the writer continues.
+        """
+        place = self.origin({"answer.txt": b"x"})
+        counted = self._endlessly_growing(os.path.join(place, "answer.txt"))
+        self._lowered(MAX_BYTES=8)
+        self._within(3, "the unbounded read never reached the byte ceiling")
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into())
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+        # THE CEILING PLUS ONE BYTE, which is what proves it was crossed.
+        self.assertLessEqual(sum(counted), 9)
+
+    def test_a_declared_ceiling_bounds_the_read_it_is_smaller_than(self):
+        """The allowance is the SMALLER of the two remaining ones.
+
+        A read bounded by only the global ceiling is unbounded with respect to
+        a delivery that declared far less.
+        """
+        place = self.origin({"answer.txt": b"x"})
+        counted = self._endlessly_growing(os.path.join(place, "answer.txt"))
+        self._within(3, "the unbounded read never reached the declared limit")
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into(), max_bytes=2)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "limit"))
+        self.assertLessEqual(sum(counted), 3)
+
+    def test_the_measuring_pass_is_bounded_by_the_same_allowance(self):
+        place = self.origin({"answer.txt": b"x"})
+        counted = self._endlessly_growing(os.path.join(place, "answer.txt"))
+        self._lowered(MAX_BYTES=8)
+        self._within(3, "the unbounded measurement never reached the ceiling")
+        with self.assertRaises(ContractRefusal) as caught:
+            directory_manifest(place)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+        self.assertLessEqual(sum(counted), 9)
+
+    def test_an_equal_byte_crossing_still_answers_as_policy(self):
+        """Precedence is preserved by the correction rather than reordered.
+
+        What this build will not do at all is decided before what this
+        delivery was allowed, so an equal crossing is `policy/denied` and
+        callers that depend on the distinction still get the same answer.
+        """
+        place = self.origin({"a.txt": b"onetwothree"})
+        self._lowered(MAX_BYTES=4)
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into(), max_bytes=4)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+
+    def test_an_equal_entry_crossing_still_answers_as_policy(self):
+        """The same precedence on the ceiling that now runs before the read.
+
+        Two files and both ceilings at one, so the SECOND entry crosses each
+        of them at the same moment and only the order decides the answer.
+        """
+        place = self.origin({"a.txt": b"one", "b.txt": b"two"})
+        self._lowered(MAX_ENTRIES=1)
+        read = self._recording()
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.copied_manifest(place, self.into(), max_entries=1)
+        self.assertEqual(read, ["a.txt"])
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
 
 
 class TheComponentIsOnThePublicSurface(Workspace):

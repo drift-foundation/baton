@@ -1,0 +1,112 @@
+{
+ "assignment_manifest": {
+  "activated_at": "2026-08-21T22:05:00.000Z",
+  "assignment_contract": "v12-assignment-1",
+  "assignment_ref": {
+   "generation": 1,
+   "participant": "baton.claude",
+   "work_ref": {
+    "authority_uuid": "43c55d4b000000000000000000000000",
+    "work_id": "43c55d4b-W6636"
+   }
+  },
+  "claim_event_seq": 44,
+  "claim_receipt_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "created_at": "2026-08-21T22:05:00.000Z",
+  "extensions": {},
+  "input_manifest_digest": "sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86",
+  "manifest_digest": "sha256:ae67ecde712b9752d4458a98deb0fd0a57aa17d93e8458a181c148295b68064a",
+  "manifest_id": "assignment-manifest-1",
+  "offer_id": "offer-1",
+  "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "runtime_attempt_id": "attempt-6fd35f2815",
+  "runtime_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "schema": "baton.worker-manifest/assignment",
+  "version": {
+   "major": 1,
+   "minor": 0
+  }
+ },
+ "input_manifest": {
+  "assignment_contract": "v12-assignment-1",
+  "created_at": "2026-08-21T22:00:00.000Z",
+  "credential_policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "extensions": {},
+  "human_contract": {
+   "artifact_id": "human-contract-1",
+   "bytes": 1200,
+   "content_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+   "locator": "artifact://contracts/human-contract-1",
+   "media_type": "text/markdown"
+  },
+  "manifest_digest": "sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86",
+  "manifest_id": "input-manifest-1",
+  "mount_policy_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+  "network_policy_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+  "outputs": [
+   {
+    "constraints": {
+     "allowed_media_types": [
+      "application/octet-stream",
+      "text/plain"
+     ],
+     "link_policy": "forbid",
+     "max_bytes": 1048576,
+     "max_entries": 100,
+     "validator_digest": null
+    },
+    "name": "proposal",
+    "path": "workspace/output",
+    "required": true,
+    "type": "directory-result"
+   }
+  ],
+  "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "record_binding": {
+   "finding_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers",
+   "plan_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+   "root": "baton-repository"
+  },
+  "resource_policy_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+  "retention_policy_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "role_instructions_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "runtime_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "schema": "baton.worker-manifest/input",
+  "sources": [
+   {
+    "consumption": {
+     "baton.directory/1": {
+      "layout": "flat"
+     }
+    },
+    "content_manifest": {
+     "entries": [
+      {
+       "bytes": 4,
+       "content_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "path": "README.md"
+      }
+     ],
+     "entry_count": 1,
+     "total_bytes": 4,
+     "tree_digest": "sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"
+    },
+    "destination": "workspace/source",
+    "name": "source",
+    "required": true
+   }
+  ],
+  "tool_policy_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "toolchain_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "version": {
+   "major": 1,
+   "minor": 0
+  },
+  "work_ref": {
+   "authority_uuid": "43c55d4b000000000000000000000000",
+   "work_id": "43c55d4b-W6636"
+  },
+  "worker_image_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+ }
+}

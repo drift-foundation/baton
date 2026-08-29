@@ -1,0 +1,17 @@
+W28681 operator service-context process-domain preflight
+Date: 2026-08-28
+Operator: baton.slaw
+Context: normal host shell, outside managed agent sandbox
+
+Command:
+/home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/preflight-process-domain.sh
+
+Output:
+preflight-process-domain: ok -- this context creates a PID namespace, runs an escaped (setsid) and a busy descendant inside it (6 host processes below the owner), removes every one of them when the owner exits, and leaves an unrelated process running
+/home/sl/src/baton/work/records/2026/08/finding-shared-mailbox-team-onboarding/findings/finding-pc-central-runner-stack/successor/pc-code-policy/preflight-process-domain.sh: line 43: 4006939 Killed                  setsid /bin/sh -c 'while :; do echo . >> "$0"; sleep 0.2; done' "$OUTSIDE" > /dev/null 2>&1
+
+Interpretation:
+The probe reached its terminal success marker after establishing all required
+invariants. The trailing shell diagnostic is EXIT-trap cleanup terminating the
+probe-owned unrelated control process after proving that process survived the
+domain teardown; it is not a failed process-domain assertion.

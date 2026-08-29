@@ -24,3 +24,25 @@ Parent discovery: W6636, `work/records/2026/08/finding-v12-local-oci-lifecycle-c
 ## Open
 
 - Exact operation placement and durable receipt schema must be revalidated against current manager persistence and attempt orchestration.
+
+## Superseded decision — 2026-08-27
+
+The separate consent-runtime topology, positive-absence gate, and acceptance
+criteria above are superseded before implementation. They remain here as the
+chronological explanation for W26295, not as a compatibility requirement.
+
+The approved lifecycle is reservation, canonical claim, then one execution
+runtime. The trusted adapter reserves an eligible slot without launching an
+agent or container; the Worker Manager atomically claims; only success launches
+the execution container. Expiry or a lost claim race releases the reservation
+without a runtime. The executing agent may still refuse through typed
+`plan-rejected` or `unsupported` results after claim.
+
+Dispatch explicitly authorizes the claimed runtime to receive the Work's exact
+declared repository or other source through read-only `/input`. It does not
+authorize access to the Baton authority store, integration credentials,
+unrelated host paths, or a writable canonical checkout.
+
+W26295 therefore has no implementation remaining and should close cancelled as
+superseded. W6636 owns the direct claim-to-execution crossing and the typed
+launch-failure/recovery behavior; it must not retain a consent-runtime axis.

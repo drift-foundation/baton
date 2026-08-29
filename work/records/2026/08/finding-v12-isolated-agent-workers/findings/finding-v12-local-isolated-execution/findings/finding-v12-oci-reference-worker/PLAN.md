@@ -69,3 +69,17 @@
      wrapper, returns pong, and leaves redacted packaging/auth/start/result/
      cleanup evidence. Both must succeed for the two-provider proof; neither
      spike implementation is production conformance.
+
+## 2026-08-28 — bounded capability-pass roll-up
+
+- [superseded] Item 11's requirement that every original child close
+  satisfying. W6634 remains non-satisfying and is replaced, not waived, by
+  reviewed W26283/W26284 plus the W26291/W26294 shared crossing consumed by
+  W6636.
+- [verified] W6636 closed satisfying as the one-container Docker capability
+  pass under campaign item 27, including corrected security/orphan evidence.
+- [preserved later pass] W32382 negative/race endings, W32385 exact-ended
+  restart adoption and W32391 Podman certification are separate W3 Work and do
+  not block the present proof chain.
+- [terminal] Close W5 satisfying in the bounded “promising design” meaning;
+  advance W6 as the next critical-path proof boundary.

@@ -40,3 +40,43 @@ ACP: 77 passed, 0 failed
 Diff hygiene
 ------------
 git diff --check over the W26331 implementation paths: clean
+
+Independent-review correction — 2026-08-28 UTC
+------------------------------------------------
+Corrected unique structural occurrence keys for repeated Work crumbs,
+breadcrumb-focused Up/k fallthrough on every single-body page, and terminal-
+cell fitting/painting for wide and combining characters. Added graph-recenter,
+all-single-body/dual-Up, wide-character, combining-character and right-edge
+survival regressions.
+
+Focused W26331 plus expanded pane-focus contract
+-------------------------------------------------
+./.venv/bin/python3 -m pytest -q -p no:randomly \
+  tests/work/test_w26331_focusable_breadcrumb.py \
+  tests/work/test_w1151_pane_focus.py
+
+48 passed in 3.61s
+
+Affected navigation and compatibility set
+-----------------------------------------
+./.venv/bin/python3 -m pytest -q -p no:randomly \
+  tests/work/test_w26331_focusable_breadcrumb.py \
+  tests/work/test_w292_breadcrumb_navigation.py \
+  tests/work/test_w1151_pane_focus.py \
+  tests/work/test_w4996_dependency_graph.py \
+  tests/work/test_w26328_actionable_console.py \
+  tests/work/test_w110_tab_grammar.py \
+  tests/work/test_w17_poke_visibility.py \
+  tests/work/test_w71_navigation.py \
+  tests/work/test_tui.py \
+  tests/work/test_parity.py
+
+294 passed in 98.51s
+
+Complete v11 gate
+-----------------
+just test-v11
+
+3252 parallel passed, 189 warnings, 73.34s
+54 serial/PTY passed, 3252 deselected, 1 warning, 130.59s
+ACP: 77 passed, 0 failed

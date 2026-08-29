@@ -1,0 +1,4 @@
+assignment-identities-equal True
+claim-principals ['principal:baton.claude', 'principal:one-person']
+first-before principal:baton.claude
+activity-principals-after ['principal:baton.claude', 'principal:one-person']

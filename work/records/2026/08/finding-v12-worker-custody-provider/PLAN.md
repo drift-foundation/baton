@@ -1,0 +1,95 @@
+# Plan
+
+1. Revalidate W33936's delivered workspace grant and the exact failure this
+   provider must remove, against the current tree rather than against this
+   record.
+2. Pin the closed custody operation vocabulary, the custodian identity and its
+   mapping, and the single mount, with the reasoning for each written down.
+3. Implement the short-lived helper and its typed manager-owned crossing.
+4. Compose it into the cleanup ending W33936 leaves failing closed.
+5. Add positive, denial, retry/restart, crash-mid-custody and
+   worker-mode-hostile cases, plus the Docker and compatible Podman engine
+   proofs.
+6. Return for independent review; W33936's full cleanup acceptance stays open
+   until this closes.
+
+## 2026-08-29 — first implementation round
+
+1. [done] The defect revalidated against the tree rather than the record: the
+   W33936 case that documents it still passes, so it is still real.
+2. [done] `custody.py` pins the closed six-verb vocabulary, the single mount at
+   a fixed target, the owning-worker identity, and the frozen manager-owned
+   program. Two design corrections came from running it against a real daemon
+   before wiring: the custodian normalizes only what it OWNS, and it needs
+   W33936's configured group to traverse the manager-owned workspace root.
+3. [done] `tests/manager/test_custody.py` (17) and
+   `tests/manager/test_custody_engine.py` (6 + honest Podman skip). The engine
+   suite proves the manager's removal is REFUSED before the act and succeeds
+   after it, at every mode a worker can choose including `0000`.
+4. [NOT DONE] Compose the helper into the ending W33936 leaves failing closed.
+   The helper is proved to remove the defect; nothing calls it automatically
+   yet. This is the remaining half.
+5. [partly done] Positive, denial, mode-hostile, short-lived and single-mount
+   cases are in. Retry/restart and crash-mid-custody cases wait on item 4,
+   because what they must be idempotent ABOUT is the composed act.
+6. [blocked, reported] The compatible-Podman proof cannot be produced on this
+   deployment: rootless Podman does not map the manager's supplementary gid, so
+   the worker cannot write the workspace and the precondition never exists;
+   rootful Podman makes the manager root, and a root manager can remove
+   anything, so the "before" refusal cannot occur either. Same constraint
+   W33936 raised for a ruling.
+
+## 2026-08-29 — independent review: changes requested
+
+1. [required] Replace the raw caller-selected `attempt_root` with a typed
+   manager-owned custody root derived from the assignment's established
+   layout. Mount only the exact workspace or result root for that act; never
+   the assignment home containing inputs, credentials and manager-owned state.
+2. [required] Correct traversal so every nested worker-owned directory is
+   made traversable before descent, without following links or widening the
+   manager-owned mount root. Hold this with the added nested mode-zero case.
+3. [required] Implement all six pinned operations or narrow the confirmed
+   decision before claiming a six-operation provider. Place returned
+   read/hash/archive evidence under an explicit manager-owned contract.
+4. [required] Give custody acts a bounded, restart-reclaimable lifecycle.
+   `--rm` after normal exit is cleanup, not proof that a manager crash cannot
+   leave a live helper holding the mount.
+5. [required] Compose the corrected provider into the ended-attempt cleanup
+   and add retry, restart and crash-mid-act regressions.
+6. [blocked externally] Retain the honest compatible-Podman gate and resolve
+   it through the already-recorded deployment/certification decision rather
+   than treating a skip as acceptance.
+
+## 2026-08-29 — second independent review: changes requested
+
+1. [confirmed corrected] Retain the exact workspace mount for authentic
+   roots and the pre-descent normalization that reaches nested hostile modes.
+2. [required P0] Make the root capability originate from authority the caller
+   cannot reconstruct or edit. Refuse forged root mappings, symlinked roots
+   and a worker-created `result` alias before the engine sees a bind source.
+3. [required] Treat every link as an object without following its target:
+   inspect it, account for it in hash/archive as the contract defines, and
+   unlink it during discard.
+4. [required] Define and implement result contracts under which `read`
+   delivers complete bytes and `archive` preserves recoverable content rather
+   than returning only a head or digest manifest. Stream bounded processing
+   rather than reading an arbitrary worker file wholly into memory.
+5. [required, unchanged] Implement bounded/restart-reclaimable helper
+   lifetime, compose it into the ending, and add retry/restart/crash cases.
+6. [blocked externally] Keep compatible Podman as an explicit certification
+   blocker until the existing deployment decision supplies a real gate.
+
+## 2026-08-29 — third independent review: changes requested
+
+1. [accepted] Preserve directory symlinks as observable/removable objects
+   while excluding their targets from traversal. Preserve the no-link and
+   manager-owner refusal at an existing result entry.
+2. [required P0] Replace structural inference with real provenance. A caller
+   can deliberately reproduce directory basenames and ownership; the custody
+   root must instead be derived from an unforgeable allocation capability or
+   re-opened from manager-owned durable storage plus the exact attempt
+   identity and containment proof.
+3. [required, unchanged] Deliver complete read/archive output contracts with
+   streaming/bounds, then implement bounded restart-reclaimable lifetime and
+   ending composition with retry/restart/crash regressions.
+4. [blocked externally] Retain compatible Podman as an explicit blocker.

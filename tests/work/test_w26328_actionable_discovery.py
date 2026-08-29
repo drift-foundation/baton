@@ -112,6 +112,26 @@ def flattened(store, member=MEMBER, **paging):
 	                                  viewer_member=member, **paging)
 
 
+def walk(store, member=MEMBER, **paging):
+	"""Every page of the flattened view, followed through the continuation
+	until it is exhausted.
+
+	BOUNDED, and the bound is its own assertion. A continuation that stops
+	advancing does not fail a comparison — it loops forever, and a suite
+	that hangs reports nothing at all. The bound is far above any page
+	count these cases produce, so it can only fire on that defect.
+	"""
+	seen, after, pages = [], None, 0
+	while True:
+		page = flattened(store, member=member, after=after, **paging)
+		seen += [one["id"] for one in page["rows"]]
+		after = page["next_after"]
+		pages += 1
+		if after is None:
+			return seen
+		assert pages < 100, "the continuation never exhausted the set"
+
+
 def row(answer, work_id):
 	return next(one for one in answer["rows"] if one["id"] == work_id)
 
@@ -426,13 +446,9 @@ class TestTheFlattenedViewFindsWhatTheTreeCannot:
 		store = authority
 		for index in range(7):
 			make(store, f"waiting {index:02d}")
-		seen, after = [], 0
-		while True:
-			page = flattened(store, after=after, limit=2)
-			seen += [one["id"] for one in page["rows"]]
-			if page["next_after"] is None:
-				break
-			after = page["next_after"]
+		# The FIRST page is `after=None`; the continuation is a token,
+		# never a count, so there is no zero to start from.
+		seen = walk(store, limit=2)
 		assert len(seen) == len(set(seen)) == 7
 		assert seen == [one["id"] for one in flattened(store, limit=500)["rows"]]
 
@@ -445,6 +461,455 @@ class TestTheFlattenedViewFindsWhatTheTreeCannot:
 		              actor=MEMBER)
 		assert [one["id"] for one in flattened(store)["rows"]] == \
 			[urgent, ordinary]
+
+
+class TestTheContinuationIsAPositionAndNeverAnOffset:
+	"""Independent review [P1]: a positional continuation silently skips
+	actionable Work.
+
+	`next_after` was `start + len(page)` and the next page was
+	`rows[start:start + size]` of the set as it stands THEN. Between two
+	pages the set moves — that is the point of a shared Route — and every
+	row after a departed one slides one place forward, so the second slice
+	begins one row too late and the Work that crossed the boundary appears
+	in no page at all. That is the exact promise this verb exists to keep,
+	so it is measured here at the boundary rather than inferred from the
+	shape of the token.
+
+	The two halves are separate cases because they fail in opposite
+	directions: a REMOVAL before the cursor must not skip, and an ARRIVAL
+	before it must not repeat.
+	"""
+
+	def test_a_claim_between_pages_skips_no_later_work(self, authority):
+		"""The reviewer's reproduction, as a case.
+
+		W2 and W3 are read, another handler claims W2, and the next page
+		must still begin after W3 — not after "two rows", which is now W4.
+		"""
+		store = authority
+		made = [make(store, f"waiting {index}") for index in range(4)]
+		first = flattened(store, limit=2)
+		assert [one["id"] for one in first["rows"]] == made[:2]
+
+		tr.claim_work(store, made[0], actor_team=TEAM, actor=MEMBER)
+		second = flattened(store, after=first["next_after"], limit=2)
+
+		assert [one["id"] for one in second["rows"]] == made[2:]
+
+	def test_a_reroute_between_pages_skips_no_later_work(self, authority):
+		"""The OTHER way an earlier row leaves the set.
+
+		A cursor that counted rows cannot tell a claim from a reroute, and
+		neither may cost a later Work its only locator.
+		"""
+		store = authority
+		made = [make(store, f"waiting {index}") for index in range(4)]
+		first = flattened(store, limit=2)
+		tr.reroute_work(store, made[0], actor_team=TEAM, actor=MEMBER,
+		                to="push.bug", reason="handed to another team")
+		second = flattened(store, after=first["next_after"], limit=2)
+		assert [one["id"] for one in second["rows"]] == made[2:]
+
+	def test_a_row_removed_from_the_page_just_read_still_skips_nothing(
+			self, authority):
+		"""The boundary itself: the LAST row of the page read is the one
+		the cursor names, and it may leave too."""
+		store = authority
+		made = [make(store, f"waiting {index}") for index in range(4)]
+		first = flattened(store, limit=2)
+		tr.claim_work(store, made[1], actor_team=TEAM, actor=MEMBER)
+		second = flattened(store, after=first["next_after"], limit=2)
+		assert [one["id"] for one in second["rows"]] == made[2:]
+
+	def test_an_arrival_before_the_cursor_is_not_repeated(self, authority):
+		"""A high-priority arrival sorts ahead of everything already
+		returned. It belongs to a page that has been read, so continuing
+		may not hand it back — a deliberate refresh is the path to seeing
+		it, and the last case here proves the refresh does."""
+		store = authority
+		made = [make(store, f"waiting {index}") for index in range(4)]
+		first = flattened(store, limit=2)
+		read = [one["id"] for one in first["rows"]]
+
+		late = make(store, "urgent arrival")
+		tr.prioritize(store, late, priority="high", actor_team=TEAM,
+		              actor=MEMBER)
+		second = flattened(store, after=first["next_after"], limit=2)
+		returned = [one["id"] for one in second["rows"]]
+
+		assert late not in returned
+		assert not set(returned) & set(read)
+		assert returned == made[2:]
+		assert flattened(store, limit=2)["rows"][0]["id"] == late
+
+	def test_the_order_walked_is_total(self, authority):
+		"""The cursor compares POSITIONS, so the order must decide every
+		pair — two rows it calls equal are two rows a page can skip or
+		repeat.
+
+		No mint produces that tie today, because the identity is minted
+		from `created_seq`. This case CONSTRUCTS one directly, which is
+		deliberate: the guarantee is a property of the ordering rather than
+		of how ids happen to be spelled, and a later change to either must
+		not quietly cost it.
+		"""
+		store = authority
+		made = [make(store, f"waiting {index}") for index in range(4)]
+		tied = store.conn.execute(
+			"SELECT created_seq FROM work WHERE id=?",
+			(made[1],)).fetchone()["created_seq"]
+		store.conn.execute("UPDATE work SET created_seq=? WHERE id=?",
+		                   (tied, made[2]))
+		store.conn.commit()
+
+		seen = walk(store, limit=1)
+		assert sorted(seen) == sorted(made)
+		assert len(seen) == len(set(seen)) == 4
+
+
+class TestTheContinuationIsOpaque:
+	"""Independent review [P1]: the approved contract calls `next_after`
+	opaque, and the implementation published an integer offset a client
+	could — and the documentation invited a client to — compute with."""
+
+	def test_the_token_is_not_a_number(self, authority):
+		store = authority
+		for index in range(3):
+			make(store, f"waiting {index}")
+		token = flattened(store, limit=2)["next_after"]
+		assert isinstance(token, str) and token
+		assert not token.lstrip("-").isdigit()
+		assert not isinstance(token, int)
+
+	def test_the_last_page_says_so(self, authority):
+		store = authority
+		for index in range(2):
+			make(store, f"waiting {index}")
+		assert flattened(store, limit=2)["next_after"] is None
+
+	def test_a_full_page_with_nothing_after_it_offers_no_continuation(
+			self, authority):
+		"""The exact-fit boundary. An offset cursor answered this by
+		comparing arithmetic; the position cursor answers it by reading one
+		row past the page and finding none."""
+		store = authority
+		for index in range(4):
+			make(store, f"waiting {index}")
+		first = flattened(store, limit=2)
+		second = flattened(store, after=first["next_after"], limit=2)
+		assert len(second["rows"]) == 2
+		assert second["next_after"] is None
+
+	@pytest.mark.parametrize("token", [0, 2, "2", "", "not-a-token",
+	                                   "d29fMQ==", True, 1.5])
+	def test_a_continuation_this_authority_did_not_mint_is_refused(
+			self, authority, token):
+		"""REFUSED, never rounded to page one.
+
+		Answering the first page to a client that asked to continue is the
+		skipped-Work defect wearing different clothes: the client believes
+		it has walked past a boundary it has actually been sent back
+		behind. The empty string is the one exception, because a client
+		that has no token has not asked to continue.
+		"""
+		store = authority
+		make(store, "waiting")
+		if token == "":
+			assert flattened(store, after=token)["rows"]
+			return
+		with pytest.raises(bw.WorkError, match="opaque token"):
+			flattened(store, after=token)
+
+	def test_a_token_from_the_previous_scheme_is_refused(self, authority):
+		"""Not hypothetical any more: `w1` is a shape this authority really
+		minted, and it names a position with NO VIEWER.
+
+		Reading one as if it were current would take the participant binding
+		off exactly the tokens that predate it, which is the population the
+		binding exists for. The tag is checked before anything is decoded
+		from the parts beside it, so an old token refuses rather than being
+		misread as a new one.
+		"""
+		store = authority
+		work = make(store, "waiting")
+		import base64
+		previous = base64.urlsafe_b64encode(
+			f"w1\x1f1\x1f1\x1f7\x1f{work}".encode()).decode().rstrip("=")
+		with pytest.raises(bw.WorkError, match="opaque token"):
+			flattened(store, after=previous)
+
+	def test_a_scheme_this_build_does_not_know_is_refused_at_the_tag(self,
+	                                                                 authority):
+		"""AND THE TAG IS WHAT REFUSES IT, which the case above does not
+		establish.
+
+		`w1` and `w2` differ in arity, so the length check catches a real
+		superseded token before the tag is ever consulted — measured: the
+		mutation that deletes the tag comparison stayed UNSEEN with only that
+		case present, and a scheme tag nothing tests is a scheme tag that
+		will not be there when two shapes DO coincide in arity. This token
+		has exactly this build's member count and a scheme this build has
+		never minted.
+		"""
+		store = authority
+		work = make(store, "waiting")
+		import base64
+		other = base64.urlsafe_b64encode(
+			f"w9\x1f{TEAM}\x1f{MEMBER}\x1f1\x1f1\x1f7\x1f{work}".encode()
+		).decode().rstrip("=")
+		with pytest.raises(bw.WorkError, match="opaque token"):
+			flattened(store, after=other)
+
+
+class TestTheContinuationIsBoundToThisAuthority:
+	"""Re-review [P1]: shape is not provenance.
+
+	The first correction established that a token DECODES and carries this
+	scheme, and stopped there. A client could compose a well-formed one with
+	impossible ranks, a future sequence and an id belonging to nobody, and
+	every real row compared as "at or before" it — so the page came back
+	empty while Work was still actionable. That is the same discovery
+	failure the offset arithmetic caused, reached through the cursor.
+
+	The token is now bound to its Work. What must NOT change is the ordinary
+	case the first correction exists for, so that is asserted here too rather
+	than left to the classes above.
+	"""
+
+	def forged(self, ranks, blocking, sequence, work,
+	           team=TEAM, member=MEMBER):
+		"""A token of the CURRENT shape, so these cases keep measuring the
+		position binding rather than the shape check that runs before it."""
+		import base64
+		raw = "\x1f".join(str(one) for one in
+		                  ("w2", team, member, ranks, blocking, sequence,
+		                   work))
+		return base64.urlsafe_b64encode(raw.encode()).decode().rstrip("=")
+
+	def test_a_well_shaped_position_this_authority_never_held_is_refused(
+			self, authority):
+		"""The reviewer's reproduction, as a case."""
+		store = authority
+		work = make(store, "still waiting")
+		token = self.forged(99, 99, 999999999,
+		                    "not-this-authority-W999999999")
+		with pytest.raises(bw.WorkError, match="refresh"):
+			flattened(store, after=token)
+		# And the Work it would have hidden is still there to be found.
+		assert [one["id"] for one in flattened(store)["rows"]] == [work]
+
+	def test_a_cursor_naming_a_real_work_at_a_wrong_position_is_refused(
+			self, authority):
+		"""Nearer the mark and still invented: the id exists, the ranks do
+		not describe it."""
+		store = authority
+		made = [make(store, f"waiting {index}") for index in range(2)]
+		sequence = store.conn.execute(
+			"SELECT created_seq FROM work WHERE id=?",
+			(made[0],)).fetchone()["created_seq"]
+		with pytest.raises(bw.WorkError, match="refresh"):
+			flattened(store, after=self.forged(0, 0, sequence, made[0]))
+
+	def test_a_cursor_whose_row_changed_rank_is_refused_and_says_refresh(
+			self, authority):
+		"""The documented deliberate-refresh path, reached as a FACT.
+
+		The dossier says a row whose own rank changes across the boundary is
+		the one case a cursor cannot follow. Until the binding existed,
+		nothing detected it — the old position was followed silently, and the
+		rows between the two places were handed back twice or skipped with no
+		way for a client to tell.
+
+		Priority is the rank moved here because it is the outer one: raising
+		the cursor row moves it ahead of everything the page returned.
+		"""
+		store = authority
+		made = [make(store, f"waiting {index}") for index in range(4)]
+		first = flattened(store, limit=2)
+		assert [one["id"] for one in first["rows"]] == made[:2]
+		tr.prioritize(store, made[1], priority="high", actor_team=TEAM,
+		              actor=MEMBER)
+		with pytest.raises(bw.WorkError, match="refresh"):
+			flattened(store, after=first["next_after"], limit=2)
+		# REFRESH IS THE PATH, and it works: the whole set is readable from
+		# the first page, with the moved row where it now belongs.
+		assert walk(store, limit=2)[0] == made[1]
+		assert sorted(walk(store, limit=2)) == sorted(made)
+
+	def test_a_cursor_row_that_stopped_being_actionable_still_continues(
+			self, authority):
+		"""THE ORDINARY CASE, asserted here so the binding cannot quietly
+		swallow it.
+
+		A claim or a reroute moves a row out of the actionable set without
+		moving it in the canonical order, so continuing after it means
+		exactly what it meant. The lookup is over `work` rather than over the
+		actionable set for this reason, and a binding written against the
+		actionable set would pass every case above and break the one the
+		whole feature exists for.
+		"""
+		store = authority
+		made = [make(store, f"waiting {index}") for index in range(4)]
+		first = flattened(store, limit=2)
+		tr.claim_work(store, made[1], actor_team=TEAM, actor=MEMBER)
+		assert [one["id"] for one in
+		        flattened(store, after=first["next_after"], limit=2)["rows"]] \
+			== made[2:]
+
+	def test_closing_the_cursor_row_does_not_move_it(self, authority):
+		"""Closing is the SAME class as claiming, and it is worth its own
+		case because it looks like it should not be.
+
+		A closed Work has left the actionable set for good, so refusing here
+		is tempting. But the canonical order is priority, then the blocking
+		preference, then creation — and a Work with no open dependents ranks
+		the same closed as open. Its POSITION did not move, so continuing
+		after it means what it meant, and refusing would cost the pages after
+		it for no reason a client could act on.
+		"""
+		store = authority
+		made = [make(store, f"waiting {index}") for index in range(4)]
+		first = flattened(store, limit=2)
+		tr.claim_work(store, made[1], actor_team=TEAM, actor=MEMBER)
+		tr.close_work(store, made[1], actor_team=TEAM, actor=MEMBER,
+		              outcome="satisfying", rationale="finished")
+		assert [one["id"] for one in
+		        flattened(store, after=first["next_after"], limit=2)["rows"]] \
+			== made[2:]
+
+	def test_claiming_a_BLOCKING_cursor_row_moves_it_and_refuses(self,
+	                                                             authority):
+		"""The consequence of binding to the CURRENT position, stated
+		plainly because it narrows the ordinary case.
+
+		The blocking preference is part of the canonical order and one of its
+		clauses is `handler_team IS NULL`. So a cursor row that was holding
+		somebody up ranks 0 while unclaimed and 1 once claimed — an ordinary
+		shared-route claim, on that one kind of row, genuinely MOVES it.
+
+		Continuing past a position it no longer occupies would skip or repeat
+		the rows between the two places with no way for a client to notice, so
+		this refuses and names the refresh. It is a real narrowing of the
+		inter-page claim case, and it is a narrowing toward the honest answer.
+		"""
+		store = authority
+		made = [make(store, f"waiting {index}") for index in range(4)]
+		dependent = make(store, "waits on the cursor row")
+		tr.add_dependency(store, dependent, made[1], actor_team=TEAM,
+		                  actor=MEMBER, rationale="needs it first")
+		# ONE ROW TO A PAGE, so the continuation names the blocking row
+		# itself. It sorts FIRST precisely because it is blocking, which is
+		# the rank this case is about.
+		first = flattened(store, limit=1)
+		assert [one["id"] for one in first["rows"]] == [made[1]]
+		assert row(first, made[1])["blocking"] is True
+
+		tr.claim_work(store, made[1], actor_team=TEAM, actor=MEMBER)
+		with pytest.raises(bw.WorkError, match="refresh"):
+			flattened(store, after=first["next_after"], limit=1)
+		# AND NOTHING IS LOST BY IT. The refresh reaches every remaining
+		# actionable Work, which is what the refusal is protecting.
+		assert set(walk(store, limit=1)) == {made[0], made[2], made[3]}
+
+
+class TestTheContinuationIsBoundToItsParticipantView:
+	"""Third review [P1]: a position is a fact about the ORDER, not a fact
+	about a viewer.
+
+	`actionable-work` answers a participant-relative question, and the
+	previous token carried only where the last row sat in the canonical
+	order -- which every viewer shares. So a real, authority-minted,
+	unedited cursor from one participant's page was a valid cursor in
+	another's, and every row before that position dropped out of their
+	answer. The row binding fixed an INVENTED position and left this one
+	untouched, because nothing here is invented.
+
+	Two disjoint Routes are the whole reproduction: Grace's page-one cursor
+	names a Work that sorts after everything Ada can claim, so Ada reading
+	through it gets an empty page while her own Work is still waiting.
+	"""
+
+	def disjoint(self, directory):
+		"""Two Routes on one kind, with one handler each and no overlap."""
+		import json
+		import os as _os
+		from baton_work import lifecycle as lc
+		document = fx.config_document()
+		team = document["teams"][TEAM]
+		role = team["routes"]["main"]["role"]
+		team["participants"][OTHER]["roles"] = sorted(set(
+			team["participants"][OTHER]["roles"] + [role]))
+		team["routes"]["second"] = {"role": role, "handlers": [OTHER]}
+		team["kinds"]["rsrch"]["alternates"] = ["second"]
+		place = _os.path.join(directory, "baton.json")
+		with open(place, "w", encoding="utf-8") as handle:
+			json.dump(document, handle)
+		accepted = lc.init_from_config(
+			place, participant=fx.first_participant(place))
+		return bw.Authority(accepted["database"])
+
+	@pytest.fixture
+	def split(self, tmp_path):
+		store = self.disjoint(str(tmp_path))
+		mine = [make(store, "ada one"), make(store, "ada two")]
+		theirs = [make(store, "grace one"), make(store, "grace two")]
+		for work in theirs:
+			tr.reroute_work(store, work, actor_team=TEAM, actor=MEMBER,
+			                to=f"{TEAM}.rsrch", route="second",
+			                reason="Grace's disjoint Route")
+		return store, mine, theirs
+
+	def test_another_participants_cursor_is_refused(self, split):
+		"""THE DEFECT. The token is genuine, minted here, and unedited."""
+		store, mine, theirs = split
+		theirs_page = flattened(store, member=OTHER, limit=1)
+		assert [one["id"] for one in theirs_page["rows"]] == theirs[:1]
+		assert theirs_page["next_after"] is not None
+
+		with pytest.raises(bw.WorkError, match="different participant"):
+			flattened(store, after=theirs_page["next_after"])
+
+	def test_the_work_it_would_have_hidden_is_still_found(self, split):
+		"""What the refusal is protecting: both of Ada's Work items were
+		lost behind a cursor that answered somebody else's question."""
+		store, mine, _theirs = split
+		assert [one["id"] for one in flattened(store)["rows"]] == mine
+
+	def test_each_participant_walks_their_own_view_to_the_end(self, split):
+		"""And the binding costs neither of them anything. Two views, two
+		cursors, and each reaches exactly its own set."""
+		store, mine, theirs = split
+		assert walk(store, limit=1) == mine
+		assert walk(store, member=OTHER, limit=1) == theirs
+
+	def test_the_refusal_does_not_send_them_round_a_refresh_loop(self,
+	                                                             split):
+		"""A cursor belonging to another participant is NOT a snapshot that
+		moved, and it is answered before the row is even looked up.
+
+		Telling its holder to refresh would send them somewhere that cannot
+		help: their next page would be this page again. The two refusals say
+		different things because they are different mistakes.
+		"""
+		store, _mine, theirs = split
+		theirs_page = flattened(store, member=OTHER, limit=1)
+		with pytest.raises(bw.WorkError) as caught:
+			flattened(store, after=theirs_page["next_after"])
+		assert "refresh" not in str(caught.value)
+		assert "who is asking" in str(caught.value)
+
+	def test_the_same_participant_is_unaffected(self, split):
+		"""The binding is on the VIEW, not on the row's claimability: a
+		cursor row that merely stopped being actionable for the SAME viewer
+		still continues, which is the case the previous correction exists
+		for and the one a view binding could most easily break."""
+		store, mine, _theirs = split
+		first = flattened(store, limit=1)
+		tr.claim_work(store, mine[0], actor_team=TEAM, actor=MEMBER)
+		assert [one["id"] for one in
+		        flattened(store, after=first["next_after"], limit=1)["rows"]] \
+			== mine[1:]
 
 
 class TestTheDerivationIsBounded:

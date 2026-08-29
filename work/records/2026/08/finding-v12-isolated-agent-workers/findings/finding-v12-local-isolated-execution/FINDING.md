@@ -274,3 +274,27 @@ the Python host OCI adapter from the opaque provider-native worker image. W6
 must certify the language-neutral contracts against that composition. No
 reviewed state-machine or conformance decision is discarded merely because
 its first executable reference was Node.
+
+## 2026-08-28 — umbrella revalidation after W6
+
+**Observed:** the authoritative ledger now identifies this migrated umbrella
+as W3. W6 closed satisfying only its deliberately bounded proof Work. Its final
+review preserves a promising but formally `not-certified` result; it does not
+claim integration or exhaustive local-OCI certification.
+
+**Confirmed:** W3 is not ready for M2 approval or closure. Three contained
+branches remain open:
+
+- W16823 must carry the authority-owned principal/scope claim context into the
+  manager;
+- W32382 must finish the local OCI negative/race endings, including W32649's
+  dependency on W16823; and
+- W32391 remains explicitly parked until a real Podman engine is available for
+  portability certification.
+
+Containment alone does not schedule the umbrella, even though it correctly
+prevents closure while a child remains open. W3 therefore needs explicit
+dependencies on W32382 and W32391: the first transitively includes W16823
+through W32649, and the second represents the confirmed external engine gate.
+Only after both close can PLAN item 6 reconcile the complete child results
+against the frozen M1 contract and ask for M2 approval.

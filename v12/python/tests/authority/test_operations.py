@@ -50,7 +50,7 @@ class JournalCase(unittest.TestCase):
         self.core = self.authority._core
 
     def work(self, work_id=WORK, *, contract=V12, handlers=(CLAUDE,)):
-        self.core.create_work(work_id, ROUTE, contract=contract)
+        self.core.create_work(work_id, ROUTE, contract=contract, operation_id=("create-" + str(work_id))[:160])
         for participant in handlers:
             self.core.add_route_handler(ROUTE, participant)
         return work_id
@@ -60,6 +60,10 @@ class EffectivelyOnce(JournalCase):
 
     def test_an_exact_repeat_replays_and_performs_nothing_twice(self):
         self.work()
+        # W16823: THE WHOLE RESULT, because that is what the journal retains
+        # and what a replay must reproduce.  A retry that reproduced the fence
+        # and recomposed the decision would answer what the act WOULD be
+        # authorized under now rather than what it was performed under.
         first = self.core.claim(WORK, CLAUDE, operation_id="op-1")
         second = self.core.claim(WORK, CLAUDE, operation_id="op-1")
         self.assertEqual(second, first)
@@ -96,7 +100,7 @@ class EffectivelyOnce(JournalCase):
         # rather than a silent replay of somebody else's result -- which is only
         # true if the text is part of the signature.  This is the case that says
         # so at the boundary rather than in the signature helper.
-        assignment = self.core.claim(self.work(), CLAUDE, operation_id="claim-1")
+        assignment = self.core.claim(self.work(), CLAUDE, operation_id="claim-1")["assignment"]
         self.core.end(assignment, operation_id="end-1", reason="finished")
         with self.assertRaises(Refusal) as caught:
             self.core.end(assignment, operation_id="end-1",
@@ -110,7 +114,7 @@ class EffectivelyOnce(JournalCase):
                           reason="finished")["cause"], "release")
 
     def test_every_mutating_transition_needs_an_operation_id(self):
-        assignment = self.core.claim(self.work(), CLAUDE, operation_id="claim-1")
+        assignment = self.core.claim(self.work(), CLAUDE, operation_id="claim-1")["assignment"]
         for what, call in [
                 ("claim", lambda: self.core.claim(OTHER, CLAUDE,
                                                   operation_id="")),
@@ -135,7 +139,7 @@ class EffectivelyOnce(JournalCase):
     def test_each_transition_has_its_own_signature_space(self):
         # A release and a cancellation of the same assignment are DIFFERENT
         # operations, so one operation id cannot mean both.
-        assignment = self.core.claim(self.work(), CLAUDE, operation_id="claim-1")
+        assignment = self.core.claim(self.work(), CLAUDE, operation_id="claim-1")["assignment"]
         self.core.end(assignment, operation_id="op-2")
         with self.assertRaises(Refusal):
             self.core.cancel(assignment, operation_id="op-2", reason="lost")
@@ -191,9 +195,15 @@ class GapsIFoundByProbingMyOwnCut(JournalCase):
         # retirement, so an invalid identity became a durable primary key that
         # replay then refused to look at.
         self.assertIsNone(self.core.assignment_of(WORK))
+        # W29400: the Work's own CREATION is a journalled operation now, so
+        # "nothing was minted" is stated against the paths this case probes
+        # rather than against an empty table. The creation row is not under
+        # any of them and its presence is the point of that Work.
         self.assertEqual(
-            self.authority._core._store.all("SELECT operation_id FROM operation"),
-            [])
+            [one["operation_id"] for one in
+             self.authority._core._store.all(
+                 "SELECT operation_id FROM operation")],
+            ["create-" + WORK])
         # And every id a caller legitimately uses satisfies it, on every path.
         for operation_id in self.VALID_IDS:
             with self.subTest(operation_id=operation_id[:20]):
@@ -246,7 +256,7 @@ class TwoKindsOfRefusal(JournalCase):
         # the identity unsubmitted -- so the same id is usable when the
         # precondition later holds.
         self.assertIsNone(self.core.operation_record("op-1"))
-        assignment = self.core.claim(WORK, CLAUDE, operation_id="claim-1")
+        assignment = self.core.claim(WORK, CLAUDE, operation_id="claim-1")["assignment"]
         answer = self.core.end(assignment, operation_id="op-1")
         self.assertEqual(answer["cause"], "release")
         self.assertEqual(self.core.operation_record("op-1")["state"],
@@ -419,6 +429,7 @@ class Settlement(JournalCase):
 
     def test_a_committed_operation_always_wins_the_settlement_race(self):
         self.work()
+        # W16823: the settlement answers with the COMMITTED RESULT, whole.
         assignment = self.core.claim(WORK, CLAUDE, operation_id="op-1")
         answer = self.core.settle_operation(
             "op-1", signature=claim_signature(WORK, CLAUDE),
@@ -487,7 +498,7 @@ class Settlement(JournalCase):
         place, and that is the broader operand ruling this points at.
         """
         self.work()
-        assignment = self.core.claim(WORK, CLAUDE, operation_id="op-1")
+        assignment = self.core.claim(WORK, CLAUDE, operation_id="op-1")["assignment"]
         key = "k" * 100_000
         self.core.activity(assignment, key=key)
         signature = signature_of("activity", {"expect": assignment, "key": key})
@@ -520,11 +531,12 @@ class Restart(JournalCase):
         self.work()
         self.reopen()
         self.assertTrue(self.core.project_work(WORK)["ready"])
-        assignment = self.core.claim(WORK, CLAUDE, operation_id="op-1")
+        assignment = self.core.claim(WORK, CLAUDE, operation_id="op-1")["assignment"]
         self.assertEqual(assignment["generation"], 1)
 
     def test_a_restart_after_the_claim_replays_it_rather_than_repeating(self):
         self.work()
+        # W16823: the whole result survives the restart, decision included.
         first = self.core.claim(WORK, CLAUDE, operation_id="op-1")
         self.reopen()
         self.assertEqual(self.core.claim(WORK, CLAUDE, operation_id="op-1"),
@@ -538,7 +550,7 @@ class Restart(JournalCase):
         store = self.authority._core._store
         self.work()
         self.authority.certify_contract(V12, "reference")
-        assignment = self.core.claim(WORK, CLAUDE, operation_id="claim-1")
+        assignment = self.core.claim(WORK, CLAUDE, operation_id="claim-1")["assignment"]
         self.core.cancel(assignment, operation_id="cancel-1", reason="lost")
         self.core.settle_operation("retired-1", signature="sig",
                                    reason="deadline", disposition="timeout",
@@ -568,11 +580,12 @@ class Restart(JournalCase):
         self.core.add_route_handler(ROUTE, GEMINI)
         one = self.core.claim(WORK, CLAUDE, operation_id="op-1")
         two = self.core.claim(OTHER, GEMINI, operation_id="op-2")
-        self.core.cancel(one, operation_id="op-3", reason="lost")
+        self.core.cancel(one["assignment"], operation_id="op-3",
+                         reason="lost")
         self.reopen()
         self.assertEqual(self.core.fenced_generations(WORK), [1])
         self.assertEqual(self.core.fenced_generations(OTHER), [])
-        self.assertEqual(self.core.assignment_of(OTHER), two)
+        self.assertEqual(self.core.assignment_of(OTHER), two["assignment"])
         self.assertIsNone(self.core.assignment_of(WORK))
         self.assertEqual(self.core.operation_record("op-1")["result"], one)
         self.assertEqual(self.core.operation_record("op-2")["result"], two)
@@ -609,7 +622,9 @@ CHILD = textwrap.dedent('''
             answer = core.claim("0123abcd-W7", participant,
                                 operation_id=operation_id)
             report["outcome"] = "claimed"
-            report["generation"] = answer["generation"]
+            # W16823: the closed result, and the child reports the FENCE'S
+            # generation out of it.
+            report["generation"] = answer["assignment"]["generation"]
         finally:
             authority.dispose()
     except Refusal as refusal:
@@ -745,7 +760,7 @@ SETTLER = textwrap.dedent('''
                 answer = core.claim("0123abcd-W7", participant,
                                     operation_id=operation_id)
                 report["outcome"] = "claimed"
-                report["generation"] = answer["generation"]
+                report["generation"] = answer["assignment"]["generation"]
             else:
                 answer = core.settle_operation(
                     operation_id,

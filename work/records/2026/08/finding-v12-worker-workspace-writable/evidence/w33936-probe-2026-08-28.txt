@@ -1,0 +1,40 @@
+W33936 — THE WRITABLE ROOT, ASKED OF A REAL CONTAINER
+==========================================================================
+
+the modes the manager's own components declare:
+    workspaces.READ_ONLY_FILE  = 0o444
+    workspaces.READ_ONLY_DIR   = 0o555
+    launch.READ_ONLY_FILE      = 0o444
+    launch.READ_ONLY_DIR       = 0o555
+    credentials.VOLATILE_DIR   = 0o700
+    credentials.VOLATILE_FILE  = 0o600
+    the manager runs as        = 1000:1000
+
+runProbe (__main__.Probe.runProbe) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.249s
+
+OK
+
+THE COMPOSED --user IS '65532:65532'
+
+THE HOST SIDE:
+    inputs root        {'mode': '0o555', 'uid': 1000, 'gid': 1000}
+    workspace root     {'mode': '0o775', 'uid': 1000, 'gid': 1000}
+    assignment home    {'mode': '0o555', 'uid': 1000, 'gid': 1000}
+    launch root        {'mode': '0o555', 'uid': 1000, 'gid': 1000}
+    credential root    {'mode': '0o700', 'uid': 1000, 'gid': 1000}
+
+THE CONTAINER SIDE:
+    running as [65532, 65532] groups [65532]
+    /input
+      {'mode': '0o555', 'uid': 1000, 'gid': 1000, 'r': True, 'w': False, 'x': True, 'wrote': 'OSError: 30'}
+    /input/input.json
+      {'mode': '0o444', 'uid': 1000, 'gid': 1000, 'r': True, 'w': False, 'x': False, 'wrote': 'PermissionError: 13'}
+    /workspace
+      {'mode': '0o775', 'uid': 1000, 'gid': 1000, 'r': True, 'w': False, 'x': True, 'wrote': 'PermissionError: 13'}
+    /run/baton/launch.json
+      {'mode': '0o444', 'uid': 1000, 'gid': 1000, 'r': True, 'w': False, 'x': False, 'wrote': 'PermissionError: 13'}
+    /run/baton/credentials/registry
+      {'mode': '0o600', 'uid': 1000, 'gid': 1000, 'r': False, 'w': False, 'x': False, 'wrote': 'PermissionError: 13'}

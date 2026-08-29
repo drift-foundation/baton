@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/../../work/records/2026/08/finding-v12-worker-input-documents-readable/evidence/w33935-root-entry-replacement-repro.py", line 29, in <module>
+    os.rename(original, displaced)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: '/tmp/w33935-root-replace-2tjqmqzd/storage/assignment-1/inputs' -> '/tmp/w33935-root-replace-2tjqmqzd/storage/assignment-1/inputs.displaced'

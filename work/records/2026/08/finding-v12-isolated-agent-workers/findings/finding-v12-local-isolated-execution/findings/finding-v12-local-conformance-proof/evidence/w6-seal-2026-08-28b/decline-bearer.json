@@ -1,0 +1,30 @@
+{
+ "durable_rows_after": 7,
+ "durable_rows_before": 6,
+ "message": null,
+ "offer_row": {
+  "accepted_at": null,
+  "authority_uuid": "43c55d4b000000000000000000000000",
+  "claim_generation": null,
+  "claim_operation_id": null,
+  "claim_signature": null,
+  "decided_at": "2026-08-24T00:00:00.000Z",
+  "decision_reason": "declined by the worker",
+  "expires_at": "2026-08-24T00:02:00.000Z",
+  "incarnation": "manager-w6636",
+  "input_digest": "sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86",
+  "intent_digest": null,
+  "issued_at": "2026-08-24T00:00:00.000Z",
+  "offer_id": "offer-attempt-e42205f29f",
+  "participant": "baton.claude",
+  "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "runtime_attempt_id": "attempt-e42205f29f",
+  "settle_by": null,
+  "state": "declined",
+  "verifier": "sha256:91184e43413782cc1f335eb806891b27bb8c3205e931550dc40747eecfaf05aa",
+  "verifier_spent": 1,
+  "work_id": "43c55d4b-W6636"
+ },
+ "refusal": null
+}

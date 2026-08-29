@@ -1,0 +1,21 @@
+W33936 round 4 — GATES AFTER THE GUIDE AND PODMAN ROUND
+=======================================================
+
+  tests.manager.test_workspaces + test_oci + test_input_delivery
+      206 tests OK (2 Podman skips on the HOST, where podman is absent)
+
+  the complete serial registry, all ten modules, driven directly because the
+  parallel runner does not reach it after a failing parallel phase
+      189 tests OK, 11 skips
+
+The only source change this round is documentation (v12/python/DEPLOYMENT.md)
+plus one shared-fixture correction: the composition fixture now writes the
+CANONICAL sha256 image digest instead of whatever the engine spelled, which is
+what let the Podman half of the matrix reach the group it is about. The Docker
+path is unaffected and the registry above proves it.
+
+...........................................................sssss....................................s....s........s.......................s........................ss..............................
+----------------------------------------------------------------------
+Ran 189 tests in 47.931s
+
+OK (skipped=11)

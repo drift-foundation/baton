@@ -1,0 +1,14 @@
+{
+ "before-replacement": "{\"who\": \"the original\"}",
+ "after-replacement": "{\"who\": \"the original\"}",
+ "host-now-reads": "{\"who\": \"the REPLACEMENT\"}",
+ "inode-before": [
+  43,
+  23593918
+ ],
+ "inode-after": [
+  43,
+  23593921
+ ],
+ "inode-changed": true
+}

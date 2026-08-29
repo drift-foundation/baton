@@ -19,13 +19,17 @@ unable to run is the failure mode this distribution is built against.
 """
 
 import ast
+import atexit
 import copy
 import io
+import itertools
 import json
 import os
 import pathlib
 import shutil
+import signal
 import sys
+import tempfile
 import unittest
 
 WORKER = (pathlib.Path(__file__).resolve().parents[3] / "worker")
@@ -54,29 +58,24 @@ sys.path.insert(0, str(WORKER))
 shutil.rmtree(WORKER / "__pycache__", ignore_errors=True)
 
 import baton_worker                                          # noqa: E402
-from baton_worker import (ANSWER_MEMBERS, COMMON_MEMBERS, MAX_FRAME,  # noqa
-                          MAX_IDENTITY, OPERATIONS, POSTURES, PROTOCOL,
-                          REQUEST_MEMBERS, Uncorrelated, WorkerFault,
-                          check_answer, read_frame, serve, write_frame)
+from baton_worker import (ANSWER_MEMBERS, COMMON_MEMBERS,  # noqa
+                          LAUNCH_MEMBERS, LAUNCH_SCHEMA, MAX_FRAME,
+                          MAX_IDENTITY, MAX_LAUNCH_VALUE, OPERATIONS,
+                          PROTOCOL, REQUEST_MEMBERS, Uncorrelated,
+                          WorkerFault, check_answer, read_frame, serve,
+                          write_frame)
 from scripted_agent import ScriptedAgent                     # noqa: E402
 
-# THE TWO SESSIONS ARE DIFFERENT, and that is the topology rather than the
-# fixture being tidy: an execution session is never a continuation or a
-# promotion of a consent one, so the manager mints a separate identity for the
-# separate container.
-CONSENT_SESSION = "session-consent-1"
+# ONE SESSION, because there is ONE RUNTIME. W26291: the two-container
+# consent/execution topology is superseded, the posture axis is gone, and the
+# fixture that built two environments is gone with it rather than emptied --
+# a fixture that still composed the retired transport would be keeping it alive
+# in the only place that could still exercise it.
 EXECUTION_SESSION = "session-execution-1"
 
-CONSENT = {"BATON_WORKER_POSTURE": "consent",
-           "BATON_WORKER_SESSION": CONSENT_SESSION,
-           "BATON_WORKER_CONTRACT": "do the thing",
-           "BATON_WORKER_ROLE": "implementer"}
-# W14251, closed: THE TWO POSTURES CARRY THE SAME FOUR MEMBERS. The assignment,
-# the workspace and the output path are gone rather than renamed -- with two
-# fixed filesystem roots there is nothing left for them to say, and the
-# assignment itself arrives as `/input/input.json`.
-EXECUTION = {**CONSENT, "BATON_WORKER_POSTURE": "execution",
-             "BATON_WORKER_SESSION": EXECUTION_SESSION}
+# WHAT A CONTAINER IS TOLD, and it is a document rather than a vocabulary.
+LAUNCH = {"schema": LAUNCH_SCHEMA, "session": EXECUTION_SESSION,
+          "contract": "do the thing", "role": "implementer"}
 
 # The WHOLE frozen `outputDescriptor`, constraints included. W6633 eleventh
 # review [P1]: this used to omit `constraints`, and so did the worker's own
@@ -238,18 +237,45 @@ def answers(payload):
         found.append(one)
 
 
-def run(environment, *requests, agent=None):
+_LAUNCH_HOME = tempfile.mkdtemp(prefix="v12-worker-launch-")
+atexit.register(shutil.rmtree, _LAUNCH_HOME, True)
+_LAUNCH_COUNT = itertools.count()
+
+
+def delivered(document):
+    """One launch document ON DISK, because that is how the worker reads one.
+
+    W26291. The program opens a fixed path no-follow, proves the descriptor is
+    regular, bounds the read and proves the file is not writable for its own
+    view -- none of which a dict handed to a function would exercise. So every
+    case here delivers a real file, and `document=None` delivers none, which is
+    the missing-delivery case rather than a default.
+
+    `bytes` go through verbatim: malformed JSON, a non-object and a
+    non-UTF-8 document are all things a delivery can be, and none of them can
+    be expressed as a mapping.
+    """
+    place = os.path.join(_LAUNCH_HOME, f"launch-{next(_LAUNCH_COUNT)}.json")
+    if document is None:
+        return place
+    raw = (document if isinstance(document, bytes)
+           else json.dumps(document).encode("utf-8"))
+    with open(place, "wb") as handle:
+        handle.write(raw)
+    # 0444, as `launch.materialize` writes it, which is also what makes the
+    # worker's own not-writable proof answer truthfully here.
+    os.chmod(place, 0o444)
+    return place
+
+
+def run(document, *requests, agent=None):
     out = io.BytesIO()
-    status = serve(frames(*requests), out, environment,
-                   agent or ScriptedAgent())
+    status = serve(frames(*requests), out, agent or ScriptedAgent(),
+                   delivered(document))
     return status, answers(out.getvalue())
 
 
-def consent(operation="describe", **members):
-    return ask(operation, CONSENT_SESSION, **members)
-
-
-def execution(operation="describe", **members):
+def asking(operation="describe", **members):
     return ask(operation, EXECUTION_SESSION, **members)
 
 
@@ -263,16 +289,16 @@ class TheEnvelopeBindsEveryFrame(unittest.TestCase):
     always match the answer to what it asked.
     """
 
-    def refusing(self, code, request, environment=None):
-        status, given = run(environment or CONSENT, request)
+    def refusing(self, code, request, document=None):
+        status, given = run(document or LAUNCH, request)
         self.assertEqual(len(given), 1, given)
         self.assertIs(given[0]["ok"], False)
         self.assertEqual(given[0]["code"], code, given[0]["message"])
         return given[0]
 
     def test_a_well_formed_request_is_answered_and_correlated(self):
-        request = consent("describe")
-        status, given = run(CONSENT, request)
+        request = asking("describe")
+        status, given = run(LAUNCH, request)
         self.assertEqual(status, 0)
         self.assertEqual(sorted(given[0]),
                          ["answer", "ok", "operation_id", "protocol",
@@ -281,7 +307,7 @@ class TheEnvelopeBindsEveryFrame(unittest.TestCase):
             self.assertEqual(given[0][member], request[member], member)
 
     def test_a_fault_carries_the_same_identity_and_nothing_else(self):
-        answer = self.refusing("posture", consent("work", task="x"))
+        answer = self.refusing("entitlement", asking("consider"))
         self.assertEqual(sorted(answer),
                          ["code", "message", "ok", "operation_id", "protocol",
                           "session"])
@@ -290,18 +316,23 @@ class TheEnvelopeBindsEveryFrame(unittest.TestCase):
         """A worker answers only the session the manager minted for it."""
         self.refusing("session", ask("describe", "session-somebody-else"))
 
-    def test_a_consent_worker_refuses_the_execution_sessions_frames(self):
-        """The cross-posture case, which is the one the topology is about: an
-        execution session is never a continuation of a consent one, so a frame
-        minted for the other container is refused even though the OPERATION
-        would be legal here."""
-        self.refusing("session", ask("describe", EXECUTION_SESSION))
-        self.refusing("session", ask("describe", CONSENT_SESSION),
-                      environment=EXECUTION)
+    def test_a_worker_refuses_a_frame_minted_for_another_container(self):
+        """W26291 REPLACED the cross-POSTURE case, whose subject -- two
+        containers of different kinds -- V12 no longer launches.
+
+        What it was really about survives and is asked here: the session a
+        worker answers is the one its own LAUNCH DOCUMENT names, so a frame
+        minted for a different container is refused even though the operation
+        would be perfectly legal.
+        """
+        self.refusing("session", ask("describe", "session-another-container"))
+        self.refusing(
+            "session", ask("describe", EXECUTION_SESSION),
+            document={**LAUNCH, "session": "session-another-container"})
 
     def test_a_frame_speaking_another_protocol_is_refused(self):
         self.refusing("protocol",
-                      {**consent("describe"), "protocol": "baton.other/9"})
+                      {**asking("describe"), "protocol": "baton.other/9"})
 
     def test_a_missing_identity_member_is_answered_by_no_frame_at_all(self):
         """The ruling forbids inventing an uncorrelated response shape, so a
@@ -310,9 +341,9 @@ class TheEnvelopeBindsEveryFrame(unittest.TestCase):
         settles that from the engine."""
         for member in ("protocol", "session", "operation_id"):
             with self.subTest(missing=member):
-                request = consent("describe")
+                request = asking("describe")
                 del request[member]
-                status, given = run(CONSENT, request)
+                status, given = run(LAUNCH, request)
                 self.assertEqual((status, given), (1, []))
 
     def test_an_identity_member_that_is_not_bounded_text_is_uncorrelatable(
@@ -320,13 +351,13 @@ class TheEnvelopeBindsEveryFrame(unittest.TestCase):
         for what, value in [("null", None), ("a number", 7), ("empty", ""),
                             ("oversized", "x" * (MAX_IDENTITY + 1))]:
             with self.subTest(what=what):
-                request = {**consent("describe"), "operation_id": value}
-                status, given = run(CONSENT, request)
+                request = {**asking("describe"), "operation_id": value}
+                status, given = run(LAUNCH, request)
                 self.assertEqual((status, given), (1, []))
 
     def test_an_operation_id_is_consumed_once_within_a_session(self):
-        request = consent("describe")
-        status, given = run(CONSENT, request, dict(request))
+        request = asking("describe")
+        status, given = run(LAUNCH, request, dict(request))
         self.assertIs(given[0]["ok"], True)
         self.assertIs(given[1]["ok"], False)
         self.assertEqual(given[1]["code"], "replay")
@@ -341,8 +372,8 @@ class TheEnvelopeBindsEveryFrame(unittest.TestCase):
             def work(self, seen, request):
                 raise ZeroDivisionError("after doing half of it")
 
-        request = execution("work")
-        status, given = run(EXECUTION, request, dict(request), agent=Angry())
+        request = asking("work")
+        status, given = run(LAUNCH, request, dict(request), agent=Angry())
         self.assertEqual(given[0]["code"], "agent")
         self.assertEqual(given[1]["code"], "replay")
 
@@ -357,8 +388,8 @@ class TheEnvelopeBindsEveryFrame(unittest.TestCase):
         # an operand of its own to omit. Under the artifact-neutral request the
         # clean frame succeeds, so the broken one has to come first for the
         # rule to be about anything.
-        request = execution("work")
-        status, given = run(EXECUTION, {**request, "invented": "build"},
+        request = asking("work")
+        status, given = run(LAUNCH, {**request, "invented": "build"},
                             dict(request))
         self.assertEqual(given[0]["code"], "protocol")
         self.assertIs(given[1]["ok"], True)
@@ -366,9 +397,9 @@ class TheEnvelopeBindsEveryFrame(unittest.TestCase):
     def test_a_missing_session_identity_produces_no_frame(self):
         """Without it nothing this program says could be matched to anything,
         which is the case the ruling hands to the Worker Manager."""
-        without = {name: value for name, value in CONSENT.items()
-                   if name != "BATON_WORKER_SESSION"}
-        status, given = run(without, consent("describe"))
+        without = {name: value for name, value in LAUNCH.items()
+                   if name != "session"}
+        status, given = run(without, asking("describe"))
         self.assertEqual((status, given), (2, []))
 
 
@@ -385,13 +416,14 @@ class TheClosureIsPerOperation(unittest.TestCase):
         self.assertEqual(REQUEST_MEMBERS["work"], COMMON_MEMBERS)
 
     def test_describe_does_not_accept_another_operations_member(self):
-        status, given = run(EXECUTION, execution("describe", invented="x"))
+        status, given = run(LAUNCH, asking("describe", invented="x"))
         self.assertIs(given[0]["ok"], False)
         self.assertEqual(given[0]["code"], "protocol")
         self.assertIn("unexpected invented", given[0]["message"])
 
     def test_an_unknown_member_is_refused_rather_than_ignored(self):
-        status, given = run(CONSENT, consent("consider", assignment="a-1"))
+        staged(self)
+        status, given = run(LAUNCH, asking("work", assignment="a-1"))
         self.assertEqual(given[0]["code"], "protocol")
         self.assertIn("assignment", given[0]["message"])
 
@@ -403,13 +435,13 @@ class TheClosureIsPerOperation(unittest.TestCase):
         the refusal NAMES what was wrong rather than saying the frame was bad.
         """
         staged(self)
-        request = execution("work")
-        status, given = run(EXECUTION, {**request, "task": "build"})
+        request = asking("work")
+        status, given = run(LAUNCH, {**request, "task": "build"})
         self.assertEqual(given[0]["code"], "protocol")
         self.assertIn("unexpected task", given[0]["message"])
 
     def test_an_unknown_operation_is_refused_before_anything_else(self):
-        status, given = run(CONSENT, consent("meditate"))
+        status, given = run(LAUNCH, asking("meditate"))
         self.assertEqual(given[0]["code"], "protocol")
 
 
@@ -419,45 +451,64 @@ class TheAnswerIsValidatedBeforeItIsFramed(unittest.TestCase):
     """The agent is the least trusted thing inside this container, and an
     answer is what crosses out of it."""
 
-    def answering(self, answer, operation="consider", environment=None):
+    def answering(self, answer, operation="work"):
+        """One agent answer, END TO END through the operation that carries it."""
         class Fixed:
             def consider(self, seen, request):
                 return answer
 
-            def work(self, seen, request):
+            def work(self, seen, declared):
                 return answer
 
-        request = ask(operation,
-                      CONSENT_SESSION if operation == "consider"
-                      else EXECUTION_SESSION,
-                      )
-        status, given = run(environment or CONSENT, request, agent=Fixed())
+        status, given = run(LAUNCH, asking(operation), agent=Fixed())
         return given[0]
 
+    def shaped(self, answer, operation="consider"):
+        """The answer guard, ASKED DIRECTLY, and W26291 is why.
+
+        These three cases used to drive `consider`, whose answer comes straight
+        from the agent. This runtime is not entitled to `consider` -- the
+        consent posture is gone -- so that answer never crosses, and driving
+        them end to end would assert the ENTITLEMENT refusal three times under
+        three names that say they are about answer shape.
+
+        The answers this runtime DOES compose are still validated end to end:
+        `describe`'s by every case that reads one, and `work`'s by
+        `answering` above. What is asked here is the boundary itself, on the
+        one answer whose shape an agent still owns.
+        """
+        with self.assertRaises(WorkerFault) as caught:
+            check_answer(operation, answer)
+        return {"code": caught.exception.code,
+                "message": caught.exception.message}
+
     def test_the_pinned_answer_sets_are_what_the_contract_names(self):
+        # W26291: `posture` and `environment` are gone from the `describe`
+        # answer and `launch` replaced them. The first reported an axis that no
+        # longer exists; the second reported the transport this Work retired.
         self.assertEqual(ANSWER_MEMBERS["describe"],
-                         ("protocol", "posture", "operations", "environment"))
+                         ("protocol", "operations", "launch"))
         self.assertEqual(ANSWER_MEMBERS["consider"],
                          ("contract_digest", "decision", "reason"))
         self.assertEqual(ANSWER_MEMBERS["work"],
                          ("disposition", "outputs", "recap"))
 
     def test_an_answer_with_an_extra_member_never_becomes_a_frame(self):
-        given = self.answering({"contract_digest": "sha256:x",
-                                "decision": "accept", "reason": "fine",
-                                "plan": "and also this"})
+        given = self.shaped({"contract_digest": "sha256:x",
+                             "decision": "accept", "reason": "fine",
+                             "plan": "and also this"})
         self.assertEqual(given["code"], "answer")
         self.assertIn("unexpected plan", given["message"])
 
     def test_an_answer_missing_a_member_never_becomes_a_frame(self):
-        given = self.answering({"decision": "accept", "reason": "fine"})
+        given = self.shaped({"decision": "accept", "reason": "fine"})
         self.assertEqual(given["code"], "answer")
         self.assertIn("missing contract_digest", given["message"])
 
     def test_an_answer_member_that_is_not_bounded_text_is_refused(self):
-        given = self.answering({"contract_digest": "sha256:x",
-                                "decision": {"nested": "object"},
-                                "reason": "fine"})
+        given = self.shaped({"contract_digest": "sha256:x",
+                             "decision": {"nested": "object"},
+                             "reason": "fine"})
         self.assertEqual(given["code"], "answer")
 
     def test_an_agents_output_answer_is_held_against_the_declarations(self):
@@ -487,8 +538,7 @@ class TheAnswerIsValidatedBeforeItIsFramed(unittest.TestCase):
                 ("a disposition this contract never had",
                  {"disposition": None, "recap": "done", "outputs": []})):
             with self.subTest(what=what):
-                given = self.answering(answer, operation="work",
-                                       environment=EXECUTION)
+                given = self.answering(answer, operation="work")
                 self.assertIs(given["ok"], False)
                 # `agent` rather than `answer`: these refusals arise on the
                 # agent path, which the channel already reports as such. What
@@ -499,7 +549,7 @@ class TheAnswerIsValidatedBeforeItIsFramed(unittest.TestCase):
 
     def test_the_scripted_work_answer_is_exactly_the_pinned_set(self):
         staged(self)
-        status, given = run(EXECUTION, execution("work"))
+        status, given = run(LAUNCH, asking("work"))
         self.assertEqual(sorted(given[0]["answer"]),
                          sorted(ANSWER_MEMBERS["work"]))
 
@@ -507,7 +557,7 @@ class TheAnswerIsValidatedBeforeItIsFramed(unittest.TestCase):
         """The completion envelope carries workerOutput documents; the framed
         answer carries only their bounded names. They are distinct surfaces."""
         staged(self)
-        status, given = run(EXECUTION, execution("work"))
+        status, given = run(LAUNCH, asking("work"))
         self.assertIs(given[0]["ok"], True)
         self.assertEqual(given[0]["answer"]["outputs"], ["proposal"])
 
@@ -534,7 +584,7 @@ class TheArtifactNeutralInputIsTheFrozenManifest(unittest.TestCase):
             def work(self, seen, declared):
                 raise ZeroDivisionError("the valid input reached the agent")
 
-        status, given = run(EXECUTION, execution("work"), agent=Reached())
+        status, given = run(LAUNCH, asking("work"), agent=Reached())
         self.assertEqual(given[0]["code"], "agent")
 
     def test_declared_output_limits_hold_before_completion_publication(self):
@@ -551,7 +601,7 @@ class TheArtifactNeutralInputIsTheFrozenManifest(unittest.TestCase):
                                    "validator_digest": None}}
         _inputs, outputs = staged(self, declarations=[limited])
 
-        status, given = run(EXECUTION, execution("work"))
+        status, given = run(LAUNCH, asking("work"))
         self.assertIs(given[0]["ok"], False)
         self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
 
@@ -569,7 +619,7 @@ class TheArtifactNeutralInputIsTheFrozenManifest(unittest.TestCase):
                                    "validator_digest": None}}
         _inputs, outputs = staged(self, declarations=[escaped])
 
-        status, given = run(EXECUTION, execution("work"))
+        status, given = run(LAUNCH, asking("work"))
         self.assertFalse(os.path.exists(os.path.join(
             os.path.dirname(outputs), "tmp", "escaped", "result.txt")))
         self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
@@ -595,7 +645,7 @@ class ADeclarationIsProvedBeforeAnAgentIsDispatched(unittest.TestCase):
                 raise AssertionError("an unproved declaration reached the agent")
 
         _inputs, outputs = staged(self, declarations=declaration)
-        status, given = run(EXECUTION, execution("work"), agent=Watching())
+        status, given = run(LAUNCH, asking("work"), agent=Watching())
         self.assertIs(given[0]["ok"], False)
         self.assertEqual(given[0]["code"], "input")
         self.assertEqual(reached, [])
@@ -711,7 +761,7 @@ class ADeclarationIsProvedBeforeAnAgentIsDispatched(unittest.TestCase):
                                      "result_metadata": {}}]}
 
         _inputs, outputs = staged(self)
-        status, given = run(EXECUTION, execution("work"), agent=Linked())
+        status, given = run(LAUNCH, asking("work"), agent=Linked())
         self.assertIs(given[0]["ok"], False)
         self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
 
@@ -802,7 +852,7 @@ class ADeclarationIsProvedBeforeAnAgentIsDispatched(unittest.TestCase):
             def work(self, seen, declared):
                 raise AssertionError("an unproved declaration reached the agent")
 
-        status, seen = run(EXECUTION, execution("work"), agent=Watching())
+        status, seen = run(LAUNCH, asking("work"), agent=Watching())
         return seen
 
     def test_the_output_manifest_name_is_reserved(self):
@@ -842,7 +892,7 @@ class ADeclarationIsProvedBeforeAnAgentIsDispatched(unittest.TestCase):
         bounded = {**UNBOUNDED, "max_entries": 0}
         _inputs, outputs = staged(
             self, declarations=[{**DECLARATION, "constraints": bounded}])
-        status, given = run(EXECUTION, execution("work"))
+        status, given = run(LAUNCH, asking("work"))
         self.assertIs(given[0]["ok"], False)
         self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
 
@@ -863,7 +913,7 @@ class ADeclarationIsProvedBeforeAnAgentIsDispatched(unittest.TestCase):
                                      "result_metadata": {}}]}
 
         _inputs, outputs = staged(self)
-        status, given = run(EXECUTION, execution("work"), agent=Linked())
+        status, given = run(LAUNCH, asking("work"), agent=Linked())
         self.assertIs(given[0]["ok"], False)
         self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
 
@@ -926,7 +976,7 @@ class TheFramedAnswerIsNotTheCompletionEnvelope(unittest.TestCase):
 
         _inputs, outputs = staged(self,
                                   declarations=[dict(DECLARATION), optional])
-        status, given = run(EXECUTION, execution("work"), agent=Partial())
+        status, given = run(LAUNCH, asking("work"), agent=Partial())
         self.assertIs(given[0]["ok"], True)
         self.assertEqual(given[0]["answer"]["outputs"], ["proposal"])
         with open(os.path.join(outputs, "output.json"),
@@ -996,7 +1046,7 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
         """The positive that closes the finding: run the whole path and read
         what actually landed in the durable document."""
         inputs, outputs = staged(self)
-        status, given = run(EXECUTION, execution("work"))
+        status, given = run(LAUNCH, asking("work"))
         self.assertIs(given[0]["ok"], True)
         with open(os.path.join(inputs, "assignment.json"),
                   encoding="utf-8") as one:
@@ -1030,7 +1080,7 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
         assignment["manifest_digest"] = baton_worker.digest(assignment)
         _inputs, outputs = staged(self, input_manifest=elsewhere,
                                   assignment=assignment)
-        status, seen = run(EXECUTION, execution("work"))
+        status, seen = run(LAUNCH, asking("work"))
         self.assertIs(seen[0]["ok"], False)
         self.assertEqual(seen[0]["code"], "input")
         self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
@@ -1047,7 +1097,7 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
                 raise AssertionError("the agent ran without an identity")
 
         _inputs, outputs = staged(self, assignment=DELETE)
-        status, given = run(EXECUTION, execution("work"), agent=Watching())
+        status, given = run(LAUNCH, asking("work"), agent=Watching())
         self.assertIs(given[0]["ok"], False)
         self.assertEqual(given[0]["code"], "input")
         self.assertEqual(reached, [])
@@ -1081,7 +1131,7 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
                 _inputs, outputs = staged(
                     self, input_manifest=given,
                     assignment=delivered_assignment(given, **spoiled))
-                status, seen = run(EXECUTION, execution("work"),
+                status, seen = run(LAUNCH, asking("work"),
                                    agent=Watching())
                 self.assertIs(seen[0]["ok"], False)
                 self.assertEqual(seen[0]["code"], "input")
@@ -1105,7 +1155,7 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
                     self, input_manifest=given,
                     assignment=delivered_assignment(given,
                                                     assignment_ref=ref))
-                status, seen = run(EXECUTION, execution("work"))
+                status, seen = run(LAUNCH, asking("work"))
                 self.assertIs(seen[0]["ok"], False)
                 self.assertEqual(seen[0]["code"], "input")
                 self.assertFalse(
@@ -1125,7 +1175,7 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
                 short["manifest_digest"] = baton_worker.digest(short)
                 _inputs, outputs = staged(self, input_manifest=given,
                                           assignment=short)
-                status, seen = run(EXECUTION, execution("work"))
+                status, seen = run(LAUNCH, asking("work"))
                 self.assertIs(seen[0]["ok"], False)
                 self.assertEqual(seen[0]["code"], "input")
 
@@ -1134,7 +1184,7 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
         with open(os.path.join(inputs, "assignment.json"), "w",
                   encoding="utf-8") as handle:
             handle.write("{not a document")
-        status, given = run(EXECUTION, execution("work"))
+        status, given = run(LAUNCH, asking("work"))
         self.assertIs(given[0]["ok"], False)
         self.assertEqual(given[0]["code"], "input")
         self.assertFalse(os.path.exists(os.path.join(outputs, "output.json")))
@@ -1164,7 +1214,7 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
 
                 _inputs, outputs = staged(
                     self, input_manifest=given, assignment=assignment)
-                _status, seen = run(EXECUTION, execution("work"),
+                _status, seen = run(LAUNCH, asking("work"),
                                     agent=Watching())
                 self.assertEqual(seen[0]["code"], "input")
                 self.assertEqual(reached, [])
@@ -1199,7 +1249,7 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
 
                 _inputs, outputs = staged(
                     self, input_manifest=given, assignment=assignment)
-                _status, seen = run(EXECUTION, execution("work"),
+                _status, seen = run(LAUNCH, asking("work"),
                                     agent=Watching())
                 self.assertEqual(seen[0]["code"], "input")
                 self.assertEqual(reached, [])
@@ -1234,7 +1284,7 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
 
                 _inputs, outputs = staged(self, input_manifest=one,
                                           assignment=two)
-                _status, seen = run(EXECUTION, execution("work"),
+                _status, seen = run(LAUNCH, asking("work"),
                                     agent=Watching())
                 self.assertEqual(seen[0]["code"], "input")
                 self.assertEqual(reached, [])
@@ -1245,27 +1295,32 @@ class TheAssignmentIdentityComesFromItsOwnDocument(unittest.TestCase):
         given = canonical_input([dict(DECLARATION)])
         return given, delivered_assignment(given)
 
-    def test_consent_reads_neither_input_document(self):
-        """§7.0: consent mounts nothing. The identity is a document under a
-        root a consent container does not have, so the posture boundary is the
-        filesystem rather than a rule about a string."""
+    def test_an_agent_never_runs_for_an_operation_this_runtime_refuses(self):
+        """W26291 REPLACED `test_consent_reads_neither_input_document`, whose
+        subject -- a consent container with no `/input/` -- V12 no longer
+        launches.
+
+        The property it protected was that entitlement is decided BEFORE the
+        agent is reached, so an operation this container may not answer never
+        becomes something an agent got to look at. That is asked here of the
+        operation this runtime actually refuses.
+        """
         reached = []
 
-        class Watching:
+        class Watching(ScriptedAgent):
             def consider(self, seen, request):
-                reached.append(sorted(os.listdir(baton_worker.INPUT_ROOT))
-                               if os.path.isdir(baton_worker.INPUT_ROOT)
-                               else None)
-                return {"decision": "accept", "reason": "ok",
-                        "contract_digest": "sha256:" + "0" * 64}
+                reached.append("consider")
+                return super().consider(seen, request)
 
-        status, given = run(CONSENT, consent("consider"), agent=Watching())
-        self.assertIs(given[0]["ok"], True)
-        # No `staged()` here, so `INPUT_ROOT` is the contract's own `/input`,
-        # which does not exist on the host running this suite -- which is
-        # exactly the shape a consent container has.
-        self.assertEqual(reached, [None])
-        self.assertNotIn("work", OPERATIONS["consent"])
+            def work(self, seen, declared):
+                reached.append("work")
+                return super().work(seen, declared)
+
+        status, given = run(LAUNCH, asking("consider"), agent=Watching())
+        self.assertIs(given[0]["ok"], False)
+        self.assertEqual(given[0]["code"], "entitlement")
+        self.assertEqual(reached, [])
+        self.assertNotIn("consider", OPERATIONS)
 
 
 # -- a bootstrap fault is latched and correlated -----------------------------
@@ -1275,7 +1330,7 @@ class ABootstrapFaultIsLatchedAndCorrelated(unittest.TestCase):
     operable, so the failure is answered through the ORDINARY shape after
     exactly one identity envelope — and it never reaches the agent."""
 
-    def latched(self, environment):
+    def latched(self, document):
         class Never:
             def consider(self, seen, request):
                 raise AssertionError("a latched fault reached the agent")
@@ -1284,35 +1339,54 @@ class ABootstrapFaultIsLatchedAndCorrelated(unittest.TestCase):
                 raise AssertionError("a latched fault reached the agent")
 
         out = io.BytesIO()
-        status = serve(frames(ask("consider", environment.get(
-            "BATON_WORKER_SESSION", "session-consent-1"))),
-            out, environment, Never())
+        status = serve(frames(ask("describe", EXECUTION_SESSION)), out,
+                       Never(), delivered(document))
         return status, answers(out.getvalue())
 
-    def test_an_invalid_posture_is_one_correlated_fault_and_a_non_zero_exit(
-            self):
-        for posture in (None, "", "admin", "EXECUTION", "consent "):
-            with self.subTest(posture=posture):
-                environment = dict(CONSENT)
-                if posture is None:
-                    del environment["BATON_WORKER_POSTURE"]
-                else:
-                    environment["BATON_WORKER_POSTURE"] = posture
-                status, given = self.latched(environment)
+    def test_a_document_from_another_generation_latches(self):
+        """W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+        gone, so an invalid one is not a state a container can be in.
+
+        THE PROPERTY IT PROTECTED IS THE ONE ASKED HERE, and the ruling gave it
+        a sharper subject: a launch document this program cannot read is not a
+        document to read the recognised parts out of, and the version is
+        checked by equality rather than parsed and reasoned about.
+        """
+        for schema in ("baton.worker-launch/2", "baton.worker-entry/1", "",
+                       "BATON.WORKER-LAUNCH/1", "baton.worker-launch/1 "):
+            with self.subTest(schema=schema):
+                status, given = self.latched({**LAUNCH, "schema": schema})
                 self.assertEqual(status, 1)
                 self.assertEqual(len(given), 1)
-                self.assertEqual(given[0]["code"], "posture")
-                self.assertEqual(given[0]["session"], CONSENT_SESSION)
+                self.assertEqual(given[0]["code"], "launch")
+                self.assertEqual(given[0]["session"], EXECUTION_SESSION)
                 self.assertEqual(given[0]["protocol"], PROTOCOL)
 
-    def test_a_container_built_with_the_wrong_material_latches_too(self):
-        for name in ("BATON_WORKER_ASSIGNMENT", "BATON_WORKER_WORKSPACE",
-                     "BATON_WORKER_OUTPUT"):
+    def test_a_document_carrying_material_it_should_not_latches_too(self):
+        """CLOSED, not an allowlist. An extra top-level member is how a second
+        contract alias arrives -- including the `posture` this Work removed,
+        which is the one a stale manager would still be writing."""
+        for name in ("posture", "assignment", "workspace", "output"):
             with self.subTest(name=name):
-                status, given = self.latched({**CONSENT, name: "leaked"})
+                status, given = self.latched({**LAUNCH, name: "leaked"})
                 self.assertEqual(status, 1)
-                self.assertEqual(given[0]["code"], "posture")
+                self.assertEqual(given[0]["code"], "launch")
                 self.assertIn(name, given[0]["message"])
+
+    def test_a_document_short_a_member_or_carrying_a_bad_value_latches(self):
+        for what, spoiled in (
+                ("no contract", {key: value for key, value in LAUNCH.items()
+                                 if key != "contract"}),
+                ("no role", {key: value for key, value in LAUNCH.items()
+                             if key != "role"}),
+                ("an empty role", {**LAUNCH, "role": ""}),
+                ("a numeric role", {**LAUNCH, "role": 7}),
+                ("an over-long role",
+                 {**LAUNCH, "role": "r" * (MAX_LAUNCH_VALUE + 1)})):
+            with self.subTest(what=what):
+                status, given = self.latched(spoiled)
+                self.assertEqual(status, 1)
+                self.assertEqual(given[0]["code"], "launch")
 
     def test_a_latched_fault_does_not_answer_another_sessions_envelope(self):
         """Startup correlation does not relax the common session binding.
@@ -1321,9 +1395,8 @@ class ABootstrapFaultIsLatchedAndCorrelated(unittest.TestCase):
         envelope has established this posture-specific container's identity;
         a frame minted for another session is still refused as such.
         """
-        request = ask("consider", "session-somebody-else")
-        status, given = run(
-            {**CONSENT, "BATON_WORKER_POSTURE": "admin"}, request)
+        request = ask("describe", "session-somebody-else")
+        status, given = run({**LAUNCH, "posture": "execution"}, request)
         self.assertEqual(status, 1)
         self.assertEqual(len(given), 1)
         self.assertEqual(given[0]["code"], "session")
@@ -1333,10 +1406,9 @@ class ABootstrapFaultIsLatchedAndCorrelated(unittest.TestCase):
         """The binding is protocol AND session, and both precede the latched
         answer. A container that failed to start is still a container this
         channel's contract applies to."""
-        request = consent("consider")
+        request = asking("describe")
         request["protocol"] = "baton.worker-entry/2"
-        status, given = run(
-            {**CONSENT, "BATON_WORKER_POSTURE": "admin"}, request)
+        status, given = run({**LAUNCH, "posture": "execution"}, request)
         self.assertEqual(status, 1)
         self.assertEqual(len(given), 1)
         self.assertEqual(given[0]["code"], "protocol")
@@ -1354,9 +1426,9 @@ class ABootstrapFaultIsLatchedAndCorrelated(unittest.TestCase):
 
         out = io.BytesIO()
         status = serve(
-            frames(ask("consider", "session-somebody-else"),
-                   consent("consider")),
-            out, {**CONSENT, "BATON_WORKER_POSTURE": "admin"}, Never())
+            frames(ask("describe", "session-somebody-else"),
+                   asking("describe")),
+            out, Never(), delivered({**LAUNCH, "posture": "execution"}))
         self.assertEqual(status, 1)
         given = answers(out.getvalue())
         self.assertEqual(len(given), 1, "more than one envelope was read")
@@ -1366,14 +1438,15 @@ class ABootstrapFaultIsLatchedAndCorrelated(unittest.TestCase):
         """The other half of the same move: lifting the binding out of
         `handle` must not turn an ordinary wrong-session refusal into the end
         of the channel. Only a LATCHED container stops."""
-        status, given = run(EXECUTION,
+        status, given = run(LAUNCH,
                             ask("describe", "session-somebody-else"),
-                            execution("describe"))
+                            asking("describe"))
         self.assertEqual(status, 0)
         self.assertEqual([one["code"] for one in given[:1]], ["session"])
         self.assertEqual(len(given), 2)
         self.assertTrue(given[1]["ok"])
-        self.assertEqual(given[1]["answer"]["posture"], "execution")
+        self.assertEqual(given[1]["answer"]["operations"],
+                         list(OPERATIONS))
 
     def test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched(
             self):
@@ -1387,19 +1460,162 @@ class ABootstrapFaultIsLatchedAndCorrelated(unittest.TestCase):
                 raise AssertionError("a latched fault reached the agent")
 
         out = io.BytesIO()
-        status = serve(frames(consent("consider"), consent("consider")),
-                       out, {**CONSENT, "BATON_WORKER_POSTURE": "admin"},
-                       Never())
+        status = serve(frames(asking("describe"), asking("describe")),
+                       out, Never(),
+                       delivered({**LAUNCH, "posture": "execution"}))
         self.assertEqual(status, 1)
         self.assertEqual(len(answers(out.getvalue())), 1,
                          "more than one envelope was read")
 
     def test_a_latched_fault_with_no_readable_envelope_says_nothing(self):
         out = io.BytesIO()
-        status = serve(io.BytesIO(b""), out,
-                       {**CONSENT, "BATON_WORKER_POSTURE": "admin"},
-                       ScriptedAgent())
+        status = serve(io.BytesIO(b""), out, ScriptedAgent(),
+                       delivered({**LAUNCH, "posture": "execution"}))
         self.assertEqual((status, answers(out.getvalue())), (1, []))
+
+
+# -- the launch document is read like every other worker-visible byte --------
+
+class TheLaunchReadIsBoundedNoFollowAndProved(unittest.TestCase):
+    """W26291. The document is the manager's, and this program is still what a
+    MIS-COMPOSED delivery lands on.
+
+    So the read carries the same four properties every other worker-visible
+    byte in this campaign is read under, and each is a different way a
+    container can be handed something other than what it was promised. The
+    campaign has been corrected for three of the four already -- W26283's
+    re-review is the standing lesson that a guard placed after an operation
+    that may not return is a guard that never runs.
+    """
+
+    def setUp(self):
+        self.home = tempfile.mkdtemp(prefix="v12-launch-read-")
+        self.addCleanup(shutil.rmtree, self.home, True)
+        self.place = os.path.join(self.home, "launch.json")
+
+    def written(self, document=None):
+        with open(self.place, "wb") as handle:
+            handle.write(json.dumps(document or LAUNCH).encode("utf-8"))
+        os.chmod(self.place, 0o444)
+        return self.place
+
+    def talking(self, place):
+        out = io.BytesIO()
+        status = serve(frames(asking("describe")), out, ScriptedAgent(), place)
+        return status, answers(out.getvalue())
+
+    def test_a_whole_document_at_the_fixed_path_is_read(self):
+        status, given = self.talking(self.written())
+        self.assertEqual(status, 0)
+        self.assertIs(given[0]["ok"], True)
+
+    def test_a_link_at_the_launch_path_is_not_followed(self):
+        """`O_NOFOLLOW`. A link is how a path this contract FIXED becomes a
+        path something else chose -- which is exactly the defect the manager's
+        own completion-signal reader was corrected for."""
+        elsewhere = os.path.join(self.home, "elsewhere.json")
+        with open(elsewhere, "wb") as handle:
+            handle.write(json.dumps(LAUNCH).encode("utf-8"))
+        os.symlink(elsewhere, self.place)
+        self.assertEqual(self.talking(self.place), (2, []))
+
+    def test_a_pipe_at_the_launch_path_does_not_block(self):
+        """`O_NONBLOCK`, and the case BOUNDS ITSELF for the reason W26283's
+        FIFO regression does: a regression here is a hang rather than a
+        failure, and a hanging case takes the whole gate with it. Without the
+        flag the open waits for a writer that never comes, so the regular-file
+        proof below it -- the one guard a racing replacement cannot defeat --
+        never runs at all.
+
+        THE ALARM RAISES SOMETHING THAT IS NOT AN `OSError`, and MEASUREMENT is
+        why. The first version of this case raised `TimeoutError`, which IS an
+        `OSError` in Python -- so `read_launch`'s own `except OSError` caught
+        the alarm and turned a three-second BLOCK into the same `(2, [])` a
+        prompt refusal produces. The case passed with the flag removed, which
+        is exactly the shape a mutation harness exists to find, and it found
+        it.
+        """
+        class Blocked(Exception):
+            """NOT an OSError: the code under test catches those."""
+
+        os.mkfifo(self.place)
+
+        def ring(_number, _frame):
+            raise Blocked("the launch open blocked on a pipe")
+
+        previous = signal.signal(signal.SIGALRM, ring)
+        signal.alarm(3)
+        try:
+            self.assertEqual(self.talking(self.place), (2, []))
+        finally:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, previous)
+
+    def test_the_read_takes_at_most_the_ceiling_plus_one_byte(self):
+        """W26283's rule, applied to the one file this program reads.
+
+        The length check below the read refuses an over-wide document either
+        way, so a case that only asserted the refusal would pass with no bound
+        on the read at all -- measured, and that is why this one counts BYTES.
+        One past the ceiling is what proves the ceiling was crossed; reading
+        further is work whoever wrote the file chose.
+        """
+        with open(self.place, "wb") as handle:
+            handle.write(b"x" * (baton_worker.MAX_LAUNCH_BYTES * 4))
+        os.chmod(self.place, 0o444)
+        module = baton_worker.os
+        counted = []
+
+        class Counting:
+            def __getattr__(self, name):
+                return getattr(module, name)
+
+            def read(self, descriptor, amount):
+                piece = module.read(descriptor, amount)
+                counted.append(len(piece))
+                return piece
+
+        baton_worker.os = Counting()
+        self.addCleanup(setattr, baton_worker, "os", module)
+        self.assertEqual(self.talking(self.place), (2, []))
+        self.assertLessEqual(sum(counted),
+                             baton_worker.MAX_LAUNCH_BYTES + 1)
+
+    def test_a_directory_at_the_launch_path_is_refused_by_the_descriptor(self):
+        os.makedirs(self.place)
+        self.assertEqual(self.talking(self.place), (2, []))
+
+    def test_a_writable_document_is_refused_however_good_its_bytes_are(self):
+        """A launch document this worker could rewrite is one it could change
+        between reading it and being asked what it is."""
+        self.written()
+        os.chmod(self.place, 0o644)
+        self.assertEqual(self.talking(self.place), (2, []))
+
+    def test_a_document_wider_than_the_ceiling_is_refused_before_it_parses(
+            self):
+        with open(self.place, "wb") as handle:
+            handle.write(b"x" * (baton_worker.MAX_LAUNCH_BYTES + 1))
+        os.chmod(self.place, 0o444)
+        self.assertEqual(self.talking(self.place), (2, []))
+
+    def test_an_absent_document_says_nothing_at_all(self):
+        self.assertEqual(self.talking(self.place), (2, []))
+
+    def test_no_environment_value_stands_in_for_the_document(self):
+        """THE SUPERSESSION'S OWN CLAUSE. `serve` takes no environment operand
+        at all, so there is nothing to thread a fallback back through -- and
+        the retired names being present in the process changes nothing."""
+        keep = dict(os.environ)
+        os.environ.update({"BATON_WORKER_POSTURE": "execution",
+                           "BATON_WORKER_SESSION": EXECUTION_SESSION,
+                           "BATON_WORKER_CONTRACT": "do the thing",
+                           "BATON_WORKER_ROLE": "implementer"})
+        self.addCleanup(os.environ.update, keep)
+        for name in list(os.environ):
+            if name.startswith("BATON_WORKER_") and name not in keep:
+                self.addCleanup(os.environ.pop, name, None)
+        self.assertEqual(self.talking(self.place), (2, []))
 
 
 # -- the channel -------------------------------------------------------------
@@ -1441,8 +1657,8 @@ class TheChannelIsFramedAndBounded(unittest.TestCase):
                 with self.assertRaises(Uncorrelated):
                     read_frame(io.BytesIO(payload))
                 out = io.BytesIO()
-                status = serve(io.BytesIO(payload), out, EXECUTION,
-                               ScriptedAgent())
+                status = serve(io.BytesIO(payload), out, ScriptedAgent(),
+                               delivered(LAUNCH))
                 self.assertEqual((status, answers(out.getvalue())), (1, []))
 
     def test_a_clean_end_of_input_is_an_answer(self):
@@ -1453,13 +1669,17 @@ class TheChannelIsFramedAndBounded(unittest.TestCase):
         the thing that broke the channel — and a bounds fault that dropped the
         correlation would be the uncorrelated shape arriving by the back
         door."""
-        class Loud:
-            def consider(self, seen, request):
-                return {"contract_digest": "sha256:x", "decision": "accept",
-                        "reason": "x" * (MAX_FRAME - 100)}
+        class Loud(ScriptedAgent):
+            def work(self, seen, declared):
+                # THE SCRIPTED WORK, with one enormous member. An agent that
+                # answered nothing would be refused by `answered` first, and
+                # this case is about the FRAME rather than the answer.
+                return {**super().work(seen, declared),
+                        "recap": "x" * (MAX_FRAME - 100)}
 
-        request = consent("consider")
-        status, given = run(CONSENT, request, agent=Loud())
+        staged(self)
+        request = asking("work")
+        status, given = run(LAUNCH, request, agent=Loud())
         self.assertIs(given[0]["ok"], False)
         self.assertEqual(given[0]["code"], "bounds")
         self.assertEqual(given[0]["operation_id"], request["operation_id"])
@@ -1467,39 +1687,62 @@ class TheChannelIsFramedAndBounded(unittest.TestCase):
 
 # -- consent cannot reach execution ------------------------------------------
 
-class ConsentCannotReachExecution(unittest.TestCase):
+class ThisRuntimeAnswersOnlyItsOwnOperations(unittest.TestCase):
+    """W26291 REPLACED `ConsentCannotReachExecution`.
 
-    def test_a_consent_container_is_not_asked_to_work(self):
-        status, given = run(CONSENT, consent("work", task="build"))
+    That class was about a topology V12 no longer has: two containers of
+    different kinds, and no message that turns one into the other. The consent
+    runtime is gone, the posture axis went with it, and cases asserting what a
+    consent container may not do would be green assertions about something
+    that cannot be built.
+
+    WHAT SURVIVES IS THE RULE UNDERNEATH, and it survives because `consider` is
+    deliberately still a KNOWN operation this runtime is not entitled to: the
+    entitlement is checked on EVERY message rather than once at start, an
+    operation outside the set is refused by name rather than as an unknown
+    word, and nothing outside the closed member set rides in on a frame.
+    """
+
+    def test_this_runtime_is_not_asked_to_consider(self):
+        status, given = run(LAUNCH, asking("consider"))
         self.assertIs(given[0]["ok"], False)
-        self.assertEqual(given[0]["code"], "posture")
+        self.assertEqual(given[0]["code"], "entitlement")
         self.assertIn("not asked to", given[0]["message"])
 
-    def test_an_execution_container_is_not_asked_to_consent(self):
-        status, given = run(EXECUTION, execution("consider"))
-        self.assertEqual(given[0]["code"], "posture")
+    def test_the_refusal_names_a_real_operation_rather_than_an_unknown_word(
+            self):
+        """The distinction is the whole reason `consider` is kept. An unknown
+        operation refuses as a PROTOCOL error and proves nothing about
+        entitlement; a real one this container may not answer proves the
+        boundary is there."""
+        status, unknown = run(LAUNCH, asking("meditate"))
+        self.assertEqual(unknown[0]["code"], "protocol")
+        status, known = run(LAUNCH, asking("consider"))
+        self.assertEqual(known[0]["code"], "entitlement")
+        self.assertIn("consider", REQUEST_MEMBERS)
 
-    def test_the_posture_is_checked_on_every_operation(self):
+    def test_the_entitlement_is_checked_on_every_operation(self):
         """A check that ran once at start is a check a later message walks
         past."""
-        status, given = run(CONSENT, consent("describe"),
-                            consent("consider"), consent("work", task="x"),
-                            consent("consider"))
+        staged(self)
+        status, given = run(LAUNCH, asking("describe"), asking("consider"),
+                            asking("describe"), asking("consider"))
         self.assertEqual([answer["ok"] for answer in given],
-                         [True, True, False, True])
+                         [True, False, True, False])
 
-    def test_there_is_no_message_that_promotes_a_consent_worker(self):
-        for operation in ("promote", "activate", "execution", "work",
+    def test_there_is_no_message_that_widens_this_runtime(self):
+        for operation in ("promote", "activate", "execution", "consider",
                           "escalate", "become"):
             with self.subTest(operation=operation):
-                status, given = run(CONSENT, consent(operation))
+                status, given = run(LAUNCH, asking(operation))
                 self.assertIs(given[0]["ok"], False)
 
-    def test_assignment_material_cannot_arrive_inside_a_consent_frame(self):
+    def test_material_cannot_arrive_inside_a_frame(self):
+        staged(self)
         for name in ("assignment", "workspace", "output", "task"):
             with self.subTest(member=name):
-                status, given = run(CONSENT,
-                                    consent("consider", **{name: "/leak"}))
+                status, given = run(LAUNCH,
+                                    asking("work", **{name: "/leak"}))
                 self.assertIs(given[0]["ok"], False)
                 self.assertEqual(given[0]["code"], "protocol")
 
@@ -1508,17 +1751,24 @@ class ConsentCannotReachExecution(unittest.TestCase):
 
 class TheScriptedFixtures(unittest.TestCase):
 
-    def test_consent_accepts_and_declines_deterministically(self):
-        status, accepted = run(CONSENT, consent("consider"))
-        self.assertEqual(accepted[0]["answer"]["decision"], "accept")
-        status, declined = run(
-            {**CONSENT, "BATON_WORKER_CONTRACT": "please decline this"},
-            consent("consider"))
-        self.assertEqual(declined[0]["answer"]["decision"], "decline")
+    def test_the_scripted_consider_is_deterministic_and_reads_the_document(
+            self):
+        """ASKED OF THE AGENT DIRECTLY, and W26291 is why.
 
-    def test_a_consent_answer_names_nothing_it_cannot_see(self):
-        status, given = run(CONSENT, consent("consider"))
-        self.assertEqual(sorted(given[0]["answer"]),
+        `consider` is the consent runtime's operation and this runtime is not
+        entitled to it, so these answers no longer cross the channel. The
+        agent's method is still its own surface and its determinism is still
+        its own property -- and it now reads `contract` out of the LAUNCH
+        DOCUMENT rather than `BATON_WORKER_CONTRACT` out of an environment,
+        which is the half of this case that this Work actually changed.
+        """
+        agent = ScriptedAgent()
+        seen = {name: LAUNCH[name] for name in LAUNCH_MEMBERS}
+        self.assertEqual(agent.consider(seen, {})["decision"], "accept")
+        declining = {**seen, "contract": "please decline this"}
+        self.assertEqual(agent.consider(declining, {})["decision"], "decline")
+        # NOTHING IT CANNOT SEE. The answer is exactly the pinned set.
+        self.assertEqual(sorted(agent.consider(seen, {})),
                          ["contract_digest", "decision", "reason"])
 
     def test_execution_completes_and_recaps(self):
@@ -1528,7 +1778,7 @@ class TheScriptedFixtures(unittest.TestCase):
         What survives is the part that was ever about this program: a completed
         disposition and a bounded recap of what it actually did."""
         staged(self)
-        status, given = run(EXECUTION, execution("work"))
+        status, given = run(LAUNCH, asking("work"))
         answer = given[0]["answer"]
         self.assertEqual(answer["disposition"], "completed")
         self.assertNotIn("workspace", answer)
@@ -1544,9 +1794,9 @@ class TheScriptedFixtures(unittest.TestCase):
 
     def test_the_same_request_produces_the_same_bytes(self):
         """DETERMINISTIC is what makes a reproducibility case possible."""
-        request = execution("work", task="build")
-        first = run(EXECUTION, dict(request))
-        second = run(EXECUTION, dict(request))
+        request = asking("work", task="build")
+        first = run(LAUNCH, dict(request))
+        second = run(LAUNCH, dict(request))
         self.assertEqual(first, second)
 
     def test_an_agent_fault_is_a_frame_and_carries_no_traceback(self):
@@ -1558,7 +1808,7 @@ class TheScriptedFixtures(unittest.TestCase):
             def work(self, seen, request):
                 raise ZeroDivisionError("inside the image")
 
-        status, given = run(EXECUTION, execution("work"), agent=Angry())
+        status, given = run(LAUNCH, asking("work"), agent=Angry())
         self.assertIs(given[0]["ok"], False)
         self.assertEqual(given[0]["code"], "agent")
         self.assertEqual(given[0]["message"],
@@ -1576,7 +1826,7 @@ class TheScriptedFixtures(unittest.TestCase):
         it. The real cancellation path is exercised against a real container
         in `test_worker_container.py`.
         """
-        status, given = run(EXECUTION)
+        status, given = run(LAUNCH)
         self.assertEqual((status, given), (0, []))
 
 
@@ -1693,16 +1943,30 @@ class TheWorkerHoldsNoneOfTheManagersCapabilities(unittest.TestCase):
                     "process; it has none of those")
 
     def test_the_protocol_name_is_the_only_thing_it_announces(self):
-        status, given = run(CONSENT, consent("describe"))
+        status, given = run(LAUNCH, asking("describe"))
         answer = given[0]["answer"]
         self.assertEqual(answer["protocol"], PROTOCOL)
-        self.assertEqual(answer["posture"], "consent")
-        self.assertEqual(answer["operations"], list(OPERATIONS["consent"]))
-        self.assertNotIn("BATON_WORKER_ASSIGNMENT", answer["environment"])
+        self.assertEqual(answer["operations"], list(OPERATIONS))
+        # THE MEMBER NAMES, NEVER THE VALUES. `launch` is the exact analogue of
+        # what `environment` used to report: what this container was told it
+        # is, without saying what any of it says.
+        # ALL FOUR PINNED MEMBERS. Re-review [P1]: this expected three,
+        # because the implementation stripped `schema` — and the pinned
+        # finding says the sorted member names of the validated DOCUMENT.
+        self.assertEqual(answer["launch"],
+                         ["contract", "role", "schema", "session"])
+        self.assertNotIn("do the thing", json.dumps(answer))
 
-    def test_the_two_postures_are_the_whole_set(self):
-        self.assertEqual(POSTURES, ("consent", "execution"))
-        self.assertEqual(sorted(OPERATIONS), ["consent", "execution"])
+    def test_the_operation_set_is_the_one_runtimes(self):
+        """W26291 REPLACED `test_the_two_postures_are_the_whole_set`.
+
+        There is no second posture to be the other half of a set. `OPERATIONS`
+        is a tuple rather than a map because V12 launches one runtime, and
+        `consider` is deliberately outside it while staying a known operation.
+        """
+        self.assertEqual(OPERATIONS, ("describe", "work"))
+        self.assertNotIn("consider", OPERATIONS)
+        self.assertIn("consider", REQUEST_MEMBERS)
 
 
 if __name__ == "__main__":

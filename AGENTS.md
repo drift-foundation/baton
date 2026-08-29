@@ -143,9 +143,16 @@ The working process is unchanged by the layout:
   top level as a NEW record with an explicit forwarding note in the old one —
   the old canonical path stays valid history and is never rewritten.
   A parent cannot close while it contains an open child.
-- `PROGRESS.md` has one writer: the implementer (`baton.claude`). Reviewer
-  input goes into FINDING/PLAN, evidence files, or append-only review
-  journals, never progress.
+- `PROGRESS.md` has one current writer at a time: the participant who actually
+  makes the implementation change under the authorized Work claim. Progress
+  ownership is not reserved to `baton.claude`; it belongs equally to an
+  explicitly assigned tuner, reviewer, approver, prompt participant, or other
+  Handler when that participant performs the change. If implementation passes
+  through serial claim episodes, each actual change author appends an
+  attributable entry and never rewrites or deletes a prior author's account.
+  A participant that only reviews or discusses the change still records input
+  in FINDING/PLAN, evidence files, or append-only review journals, never in
+  progress.
 - Each review pass is append-only
   `review-YYYY-MM-DDTHH-MM-SSZ.md` in that record root (UTC). Never edit or
   delete an earlier review. The implementer records its response and current

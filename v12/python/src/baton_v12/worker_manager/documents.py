@@ -33,7 +33,9 @@ __all__ = ["CONTRACTS", "ASSIGNMENT", "profile_certified",
            "offer_bearer", "offer_settled", "offer_settled_by_another",
            "offer_accepted", "claim_recorded", "settlement_observed",
            "recoverable_offer", "recovery_report", "assignment", "work_ref",
-           "WORK_REF", "RUNTIME_LABELS",
+           "WORK_REF", "RUNTIME_LABELS", "RUNTIME_START_FAILED",
+           "DESTROY_COMMAND",
+           "FAILED_START_DESTROY_COMMAND",
            "attempt_recorded", "assignment_activated", "observation",
            "runtime_labels", "runtime_start_requested", "runtime_attached",
            "runtime_uncertain", "runtime_cancel", "cancel_intent",
@@ -45,7 +47,9 @@ __all__ = ["CONTRACTS", "ASSIGNMENT", "profile_certified",
            "operation", "manifest_retained", "freeze_requested",
            "result_frozen", "output_answer", "frozen_output",
            "output_artifact", "interrogation", "interrogation_requested",
-           "collect_requested", "destroy_command", "intake_artifact",
+           "collect_requested", "destroy_command",
+           "failed_start_destroy_command", "session_unsupported_version",
+           "refused_session_destroy_command", "intake_artifact",
            "intake_receipt", "retain_command",
            "retention", "retention_decided", "cleanup_blocked",
            "cleanup_settled", "cleanup_unsettled"]
@@ -77,7 +81,13 @@ CONTRACTS = {
     # settlement of a commit this manager never saw, and on adopting another
     # settler's bound disposition -- each contributing different members.
     "claim.recorded": (("offer_id", "state"),
-                       ("assignment", "reason", "late", "adopted")),
+                       # W16823 adds the other two members of the authority's
+                       # closed result. OPTIONAL beside `assignment` and for
+                       # the same reason: a retirement adopted from another
+                       # settler and a refusal carry none of the three, because
+                       # neither authorized anything.
+                       ("assignment", "claim_event", "decision", "reason",
+                        "late", "adopted")),
     # `live`: the identity is still open and nothing changed. Saying so is the
     # honest answer, and it is a document like any other.
     "settlement.observed": (("offer_id", "state", "settled", "why"), ()),
@@ -116,15 +126,69 @@ CONTRACTS = {
     # to be here or it does not survive the restart. The engine knows the
     # image it is running and reports it; it has never heard of a policy
     # digest, so a label is the only carrier there is.
+    # W16823 adds the PRINCIPAL and the EFFECTIVE SCOPE, and adds them BESIDE
+    # the four-part fence rather than instead of any of it. W16793's finding:
+    # two endpoint addresses mapped by the authority to one principal produced
+    # unrelated runtime labels, so one principal's runtimes looked like two
+    # independent identities to anything reading them back. The participant and
+    # generation stay exactly where they are -- they are the fence, and the
+    # fence is what W16793 said was working.
+    #
+    # THE SELECTOR IS STILL THE WHOLE SET, so this does not widen what a
+    # reconciliation matches; it makes principal-global identity legible in the
+    # evidence, which is what an operator listing runtimes and a later
+    # cross-attempt reader both need and neither could get.
     "runtime.labels": (("runtime_attempt_id", "authority_uuid", "work_id",
-                        "participant", "generation", "profile_digest",
+                        "participant", "generation", "principal",
+                        "effective_scope", "profile_digest",
                         "policy_digest", "adapter_digest"), ()),
     "runtime.start-requested": (("attempt_id", "operation_id"), ()),
+    # W32648: the manager-owned failed-start record.  EVERY MEMBER REQUIRED,
+    # including `runtime_id` -- `None` is the honest statement that nothing
+    # could be established, and an OPTIONAL member would let a record simply
+    # omit the fact the destroy crossing needs most.  `expect` is the fixed
+    # assignment, `start_operation_id` the act this followed,
+    # `execution_runtime` the axis the settlement reached, and `failure` the
+    # original typed fault preserved rather than reworded.
+    "runtime.start-failed": (("attempt_id", "expect", "start_operation_id",
+                              "runtime_id", "execution_runtime", "failure"),
+                             ()),
+    # W32576: THE OTHER MANAGER-OWNED ENDING RECORD, and it is a sibling of
+    # the one above rather than a variant of it. A start that failed and a
+    # handshake that refused are two different facts about one attempt -- the
+    # first says a container was created and never ran the assignment, the
+    # second says a container is RUNNING an agent this manager cannot speak to.
+    # Both authorize a removal that has no intake receipt behind it, and
+    # keeping their member sets closed is what stops one authorizing the
+    # other's cleanup.
+    #
+    # `decision`, `category` and `code` are carried rather than assumed
+    # because the record is read back by a different operation on a later run:
+    # a row that authorizes destroying a running container should say in its
+    # own bytes what it decided, not leave the reader to infer it from where
+    # it was filed.
+    "session.unsupported-version": (("attempt_id", "assignment", "decision",
+                                     "category", "code", "why", "posture",
+                                     "session_epoch", "provider_session_id",
+                                     "profile_digest", "pinned_wire_version",
+                                     "agent_protocol_version", "runtime_id"),
+                                    ()),
     # THREE DECISIONS, THREE DOCUMENTS. A reconciliation answers "attached",
     # "uncertain" or "cancel", and each carries different facts -- one shape
     # covering all three would be a document whose members depend on the branch
     # that built it, which the far end cannot own against anything.
-    "runtime.attached": (("attempt_id", "decision", "runtime_id"), ()),
+    # W26294 adds `observed`: the state the ADAPTER answered about this exact
+    # runtime. Required rather than optional, because the whole correction is
+    # that an attachment no longer implies `running` -- a document that could
+    # omit it would let a receiver go on assuming the old meaning.
+    # AND AN OPTIONAL `why`, supplied only when the observation was
+    # INCONCLUSIVE. Review [P0]: a failed exact observation now records
+    # `uncertain` instead of raising, and a state recorded with no reason is
+    # the confusion this Work exists to make legible arriving in a different
+    # shape. Optional rather than required, because a conclusive observation
+    # has nothing to explain.
+    "runtime.attached": (("attempt_id", "decision", "runtime_id",
+                          "observed"), ("why",)),
     "runtime.uncertain": (("attempt_id", "decision", "why"), ()),
     "runtime.cancel": (("attempt_id", "decision", "why"), ("runtimes",)),
     "attempt.cancel-intent": (("attempt_id", "assignment",
@@ -256,6 +320,43 @@ CONTRACTS = {
     "destroy.command": (("assignment_ref", "runtime_attempt_id", "runtime_id",
                          "intake_receipt_digest",
                          "retention_policy_digest"), ()),
+    # W34998: THE SIBLING, and a sibling rather than a widening.
+    #
+    # Approver ruling M34998/M34999. A start that created a container and then
+    # failed has a runtime to remove and NO INTAKE RECEIPT: nothing was frozen,
+    # collected or admitted, so there is no receipt to authorize the removal
+    # with. The receipt-authorized command above is unchanged and stays closed
+    # to its five members.
+    #
+    # THE DIGEST IS THE FAILED-START RECORD'S, and putting it in
+    # `intake_receipt_digest` is exactly what the ruling forbids. A receipt
+    # says material was taken into custody under a policy; a failure record
+    # says a start did not happen. One field carrying both would make every
+    # later reader unable to tell which of those authorized a removal -- and
+    # the frozen `runtimeDestroyBody` means the first.
+    #
+    # ONE MEMBER SET, NOT A UNION. `destroy` does not learn to accept this and
+    # this does not fall back to `destroy`: a receiver that accepted either
+    # body would let a caller authorize a removal with whichever digest it
+    # happened to hold, which is the conflation the two documents exist to
+    # keep apart.
+    "destroy.failed-start-command": (("assignment_ref", "runtime_attempt_id",
+                                      "runtime_id",
+                                      "failed_start_record_digest",
+                                      "retention_policy_digest"), ()),
+    # W32576: THE THIRD SIBLING, on the same rule that made the second one.
+    #
+    # A handshake refusal has no intake receipt for the same reason a failed
+    # start has none -- nothing was frozen, collected or admitted -- and it is
+    # not a failed start either, so neither existing body describes it. Three
+    # closed member sets mean a caller holding one authorization cannot spend
+    # it on another ending: a receipt says material was taken into custody, a
+    # failure record says a start did not happen, and a refusal record says an
+    # agent answered a wire version this manager never certified.
+    "destroy.refused-session-command": (("assignment_ref",
+                                         "runtime_attempt_id", "runtime_id",
+                                         "refusal_record_digest",
+                                         "retention_policy_digest"), ()),
     "intake.artifact": (("artifact_id", "content_digest", "bytes",
                          "custody_locator"), ()),
     # THE RECEIPT, and it is THIS MANAGER'S DOCUMENT.
@@ -313,6 +414,23 @@ CONTRACTS = {
 ASSIGNMENT = CONTRACTS["assignment"][0]
 WORK_REF = CONTRACTS["work_ref"][0]
 RUNTIME_LABELS = CONTRACTS["runtime.labels"][0]
+# W34998: the two destroy bodies, named where the adapter reads them. Written
+# out ONCE rather than retyped at each receiver -- a member list spelled twice
+# is a list that agrees until one of the two is edited, and the whole point of
+# these two is that their member sets are closed AGAINST EACH OTHER.
+# W32648 review [P0]: the failed-start record's own member set, named where the
+# cleanup crossing reads it back. A record adopted from the journal is data this
+# process did not write on this run, and the crossing compares four of its
+# members against the attempt row -- so it is owned as a document first.
+RUNTIME_START_FAILED = CONTRACTS["runtime.start-failed"][0]
+DESTROY_COMMAND = CONTRACTS["destroy.command"][0]
+FAILED_START_DESTROY_COMMAND = CONTRACTS["destroy.failed-start-command"][0]
+# W32576: read back by the refused-session cleanup crossing, for the same
+# reason the failed-start record is -- a record adopted from the journal is
+# data this process did not write on this run.
+SESSION_UNSUPPORTED_VERSION = CONTRACTS["session.unsupported-version"][0]
+REFUSED_SESSION_DESTROY_COMMAND = CONTRACTS[
+    "destroy.refused-session-command"][0]
 
 
 def _emit(name, members):
@@ -432,6 +550,36 @@ def retain_command(**members):
 
 def destroy_command(**members):
     return _emit("destroy.command", members)
+
+
+def session_unsupported_version(**members):
+    """W32576: the manager's own record of a refused handshake.
+
+    IT IS NOT A WORKER DISPOSITION AND NEVER BECOMES ONE. The frozen axis
+    answers what a WORKER did; a wire version this manager never certified is
+    a fact about the session, and this document is where that fact lives.
+    """
+    return _emit("session.unsupported-version", members)
+
+
+def refused_session_destroy_command(**members):
+    """W32576: the removal a refused handshake authorizes.
+
+    `runtime_id` is non-null by this emitter's contract, as it is on the
+    failed-start sibling: this command exists only for the exact runtime the
+    refused session was speaking to.
+    """
+    return _emit("destroy.refused-session-command", members)
+
+
+def failed_start_destroy_command(**members):
+    """W34998: the removal a failed start authorizes, and it is not a receipt.
+
+    `runtime_id` is non-null by the contract's own emitter: this command exists
+    only for the exact runtime a post-create reconciliation attached, so a
+    caller with nothing to remove has no command to send.
+    """
+    return _emit("destroy.failed-start-command", members)
 
 
 def intake_artifact(**members):
@@ -554,6 +702,26 @@ def runtime_attached(**members):
 
 def runtime_uncertain(**members):
     return _emit("runtime.uncertain", members)
+
+
+def runtime_start_failed(**members):
+    """W32648: THIS MANAGER'S START CALL FAILED AFTER THE ENGINE CREATED
+    SOMETHING, said as a durable typed fact.
+
+    NOT A WORKER DISPOSITION, and the distinction is the whole reason this
+    document exists.  `worker_disposition` answers what a WORKER did and its
+    vocabulary is terminal-once; a transport fault or an adapter refusal says
+    nothing about that, and a container that was created may also have run
+    code.  Recording `unable` here would be this manager inventing a worker's
+    account of itself, which `output.py` refuses in terms.
+
+    It names the attempt, the fixed assignment, the start operation it
+    followed, the runtime the reconciliation attached (or `None` when nothing
+    could be established), and the ORIGINAL typed pair with its message --
+    preserved rather than reworded, because this manager has no better account
+    of the fault than the one that was raised.
+    """
+    return _emit("runtime.start-failed", members)
 
 
 def runtime_cancel(**members):

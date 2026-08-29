@@ -7,12 +7,40 @@
 # remains only as an immediate friendly denial in front of this boundary.
 # Deployment supplies AGENT_REAL and the protected-paths list beside
 # this script. Missing configuration fails closed.
+#
+# W28681: THIS SCRIPT IS ALSO THE PROCESS DOMAIN, and that is a second
+# duty rather than a detail of the first.
+#
+# The incident: five tool process groups left below one managed agent
+# survived 34-36 hours and several later turns; four of them had called
+# `setsid`, so they were in neither the bridge's process group nor its
+# session, and the runaway sixth held a full core. A signal to the
+# bridge's group could not reach any of them, and the bridge does not
+# launch tool subprocesses so it cannot enumerate them either.
+#
+# `--unshare-pid` gives this launch its own PID namespace with
+# bubblewrap as the minimal PID 1 reaper: a `setsid` inside escapes a
+# process group and a session, and does not escape a namespace. When
+# this process exits the namespace goes with it, so the supervisor's
+# "kill the direct child and prove it exited" becomes a proof about
+# EVERY descendant rather than about one process.
+#
+# `--die-with-parent` closes the other direction: a bridge that dies
+# without tearing down takes its sandbox with it instead of leaving an
+# orphaned domain nobody owns.
+#
+# Neither flag is optional in a managed configuration, and neither can
+# be established from inside a nested sandbox — run
+# `preflight-process-domain.sh` from the actual service launch context
+# before installing this.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 PATHS_FILE="${PROTECTED_PATHS_FILE:-$HERE/protected-paths.txt}"
 : "${AGENT_REAL:?AGENT_REAL (the real ACP agent executable) is required}"
 [[ -r "$PATHS_FILE" ]] || { echo "launch-agent-sandboxed: $PATHS_FILE missing; refusing" >&2; exit 2; }
-ARGS=(--dev-bind / /)
+# W28681: the process domain FIRST, then the mount boundary. Both are
+# properties of the same launch; the order here is only readability.
+ARGS=(--unshare-pid --die-with-parent --dev-bind / /)
 effective=0
 while IFS= read -r path; do
 	[[ -z "$path" || "$path" == \#* ]] && continue

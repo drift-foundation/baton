@@ -22,6 +22,7 @@ import tempfile
 import unittest
 
 import baton_v12.authority as authority_package
+from baton_v12.authority.schema import SCHEMA_VERSION
 from baton_v12.authority import (Authority, GATE_CONTRACT_RUNTIME,
                                  GATE_QUIESCENCE, Refusal, gate_token)
 
@@ -121,12 +122,33 @@ class ExportedSurface(unittest.TestCase):
                     "permits_contract_transition", "policy",
                     "revoke_capability", "set_policy",
                     "withdraw_certification",
+                    # W16821: binding an endpoint address to a canonical
+                    # principal is CONFIGURATION.  It moves that identity's
+                    # claim capacity, its grants and its attribution, so the
+                    # face that acts must not carry it -- which is this
+                    # enumeration doing the job it was written for.
+                    "bind_endpoint",
                     # projections
                     "assert_invariants", "assignment_events", "assignment_of",
                     "fenced_generations", "gate_evidence", "operation_record",
                     "operation_result", "project_work", "slot_holder",
                     "activities", "contract_events", "integration_attempts",
                     "proposal", "receipt", "receipts",
+                    # W16821 projections: which principal an address resolves
+                    # to, which addresses one principal holds, which Work that
+                    # principal is at capacity on, and the configuration
+                    # generation a decision would be taken under.
+                    "endpoints_of", "policy_generation", "principal_of",
+                    "slot_holder_of_principal",
+                    # W29400: one Work's live label set, its mutation history,
+                    # and the deployment-wide all-of/none-of inventory. Reads
+                    # only -- the two label MUTATIONS are session transitions
+                    # and are deliberately absent from this face.
+                    "labels_of", "work_label_events", "works_with_labels",
+                    # Review [P0]/[P1]: the decision one authorized act was
+                    # taken under, and the scope- and provenance-bearing grant
+                    # projection `capabilities_of` deliberately flattens.
+                    "decision_of", "grants_of",
                 ]))
                 self.assertEqual(face.authority_uuid, UUID)
                 # And nothing about the STORE: not the path, not the
@@ -216,6 +238,22 @@ class Isolation(unittest.TestCase):
             connection.close()
         self.assertEqual(tables - {"sqlite_sequence"}, {
             "meta", "certified_contract", "contract_transition", "policy",
+            # W16821 schema 2: the principal separated from the endpoint
+            # address, the deployment mapping between them, and the
+            # configuration generation every authorization decision names.
+            # Authority facts, all three: who acted, which address they acted
+            # through, and under which configuration.
+            "policy_generation", "principal", "endpoint",
+            # ...and the decision each authorized act was taken under, in one
+            # table rather than as four nullable columns on whichever row that
+            # act happened to write.
+            "authorization_decision",
+            # W29400: the live Work-label set and its append-only mutation
+            # evidence.  Authority facts: user metadata the authority owns,
+            # authorizes and journals -- and deliberately NOT the Worker
+            # Manager's OCI runtime labels, which are execution identity and
+            # stay in its own store.
+            "work_label", "work_label_event",
             "work", "route_handler", "capability", "fenced_generation",
             "claim_slot", "operation", "assignment_event", "contract_event",
             "gate_evidence", "activity", "proposal", "receipt",
@@ -987,11 +1025,16 @@ class EveryCallerTextFamilyIsBounded(unittest.TestCase):
         return f"op-{self._ops}"
 
     def claimed(self, work_id="0000000a-W1", participant="baton.claude"):
-        self.authority.create_work(work_id, "baton.impl", contract="v12")
+        self.authority.create_work(
+            work_id, "baton.impl", contract="v12",
+            operation_id=("create-" + work_id)[:160])
         self.authority.add_route_handler("baton.impl", participant)
         session = self.authority.session(participant)
-        return session, session.claim({"work_id": work_id,
-                                       "operation_id": self.op()})
+        # W16823: the claim answers a closed result; this fixture's callers
+        # want the four-part fence out of it.
+        return session, session.claim(
+            {"work_id": work_id,
+             "operation_id": self.op()})["assignment"]
 
     def assertBounded(self, family, phrase, call):
         """Bounded AND the refusal this family is about.
@@ -1022,17 +1065,24 @@ class EveryCallerTextFamilyIsBounded(unittest.TestCase):
         # LATER refusal -- which is the case the review singled out, because the
         # text is ours by the time it is rendered and still the caller's by
         # origin.
-        self.authority.create_work(wide_work, "baton.impl")
+        self.authority.create_work(wide_work, "baton.impl",
+                                   operation_id="create-wide-1")
         self.assertBounded("a Work identity already created",
                            "already exists",
-                           lambda: self.authority.create_work(wide_work, "r.x"))
+                           # A FRESH IDENTITY PER ATTEMPT: `assertBounded`
+                           # drives the call more than once, and W29400 made
+                           # creation effectively-once -- so a fixed id would
+                           # replay the first answer instead of reaching the
+                           # refusal this case is about.
+                           lambda: self.authority.create_work(
+                               wide_work, "r.x", operation_id=self.op()))
         self.assertBounded("no such Work",
                            "no such Work",
                            lambda: self.authority.project_work(
                                "0000000b-W" + "2" * 1_000_000))
 
         # THE ROUTE and PARTICIPANT families.
-        self.authority.create_work("0000000a-W9", wide_route, contract="v12")
+        self.authority.create_work("0000000a-W9", wide_route, contract="v12", operation_id="create-" + "0000000a-W9")
         self.assertBounded(
             "a route that does not resolve",
                            "does not resolve to",
@@ -1048,7 +1098,7 @@ class EveryCallerTextFamilyIsBounded(unittest.TestCase):
 
         # THE SLOT family: one participant, a second Work.
         session, _ = self.claimed(participant=wide_participant)
-        self.authority.create_work("0000000a-W2", "baton.impl", contract="v12")
+        self.authority.create_work("0000000a-W2", "baton.impl", contract="v12", operation_id="create-" + "0000000a-W2")
         self.assertBounded(
             "a participant already holding a slot",
                            "already holds",
@@ -1096,7 +1146,8 @@ class EveryCallerTextFamilyIsBounded(unittest.TestCase):
         blocked = "0000000a-W4"
         self.authority.create_work(
             blocked, "baton.impl", contract="v12", phase="block",
-            gate=gate_token(GATE_QUIESCENCE, self.HUGE))
+            gate=gate_token(GATE_QUIESCENCE, self.HUGE),
+            operation_id=("create-" + blocked)[:160])
         self.assertBounded(
             "a Work blocked by a wide gate",
             "blocked by",
@@ -1119,7 +1170,7 @@ class EveryCallerTextFamilyIsBounded(unittest.TestCase):
         # with no behavioural witness.
         contract = self.HUGE
         self.authority.certify_contract(contract, profile="reference")
-        self.authority.create_work("0000000a-W5", "baton.impl",
+        self.authority.create_work("0000000a-W5", "baton.impl", operation_id="create-" + "0000000a-W5",
                                    contract=contract)
         # A FRESH participant: one participant holds one claim across the whole
         # deployment, so reusing an earlier family's session would refuse for the
@@ -1127,7 +1178,7 @@ class EveryCallerTextFamilyIsBounded(unittest.TestCase):
         self.authority.add_route_handler("baton.impl", "baton.contract")
         wide_session = self.authority.session("baton.contract")
         held = wide_session.claim({"work_id": "0000000a-W5",
-                                   "operation_id": self.op()})
+                                   "operation_id": self.op()})["assignment"]
         runtime = gate_token(GATE_CONTRACT_RUNTIME, "local")
         wide_session.install_gate({"work_id": "0000000a-W5",
                                    "operation_id": self.op(),
@@ -1176,7 +1227,7 @@ class EveryCallerTextFamilyIsBounded(unittest.TestCase):
                    "policy_digest": "p" * 64}
         session.publish({"expect": mine, "operation_id": self.op(),
                          "proposal_id": "proposal-1", **digests})
-        self.authority.create_work("0000000a-W2", "baton.impl", contract="v12")
+        self.authority.create_work("0000000a-W2", "baton.impl", contract="v12", operation_id="create-" + "0000000a-W2")
         second = self.authority.session("baton.claude")
 
         # THE FROZEN-RESULT family: the same identity naming other bytes. The
@@ -1195,7 +1246,7 @@ class EveryCallerTextFamilyIsBounded(unittest.TestCase):
         # produced the same frozen bytes.
         session.end({"expect": mine, "operation_id": self.op()})
         again = session.claim({"work_id": "0000000a-W1",
-                               "operation_id": self.op()})
+                               "operation_id": self.op()})["assignment"]
         self.assertNotEqual(again["generation"], mine["generation"])
         self.assertBounded(
             "a frozen result under another assignment",
@@ -1273,8 +1324,14 @@ class EveryCallerTextFamilyIsBounded(unittest.TestCase):
         connection = sqlite3.connect(malformed, isolation_level=None)
         connection.execute(
             "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+        # THE FIXTURE'S VERSION IS THE BUILD'S, symbolically.  It was the
+        # literal "1"; W16821 made the build schema 2, and a store recording an
+        # older version is refused for its VERSION before the recorded-uuid
+        # check is reached -- so this case would have stopped exercising the
+        # site it is named for while still passing something.  The assertion
+        # below is unchanged.
         for key, value in (("store_kind", "baton.v12.python.authority"),
-                           ("schema_version", "1"),
+                           ("schema_version", str(SCHEMA_VERSION)),
                            ("authority_uuid", "not-a-uuid")):
             connection.execute("INSERT INTO meta (key, value) VALUES (?, ?)",
                                (key, value))

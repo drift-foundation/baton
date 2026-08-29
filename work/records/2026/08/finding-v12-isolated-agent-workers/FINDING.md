@@ -1519,6 +1519,16 @@ when that stage's offer is issued. Whole-Work blocking is reserved for genuine
 outcome dependencies and is not the default merely because two implementations
 must land in order.
 
+This enables review-ahead. If an edge gates only implementation, one or more
+reviewers may prepare the downstream Job by reviewing its plan, contract,
+acceptance boundary, fixtures and verification intent while the predecessor is
+still running. When the gate opens, a coder receives a reviewed contract
+rather than beginning with a review queue still ahead. An outcome dependency
+continues to block that work when the predecessor's result may change the plan,
+and proposal/code review cannot start until a concrete immutable candidate
+exists. The granularity creates honest overlap; it does not relabel planning
+as implementation review.
+
 The current W2929→W2930 edge demonstrates the v11 limitation: it blocks
 W2930's review even though only implementation ordering normally needs to be
 serial. We deliberately leave that live v11 edge unchanged. Under v12 the
@@ -1820,3 +1830,166 @@ result; the operator may refresh the host credential and start a fresh
 attempt. A writable container-private refresh cache, short-lived service
 credentials and multi-tenant credential brokerage remain post-MVP design
 work, not implied authority to weaken the read-only mount.
+
+## Parallel campaign scheduling — confirmed 2026-08-27
+
+Treat `baton.tuner` as a deliberate third execution lane rather than a spare
+used only after the primary implementer and reviewer stop. As the v12 graph
+grows, continuously inspect ready unclaimed leaves for bounded work that is
+implementation-ready and does not overlap files or decisions owned by a live
+claim. Explicitly reroute suitable documentation, packaging, fixtures,
+registries, additive test ownership, evidence repair and other narrow polish
+to `baton.tune` so it advances in parallel with `baton.impl` and `baton.rsrch`.
+
+Parallelism never overrides ownership. Establish the exact dossier and file
+boundary before rerouting, leave protocol/runtime seams with their qualified
+owner unless the tuner is explicitly reassigned to that bounded change, and do
+not split one coherent correction merely to occupy a worker. Every tuner result
+still returns through independent review. An idle tuner beside queued,
+non-conflicting eligible Work is a scheduling condition to investigate, not a
+default state to accept without looking.
+
+## One claimed execution runtime — confirmed 2026-08-27
+
+This ruling supersedes the earlier pre-claim design in “Claim-acceptance
+deadline and unreliable workers,” “Worker-control boundary,” the walking
+skeleton, and PLAN item 0n wherever they require an inside model or separate
+consent container to receive and return a claim token. Those passages remain
+chronological design history, not the current runtime contract.
+
+An offer is now a bounded manager-side reservation of an eligible runtime
+slot. The trusted adapter accepts that reservation without launching an agent
+or container. The Worker Manager then submits the canonical atomic claim. Only
+a successful claim creates the assignment generation and permits one claimed
+execution container to launch. Offer expiry or a lost claim race releases the
+reservation and launches nothing. A launch failure after claim is a typed
+operational result governed by explicit recovery policy, not a reason to
+invent a second consent lifecycle.
+
+Agent autonomy begins inside the claimed execution runtime. The agent may
+return typed `plan-rejected` or `unsupported`; `plan-rejected` ends the claim
+behind the already approved plan-revision gate. This preserves the agent's
+ability to refuse unsuitable Work without paying for and coordinating a
+separate consent container.
+
+Dispatch also constitutes approval to disclose the exact Work source declared
+by the assignment. The claimed container may receive that repository or other
+source through the fixed read-only `/input` contract and may copy or clone it
+into private ephemeral space or `/output`. This trust does not extend to the
+Baton authority database, integration credentials, unrelated host paths, or a
+writable canonical checkout. Credentials remain a separately governed
+read-only provider; candidate publication remains fenced by assignment
+generation and later verification/integration gates.
+
+## Happy-path critical path and parallel hardening — confirmed 2026-08-28
+
+The first usable v12 proof must not be held behind the complete defensive
+matrix of the platform it is intended to validate. The critical path therefore
+owns the smallest honest end-to-end result: one real Docker worker traverses
+the accepted input, claim, launch, execution, output, settlement and cleanup
+arc, and every assertion needed to prove that positive result is real. A known
+false-success path remains a blocker to that slice; calling it “happy path”
+does not excuse an observed correctness defect.
+
+That finish line declares the design **promising**, not production-ready. Its
+purpose is to validate the general architecture before spending substantial
+time hardening decisions that a later proof phase may replace. Once the
+end-to-end shape survives, the campaign walks back through the separately
+tracked robustness Jobs and makes it solid. No requirement disappears; the
+ordering avoids building exhaustive protection around a seam the next phase
+may invalidate.
+
+The roadmap is therefore a sequence of capability passes. Every pass ends in
+an observable result that can validate or reject the current design. Work
+deferred from the active pass is not ignored: its requirement, evidence and
+acceptance boundary remain in a finding and a planned or parked Job assigned
+to a later pass. There may be many passes on the way to a robust product, but
+work specific to pass N has no critical-path value while pass N−1 cannot yet
+show a promising solution. This ordering connects basic delivery to eventual
+robustness without pretending they are the same acceptance claim.
+
+The development direction is explicitly top-down and iterative. First connect
+a thin vertical slice across the major boundaries and make it produce a useful,
+repeatable result. Then cycle back through that working path to strengthen it.
+Do not exhaustively perfect components and hypothetical failure cases in
+isolation before the integrated design has shown that its downstream seams are
+viable. Tests are evidence for a pass-level capability claim, not a substitute
+for one; discovering a major architectural error after bottom-up hardening is
+precisely the avoidable waste this ordering addresses.
+
+Engineering concerns noticed along that path are preserved as Work rather than
+allowed to disappear into memory or unaffiliated source comments. “TODO,”
+“improve,” “come back and fix,” “do not hard-code,” and equivalent notes become
+attributable findings or lightweight Jobs linked to the pass that exposed
+them. Unless one can make the current demonstration false, it is scheduled for
+a later pass rather than immediately expanding the critical path. A source
+comment may reference the Work but is never its only durable record.
+
+Those Jobs are deliberately cheap options. If a later vertical slice changes
+the design and removes the concern, close the unstarted Job as superseded or
+cancelled with its rationale. Baton then preserves why no implementation was
+needed. Discarding that recorded note costs almost nothing compared with
+discarding code, tests and hardened contracts built before the architecture
+was validated.
+
+## Early v12 dogfooding and concurrency target — confirmed 2026-08-28
+
+A promising v12 capability pass may be used before production readiness to
+accelerate the remaining v12 campaign. Once the isolated input, execution,
+candidate-output and review path is trustworthy enough for a bounded pilot,
+route suitable v12 leaf Jobs through it and let the resulting operational
+evidence drive later passes. This is controlled dogfooding, not an authority
+cutover: retain the known-good coordination and recovery path until the
+separate adoption gate passes, and admit only work whose isolated proposal can
+be rejected or discarded without mutating the canonical checkout.
+
+The target operating shape is at least two concurrent coder lanes and at least
+two concurrent reviewer lanes. Every lane has its own participant and runtime
+identity, one exact claim at a time, and an isolated workspace or immutable
+proposal. Independent ready leaves may run in parallel; overlapping file or
+decision ownership remains explicitly serialized. Reviewers are independently
+schedulable so a long review does not block all coding throughput, and the
+workflow may deliberately request a second opinion from a distinct reviewer
+without confusing it with affinity-based continuation of an earlier review.
+
+The coder lanes expose two work-intent routes. `impl` owns initial vertical
+slices: make the smallest honest useful path work and record deferred concerns.
+`harden` owns bounded follow-up robustness: races, recovery, portability,
+security, scale and operational guarantees against a design that has already
+earned further investment. These are capabilities rather than fixed personas;
+one member may hold either or both, and different members may supply capacity
+to the same route.
+
+Neither route weakens authority. An `impl` handler must correct anything that
+would make its capability demonstration falsely succeed. A `harden` handler
+preserves the accepted capability and requests plan revision if its evidence
+requires redesign. `tuner` remains the documentation, packaging and polish
+route rather than becoming a substitute hardening coder. `impl2` is not used:
+provider fallback is orthogonal to work intent and belongs in route selection,
+not in the role name.
+
+Using v12 to build v12 is itself a validation surface. Scheduling, isolation,
+proposal intake, review concurrency and failure recovery defects found there
+become attributable later-pass Work. Waiting for every hardening pass before
+dogfooding would postpone the concurrency and isolation benefits that can make
+those same passes faster.
+
+The early dogfood scheduler should use stage-scoped gates to keep both reviewer
+lanes productive ahead of implementation where the contract is already
+knowable. This is a primary throughput benefit of v12, not merely a richer way
+to describe blocked Work.
+
+Unstarted restart, race, alternate-engine and belt-and-suspenders robustness
+outcomes are independently accountable Jobs. They retain the decisions,
+reproductions and invariants already discovered, but they do not silently grow
+the happy-path Job or hold the proof behind one ever-longer review thread.
+Where file ownership permits, a different worker may advance those hardening
+Jobs concurrently while the critical path moves to the next proof stage.
+
+W6636 is the immediate correction to the scheduling mistake. Do not split it
+under its current live review claim. At the next handoff, accept or correct the
+already-submitted Docker happy-path slice on its present evidence, then move
+each materially unstarted remainder to a separately visible M2 Job. Those
+Jobs must not become accidental dependencies of the next proof stage merely
+because they originated in W6636; add an edge only when that stage genuinely
+cannot produce an honest result without the named hardening outcome.

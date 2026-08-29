@@ -1,0 +1,27 @@
+W6 capability-pass revalidation — 2026-08-28
+
+Authoritative case register read:
+  work/records/2026/08/finding-v12-isolated-agent-workers/findings/
+  finding-v12-worker-contract/findings/finding-worker-runtime-conformance/
+  evidence/cases.json
+
+Query:
+  [.cases[] | select(.applies_to | index("local-oci"))] | length
+
+Observed:
+  135
+
+The W6 acceptance text says 106 applicable local-OCI cases. That count is
+stale and cannot delimit a certification run.
+
+Local-OCI cases whose statements require the superseded consent-container
+topology:
+  A-consent-sees-neither-input-document
+  C-preclaim-no-execution
+  H-consent-then-execution
+
+The current campaign and W6636 instead require reservation without a runtime,
+atomic claim, and one execution container only after claim. A full run over
+the current register therefore cannot honestly derive `certified`: skipping
+or marking these three unable yields `not-certified`, while passing them would
+require the architecture the campaign explicitly superseded.

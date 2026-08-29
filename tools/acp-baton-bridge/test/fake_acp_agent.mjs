@@ -13,6 +13,17 @@
 //   FAKE_ACP_EXIT_ON_PROMPT=1  exit(7) when the first prompt arrives
 //   FAKE_ACP_MUTE=1        never answer initialize (hang forever)
 //   FAKE_ACP_NEVER_FINISH=1    prompt turns never return
+//   FAKE_ACP_CHATTY_MS=n       while hung, emit a session update every
+//                              n ms — the "infinite but talkative tool"
+//                              an activity-reset watchdog would never
+//                              end (W28681)
+//   FAKE_ACP_LEAVE_DESCENDANT=PATH
+//                              during the turn, start a DETACHED child
+//                              in its own session (`setsid`) that
+//                              outlives this process, and write its pid
+//                              to PATH. This is the exact shape the
+//                              incident found: a tool child that a
+//                              process-group signal cannot reach
 //   FAKE_ACP_TRY_FORBIDDEN=1   attempt the tool "forbidden_tool" in
 //                              each turn, gated by the deployment
 //                              policy file at FAKE_ACP_POLICY; a
@@ -126,8 +137,49 @@ class FakeAgent {
 				content: { type: "text", text: `echo: ${text.slice(0, 40)}` },
 			},
 		});
+		if (process.env.FAKE_ACP_LEAVE_DESCENDANT) {
+			// W28681: a tool child in ITS OWN session, exactly as the
+			// four polling shells in the incident were. `detached` makes
+			// this process a session and process-group leader, so a
+			// signal to this agent's group cannot reach it — only an
+			// outer domain can.
+			const { spawn: spawnChild } = await import("node:child_process");
+			const { writeFileSync: write } = await import("node:fs");
+			const child = spawnChild(process.execPath,
+				["-e", "setInterval(() => {}, 1000)"],
+				{ detached: true, stdio: "ignore" });
+			child.unref();
+			write(process.env.FAKE_ACP_LEAVE_DESCENDANT, `${child.pid}\n`);
+			log({ event: "tool/descendant", pid: child.pid });
+		}
 		if (process.env.FAKE_ACP_NEVER_FINISH) {
 			log({ event: "prompt/hung" });
+			if (process.env.FAKE_ACP_CHATTY_MS) {
+				// W28681: updates FOREVER, and they have to be VALID ones.
+				//
+				// Review [P1]: this update omitted `toolCallId`, which is the
+				// one member `ToolCallUpdate` requires. The SDK rejected every
+				// one with `Invalid params`, so nothing ever reached the
+				// bridge's handler — the case reached its deadline over a
+				// SILENT agent and proved nothing about whether real streamed
+				// activity extends it, which is the only thing it was for.
+				const every = Number(process.env.FAKE_ACP_CHATTY_MS);
+				let beats = 0;
+				const beat = setInterval(() => {
+					beats += 1;
+					this.connection.sessionUpdate({
+						sessionId: params.sessionId,
+						update: { sessionUpdate: "tool_call_update",
+						          toolCallId: "w28681-chatty-tool",
+						          title: `still going (${beats})`,
+						          status: "in_progress" },
+					}).then(() => log({ event: "tool/update", beat: beats }),
+					        (error) => log({ event: "tool/update-refused",
+					                         why: String(error?.message
+					                                     ?? error) }));
+				}, every);
+				beat.unref?.();
+			}
 			return new Promise(() => {});      // the turn never ends
 		}
 		if (process.env.FAKE_ACP_TRY_FORBIDDEN) {

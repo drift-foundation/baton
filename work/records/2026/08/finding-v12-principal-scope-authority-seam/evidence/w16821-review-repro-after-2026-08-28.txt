@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "/tmp/w16821_review_repro.py", line 39, in <module>
+    receipt = core.verify(proposal_id="proposal-1", verification_id="verify-2",
+                          actor=VERIFIER, observation="passed",
+                          operation_id="verify-deployment")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 1695, in verify
+    return self._write_receipt(
+           ~~~~~~~~~~~~~~~~~~~^
+        kind="verification", capability="verify",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        valid=frozenset({"passed", "failed", "unable"}),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        proposal_id=proposal_id, receipt_id=verification_id, actor=actor,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        disposition=observation, operation_id=operation_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 1656, in _write_receipt
+    return self._replay(
+           ~~~~~~~~~~~~^
+        operation_id,
+        ^^^^^^^^^^^^^
+    ...<4 lines>...
+                            "disposition": disposition,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "policy_generation": policy_generation}), body)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 1895, in _replay
+    return self._store.replay(operation_id, signature, action, at=self._now())
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py", line 403, in replay
+    raise outcome["refusal"]
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py", line 337, in _savepoint
+    value = body()
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 1632, in body
+    raise Refusal(f"{kind} receipt is immutable")
+baton_v12.authority.errors.Refusal: verification receipt is immutable

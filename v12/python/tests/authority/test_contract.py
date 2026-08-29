@@ -52,15 +52,17 @@ class WorkflowCase(unittest.TestCase):
         return f"{label}.{self._ops}"
 
     def work(self, work_id=WORK, *, contract=V12, handlers=(CLAUDE,)):
-        self.core.create_work(work_id, ROUTE, contract=contract)
+        self.core.create_work(work_id, ROUTE, contract=contract, operation_id=("create-" + str(work_id))[:160])
         for participant in handlers:
             self.core.add_route_handler(ROUTE, participant)
         return work_id
 
     def claimed(self, work_id=WORK, participant=CLAUDE, **kwargs):
         self.work(work_id, **kwargs)
+        # W16823: the claim answers a closed result; this fixture's callers
+        # want the four-part fence out of it.
         return self.core.claim(work_id, participant,
-                               operation_id=self.op("claim"))
+                               operation_id=self.op("claim"))["assignment"]
 
     def grant_each(self):
         """One participant per capability, which is the DEFAULT arrangement.
@@ -156,8 +158,8 @@ class ContractProgression(WorkflowCase):
         # And the FIRST claim under the new contract mints generation one, on
         # the same Work that was v11 a moment ago.
         self.assertEqual(
-            self.core.claim(WORK, CLAUDE,
-                            operation_id=self.op())["generation"], 1)
+            self.core.claim(WORK, CLAUDE, operation_id=self.op()
+                            )["assignment"]["generation"], 1)
 
     def test_the_contract_compare_and_swap_is_exact(self):
         assignment = self.claimed(contract=V11)
@@ -322,7 +324,7 @@ class CutFourReviewFindings(WorkflowCase):
         self.core.publish(first, operation_id=self.op(),
                           proposal_id="proposal-1", **DIGESTS)
         self.core.end(first, operation_id=self.op())
-        second = self.core.claim(WORK, CLAUDE, operation_id=self.op())
+        second = self.core.claim(WORK, CLAUDE, operation_id=self.op())["assignment"]
         self.assertEqual(second["generation"], 2)
         with self.assertRaises(Refusal) as caught:
             self.core.publish(second, operation_id=self.op(),
@@ -908,7 +910,7 @@ class AuthorizedClose(WorkflowCase):
         self.work(WORK)
         self.work(OTHER)
         self.core.add_route_handler(ROUTE, GEMINI)
-        other = self.core.claim(OTHER, GEMINI, operation_id=self.op())
+        other = self.core.claim(OTHER, GEMINI, operation_id=self.op())["assignment"]
         with self.assertRaises(Refusal) as caught:
             self.core.close(WORK, operation_id=self.op(), outcome="cancelled",
                             rationale="wrong Work", actor="baton.closer",

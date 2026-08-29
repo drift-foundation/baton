@@ -120,24 +120,75 @@ class Authority:
     def canonical_target(self):
         return self._core.canonical_target()
 
-    def grant_capability(self, participant, capability):
-        return self._core.grant_capability(participant, capability)
+    def grant_capability(self, participant, capability, *, scope=None):
+        return self._core.grant_capability(participant, capability,
+                                           scope=scope)
 
-    def revoke_capability(self, participant, capability):
-        return self._core.revoke_capability(participant, capability)
+    def revoke_capability(self, participant, capability, *, scope=None):
+        return self._core.revoke_capability(participant, capability,
+                                            scope=scope)
 
-    def holds_capability(self, participant, capability):
-        return self._core.holds_capability(participant, capability)
+    def holds_capability(self, participant, capability, *, scope=None):
+        return self._core.holds_capability(participant, capability,
+                                           scope=scope)
+
+    # -- the principal mapping (W16821) --------------------------------------
+    #
+    # ON THIS FACE AND NOT ON THE SESSION, for the reason the two faces exist
+    # at all: a session that could rebind its own endpoint could move its claim
+    # slot, its grants and everything it is attributed for onto another
+    # identity.  Binding an address to a principal is a deployment act.
+
+    def bind_endpoint(self, participant, principal):
+        return self._core.bind_endpoint(participant, principal)
+
+    def principal_of(self, participant):
+        return self._core.principal_of(participant)
+
+    def endpoints_of(self, principal):
+        return self._core.endpoints_of(principal)
+
+    def slot_holder_of_principal(self, principal):
+        return self._core.slot_holder_of_principal(principal)
+
+    def policy_generation(self):
+        return self._core.policy_generation()
 
     def capabilities_of(self, participant):
         return self._core.capabilities_of(participant)
 
-    def create_work(self, work_id, route, *, contract=None, phase="queued",
-                    gate=None):
+    def labels_of(self, work_id):
+        return self._core.labels_of(work_id)
+
+    def work_label_events(self, work_id):
+        return self._core.work_label_events(work_id)
+
+    def works_with_labels(self, *, all_of=(), none_of=()):
+        return self._core.works_with_labels(all_of=all_of, none_of=none_of)
+
+    def grants_of(self, participant):
+        return self._core.grants_of(participant)
+
+    def decision_of(self, act, act_id):
+        return self._core.decision_of(act, act_id)
+
+    def create_work(self, work_id, route, *, operation_id, contract=None,
+                    phase="queued", gate=None, scope=None, labels=()):
+        """W29400: the public creation face, with an identity and labels.
+
+        `operation_id` is REQUIRED, which is what makes a creation replayable
+        and what gives its create-time labels an act to be attributed to. The
+        internal `Core.create_work` used to be the only door and took neither.
+        """
         if contract is None:
-            return self._core.create_work(work_id, route, phase=phase, gate=gate)
-        return self._core.create_work(work_id, route, contract=contract,
-                                      phase=phase, gate=gate)
+            return self._core.create_work(work_id, route,
+                                          operation_id=operation_id,
+                                          phase=phase, gate=gate, scope=scope,
+                                          labels=labels)
+        return self._core.create_work(work_id, route,
+                                      operation_id=operation_id,
+                                      contract=contract, phase=phase,
+                                      gate=gate, scope=scope, labels=labels)
 
     def add_route_handler(self, route, participant):
         return self._core.add_route_handler(route, participant)

@@ -106,7 +106,7 @@ production implementation is authorized yet.**
    child Work, assignment generation and proposal; every losing attempt keeps
    an explicit disposition and attributable history.
 
-0n. [done 2026-08-20] Make a short-lived, single-use, manager-issued claim
+0n. [superseded 2026-08-27 by item 25] Make a short-lived, single-use, manager-issued claim
    token the only pre-claim handoff deadline. Bind it to authority, Work,
    participant, runtime attempt and expiry; require the inside agent to return
    it with its claim intent. Expiry fails closed without a Handler or assignment
@@ -471,7 +471,10 @@ whose prerequisites have closed are actionable.
     named gate atomically when issuing that stage's offer. Leave v11's coarse
     Work-level dependency behavior and the current W2929→W2930 edge unchanged;
     create bounded implementation Work only when the v12 scheduler slice is
-    ordered.
+    ordered. Permit plan, contract, acceptance and fixture review ahead of an
+    implementation-only gate; retain outcome gating when predecessor results
+    can change that preparation, and require an actual immutable proposal
+    before technical proposal/code review.
 17. [deferred; confirmed 2026-08-23] Modularize the v12 TUI after the isolated
     worker path is practically usable end to end. Separate terminal input,
     navigation, view state, rendering, command editing, and authority
@@ -551,3 +554,90 @@ whose prerequisites have closed are actionable.
     credential-capability handoff and defer writable refresh caches,
     short-lived service credentials and multi-tenant brokerage until after the
     two-provider Docker proof.
+24. [active scheduling rule; confirmed 2026-08-27] Use `baton.tuner` as the
+    third campaign execution lane. At each queue review, identify ready,
+    unclaimed, bounded leaves whose dossier and file ownership do not overlap a
+    live claim, and reroute suitable documentation, packaging, fixtures,
+    registries, additive test ownership, evidence repair and narrow polish to
+    `baton.tune`. Do not manufacture parallelism across one coherent seam;
+    preserve explicit ownership and independent review. W26296 is the first
+    application of this rule.
+25. [confirmed 2026-08-27; supersedes item 0n's inside-agent consent] Use one
+    claimed execution runtime, not a separate consent runtime. The trusted
+    adapter accepts a bounded reservation without launching the model; the
+    Worker Manager atomically claims; only a successful claim launches one
+    execution container. Offer expiry or a lost claim race launches nothing.
+    Preserve model autonomy through typed `plan-rejected` and `unsupported`
+    results after claim. The claimed container may receive the exact declared
+    Work source under the read-only `/input` contract, but never the Baton
+    authority store, integration credentials, unrelated host paths, or a
+    writable canonical checkout. Cancel W26295 as superseded, remove the
+    consent-posture axis from W26291 and W6636, and retain credentials as the
+    separately governed read-only provider.
+26. [confirmed requirement 2026-08-27; terminology clarified 2026-08-28 UTC;
+    ledger W28880] Add generic, user-defined labels to v12 Work for
+    cross-cutting metadata such as release name, requester identity and `v12`,
+    with later exact filtering. A label is one opaque key, not parsed
+    `name=value`; structured metadata is a separate future attribute or
+    annotation feature. Keep labels distinct from containment, dependencies
+    and scheduler state. The bound
+    `work/records/2026/08/finding-v12-work-tags/` dossier owns grammar,
+    mutation authority, event, projection, filter and TUI decisions. W28880 is
+    independently scheduled because `baton.prompt` cannot authoritatively
+    attach a child beneath the approver-routed W2 umbrella.
+27. [confirmed 2026-08-28; apply at W6636's next handoff] Put the smallest
+    honest end-to-end Docker happy path on the v12 critical path. Require the
+    assertions and corrections needed to prove that positive arc, but split
+    materially unstarted restart, race, alternate-engine and defensive
+    hardening outcomes into separately claimed M2 Jobs. Schedule independent
+    hardening in parallel where ownership permits, and do not make those Jobs
+    dependencies of the next proof stage unless their exact invariant is
+    required for an honest result. Treat this first finish line as evidence
+    that the design is promising, not production-ready; then walk back through
+    the preserved hardening Jobs after the architecture is validated. Do not
+    change W6636's scope under its live review claim; perform the decomposition
+    after that claim passes or releases.
+27a. [confirmed 2026-08-28; campaign sequencing] Model v12 maturity as explicit
+     capability passes, each ending in a demonstrable acceptance result. Keep
+     every requirement deferred from the current pass in an owning finding and
+     planned or parked Job assigned to a later pass. Do not place pass-N
+     hardening on the critical path while pass N−1 cannot yet demonstrate a
+     promising solution; after a pass validates the design, resume its recorded
+     hardening Jobs toward the next maturity boundary.
+27b. [confirmed 2026-08-28; development direction] Build v12 top-down through
+     thin end-to-end vertical slices, then revisit each working slice in later
+     passes to harden it. Use tests as evidence that the current pass's useful
+     result is honest and repeatable; do not maximize isolated component and
+     what-if coverage before the downstream architecture has earned that
+     investment through an integrated demonstration.
+27c. [confirmed 2026-08-28; durable engineering notes] Convert material TODO,
+     improvement, hard-coding and revisit concerns discovered during a pass
+     into attributable findings or lightweight Jobs linked to that pass. Keep
+     them off the current critical path unless they can falsify its result; an
+     inline comment may reference the Work but never replace it. If later
+     design changes remove the concern, close the unstarted Job as superseded
+     or cancelled with its rationale rather than implementing obsolete work.
+28. [confirmed 2026-08-28; controlled early adoption] After a promising v12
+    capability pass proves isolated input, execution, candidate output and
+    review, use it in a bounded dogfood lane to develop suitable v12 leaves
+    while later hardening proceeds. Keep the known-good coordination/recovery
+    path until a separate cutover gate; admit only discardable isolated
+    proposals during the pilot. Build toward at least two distinct coder lanes
+    and two distinct reviewer lanes, each with its own participant/runtime
+    identity and one claim, and preserve explicit serialization for overlapping
+    ownership. Use stage-scoped dependencies to schedule honest review-ahead
+    work so downstream contracts can be ready when implementation gates open.
+    Record dogfood defects as later-pass Work.
+28a. [confirmed 2026-08-28; coding route intents] Provide `impl` for initial
+     honest vertical-slice delivery and `harden` for bounded robustness Work
+     against an already validated design. Allow participant membership in
+     either or both routes and scale each pool independently. Require `impl` to
+     fix false-success defects and record deferred concerns; require `harden`
+     to preserve accepted capability or request plan revision before redesign.
+     Keep `tuner` distinct and do not encode provider fallback as `impl2`.
+27d. [applied 2026-08-28; W6636 capability pass] W6636 closed satisfying as
+     the bounded one-container Docker capability proof. W32382 owns the
+     deferred negative/race endings; W32385 owns exact ended-runtime restart
+     adoption; W32391 owns real-engine Podman certification and must be parked
+     while that engine is unavailable. All three are M2 children of W3 and
+     atomic follow-ups to W6636, with their own canonical dossiers.

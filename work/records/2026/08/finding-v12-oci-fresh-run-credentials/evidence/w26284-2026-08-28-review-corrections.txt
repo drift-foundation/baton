@@ -1,0 +1,78 @@
+W26284 — corrections appended to the 2026-08-27 gate evidence
+=============================================================
+
+The file beside this one, `w26284-2026-08-27-credential-provider.txt`, is
+KEPT EXACTLY AS PRODUCED. It is the account of the first implementation and
+of the measurement that established it, and two of its statements have since
+been overtaken. Rewriting it would erase how the first pass read at the time;
+this file carries what is true now.
+
+--- 1. THE ACCEPTED FULL-TREE BASELINE IS SIX, NOT SEVEN
+
+Section 6 of that file says the seventh failure — `check_input_pair` in
+`test_contracts_inventory` — "still has no owner". Both halves are stale.
+
+  W26296 (`work/records/2026/08/finding-check-input-pair-inventory-follow-up`)
+  explicitly owns that inventory follow-up and blocks W6636, so it has an
+  owner; and the registration has since LANDED. The three receiving
+  parameters are declared at `tests/manager/test_contracts_inventory.py:147`
+  and that module is green.
+
+  Verified on this tree rather than transcribed:
+
+    tools/parallel_test.py -> 1553 tests, 6 failures, ALL in
+    test_boundary_inventory. None is this Work's.
+
+--- 2. THE TWO [P1] FAILURES THE 2026-08-27 MEASUREMENT DID NOT CATCH
+
+Section 6 reports nineteen mutations, all caught. That measurement was
+honest and it was not sufficient, and the reason is worth stating plainly
+because it is a property of how the mutations were chosen rather than of how
+many there were.
+
+  THE FAILED-MATERIALIZATION MUTATIONS WATCHED A SUCCESSFUL REMOVAL. Both
+  existing ones either removed the `_discard` call or swapped it with the
+  forgetting. Neither drove `_discard`'s explicit FALSE answer, which is the
+  one the operation exists to return — so nineteen of nineteen could be
+  caught while a filesystem refusal left bearer bytes on disk with the
+  registry disarmed. A third mutation now makes the proof vacuous the same
+  way ignoring the boolean did.
+
+  THE ARGV MUTATION REMOVED THE SWEEP FROM THE ONE VECTOR THAT HAD IT.
+  `run_vector` swept the argv it composed; `start`'s duplicate probe reached
+  the engine first and unswept. The case that existed chose the `participant`
+  label specifically because it is NOT a candidate filter, so it proved the
+  late sweep worked and said nothing about the early leak. The sweep now has
+  one owner at `EnginePort.__call__`, which is what every vector actually
+  passes through, and the mutation removes it there because that is the only
+  place it exists.
+
+--- 3. THE REAL-ENGINE TEARDOWN CASE WAS OUT OF SCOPE
+
+Section 6's real-engine pass included
+`test_teardown_forgets_only_after_the_bytes_are_proved_gone`, which started a
+real container and then called `CredentialHome.tear_down` directly. Removing
+a host pathname is not proof that a bind-mounted runtime cannot still hold
+the inode, and this finding keeps the shared quiescence/removal/settlement
+crossing explicitly outside this provider.
+
+The review offered two resolutions and the finding's own boundary chooses
+between them: this suite stays inside fresh-run delivery and failure. The
+case now tears down a delivery that never launched — a real ending this
+provider owns — and a new case exercises the one runtime-absence question it
+does own: a start the engine refused settles through the adapter's real `ps`
+against a real daemon before the delivery is released. The post-runtime
+crossing remains W6636's.
+
+--- 4. TEMPORARY TREES
+
+`test_credentials_engine._release` changed modes and never removed anything,
+so every earlier run left a tree behind. It now removes the tree and asserts
+its absence, and a fresh run adds none: measured before and after at 347,
+delta 0.
+
+THE 347 EARLIER TREES ARE STILL THERE, under `/tmp/v12-w26284-engine-*`.
+They are named here for the operator rather than removed by this turn: a
+glob-wide destructive command over paths this turn did not create is exactly
+what managed-turn policy steers away from, and the defect that produced them
+is fixed at its source.

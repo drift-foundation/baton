@@ -466,8 +466,12 @@ GRAMMAR = {
 	                          help="why the trial ends unresolved"))},
 	"home": {"help": "the team summary and root Work rows",
 	         "keys": _filter_keys()},
-	"search": {"help": "read-only team-scoped Work search (title "
-	           "substring; id exact/prefix)",
+	# W29146: the help already said team-scoped; the RESULT now says it
+	# too, so a client does not have to have read this line to know what an
+	# empty answer means.
+	"search": {"help": "read-only Work search scoped to your own team, "
+	           "which the result names as `team` (title substring; id "
+	           "exact/prefix)",
 	           "keys": (_key("query", required=True,
 	                         help="case-folded title substring, or a "
 	                         "canonical/local Work id prefix"),
@@ -734,9 +738,17 @@ GRAMMAR = {
 	# nested deeper, or owned by another team -- had no locator anywhere.
 	"actionable-work": {"help": "every Work awaiting this participant, "
 	                            "flattened, with complete breadcrumbs",
-	                    "keys": (_key("after", kind="int", default=0,
-	                                  help="opaque continuation from a "
-	                                       "previous page"),
+	                    # W26328 [P1]: the continuation is a STRING and the
+	                    # CLI is a pass-through. It used to be declared an
+	                    # integer, which both invited `after=25` arithmetic
+	                    # and made the grammar itself a place the opaque
+	                    # contract could be contradicted.
+	                    "keys": (_key("after",
+	                                  help="opaque continuation token from "
+	                                       "a previous page's next_after; "
+	                                       "pass it back unchanged, and only "
+	                                       "to the same participant view "
+	                                       "that produced it"),
 	                             _key("limit", kind="int", default=100,
 	                                  help="page size, 1..500"))},
 	"breadcrumb": {"help": "root-first containment ancestry",

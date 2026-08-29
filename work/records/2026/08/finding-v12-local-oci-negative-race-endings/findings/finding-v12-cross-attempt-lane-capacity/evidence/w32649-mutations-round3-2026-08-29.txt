@@ -1,0 +1,19 @@
+W32649 round 3 — THE TWO START-PATH LANE READS, MEASURED BY REMOVAL
+===================================================================
+
+Each mutation puts the read back the way the review found it -- a partial
+SELECT used directly -- and the suite must name a failing case. A guard whose
+removal breaks nothing is a guard no case drives.
+
+BASELINE: OK
+
+-- reverted: the predecessor read owns the whole relation
+   FAILED (failures=1)
+   FAILS: tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_the_predecessor_check_owns_the_lane_relation_it_reads
+
+-- reverted: the race-loser read owns the whole relation
+   FAILED (failures=1)
+   FAILS: tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed.test_a_conflicting_persisted_row_is_owned_before_race_refusal
+
+2/2 named a case
+RESTORED: OK

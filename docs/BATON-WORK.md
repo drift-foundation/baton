@@ -167,9 +167,10 @@ search line — `[` and `]` are typed characters like any other.
 to the top — and each page comes back the way you left it: the same
 row selected, the same local tab, the same pane. A search you drilled
 a result out of is still there when you come back, and one more Esc
-returns the table it was run from. Opening a Work from Inbox is a
-HANDOFF into Jobs, so Back from there leaves you in Jobs rather than
-returning to the Inbox row.
+returns the table it was run from. Opening an obligation, a message or
+its linked Work from Inbox is one step like any other, so Back returns
+to the Inbox row that opened it — the same row, still selected, even if
+the list has moved underneath it.
 
 Back is browser history, not containment. The breadcrumb is
 STRUCTURAL: it names the whole containment path of the Work you are
@@ -247,10 +248,33 @@ disagreement between them is a fact worth showing, not one to
 reconcile. Teams never guesses liveness from a process table or a
 console session: a member with no lease reads "no lease" and one that
 has never answered a poke reads "never asked", both of which mean
-unknown and not "fine". It opens on the viewer's own team; `t` browses
-every configured team, `p` pokes the selected member (the request is
-authored in `EDITOR`), and `x` withdraws a poke this participant has
-outstanding to them.
+unknown and not "fine". It opens on the viewer's own team **plus every
+participant in another team who is claim-overdue** — because `[Teams *]` is
+deployment-global and a marker that points at a row this view refuses to show
+is a marker an operator cannot act on. Every overdue participant appears, so
+one star never conceals a second cause; pending and ordinary members of other
+teams stay hidden. The scope line says which it is: `own team`, or
+`own team + N overdue elsewhere`. When the tab is starred, opening it selects
+the first overdue member in row order, so the page lands on a named cause with
+its `Pickup` state and suggested Work already spelled out — and if that member
+stops being overdue, the selection falls back to your own participant rather
+than staying on a row that is no longer there.
+
+`t` browses every configured team and toggles back, `p` pokes the selected
+member (the request is authored in `EDITOR`), `x` withdraws a poke this
+participant has outstanding to them, and **`Enter` opens that member's
+suggested Work** — the canonical `pickup.next_work` locator — in its ordinary
+Jobs detail, with Back returning to this roster and this row. That link is how
+you reach another team's Work: it grants no claim, no mutation and no wider
+listing, and the detail's own available actions remain the authority's answer
+for you. A member with no suggestion advertises no `Enter`.
+
+**Work search is scoped to your owning team, and now says so.** The heading
+reads `search (team NAME): QUERY` and an empty result reads
+`(no matches for 'QUERY' in team NAME)`. That boundary is deliberate — it
+keeps another team's noise out of your search — so an empty answer means "not
+in this team", never "nowhere". The cross-team route is the explicit `Enter`
+link above, not a wider search.
 
 Selecting a member opens its details as a two-column key/value table,
 grouped into **Identity and routing**, **Workflow**, **Runner state**,

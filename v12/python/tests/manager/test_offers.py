@@ -30,6 +30,22 @@ UUID = "0" * 31 + "a"
 WHO = "baton.claude"
 PROFILE = "sha256:" + "b" * 64
 
+# W16823: the authorization context the authority now answers a claim with.
+# The endpoint is `WHO`; the PRINCIPAL is a separate value on purpose, because
+# a fixture that spelled them the same could not tell the two apart and every
+# case built on it would pass whichever one the manager stored.
+SCOPE = "scope:deployment"
+ROUTE = "baton.impl"
+PRINCIPAL = "principal:org-a"
+
+
+def decision(participant=WHO, principal=PRINCIPAL, scope=SCOPE, role=ROUTE,
+             grant="direct", policy_generation=1):
+    """One authorization decision in the authority's own vocabulary."""
+    return {"endpoint": participant, "principal": principal,
+            "effective_scope": scope, "role": role, "grant": grant,
+            "policy_generation": policy_generation}
+
 
 class FakeSession:
     """Exactly the five members the port names, and a record of every call."""
@@ -38,12 +54,21 @@ class FakeSession:
         self.participant = participant
         self._work = work if work is not None else {
             "status": "open", "phase": "queued", "handler": None, "gate": None,
-            "authority_uuid": UUID}
+            "authority_uuid": UUID,
+            # W16823: the two facts an offer freezes about the Work, and the
+            # two the claim decision is later held to.
+            "scope": SCOPE, "route": ROUTE}
         self._held = held
         self.calls = []
-        self.claim_answer = {"work_ref": {"authority_uuid": UUID,
-                                          "work_id": WORK},
-                             "participant": participant, "generation": 1}
+        # W16823: the CLOSED claim result -- the unchanged four-part fence, the
+        # authority's exact claim event, and the decision it was authorized
+        # under.
+        self.claim_answer = {
+            "assignment": {"work_ref": {"authority_uuid": UUID,
+                                        "work_id": WORK},
+                           "participant": participant, "generation": 1},
+            "claim_event": 1,
+            "decision": decision(participant=participant)}
         self.settle_answer = {"kind": "live", "record": None}
         # W6627: what Baton answers when this manager publishes a model's
         # answer. Settable because the port owns the ANSWER as well as the
@@ -469,11 +494,14 @@ class TheOfferRecordsTheVerifierAndReturnsTheBearer(OfferCase):
                     "INSERT INTO offers (offer_id, work_id, authority_uuid, "
                     "participant, runtime_attempt_id, incarnation, "
                     "input_digest, policy_digest, profile_digest, verifier, "
+                    # W16823: the offer freezes the Work's scope and route.
+                    "work_scope, work_route, "
                     "issued_at, expires_at, state) VALUES "
-                    "(?,?,?,?,?,?,?,?,?,?,?,?,'issued')",
+                    "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,'issued')",
                     ("offer-1", WORK, UUID, WHO, "attempt-1", "other",
                      "sha256:" + "1" * 64, "sha256:" + "2" * 64, PROFILE,
-                     digest("their-bearer"), NOW, "2030-01-01T00:00:00.000Z"))
+                     digest("their-bearer"), SCOPE, ROUTE,
+                     NOW, "2030-01-01T00:00:00.000Z"))
                 competitor.execute(
                     "INSERT INTO operations (operation_id, kind, signature, "
                     "state, result, settled_at) VALUES (?,?,?,'committed',?,?)",
@@ -764,7 +792,14 @@ class TheClaimAndItsSettlement(OfferCase):
         # authority is worse than no record: a restart trusts it.
         accepted = self.accepted()
         answer = submit_claim(self.store, self.port, offer_id="offer-1")
-        self.assertEqual(answer["assignment"], self.session.claim_answer)
+        # W16823: all three members of the authority's closed result, recorded
+        # exactly as they arrived.
+        self.assertEqual(answer["assignment"],
+                         self.session.claim_answer["assignment"])
+        self.assertEqual(answer["claim_event"],
+                         self.session.claim_answer["claim_event"])
+        self.assertEqual(answer["decision"],
+                         self.session.claim_answer["decision"])
         stored = self.row()
         self.assertEqual(stored["state"], "claimed")
         self.assertEqual(stored["claim_generation"], 1)
@@ -823,8 +858,11 @@ class TheClaimAndItsSettlement(OfferCase):
         self.accepted()
         self.session.settle_answer = {
             "kind": "committed",
-            "result": {"work_ref": {"authority_uuid": UUID, "work_id": WORK},
-                       "participant": WHO, "generation": 4}}
+            # W16823: a late-recorded commit is the SAME closed result.
+            "result": {"assignment": {"work_ref": {"authority_uuid": UUID,
+                                                   "work_id": WORK},
+                                      "participant": WHO, "generation": 4},
+                       "claim_event": 9, "decision": decision()}}
         answer = settle_claim(self.store, self.port, offer_id="offer-1",
                               now=MUCH_LATER)
         self.assertTrue(answer["late"])
