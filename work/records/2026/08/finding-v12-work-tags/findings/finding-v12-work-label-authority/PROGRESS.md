@@ -327,3 +327,226 @@ work above; the four fixtures are the next session's first task.
 **Claimed and NOT passed back.** The creation pipeline is implemented and the
 owned modules are green; four adjacent fixtures and schema 5 remain, and
 passing a knowingly-red tree to review would waste the cycle.
+
+## 2026-08-29 (continued) — the four fixtures finished, and schema 5 allocated
+
+Picked this up before new work, as the previous entry said I would.
+
+### The four failing fixtures were all one mistake of mine
+
+My mechanical rewrite substituted the CONSTANT `WORK` where it should have
+used each call's own first argument, so unrelated Works shared one creation
+identity and collided. Each is now derived from the work it creates:
+
+- `test_session.work()` derives from `work_id`, not `WORK`;
+- `test_boundary.claimed()` likewise;
+- the two deliberate second-creation cases take a SECOND identity, because a
+  second attempt to create an existing Work is a different act — the same
+  identity would correctly replay the first answer, which is not what those
+  cases are about;
+- one multi-line call the rewrite skipped entirely now carries an identity.
+
+That last one is worth naming: a regex that edits 38 call sites will miss the
+ones spanning lines, and I did not check before running the suite.
+
+### Schema 5, allocated once, with the pipeline it is the boundary for
+
+M35127 required 5 as the cumulative clean-initialization boundary after
+W16823's 4, allocated ONCE. Last round I deliberately did not spend it on a cut
+that lacked the creation work; that cut is now here, so it is spent. A store
+written under 4 has no attributable creation act and no `work-create` decision
+for a create-time label event to join, which is exactly what a version says.
+
+**One assertion in another Work's suite had to move**, and I want it seen
+rather than found: `test_claim_result.SchemaFourIsACleanInitializationBoundary`
+asserted `SCHEMA_VERSION == 4`. M35127 supersedes that literal and not the
+case's property — which is that a store written before the closed claim result
+cannot be adopted, a statement about being past 3. It asserts that now, the
+same correction `test_sessions` already made for its own version case. If the
+reviewer reads the ruling differently, this is the one edit to object to.
+
+### Gates
+
+- the complete authority suite — **326 tests, OK**;
+- `test_work_labels` 36, `test_store` 26, `test_operations` 30 — OK.
+
+## State
+
+**The creation half, schema 5 and the accepted corrections are all in.**
+Passed back for independent review.
+
+## 2026-08-29 — the creation act, built rather than imitated
+
+Reclaimed W29400 at seq 38855. All four findings corrected.
+
+### [P0] An unlabelled Work was not bound to any creation act
+
+The reviewer named what I actually did: I manufactured an
+`AuthorizationDecision` with a synthetic bootstrap principal, endpoint and
+`direct` grant, and filed it under `work-create`. **That says a capability
+authorized the creation, and none did.** Bootstrap provenance is a different
+arm of the approved cross-product, not a decision wearing invented operands —
+and I reached for the existing table because it was there, not because it was
+right. A Work created without labels also wrote nothing naming both itself and
+its operation, so from the Work the authority could not recover the act.
+
+Schema 5 carries `work_creation` now: one row per Work, unique operation
+identity, closed `kind` (`trusted-bootstrap` | `authorized`), scope and
+instant. `authorization_decision` is reserved for the later authorized arm,
+which will have a real grant to name. The creation answers **projection plus
+attribution**, so a caller can say under what act the Work exists without a
+second read.
+
+### [P0] The act kind was inferred rather than persisted
+
+`_act_kind_of` queried each decision table in turn until one matched. Not
+prefix guessing, still guessing: the answer depended on which tables happened
+to hold a row. `work_label_event` carries a closed `act` column now, and the
+join is exact — a label change joins its decision, a create-time addition
+joins its creation act, each by the kind it was written under. The fallback
+chain is gone.
+
+### [P1] Equivalent effective scopes collided on replay
+
+Creation computed `effective` and then signed the raw `scope` spelling, so an
+exact retry naming the default explicitly was refused as different operands
+although both create the same Work in the same scope. The signature is over
+`effective`, which is what the act is actually about.
+
+### [P1] One atomic creation received several instants
+
+The Work row, the attribution and every initial label event each called
+`_now()`. Under an advancing clock one creation recorded three times, and a
+reader could not tell the labels were created WITH the Work. The instant is
+captured once before the replay action and threaded through every row.
+
+### Two reviewer cases had to move, and both because of their own [P0]
+
+`test_work_creation_and_initial_labels_share_one_instant` and
+`test_the_change_is_audited_like_any_other` read `authorization_decision` for
+the creation — which the [P0] told me to reserve. They read `work_creation`
+now. The properties are unchanged; only the place the attribution lives moved,
+and it moved because the review said it should.
+
+### Gates
+
+- `tests.authority.test_work_labels` — **40 tests, OK**, the reviewer's four
+  among them;
+- the complete authority suite — **330 tests, OK**. `test_boundary` and
+  `test_session` each caught the new table and the new read on their own and
+  are registered: `work_creation` is a CONFIGURATION-side read, because the
+  act it answers about happens before any session exists.
+
+## State
+
+**All four findings corrected.** Passed back for independent review.
+
+## 2026-08-29 — the read boundaries, and the matrix I owed twice
+
+Reclaimed W29400 at seq 38906. All three findings corrected and the missing
+creation matrix written.
+
+### [P0] The ordinary projection omitted the creation act
+
+The relation existed and the creation RESULT carried it; the canonical
+`project_work` did not. So a later reader holding only a Work id could not
+recover the attribution from the read where a reader actually looks — it had
+to already know to ask a second question. `project_work` carries `creation`
+now, and the creation result is simply that projection rather than a second
+spelling of the same answer.
+
+### [P1] The event omitted the identity it persists
+
+Schema 5 stores `act` and `act_id`; the projection returned only `act`, and
+attributed a create-time addition by looking the creation row up **by
+`work_id`**. That is the same act today and is not the same statement. The
+event projects `act_id` and the attribution is joined by that name, through
+`_creation_by_operation`.
+
+### [P1] The operation record did not share the creation instant
+
+`create_work` captured one instant and `_replay` then called the clock again
+for the committed row, so the journal entry recording the act sat a tick after
+it. `_replay` takes the act's own instant when the caller has one.
+
+### The creation matrix, asked for twice before I wrote it
+
+`TheCreationActIsExactlyOneThing` — nine cases. Exact retry replays one
+creation and writes one act; a retry adds no second act; one identity cannot
+create two Works and one Work cannot be created under two identities; changed
+operands under a fixed identity collide; the creation kind and instant are not
+caller operands on either face; the recorded kind is the trusted bootstrap;
+a label event cannot borrow another Work's creation act; and `work-create`
+never answers as a capability decision.
+
+**The reviewer had to ask twice, and was right both times.** Every creation
+case before this was incidental — label fixtures happened to create Works, so
+the creation contract was exercised without ever being stated. A contract
+nothing names is a contract nothing holds.
+
+One case had to change while I wrote it: the collision matrix first varied
+`phase="block"`, which is refused for a different reason (a blocked Work must
+name its gate), so it was measuring that rule instead of the collision. It
+varies operands that are legal on their own now.
+
+### Gates
+
+- `tests.authority.test_work_labels` — **52 tests, OK**, the reviewer's three
+  among them;
+- the complete authority suite — **342 tests, OK**. `test_boundary` caught the
+  new read on the bootstrap face on its own and it is registered.
+
+## State
+
+**All three findings corrected and the matrix is in.** Passed back for
+independent review.
+
+## 2026-08-29 — the cross-package fallout of my own change
+
+Reclaimed W29400 at seq 38962. Both [P1]s corrected. Both were consequences of
+this Work's own corrections landing in another package, and I did not go
+looking for them — the review did.
+
+### [P1] The manager's projection registry omitted `creation`
+
+`authority_port` validates a projection against the exact union of
+`PROJECTION_READ` and `PROJECTION_UNREAD`. Adding `creation` to the authority's
+ordinary projection therefore made every complete projection cross that port
+with an unexpected member and be refused.
+
+It is registered as UNREAD, on the same rule `labels` and `close_decision` are
+under: a trusted bootstrap is a fact about how the Work came to exist and
+nothing in the manager decides anything from it. Naming a member is not
+consuming it, and this is deliberately not the place to invent manager
+semantics for it.
+
+**I added a member to a shared contract and checked only my own package.** The
+port exists precisely so that cannot pass silently, and it did its job.
+
+### [P1] The compatibility gate could not find the projection
+
+The extractor parsed `project_work` for a literal dictionary return. My own
+snapshot correction, two rounds ago, made `project_work` a wrapper that opens
+one read transaction and delegates to `_projected` — where the dictionary now
+lives. The extractor did not move with it.
+
+So both compatibility cases had been failing with "the authority's projection
+was not found" ever since: **a compatibility check that cannot find the thing
+it compares is not passing or failing, it is silent.** That is worse than a red
+test, and it had been silent across two of my rounds.
+
+It searches `_projected` and then `project_work`, because which of them holds
+the literal is the authority's business and this gate is about the MEMBERS.
+
+### Gates
+
+- `tests.manager.test_boundary_inventory.TheProjectionContractMatchesTheAuthorityItReads`
+  — **2 tests, OK**, and now actually comparing;
+- `test_attempts` 228, `test_offers` 62, `test_intake` 74,
+  `test_dependencies` 21, `test_secrets` 90, `test_text_sweep` 3 — OK;
+- the complete authority suite — **342 tests, OK**;
+- the complete serial registry.
+
+## State
+
+**Both [P1]s corrected.** Passed back for independent review.

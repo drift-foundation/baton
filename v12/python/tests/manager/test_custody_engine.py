@@ -107,13 +107,25 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         self.assertEqual(done.returncode, 0,
                          done.stderr.decode("utf-8", "replace")[:2000])
 
-    def custody(self, operation, roots):
-        """THE CAPABILITY, minted from the layout -- never a host path."""
+    def minted(self, which="workspace"):
+        """THE CAPABILITY, DERIVED from the allocation -- never a host path
+        and, since W36540's sixth review, never read off an object either."""
+        return custody.attempt_custody_root(self.group, self.storage,
+                                            "attempt-1", which)
+
+    def custody(self, operation):
+        """One custody act over THIS case's allocated attempt.
+
+        It takes no roots operand, and that is the sixth review's correction
+        showing through at the call site: the mount is derived from the
+        allocation, so there is no object a case could hand over here that
+        would choose a different directory.
+        """
         name = f"{MARK}-custody-{uuid.uuid4().hex[:10]}"
         self.made.append(name)
         argv = custody.custody_vector(
             self.engine, image_digest=self.digest, name=name,
-            custody=custody.attempt_custody_root(roots), operation=operation,
+            custody=self.minted(), operation=operation,
             workspace_group=self.group)
         done = subprocess.run(argv, capture_output=True, timeout=300)
         return done.returncode, done.stdout.decode("utf-8", "replace")
@@ -135,7 +147,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
             workspaces.discard_workspace(self.storage, "attempt-1")
         self.assertIn("owned by uid", caught.exception.message)
 
-        code, answer = self.custody("normalize", roots)
+        code, answer = self.custody("normalize")
         self.assertEqual(code, 0, answer)
         answered = json.loads(answer.strip().splitlines()[-1])
         self.assertEqual(answered["custody"], "normalize")
@@ -159,7 +171,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
                 roots = self.allocated()
                 place = roots["workspace"]
                 self.worker_leaves(place, mode=mode)
-                code, _answer = self.custody("normalize", roots)
+                code, _answer = self.custody("normalize")
                 self.assertEqual(code, 0)
                 self.assertTrue(
                     workspaces.discard_workspace(self.storage, "attempt-1"))
@@ -167,7 +179,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
     def test_nested_hostile_modes_do_not_hide_objects_from_custody(self):
         roots = self.allocated()
         self.worker_leaves_nested_barriers(roots["workspace"])
-        code, answer = self.custody("normalize", roots)
+        code, answer = self.custody("normalize")
         self.assertEqual(code, 0, answer)
         self.assertTrue(workspaces.discard_workspace(self.storage,
                                                      "attempt-1"))
@@ -185,7 +197,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         # which the manager owns -- keeps its exact mode through the act.
         before = {one: os.lstat(roots[one]).st_mode & 0o7777
                   for one in ("inputs", "workspace")}
-        code, answer = self.custody("normalize", roots)
+        code, answer = self.custody("normalize")
         self.assertEqual(code, 0, answer)
         answered = json.loads(answer.strip().splitlines()[-1])
         self.assertGreater(answered["entries"], 0, answered)
@@ -199,7 +211,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         name = f"{MARK}-custody-{uuid.uuid4().hex[:10]}"
         argv = custody.custody_vector(
             self.engine, image_digest=self.digest, name=name,
-            custody=custody.attempt_custody_root(roots),
+            custody=self.minted(),
             operation="normalize", workspace_group=self.group)
         subprocess.run(argv, capture_output=True, timeout=300)
         found = subprocess.run(
@@ -212,7 +224,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         """ONE MOUNT: absent rather than denied."""
         roots = self.allocated()
         self.worker_leaves(roots["workspace"])
-        code, answer = self.custody("inspect", roots)
+        code, answer = self.custody("inspect")
         self.assertEqual(code, 0, answer)
         answered = json.loads(answer.strip().splitlines()[-1])
         paths = [one["path"] for one in answered["entries"]]
@@ -237,7 +249,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         with self.assertRaises(ContractRefusal):
             custody.custody_vector(
                 self.engine, image_digest=self.digest, name="baton-custody-x",
-                custody=custody.attempt_custody_root(roots),
+                custody=self.minted(),
                 operation="sh", workspace_group=self.group)
 
 

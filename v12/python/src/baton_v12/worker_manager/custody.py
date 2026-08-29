@@ -119,10 +119,20 @@ def check_custody_operation(operation):
 # containment rules. It does not delete, and it does not touch anything above
 # its mount because there is nothing above its mount to touch.
 CUSTODY_PROGRAM = r'''
-import hashlib, json, os, sys
+import base64, hashlib, json, os, sys
 
 ROOT = "/custody"
 VERBS = ("inspect", "read", "hash", "archive", "normalize", "discard")
+
+# How much of a file is read at once. Constant memory is the whole point: a
+# worker file larger than this container's memory bound must not be able to
+# end the custody act.
+CHUNK = 1 << 20
+
+# How many bytes of one file `read` carries back in its answer. Bounded
+# because the answer is one JSON document on a pipe, and stated in the answer
+# itself through `complete` so a partial carry is never mistaken for the file.
+MAX_CARRIED = 1 << 16
 
 verb = sys.argv[1] if len(sys.argv) > 1 else ""
 if verb not in VERBS:
@@ -227,6 +237,20 @@ if verb in ("read", "hash", "archive"):
     # `openable` has run is reported as unreadable rather than skipped: an
     # act that silently omitted an entry would be the same defect the
     # traversal correction removes.
+    #
+    # STREAMED, NEVER SLURPED. Review [P1]: every branch did
+    # `handle.read()` into one bytes object before hashing it, so a worker
+    # file larger than this container's 512 MiB terminated the custody act --
+    # and an act a worker can end by writing a big file is not unconditional.
+    # The digest is now computed over CHUNK reads at constant memory, so file
+    # size decides how long the act takes and nothing else.
+    #
+    # AND THE HEAD IS BASE64 AND EXPLICITLY PARTIAL. It used to be
+    # `body[:4096].decode("utf-8", "replace")`, which is lossy TWICE: it
+    # stops at 4096 bytes without saying so, and it replaces every byte that
+    # is not UTF-8 with U+FFFD -- so what came back was neither the file nor
+    # a recoverable prefix of it. `complete` now says whether the carried
+    # bytes ARE the file, and the bytes are carried unmangled.
     entries, total = [], 0
     for place in every():
         if os.path.islink(place) or os.path.isdir(place):
@@ -235,29 +259,48 @@ if verb in ("read", "hash", "archive"):
         if mine and not held.st_mode & 0o400:
             os.chmod(place, (held.st_mode & 0o7777) | 0o400)
         one = {"path": relative(place), "bytes": held.st_size}
+        digest = hashlib.sha256()
+        carried, measured = bytearray(), 0
         try:
             with open(place, "rb") as handle:
-                body = handle.read()
+                while True:
+                    chunk = handle.read(CHUNK)
+                    if not chunk:
+                        break
+                    digest.update(chunk)
+                    measured += len(chunk)
+                    if verb == "read" and len(carried) < MAX_CARRIED:
+                        carried += chunk[:MAX_CARRIED - len(carried)]
         except OSError as failure:
             one["unreadable"] = type(failure).__name__
             entries.append(one)
             continue
-        total += len(body)
-        if verb == "hash":
-            one["sha256"] = "sha256:" + hashlib.sha256(body).hexdigest()
-        elif verb == "read":
-            one["sha256"] = "sha256:" + hashlib.sha256(body).hexdigest()
-            one["head"] = body[:4096].decode("utf-8", "replace")
-        else:
-            one["sha256"] = "sha256:" + hashlib.sha256(body).hexdigest()
+        total += measured
+        # THE MEASURED SIZE, not the one `lstat` reported. A file that grew
+        # or shrank between the two is a file whose recorded byte count would
+        # otherwise disagree with its own digest.
+        one["bytes"] = measured
+        one["sha256"] = "sha256:" + digest.hexdigest()
+        if verb == "read":
+            one["content_base64"] = base64.b64encode(bytes(carried)).decode(
+                "ascii")
+            one["complete"] = measured <= MAX_CARRIED
         entries.append(one)
     answer = {"custody": verb, "entries": sorted(
         entries, key=lambda one: one["path"]), "total_bytes": total,
         "running_as": [MINE, os.getgid()]}
     if verb == "archive":
-        # THE ARCHIVE IS A MANIFEST, not a tarball this manager would then
-        # have to trust the shape of. What custody needs is a durable
-        # description of what was there; the bytes stay where they are.
+        # THE ARCHIVE IS A MANIFEST AND SAYS SO. What custody needs from this
+        # act is a durable description of what was there; the bytes stay
+        # where they are, and after `normalize` the manager reads them
+        # directly under its own containment rules.
+        #
+        # WHETHER THAT SATISFIES "archive" IS AN OPEN RULING and is recorded
+        # as one in the finding rather than decided here. Returning content
+        # through this channel needs somewhere to put it, and M36166 fixes
+        # ONE mount which is the custody subject itself -- writing an archive
+        # into the tree under custody would change the thing being described.
+        answer["content"] = "manifest-only"
         answer["tree_digest"] = "sha256:" + hashlib.sha256(json.dumps(
             [(one["path"], one.get("sha256"), one["bytes"])
              for one in answer["entries"]],
@@ -347,23 +390,52 @@ class CustodyRoot:
 CUSTODY_ROOTS = ("workspace", "result")
 
 
-def attempt_custody_root(roots, which="workspace"):
-    """Mint the capability for ONE of this attempt's own directories.
+def attempt_custody_root(workspace_group, storage, assignment_id,
+                         which="workspace"):
+    """Mint the capability for ONE of this attempt's own directories, by
+    DERIVING it from the allocation rather than reading it off anything.
 
-    THE MAPPING IS NOT BELIEVED, and review [P0] is why. This took `roots`,
-    proved only that `inputs` and `workspace` keys existed, and canonicalized
-    whatever `workspace` said -- so a caller could pass the authentic inputs
-    path beside ANY unrelated absolute directory and receive a valid capability
-    for it. `custody_vector` then trusted the nominal type and bound the
-    stranger. A type that anything shaped like a dict can obtain is not a
-    capability; it is a cast.
+    SIX REVIEW ROUNDS ENDED HERE, and they were all one defect wearing
+    different clothes. The mount source was READ from an object the caller
+    held: first a plain mapping, then a mapping with the expected basenames,
+    then the nominal type `assignment_workspace` answers with, then that type
+    with its `dict` mutators overridden, then that type with `dict` removed
+    from its bases, then that type with its members in a private attribute.
+    Each round closed one door onto the same room:
 
-    SO THE LAYOUT IS PROVED, not read. `assignment_workspace` builds exactly
-    `<storage>/<assignment>/inputs` and `<storage>/<assignment>/workspace` as
-    siblings, and that structure is something an arbitrary path cannot satisfy
-    by accident: both entries must be named for their role and share one
-    parent. What is mounted is then RE-DERIVED from that proved home rather
-    than taken from the mapping at all.
+        roots["workspace"] = elsewhere
+        dict.update(roots, {"workspace": elsewhere})
+        roots |= {"workspace": elsewhere}
+        roots._members.update({"workspace": elsewhere})
+
+    The last one is the whole lesson. `_members` is private by NAME and its
+    value is an ordinary mutable dict, so a holder reads it through ordinary
+    attribute access and edits it in place -- and no amount of further
+    overriding reaches that, because there is no method call to override. The
+    same would be true of the next representation and the one after it: in
+    this language a holder of an object can reach what the object holds, so
+    an authority carried in caller-held process state and re-read later is an
+    authority the caller can change in between.
+
+    SO THE PATH IS NOT AN INPUT AT ALL ANY MORE. There is nothing here to
+    forge, retarget or launder, because nothing here is read: this function
+    RE-DERIVES `<storage>/<assignment>/workspace` by exactly the rule
+    `assignment_workspace` allocates it by, from exactly the operands
+    `assignment_workspace` allocates it from -- the deployment's configured
+    group capability, the manager's storage root and the attempt identity.
+    An `AllocatedRoots` object is no longer accepted, so mutating one cannot
+    influence this and neither can constructing one.
+
+    WHAT AUTHORITY THIS THEREFORE CARRIES, said exactly. It carries the
+    ALLOCATION's, and not one bit more: any directory this can mount is one
+    `assignment_workspace` would have allocated for the same operands, and a
+    caller that can name those operands can already call that function. What
+    is now impossible -- and was the finding -- is selecting something that is
+    NOT an attempt workspace. The composed source is always the `workspace`
+    entry of a home directly under the storage root, so the assignment home,
+    its `inputs`, `credentials`, `credential-state` and `custody` siblings, the
+    repository and every unrelated host path are unreachable rather than
+    merely refused. There is no operand from which any of them could be built.
 
     AND EVERY COMPONENT IS `lstat`ed, never `isdir`ed. The workspace is
     worker-writable, so `result` is a name an ended worker can leave as a
@@ -371,7 +443,19 @@ def attempt_custody_root(roots, which="workspace"):
     follows it while `_real` resolves it, which between them turned a
     worker-controlled alias into a mount. A link is refused wherever it sits.
     """
-    from .workspaces import _real
+    from .workspaces import WorkspaceGroup, _real, _within
+    # THE GROUP CAPABILITY, FIRST AND AS PROVENANCE. `assignment_workspace`
+    # requires it to allocate, so requiring it to derive is what makes this
+    # the same act: a caller that cannot obtain the deployment's configured
+    # group never allocated the root this would name. It is the deployment's
+    # own record rather than a number, on W33936's rule -- a group a caller
+    # can name is a group a caller chose.
+    if type(workspace_group) is not WorkspaceGroup:
+        raise ContractRefusal(
+            "policy", "denied",
+            f"a custody root is derived with this deployment's CONFIGURED "
+            f"workspace group, obtained from this manager's own record; this "
+            f"is {name_value(workspace_group)}")
     boundaries.text(which, "a custody root name")
     if which not in CUSTODY_ROOTS:
         raise ContractRefusal(
@@ -379,34 +463,53 @@ def attempt_custody_root(roots, which="workspace"):
             f"{name_value(which)} is not a custody root; the two an attempt "
             f"has are {', '.join(CUSTODY_ROOTS)}, and their parent holds the "
             f"deliveries and is never mounted")
-    taken = boundaries.document(roots, "an attempt's allocated roots",
-                                required=("inputs", "workspace"))
-    for member in ("inputs", "workspace"):
-        boundaries.text(taken[member], f"the attempt's {member} root")
-    # THE STRUCTURE `assignment_workspace` ESTABLISHES, proved from the two
-    # paths themselves: one home, two siblings, each named for its role.
-    home = os.path.dirname(taken["workspace"])
-    for member in ("inputs", "workspace"):
-        if os.path.dirname(taken[member]) != home \
-                or os.path.basename(taken[member]) != member:
-            raise ContractRefusal(
-                "policy", "denied",
-                f"{name_value(taken[member])} is not this manager's "
-                f"{member} root for one assignment; a custody root is minted "
-                f"from the layout `assignment_workspace` established, and a "
-                f"mapping naming an unrelated directory is not that layout")
+    boundaries.identity(assignment_id, "an assignment identity")
+    # AN IDENTITY IS A NAME AND NEVER A PATH. `boundaries.identity` is
+    # `boundaries.text` -- it owns durable text and says nothing about path
+    # syntax -- so an attempt called `../../etc` would otherwise compose a home
+    # outside the storage root before any containment check could see it. This
+    # is the same rule `assignment_workspace` gets from comparing against its
+    # own `expected_home`, stated directly because this function derives rather
+    # than creates.
+    if os.sep in assignment_id or (os.altsep and os.altsep in assignment_id) \
+            or assignment_id in (os.curdir, os.pardir):
+        raise ContractRefusal(
+            "policy", "denied",
+            f"{name_value(assignment_id)} is not an assignment identity; an "
+            f"attempt is NAMED and a name that carries a path separator is a "
+            f"way to compose a home this manager never allocated")
+    root = _real(storage, "the manager's workspace storage")
+    if not os.path.isdir(root):
+        raise ContractRefusal(
+            "integrity", "path",
+            "the manager's workspace storage is not a directory")
+    # THE SAME LAYOUT `assignment_workspace` ESTABLISHES, composed rather than
+    # looked up: one home per attempt directly under the storage root, and
+    # `workspace` inside it.
+    home = os.path.join(root, assignment_id)
     place = (os.path.join(home, "workspace") if which == "workspace"
              else os.path.join(home, "workspace", "result"))
     if which == "result" and not _no_link(place, missing_ok=True):
         os.makedirs(place, exist_ok=True)
     # EVERY COMPONENT, from the home down: a link anywhere on the way is a
-    # different directory than the one this manager created.
+    # different directory than the one this manager created, and an entry this
+    # manager does not own is not one it allocated.
     _no_link(home, what="the attempt home")
     _no_link(os.path.join(home, "workspace"), what="the attempt's workspace")
     if which == "result":
         _no_link(place, what="the attempt's result directory")
-    return CustodyRoot(_real(place, f"the attempt's {which} root"), which,
-                       _MINT)
+    resolved = _real(place, f"the attempt's {which} root")
+    # AND THE RESOLVED SOURCE IS STILL UNDER THE STORAGE ROOT. Redundant given
+    # the link proofs above and kept anyway: containment is the property the
+    # mount actually depends on, and a proof that holds it directly does not
+    # stop holding it when somebody changes how the components are checked.
+    if not _within(resolved, root):
+        raise ContractRefusal(
+            "policy", "denied",
+            f"{name_value(resolved)} resolves outside this manager's "
+            f"workspace storage; a custody act is performed on an attempt "
+            f"directory this manager allocated")
+    return CustodyRoot(resolved, which, _MINT)
 
 
 def _no_link(place, *, what=None, missing_ok=False):

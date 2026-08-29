@@ -1,0 +1,17 @@
+docker server 29.1.3
+docker attach:
+    answered while live: stdout=b'echo:one\n' stderr=b''
+    after stdin close:   stdout=b'echo:one\n' stderr=b''
+    transport status:    NO-EOF (still running after stdin closed)
+docker exec --interactive:
+    answered while live: stdout=b'echo:one\n' stderr=b''
+    after stdin close:   stdout=b'echo:one\n' stderr=b'EOF-SEEN\n'
+    transport status:    0
+docker create + docker start --attach --interactive:
+    answered while live: stdout=b'echo:one\n' stderr=b''
+    after stdin close:   stdout=b'echo:one\n' stderr=b'EOF-SEEN\n'
+    transport status:    0
+    container ending:    exited 0
+docker exec identity and workspace write:
+    uid=65532 gid=65532 groups=65532,1000
+    WROTE

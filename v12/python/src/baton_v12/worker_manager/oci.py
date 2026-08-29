@@ -95,9 +95,49 @@ LABEL_CONTEXT = ("principal", "effective_scope")
 # the same rule W1593 established for every other diagnostic in this manager.
 MAX_DIAGNOSTIC = 240
 
+# W38956: THE CLOSED NETWORK POSTURE, and the only value that is a default.
+#
+# `none` is what an execution container gets unless a deployment names another
+# posture in the one operand below. It is spelled once, here, because it is
+# both the table's entry and the operand's default and two spellings of one
+# decision is how those stop agreeing.
+NETWORK_NONE = "none"
+
+# What an engine accepts as a network NAME, and nothing wider. Docker and
+# Podman both take `[a-zA-Z0-9][a-zA-Z0-9_.-]*` for a user-defined network and
+# reserve `none`, `host` and `bridge` besides. The grammar is what keeps this
+# operand a network name rather than an opening for arbitrary engine
+# vocabulary: a value carrying a space, a flag or a path is refused before the
+# vector is composed, so a caller cannot smuggle a second argument through it.
+_NETWORK = re.compile(r"\A[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}\Z")
+
+# HOW LONG A WORKER-ENTRY EXEC SESSION IS GIVEN, by default, in seconds. A real
+# provider turn is minutes rather than milliseconds, and a bound that is not
+# generous enough to be reached is a bound that turns ordinary work into
+# transport loss.
+EXEC_SECONDS = 3600
+
 # §policy: the restrictions, as ONE table rather than as flags spread through a
 # builder. Written out so a reader can see the whole posture at once and a
-# reviewer can diff it, and applied unconditionally.
+# reviewer can diff it.
+#
+# EVERY ENTRY IS APPLIED UNCONDITIONALLY EXCEPT ONE, and the exception is named
+# here rather than discovered in `run_vector`. W38956: `--network` carries the
+# DEFAULT posture and a deployment may substitute another by naming it. The
+# table keeps the entry -- so this is still the one place the whole posture is
+# readable, and a caller that names nothing still gets `none` -- and
+# `run_vector` replaces exactly that one value and never appends a second
+# `--network`.
+#
+# WHY IT HAD TO BECOME AN OPERAND. A worker backed by a REAL provider must
+# reach it, and until this existed no runtime this manager started ever could:
+# W17110 proved a real Claude CLI in Docker through the spike's own lifecycle,
+# never through this adapter. An unconditional `none` therefore made this
+# campaign's own first useful task impossible rather than isolated, and a run
+# that reported success without egress would have been reporting something
+# else. The grant is explicit, defaulted closed, bounded to an engine network
+# NAME, and recorded in the attempt's evidence beside the image and the
+# credential; this adapter gains no other network vocabulary.
 RESTRICTIONS = (
     # No capability at all, and no way to acquire one back.
     ("--cap-drop", "ALL"),
@@ -120,7 +160,10 @@ RESTRICTIONS = (
     # The root filesystem is evidence, not scratch: the workspace mount is the
     # one writable place, and it is named per assignment.
     ("--read-only", None),
-    ("--network", "none"),
+    # THE ONE SUBSTITUTABLE ENTRY. `none` is the value a caller that names
+    # nothing gets, and it is a DEFAULT rather than a constant -- see the note
+    # above the table and `_network` below.
+    ("--network", NETWORK_NONE),
     ("--pids-limit", "512"),
     ("--memory", "2g"),
     ("--cpus", "2"),
@@ -379,6 +422,30 @@ def _engine(engine):
         _refuse(f"{name_value(engine)} is not an engine this adapter speaks; "
                 f"it speaks {', '.join(ENGINES)}")
     return engine
+
+
+def _network(network):
+    """The engine network this runtime joins, as a NAME and nothing else.
+
+    W38956. `none` is the default and is returned unchanged; anything else is
+    a posture a deployment named DELIBERATELY, so it is held to the engines'
+    own network grammar before it can reach an argv.
+
+    THE REFUSAL IS THE POINT OF THE OPERAND. A value carrying a space, a
+    leading dash or a path is not a network an engine would accept anyway --
+    what refusing it buys is that this operand can never become a way to append
+    a second argument to a vector this module composes closed.
+
+    NOTHING HERE DECIDES WHETHER EGRESS IS APPROPRIATE. That is the
+    deployment's decision and it is recorded where deployments are recorded;
+    this refuses the values that are not a network at all.
+    """
+    boundaries.text(network, "an engine network")
+    if not _NETWORK.match(network):
+        _refuse(f"{name_value(network)} is not an engine network name; this "
+                f"operand names a network and is not a way to add an argument "
+                f"to a closed vector", code="schema")
+    return network
 
 
 def _labels(labels):
@@ -687,7 +754,8 @@ def _launch_mount(pair):
 
 def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                mounts=(), credentials_delivered=(), launch_delivered=None,
-               name, workspace_group=None):
+               name, workspace_group=None, network=NETWORK_NONE,
+               interactive=False):
     """The closed argv that STARTS one runtime, restrictions and all.
 
     The image is named BY DIGEST. A tag is a name somebody can move, and a
@@ -706,6 +774,23 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                 f"exactly", code="digest")
     boundaries.identity(name, "a runtime name")
     argv = [engine, "run", "--detach", "--name", name]
+    # W38956: THE CHANNEL, HELD OPEN, and OFF unless a caller asks for it.
+    #
+    # Without `--interactive` a detached container's stdin is `/dev/null`: the
+    # worker reads EOF at once, exits 0 and the container ends. That is the
+    # right posture for a runtime nobody is going to speak to, and it is what
+    # every accepted case in this campaign asserts -- so it stays the default.
+    #
+    # With it, PID 1 blocks on a stdin the daemon holds, the runtime stays up,
+    # and `exec_vector` below opens the worker-entry conversation against it.
+    # A start that composes this and is then never spoken to HANGS rather than
+    # exiting, which is a real difference and is why it is never composed on
+    # a caller's behalf.
+    if interactive is True:
+        argv.append("--interactive")
+    elif interactive is not False:
+        _refuse(f"an interactive channel is asked for or it is not; this is "
+                f"{name_value(interactive)}")
     # THE CONFIGURED WORKSPACE GROUP, AS A SUPPLEMENTARY GROUP.
     #
     # W33936, approver ruling M34916.  The container's fixed 65532 is not this
@@ -751,8 +836,16 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
     # CONSENT IS NOT THE SAME QUESTION and is unaffected: it mounts nothing, so
     # a group there would be a grant with no object, and it is refused for that
     # reason rather than permitted for lack of one.
+    # THE ONE SUBSTITUTION, at the table rather than after it. Composing the
+    # restrictions and then appending a second `--network` would leave two in
+    # one vector and let the engine decide which won; replacing the value in
+    # place means there is exactly one network in the argv whatever was asked
+    # for, and a reader can still see the whole posture in `RESTRICTIONS`.
+    network = _network(network)
     for flag, value in RESTRICTIONS:
         argv.append(flag)
+        if flag == "--network":
+            value = network
         if value is not None:
             argv.append(value)
     roots, posture = _roots(assignment_roots, posture)
@@ -824,6 +917,44 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
     # every vector — this one, the listing, the inspect, the stop, the
     # destroy, and whatever is added next — actually passes through.
     return argv
+
+
+def exec_vector(engine, *, runtime_id, program):
+    """The closed argv that opens ONE worker-entry conversation in a runtime
+    this manager already started.
+
+    W38956. THIS IS THE TRANSPORT AND IT IS NOT A SECOND START. `runtime_id` is
+    the identity the engine answered when `run_vector`'s container was created
+    and the manager journalled; nothing here creates, names, labels, mounts or
+    restricts anything, because everything an exec session can see was decided
+    when the runtime was started. An exec against the wrong runtime is an exec
+    against another container's mounts, so the id is the whole authorization.
+
+    `--interactive` AND NO `--tty`. Interactive is what makes the worker's
+    stdin a real stream this manager can write frames to AND close: measured
+    against a live daemon, `docker attach` on a detached interactive container
+    never closes the worker's stdin, so a conversation driven that way could
+    only ever be ended by killing the container --
+    `evidence/w38956-transport-probe.txt` in W38956's record. No tty, because a
+    tty MERGES stdout and stderr onto one stream: the worker's answers are
+    stdout and its diagnostics are stderr, and a channel that could not tell
+    them apart would let a diagnostic be read as a frame.
+
+    THE PROGRAM IS AN OPERAND AND IS NOT COMPOSED HERE. `docker exec` does not
+    apply the image's entrypoint, so the worker's program has to be named --
+    and the manager does not own that name. It is a fact about the IMAGE, so
+    the caller that resolved the image supplies it, exactly as it supplies the
+    image digest.
+    """
+    engine = _engine(engine)
+    boundaries.identity(runtime_id, "a runtime id")
+    named = list(program)
+    if not named:
+        _refuse("an exec session names the program that speaks the "
+                "worker-entry channel; `docker exec` applies no entrypoint")
+    for one in named:
+        boundaries.text(one, "an exec program word")
+    return [engine, "exec", "--interactive", runtime_id] + named
 
 
 def list_vector(engine, *, labels):
@@ -1066,7 +1197,8 @@ class OciAdapter:
     def __init__(self, engine, run, *, identity, assignment_roots,
                  posture, mounts=(), outputs=(), input_manifest_digest=None,
                  credential_delivery=None, launch_delivery=None,
-                 workspace_group=None):
+                 workspace_group=None, network=NETWORK_NONE,
+                 interactive=False):
         self.engine = _engine(engine)
         self.run = run if isinstance(run, EnginePort) else EnginePort(run)
         # ONE RESOLVED IDENTITY, owned at construction and never re-supplied
@@ -1153,6 +1285,21 @@ class OciAdapter:
                     f"read from this manager's own record; this is "
                     f"{name_value(workspace_group)}")
         self.workspace_group = workspace_group
+        # W38956: THE NETWORK POSTURE AND THE CHANNEL, both assignment-scoped
+        # construction and both defaulted to what this adapter did before they
+        # existed. An adapter that names neither composes exactly the argv it
+        # composed yesterday, which is what keeps every accepted case's meaning
+        # unchanged -- a grant nobody asked for is the one thing a default must
+        # never be.
+        #
+        # PROVED AT CONSTRUCTION rather than at the vector, for the reason
+        # every other operand here is: an adapter that cannot say what it is
+        # allowed to reach should not survive being built.
+        self.network = _network(network)
+        if interactive not in (True, False):
+            _refuse(f"an interactive channel is asked for or it is not; this "
+                    f"is {name_value(interactive)}")
+        self.interactive = interactive
 
     def _mounts_the_authorized_root(self, authorized):
         """The one input bind this delivery may carry, and it is the proved one.
@@ -1376,7 +1523,8 @@ class OciAdapter:
                                   if self.launch_delivery is not None
                                   else None),
                 name=_runtime_name(taken["operation_id"]),
-                workspace_group=self.workspace_group)
+                workspace_group=self.workspace_group,
+                network=self.network, interactive=self.interactive)
         except ContractRefusal as refusal:
             self._refused_start(labels, refusal.message)
         # FROM HERE THE ENGINE MAY ALREADY HAVE CREATED SOMETHING.

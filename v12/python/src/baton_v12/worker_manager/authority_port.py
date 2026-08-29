@@ -92,7 +92,16 @@ PROJECTION_UNREAD = ("work_id", "outcome", "rationale", "contract",
                      # runtime meaning, the Worker Manager's own `labels` are
                      # OCI execution identity and are a different thing
                      # entirely, and naming a member is not consuming it.
-                     "labels")
+                     "labels",
+                     # ...and W29400's CREATION ATTRIBUTION: the act that made
+                     # the Work, which the authority now carries on its
+                     # ordinary projection. UNREAD on exactly the rule the two
+                     # above are under -- a trusted bootstrap is a fact about
+                     # how the Work came to exist, and nothing in this manager
+                     # decides anything from it. Naming a member is not
+                     # consuming it, and leaving it unnamed would refuse every
+                     # complete projection at this port.
+                     "creation")
 
 # EACH VARIANT'S OWN SHAPE, because knowing WHICH answer arrived tells you
 # nothing about what it carries.

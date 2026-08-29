@@ -93,3 +93,89 @@
    streaming/bounds, then implement bounded restart-reclaimable lifetime and
    ending composition with retry/restart/crash regressions.
 4. [blocked externally] Retain compatible Podman as an explicit blocker.
+
+## 2026-08-29 — fourth independent review: changes requested
+
+1. [accepted narrowly] Preserve refusal of a structurally forged plain
+   mapping; expected directory names and ownership remain validation rather
+   than provenance.
+2. [required P0] Make the authenticated allocation answer immutable at the
+   custody boundary, or re-open the exact roots from manager-owned durable
+   state keyed by attempt identity. A caller that holds an authentic answer
+   must not be able to replace its paths and retarget the mount.
+3. [required, unchanged] Deliver complete recoverable read/archive output with
+   streaming and bounds, then implement bounded, derivable,
+   restart-reclaimable helper lifetime and ending composition with
+   retry/restart/crash regressions.
+4. [coordination] Apply the current approved engine-certification ruling
+   without weakening W36540's separate unconditional-custody boundary.
+
+## 2026-08-29 — fifth independent review: changes requested
+
+1. [accepted narrowly] Preserve refusal from ordinary item assignment,
+   deletion and named mutator dispatch.
+2. [required P0] Replace the mutable-`dict` inheritance boundary. Inherited
+   `__ior__` and explicitly invoked base `dict` methods bypass subclass
+   overrides and can retarget both authority-bearing paths; use an immutable
+   wrapper/private representation whose storage the holder cannot mutate.
+3. [required, unchanged] Deliver complete recoverable read/archive output with
+   streaming and bounds, then bounded/derivable/restart-reclaimable lifetime,
+   ending composition, and retry/restart/crash regressions.
+4. [coordination, unchanged] Apply the current engine-certification ruling
+   without weakening unconditional custody.
+
+## 2026-08-29 — sixth independent review: changes requested
+
+1. [accepted narrowly] Preserve removal of `dict` inheritance and the three
+   builtin-protocol regressions.
+2. [required P0] Remove the mutable `roots._members` authority path. A holder
+   can update that ordinary dictionary and mint an unrelated workspace from
+   the authentic wrapper. Move root selection to manager-owned allocation
+   state keyed by the exact attempt/assignment, or another representation
+   whose authority-bearing values are not holder-mutable; do not add another
+   mutator override list.
+3. [required, unchanged] Deliver complete recoverable read/archive output with
+   streaming and bounds, then bounded/derivable/restart-reclaimable lifetime,
+   ending composition, and retry/restart/crash regressions.
+4. [coordination, unchanged] Apply the current engine-certification ruling
+   without weakening unconditional custody.
+
+## 2026-08-29 — seventh implementation round
+
+1. [done] **The sixth-round P0 is corrected at its owner.**
+   `attempt_custody_root(workspace_group, storage, assignment_id, which)`
+   derives the mount from the allocation operands and reads no path-bearing
+   object at all, so no representation of `AllocatedRoots` — mutable or not —
+   can retarget it. `AllocatedRoots` members additionally moved behind a
+   `MappingProxyType`, recorded as defence rather than as the mechanism.
+2. [done] **Path-shaped attempt identities refused**, and the resolved source
+   proved contained under the storage root. `boundaries.identity` owns durable
+   text and says nothing about path syntax, so this had to be stated directly.
+3. [done] **The reading verbs stream at constant memory**, and `read` carries
+   base64 bytes with an explicit `complete` member instead of a silently
+   truncated, U+FFFD-mangled head. Proved under a real `RLIMIT_AS` bound, with
+   a companion case that drives the superseded whole-file read under the same
+   bound and requires it to fail.
+4. [OPEN RULING, not implemented] **What `archive` must return.** Recoverable
+   content is in structural tension with M36166's single mount; the analysis
+   and a proposal are in `FINDING.md`. `archive` now declares
+   `content: "manifest-only"` so it cannot be mistaken for content custody.
+   This needs the approver, because M36166 names six verbs and narrowing that
+   is the approver's act.
+5. [NOT DONE, unchanged] Bounded/derivable/restart-reclaimable helper lifetime.
+6. [NOT DONE, unchanged] Ending composition, and the retry/restart/crash
+   regressions that depend on it.
+7. [blocked externally, unchanged] Compatible-Podman certification.
+
+## Owed against this Work, and not previously raised by any review
+
+`custody.py` has NO entries in `tests/manager/test_boundary_inventory.py` at
+all — this Work's module was never registered in that gate. It is owed and is
+named here so it is not lost. It is not added in this round for the reason
+W38956 recorded the same week: that gate is currently failing on 29 orphaned
+entries across `attempts.py`, `intake.py`, `interrogation.py`, `lanes.py`,
+`oci.py`, `posture_slots.py` and `workspaces.py` that predate this round, and
+the file carries another participant's uncommitted edit. Adding entries to a
+registry whose attribution mechanism is mid-change, in a file somebody else is
+editing, is the parallel-edit collision `AGENTS.md` requires ownership to be
+established for first.

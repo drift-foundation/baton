@@ -269,8 +269,20 @@ class SchemaFourIsACleanInitializationBoundary(unittest.TestCase):
         self.addCleanup(self._root.cleanup)
         self.root = self._root.name
 
-    def test_the_version_is_four(self):
-        self.assertEqual(SCHEMA_VERSION, 4)
+    def test_the_version_is_past_the_shape_this_build_cannot_adopt(self):
+        """PAST THREE, not EQUAL TO FOUR.
+
+        W29400 allocated 5 under approver ruling M35127, which supersedes this
+        assertion's literal and not its property. What this case owns is that
+        a store written before the closed claim result existed CANNOT be
+        adopted by a build that requires it -- and that is a statement about
+        being past 3, which stays true at every later boundary.
+
+        The literal made every future allocation edit a case about W16823's
+        claim result, a coupling this case never meant to claim. The same
+        correction `test_sessions` already made for its own version case.
+        """
+        self.assertGreater(SCHEMA_VERSION, 3)
 
     def previous(self, name="old.sqlite3"):
         """A store recording THIS product at the PREVIOUS schema version.

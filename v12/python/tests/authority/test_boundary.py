@@ -145,6 +145,9 @@ class ExportedSurface(unittest.TestCase):
                     # only -- the two label MUTATIONS are session transitions
                     # and are deliberately absent from this face.
                     "labels_of", "work_label_events", "works_with_labels",
+                    # W29400: the act that made a Work is a READ on this face,
+                    # and reading it acts on nothing.
+                    "work_creation",
                     # Review [P0]/[P1]: the decision one authorized act was
                     # taken under, and the scope- and provenance-bearing grant
                     # projection `capabilities_of` deliberately flattens.
@@ -253,7 +256,7 @@ class Isolation(unittest.TestCase):
             # authorizes and journals -- and deliberately NOT the Worker
             # Manager's OCI runtime labels, which are execution identity and
             # stay in its own store.
-            "work_label", "work_label_event",
+            "work_creation", "work_label", "work_label_event",
             "work", "route_handler", "capability", "fenced_generation",
             "claim_slot", "operation", "assignment_event", "contract_event",
             "gate_evidence", "activity", "proposal", "receipt",

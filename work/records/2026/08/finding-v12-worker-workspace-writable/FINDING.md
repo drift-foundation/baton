@@ -555,3 +555,20 @@ Podman" overstates the one-probe ROOTFUL result as a supported deployment.
 Until W32391 supplies the full certification or the approver explicitly narrows
 M34630, the guide may report the measured difference but must not represent
 ROOTFUL Podman as certified. W36540 also remains open.
+
+## 2026-08-29 — approver supersession: Podman is a longer-term certification
+
+**Confirmed by the approver while resolving obligation M37180.** The immediate
+two-engine acceptance requirement in M34630 is superseded. W33936's current
+workspace-write slice is certified by its complete Docker evidence; Podman is
+not a closure gate for this Work.
+
+Podman remains a supported longer-term direction owned by W32391. Its rootful
+probe and rootless gid-map observations are retained as evidence, but neither
+is certification and neither authorizes a launch-vector patch here. Until
+W32391 closes, deployment and user documentation must describe Docker as the
+certified engine and Podman as pending or experimental, never as equivalent.
+
+This supersession narrows engine portability only. It does not weaken the
+dedicated workspace-group authority, denial matrix, or W36540's separate
+unconditional-custody requirement.

@@ -51,6 +51,7 @@ W6631's own record. It does not need to survive as the live module contract.
 import json
 import os
 import stat
+from types import MappingProxyType
 
 # W15232: `check_content_manifest` and `validate_fragment` went with the
 # acquisition half. They were how this module READ a `gitSource` or
@@ -94,7 +95,7 @@ _REGULAR = 0o100000
 __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
            "HOME_ENTRIES", "ROOT_NAMES", "WORKSPACE_DIR",
            "adopt_workspace_group", "check_workspace_group",
-           "prove_workspace_group", "WorkspaceGroup",
+           "prove_workspace_group", "WorkspaceGroup", "AllocatedRoots",
            "WORKSPACE_GROUP_KEY", "CONFIGURE_OPERATION",
            "configure_workspace_group", "configured_workspace_group",
            "MAX_BYTES", "MAX_DEPTH", "READ_ONLY_DIR", "READ_ONLY_FILE",
@@ -1062,7 +1063,164 @@ def assignment_workspace(workspace_group, storage, assignment_id):
     # so allocation and the grant are one step and a workspace this function
     # returns is one the worker can write.
     adopt_workspace_group(made, workspace_group)
-    return made
+    # W36540 review [P0]: THE ANSWER CARRIES ITS OWN PROVENANCE.
+    #
+    # A custody act has to be able to tell "this manager allocated these roots"
+    # from "somebody made two directories with the expected names". Directory
+    # SHAPE cannot make that distinction: any caller in this process can
+    # `mkdir inputs; mkdir workspace` under a parent it owns and reproduce
+    # every structural property. Shape may VALIDATE authority; it cannot
+    # create it.
+    #
+    # So allocation mints a nominal type. It is still exactly a mapping --
+    # every existing caller reads `roots["workspace"]` unchanged -- and a
+    # plain dict is not an instance of it, which is the whole difference.
+    return AllocatedRoots(made, _MINT)
+
+
+class AllocatedRoots:
+    """The roots THIS FUNCTION allocated, as an immutable READ-ONLY mapping.
+
+    NOT A `dict` SUBCLASS, AND NOT A HOLDER OF ONE EITHER, and review [P0] is
+    why that distinction is the whole design rather than a detail. Two rounds ago I minted a nominal type
+    so shape could not manufacture authority. One round ago I overrode
+    `__setitem__`, `update`, `pop` and the rest to stop a holder retargeting
+    it. Both were bypassable in the same way, because a subclass of a mutable
+    builtin still IS one:
+
+        dict.update(roots, {"workspace": somewhere_else})
+        dict.__setitem__(roots, "workspace", somewhere_else)
+        roots |= {"workspace": somewhere_else}
+
+    Every one of those reaches the base implementation without ever calling an
+    override. **Overriding more methods cannot close explicit base-class
+    invocation** -- the paths were stored in something whose mutators are part
+    of its type, and the only fix is not to store them there.
+
+    So the members live behind a `MappingProxyType` over a dict referenced
+    nowhere else, and this class implements the read half of the mapping
+    protocol and nothing else. The round after that one found the private
+    attribute itself -- `roots._members.update(...)` needs no method of this
+    class at all -- which is what the proxy closes.
+
+    AND THE AUTHORITY NO LONGER RESTS ON ANY OF IT. `custody.attempt_custody_
+    root` derives the attempt's workspace from the allocation operands instead
+    of reading it out of this object, so what this class guarantees is that the
+    ANSWER is not quietly edited, not that a mount is safe. Those were the same
+    question for six review rounds and they are not the same question. There is no inherited
+    mutator to call, `dict(roots)` and `roots["workspace"]` still work for
+    every existing caller, and `dict.update(roots, ...)` now fails on its own
+    argument type rather than quietly succeeding.
+    """
+
+    __slots__ = ("_members",)
+
+    def __init__(self, made, _minted=None):
+        if _minted is not _MINT:
+            _denied("allocated roots are answered by `assignment_workspace` "
+                    "and are not constructed; roots a caller can mint are "
+                    "roots a caller chose")
+        # A READ-ONLY VIEW OVER A DICT NOTHING ELSE HOLDS. W36540 review [P0],
+        # sixth round: the members were an ordinary dict reachable through
+        # ordinary attribute access, so `roots._members.update(...)` retargeted
+        # both paths in place -- no method call to override, and therefore
+        # nothing another round of overrides could have caught.
+        #
+        # `MappingProxyType` is not another override. The proxy has no mutating
+        # operation at all, and the dict it wraps is created here and referenced
+        # nowhere else, so there is no object left for a holder to edit.
+        #
+        # WHAT THIS STILL CANNOT PROMISE, said plainly: `object.__setattr__`
+        # reaches any slot in this language, and no representation closes that.
+        # That is why the real correction is elsewhere --
+        # `custody.attempt_custody_root` no longer READS a path from this
+        # object at all, it derives one from the allocation operands. This
+        # makes the complaint false at its own site as well; it is not what the
+        # guarantee rests on.
+        object.__setattr__(self, "_members", MappingProxyType(dict(made)))
+
+    # -- the read half of the mapping protocol, and only the read half ------
+    #
+    # `keys` and `__getitem__` are what `dict(roots)` and `**roots` are built
+    # on, so every existing consumer keeps working unchanged.
+
+    def __getitem__(self, key):
+        return self._members[key]
+
+    def __iter__(self):
+        return iter(self._members)
+
+    def __len__(self):
+        return len(self._members)
+
+    def __contains__(self, key):
+        return key in self._members
+
+    def keys(self):
+        return self._members.keys()
+
+    def items(self):
+        return self._members.items()
+
+    # NO `get` AND NO `values`. Nothing reads the roots that way, and adding
+    # them would put `key` and `default` -- mapping-protocol words, not this
+    # manager's operands -- into the declared operand vocabulary. The
+    # dependency guard said so, and it is right: a public parameter here is a
+    # domain operand or it should not exist.
+
+    def __eq__(self, other):
+        return dict(self._members) == other
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    __hash__ = None
+
+    def __repr__(self):
+        return f"AllocatedRoots({self._members!r})"
+
+    def __setattr__(self, name, value):
+        _refuse("allocated roots are the answer this manager gave about one "
+                "assignment and are immutable", code="schema")
+
+    def __delattr__(self, name):
+        self.__setattr__(name, None)
+
+    def copy(self):
+        """A PLAIN dict, deliberately.
+
+        A copy is not the answer this manager gave; it is a caller's own
+        mapping that happens to hold the same strings, and typing it as one
+        would hand back exactly the forgery the mint refuses.
+        """
+        return dict(self._members)
+
+    # -- every mutating door this type OWNS, refused in our own words -------
+    #
+    # It does not inherit any, so these exist for the DIAGNOSTIC rather than
+    # for the guarantee: a caller reaching for one gets a sentence about why
+    # the answer is fixed instead of a bare TypeError. The guarantee is that
+    # the members are not in a mutable builtin at all.
+    #
+    # `dict.update(roots, ...)` and `dict.__setitem__(roots, ...)` are NOT on
+    # this list and cannot be: they fail in Python, on the argument type,
+    # because this is not a dict. That refusal is stronger than one we could
+    # write, and it is the one the previous two cuts could not produce.
+
+    def _frozen(self, *args, **members):
+        _refuse("allocated roots are the answer this manager gave about one "
+                "assignment and are immutable; a holder that could retarget "
+                "them would be choosing the directory the answer names",
+                code="schema")
+
+    __setitem__ = _frozen
+    __delitem__ = _frozen
+    __ior__ = _frozen
+    update = _frozen
+    setdefault = _frozen
+    pop = _frozen
+    popitem = _frozen
+    clear = _frozen
 
 
 def _own_directory(place, expected, what):

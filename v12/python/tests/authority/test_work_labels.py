@@ -61,6 +61,98 @@ class LabelCase(unittest.TestCase):
         return participant
 
 
+class CreationAttributionIsAnImmutableAct(LabelCase):
+
+    def test_an_unlabelled_work_is_bound_to_its_creation_act(self):
+        self.work(labels=[])
+        tables = {row["name"] for row in self.core._store.all(
+            "SELECT name FROM sqlite_master WHERE type = 'table'")}
+        self.assertIn("work_creation", tables)
+
+    def test_a_label_event_persists_its_act_kind_with_its_act_id(self):
+        columns = {row["name"] for row in self.core._store.all(
+            "PRAGMA table_info(work_label_event)")}
+        self.assertIn("act", columns)
+
+    def test_an_ordinary_work_read_carries_its_creation_act(self):
+        self.work(labels=[])
+        projected = self.authority.project_work(WORK)
+        self.assertEqual(projected["creation"]["operation_id"],
+                         "create-" + WORK)
+
+    def test_a_label_event_projects_the_act_identity_it_persists(self):
+        self.work(labels=["v12"])
+        event = self.authority.work_label_events(WORK)[0]
+        self.assertEqual(event["act"], "work-create")
+        self.assertEqual(event["act_id"], "create-" + WORK)
+
+    def test_the_operation_record_shares_the_creation_instant(self):
+        tick = 0
+
+        def clock():
+            nonlocal tick
+            tick += 1
+            return f"2026-08-29T12:00:00.{tick:03d}Z"
+
+        path = os.path.join(self._root.name, "operation-instant.sqlite3")
+        authority = Authority.create(path, authority_uuid=UUID, clock=clock)
+        self.addCleanup(authority.dispose)
+        authority.create_work(
+            WORK, ROUTE, operation_id="create-operation-instant",
+            contract=V12, labels=["v12"])
+        work = authority._core._store.get(
+            "SELECT created_at FROM work WHERE work_id = ?", WORK)
+        creation = authority._core._store.get(
+            "SELECT at FROM work_creation WHERE work_id = ?", WORK)
+        operation = authority._core._store.operation_row(
+            "create-operation-instant")
+        self.assertEqual(
+            {work["created_at"], creation["at"], operation["recorded_at"]},
+            {work["created_at"]})
+
+    def test_default_and_explicit_effective_scope_are_one_exact_retry(self):
+        operation = "create-effective-scope"
+        first = self.core.create_work(
+            WORK, ROUTE, operation_id=operation, contract=V12)
+        again = self.core.create_work(
+            WORK, ROUTE, operation_id=operation, contract=V12,
+            scope=DEPLOYMENT_SCOPE)
+        self.assertEqual(again, first)
+
+    def test_work_creation_and_initial_labels_share_one_instant(self):
+        tick = 0
+
+        def clock():
+            nonlocal tick
+            tick += 1
+            return f"2026-08-29T12:00:00.{tick:03d}Z"
+
+        path = os.path.join(self._root.name, "instant.sqlite3")
+        authority = Authority.create(path, authority_uuid=UUID,
+                                     clock=clock)
+        self.addCleanup(authority.dispose)
+        authority.create_work(
+            WORK, ROUTE, operation_id="create-one-instant", contract=V12,
+            labels=["v12"])
+        event = authority.work_label_events(WORK)[0]
+        work = authority._core._store.get(
+            "SELECT created_at FROM work WHERE work_id = ?", WORK)
+        # THE CREATION ACT'S OWN INSTANT, read from `work_creation`.
+        #
+        # This case was written against `authorization_decision`, which the
+        # same review's [P0] told me to RESERVE for the later authorized arm --
+        # a trusted bootstrap was not authorized by a grant and no longer
+        # fabricates a decision row to look as though it was. The property is
+        # unchanged and is what matters: one atomic creation, one instant, on
+        # the Work, its creation act and every label it was created with.
+        creation = authority._core._store.get(
+            "SELECT at FROM work_creation WHERE operation_id = ?",
+            "create-one-instant")
+        self.assertEqual(
+            {work["created_at"], event["at"], creation["at"]},
+            {work["created_at"]})
+
+
 class TheGrammarIsOneOpaqueKey(LabelCase):
 
     def test_mixed_case_normalizes_and_projects_lowercase(self):
@@ -234,10 +326,17 @@ class LabellingSurvivesTerminalClosure(LabelCase):
         # trusted bootstrap now -- a real answer to "under what authority" --
         # and the two acts are told apart by their kind and role rather than
         # by one of them being blank.
+        # THE CREATE-TIME ADDITION NAMES ITS CREATION ACT, not a decision.
+        # I wrote this against a synthetic `AuthorizationDecision` last round;
+        # the review's [P0] removed that -- a trusted bootstrap was not
+        # authorized by a grant -- so the attribution is the creation relation,
+        # which is a stronger answer than an invented principal was.
         self.assertEqual(events[0]["act"], "work-create")
-        self.assertEqual(events[0]["decision"]["role"], "create-work")
-        self.assertEqual(events[0]["decision"]["principal"],
-                         "principal:authority-bootstrap")
+        self.assertIsNone(events[0]["decision"])
+        self.assertEqual(events[0]["creation"]["kind"], "trusted-bootstrap")
+        self.assertEqual(events[0]["creation"]["operation_id"],
+                         events[0]["act_id"] if "act_id" in events[0]
+                         else events[0]["creation"]["operation_id"])
         self.assertEqual(events[1]["act"], "work-label")
         self.assertEqual(events[1]["decision"]["principal"],
                          self.authority.principal_of(GEMINI))
@@ -660,3 +759,111 @@ class RealCompetingConnectionsReachOneCoherentSet(LabelCase):
             self.assertIsNotNone(events[0]["decision"], events[0])
         else:
             self.assertEqual(events, [], events)
+
+
+class TheCreationActIsExactlyOneThing(LabelCase):
+    """W29400: the creation collision and forgery matrix.
+
+    ASKED FOR TWICE BEFORE IT WAS WRITTEN, and the reviewer was right to keep
+    asking: every creation case up to now was INCIDENTAL -- label fixtures
+    happened to create Works, so the creation contract was exercised without
+    ever being stated. A contract nothing names is a contract nothing holds.
+    """
+
+    def created(self, work_id=WORK, *, operation_id=None, **operands):
+        return self.core.create_work(
+            work_id, ROUTE, contract=V12,
+            operation_id=operation_id or ("create-" + work_id), **operands)
+
+    # -- one act, replayed ------------------------------------------------
+
+    def test_an_exact_retry_replays_the_one_creation(self):
+        first = self.created(labels=["v12"])
+        again = self.created(labels=["v12"])
+        self.assertEqual(again, first)
+        self.assertEqual(len(self.authority.work_label_events(WORK)), 1)
+        self.assertEqual(self.core._store.all(
+            "SELECT work_id FROM work_creation"), [{"work_id": WORK}])
+
+    def test_the_retry_does_not_write_a_second_creation_act(self):
+        self.created()
+        before = self.authority.work_creation(WORK)
+        self.created()
+        self.assertEqual(self.authority.work_creation(WORK), before)
+
+    # -- collisions --------------------------------------------------------
+
+    def test_one_identity_cannot_create_two_works(self):
+        """The operation identity is UNIQUE across Works, by the relation's
+        own key -- so a second Work cannot borrow the first one's act."""
+        self.created(WORK, operation_id="one-identity")
+        with self.assertRaises(Refusal):
+            self.created(OTHER, operation_id="one-identity")
+        self.assertIsNone(self.authority.work_creation(OTHER))
+
+    def test_one_work_cannot_be_created_under_two_identities(self):
+        self.created(WORK, operation_id="first-identity")
+        with self.assertRaises(Refusal) as caught:
+            self.created(WORK, operation_id="second-identity")
+        self.assertIn("already exists", str(caught.exception))
+        self.assertEqual(self.authority.work_creation(WORK)["operation_id"],
+                         "first-identity")
+
+    def test_changed_operands_under_one_identity_collide(self):
+        # Operands that are legal on their own, so what the case measures is
+        # the COLLISION and not some other rule refusing first.
+        for changed in ({"route": "baton.other"}, {"labels": ["v12"]},
+                        {"scope": "scope:other"}):
+            with self.subTest(changed=sorted(changed)):
+                self.setUp()
+                self.created(operation_id="fixed")
+                with self.assertRaises(Refusal) as caught:
+                    self.core.create_work(
+                        WORK, changed.pop("route", ROUTE), contract=V12,
+                        operation_id="fixed", **changed)
+                self.assertIn("different operands", str(caught.exception))
+
+    # -- forgery -----------------------------------------------------------
+
+    def test_a_caller_cannot_supply_the_creation_provenance(self):
+        """The KIND is this authority's to decide, not an operand.
+
+        A caller that could name its own creation kind could file a trusted
+        bootstrap as an authorized creation, which is the whole distinction
+        the closed vocabulary exists to keep.
+        """
+        import inspect
+        for face in (self.core.create_work, self.authority.create_work):
+            with self.subTest(face=face.__qualname__):
+                taken = inspect.signature(face).parameters
+                for forbidden in ("kind", "provenance", "principal",
+                                  "decision", "at", "created_at"):
+                    self.assertNotIn(forbidden, taken)
+
+    def test_the_recorded_kind_is_the_trusted_bootstrap(self):
+        self.created()
+        recorded = self.authority.work_creation(WORK)
+        self.assertEqual(recorded["kind"], "trusted-bootstrap")
+        self.assertEqual(recorded["scope"], DEPLOYMENT_SCOPE)
+
+    def test_a_label_event_cannot_borrow_another_works_creation(self):
+        """The event joins by the identity it PERSISTS, so a create-time
+        addition on one Work cannot be attributed to another's act."""
+        self.created(WORK, operation_id="create-a", labels=["v12"])
+        self.created(OTHER, operation_id="create-b", labels=["v12"])
+        for work, expected in ((WORK, "create-a"), (OTHER, "create-b")):
+            event = self.authority.work_label_events(work)[0]
+            self.assertEqual(event["act_id"], expected)
+            self.assertEqual(event["creation"]["operation_id"], expected)
+            self.assertEqual(event["creation"]["work_id"], work)
+
+    def test_the_creation_act_is_not_reachable_as_a_label_decision(self):
+        """`work-create` is not a capability decision and must not answer as
+        one: a reader asking for the grant behind a create-time addition gets
+        `None` and the creation act beside it, not an invented decision."""
+        self.created(labels=["v12"])
+        event = self.authority.work_label_events(WORK)[0]
+        self.assertIsNone(event["decision"])
+        self.assertIsNone(self.authority.decision_of("work-create",
+                                                     "create-" + WORK))
+        self.assertEqual(event["creation"]["kind"], "trusted-bootstrap")

@@ -242,3 +242,117 @@ green repeatedly and in the complete authority suite.
 initial-label attribution, creation replay/collision/no-forgery coverage and
 cumulative schema 5 boundary remain unimplemented. No acceptance or close is
 possible until that approved half lands.
+
+## 2026-08-29 — fourth independent review findings
+
+**Confirmed:** the authority now declares schema 5, creation requires an
+operation identity, the public bootstrap face accepts initial labels, exact
+raw-operand replay is wired, and create-time additions no longer project a
+null decision.
+
+**Observed [P0]: schema 5 does not contain the approved creation act.** There
+is no `work_creation` relation keyed by Work and operation identity. Bootstrap
+provenance is instead manufactured as a `work-create` row in
+`authorization_decision`, even though bootstrap was not authorized by a
+principal grant. An unlabelled Work has no durable edge to that row at all;
+given the Work, no authority read can identify its creation operation or
+provenance. The closed trusted-bootstrap versus future-authorized creation
+cross-product M34988 approved is absent.
+
+**Observed [P0]: label-event act kind is still inferred.** Schema 5's
+`work_label_event` retains only `act_id`. Projection calls `_act_kind_of`,
+searching three decision kinds until one happens to exist. M34988/M35127
+explicitly require the event to persist its act kind beside its id so history
+names its immutable attribution instead of guessing among tables.
+
+**Observed [P1]: creation replay signs the requested scope, not the effective
+scope.** Omitted scope and explicit `scope:deployment` create the same Work,
+but reuse of one operation identity across those equivalent calls collides.
+The approved creation signature names effective scope; canonical labels alone
+are not sufficient canonicalization.
+
+**Observed [P1]: creation facts do not share one instant.** `create_work`
+calls the configured clock separately for the Work row, synthetic bootstrap
+decision and every initial label addition. An advancing clock produces three
+different instants for one atomic creation. M34988 requires one captured
+creation instant for the Work, creation act and all initial additions.
+
+**Observed coverage gap:** no submitted test exercises creation exact retry,
+creation collision or attribution-operand forgery as a named matrix. The
+existing label tests touch creation incidentally but do not hold the approved
+creation result/act contract.
+
+## 2026-08-29 — fifth independent review findings
+
+**Confirmed corrected:** schema 5 now has one `work_creation` row per Work and
+unique operation identity with the closed creation kind; label events persist
+their closed act kind beside the act id; equivalent effective scopes replay;
+and the Work, creation act and initial label additions share one captured
+instant.
+
+**Observed [P0]: ordinary Work reads omit creation attribution.** The creation
+transition returns projection plus `creation`, and `work_creation(work_id)` can
+read the act separately, but `project_work` / `_projected` do not include it.
+M34988 and the fourth review require the immutable attribution on both the
+creation result and subsequent Work reads. The additive
+`test_an_ordinary_work_read_carries_its_creation_act` errors on the missing
+member.
+
+**Observed [P1]: event projection drops the act identity it now persists.**
+`work_label_event` correctly stores `act` and `act_id`, but
+`work_label_events` returns only `act`. A consumer therefore cannot name the
+exact act the event says produced it, and the create-time projection looks up
+creation by Work rather than exposing the event's persisted join key. The
+additive `test_a_label_event_projects_the_act_identity_it_persists` errors on
+the absent `act_id`.
+
+**Observed [P1]: the operation result still receives another instant.**
+`create_work` captures one instant for the Work, creation row and initial
+labels, then `_replay` independently calls the clock for the operation journal
+row. With an advancing clock the atomic creation facts still span two times.
+The additive `test_the_operation_record_shares_the_creation_instant` observes
+the operation at the next tick.
+
+**Observed coverage gap, unchanged:** the submitted module still lacks named
+creation collision and attribution-operand-forgery cases. Exact replay is
+exercised by the effective-scope case, but the complete approved creation
+matrix is not yet explicit.
+
+## 2026-08-29 — sixth independent review findings
+
+**Confirmed corrected:** ordinary Work projection now carries the immutable
+creation act; label-event projection carries and joins by its persisted
+`act_id`; the operation journal shares the captured creation instant; and the
+nine-case exact-retry/collision/forgery matrix is present. The focused module
+and complete authority suite are green.
+
+**Observed [P1 compatibility regression]: the Worker Manager's closed
+projection boundary is stale.** W29400 adds `creation` to the canonical Work
+projection, but `worker_manager.authority_port.PROJECTION_UNREAD` still ends at
+`labels`. The port validates an exact required/optional member set, so a real
+new projection is not accepted until `creation` is named as unread metadata.
+This is the same compatibility registry W29400 updated when it added `labels`.
+
+**Observed [P1 gate regression]: the inventory test no longer discovers the
+projection shape.** The earlier snapshot correction moved the dictionary from
+`project_work` into `_projected`, while
+`TheProjectionContractMatchesTheAuthorityItReads.authority_projection` still
+searches only the `project_work` function for a literal dictionary return.
+Both cases in that compatibility class now fail with "the authority's
+projection was not found," so the gate that should have caught the missing
+`creation` registry member is itself blind. Correct the extractor to the
+canonical projector and register `creation`; do not weaken exact-member
+validation.
+
+## 2026-08-29 — seventh independent review findings
+
+**Confirmed corrected:** `PROJECTION_UNREAD` names `creation` as metadata the
+Worker Manager validates but does not consume. The compatibility extractor
+searches the canonical `_projected` dictionary after the snapshot refactor and
+retains exact member equality plus whole-projection acceptance.
+
+**Confirmed complete:** the focused 52-case Work-label authority module, both
+projection compatibility cases and the complete 342-case authority suite pass.
+The existing unclosed-SQLite `ResourceWarning`s remain non-fatal and are not a
+W29400 regression. No acceptance item remains open in this authority provider;
+W29401 may proceed only after the campaign scheduling gate allows it.

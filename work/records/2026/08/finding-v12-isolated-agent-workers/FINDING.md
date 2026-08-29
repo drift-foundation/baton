@@ -1653,6 +1653,14 @@ graph limit. A deeper independently scheduled finding may be promoted to a
 top-level permanent record with forwarding provenance while its Baton Work
 retains the appropriate logical containment and dependency links.
 
+**Superseded for v12 on 2026-08-29:** the bounded dossier-directory model above
+still describes existing immutable v11-era records, but it is not the v12
+storage direction. V12 canonical dossiers form a flat set of stable record
+locations. All containment, dependency, campaign, follow-up, promotion,
+folding, routing, and scheduling relations live in Baton, never in filesystem
+ancestry. The owning decision is
+`work/records/2026/08/finding-v12-flat-dossier-storage/`.
+
 ## Team hierarchy and shared principals — confirmed requirement 2026-08-25
 
 V12 must distinguish a human or agent principal from the team scope in which

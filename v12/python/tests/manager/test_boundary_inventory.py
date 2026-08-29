@@ -7775,12 +7775,27 @@ class TheProjectionContractMatchesTheAuthorityItReads(BoundaryCase):
     def authority_projection(self):
         core = (PACKAGE.parent / "authority" / "core.py")
         tree = ast.parse(core.read_text(encoding="utf-8"), str(core))
-        for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef) and node.name == "project_work":
-                for piece in ast.walk(node):
-                    if isinstance(piece, ast.Return) \
-                            and isinstance(piece.value, ast.Dict):
-                        return sorted(key.value for key in piece.value.keys)
+        # THE CANONICAL DICTIONARY, WHEREVER THE AUTHORITY KEEPS IT.
+        #
+        # W29400 review [P1]: this parsed `project_work` for a literal return,
+        # and that Work's snapshot correction made `project_work` a wrapper
+        # that opens one read transaction and delegates to `_projected`, where
+        # the dictionary now lives. The extractor did not move with it, so this
+        # gate failed before it could compare anything -- a compatibility check
+        # that cannot FIND the thing it compares is not passing or failing, it
+        # is silent.
+        #
+        # Both names are searched rather than one, because which of them holds
+        # the literal is the authority's business and not this gate's; what
+        # this gate is about is the MEMBERS.
+        for name in ("_projected", "project_work"):
+            for node in ast.walk(tree):
+                if isinstance(node, ast.FunctionDef) and node.name == name:
+                    for piece in ast.walk(node):
+                        if isinstance(piece, ast.Return) \
+                                and isinstance(piece.value, ast.Dict):
+                            return sorted(key.value
+                                          for key in piece.value.keys)
         raise AssertionError("the authority's projection was not found")
 
     def test_the_contract_names_exactly_what_the_authority_answers(self):

@@ -148,7 +148,12 @@ class Minting(SessionCase):
             # which Work carries which labels -- so it stays on the
             # configuration side.  The two mutations and the two per-Work reads
             # are on the session, where an attributable act belongs.
-            "works_with_labels"})
+            "works_with_labels",
+            # W29400 review [P0]: `work_creation` answers the act that MADE a
+            # Work -- a trusted bootstrap, performed before any session could
+            # exist -- so it is a configuration-side read like the two above
+            # rather than something a session's own attributable acts reach.
+            "work_creation"})
         self.assertEqual(session_public & configuration, set())
         # And the session module's own public names match its `__all__`, so the
         # surface claim checks rather than merely being written down.

@@ -206,3 +206,179 @@ preserving the underlying path-selection capability.
 **Confirmed still open:** complete read/archive output custody, streaming and
 bounds, crash-bounded/restart-reclaimable lifetime, ending composition,
 retry/restart/crash proof and compatible Podman remain required.
+
+## 2026-08-29 — fourth independent review findings
+
+**Confirmed corrected only for a plain mapping:** the structural-forgery case
+now refuses an ordinary `dict`, because `attempt_custody_root` requires the
+nominal `AllocatedRoots` answer from `assignment_workspace`.
+
+**Observed [P0], still open: the minted answer is caller-retargetable.**
+`AllocatedRoots` subclasses mutable `dict`. A caller can obtain an authentic
+allocated answer, replace both its `inputs` and `workspace` members with an
+unrelated manager-owned pair carrying the expected basenames, and pass the
+nominal type plus every retained structural check. `attempt_custody_root` then
+mints the unrelated workspace as a valid custody root. The new
+`test_a_caller_cannot_retarget_authentic_allocated_roots` reproduces this and
+fails because no `ContractRefusal` is raised. Nominal provenance cannot carry
+authority while the authority-bearing paths remain caller-editable.
+
+**Confirmed still open:** complete recoverable read/archive output custody,
+streaming and bounds, bounded/derivable/restart-reclaimable lifetime, ending
+composition, retry/restart/crash proof and the applicable engine-certification
+boundary remain required.
+
+## 2026-08-29 — fifth independent review findings
+
+**Confirmed corrected only for ordinary dispatch:** direct item assignment,
+deletion and the named `dict` mutator methods now refuse, and the authentic
+answer stays unchanged through those calls.
+
+**Observed [P0], still open: a `dict` subclass cannot close the mutation
+boundary with overrides.** `AllocatedRoots` inherits `dict.__ior__`, so
+in-place union mutates its members without reaching `_frozen`. A caller can
+also invoke `dict.__setitem__` or `dict.update` explicitly on the subclass and
+bypass the overrides. Using `dict.update` to replace both members with an
+unrelated manager-owned `inputs`/`workspace` pair again makes
+`attempt_custody_root` mint the unrelated workspace successfully. Three
+additive regressions reproduce the protocol bypasses. Authority-bearing paths
+must live behind an immutable wrapper/private representation rather than in a
+mutable builtin base a holder can invoke directly.
+
+**Confirmed still open, unchanged:** complete recoverable read/archive output
+custody, streaming and bounds, bounded/derivable/restart-reclaimable lifetime,
+ending composition, retry/restart/crash proof and the applicable engine
+certification boundary remain required.
+
+## 2026-08-29 — sixth independent review findings
+
+**Confirmed corrected only at the builtin-inheritance layer:**
+`AllocatedRoots` no longer inherits `dict`, so `dict.update`,
+`dict.__setitem__` and inherited in-place union cannot mutate it.
+
+**Observed [P0], still open: the new wrapper exposes its mutable backing
+mapping.** Authority-bearing paths live in the ordinary dict
+`roots._members`. A holder can update both members through that attribute and
+then pass the authentic `AllocatedRoots` object; every nominal and structural
+check succeeds and `attempt_custody_root` mints the unrelated workspace. The
+additive
+`test_the_private_member_mapping_cannot_retarget_allocated_roots` reproduces
+this directly. Renaming a mutable mapping private does not make the mapping
+immutable or move path selection back to the manager.
+
+This is the sixth manifestation of one design error: path authority is still
+carried in caller-held mutable process state and then re-read at the custody
+mint. The correction must move the choice to manager-owned allocation state
+or another representation whose authority-bearing values are not mutable by
+the holder; another layer of ordinary method overrides is not sufficient.
+
+**Confirmed still open, unchanged:** complete recoverable read/archive output
+custody, streaming and bounds, bounded/derivable/restart-reclaimable lifetime,
+ending composition, retry/restart/crash proof and the applicable engine
+certification boundary remain required.
+
+## 2026-08-29 — the sixth P0 corrected at its owner, not at its symptom
+
+**The defect was one design error and the six rounds were six of its doors.**
+Each round closed the door the previous review walked through, and every one of
+them was a door onto the same room: the mount source was READ, at custody time,
+out of an object the caller had been holding since allocation.
+
+    roots["workspace"] = elsewhere            # round 1 -- a plain mapping
+    dict.update(roots, {...})                 # round 4 -- explicit base call
+    roots |= {...}                            # round 5 -- inherited __ior__
+    roots._members.update({...})              # round 6 -- the private dict
+
+The sixth is the one that proves overrides could never have finished the job:
+`_members` is private by NAME and its value is an ordinary mutable dict, so a
+holder edits it through ordinary attribute access with no method call to
+override. In this language, a holder of an object can reach what the object
+holds; an authority carried in caller-held process state and re-read later is
+an authority the caller can change in between.
+
+**The correction: `attempt_custody_root` takes no path-bearing operand at all.**
+It now derives `<storage>/<assignment>/workspace` by exactly the rule
+`assignment_workspace` allocates it by, from exactly the operands that function
+allocates from — the deployment's configured `WorkspaceGroup` capability, the
+storage root and the attempt identity:
+
+    attempt_custody_root(workspace_group, storage, assignment_id, which)
+
+There is nothing left to forge, retarget or launder, because nothing is read.
+An `AllocatedRoots` object is not accepted, so mutating one — by any of the six
+routes above or a seventh nobody has found yet — cannot influence the mount.
+
+**What authority this therefore carries, stated exactly.** It carries the
+ALLOCATION's, and not one bit more: any directory this can mount is one
+`assignment_workspace` would have allocated for the same operands, and a caller
+able to name those operands can already call that function. What is now
+impossible — and was the finding — is selecting something that is NOT an attempt
+workspace. The composed source is always the `workspace` entry of a home
+directly under the storage root, so the assignment home, its `inputs`,
+`credentials`, `credential-state` and `custody` siblings, the repository and
+every unrelated host path are unreachable rather than refused: there is no
+operand from which any of them could be built.
+
+Two supporting corrections came with it. An attempt identity carrying a path
+separator is refused — `boundaries.identity` is `boundaries.text` and owns
+durable text, saying nothing about path syntax, so `../../etc` would otherwise
+have composed a home outside the storage root before containment could see it.
+And the resolved source is proved contained under the storage root directly,
+which is the property the mount actually depends on.
+
+**`AllocatedRoots` was hardened too, and that is explicitly not what the
+guarantee rests on.** Its members now live behind a `MappingProxyType` over a
+dict referenced nowhere else, which makes the review's complaint false at its
+own site. It is recorded here that this is defence and not the mechanism:
+`object.__setattr__` reaches any slot in this language and no representation
+closes that. The guarantee is that the mint does not read the object.
+
+## 2026-08-29 — the reading verbs: corrected in part, and one open ruling
+
+**Corrected: the reading acts are streamed and their bounds are honest.**
+`read`, `hash` and `archive` each did one `handle.read()` of a whole file, and
+that was two defects in one line.
+
+- A worker file larger than the helper's `--memory 512m` ENDED the custody act.
+  A property a worker can switch off by writing a big file is not
+  unconditional, which is the exact shape of thing this Work exists to rule
+  out. Digests are now computed over 1 MiB chunks at constant memory.
+- `read` answered `body[:4096].decode("utf-8", "replace")`, which is lossy
+  twice: truncated without saying so, and every non-UTF-8 byte replaced with
+  U+FFFD. What came back was neither the file nor a recoverable prefix of it.
+  It now carries base64 bytes with an explicit `complete` member, and the WHOLE
+  file is still measured and digested, so a partial carry is an evidence bound
+  rather than a blind spot.
+
+The streaming case is proved under a real `RLIMIT_AS` bound smaller than the
+fixture, and a companion case drives the superseded whole-file read under the
+same bound and requires it to FAIL. Without that companion the streaming case
+would pass against a slurping implementation on any host with enough RAM —
+which is how the defect survived the first five rounds.
+
+**Open, and it is a ruling rather than an omission: what `archive` must
+return.** The review requires `archive` to preserve recoverable content rather
+than a digest manifest. That is in tension with M36166's own single-mount
+constraint, and the tension is structural rather than an implementation gap:
+
+- the ONE mount is the custody subject itself, so writing an archive into it
+  would change the tree being described;
+- the only other channel is the helper's stdout, a bounded JSON document on a
+  pipe, which cannot carry an arbitrary worker tree;
+- a second, manager-owned mount to receive the archive is the obvious answer
+  and is exactly what "mounted ONLY on the exact attempt directory" forbids.
+
+**A proposal, offered as decision support and not taken here.** After
+`normalize`, every object under the attempt root is group-accessible to the
+manager, which then reads, hashes and archives on the host with its own
+streaming and its own containment rules. On that reading `normalize` is the
+ENABLING act and `read`/`hash`/`archive` inside the helper are duplicating
+manager-side work in the one place that has no good way to return bytes. That
+would narrow the confirmed six-verb decision to the verbs custody actually
+needs the helper's identity for — which the first review named as an
+alternative to implementing all six ("implement all six pinned operations **or
+narrow the confirmed decision**"), and which only the approver can do, because
+M36166 names six.
+
+Until that is ruled, `archive` declares `content: "manifest-only"` in its own
+answer, so it can no longer LOOK like content custody while being a manifest.

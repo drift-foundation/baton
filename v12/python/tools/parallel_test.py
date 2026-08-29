@@ -125,6 +125,15 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     "tests.manager.test_store",
                     "tests.manager.test_text_sweep",
                     "tests.manager.test_validate",
+                    # W38956's Docker worker-entry transport. PARALLEL: the
+                    # positive cases run the image's own program in a THREAD
+                    # over a private pipe pair with the worker's root
+                    # constants patched to a per-case temporary directory, and
+                    # the negative ones drive a composed peer. No daemon, no
+                    # image and no container -- `exec_vector` is asserted as a
+                    # composed vector, and whether an engine applies it is the
+                    # serial gates' question.
+                    "tests.manager.test_worker_entry",
                     "tests.manager.test_worker_image",
                     "tests.manager.test_workspaces",
                     "tests.tools.test_parallel_runner",

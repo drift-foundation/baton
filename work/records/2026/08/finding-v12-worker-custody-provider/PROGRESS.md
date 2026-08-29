@@ -233,3 +233,295 @@ compatible Podman still blocked.
 
 **The [P0] and the symlink [P1] are corrected.** Passed back; read/archive
 custody and the lifetime/composition half remain open.
+
+## 2026-08-29 — provenance, not shape
+
+Reclaimed W36540 at seq 38817. The [P0] is corrected; the remaining scope is
+unchanged.
+
+### [P0] Directory shape is not allocation provenance
+
+The reviewer is right and the reasoning is one I should have applied to my own
+correction. Last round I replaced a raw path with a structural proof — the two
+paths share a parent, each carries its expected basename, all three are
+manager-owned — and every one of those properties is reproducible by any
+caller with `mkdir`. **Shape may validate authority; it cannot create it.** I
+had built a check that looked like a capability and was a naming convention.
+
+`assignment_workspace` now mints its answer. `AllocatedRoots` is a `dict`
+subclass, so every existing caller still reads `roots["workspace"]` unchanged
+and nothing else in the tree had to move — and a plain dict is not an instance
+of it, which is the entire difference. `attempt_custody_root` requires that
+type before anything else, and the structural checks still run behind it:
+shape validates the authority it can no longer manufacture.
+
+A `dict` subclass rather than a wrapper was deliberate. The roots have always
+been a mapping and every caller reads them as one; making provenance a wrapper
+would have meant editing all of them to prove a property none of them needed.
+
+### Unchanged and still required
+
+Complete recoverable read/archive output custody with streaming and bounds;
+bounded, derivable, restart-reclaimable helper acts; the ending composition;
+retry/restart/crash regressions; compatible Podman certification.
+
+### Gates
+
+- `test_custody` — **27 tests, OK**, the reviewer's forged-shape case among
+  them;
+- `test_custody_engine` 7 OK with one honest Podman skip;
+- `test_workspaces` 69, `test_input_delivery` 54, `test_dependencies` 21,
+  `test_secrets` 90, `test_text_sweep` 3 — OK. `test_input_delivery` matters
+  here: it is the heaviest consumer of `assignment_workspace`'s answer and is
+  what says the minted type did not disturb anything reading it as a mapping.
+
+## State
+
+**The [P0] is corrected.** Passed back; the read/archive, lifetime and
+composition scope remains open.
+
+## 2026-08-29 — the answer became immutable
+
+Reclaimed W36540 at seq 38887. The [P0] is corrected; the open scope is
+unchanged.
+
+### [P0] An authentic allocation answer could be retargeted
+
+Right again, and this is the third round on one boundary — worth saying
+plainly. Last round I made `assignment_workspace` mint a nominal type so that
+shape could no longer manufacture authority. But `AllocatedRoots` was a
+MUTABLE `dict` subclass and `attempt_custody_root` checked the type and then
+trusted the paths currently inside it. So a caller could take an authentic
+answer, overwrite its two members with an unrelated manager-owned parent, and
+hand the same authentic object on — passing the nominal check and every
+structural check behind it.
+
+**A capability whose contents the holder may rewrite delegates nothing.** It
+names a thing and then lets the holder choose which thing it named. I had
+fixed who can MINT the answer and left open what the answer SAYS.
+
+The answer is immutable now. Every mutating entry point is closed —
+`__setitem__`, `__delitem__`, `update`, `setdefault`, `pop`, `popitem`,
+`clear` — enumerated rather than assumed, because `dict` has more of them than
+the two obvious ones and each reaches the same members. `copy()` deliberately
+answers a PLAIN dict: a copy is a caller's own mapping that happens to hold the
+same strings, and typing it as an allocation answer would hand back exactly the
+forgery the mint refuses.
+
+### The reviewer's case moved earlier
+
+Their regression mutated the roots and expected the refusal from
+`attempt_custody_root`. The correction refuses at the WRITE instead, which is
+stronger: there is no window in which an authentic object holds foreign paths
+at all. The case now brackets both ends, so either refusal satisfies it, and it
+additionally proves the answer is unchanged afterwards and that the other five
+mutating doors are closed too.
+
+### Unchanged and still required
+
+Complete recoverable read/archive output custody with streaming and bounds;
+bounded, derivable, restart-reclaimable helper acts; the ending composition;
+retry/restart/crash regressions; compatible Podman certification. This review
+did not narrow any of them and neither do I.
+
+### Gates
+
+- `test_custody` — **28 tests, OK**, the reviewer's regression among them;
+- `test_custody_engine` 7 OK with one honest Podman skip;
+- `test_workspaces` 69, `test_input_delivery` 54, `test_attempts` 228,
+  `test_oci` 83, `test_dependencies` 21, `test_secrets` 90 — OK. Those matter
+  this round: making the allocation answer immutable would break any caller
+  that wrote into it, and they say none does.
+
+## State
+
+**The [P0] is corrected.** Passed back; the read/archive, lifetime and
+composition scope remains open.
+
+## 2026-08-29 — not a dict at all
+
+Reclaimed W36540 at seq 38929. The [P0] is corrected; the open scope is
+unchanged.
+
+### [P0] A mutable builtin cannot be made immutable by overriding it
+
+The reviewer's sentence is the whole finding: **overriding more methods cannot
+close explicit base-class invocation.** `dict.update(roots, {...})`,
+`dict.__setitem__(roots, ...)` and `roots |= {...}` each reach the base
+implementation without ever calling an override, and the last of those minted
+an unrelated custody root — the original host-path escape through a different
+door.
+
+`AllocatedRoots` does not inherit from `dict` now. The members live in a
+private attribute and the class implements the READ half of the mapping
+protocol and nothing else: `__getitem__`, `__iter__`, `__len__`,
+`__contains__`, `keys`, `items`, `copy`. There is no inherited mutator to
+call, and `dict.update(roots, ...)` fails on its own argument type because the
+object is not a dict.
+
+**That refusal is Python's, not ours, and it is the stronger one.** It cannot
+be talked out of by a future edit and it is exactly what the previous two cuts
+could not produce. The typed refusals that remain — `__setitem__`, `__ior__`,
+`update` and the rest — exist for the DIAGNOSTIC, so a caller reaching for one
+gets a sentence rather than a bare `TypeError`. The guarantee is the
+representation.
+
+### Three rounds, one lesson
+
+Raw path, then reproducible shape, then a mutable nominal type, then an
+overridable one. Each round I closed the door I had just been shown. The
+question I should have asked at the first correction — *what else can still
+reach the mount* — is the one the reviewer has now had to ask four times.
+
+### Two of the reviewer's cases assert a different exception now
+
+`dict.__setitem__` and `dict.update` raise `TypeError`, not `ContractRefusal`,
+because the object is not a dict — and that is the correction rather than a
+shortfall. Both cases accept either, and both additionally prove the roots are
+UNCHANGED afterwards. The update case goes further: it mints from the
+authentic answer and asserts the result is this attempt's own workspace and
+not the unrelated one, so the retarget is proved impossible rather than merely
+detected.
+
+### The operand guard caught a real thing
+
+Adding `get(key, default)` for completeness put mapping-protocol words into
+the declared operand vocabulary. `test_dependencies` refused them, correctly:
+a public parameter here is a domain operand or it should not exist. `get` and
+`values` are gone — nothing reads the roots that way.
+
+### Unchanged and still required
+
+Complete recoverable read/archive output custody with streaming and bounds;
+bounded, derivable, restart-reclaimable helper acts; the ending composition;
+retry/restart/crash regressions; compatible Podman certification.
+
+### Gates
+
+- `test_custody` — **31 tests, OK**, the reviewer's three among them;
+- `test_custody_engine` 7 OK with one honest Podman skip;
+- `test_workspaces` 69, `test_input_delivery` 54, `test_attempts` 228,
+  `test_oci` 83, `test_intake` 74, `test_dependencies` 21, `test_secrets` 90
+  — OK. Those are the consumers of the allocation answer, and replacing its
+  type would break any that treated it as a dict.
+
+## State
+
+**The [P0] is corrected.** Passed back; the read/archive, lifetime and
+composition scope remains open.
+
+## 2026-08-29 — seventh implementation round (`baton.claude`)
+
+State: **awaiting review.** The sixth review's [P0] is closed at its owner, and
+one previously-open item is closed in part with the rest turned into an
+explicit ruling request.
+
+### The [P0], and why this round changed the owner instead of the guard
+
+Six rounds closed six doors onto one room. The mount source was READ, at
+custody time, out of an object the caller had held since allocation — first a
+plain mapping, then one with the right basenames, then the nominal type, then
+that type with `dict` mutators overridden, then with `dict` removed from its
+bases, then with the members in a private attribute. The sixth is the proof
+that overrides could never finish: `roots._members.update(...)` needs no method
+of the class at all, so there was nothing left to override.
+
+`attempt_custody_root` now takes no path-bearing operand:
+
+    attempt_custody_root(workspace_group, storage, assignment_id, which)
+
+It derives `<storage>/<assignment>/workspace` by the same rule and from the
+same operands `assignment_workspace` allocates by. Nothing is read, so there is
+nothing to forge, retarget or launder, and a seventh representation of
+`AllocatedRoots` would be equally irrelevant.
+
+I want to be exact about what this buys, because overclaiming it is how the
+last six rounds each looked finished. It carries the ALLOCATION's authority and
+not one bit more: any directory it can mount is one `assignment_workspace`
+would allocate for the same operands, and a caller that can name those operands
+can already call that function. What is now impossible — and was the finding —
+is selecting something that is not an attempt workspace at all. The assignment
+home, its `inputs`/`credentials`/`credential-state`/`custody` siblings, the
+repository and every unrelated host path are unreachable rather than refused.
+
+`AllocatedRoots` members also moved behind a `MappingProxyType`. That makes the
+review's complaint false at its own site, and it is recorded in the finding as
+defence rather than as the mechanism: `object.__setattr__` reaches any slot in
+this language, which is precisely why the guarantee must not depend on it.
+
+### Tests changed, and it is a signature change rather than a weakening
+
+The mint's operands changed, so its call sites did. Every case kept its intent:
+
+- the four retarget cases still prove `AllocatedRoots` refuses mutation, and
+  now additionally prove the mint is unaffected by it;
+- the reviewer's own
+  `test_the_private_member_mapping_cannot_retarget_allocated_roots` is
+  STRENGTHENED, not relaxed — it now asserts both that the backing mapping
+  refuses the mutation and that the derived root is this attempt's own;
+- `test_a_caller_mapping_cannot_launder_an_unrelated_host_root` and
+  `test_a_caller_cannot_forge_the_expected_directory_shape` are re-aimed at the
+  new boundary rather than deleted.
+
+Added: `test_the_mint_reads_no_path_bearing_object_at_all` (the owner change,
+asserted as a signature) and `test_an_attempt_identity_cannot_carry_a_path`.
+
+### The reading verbs
+
+Streaming and bounds are corrected: digests over 1 MiB chunks at constant
+memory, and `read` carrying base64 bytes with an explicit `complete` member
+instead of a 4096-byte U+FFFD-mangled head that said nothing about being
+partial. A worker file bigger than the helper's memory bound used to END the
+custody act, which is a property a worker could switch off by writing a big
+file.
+
+The streaming case runs under a real `RLIMIT_AS` bound smaller than the
+fixture, and `test_the_bound_this_suite_imposes_can_actually_be_reached` drives
+the superseded whole-file read under the same bound and requires it to fail
+(measured: `MemoryError` at the slurp line, streaming exits 0). Without that
+companion the streaming case would pass against a slurping implementation on
+any host with enough RAM.
+
+`archive` returning recoverable CONTENT is not done, and I am asking for a
+ruling rather than guessing a third shape. It is in structural tension with
+M36166's single mount: the one mount is the custody subject, so writing an
+archive into it changes the tree being described; stdout is a bounded JSON
+document; and a second manager-owned mount is what "mounted ONLY on the exact
+attempt directory" forbids. The finding records the analysis and a proposal —
+that after `normalize` the manager reads and archives host-side under its own
+rules, narrowing the six-verb decision — which only the approver can take,
+because M36166 names six. `archive` now declares `content: "manifest-only"` so
+it cannot be mistaken for content custody meanwhile.
+
+### Verification
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_custody
+    -> 39 tests, OK   (was 32: 31 pass, 1 fail)
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_custody_engine
+    -> 7 tests, OK (1 skipped: podman is not on PATH)
+       Docker gate ran for real; a bare `docker run` on this host measures
+       0.198s, which is what makes the suite's 2.4s consistent with the
+       containers it starts.
+
+    ...plus test_workspaces, test_lifecycle_composition, test_input_delivery,
+    test_intake, test_oci, test_attempts, test_worker_entry, test_sealing,
+    test_output, test_offers, test_sessions, test_credentials, test_launch,
+    test_store
+    -> 1050 tests, OK (4 skipped)
+
+### Still open, unchanged
+
+Bounded/derivable/restart-reclaimable helper lifetime; ending composition and
+the retry/restart/crash regressions that depend on it; compatible-Podman
+certification (externally blocked, unchanged reason). `archive` content custody
+is now an open ruling rather than an open implementation.
+
+### Owed, and named rather than quietly left
+
+`custody.py` has no entries in `tests/manager/test_boundary_inventory.py` at
+all — this module was never registered in that gate, and no review round has
+raised it. It is owed. Not added this round: that gate is currently failing on
+29 orphaned entries across seven modules that predate this work, and the file
+carries another participant's uncommitted edit, so establishing ownership comes
+first.

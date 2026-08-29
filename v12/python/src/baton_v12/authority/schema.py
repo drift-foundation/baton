@@ -195,13 +195,47 @@ CREATE INDEX IF NOT EXISTS work_label_by_label
 -- journal names its act rather than carrying a second provisional spelling of
 -- endpoint, principal, scope, grant and policy generation -- which is what the
 -- parent record asks for in terms.
+-- W29400 review [P0]: THE ACT KIND IS PERSISTED BESIDE THE ACT ID.
+--
+-- The first cut stored only `act_id` and recovered the kind by querying each
+-- decision table in turn until one matched.  That is not prefix guessing, and
+-- it is still guessing: the answer depended on which tables happened to hold a
+-- row, so a kind that had no decision row was indistinguishable from an event
+-- nobody could attribute.  M34988 requires the closed kind explicitly, and
+-- with it the join is exact rather than a fallback chain.
 CREATE TABLE IF NOT EXISTS work_label_event (
-    seq     INTEGER PRIMARY KEY AUTOINCREMENT,
-    work_id TEXT NOT NULL,
-    label   TEXT NOT NULL,
-    action  TEXT NOT NULL CHECK (action IN ('added', 'removed')),
-    act_id  TEXT NOT NULL,
-    at      TEXT NOT NULL
+    seq      INTEGER PRIMARY KEY AUTOINCREMENT,
+    work_id  TEXT NOT NULL,
+    label    TEXT NOT NULL,
+    action   TEXT NOT NULL CHECK (action IN ('added', 'removed')),
+    act      TEXT NOT NULL
+             CHECK (act IN ('work-create', 'work-label', 'work-unlabel')),
+    act_id   TEXT NOT NULL,
+    at       TEXT NOT NULL
+) STRICT;
+
+-- W29400 review [P0]: ONE IMMUTABLE CREATION ACT PER WORK.
+--
+-- The first cut had no such relation at all.  It manufactured an
+-- `AuthorizationDecision` carrying a synthetic bootstrap principal and a
+-- `direct` grant, and filed it under `work-create` -- which says a capability
+-- authorized the creation, and none did.  Bootstrap provenance is a DIFFERENT
+-- arm of the approved cross-product, not a decision wearing invented operands.
+--
+-- And a Work created without labels wrote nothing at all naming both itself
+-- and its creation operation, so starting from the Work the authority could
+-- not recover the act that made it.  That is the relation this table is.
+--
+-- IMMUTABLE BY ITS OWN KEY.  One row per Work, so a second creation act for
+-- one Work cannot be recorded rather than being refused after the fact; and
+-- the operation identity is unique, so one act cannot be claimed by two Works.
+CREATE TABLE IF NOT EXISTS work_creation (
+    work_id      TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    kind         TEXT NOT NULL CHECK (kind IN ('trusted-bootstrap',
+                                               'authorized')),
+    scope        TEXT NOT NULL,
+    at           TEXT NOT NULL
 ) STRICT;
 
 CREATE TABLE IF NOT EXISTS route_handler (

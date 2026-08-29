@@ -209,3 +209,15 @@
 22. [coordination gate] W32391 owns Podman lifecycle/security certification;
     W36540 owns unconditional custody. Both remain open providers for the
     corresponding parent acceptance.
+
+## 2026-08-29 — approver supersession for the current vertical slice
+
+23. [ruled] M37180 supersedes M34630's immediate two-engine closure gate.
+    W33936 accepts the complete Docker matrix for this slice; Podman is a
+    longer-term portability certification owned by W32391 and no longer blocks
+    this Work.
+24. [required documentation truth] Describe Docker as certified and Podman as
+    pending or experimental until W32391 closes. Retain the rootful/rootless
+    measurements as evidence without representing them as certification.
+25. [still gated] W36540 remains the separate provider of unconditional manager
+    custody. This engine-scope ruling does not alter that boundary.

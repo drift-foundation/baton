@@ -160,6 +160,10 @@ class Authority:
     def labels_of(self, work_id):
         return self._core.labels_of(work_id)
 
+    def work_creation(self, work_id):
+        """W29400: the act that made this Work, from the Work alone."""
+        return self._core.work_creation(work_id)
+
     def work_label_events(self, work_id):
         return self._core.work_label_events(work_id)
 

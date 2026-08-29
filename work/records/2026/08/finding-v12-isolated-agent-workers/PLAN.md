@@ -641,3 +641,25 @@ whose prerequisites have closed are actionable.
      adoption; W32391 owns real-engine Podman certification and must be parked
      while that engine is unavailable. All three are M2 children of W3 and
      atomic follow-ups to W6636, with their own canonical dossiers.
+29. [queued 2026-08-29; W38956; next v12 finish line] Run the first useful
+    supervised v12 dogfood task. Compose the accepted host-side Python Worker
+    Manager and real Claude Docker-worker seams into one operator-invoked,
+    low-risk repository change: read-only declared input, no writable canonical
+    checkout or Baton authority, candidate output under `/output`, correlated
+    terminal result, and explicit human inspection, testing and acceptance or
+    rejection. This is the campaign's high-priority critical path, not another
+    component-proof detour. Full M3 automation, Podman, labels, remote
+    execution, multiple lanes and later-pass hardening do not gate it unless an
+    observed defect can make the positive result false. The bound
+    `work/records/2026/08/finding-v12-first-useful-dogfood-task/` dossier owns
+    its exact scope and evidence.
+30. [confirmed 2026-08-29; W39435] Treat v12 canonical dossiers
+    as one flat set of stable record locations. Store every mutable Work
+    relationship only in Baton; filesystem ancestry carries no containment,
+    dependency, campaign, follow-up, promotion, folding, routing, or scheduling
+    semantics. Existing immutable v11-era paths remain historical rather than
+    being moved. The top-level
+    `work/records/2026/08/finding-v12-flat-dossier-storage/` record owns the
+    materializer, locator, compatibility, projection, and generated-navigation
+    follow-up. This does not gate W38956, but must land before the v12 dossier
+    materializer and binding contract freeze.

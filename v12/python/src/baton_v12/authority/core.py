@@ -38,8 +38,12 @@ from .labels import MAX_LABELS, canonical_label, canonical_label_set
 # existence the Work every later scope resolves against, so there is no prior
 # principal to authorize it -- and saying that in a constant is what lets a
 # reader tell "the deployment created this" from "nobody recorded who did".
-BOOTSTRAP_ENDPOINT = "authority.bootstrap"
-BOOTSTRAP_PRINCIPAL = "principal:authority-bootstrap"
+# The closed creation-provenance vocabulary. `authorized` is the arm a later
+# cut fills when a genuine grant permits a creation; this one only ever writes
+# the bootstrap, and naming both is what makes the column closed rather than
+# open to whatever the first caller puts in it.
+TRUSTED_BOOTSTRAP = "trusted-bootstrap"
+AUTHORIZED_CREATION = "authorized"
 from .principals import (DEPLOYMENT_SCOPE, DIRECT, M2_GRANTS,
                          AuthorizationDecision, check_grant_provenance,
                          check_principal, check_scope,
@@ -359,13 +363,6 @@ class Core:
             decision.policy_generation, self._now())
         return decision
 
-    def _act_kind_of(self, act_id):
-        """Which of the three acts wrote this label event, from the journal."""
-        for act in ("work-label", "work-unlabel", "work-create"):
-            if self._decision(act, act_id) is not None:
-                return act
-        return None
-
     def _decision(self, act, act_id):
         """The retained decision as a fresh owned document, or `None`.
 
@@ -633,6 +630,13 @@ class Core:
                 f"a Work holds at most {MAX_LABELS} labels and this creation "
                 f"names {len(wanted)}")
 
+        # ONE INSTANT FOR ONE ATOMIC ACT. Review [P1]: the Work row, the
+        # attribution and every initial label event each called `_now()`, so
+        # under an advancing clock one creation recorded three different times
+        # -- a reader could not tell the labels were created WITH the Work.
+        # Captured once, threaded through every row the act writes.
+        at = self._now()
+
         def body():
             if self._store.get("SELECT 1 AS ok FROM work WHERE work_id = ?",
                                work_id) is not None:
@@ -641,50 +645,79 @@ class Core:
                 "INSERT INTO work (work_id, route, status, phase, gate, "
                 "contract, scope, created_at) "
                 "VALUES (?, ?, 'open', ?, ?, ?, ?, ?)",
-                work_id, route, phase, gate, contract, effective, self._now())
-            # THE CREATION IS ATTRIBUTED, and to a decision rather than to a
-            # string. Review [P0]: create-time labels were filed under
-            # `"create:" + work_id` -- an act id nothing decided and nothing
-            # could join -- so `work_label_events` answered `decision: None`
-            # and the addition was unattributable by the approved contract.
+                work_id, route, phase, gate, contract, effective, at)
+            # THE CREATION ACT, as its own immutable relation.
             #
-            # THE PROVENANCE IS THE TRUSTED BOOTSTRAP, named as such. There is
-            # no actor here by construction: creation is the act that brings
-            # the Work the scope resolves in into existence, so there is
-            # nothing yet to resolve a capability against. What the record has
-            # to say is exactly that, in a shape a reader can join -- not a
-            # null standing for "somebody, somehow".
-            self._record_decision("work-create", operation_id,
-                                  self._bootstrap_decision(effective))
+            # Review [P0]: the first cut manufactured an
+            # `AuthorizationDecision` with a synthetic bootstrap principal and
+            # a `direct` grant and filed it under `work-create` -- which says a
+            # capability authorized this, and none did. Bootstrap provenance is
+            # a DIFFERENT arm of the approved cross-product, not a decision
+            # wearing invented operands. Worse, a Work created without labels
+            # wrote nothing naming both itself and its operation, so from the
+            # Work the authority could not recover the act that made it.
+            #
+            # `authorization_decision` is reserved for the later authorized
+            # arm, which will have a real grant to name.
+            self._store.run(
+                "INSERT INTO work_creation (work_id, operation_id, kind, "
+                "scope, at) VALUES (?, ?, ?, ?, ?)",
+                work_id, operation_id, TRUSTED_BOOTSTRAP, effective, at)
             # CREATE-TIME LABELS ARE ADDITIONS ATTRIBUTED TO THAT ACT, in the
-            # same transaction: a Work that existed for an instant without the
-            # labels it was created with is a Work a reader could have seen
-            # unlabelled.
+            # same transaction and at the same instant: a Work that existed for
+            # an instant without the labels it was created with is a Work a
+            # reader could have seen unlabelled.
             for one in wanted:
-                self._add_label(work_id, one, act_id=operation_id)
+                self._add_label(work_id, one, act_id=operation_id,
+                                act_kind="work-create", at=at)
+            # THE ANSWER IS THE ORDINARY PROJECTION, which now carries the
+            # attribution itself -- see `_projected`. Composing it here as
+            # well would have been two spellings of one answer.
             return self.project_work(work_id)
 
         return self._replay(
             operation_id,
+            # THE EFFECTIVE SCOPE, NOT THE SPELLING THAT PRODUCED IT.
+            # Review [P1]: this signed the raw `scope` operand while the Work
+            # was created in `effective`, so an exact retry that spelled the
+            # default explicitly collided as "reused for different operands"
+            # -- although both calls create the same Work in the same scope.
+            # What the signature is about is the act, and the act is the
+            # effective scope.
             signature_of("work-create", {
                 "work_id": work_id, "route": route, "contract": contract,
-                "phase": phase, "gate": gate, "scope": scope,
+                "phase": phase, "gate": gate, "scope": effective,
                 "labels": list(wanted)}),
-            body)
+            body, at=at)
 
-    def _bootstrap_decision(self, effective):
-        """The provenance a Work creation is taken under.
+    def _creation_by_operation(self, operation_id):
+        """The creation act with THIS identity, not the one this Work has."""
+        row = self._store.get(
+            "SELECT * FROM work_creation WHERE operation_id = ?",
+            operation_id)
+        return None if row is None else {
+            "work_id": row["work_id"], "operation_id": row["operation_id"],
+            "kind": row["kind"], "scope": row["scope"], "at": row["at"]}
 
-        NAMED RATHER THAN NULL. A trusted bootstrap is a real answer to "under
-        what authority did this happen" -- it says the deployment itself, at
-        the act that has no prior Work to resolve against -- and a reader can
-        tell it apart from a capability-authorized act by its role and its
-        grant. A `None` could not be told apart from a missing row.
+    def work_creation(self, work_id):
+        """The act that made this Work, as a fresh owned document, or `None`.
+
+        FROM THE WORK, which is the whole point of the relation: a reader
+        holding only a Work id can recover the operation that created it and
+        the provenance it was created under, whether or not it carries labels.
+
+        `kind` is the closed vocabulary rather than a decision: a trusted
+        bootstrap was not authorized by a grant, and saying so plainly is more
+        honest than a decision row with invented operands in it.
         """
-        return AuthorizationDecision(
-            endpoint=BOOTSTRAP_ENDPOINT, principal=BOOTSTRAP_PRINCIPAL,
-            effective_scope=effective, role="create-work",
-            grant=DIRECT, policy_generation=self.policy_generation())
+        check_work_id(work_id)
+        row = self._store.get(
+            "SELECT * FROM work_creation WHERE work_id = ?", work_id)
+        if row is None:
+            return None
+        return {"work_id": row["work_id"],
+                "operation_id": row["operation_id"],
+                "kind": row["kind"], "scope": row["scope"], "at": row["at"]}
 
     def add_route_handler(self, route, participant):
         _text(route, "a route")
@@ -722,7 +755,7 @@ class Core:
             "SELECT label FROM work_label WHERE work_id = ? ORDER BY label",
             self._work(work_id)["work_id"])]
 
-    def _add_label(self, work_id, label, *, act_id):
+    def _add_label(self, work_id, label, *, act_id, act_kind, at=None):
         """Add one canonical label inside the caller's transaction.
 
         Answers whether it CHANGED anything.  Adding a label the Work already
@@ -753,16 +786,21 @@ class Core:
                 f"Work {name_of(work_id)} already holds the maximum "
                 f"{MAX_LABELS} labels; a label is removed before another is "
                 f"added")
-        at = self._now()
+        # ONE INSTANT for the row and its event, and it is the CALLER's when
+        # the caller has one: a creation passes the instant it captured so the
+        # Work and the labels it was created with share it exactly.
+        at = at or self._now()
         self._store.run(
             "INSERT INTO work_label (work_id, label, added_at) "
             "VALUES (?, ?, ?)", work_id, label, at)
         self._store.run(
-            "INSERT INTO work_label_event (work_id, label, action, act_id, at) "
-            "VALUES (?, ?, 'added', ?, ?)", work_id, label, act_id, at)
+            "INSERT INTO work_label_event (work_id, label, action, "
+            "act, act_id, at) VALUES (?, ?, 'added', ?, ?, ?)",
+            work_id, label, act_kind, act_id, at)
         return True
 
-    def _remove_label(self, work_id, label, *, act_id):
+    def _remove_label(self, work_id, label, *, act_id, act_kind,
+                      at=None):
         """Remove one canonical label inside the caller's transaction.
 
         Removing a label the Work does not hold is the same convergent no-op in
@@ -780,9 +818,9 @@ class Core:
             "DELETE FROM work_label WHERE work_id = ? AND label = ?",
             work_id, label)
         self._store.run(
-            "INSERT INTO work_label_event (work_id, label, action, act_id, at) "
-            "VALUES (?, ?, 'removed', ?, ?)",
-            work_id, label, act_id, self._now())
+            "INSERT INTO work_label_event (work_id, label, action, "
+            "act, act_id, at) VALUES (?, ?, 'removed', ?, ?, ?)",
+            work_id, label, act_kind, act_id, at or self._now())
         return True
 
     def label_work(self, work_id, label, *, actor, operation_id):
@@ -839,10 +877,10 @@ class Core:
                 "Work label addition" if adding else "Work label removal",
                 scope=work["scope"])
             changed = (self._add_label(work["work_id"], canonical,
-                                       act_id=operation_id)
+                                       act_id=operation_id, act_kind=act)
                        if adding else
                        self._remove_label(work["work_id"], canonical,
-                                          act_id=operation_id))
+                                          act_id=operation_id, act_kind=act))
             if changed:
                 # THE DECISION IS RETAINED ONLY FOR AN ACT THAT HAPPENED.
                 # A no-op authorized nothing, so a decision row for it would
@@ -867,14 +905,22 @@ class Core:
         """
         return [{"seq": row["seq"], "work_id": row["work_id"],
                  "label": row["label"], "action": row["action"],
-                 # THE ACT KIND IS PROJECTED, never inferred from an id
-                 # prefix: the three acts that can write a label event each
-                 # have a decision under their own kind, and a create-time
-                 # addition names `work-create` rather than answering `None`.
-                 "act": self._act_kind_of(row["act_id"]),
-                 "decision": (self._decision("work-label", row["act_id"])
-                              or self._decision("work-unlabel", row["act_id"])
-                              or self._decision("work-create", row["act_id"])),
+                 # THE KIND IS READ, and the join is EXACT. Review [P0]: this
+                 # asked each decision table in turn until one matched, which
+                 # is guessing however narrow the fallback chain. The event
+                 # names its own act now, so a label change joins its decision
+                 # and a create-time addition joins its creation act -- each
+                 # by the kind it was actually written under.
+                 # THE EXACT PERSISTED IDENTITY, projected and then USED.
+                 # Review [P1]: a create-time addition was attributed by
+                 # looking up the creation row by `work_id`, which happens to
+                 # be the same act today and is not the same STATEMENT. The
+                 # event names its act; the attribution is joined by that name.
+                 "act": row["act"], "act_id": row["act_id"],
+                 "decision": (self._decision(row["act"], row["act_id"])
+                              if row["act"] != "work-create" else None),
+                 "creation": (self._creation_by_operation(row["act_id"])
+                              if row["act"] == "work-create" else None),
                  "at": row["at"]}
                 for row in self._store.all(
                     "SELECT * FROM work_label_event WHERE work_id = ? "
@@ -1013,6 +1059,14 @@ class Core:
             # empty.  A projection that omitted the member for an unlabelled
             # Work would make every consumer branch on absence.
             "labels": self.labels_of(work["work_id"]),
+            # THE ACT THAT MADE THIS WORK, on the ORDINARY read.
+            #
+            # Review [P0]: the creation result carried the attribution and this
+            # projection did not, so a later reader holding only a Work id
+            # could not recover it from the canonical read -- which is where a
+            # reader actually looks. The relation existed; the answer did not
+            # say so unless you already knew to ask a second question.
+            "creation": self.work_creation(work["work_id"]),
             # And the decision the close was authorized under, or `None` while
             # the Work is open.  Review [P0]: an authorized close persisted
             # nothing at all, so a closed Work could not say who was permitted
@@ -2255,8 +2309,17 @@ class Core:
 
     # -- the operation journal -----------------------------------------------
 
-    def _replay(self, operation_id, signature, action):
-        return self._store.replay(operation_id, signature, action, at=self._now())
+    def _replay(self, operation_id, signature, action, at=None):
+        """`at` is the ACT'S OWN instant when the caller captured one.
+
+        Review [P1]: creation captured one instant for the Work, its creation
+        act and every initial label, and then this asked the clock AGAIN for
+        the committed operation row -- so under an advancing clock the result
+        record sat one tick after the act it records. One atomic act, one
+        instant, including the journal entry that says it happened.
+        """
+        return self._store.replay(operation_id, signature, action,
+                                  at=at or self._now())
 
     def set_lookup_available(self, available):
         """THE ONE FAULT-INJECTION SEAM in this module.
