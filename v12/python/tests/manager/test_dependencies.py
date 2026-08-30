@@ -439,8 +439,13 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         "refusal_record_digest",
         # W36540: the two operands a custody act is made of. `operation` is a
         # VERB from a closed vocabulary rather than a command -- the whole
-        # point of M36166's "never a worker-supplied command" -- and
-        # `attempt_root` is the single host directory the helper mounts.
+        # point of M36166's "never a worker-supplied command" -- and `which`
+        # names one of the two roots the ruling covers.
+        #
+        # The comment here used to name `attempt_root` as the second, and that
+        # operand has not existed since round nine; W43974 removed the last
+        # one, `name`, when the helper identity became DERIVED. A custody act
+        # takes no host path and no helper name at all.
         "operation", "which",
         # W16823: the two facts an offer FREEZES about the Work it was issued
         # against, and the operands the claim decision is later held to.

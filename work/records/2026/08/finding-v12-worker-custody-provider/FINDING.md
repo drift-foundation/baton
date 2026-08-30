@@ -605,3 +605,181 @@ happened. `_answered` is private and is called in exactly one place — at the
 end of the act it describes — which is the same rule this package already
 applies to `WorkspaceGroup`, `WorkspaceStorage` and every other capability it
 refuses to let a caller compose.
+
+## 2026-08-30 — eleventh round, after `review-2026-08-30T04-07-53Z.md`
+
+### Pinned: an answer is accounted for by ITS OWN VERB'S DOCUMENT, or not at all
+
+**Superseded:** the tenth round's rule that `ok` is a zero exit plus a readable
+document. It was the right correction to the previous shape and it was not
+enough. The act validated the verb it SENT and nothing about what came back, so
+a `normalize` act whose stdout ended `{"custody": "inspect", "entries": []}`
+was reported as successful custody. Zero plus an unrelated document is no
+stronger an account than zero plus no document, which this module already
+refuses — and the manager was recording that it had normalized a tree when
+nothing had.
+
+**The rule now:** `_CUSTODY_RESULT` writes down, per verb, the closed member
+set and the type of each member that `CUSTODY_PROGRAM` actually prints, and
+`_accountable` holds the returned document to the requested verb's entry before
+anything can be `ok`. A member set alone would not have been enough either:
+`entries` is a COUNT for `normalize` and a LIST for `inspect`, so the shape is
+part of the identity of the answer rather than a detail of it.
+
+`running_as` is held to two integers for the same reason it is printed: an act
+whose custodian identity is unstated is one this manager cannot attribute, and
+attribution is the whole mechanism this Work rests on.
+
+### Pinned: TWO documents are accountable, and only one of them can be `ok`
+
+`CUSTODY_PROGRAM` can print exactly two things — the requested verb's result,
+or its own typed refusal `{"custody": "refused", "why": ...}` with a non-zero
+exit. Both are real accounts of what happened, so both are RETAINED; only the
+first can make `ok` true. Discarding the refusal as "a document for the wrong
+verb" would have thrown away the one sentence explaining why the act did not
+run.
+
+### Pinned: a document that is not accountable is not partially believed
+
+None of a mismatched or malformed document becomes `answer`. What a reader gets
+instead is `unaccounted` — **this module's own words** about what it could not
+account for — while the act's own stderr stays separately in `diagnostic`, so
+the two provenances never blur. Reading the recognised members out of a
+document from a program that is not the one this module ships is how a manager
+ends up accounting for an act it did not understand.
+
+### Pinned: the retained account is frozen ALL THE WAY DOWN, and it is a tuple
+
+**Superseded:** the tenth round's `MappingProxyType` over the parsed document.
+A proxy protects assignment to the mapping it wraps and nothing inside it, so
+every list and record the custodian nested stayed live: `answer["running_as"][0]
+= 0` succeeded, and the retained account disagreed with what the custodian
+reported.
+
+**The rule now:** `_frozen` rebuilds the document bottom-up — dictionaries as
+`MappingProxyType` over fresh mappings nothing else references, lists as
+tuples, scalars as themselves.
+
+**A LIST BECOMES A TUPLE RATHER THAN A GUARDED LIST, and that is this record's
+own rule applied to itself.** A `list` subclass refusing its mutators would
+have compared equal to a list, serialized as one, and left every existing
+assertion untouched — and `list.append(frozen, x)` reaches straight past it,
+exactly as `object.__setattr__` reached past six representations of
+`AllocatedRoots` in rounds one to six. Choosing the convenient defence here,
+in the round that answers a finding about a defence that only looked
+sufficient, would have been this Work's characteristic mistake for the seventh
+time. The cost is real and is accepted: a frozen sequence no longer equals the
+list it came from, and three assertions across two suites changed to say so.
+
+### Pinned: the answer renders itself once
+
+A read-only view cannot be handed to `json.dumps` — a `mappingproxy` is not a
+`dict` — and callers were rebuilding one to serialize it, which is re-deriving
+the account instead of quoting it. `rendered` is the canonical serialization
+produced from the accepted document at mint time and never recomputed.
+
+### The two tables are compared, because two copies of one contract are two contracts
+
+`_CUSTODY_RESULT` is a second copy of what `CUSTODY_PROGRAM` prints.
+`TheAnswerContractMatchesTheProgram` runs the REAL program for all six verbs
+over a populated tree and requires this module's own validator to accept every
+document it printed. Adding a member to the program without adding it to the
+table fails as `unexpected`; removing one fails as `missing`. Without that
+case, holding the daemon-free fixture to the module's table would have proved
+only that the fixture agrees with the validator.
+
+### Closed, and it was this Work's own: the uncovered durable writer
+
+`test_secrets`' §13 sweep reported `workspaces.py:configure_workspace_storage`
+as a durable writer with no coverage — a shared gate this Work has been leaving
+red since round eight, when the act was written in the shape of
+`configure_workspace_group` directly above it and the registration was not
+carried along. **The same omission as round nine's boundary label, and the same
+lesson: a mirrored pattern does not bring its obligations with it.** The
+declaration is the group's own rationale one operand over, and it is true
+rather than convenient: the only value written is a path
+`check_workspace_storage` has already proved, and it rides
+`manager_signature("workspace-storage.configure", {"place": place})` into the
+journal the sweep walks.
+
+This is NOT the deferred custody boundary-inventory ownership item, which is a
+different gate over `custody.py`'s own entries and stays open.
+
+### Open, unchanged
+
+Archive-content semantics, bounded/restart-reclaimable helper lifetime,
+ended-attempt composition with retry/restart/crash proof, compatible-engine
+certification, and custody boundary-inventory ownership. The review directs the
+decomposition of these into explicit Jobs after this correction returns; they
+are named in `PLAN.md` and deliberately not started here.
+
+## 2026-08-30 — compatible-engine certification boundary (W43976)
+
+**Confirmed:** "every compatible OCI engine" means every engine the
+deployment explicitly claims as supported, not every OCI implementation that
+exists or can be installed. Docker is the current reference and certified
+custody engine. Its real-engine custody matrix must exercise the same closed
+six-verb contract and manager/custodian identities as the daemon-free suite.
+
+Podman is not currently certified. The available rootless environment cannot
+establish the configured supplementary-group workspace precondition, while a
+rootful nested environment makes the manager root and cannot prove the
+required before-custody denial. Neither a Docker alias nor that non-probative
+rootful result is accepted as Podman parity.
+
+**Scheduling ruling:** Podman remains the longer-term, separately parked
+certification target owned by W32391. Its absence is an honest unsupported
+engine limitation, not an environmental gate on W36540 or the current Docker
+custody path. If Podman support is later claimed, W32391 must produce the real
+compatible-engine evidence before that claim becomes true.
+
+## 2026-08-30 — archive and attempt-result boundary (W43972)
+
+**Supersession:** M36166's requirement that the current custody helper provide
+an `archive` operation, and the matching archive acceptance bullets above, do
+not gate the v12 MVP. There is no demonstrated need yet for a transported,
+compressed, or separately restorable copy of the entire attempt tree. Keep the
+historical ruling as the reason W43972 existed, but do not implement archive
+semantics speculatively. A later retention/export Work may reintroduce an
+archive artifact after an operational need defines its content and lifetime.
+
+The manager instead owns one persistent attempt-result envelope with this
+logical shape:
+
+```text
+result/
+  output/                 worker-produced candidate data
+    repo/                 working clone and commits for Git assignments
+    result.json           worker publication, written last
+  logs/                   manager-captured attempt and agent logs
+```
+
+`result/output/` is worker-writable and remains untrusted until validation. A
+Git worker may clone and work directly in `result/output/repo/`; no final move
+or duplicate copy is required. A failed attempt may leave `output/` absent or
+incomplete.
+
+`result/logs/` is manager-owned. The worker emits available session events,
+messages, tool activity, stdout/stderr and runtime diagnostics through its
+mediated interfaces; the manager records them so the worker cannot rewrite
+its history. Logs are retained for every attempt, successful or failed, and
+are correlated to the exact attempt. They contain only information the agent
+or runtime exposes, never an invented claim to hidden model reasoning, and
+credential material must be excluded or redacted.
+
+The primary consumer is candidate review. A reviewer receives
+`result/output/` together with the exact attempt's `result/logs/` and can
+inspect the messages, tool activity, provider-exposed thought chunks or
+reasoning summaries, tests and runtime diagnostics that led to the candidate.
+ACP and App Server adapters therefore preserve those structured events when
+their provider emits them, with attempt/session/turn correlation, rather than
+relying only on one shared process log. This evidence explains how the code
+was produced; it is not proof that the reasoning or candidate is correct, and
+it never substitutes for diff inspection, verification or independent
+review.
+
+This result envelope is not a custody archive. Read-only assignment input,
+credentials, run secrets, container-private temporary space, the base image
+and unrelated mounts remain outside it. Custody still must let the manager
+normalize and dispose of ended-attempt writable trees regardless of modes;
+deferring archive transport does not weaken that ownership invariant.

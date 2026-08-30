@@ -361,8 +361,23 @@ class EnginePort:
     def __init__(self, run):
         self._run = boundaries.capability(run, "the engine's run operation")
 
-    def __call__(self, argv):
+    def __call__(self, argv, *, seconds=None):
         """Answer `(status, stdout, stderr)` for one closed vector.
+
+        `seconds` IS A DEADLINE THE CAPABILITY MUST HONOUR BY TERMINATING.
+        W43974 review (2026-08-30T05:28:16Z) [P0]: a caller that merely stops
+        waiting has not stopped the engine operation, and an abandoned call is
+        free to mutate the engine after the caller has reported and acted on
+        its absence. So a caller that needs a bound passes it through to the
+        capability, whose contract is that it has terminated AND REAPED its
+        child before it answers -- which is exactly `subprocess.run(argv,
+        timeout=seconds)`.
+
+        OPTIONAL, AND FORWARDED ONLY WHEN GIVEN. Every caller that does not
+        pass one calls the capability exactly as before, so an injected
+        operation that takes only an argv keeps working; a caller that DOES
+        pass one is stating that its capability accepts the operand, and
+        `custody.custody_act` proves that of its own before it runs anything.
 
         §13 OVER EVERY ARGV THAT REACHES AN ENGINE, and this is the one place
         that can say that. Review [P1]: `run_vector` swept the vector it
@@ -381,7 +396,22 @@ class EnginePort:
         this port is.
         """
         check_no_durable_secret(list(argv), what="an engine vector")
-        answer = self._run(argv)
+        if seconds is None:
+            answer = self._run(argv)
+        else:
+            # VALIDATED BEFORE IT IS FORWARDED. W43974 review
+            # (2026-08-30T05:44:32Z) [P1]: every non-`None` value reached the
+            # injected capability, so zero, a negative, a bool, a float and
+            # text all became whatever coercion the injector happened to
+            # perform -- on a seam whose whole purpose is that a caller can
+            # depend on the bound. The rule is `stop_vector`'s, because two
+            # spellings of "a positive whole number of seconds" in one module
+            # is two contracts.
+            if type(seconds) is not int or type(seconds) is bool \
+                    or not 0 < seconds:
+                _refuse(f"an engine deadline is a positive whole number of "
+                        f"seconds; this is {name_value(seconds)}")
+            answer = self._run(argv, seconds=seconds)
         taken = boundaries.document(answer, "the engine's answer",
                                     required=("status", "stdout", "stderr"))
         if type(taken["status"]) is not int or type(taken["status"]) is bool:

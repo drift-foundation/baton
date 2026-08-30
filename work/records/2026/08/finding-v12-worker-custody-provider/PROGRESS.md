@@ -819,3 +819,139 @@ its retry/restart/crash regressions; the `archive` ruling, which is the
 approver's; compatible-Podman certification; and `custody.py`'s absent
 `test_boundary_inventory` entries. `PLAN.md` carries the decomposition the
 review directs for the round that follows this handoff.
+
+## 2026-08-30 — eleventh implementation round (`baton.claude`, W36540 impl claim)
+
+Answering `review-2026-08-30T04-07-53Z.md`. Both parts of the one [P1] are
+corrected, the reviewer's two additive regressions pass, and the focused suite
+is 59 cases. The four deferred outcomes are untouched, as the review directs.
+
+### [P1a] `ok` meant "some JSON came back", and it should have meant this act
+
+You are right, and it is worth being exact about what was being reported: a
+`normalize` act carrying an `inspect` document was recorded as a successful
+normalization of a tree nothing had touched. The tenth round validated the verb
+it SENT and nothing about what came back.
+
+`_CUSTODY_RESULT` now writes down, per verb, the closed member set and the type
+of every member `CUSTODY_PROGRAM` prints, and `_accountable` holds the returned
+document to the requested verb's entry before `ok` can be true. Member names
+alone would not have been enough — `entries` is a COUNT for `normalize` and a
+LIST for `inspect` — so types are part of the identity of an answer here rather
+than a detail of it. `running_as` is held to two integers, because an act whose
+custodian identity is unstated is one this manager cannot attribute, and
+attribution is the entire mechanism this Work rests on.
+
+TWO DOCUMENTS ARE ACCOUNTABLE and only one can be `ok`. The program can print
+its own typed refusal, and discarding that as "a document for the wrong verb"
+would throw away the one sentence saying why the act did not run. It is
+retained; it can never be `ok`.
+
+AND A MISMATCH IS NOT PARTIALLY BELIEVED, which is your "without guessing at
+partial documents". None of it becomes `answer`. `unaccounted` carries THIS
+MODULE'S own words about what it could not account for, and the act's stderr
+stays separately in `diagnostic`, so the two provenances never blur.
+
+### [P1b] The freeze, and why it is a tuple
+
+`MappingProxyType` protected the outer mapping and nothing inside it. `_frozen`
+rebuilds the document bottom-up: mappings behind a proxy over a fresh
+dictionary nothing else references, lists as tuples, scalars as themselves.
+
+THE TUPLE IS THE PART TO SCRUTINISE, and I want it visible rather than
+discovered. A `list` subclass refusing its mutators would have compared equal
+to a list, serialized as one, and left every existing assertion untouched —
+and `list.append(frozen, x)` reaches straight past it, exactly as
+`object.__setattr__` reached past six representations of `AllocatedRoots` in
+rounds one to six. Taking the convenient defence in the round that answers a
+finding about a defence that only looked sufficient would have been this Work's
+characteristic mistake for the seventh time. The cost is that a frozen sequence
+no longer equals the list it came from, and three assertions changed to say so.
+
+### The two tables are compared, because otherwise they are two contracts
+
+`_CUSTODY_RESULT` is a second copy of what `CUSTODY_PROGRAM` prints.
+`TheAnswerContractMatchesTheProgram` runs the REAL program for all six verbs
+over a populated tree — file, nested file, directory, link — and requires this
+module's validator to accept every document it printed. Without that case,
+holding the daemon-free fixture to the module's own table would have proved
+only that the fixture agrees with the validator.
+
+### FOUR TEST CHANGES YOU SHOULD LOOK AT
+
+1. YOUR NESTED REGRESSION asserts `answer["running_as"] == [65532, 65532]`.
+   It reads `(65532, 65532)` now. That is not a relaxation — it is the direct
+   consequence of the only non-bypassable freeze, and the alternative that
+   would have kept your line verbatim is the guarded-list defence above. Your
+   `assertRaises` half is unchanged and passes.
+2. THE DAEMON-FREE FIXTURE emits shape-correct documents per verb now. It
+   returned `{"custody": op, "entries": 3, "running_as": [...]}` for every
+   verb, which is a valid `inspect` document and an invalid `normalize` one,
+   so without this every case would exercise the refusal path. The stubs are
+   spelled out rather than derived from `custody._CUSTODY_RESULT`, because a
+   fixture that agreed with the validator by construction would prove nothing;
+   the program-agreement case above is what binds them.
+3. THREE CASES SERIALIZED THE ANSWER with `json.dumps(dict(answered.answer))`
+   to assert no host path appears in it. A `mappingproxy` nested inside is not
+   a `dict`, so that call now raises on any document with nested records —
+   and rebuilding a view to serialize it was re-deriving the account anyway.
+   They use `answered.rendered`, the canonical serialization produced once at
+   mint time, which covers the whole nested document rather than one level.
+4. THE REAL-DAEMON ACCEPTANCE at `test_custody_engine.py:168` asserted the
+   same list equality as (1) and failed against a real container. Same change,
+   same reason. Worth noting that this is a failure the review could not have
+   seen, because the managed reviewer has no daemon.
+
+### Closed as well, and it was this Work's own
+
+`test_secrets`' §13 sweep reported `workspaces.py:configure_workspace_storage`
+as a durable writer with no coverage. That is a shared gate this Work has been
+leaving red for the whole tree since round eight, when the act was written in
+the shape of `configure_workspace_group` directly above it and the coverage
+declaration was not carried along — the same omission as round nine's boundary
+label, and the same lesson. The declaration is the group's own rationale one
+operand over, and I checked it is TRUE rather than convenient: the only value
+written is a path `check_workspace_storage` has proved, and it rides
+`manager_signature("workspace-storage.configure", {"place": place})` into the
+journal the sweep walks.
+
+This is NOT the deferred custody boundary-inventory ownership item, which is a
+different gate over `custody.py`'s own entries and stays open.
+
+### Verification
+
+From `v12/python`:
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_custody
+    -> 61 tests, OK   (50 before: 48 pass + your 2 failing; +11 of mine)
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_custody
+      tests.manager.test_workspaces tests.manager.test_dependencies
+    -> 159 tests, OK (1 skipped)
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_custody_engine
+    -> 7 tests, OK (1 podman skip) -- SIX REAL DOCKER CASES INCLUDING THE
+       ACCEPTANCE. Docker is reachable in this implementer context, so the
+       gate the managed reviewer cannot start was run, and it is what caught
+       change (4) above.
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_secrets
+    -> 90 tests, OK   (was 89 pass / 1 fail on the writer above)
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory
+    -> NOT COMPLETED. Started early in this round and still running when the
+       handoff was written, as it also was at the ninth round. No verdict is
+       claimed from it either way. What this round can say is narrower and is
+       measured: it adds no `boundaries.*` call site, so it introduces no new
+       crossing for that gate to attribute; `custody.py`'s seven unowned
+       receiving entries are unchanged and remain the deferred inventory item.
+
+    `diff --check` over the working tree: passed.
+
+### Still open, unchanged, and deliberately not started in this round
+
+Archive-content semantics; bounded/restart-reclaimable helper lifetime; ending
+composition and its retry/restart/crash regressions; compatible-Podman
+certification; and `custody.py`'s absent `test_boundary_inventory` entries.
+`PLAN.md` carries the decomposition the review directs for the round that
+follows this handoff, still as a proposal rather than minted Work.

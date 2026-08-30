@@ -682,3 +682,14 @@ whose prerequisites have closed are actionable.
     this follow-up. Its descriptive Job title deliberately omits a `V12`
     prefix; label `v12` is the future campaign organizer. It does not gate
     W38956.
+32. [confirmed 2026-08-30; W43972; MVP result boundary] Give every attempt a
+    manager-owned persistent `result/` envelope split into worker-writable,
+    untrusted `output/` and manager-owned `logs/`. Permit Git workers to use
+    `output/repo/` as their working clone and publish `output/result.json`
+    last. Retain correlated, credential-safe logs on success and failure, and
+    present them with the candidate during review so provider-exposed agent
+    reasoning, messages, tools, tests and runtime events can explain how the
+    output was produced without being mistaken for verification evidence.
+    Defer transported custody-archive semantics until a demonstrated
+    retention/export need defines them; archive work does not gate the first
+    useful v12 path.

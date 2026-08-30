@@ -111,9 +111,18 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         self.assertEqual(done.returncode, 0,
                          done.stderr.decode("utf-8", "replace")[:2000])
 
-    def spawn(self, argv):
-        """The engine port's run operation, over a real process."""
-        finished = subprocess.run(argv, capture_output=True, timeout=300)
+    def spawn(self, argv, *, seconds=None):
+        """The engine port's run operation, over a real process.
+
+        W43974 review 2026-08-30T05:28:16Z [P0]: `seconds` is the caller's
+        deadline and `subprocess.run(timeout=)` is what honours it — it kills
+        the child and waits for it before raising, so the call is genuinely
+        OVER when this returns or raises. A capability that could not take
+        this operand is refused by `custody_act` before any engine call, which
+        is why the fixture takes it rather than ignoring it.
+        """
+        finished = subprocess.run(argv, capture_output=True,
+                                  timeout=seconds if seconds else 300)
         return {"status": finished.returncode,
                 "stdout": finished.stdout.decode("utf-8", "replace"),
                 "stderr": finished.stderr.decode("utf-8", "replace")}
@@ -132,11 +141,125 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         extraction that used to live in every one of these cases is now the
         act's own, which is where it belongs.
         """
-        name = f"{MARK}-custody-{uuid.uuid4().hex[:10]}"
-        self.made.append(name)
+        # W43974: THE NAME IS DERIVED and this fixture no longer invents one.
+        # It registers the derived identity for teardown instead, which is the
+        # same thing a restarted manager can do and a caller-chosen name never
+        # allowed.
+        self.made.append(custody._custody_identity(
+            self.storage, "attempt-1", "workspace", operation))
         return custody.custody_act(
-            self.engine, self.spawn, image_digest=self.digest, name=name,
+            self.engine, self.spawn, image_digest=self.digest,
             store=self.store, assignment_id="attempt-1", operation=operation)
+
+    def stranded(self, operation="normalize", seconds=120):
+        """A REAL helper left behind by a manager that died mid-act.
+
+        Started detached and WITHOUT `--rm` under the identity this act will
+        derive, which is exactly the state `--rm` does not cover: the engine
+        removes a foreground helper when the act ends, and there was no act.
+        """
+        name = custody._custody_identity(self.storage, "attempt-1",
+                                         "workspace", operation)
+        self.made.append(name)
+        done = subprocess.run(
+            [self.engine, "run", "--detach", "--name", name,
+             "--user", "65532:65532", "--entrypoint", "python3", self.image,
+             "-c", f"import time; time.sleep({seconds})"],
+            capture_output=True, timeout=300)
+        self.assertEqual(done.returncode, 0,
+                         done.stderr.decode("utf-8", "replace")[:2000])
+        return name
+
+    def present(self, name):
+        """Whether the engine still knows this exact identity."""
+        done = subprocess.run(
+            [self.engine, "ps", "--all", "--no-trunc", "--format", "{{.Names}}",
+             "--filter", f"name={name}"], capture_output=True, timeout=120)
+        self.assertEqual(done.returncode, 0,
+                         done.stderr.decode("utf-8", "replace")[:2000])
+        return name in done.stdout.decode("utf-8").split()
+
+    # -- W43974: the helper a dead manager left behind ---------------------
+
+    def test_a_stranded_running_helper_is_reclaimed_and_the_act_completes(self):
+        """THE OUTCOME THIS CHILD EXISTS FOR, against a real daemon.
+
+        A helper is left running under the derived identity, as a manager
+        killed mid-act would leave one. A fresh act finds it — because the
+        identity is derivable and no longer a caller's choice — ends it,
+        proves it absent, and performs the custody it was asked for.
+        """
+        roots = self.allocated()
+        self.worker_leaves(roots["workspace"])
+        left = self.stranded()
+        self.assertTrue(self.present(left))
+
+        acted = self.custody("normalize")
+        self.assertTrue(acted.ok, acted.diagnostic)
+        self.assertEqual(acted.answer["custody"], "normalize")
+        self.assertFalse(self.present(left))
+        # AND THE TREE IS THE MANAGER'S AGAIN, which is what the custody was
+        # for -- a reclamation that did not end with the act performed would
+        # have proved only that `docker rm` works.
+        self.assertTrue(workspaces.discard_workspace(self.storage,
+                                                     "attempt-1"))
+
+    def test_a_stranded_exited_helper_is_reclaimed_too(self):
+        """`--rm` never ran for it, so an exited container answering to the
+        identity is exactly as much in the way as a running one."""
+        roots = self.allocated()
+        self.worker_leaves(roots["workspace"])
+        left = self.stranded(seconds=0)
+        subprocess.run([self.engine, "wait", left], capture_output=True,
+                       timeout=120)
+        self.assertTrue(self.present(left))
+
+        acted = self.custody("normalize")
+        self.assertTrue(acted.ok, acted.diagnostic)
+        self.assertFalse(self.present(left))
+
+    def test_a_same_prefix_stranger_is_left_running(self):
+        """The engine's name filter is a substring match, so a stranger whose
+        name CONTAINS the derived identity is returned by it. The exact
+        comparison is this manager's, and it leaves the stranger alone."""
+        roots = self.allocated()
+        self.worker_leaves(roots["workspace"])
+        derived = custody._custody_identity(self.storage, "attempt-1",
+                                            "workspace", "normalize")
+        stranger = derived + "-somebody-else"
+        self.made.append(stranger)
+        done = subprocess.run(
+            [self.engine, "run", "--detach", "--name", stranger,
+             "--user", "65532:65532", "--entrypoint", "python3", self.image,
+             "-c", "import time; time.sleep(120)"],
+            capture_output=True, timeout=300)
+        self.assertEqual(done.returncode, 0,
+                         done.stderr.decode("utf-8", "replace")[:2000])
+
+        acted = self.custody("normalize")
+        self.assertTrue(acted.ok, acted.diagnostic)
+        self.assertTrue(self.present(stranger),
+                        "the stranger was removed by a name it merely "
+                        "contains")
+
+    def test_the_derived_identity_survives_a_new_manager_incarnation(self):
+        """RESTART DISCOVERY against a real store: a second manager opening
+        the same database under a new incarnation derives the identity its
+        predecessor used, and reclaims what it left."""
+        roots = self.allocated()
+        self.worker_leaves(roots["workspace"])
+        left = self.stranded()
+
+        successor = ControlStore.open(
+            os.path.join(self.home, "control.sqlite3"),
+            incarnation="custody-engine-after-restart",
+            clock=lambda: "2026-08-30T00:00:00.000Z")
+        self.addCleanup(successor.close)
+        acted = custody.custody_act(
+            self.engine, self.spawn, image_digest=self.digest,
+            store=successor, assignment_id="attempt-1", operation="normalize")
+        self.assertTrue(acted.ok, acted.diagnostic)
+        self.assertFalse(self.present(left))
 
     # -- the acceptance ---------------------------------------------------
 
@@ -159,8 +282,14 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         self.assertTrue(acted.ok, acted.diagnostic)
         answered = acted.answer
         self.assertEqual(answered["custody"], "normalize")
-        self.assertEqual(answered["running_as"], [65532, 65532])
-        self.assertGreater(answered["entries"], 0, dict(answered))
+        # A TUPLE, and the type is the correction rather than an incidental.
+        # W36540 review 2026-08-30T04:07:53Z [P1]: the retained account is
+        # frozen all the way down, and the only non-bypassable freeze for a
+        # JSON list is a tuple -- a guarded `list` subclass would still equal
+        # a list here and `list.append` would still reach past it, which is
+        # the shape this record spent six rounds learning not to accept.
+        self.assertEqual(answered["running_as"], (65532, 65532))
+        self.assertGreater(answered["entries"], 0, acted.rendered)
 
         # AFTER: the same call, unchanged, and the tree is gone.
         self.assertTrue(workspaces.discard_workspace(self.storage,
@@ -218,7 +347,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         name = f"{MARK}-custody-{uuid.uuid4().hex[:10]}"
         self.made.append(name)
         custody.custody_act(
-            self.engine, self.spawn, image_digest=self.digest, name=name,
+            self.engine, self.spawn, image_digest=self.digest,
             store=self.store, assignment_id="attempt-1",
             operation="normalize")
         found = subprocess.run(
@@ -257,7 +386,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         with self.assertRaises(ContractRefusal):
             custody.custody_act(
                 self.engine, lambda argv: reached.append(argv),
-                image_digest=self.digest, name="baton-custody-x",
+                image_digest=self.digest,
                 store=self.store, assignment_id="attempt-1",
                 operation="sh")
         self.assertEqual(reached, [], "a refused verb reached the engine")

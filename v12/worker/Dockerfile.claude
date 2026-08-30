@@ -55,21 +55,21 @@ COPY claude_agent.py /opt/baton/claude_agent.py
 COPY dogfood_entry.py /opt/baton/dogfood_entry.py
 COPY worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
 
-# `scripted_agent.py` TRAVELS AS A STATED STOPGAP, AND IT IS NOT USED.
+# `scripted_agent.py` DELIBERATELY DOES NOT TRAVEL, and the reason is history
+# worth keeping rather than an absence nobody has to explain.
 #
 # W39357's build gate found what recipe inspection could not: `main(agent=...)`
-# opens with an UNCONDITIONAL `from scripted_agent import ScriptedAgent`, so
-# the documented injection seam cannot be used by an image that does not also
-# ship the default it is overriding. Without this line the entrypoint dies
-# `ModuleNotFoundError` before the worker starts.
+# opened with an UNCONDITIONAL `from scripted_agent import ScriptedAgent`, so
+# the documented injection seam could not be used by an image that did not also
+# ship the default it was overriding, and the entrypoint died
+# `ModuleNotFoundError` before the worker started. `COPY scripted_agent.py` was
+# the stated stopgap for two rounds.
 #
-# The real correction is to make that import conditional on `agent is None`,
-# in `baton_worker.py` — which this checkpoint does not own, and whose finding
-# says an edit there needs an explicit handoff first. So the finding is filed
-# and this is the stopgap, named as one: the module is inert here (nothing
-# constructs `ScriptedAgent` when an agent is injected), and the line goes away
-# with the seam fix rather than becoming the answer.
-COPY scripted_agent.py /opt/baton/scripted_agent.py
+# W39770 is the real correction and is CLOSED SATISFYING: the scripted default
+# is constructed lazily by `_scripted_default()` and only for `agent is None`.
+# Its rationale assigns this removal to W39357, so the stopgap goes here, and
+# `test_dogfood_image` asserts the module's ABSENCE from the artefact — a real
+# provider image has no business carrying a scripted provider.
 
 # THE SAME FIXED NON-ROOT USER, by numeric id, as the reference image and as
 # the adapter's `--user` restriction. Two places agreeing because they were

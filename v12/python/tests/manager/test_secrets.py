@@ -843,6 +843,19 @@ COVERED_ELSEWHERE = {
     ("workspaces.py", "configure_workspace_group", "meta"):
         "a validated group id, written by a deployment act whose signature "
         "the journal walks",
+    # W36540 round eight added `configure_workspace_storage` in the shape of
+    # the group's act directly above and did not carry this registration with
+    # it, so a durable writer this Work introduced has sat uncovered ever
+    # since -- the same omission as the boundary label round nine corrected,
+    # and the same lesson: a mirrored pattern does not bring its obligations
+    # along. The rationale is the group's own, one operand over: the only
+    # value written is a path `check_workspace_storage` has already proved
+    # absolute and containable, and it rides
+    # `manager_signature("workspace-storage.configure", {"place": place})`
+    # into the journal the sweep walks.
+    ("workspaces.py", "configure_workspace_storage", "meta"):
+        "a validated absolute store root, written by a deployment act whose "
+        "signature the journal walks",
     ("store.py", "ControlStore._initialize", "meta"):
         "this build's own schema marker and version, written once at creation "
         "from constants -- no caller operand reaches it",

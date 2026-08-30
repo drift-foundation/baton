@@ -488,6 +488,15 @@ test thread IDs afterward.
 : This is expected until approval ownership is validated. Do not weaken the
   sandbox or enable automatic approval as a workaround.
 
+`Target reports unknown / statusRefreshFailure`
+: The dispatcher could not read the configured thread's authoritative status
+  after a turn ended, so cached pre-turn state is not trusted. Runtime reports
+  `retrying`, `control: status` reports `ready: false`, and queued readiness
+  identities remain retained while bounded status rereads continue. An
+  authoritative `idle` makes the target reusable again; `systemError` or an
+  unrecognized loaded status promotes it to the sticky terminal failure below.
+  A transient read error alone does not require a managed restart.
+
 `Target reports systemError / Work is retained but never delivered`
 : The configured app-server context is terminally non-deliverable. The
   `terminalFailure` row in `control: status` names the participant, configured

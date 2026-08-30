@@ -181,6 +181,11 @@ export class EventBridge extends EventEmitter {
         // make the failed context reusable, and only the managed lifecycle
         // boundary mints and renders a replacement thread.
         terminalFailure: null,
+        // W43539 review: a terminal turn whose authoritative status could
+        // not be read is neither reusable nor terminally failed yet. Keep
+        // that uncertainty separate so a transient read error does not mint
+        // a sticky `systemError`, while cached pre-turn `idle` cannot drain.
+        statusRefreshFailure: null,
         // W4303: an `idle` publication held back because a completion
         // arrived while `turn/start` was still in flight, so whether it
         // was OURS is not yet decided.
@@ -195,6 +200,7 @@ export class EventBridge extends EventEmitter {
         retryMs: config.reconnectMinMs,
         retryTimer: null,
         reconcileTimer: null,
+        statusRefreshTimer: null,
         // The runner state for the participant this target IS. A
         // target with no configured identity has no participant to
         // report as, so it gets the silent publisher rather than a
@@ -384,16 +390,17 @@ export class EventBridge extends EventEmitter {
       // records. Unknown future statuses fail closed too.
       const reusable = reusableThreadStatus(state.status);
       const terminalFailure = state.terminalFailure;
-      if (!loaded || !reusable || blocked || tainted || orphan || terminalFailure) ready = false;
+      const statusRefreshFailure = state.statusRefreshFailure;
+      if (!loaded || !reusable || blocked || tainted || orphan || terminalFailure || statusRefreshFailure) ready = false;
       const oldest = state.queue.length ? state.queue[0].queuedAt : null;
       targets[name] = Object.freeze({
         connected,
         loaded,
-        status: state.status.type,
+        status: statusRefreshFailure ? "unknown" : state.status.type,
         // Everything an operator needs to act without reading a log:
         // who this target is, which Thread and turn are stuck, why,
         // how much is waiting behind it, and for how long.
-        deliverable: Boolean(loaded && reusable && !blocked && !tainted && !orphan && !terminalFailure),
+        deliverable: Boolean(loaded && reusable && !blocked && !tainted && !orphan && !terminalFailure && !statusRefreshFailure),
         participant: state.identity?.participant ?? null,
         threadId: state.threadId,
         queueDepth: state.queue.length,
@@ -468,6 +475,16 @@ export class EventBridge extends EventEmitter {
             queuedActionCount: state.queue.length,
             remedy: terminalFailure.remedy,
           }) } : {}),
+        ...(statusRefreshFailure ? { statusRefreshFailure: Object.freeze({
+            since: statusRefreshFailure.since,
+            ageMs: Math.max(0, now - statusRefreshFailure.since),
+            participant: state.identity?.participant ?? null,
+            session: state.threadId,
+            failedTurnId: statusRefreshFailure.failedTurnId,
+            status: "unknown",
+            queuedActionCount: state.queue.length,
+            remedy: statusRefreshFailure.remedy,
+          }) } : {}),
       });
     }
     return Object.freeze({ ready, targets: Object.freeze(targets), globalQueueDepth: this.globalQueueDepth });
@@ -534,6 +551,7 @@ export class EventBridge extends EventEmitter {
     for (const state of this.targetStates.values()) {
       if (state.retryTimer) clearTimeout(state.retryTimer);
       if (state.reconcileTimer) clearTimeout(state.reconcileTimer);
+      if (state.statusRefreshTimer) clearTimeout(state.statusRefreshTimer);
       // W3243 review P2: `stop()` owns EVERY timer this bridge starts.
       // A recovery callback surviving shutdown would interrupt through
       // a disconnected client and publish a failure caused by nothing
@@ -566,7 +584,7 @@ export class EventBridge extends EventEmitter {
     // W30-to-W28 recurrence happened HERE: the turn ended, `blocked`
     // cleared, and the next Work started on the same context, which
     // then ran the previous Work's unfinished cleanup.
-    if (this.stopping || state.draining || state.activeTurn || state.blocked || state.tainted || state.terminalFailure || state.queue.length === 0 || state.status.type !== "idle") return;
+    if (this.stopping || state.draining || state.activeTurn || state.blocked || state.tainted || state.terminalFailure || state.statusRefreshFailure || state.queue.length === 0 || state.status.type !== "idle") return;
     // W4303: a target holding an orphaned claim is idle, loaded and
     // connected — and cannot claim anything, because the participant's
     // one slot is taken. Delivering here spends a model turn to reach a
@@ -976,7 +994,7 @@ export class EventBridge extends EventEmitter {
     const response = await client.resume(state.threadId, {
       developerInstructions: state.developerInstructions,
     });
-    this.#observeThreadStatus(state, response.thread.status, {
+    const observation = this.#observeThreadStatus(state, response.thread.status, {
       thread: response.thread,
       turnId: state.activeTurn?.id ?? null,
     });
@@ -1033,6 +1051,11 @@ export class EventBridge extends EventEmitter {
       }
     }
     this.logger.info(`[${state.name}] thread resumed: ${state.threadId} (${state.status.type})`);
+    if (observation.recoveredStatus && state.status.type === "idle"
+        && !state.activeTurn && !state.orphan && !state.tainted
+        && !state.terminalFailure) {
+      this.#publishReusableIdle(state, state.threadId);
+    }
     void this.#drain(state);
   }
 
@@ -1278,17 +1301,95 @@ export class EventBridge extends EventEmitter {
     state.reconcileTimer.unref?.();
   }
 
+  #scheduleStatusRefresh(state, delayMs) {
+    if (this.stopping || state.statusRefreshTimer || !state.statusRefreshFailure
+        || state.terminalFailure) return;
+    state.statusRefreshTimer = setTimeout(async () => {
+      state.statusRefreshTimer = null;
+      const client = this.serverStates.get(state.serverName).client;
+      if (!client.connected) return;
+      // Identity-fence the retry. A newer status notification or terminal
+      // completion may settle or replace this uncertainty while the read is
+      // in flight; its older result must not clear or recreate that state.
+      const pending = state.statusRefreshFailure;
+      if (!pending) return;
+      try {
+        const thread = await client.readThread(state.threadId);
+        if (state.statusRefreshFailure !== pending) return;
+        const observation = this.#observeThreadStatus(state, thread.status, {
+          thread,
+          turnId: pending.failedTurnId,
+        });
+        state.retryMs = this.config.reconnectMinMs;
+        if (observation.recoveredStatus && state.status.type === "idle"
+            && !state.activeTurn && !state.orphan && !state.tainted
+            && !state.terminalFailure) {
+          this.#publishReusableIdle(state, state.threadId);
+        }
+        void this.#drain(state);
+      } catch (error) {
+        if (state.statusRefreshFailure !== pending) return;
+        this.logger.warn(`[${state.name}] thread status retry failed: ${error.message}`);
+        this.#markStatusRefreshFailure(state, pending.failedTurnId);
+      }
+    }, Math.max(0, delayMs));
+    state.statusRefreshTimer.unref?.();
+  }
+
+  #markStatusRefreshFailure(state, turnId) {
+    if (state.terminalFailure) {
+      this.#reportTerminalFailure(state);
+      return;
+    }
+    if (!state.statusRefreshFailure) {
+      state.statusRefreshFailure = {
+        since: Date.now(),
+        failedTurnId: EventBridge.#liveTurnId(turnId),
+        reported: false,
+        remedy: "the dispatcher is retrying the configured thread status; queued actions remain retained until the app-server answers",
+      };
+    } else if (!state.statusRefreshFailure.failedTurnId) {
+      state.statusRefreshFailure.failedTurnId = EventBridge.#liveTurnId(turnId);
+    }
+    if (!state.statusRefreshFailure.reported) {
+      state.statusRefreshFailure.reported = true;
+      // A surviving claim or approval quarantine is already a stronger
+      // failure and must not be overwritten with a softer retry report. The
+      // status fence still reconciles independently and keeps delivery shut.
+      if (!state.orphan && !state.tainted) {
+        void state.runtime.state("retrying", {
+          cause: "provider",
+          detail: `configured context ${state.threadId} status is unavailable after a terminal turn; queued actions are retained while the dispatcher retries`,
+          session: state.threadId,
+        });
+      }
+    }
+    this.#scheduleStatusRefresh(state, jitter(state.retryMs));
+    state.retryMs = Math.min(this.config.reconnectMaxMs, state.retryMs * 2);
+  }
+
   /** W43539: record an app-server status without turning "loaded" into
    *  "reusable". `systemError` is terminal for this configured context; an
    *  unknown future loaded status also fails closed. The record never clears
    *  in place, because v11 recovery is a managed start that renders a new
    *  thread id, not a notification on this one. */
   #observeThreadStatus(state, status, { thread = null, turnId = null } = {}) {
-    state.status = status;
     const type = threadStatusType(status);
+    const recoveredStatus = Boolean(state.statusRefreshFailure)
+      && type !== "notLoaded";
+    if (recoveredStatus) state.statusRefreshFailure = null;
+    if (recoveredStatus && state.statusRefreshTimer) {
+      clearTimeout(state.statusRefreshTimer);
+      state.statusRefreshTimer = null;
+    }
+    state.status = status;
     if (type === "notLoaded" || reusableThreadStatus(status)) {
       if (state.terminalFailure) this.#reportTerminalFailure(state);
-      return state.terminalFailure;
+      if (type === "notLoaded" && state.statusRefreshFailure) {
+        this.#scheduleStatusRefresh(state, jitter(state.retryMs));
+        state.retryMs = Math.min(this.config.reconnectMaxMs, state.retryMs * 2);
+      }
+      return { terminalFailure: state.terminalFailure, recoveredStatus };
     }
     const failedTurnId = EventBridge.#liveTurnId(turnId)
       ?? EventBridge.#lastFailedTurnId(thread)
@@ -1313,7 +1414,7 @@ export class EventBridge extends EventEmitter {
       state.terminalFailure.failedTurnId = failedTurnId;
     }
     this.#reportTerminalFailure(state);
-    return state.terminalFailure;
+    return { terminalFailure: state.terminalFailure, recoveredStatus };
   }
 
   static #lastFailedTurnId(thread) {
@@ -1352,6 +1453,7 @@ export class EventBridge extends EventEmitter {
       this.#reportTerminalFailure(state);
       return;
     }
+    if (state.statusRefreshFailure) return;
     if (state.status.type === "idle") void state.runtime.state("idle", { session });
   }
 
@@ -1384,7 +1486,7 @@ export class EventBridge extends EventEmitter {
     client.on("status", ({ threadId, status }) => {
       const state = this.targetByThread.get(`${serverState.name}\u0000${threadId}`);
       if (!state) return;
-      this.#observeThreadStatus(state, status, {
+      const observation = this.#observeThreadStatus(state, status, {
         turnId: state.activeTurn?.id ?? null,
       });
       // W3243: an idle thread has no turn left to be blocked on, so the
@@ -1398,6 +1500,8 @@ export class EventBridge extends EventEmitter {
       if (status.type === "idle" && !state.terminalFailure) {
         this.#clearBlocked(state);
         this.#reportQuarantined(state, threadId);
+        if (observation.recoveredStatus && !state.activeTurn && !state.orphan
+            && !state.tainted) this.#publishReusableIdle(state, threadId);
         void this.#drain(state);
       }
     });
@@ -2453,7 +2557,10 @@ export class EventBridge extends EventEmitter {
         + ` has been released; the fence is lifted and ${state.queue.length} `
         + `retained readiness event(s) may drain`);
       state.orphan = null;
-      if (!state.tainted) void state.runtime.state("idle", { session: state.threadId });
+      if (!state.tainted && !state.terminalFailure
+          && !state.statusRefreshFailure) {
+        void state.runtime.state("idle", { session: state.threadId });
+      }
       void this.#drain(state);
     } finally {
       state.reconciling = false;
@@ -2533,6 +2640,7 @@ export class EventBridge extends EventEmitter {
       });
     } catch (error) {
       this.logger.warn(`[${state.name}] could not refresh thread status: ${error.message}`);
+      this.#markStatusRefreshFailure(state, params.turn.id);
     }
     // W43539: publication follows the authoritative status refresh. A failed
     // turn may leave an `idle` reusable thread or a terminal `systemError`

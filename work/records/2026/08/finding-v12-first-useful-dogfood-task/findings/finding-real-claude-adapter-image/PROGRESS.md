@@ -418,3 +418,156 @@ carry THIS round's adapter rather than a cached earlier one — the artefact's
 
 The first live provider turn (W39364), and the `scripted_agent.py` removal
 owed to W39770's approver acceptance.
+
+## 2026-08-30 — fifth implementation round (`baton.claude`, W39357 impl claim)
+
+Answering `review-2026-08-30T04-01-29Z.md`. Both findings are addressed, the
+reviewer's two additive regressions pass, and the focused suite is 66 cases.
+
+### [P1] The streams are not read at all, and that is the difference
+
+The review is right, and the sharpest part of it is that no race was needed.
+Two rounds of this Work went into how a captured child stream is bounded and
+how safely it is read back — a pathname a child could replace, then a
+descriptor read too late — and both were answers to the wrong question. The
+provider holds the attempt's bearer; the verification command is code out of
+the candidate the provider just edited, running as the same uid with the same
+mount readable. **Printing it was enough.**
+
+Both children now run with `stdout` and `stderr` on `subprocess.DEVNULL`. Not
+bounded, not windowed, not held and discarded: there is no descriptor, no
+capture file, no buffer, and no variable in the module holding a byte a child
+wrote. That is what makes it enforceable rather than a promise — a later edit
+cannot interpolate a value that does not exist. `_capture`, `_window`,
+`MAX_DIAGNOSTIC` and `MAX_VERIFICATION` are deleted rather than tightened, and
+a case asserts their absence so re-adding a capture ceiling is deliberate.
+
+The decision, both branches the review offered, and the reasons each was or was
+not available are pinned in `FINDING.md` before the implementation, as the
+review required.
+
+### [P1] A third sink, which the review did not have to name
+
+`recap` is composed from `disposition` and `why`, and `why` carried the
+provider's stderr — so the diagnostic also reached the worker's own
+`/output/output.json`, the protocol document the manager correlates, not only
+the `result.json` the review named. Closed with the others and asserted on the
+returned answer as well as on the published tree.
+
+### What I rejected, including my own addition
+
+Removing the provider's credential link before verification was considered as
+subordinate defence in depth and NOT done. It removes one name while the slot's
+fixed absolute path stays readable to this uid, so it narrows nothing — it only
+makes the module look defended. That is the same shape the third round rejected
+when it declined to fix the capture problem by relocating the capture
+directory, and the rule is only worth anything if it applies to one's own
+preferred addition too.
+
+### The cost, stated rather than rounded off
+
+A failed provider turn now says only that it failed. That is a real loss for
+bringing up W39364's first live turn. It is not a reason to reopen the
+boundary — the parent finding already rules the evidence carries no provider
+diagnostic, and the operator's authoritative signal was always its own rerun of
+the frozen command against the collected candidate. If W39364 finds it truly
+cannot proceed without provider diagnostics, the answer is an
+operator-authorized diagnostic mode as its own later-pass Work. I did not mint
+that Work, because the need is conditional and W39364 meets it directly if it
+is real; say so if you would rather it were parked on the ledger now.
+
+### SIX TEST CHANGES YOU SHOULD LOOK AT
+
+None is a weakening I get to decide alone, so each is named. Four of them exist
+because the fix DELETES the thing the case was about.
+
+1. `test_a_shouting_provider_is_bounded_at_the_diagnostic_ceiling` and
+   `test_a_shouting_verification_is_bounded_at_its_own_ceiling` — their
+   subjects (`MAX_DIAGNOSTIC`, `MAX_VERIFICATION`) are gone. Replaced by
+   `NoChildStreamByteReachesTheProposal`, which drives real children shouting a
+   distinctive marker on both streams and asserts it appears NOWHERE in the
+   published tree or in the worker's answer, at any size.
+2. `test_the_window_is_read_from_the_held_descriptor` — `_window` is deleted.
+   Removed with it; a case about how a window is read cannot survive there
+   being no window.
+3. `test_a_provider_that_exits_nonzero_is_not_completed` asserted
+   `assertIn("the model refused", why)` — the disclosure itself. It now asserts
+   the status is still named exactly (`the provider exited 3`), and the other
+   half is held by the shouting cases.
+4. `test_verification_cannot_replace_its_capture_with_the_credential` asserted
+   `assertIn("ok", transcript)`, which was the child's own stdout. It asserts
+   the operator-authored evidence instead — the command and the exit status —
+   so the file is still proved to be a transcript rather than empty. Your
+   credential assertion is untouched.
+5. YOUR TWO REGRESSIONS were rewritten to drive REAL children. Their original
+   form wrote the bearer to `options["stdout"]`, which was a file object while
+   the adapter still captured; `subprocess.DEVNULL` is an operand only a real
+   `subprocess.run` can honour, so the disclosure they model is now performed
+   by an actual process writing the actual bytes to its actual fd 1 and 2.
+   Your assertions are unchanged, and I added the `recap` sink to the second.
+6. The `stderr=` operand is removed from the shared `provider()` fixture. With
+   `DEVNULL` a fake cannot write to a stream at all, so the operand wrote
+   nowhere — and a knob that silently does nothing leaves every case using it
+   looking like it proved something about a diagnostic. Its two call sites drop
+   the operand; cases that need a child to SAY something use a real subprocess.
+
+### [P2] W39770 is integrated
+
+Confirmed against canonical state rather than the previous round's note:
+`detail work=W39770` reports it closed `satisfying`, last change 42402, with a
+rationale explicitly assigning this removal to W39357. `COPY scripted_agent.py`
+is gone from `Dockerfile.claude`, and the recipe keeps the history of why it
+was ever there. `test_the_scripted_default_is_present_only_as_the_seam_stopgap`
+becomes `test_the_scripted_default_did_not_travel`: it asserts the ARTEFACT
+does not carry a scripted provider, then still holds the seam property that
+makes the absence safe — so a regression in `baton_worker.py` fails in the
+image gate with actionable prose rather than as a `ModuleNotFoundError` in a
+live turn.
+
+### Verification
+
+From `v12/python`:
+
+    python3 -m unittest tests.manager.test_claude_agent
+    -> 66 tests, OK   (62 before, minus 3 deleted-subject cases, plus your 2
+                       rewritten and 5 of mine holding the new invariants)
+
+    python3 -m unittest tests.manager.test_dogfood_image
+    -> 11 tests, OK   (a real build and eleven real --network none containers)
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_worker_image
+      tests.manager.test_text_sweep tests.manager.test_worker_entry
+      tests.manager.test_frozen tests.manager.test_dependencies
+      tests.tools.test_parallel_runner tests.manager.test_claude_agent
+    -> 304 tests, OK (1 skipped)
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_worker_container
+      tests.manager.test_lifecycle_composition
+      tests.manager.test_worker_entry_engine tests.manager.test_oci_engine
+      tests.manager.test_oci
+    -> 192 tests, OK (7 skipped)
+
+    `diff --check` over the working tree: passed.
+
+Docker was reachable in this implementer context, so the gate the reviewer
+could not run was rebuilt and rerun. The artefact was additionally proved to
+carry THIS round's adapter and not a cached earlier one: a fresh build's
+`/opt/baton/claude_agent.py` and the working tree's file share the digest
+`1d15d3e6a4abb5851d4d5c079a7bff5476c6041c4bd2792f38ebef608425205f`, and
+`ls /opt/baton` in that image lists no `scripted_agent.py`.
+
+### Whole-suite caveat, reported rather than rounded off
+
+`tools/parallel_test.py` reports 9 failures over 2158 tests, in
+`test_catalog`, `test_boundary_inventory`, `test_custody` and `test_secrets`.
+None reaches this checkpoint: none of those modules references `claude_agent`,
+the dogfood image or anything under `v12/worker/`, and `v12/python/src` is
+UNMODIFIED in this tree, so they are the shared tree's own state — including
+`test_custody.py`'s newly added cases, which belong to another in-flight
+checkpoint and are asserting against source that has not landed. Because the
+parallel phase failed, the runner never reached its serial registry, so both
+image gates were run directly instead.
+
+### Still open
+
+The first live provider turn (W39364).

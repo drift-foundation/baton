@@ -1470,6 +1470,16 @@ class TheEngineIsInjectedAndTyped(Adapting):
                 with self.assertRaises(ContractRefusal):
                     EnginePort(value)
 
+    def test_an_engine_deadline_is_positive_whole_seconds(self):
+        reached = []
+        port = EnginePort(lambda argv, **keywords:
+                          reached.append((argv, keywords)) or answer())
+        for seconds in (0, -1, True, 1.5, "30"):
+            with self.subTest(seconds=seconds):
+                with self.assertRaises(ContractRefusal):
+                    port(["docker", "ps"], seconds=seconds)
+        self.assertEqual(reached, [])
+
     def test_the_surface_is_exported(self):
         for name in oci.__all__:
             with self.subTest(name=name):

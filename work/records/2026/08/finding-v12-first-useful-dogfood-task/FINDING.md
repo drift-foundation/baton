@@ -502,3 +502,19 @@ operator module, operator documentation and composition tests. W39364 owns its
 child evidence and the external candidate/acceptance transcript; it never
 edits the canonical ping-pong source as part of the trial. Shared-file changes
 require a recorded handoff before editing.
+
+## 2026-08-30 — boundary-inventory hardening leaves the dogfood path
+
+**Supersession:** W39666 remains the durable owner of the worker-entry
+transport's three receiving-boundary inventory entries, but it no longer gates
+W39356 or the first useful dogfood task. The transport's actual validation,
+closed endings, focused regressions and real-Docker conversation are present;
+the shared inventory registration is a cross-cutting hardening/accounting
+check whose completion currently waits on the separate custody program.
+
+Keeping W39356 behind W39666 indirectly placed the complete W43974 → W43975 →
+W43977 custody-hardening chain ahead of W39358 and W39364. That contradicts
+this campaign's approved top-down vertical-slice rule. Remove only that
+dependency edge. W39666 stays open and attributable, and any observed defect
+that can make the positive dogfood result falsely succeed still returns to the
+critical path; unimplemented inventory bookkeeping alone does not.

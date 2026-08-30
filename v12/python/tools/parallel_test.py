@@ -147,6 +147,13 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     "tests.manager.test_worker_entry",
                     "tests.manager.test_worker_image",
                     "tests.manager.test_workspaces",
+                    # W39358's dogfood operator halves. PARALLEL: the facade
+                    # delegates to an injected object, the staging and the two
+                    # protocol documents are pure functions over a temporary
+                    # directory, and the one case that reaches the manager
+                    # calls `compose_input_root` over that same private root.
+                    # No daemon, no image, no credential and no shared name.
+                    "tests.tools.test_dogfood_operator",
                     "tests.tools.test_parallel_runner",
                     "tests.tools.test_worker_image_build")
 

@@ -10,10 +10,12 @@
 4. [engine proof] Run the real worker-container and lifecycle composition
    gates once unrelated shared-tree failures no longer prevent the serial
    phase.
-5. [boundary ownership] Add the three recorded inventory entries only after
-   the shared registry owner hands off that file.
-6. [complete] Independently accept the bounded transport result, then close
-   W39356 so the operator checkpoint's transport gate can clear.
+5. [non-gating hardening; superseded 2026-08-30] W39666 retains the three
+   recorded inventory entries after shared-registry ownership settles. It no
+   longer blocks this checkpoint or the dogfood path.
+6. [done, signed off 2026-08-30] Independently accepted the bounded transport
+   result in `review-2026-08-30T05-33-39Z.md`; close W39356 so the operator
+   checkpoint's transport gate can clear.
 
 ## Initial file ownership
 
@@ -91,7 +93,8 @@ current owner records a handoff.
    registry-widening half was made false by this same checkpoint and is
    removed rather than annotated; the reason recorded now is the component
    boundary, which is the reason that is actually true.
-4. [carried by a linked blocker] **[P2] The three boundary-inventory entries.**
-   W39666 owns them and W39356 is blocked on it. They could not be added here:
-   the inventory scan raises before it attributes anything, so entries written
-   now could not be checked against the gate they exist to satisfy.
+4. [non-gating hardening after 2026-08-30 ruling] **[P2] The three boundary-
+   inventory entries.** W39666 owns them and remains open. The inventory scan
+   raises before it attributes anything, so entries written now could not be
+   checked against the gate they exist to satisfy; this bookkeeping no longer
+   delays final transport review or the first positive dogfood slice.

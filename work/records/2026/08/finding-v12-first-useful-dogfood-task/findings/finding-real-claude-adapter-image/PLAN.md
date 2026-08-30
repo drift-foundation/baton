@@ -105,3 +105,65 @@
    guard, ONCE the approver accepts W39770. Named here so the integration is
    not stranded, per the review's closing paragraph.
 6. [NOT DONE, unchanged] The first live provider turn — W39364.
+
+## 2026-08-30 — fourth-round review
+
+1. [confirmed] The measured-byte binding, fresh bounded walk and unpublished
+   bounded-addition rule close `review-2026-08-29T22-51-53Z.md`'s finding.
+2. [changes requested] Close the direct credential stream paths reproduced by
+   the two additive regressions in `test_claude_agent.py`: provider stderr is
+   copied into `result.json`, and provider-edited verification code can print
+   the still-mounted bearer into `verification.txt`. Pin the evidence-stream
+   decision before implementation; do not read/hash/inspect the bearer as a
+   redaction workaround.
+3. [changes requested] W39770 is now closed satisfying. Remove
+   `scripted_agent.py` from `Dockerfile.claude`, retire the obsolete presence
+   guard and rerun the authorized no-secret image build/probes.
+4. Return for independent review. The live provider turn remains W39364's.
+
+## 2026-08-30 — fifth implementation round under W39357
+
+1. [done] **[P1] The stream-evidence decision is pinned first**, as the review
+   required, in `FINDING.md` under the fifth-round heading: no byte a child
+   wrote is published, the streams are not read at all, and the two branches
+   the review offered are answered — isolation is unavailable inside the
+   accepted posture, and redaction cannot have an enforceable source of truth
+   without violating the no-read rule.
+2. [done] **[P1] Both children run on `subprocess.DEVNULL`.** `_capture`,
+   `_window`, `MAX_DIAGNOSTIC` and `MAX_VERIFICATION` are deleted; one `_ran`
+   helper is the whole boundary. The reviewer's two additive regressions pass,
+   rewritten to drive real children so `DEVNULL` is actually exercised.
+3. [done] **[P1] The third sink is closed too.** `why` feeds `recap`, so the
+   provider diagnostic also reached the worker's `/output/output.json`. Both
+   the review's named sinks and this one have cases.
+4. [done] `verification.txt` carries the operator-authored frozen command, the
+   ending, and an explicit statement that the output is withheld and why.
+5. [done] **[P2] W39770 is integrated.** `COPY scripted_agent.py` removed from
+   `Dockerfile.claude`; `test_dogfood_image` asserts the module's absence from
+   the artefact and still holds the seam property that makes it safe. The
+   no-secret image gate was rebuilt and rerun here.
+6. [NOT DONE, unchanged] The first live provider turn — W39364. Recorded with
+   it: withholding provider diagnostics is a real cost to bringing that turn
+   up, and the remedy if it bites is an operator-authorized diagnostic mode as
+   later-pass Work, never publishing untrusted bytes by default.
+
+## 2026-08-30 — fifth-round independent review
+
+1. [confirmed] Both child processes send both streams directly to
+   `subprocess.DEVNULL`; the adapter retains only the return code, so provider
+   or verification output cannot reach proposal metadata, evidence, or the
+   worker recap.
+2. [confirmed] The revised real-child regressions preserve the two review
+   attacks and add the previously unnamed recap sink. Deleted tests covered
+   capture helpers and ceilings that no longer exist; the retained assertions
+   prove the frozen command, ending, and explicit withholding notice remain.
+3. [confirmed] W39770 is integrated: the Claude image no longer copies
+   `scripted_agent.py`, and the image gate holds both artefact absence and the
+   lazy-default seam that makes the absence safe.
+4. [done 2026-08-30] The focused adapter and independently runnable adjacent
+   suites pass. The managed reviewer cannot reach Docker and therefore makes
+   no independent image-build claim; the implementer's recorded fresh build,
+   eleven no-network probes, matching adapter digest, and absent scripted
+   module are the available image evidence.
+5. [done 2026-08-30] Signed off for approver acceptance. The first live
+   provider invocation remains separately owned by W39364.

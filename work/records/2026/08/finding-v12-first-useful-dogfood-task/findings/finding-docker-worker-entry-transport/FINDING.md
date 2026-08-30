@@ -72,5 +72,16 @@ These are review targets, not accepted implementation facts:
   the inherited workspace group.
 - EOF, timeout, malformed/cross-session frames, unclean exit and channel-open
   failure remain non-success and do not imply runtime absence.
-- The three new receiving boundaries are inventoried after file ownership is
-  resolved, or a separately owned blocking Work is linked before acceptance.
+- W39666 durably owns the three new receiving-boundary inventory entries as
+  non-gating hardening. Their absence from the shared inventory does not block
+  this positive transport slice; any concrete validation defect they expose
+  still does.
+
+## 2026-08-30 — inventory dependency superseded for the first vertical slice
+
+The earlier acceptance alternative allowing a linked *blocking* Work is
+superseded. W39666 exists and remains open, but blocking W39356 on it also
+blocked the dogfood operator on the unrelated custody lifecycle and inventory
+program. The substantive transport corrections and real-engine proof are
+ready for final review. Remove the W39356→W39666 dependency and retain W39666
+as later-pass hardening under its own identity.

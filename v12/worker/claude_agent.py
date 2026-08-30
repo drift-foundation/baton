@@ -22,6 +22,12 @@ reasonably have crossed:
   NOT A CREDENTIAL READER. It never opens, reads, hashes, prints, copies or
   inspects a bearer. It links the provider's expected path at the fixed slot
   and lets the provider do its own authentication.
+  NOT A TRANSCRIBER OF ITS CHILDREN. It starts two processes that can read the
+  attempt's credential, and it publishes NEITHER ONE'S OUTPUT. Both children
+  run with both streams on `/dev/null`, so no byte a child wrote exists in
+  this program to be interpolated into the proposal by accident or by a later
+  edit. The evidence is the exit status and the frozen command, which this
+  adapter and the operator authored.
   NOT A SETTLEMENT. A disposition is a CLAIM about what happened; the manager
   freezes, collects and settles. Nothing here can report `completed` for a turn
   that produced no candidate.
@@ -35,6 +41,15 @@ container-private space:
   3. run the provider there, once, over a closed argv;
   4. author `proposal/{candidate,change.patch,result.json,verification.txt}`
      under the one declared output path.
+
+WHY NO CHILD'S OUTPUT IS PUBLISHED. The provider holds the attempt's bearer,
+and the task's own verification command is code out of the candidate the
+provider has just edited, running as the same uid with the same mount still
+readable. Their stream bytes are therefore exactly the class this proposal must
+not carry, and no rule available here can tell one of those bytes from another
+without reading the bearer -- which the confirmed boundary forbids, and forbids
+for a good reason. So the bytes are not read at all. See the module-level
+comment above `_ran`.
 
 WHY THE HOME IS PRIVATE AND THE CREDENTIAL IS A LINK. The runtime posture fixes
 `--read-only` with tmpfs only at `/tmp` and `/dev/shm`, and the manager mounts
@@ -125,12 +140,15 @@ PATCH = "change.patch"
 RESULT = "result.json"
 VERIFICATION = "verification.txt"
 
-# Bounded, because every one of these is text this adapter did not write and
-# is putting into a durable artifact. Provider stdout is model output and the
-# verification streams are whatever the task's command emits.
+# The one remaining ceiling, and note what it is NOT. `recap` is composed by
+# this adapter out of its own disposition vocabulary; the bound is there
+# because the worker frames it, not because anything untrusted reaches it.
+#
+# There were two more here -- `MAX_DIAGNOSTIC` and `MAX_VERIFICATION` -- and
+# they are gone rather than raised. They existed to bound how much of a CHILD'S
+# stream crossed into this process, and no child's stream crosses at all now,
+# so a ceiling on the amount is a ceiling on nothing. See `_ran`.
 MAX_RECAP = 4000
-MAX_DIAGNOSTIC = 16384
-MAX_VERIFICATION = 262144
 
 # THE COOPERATIVE MODE, and it is a stated cooperation rather than custody.
 # W36540 owns unconditional custody; until it lands, a worker that writes
@@ -220,7 +238,7 @@ class ClaudeAgent:
         # changed nothing produced no candidate, and one that exited non-zero
         # after editing left something an operator still has to see.
         patch, measured = _diff(source, candidate, written)
-        verification = (self._verify(task, candidate, scratch)
+        verification = (self._verify(task, candidate)
                         if provider["ok"] and patch else None)
         # THE VERIFICATION COMMAND IS THE PAYLOAD'S, and it ran between the
         # measurement and the publication. Review [P1]: proving the paths were
@@ -278,15 +296,9 @@ class ClaudeAgent:
         home = self._prepared_home(scratch)
         argv = [PROVIDER_PROGRAM, *PROVIDER_ARGUMENTS, _prompt(task)]
         try:
-            # PROVIDER STDOUT IS DISCARDED, not captured and dropped. Review
-            # [P1]: nothing reads it, so accumulating it was pure exposure --
-            # a chatty model turn could exhaust the container before the
-            # ceiling that was supposed to bound it ever applied.
-            status, _out, errors = self._capture(
-                argv, cwd=candidate, scratch=scratch,
-                seconds=PROVIDER_SECONDS,
-                env={"HOME": home, "PATH": "/usr/local/bin:/usr/bin:/bin"},
-                keep_stdout=False, tail=MAX_DIAGNOSTIC)
+            status = self._ran(argv, cwd=candidate, seconds=PROVIDER_SECONDS,
+                               env={"HOME": home,
+                                    "PATH": "/usr/local/bin:/usr/bin:/bin"})
         except subprocess.TimeoutExpired:
             return {"ok": False, "status": None,
                     "why": f"the provider did not finish within "
@@ -295,52 +307,66 @@ class ClaudeAgent:
             return {"ok": False, "status": None,
                     "why": f"the provider could not be started: "
                            f"{type(failed).__name__}"}
+        # THE DIAGNOSTIC IS THE STATUS AND NOTHING ELSE. This read
+        # `f"...{status}: {errors}"`, and `errors` was the provider's own
+        # stderr -- the process that had just authenticated with the attempt's
+        # bearer. It reached `result.json` through `why` AND the worker's
+        # protocol `/output/output.json` through `recap`.
         return {"ok": status == 0, "status": status,
                 "why": (None if status == 0
-                        else f"the provider exited {status}: {errors}")}
+                        else f"the provider exited {status}; its own "
+                             f"diagnostic is not published, because the "
+                             f"process that wrote it holds this attempt's "
+                             f"credential")}
 
-    def _capture(self, argv, *, cwd, scratch, seconds, env, keep_stdout,
-                 tail=None, head=None):
-        """Run one child with GENUINELY BOUNDED capture.
+    def _ran(self, argv, *, cwd, seconds, env):
+        """One child, bounded, WITH BOTH STREAMS ON `/dev/null`.
 
-        Review [P1]: both call sites used `capture_output=True` and then
-        sliced. Python accumulates the whole of each stream in memory before
-        `run` returns, so `[-MAX_DIAGNOSTIC:]` and `[:MAX_VERIFICATION]` were
-        POST-ALLOCATION truncations -- a wedged or noisy child exhausted the
-        container and turned the worker into transport loss instead of the
-        typed bounded failure the acceptance requires.
+        THIS IS THE WHOLE BOUNDARY, and it is one line rather than a
+        discipline, which is the point. W39357 review (2026-08-30T04:01:29Z)
+        [P1]: no pathname race and no link were needed to put the mounted
+        bearer in the host-visible proposal. The provider is handed the
+        credential and its stderr was interpolated into `result.json`; the
+        task's verification command is code out of the candidate the provider
+        just edited, running as the same uid with the same mount readable, and
+        its two streams were copied verbatim into `verification.txt`. Printing
+        the bearer was enough.
 
-        The streams go to files under the private tmpfs, which is itself
-        size-capped, and only the bounded window is ever read into this
-        process. `tail` is for a diagnostic, where the end is what explains
-        the ending; `head` is for a transcript, where the command and its
-        first output are what a reader starts from.
+        THE OTHER REMEDY WAS UNAVAILABLE, and it is worth saying which. Making
+        the mount unreachable to a child would end the class outright -- but
+        the accepted posture is `--cap-drop ALL`, `--security-opt
+        no-new-privileges`, one fixed uid and a read-only root, so this adapter
+        has no mount namespace to alter, no second identity to drop to, and no
+        way to revoke a read-only bind mount. Whatever the provider can read,
+        a child of this process can read; if it could not, the provider could
+        not authenticate and there would be no turn.
 
-        W39357 review (2026-08-29T22:18:55Z) [P1]: THE CAPTURE HAS NO NAME.
-        The first round put the streams in a `capture-*` directory inside the
-        candidate and then REOPENED those pathnames once the child returned --
-        and for the verification run the child is provider-authored code whose
-        working directory that is. Unlinking `capture-*/stdout` and putting a
-        link to the credential there made the bounded reader transcribe the
-        bearer into `verification.txt`.
+        REDACTION WAS NOT AVAILABLE EITHER, and for a better reason than
+        difficulty: a redactor has to know the bearer's bytes, which means
+        reading them, which the confirmed boundary forbids -- and a program
+        holding the bearer in its own memory to scrub it is one formatting bug
+        away from being the discloser.
 
-        `tempfile.TemporaryFile` hands back a descriptor on a file with no
-        directory entry anywhere, and the window is read back from that same
-        descriptor. There is no pathname for a child to replace and no second
-        lookup to redirect, which retires the class rather than defending one
-        instance of it -- and the same-uid child could have reached a renamed
-        private directory just as easily as the candidate.
+        So the bytes are not read. Not bounded, not windowed, not held and
+        discarded: `subprocess.DEVNULL` at both call sites, so there is no
+        descriptor, no capture file, no buffer and no variable in this module
+        that a later edit could interpolate somewhere. The two previous review
+        rounds were both about capture plumbing -- a pathname a child could
+        replace, then a descriptor read back too late -- and deleting the
+        plumbing retires that class rather than defending it a third time.
+
+        WHAT IS LOST IS REAL and is recorded rather than shrugged off: a failed
+        provider turn now says only that it failed. The parent finding already
+        rules that the evidence carries no provider diagnostic, and the
+        operator's authoritative signal was always its own rerun of the frozen
+        command against the collected candidate, never this file. If bringing
+        up the first live turn (W39364) needs provider diagnostics, that is an
+        explicitly operator-authorized diagnostic mode for a later pass and not
+        a reason to publish untrusted bytes by default.
         """
-        with tempfile.TemporaryFile(dir=scratch) as writing_out, \
-                tempfile.TemporaryFile(dir=scratch) as writing_err:
-            done = self._run(
-                argv, cwd=cwd, env=env, timeout=seconds,
-                stdout=(writing_out if keep_stdout else subprocess.DEVNULL),
-                stderr=writing_err)
-            return (done.returncode,
-                    _window(writing_out, tail=tail, head=head)
-                    if keep_stdout else "",
-                    _window(writing_err, tail=tail, head=head))
+        return self._run(argv, cwd=cwd, env=env, timeout=seconds,
+                         stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL).returncode
 
     def _prepared_home(self, scratch):
         """A private HOME whose credential path POINTS AT the mounted slot.
@@ -372,38 +398,81 @@ class ClaudeAgent:
             os.symlink(slot, link)
         return home
 
-    def _verify(self, task, candidate, scratch):
+    def _verify(self, task, candidate):
         """The task's OWN command, in the candidate copy, bounded.
 
         Run here so the proposal carries evidence the worker produced; the
         operator reruns it outside the container, and the acceptance says
         plainly that this answer is not what an operator trusts.
 
-        THE CAPTURE IS NOT IN THE CANDIDATE. Review [P1]: this passed the
-        candidate as its own capture scratch, so the one command in this module
-        that is written by the payload ran with the adapter's stream files in
-        its working directory.
+        ITS OUTPUT IS NOT PUBLISHED AT ALL -- see `_ran`. This command is
+        provider-edited code running with the attempt's credential mount
+        readable, and its two streams were copied verbatim into the
+        host-visible transcript.
+
+        The capture this once handed the command is gone entirely, which
+        retires two earlier corrections with it: the first round put the
+        adapter's stream files in the command's own working directory, and the
+        third moved them to an anonymous descriptor. There is nothing left to
+        place safely.
         """
+        # REMOVING THE PROVIDER'S CREDENTIAL LINK FIRST WAS CONSIDERED AND
+        # REJECTED, because it is the shape this record has already ruled
+        # against once. It would take away ONE NAME that points at the slot
+        # while the slot's own fixed absolute path stays readable to anything
+        # running as this uid, so it narrows nothing an attacker relies on --
+        # it only makes the module look defended. The capture-directory move
+        # was rejected for the same reason in the third round: a defence that
+        # depends on the child not knowing a path is not a boundary. `_ran` is
+        # the boundary.
         try:
-            status, out, errors = self._capture(
-                list(task["verification"]), cwd=candidate, scratch=scratch,
-                seconds=VERIFICATION_SECONDS,
-                env={"HOME": candidate,
-                     "PATH": "/usr/local/bin:/usr/bin:/bin"},
-                keep_stdout=True, head=MAX_VERIFICATION // 2)
+            status = self._ran(list(task["verification"]), cwd=candidate,
+                               seconds=VERIFICATION_SECONDS,
+                               env={"HOME": candidate,
+                                    "PATH": "/usr/local/bin:/usr/bin:/bin"})
         except subprocess.TimeoutExpired:
             return {"status": None,
-                    "text": f"the verification command did not finish within "
-                            f"{VERIFICATION_SECONDS}s"}
+                    "text": _transcript(task, f"did not finish within "
+                                              f"{VERIFICATION_SECONDS}s")}
         except OSError as failed:
             return {"status": None,
-                    "text": f"the verification command could not be started: "
-                            f"{type(failed).__name__}"}
-        return {"status": status,
-                "text": (f"$ {' '.join(task['verification'])}\n"
-                         f"exit: {status}\n"
-                         f"--- stdout ---\n{out}\n"
-                         f"--- stderr ---\n{errors}")}
+                    "text": _transcript(task, f"could not be started "
+                                              f"({type(failed).__name__})")}
+        return {"status": status, "text": _transcript(task, f"exit: {status}")}
+
+
+def _transcript(task, ending):
+    """`verification.txt`, composed ENTIRELY from things a child did not write.
+
+    W39357 review (2026-08-30T04:01:29Z) [P1]. The parent finding requires this
+    file to carry no credential and no provider diagnostic content, and the
+    previous form copied the command's stdout and stderr into it verbatim --
+    from provider-edited code, running with the attempt's credential mount
+    readable. There is no rule this adapter can apply to those bytes that does
+    not require reading the bearer.
+
+    So the file carries the frozen command, which the OPERATOR wrote into
+    `/input/task.json` and this adapter read from a read-only mount, and the
+    ending, which this adapter got from `wait` rather than from a stream. Both
+    are already published in `result.json`; stating them here keeps the
+    transcript a transcript rather than an empty file.
+
+    AND IT SAYS WHAT IS MISSING AND WHY, because a reader who does not know
+    the output was withheld will read its absence as the command being silent.
+    """
+    return (f"$ {' '.join(task['verification'])}\n"
+            f"{ending}\n"
+            f"\n"
+            f"The command's own stdout and stderr are deliberately not\n"
+            f"reproduced here. It is code from the candidate tree this turn's\n"
+            f"provider edited, and it runs with the attempt's credential mount\n"
+            f"readable -- so its output is exactly the content this proposal\n"
+            f"must not carry, and nothing here can tell one of its bytes from\n"
+            f"another without reading the bearer.\n"
+            f"\n"
+            f"Rerun the command yourself, from the collected candidate tree,\n"
+            f"outside the worker. The acceptance already says that rerun and\n"
+            f"not this file is what an operator trusts.\n")
 
 
 def _disposition(provider, patch, verification):
@@ -470,7 +539,18 @@ def _task(place=None):
             f"{place} says it is {document['schema']!r} and this adapter "
             f"reads {TASK_SCHEMA!r}; a task from another generation is not "
             f"one to read the recognised parts out of")
-    if not _TASK_ID.match(str(document["task_id"])):
+    # W44424: TEXT BEFORE IT IS MATCHED. This read `_TASK_ID.match(str(...))`,
+    # so a JSON number reached the regex as its decimal spelling and passed --
+    # the identity of a versioned document decided by a coercion this module
+    # performed rather than by what the document says. Every other member here
+    # is held to its type before its shape, and this one was not.
+    #
+    # Found at the SENDER: W39358's operator refuses a numeric identity, so
+    # the two ends disagreed about the same task document while an agreement
+    # test compared the regex TEXT and reported them identical. That test now
+    # asserts the asymmetry; this removes it.
+    if type(document["task_id"]) is not str \
+            or not _TASK_ID.match(document["task_id"]):
         raise TaskRefusal(f"{place} carries no usable task identity")
     for name in ("instructions", "source_root"):
         if type(document[name]) is not str or not document[name]:
@@ -849,25 +929,14 @@ def _written(place, body):
     os.chmod(place, FILE_MODE)
 
 
-def _window(handle, *, tail=None, head=None):
-    """A bounded window of one captured stream, read from the HELD descriptor.
-
-    Only the window crosses into this process, which is the whole difference
-    from slicing an already-accumulated buffer: a child that wrote gigabytes
-    costs a seek and one bounded read here rather than its own size in memory.
-
-    Review [P1]: it took a PATHNAME and reopened it after the child returned.
-    It takes the open file the stream was written to, so what is read back is
-    the object the child actually wrote to and not whatever now answers to a
-    name the child could rename.
-    """
-    bound = tail if tail is not None else head
-    if tail is not None:
-        handle.seek(0, os.SEEK_END)
-        handle.seek(max(0, handle.tell() - bound))
-    else:
-        handle.seek(0)
-    return handle.read(bound).decode("utf-8", "replace")
+# `_window` WAS HERE, and it is gone rather than corrected a third time. It
+# read a bounded window of a captured child stream back into this process --
+# first from a pathname a child could replace, then from a held descriptor.
+# Both were answers to "how do we read this untrusted stream safely", and
+# W39357 review (2026-08-30T04:01:29Z) [P1] is the finding that the question
+# was wrong: the stream is written by a process holding this attempt's
+# credential, so no amount of care about HOW it is read makes the bytes
+# publishable. Nothing reads a child stream now, so nothing needs a window.
 
 
 def _digest(value):

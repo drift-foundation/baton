@@ -93,6 +93,25 @@ A failed turn whose authoritative thread status returns to `idle` is a
 separate, reusable case: after failed-turn claim settlement it may publish
 `idle` and drain normally. Turn outcome alone never decides context health.
 
+## Confirmed review correction — 2026-08-30
+
+The post-terminal status read is itself an authority boundary. If
+`readThread()` fails, the dispatcher has not established either reusable
+`idle` or terminal `systemError`; cached pre-turn status cannot answer that
+question.
+
+V11 therefore records a transient unknown/retrying status fence, fails
+runtime and lifecycle health closed, retains the exact queued and in-flight
+readiness identities, and retries the thread-status read with bounded
+backoff. An authoritative reusable status clears this transient fence and may
+resume delivery; an authoritative terminal or unrecognized loaded status
+promotes it to the existing sticky terminal failure. A read error alone never
+creates a sticky `systemError` diagnosis.
+
+The same fence governs a completion that arrives before `turn/start` returns:
+binding the deferred completion cannot republish cached `idle` while its
+post-terminal status remains unknown.
+
 ## Immediate workaround
 
 A full managed-stack restart creates fresh Codex contexts and clears the

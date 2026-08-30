@@ -264,3 +264,160 @@ actually owed.
 done here.** The code reason for the COPY is gone; what keeps it is that
 W39770 is signed off and not yet accepted, and this checkpoint does not get to
 pre-empt that by shipping an image that depends on it.
+
+## 2026-08-30 — fifth round, after `review-2026-08-30T04-01-29Z.md`
+
+### Pinned: NO BYTE A CHILD WROTE IS PUBLISHED, and the streams are not read
+
+**Superseded:** every earlier rule about how a child's captured stream is
+bounded and read back. The second round bounded the capture before allocation;
+the third gave it no pathname and read it from a held descriptor. Both were
+answers to *how do we read this untrusted stream safely*, and this review is
+the finding that the question was wrong.
+
+No pathname race and no link were ever needed. The provider is handed the
+attempt's bearer and its stderr was interpolated into `result.json`; the task's
+verification command is code out of the candidate the provider has just edited,
+running as the same uid with the same mount readable, and its two streams were
+copied verbatim into `verification.txt`. **Printing the bearer was enough.**
+
+**The rule now: both children run with `stdout` and `stderr` on
+`subprocess.DEVNULL`.** Not bounded, not windowed, not held and discarded — no
+descriptor, no capture file, no buffer, and no variable anywhere in the module
+holding a byte a child wrote. That is what makes this enforceable rather than a
+discipline: a later edit cannot interpolate a value that does not exist.
+`MAX_DIAGNOSTIC`, `MAX_VERIFICATION` and `_window` are DELETED rather than
+tightened, because a ceiling on an amount that never crosses is a ceiling on
+nothing, and a focused case asserts their absence so re-adding one is a
+deliberate act rather than drift back toward this finding.
+
+### Why the review's other branch was not available
+
+The review offered making the credential unavailable to provider-edited
+verification code. It cannot be done from inside this container, and the reason
+is the accepted posture rather than effort: `RESTRICTIONS` fixes `--cap-drop
+ALL`, `--security-opt no-new-privileges`, one fixed `65532:65532` and a
+read-only root, so this adapter has no mount namespace to alter, no second
+identity to drop to, and no way to revoke a read-only bind mount. The argument
+does not even depend on those details — **whatever the provider can read, a
+child of this process can read, because they are the same uid in the same
+namespace; and if the provider could not read it there would be no turn.**
+
+And the provider's own diagnostic is not covered by that branch at all. The
+provider authenticates with the bearer, so its stderr is an untrusted sink
+whatever is done about the verification command.
+
+### Why redaction was rejected, on principle rather than on difficulty
+
+A redactor has to know the bearer's bytes to remove them, which means reading
+them, which the confirmed boundary forbids — and a program that holds the
+bearer in memory in order to scrub it is one formatting bug away from being the
+discloser. A redactor that does NOT read it cannot know what to remove. There
+is no enforceable source of truth here that does not violate the no-read rule,
+which is what the review said and is why this record does not claim one.
+
+### Rejected: removing the provider's credential link before verification
+
+Considered as subordinate defence in depth and NOT DONE. It would take away one
+name pointing at the slot while the slot's own fixed absolute path stayed
+readable to anything running as this uid, so it narrows nothing an attacker
+relies on — it only makes the module look defended. This is the same shape the
+third round already rejected when it declined to fix the capture problem by
+moving the capture directory: **a defence that depends on the child not knowing
+a path is not a boundary.** Applying that rule to one's own preferred addition
+is the only way it means anything.
+
+### What the evidence carries instead, and it is not nothing
+
+`verification.txt` carries the frozen command — which the OPERATOR wrote into
+`/input/task.json` and this adapter read from a read-only mount — the ending,
+which came from `wait` rather than from a stream, and an explicit statement
+that the output is withheld and why. That last part is load-bearing: a reader
+who does not know the output was withheld reads its absence as a command that
+said nothing. `result.json` carries the exit status and the same argv.
+
+Deliberately NOT carried: stream byte counts. A count is a scalar derived from
+untrusted data, it would have to be defended, and it buys almost nothing over
+the exit status. The boundary is easier to hold and easier to review when the
+answer to "what of the child's output reaches the proposal" is *nothing*.
+
+### A third sink the review did not have to name, and it was the worse one
+
+`recap` is composed from `disposition` and `why`, and `why` carried the
+provider's stderr — so the diagnostic reached the worker's own
+`/output/output.json`, the PROTOCOL document the manager correlates and
+collects, not only the application-metadata `result.json` the review named. Both
+sinks are closed and both have a case.
+
+### The deliberate cost, recorded rather than shrugged off
+
+A failed provider turn now says only that it failed. That is a real loss for
+bringing up the first live turn under W39364, and it is named here so nobody
+rediscovers it as a surprise. It is not a reason to reopen the boundary: the
+parent finding already rules that the evidence carries no provider diagnostic,
+and the operator's authoritative signal was always its own rerun of the frozen
+command against the collected candidate, never this file. **If W39364 finds it
+genuinely cannot bring up a live turn without provider diagnostics, the answer
+is an explicitly operator-authorized diagnostic mode as its own later-pass
+Work** — not publishing untrusted bytes by default. No such Work is minted here
+because the need is conditional and W39364 will meet it directly if it is real.
+
+### Where provider-authored bytes DO still cross, and why that is different
+
+The candidate tree, `change.patch` and `changed_paths` carry bytes and path
+names the provider wrote. That is the deliverable, not the evidence: a proposal
+exists to be read by a human before it enters anything, and nothing this adapter
+can do would stop a provider that decided to write the bearer into a source
+file. What the boundary claimed, and what was false, is that the EVIDENCE files
+carry no credential content — and evidence files are the ones that get pasted
+into logs, tickets and dashboards without the reading a candidate tree gets.
+
+### W39770 is accepted, and the image stopgap is gone
+
+`detail work=W39770` reports it closed `satisfying` at sequence 42402 with a
+rationale assigning this removal to W39357. `COPY scripted_agent.py` is removed
+from `Dockerfile.claude`, and the image gate now asserts the module's ABSENCE
+from the artefact while still holding the seam property that makes the absence
+safe — so a regression in `baton_worker.py` fails in that gate with actionable
+prose rather than as a `ModuleNotFoundError` in a live turn.
+
+### Open, unchanged
+
+The first live provider turn — W39364.
+
+## 2026-08-30 — follow-up correction under W44424 (`baton.claude`)
+
+**This record's Work is closed and stays closed.** What follows is explicit
+follow-up history against terminal evidence, per `AGENTS.md`, rather than a
+rewrite of anything above it. The correction belongs to **W44424**, which is
+its own Work and is deliberately NOT bound here — a record has exactly one
+Work, and this one is W39357's.
+
+### Superseded: the task identity was coerced before it was matched
+
+`_task` read `_TASK_ID.match(str(document["task_id"]))`, so a JSON number
+reached the regex as its decimal spelling and passed. **The identity of a
+versioned document was decided by a coercion this module performed rather than
+by what the document says**, and every other member in the same function is
+held to its type before its shape.
+
+**The rule now:** exact `str` before the match, which is the rule the sender
+already applied.
+
+### How it was found, because that is the part worth keeping
+
+Not by reading this file. W39358's operator reads the same frozen task on the
+way in, to move a refusal earlier than a failed provider attempt — and it
+refuses a numeric identity. The two ends therefore disagreed about the same
+document while an agreement test compared the regex TEXT and the closed member
+set and reported them identical.
+
+**A test that compares two constants is not a test that two predicates agree.**
+That test now asserts the asymmetry explicitly instead of implying parity, and
+this change removes the asymmetry it was asserting. The reviewer filed the
+receiver half as W44424 rather than letting the operator Work edit this closed
+child's file, which is why the correction arrives here as its own history.
+
+The regression is `test_a_task_identity_is_text_before_it_is_matched` in
+`tests/manager/test_claude_agent.py`, filed additive by the reviewer and now
+passing.

@@ -14,8 +14,11 @@
    file ownership.
 4. [done] W39366 is the separate top-level non-gating hardening Work. It is
    parked at low priority and has no edge into this roll-up.
-5. [active children] Review W39356 independently while W39357 may implement in
-   parallel. The two gates release W39358; its acceptance releases W39364.
+5. [active children; critical-path correction confirmed 2026-08-30] W39357 is
+   closed. Return W39356 for final independent review without waiting for
+   W39666; that separately owned boundary-inventory hardening remains open but
+   non-gating. W39356 acceptance releases W39358; its acceptance releases
+   W39364.
 6. [roll-up] Close W38956 only after W39356, W39357, W39358 and W39364 are
    independently accepted and the useful supervised result satisfies this
    record.

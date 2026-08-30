@@ -140,6 +140,14 @@ a target configured in a managed dispatcher is required by that deployment,
 so there is no `any` or named-subset form. An optional target is omitted rather
 than tolerated.
 
+A terminal turn whose status refresh cannot be read is reported as transient
+`status: unknown` with a `statusRefreshFailure` diagnostic. Runtime publication
+is `retrying`, lifecycle health is false, and queued readiness remains retained
+while the dispatcher rereads the configured thread with bounded backoff. An
+authoritative reusable status clears that transient fence; an authoritative
+terminal status becomes the sticky terminal failure above. The read error
+alone is never diagnosed as `systemError`.
+
 A malformed, oversized, truncated, late or mismatched reply is "not ready
 yet", exactly as an absent socket is. A target slow to resume therefore holds
 startup until the service's existing `startTimeoutSeconds` and then fails

@@ -34,6 +34,7 @@ class FakeClient extends EventEmitter {
     this.resumeTurns = [];
     this.readStatus = { type: "idle" };
     this.readTurns = [];
+    this.startGate = null;
   }
 
   async connectAndInitialize() {
@@ -53,6 +54,7 @@ class FakeClient extends EventEmitter {
   async startTurn(threadId, text, clientId) {
     const turn = { id: `turn-${this.starts.length + 1}`, status: "inProgress" };
     this.starts.push({ threadId, text, clientId, turn });
+    if (this.startGate) await this.startGate;
     return turn;
   }
 
@@ -213,6 +215,157 @@ test("failed/idle is reusable and drains the next action", async () => {
     await settle();
     assert.equal(rig.fake.starts.length, 2);
   } finally {
+    await rig.dispatcher.stop();
+  }
+});
+
+test("failed turn with unreadable terminal status fails health closed", async () => {
+  const rig = bridge();
+  try {
+    await start(rig);
+    rig.dispatcher.enqueue(readinessEvent());
+    await settle();
+    rig.fake.readThread = async () => {
+      throw new Error("status refresh unavailable");
+    };
+    await finish(rig, "failed");
+
+    assert.notEqual(rig.published.at(-1)[0], "idle",
+      "a failed status refresh reused the stale pre-turn idle state");
+    const row = rig.dispatcher.statusSnapshot();
+    assert.equal(row.ready, false);
+    assert.equal(row.targets.codex.deliverable, false);
+
+    rig.dispatcher.enqueue(readinessEvent({ work: "7ba67cb8-W43540",
+      episode: 43540 }));
+    await settle();
+    assert.equal(rig.fake.starts.length, 1,
+      "readiness drained before the failed turn's status was known");
+  } finally {
+    await rig.dispatcher.stop();
+  }
+});
+
+test("unreadable terminal status retries and resumes only after authoritative idle", async () => {
+  const nextWork = entry("7ba67cb8-W43540", 43540);
+  const rig = bridge({ actionable: [entry(), nextWork] });
+  let releaseStatus;
+  const statusAvailable = new Promise((resolve) => {
+    releaseStatus = resolve;
+  });
+  let observeRetry;
+  const retryStarted = new Promise((resolve) => {
+    observeRetry = resolve;
+  });
+  let reads = 0;
+  rig.fake.readThread = async () => {
+    reads += 1;
+    if (reads === 1) throw new Error("status refresh unavailable");
+    observeRetry();
+    await statusAvailable;
+    return { id: rig.fake.threadId, status: { type: "idle" }, turns: [] };
+  };
+  try {
+    await start(rig);
+    rig.dispatcher.enqueue(readinessEvent());
+    await settle();
+    await finish(rig, "failed");
+    await retryStarted;
+
+    const unknown = rig.dispatcher.statusSnapshot().targets.codex;
+    assert.equal(unknown.status, "unknown");
+    assert.equal(unknown.deliverable, false);
+    assert.equal(unknown.statusRefreshFailure.failedTurnId, "turn-1");
+    assert.equal(rig.published.at(-1)[0], "retrying");
+
+    rig.dispatcher.enqueue(readinessEvent({ work: nextWork.work,
+      episode: nextWork.episode_seq }));
+    await settle();
+    assert.equal(rig.fake.starts.length, 1);
+
+    releaseStatus();
+    await settle(30);
+    const recovered = rig.dispatcher.statusSnapshot().targets.codex;
+    assert.equal(recovered.status, "idle");
+    assert.equal(recovered.deliverable, true);
+    assert.equal("statusRefreshFailure" in recovered, false);
+    assert.equal(rig.fake.starts.length, 2);
+  } finally {
+    releaseStatus();
+    await rig.dispatcher.stop();
+  }
+});
+
+test("authoritative idle notification wins over an older failing status retry", async () => {
+  const rig = bridge();
+  let rejectRetry;
+  const retryResult = new Promise((resolve, reject) => {
+    rejectRetry = reject;
+  });
+  let observeRetry;
+  const retryStarted = new Promise((resolve) => {
+    observeRetry = resolve;
+  });
+  let reads = 0;
+  rig.fake.readThread = async () => {
+    reads += 1;
+    if (reads === 1) throw new Error("status refresh unavailable");
+    observeRetry();
+    return await retryResult;
+  };
+  try {
+    await start(rig);
+    rig.dispatcher.enqueue(readinessEvent());
+    await settle();
+    await finish(rig, "failed");
+    await retryStarted;
+
+    rig.fake.emit("status", { threadId: rig.fake.threadId,
+      status: { type: "idle" } });
+    await settle();
+    rejectRetry(new Error("older status retry failed"));
+    await settle(30);
+
+    const recovered = rig.dispatcher.statusSnapshot().targets.codex;
+    assert.equal(recovered.status, "idle");
+    assert.equal(recovered.deliverable, true);
+    assert.equal("statusRefreshFailure" in recovered, false);
+  } finally {
+    rejectRetry(new Error("test stopped"));
+    await rig.dispatcher.stop();
+  }
+});
+
+test("completion before turn acceptance cannot flush cached idle while status is unreadable", async () => {
+  const rig = bridge();
+  let releaseStart;
+  rig.fake.startGate = new Promise((resolve) => {
+    releaseStart = resolve;
+  });
+  rig.fake.readThread = async () => {
+    throw new Error("status refresh unavailable");
+  };
+  try {
+    await start(rig);
+    rig.dispatcher.enqueue(readinessEvent());
+    await settle();
+    assert.equal(rig.fake.starts.length, 1);
+
+    rig.fake.emit("turnCompleted", { threadId: rig.fake.threadId,
+      turn: { id: rig.fake.starts[0].turn.id, status: "failed" } });
+    await settle();
+    releaseStart();
+    await settle(30);
+
+    const row = rig.dispatcher.statusSnapshot();
+    assert.equal(row.ready, false);
+    assert.equal(row.targets.codex.status, "unknown");
+    assert.equal(row.targets.codex.deliverable, false);
+    assert.equal(rig.published.some(([state]) => state === "idle"), false,
+      "binding the deferred completion flushed cached pre-turn idle");
+    assert.equal(rig.fake.starts.length, 1);
+  } finally {
+    releaseStart();
     await rig.dispatcher.stop();
   }
 });

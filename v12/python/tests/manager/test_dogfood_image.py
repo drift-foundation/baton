@@ -117,32 +117,27 @@ class TheDogfoodImageIsBuiltAndProbed(unittest.TestCase):
                      "dogfood_entry.py", "worker-control-1.0.schema.json"):
             self.assertIn(name, out)
 
-    def test_the_scripted_default_is_present_only_as_the_seam_stopgap(self):
-        """A STATED STOPGAP, held so it cannot quietly become the answer.
+    def test_the_scripted_default_did_not_travel(self):
+        """THE STOPGAP IS GONE, and this is what keeps it gone.
 
-        THE SEAM IS FIXED AND THE STOPGAP IS STILL HERE, which is the state
-        this case now describes. W39770 moved the scripted default behind
-        `_scripted_default()`, so `main` no longer requires the module an
-        injecting image does not ship — the code reason for the COPY is gone.
-        What keeps it is that W39770 is signed off and NOT YET ACCEPTED by the
-        approver, and W39357 does not get to pre-empt that acceptance by
-        shipping an image that depends on it.
+        For two rounds this image carried `scripted_agent.py` because
+        `main(agent=...)` opened with an unconditional import of it, so the
+        documented injection seam could not be used without shipping the
+        default it overrode. W39770 is the real correction and is CLOSED
+        SATISFYING, with a rationale that assigns this removal to W39357.
 
-        W39357 review 2026-08-29T22:51:53Z: the previous form of this case
-        asserted that `baton_worker.py` still CONTAINED the import string,
-        meaning to fail once the seam was fixed. It did not fail, because the
-        fix moved the import rather than deleting it — so the guard said the
-        stopgap was still needed after it no longer was. It now asserts the
-        real condition instead, and the removal it guards is the one owed to
-        the approver's acceptance.
+        So the case inverts. It asserts the ARTEFACT does not carry a scripted
+        provider — a real provider image has no business shipping one — and
+        then asserts the seam property that makes the absence safe, so a
+        regression in `baton_worker.py` fails HERE with actionable prose
+        rather than as a `ModuleNotFoundError` in some later live turn.
         """
         status, out, errors = self.ran("-c", "ls /opt/baton")
         self.assertEqual(status, 0, errors)
-        self.assertIn("scripted_agent.py", out)
+        self.assertNotIn("scripted_agent.py", out)
         worker = (WORKER / "baton_worker.py").read_text("utf-8")
-        # THE IMPORT IS INSIDE THE DEFAULT, not ahead of the injection check.
-        # This is what makes the COPY removable, and asserting it here is what
-        # makes the removal a deliberate act with a test to update.
+        # THE IMPORT IS INSIDE THE LAZY DEFAULT, not ahead of the injection
+        # check. That is the whole reason this image can omit the module.
         import ast
         tree = ast.parse(worker)
         for node in ast.walk(tree):
@@ -151,16 +146,17 @@ class TheDogfoodImageIsBuiltAndProbed(unittest.TestCase):
                 where = node
                 break
         else:
-            self.fail("the scripted default is gone entirely; remove the "
-                      "COPY and this case together")
+            # NOT A FAILURE. A worker with no scripted default at all needs no
+            # module shipped either, which is what this image already assumes.
+            return
         lazy = [one for one in ast.walk(tree)
                 if isinstance(one, ast.FunctionDef)
                 and one.name == "_scripted_default"
                 and any(child is where for child in ast.walk(one))]
         self.assertTrue(lazy,
-                        "the scripted import is no longer inside the lazy "
-                        "default; the seam's shape changed and this guard "
-                        "and the recipe's COPY both need revisiting")
+                        "the scripted import left the lazy default, so "
+                        "`main` needs a module this image no longer ships; "
+                        "W39770's seam correction has regressed")
 
     # -- and the entrypoint is the reviewed worker ---------------------------
 

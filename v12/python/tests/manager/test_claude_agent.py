@@ -106,27 +106,26 @@ class AdapterCase(unittest.TestCase):
 
     # -- the injected provider ----------------------------------------------
 
-    def provider(self, *, edits=None, status=0, stderr="", verify=0,
+    def provider(self, *, edits=None, status=0, verify=0,
                  timeout=False, missing=False):
         """One recorded process-running capability.
 
         `edits` is what the "provider" writes into the candidate copy — which
         is the only way a real one changes anything, so a fake that wrote
         nowhere else is exactly as capable here.
+
+        THERE IS NO `stderr=` OPERAND, and its removal is the fixture half of
+        W39357 review 2026-08-30T04:01:29Z [P1]. The adapter hands both
+        children `subprocess.DEVNULL`, so a fake cannot write to a stream at
+        all — an operand that quietly wrote nowhere would leave every case
+        using it looking like it proved something about a diagnostic. The
+        cases that genuinely need a child to SAY something drive a real
+        `subprocess.run`; see `NoChildStreamByteReachesTheProposal`.
         """
         self.calls = []
 
         def run(argv, **options):
             self.calls.append((list(argv), dict(options)))
-            # THE STREAMS ARE FILES NOW, so the fake writes to them exactly as
-            # a real child would. Review [P1]: `capture_output=True` collected
-            # each stream whole before any ceiling applied, so the bound was a
-            # post-allocation slice; the adapter hands descriptors instead and
-            # reads only a window back.
-            def emit(handle, body):
-                if hasattr(handle, "write") and body:
-                    handle.write(body)
-
             if argv[0] == claude_agent.PROVIDER_PROGRAM:
                 if timeout:
                     raise subprocess.TimeoutExpired(argv, 1)
@@ -134,9 +133,7 @@ class AdapterCase(unittest.TestCase):
                     raise OSError("no such file")
                 for name, body in (edits or {}).items():
                     self.write(os.path.join(options["cwd"], name), body)
-                emit(options.get("stderr"), stderr.encode())
                 return subprocess.CompletedProcess(argv, status, None, None)
-            emit(options.get("stdout"), b"ok\n")
             return subprocess.CompletedProcess(argv, verify, None, None)
 
         return run
@@ -276,90 +273,123 @@ class TheProviderArgvAndEnvironmentAreClosed(AdapterCase):
         _argv, options = self.spoken()
         self.assertEqual(options["timeout"], claude_agent.PROVIDER_SECONDS)
 
-    def test_provider_stdout_is_discarded_rather_than_captured(self):
-        """Nothing reads it, so accumulating it was pure exposure."""
+    def test_both_provider_streams_are_discarded_rather_than_captured(self):
+        """W39357 review 2026-08-30T04:01:29Z [P1]: BOTH, not only stdout.
+
+        Stdout was already discarded because nothing read it. Stderr was
+        captured and interpolated into `result.json` and, through `recap`, into
+        the worker's own `/output/output.json` — and the process writing it is
+        the one holding this attempt's credential.
+        """
         _argv, options = self.spoken()
         self.assertIs(options["stdout"], subprocess.DEVNULL)
+        self.assertIs(options["stderr"], subprocess.DEVNULL)
+
+    def test_both_verification_streams_are_discarded_too(self):
+        """The sharper of the two, because this child is provider-EDITED code
+        running with the same credential mount readable."""
+        self.worked(edits={"harness.py": "print('now covered')\n"})
+        _argv, options = next(
+            (argv, options) for argv, options in self.calls
+            if argv[0] != claude_agent.PROVIDER_PROGRAM)
+        self.assertIs(options["stdout"], subprocess.DEVNULL)
+        self.assertIs(options["stderr"], subprocess.DEVNULL)
 
 
-class OutputIsBoundedBeforeItIsAllocated(AdapterCase):
-    """Review [P1]: the ceilings were post-allocation slices.
+class NoChildStreamByteReachesTheProposal(AdapterCase):
+    """W39357 review 2026-08-30T04:01:29Z [P1], as one property.
 
-    `capture_output=True` collects each stream whole before `run` returns, so
-    `[-MAX_DIAGNOSTIC:]` and `[:MAX_VERIFICATION]` bounded the ARTIFACT and
-    not the memory — a noisy or wedged child exhausted the container and turned
-    the worker into transport loss instead of the typed bounded failure the
-    acceptance requires.
+    SUPERSEDES `OutputIsBoundedBeforeItIsAllocated`, whose two ceiling cases
+    and `_window` case are gone with their subject. Those asked how much of a
+    child's stream reached the artifact and how safely it was read back; this
+    review's finding is that the question was wrong. The provider holds the
+    attempt's bearer and the verification command is provider-edited code with
+    the same mount readable, so no window onto either stream is publishable at
+    any size. `MAX_DIAGNOSTIC`, `MAX_VERIFICATION` and `_window` are deleted
+    rather than tightened, and what replaces them is this: NOTHING a child
+    wrote appears anywhere in the proposal or in the worker's answer.
 
-    THESE CASES USE A REAL `subprocess.run`, deliberately. A fake that
-    "wrote" a large stream would prove the slicing and not the capture, and
-    the capture is the finding.
+    THESE CASES USE A REAL `subprocess.run`, deliberately and for the same
+    reason the deleted ones did. A fake that "wrote" to a handle would prove
+    the fixture, and `subprocess.DEVNULL` is the thing under test — only a real
+    child can be given it.
     """
 
-    def shouting(self, *, words, to_stderr, status=0):
-        """A real child that writes far past the ceiling."""
+    def shouting(self, *, marker, words=1, status=0, verify=0):
+        """A real child that writes a distinctive marker to BOTH streams."""
         program = (f"import sys;"
-                   f"sys.{'stderr' if to_stderr else 'stdout'}"
-                   f".write('x' * {words});"
-                   f"raise SystemExit({status})")
+                   f"sys.stdout.write({marker!r} * {words});"
+                   f"sys.stderr.write({marker!r} * {words});"
+                   f"raise SystemExit(%d)")
 
         def run(argv, **options):
             if argv[0] == claude_agent.PROVIDER_PROGRAM:
                 self.write(os.path.join(options["cwd"], "harness.py"),
                            "print('now covered')\n")
-                argv = [sys.executable, "-c", program if to_stderr else
-                        "import sys; raise SystemExit(%d)" % status]
+                argv = [sys.executable, "-c", program % status]
             else:
-                argv = [sys.executable, "-c", program]
+                argv = [sys.executable, "-c", program % verify]
             return subprocess.run(argv, **options)
 
         return run
 
-    def test_a_shouting_provider_is_bounded_at_the_diagnostic_ceiling(self):
-        agent = ClaudeAgent(run=self.shouting(words=claude_agent.MAX_DIAGNOSTIC
-                                              * 8, to_stderr=True, status=3),
+    def published(self):
+        """Every byte this turn made host-visible, as one blob."""
+        found = []
+        for base, _directories, files in os.walk(self.proposal()):
+            for name in sorted(files):
+                with open(os.path.join(base, name), "rb") as handle:
+                    found.append(handle.read())
+        return b"".join(found)
+
+    def test_a_shouting_provider_puts_nothing_in_the_proposal_or_the_answer(
+            self):
+        agent = ClaudeAgent(run=self.shouting(marker="PROVIDER-SAID",
+                                              words=8192, status=3),
                             home=self.scratch)
         answered = agent.work({"contract": "t"}, list(DECLARED))
         self.assertEqual(answered["disposition"], "unable")
-        why = self.result()["why"]
-        # THE WINDOW, not the whole stream: the diagnostic carries the
-        # ceiling's worth and no more, however much the child wrote.
-        self.assertLessEqual(len(why), claude_agent.MAX_DIAGNOSTIC + 200)
-        self.assertIn("the provider exited 3", why)
+        self.assertNotIn(b"PROVIDER-SAID", self.published())
+        # AND THE ANSWER TOO. `recap` is composed from `why`, so the old
+        # interpolation reached the worker's protocol document as well as
+        # `result.json` — a sink the review did not have to name for it to be
+        # real.
+        self.assertNotIn("PROVIDER-SAID", answered["recap"])
+        # WHAT SURVIVES IS THE STATUS, which this adapter got from `wait` and
+        # not from a stream. Failure stays honest without being transcribed.
+        self.assertIn("the provider exited 3", self.result()["why"])
 
-    def test_a_shouting_verification_is_bounded_at_its_own_ceiling(self):
-        agent = ClaudeAgent(
-            run=self.shouting(words=claude_agent.MAX_VERIFICATION * 4,
-                              to_stderr=False),
-            home=self.scratch)
+    def test_a_shouting_verification_puts_nothing_in_the_transcript(self):
+        agent = ClaudeAgent(run=self.shouting(marker="COMMAND-SAID",
+                                              words=8192),
+                            home=self.scratch)
+        answered = agent.work({"contract": "t"}, list(DECLARED))
+        self.assertEqual(answered["disposition"], "completed")
+        self.assertNotIn(b"COMMAND-SAID", self.published())
+        self.assertNotIn("COMMAND-SAID", answered["recap"])
+
+    def test_the_transcript_still_carries_the_operator_authored_evidence(self):
+        """Withholding is not emptying. What is left is the frozen command,
+        which the OPERATOR wrote into `/input/task.json`, and the ending, which
+        came from `wait` — neither of them a byte any child produced."""
+        agent = ClaudeAgent(run=self.shouting(marker="COMMAND-SAID", verify=4),
+                            home=self.scratch)
         agent.work({"contract": "t"}, list(DECLARED))
         with open(self.proposal("verification.txt"),
                   encoding="utf-8") as handle:
             transcript = handle.read()
-        self.assertLessEqual(len(transcript), claude_agent.MAX_VERIFICATION)
         self.assertIn("$ python3 harness.py", transcript)
+        self.assertIn("exit: 4", transcript)
+        # AND IT SAYS THE OUTPUT IS WITHHELD, so absence does not read as a
+        # command that said nothing.
+        self.assertIn("deliberately not", transcript)
 
-    def test_the_window_is_read_from_the_held_descriptor(self):
-        """The property under the two cases above, asserted directly.
-
-        A stream far larger than the ceiling costs a seek and one bounded
-        read, not its own size in memory — and the window is read back from
-        the OPEN FILE the stream was written to. `_window` took a pathname and
-        reopened it, which is the second lookup the 2026-08-29T22:18:55Z
-        review's capture finding redirected; it takes the descriptor now, so
-        this case hands it one.
-        """
-        big = os.path.join(self.home, "big")
-        with open(big, "wb") as handle:
-            handle.write(b"a" * 4096 + b"TAIL")
-        with open(big, "rb") as handle:
-            self.assertEqual(claude_agent._window(handle, tail=4), "TAIL")
-            self.assertEqual(claude_agent._window(handle, head=4), "aaaa")
-        # AND IT IS NOT A NAME. A pathname would be reopened; an unlinked file
-        # cannot be, so this is the shape the capture actually uses.
-        with tempfile.TemporaryFile() as anonymous:
-            anonymous.write(b"z" * 4096 + b"END")
-            self.assertEqual(claude_agent._window(anonymous, tail=3), "END")
+    def test_the_module_keeps_no_ceiling_on_bytes_it_never_reads(self):
+        """The deletions asserted directly, so re-adding a capture ceiling is
+        a deliberate act rather than drift back toward the finding."""
+        for gone in ("MAX_DIAGNOSTIC", "MAX_VERIFICATION", "_window",
+                     "_capture"):
+            self.assertFalse(hasattr(claude_agent, gone), gone)
 
 
 class TheCredentialIsLinkedAndNeverRead(AdapterCase):
@@ -485,12 +515,12 @@ class TheCredentialIsLinkedAndNeverRead(AdapterCase):
         the credential there, and the bounded reader — which reopened the NAME
         — transcribed the bearer.
 
-        The adapter now captures into files with NO directory entry at all,
-        so the case asserts the stronger invariant that replaced the weaker
-        one: the child sees no capture pathname anywhere it can reach, and the
-        swap it can still attempt against any pathname it does find cannot
-        reach the transcript. The credential assertion is the reviewer's,
-        unchanged.
+        The adapter now captures NOTHING at all, so the case asserts the
+        strongest form of what it started as: the child sees no capture
+        pathname anywhere it can reach, and the swap it can still attempt
+        against any pathname it does find cannot reach the transcript. The
+        credential assertion is the reviewer's, unchanged through three
+        rounds of remedy.
         """
         visible = []
 
@@ -513,7 +543,6 @@ class TheCredentialIsLinkedAndNeverRead(AdapterCase):
             for place in visible:
                 os.unlink(place)
                 os.symlink(self.slot, place)
-            options["stdout"].write(b"ok\n")
             return subprocess.CompletedProcess(argv, 0, b"", b"")
 
         agent = ClaudeAgent(run=run, home=self.scratch)
@@ -523,7 +552,72 @@ class TheCredentialIsLinkedAndNeverRead(AdapterCase):
                   encoding="utf-8") as handle:
             transcript = handle.read()
         self.assertNotIn("not-a-credential", transcript)
-        self.assertIn("ok", transcript)
+        # THE TRANSCRIPT IS STILL A TRANSCRIPT. This asserted `"ok"` — the
+        # child's own stdout — which is precisely what the 2026-08-30T04:01:29Z
+        # finding says may not be there. What proves the file is not merely
+        # empty is the evidence no child wrote.
+        self.assertIn("$ python3 harness.py", transcript)
+        self.assertIn("exit: 0", transcript)
+
+    def test_verification_cannot_print_the_mounted_credential(self):
+        """The transcript cannot trust provider-edited verification output.
+
+        The frozen command runs code from the candidate the provider just
+        edited, and that process can read the same fixed credential mount as
+        the provider.  It therefore needs no pathname race to disclose the
+        bearer: writing it to either captured stream is enough unless the
+        verification boundary makes the mount unavailable or withholds the
+        untrusted bytes from the proposal.
+
+        THE REVIEWER'S CASE, RUN AGAINST A REAL CHILD. Its original form wrote
+        the bearer to `options["stdout"]`, which was a file object while the
+        adapter still captured. The remedy is that both streams are
+        `subprocess.DEVNULL` — an operand only a real `subprocess.run` can
+        honour — so the disclosure it models is performed by an actual process
+        writing the actual bytes to its actual fd 1 and 2. The assertion is
+        the reviewer's, unchanged and now stronger.
+        """
+        def run(argv, **options):
+            if argv[0] == claude_agent.PROVIDER_PROGRAM:
+                self.write(os.path.join(options["cwd"], "harness.py"),
+                           "print('now covered')\n")
+                return subprocess.CompletedProcess(argv, 0, b"", b"")
+            return subprocess.run(
+                [sys.executable, "-c",
+                 f"import sys;"
+                 f"bearer = open({self.slot!r}, 'rb').read();"
+                 f"sys.stdout.buffer.write(bearer);"
+                 f"sys.stderr.buffer.write(bearer)"], **options)
+
+        agent = ClaudeAgent(run=run, home=self.scratch)
+        agent.work({"contract": "the frozen task"}, list(DECLARED))
+        with open(self.proposal("verification.txt"), "rb") as handle:
+            transcript = handle.read()
+        self.assertNotIn(b"not-a-credential", transcript)
+
+    def test_provider_stderr_cannot_print_the_mounted_credential(self):
+        """A bounded provider diagnostic is still an untrusted secret sink.
+
+        THE REVIEWER'S CASE, RUN AGAINST A REAL CHILD for the reason the case
+        above gives, and EXTENDED TO THE SINK IT DID NOT NAME: `why` is what
+        `recap` is composed from, so the interpolated diagnostic reached the
+        worker's own `/output/output.json` as well as `result.json`.
+        """
+        def run(argv, **options):
+            self.assertEqual(argv[0], claude_agent.PROVIDER_PROGRAM)
+            return subprocess.run(
+                [sys.executable, "-c",
+                 f"import sys;"
+                 f"sys.stderr.buffer.write("
+                 f"open({self.slot!r}, 'rb').read());"
+                 f"raise SystemExit(3)"], **options)
+
+        agent = ClaudeAgent(run=run, home=self.scratch)
+        answered = agent.work({"contract": "the frozen task"}, list(DECLARED))
+        with open(self.proposal("result.json"), "rb") as handle:
+            result = handle.read()
+        self.assertNotIn(b"not-a-credential", result)
+        self.assertNotIn("not-a-credential", answered["recap"])
 
 
 class TheCheckedTreeIsProvedAtEveryComponent(AdapterCase):
@@ -668,9 +762,15 @@ class FailureIsHonest(AdapterCase):
         return answered["disposition"], self.result()["disposition"]
 
     def test_a_provider_that_exits_nonzero_is_not_completed(self):
-        self.assertEqual(self.ended(status=3, stderr="the model refused"),
+        self.assertEqual(self.ended(status=3),
                          ("unable", "provider-failed"))
-        self.assertIn("the model refused", self.result()["why"])
+        # THE STATUS, WHICH CAME FROM `wait`. This asserted that the
+        # provider's own stderr appeared in `why` — which was the disclosure
+        # W39357 review 2026-08-30T04:01:29Z [P1] found, so the assertion had
+        # to go with it. What replaces it is that the failure is still named
+        # exactly, and `NoChildStreamByteReachesTheProposal` holds the other
+        # half: a real shouting provider reaches neither `why` nor `recap`.
+        self.assertIn("the provider exited 3", self.result()["why"])
 
     def test_a_provider_that_never_started_is_not_completed(self):
         self.assertEqual(self.ended(missing=True),
@@ -693,7 +793,7 @@ class FailureIsHonest(AdapterCase):
         """The declaration says the proposal is required, and the worker
         refuses an answer that reports a required output absent. So a failure
         writes the tree and says what happened in it."""
-        self.worked(status=3, stderr="the model refused")
+        self.worked(status=3)
         self.assertTrue(os.path.isdir(self.proposal()))
         self.assertTrue(os.path.exists(self.proposal("result.json")))
 
@@ -727,6 +827,11 @@ class TheFrozenTaskIsAClosedDocument(AdapterCase):
         short = {name: value for name, value in TASK.items()
                  if name != "verification"}
         self.refuses(short, "missing verification")
+
+    def test_a_task_identity_is_text_before_it_is_matched(self):
+        """`str(7)` matches the identity regex, but a JSON number is not the
+        versioned task's text identity and the sender already refuses it."""
+        self.refuses(dict(TASK, task_id=7), "usable task identity")
 
     def test_a_verification_that_is_a_string_refuses(self):
         """There is no shell in this image, so a command this adapter would

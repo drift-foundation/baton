@@ -93,6 +93,37 @@ __all__ = ["CUSTODY_OPERATIONS", "CUSTODY_ROOT", "CUSTODY_PROGRAM",
 CUSTODY_OPERATIONS = ("inspect", "read", "hash", "archive", "normalize",
                       "discard")
 
+# WHAT EACH VERB ANSWERS, closed and typed, and it is the RECEIVING half of
+# the same rule `check_custody_operation` is the sending half of.
+#
+# W36540 review (2026-08-30T04:07:53Z) [P1]: the act validated the verb it
+# SENT and nothing about the document that came back, so a zero exit carrying
+# any JSON object at all was reported as custody. A `normalize` act whose
+# stdout ended `{"custody": "inspect", "entries": []}` was `ok`. Zero plus an
+# unrelated document is no stronger an account than zero plus no document,
+# which this module already refuses.
+#
+# `CUSTODY_PROGRAM` is a constant of this module, so what it can print is
+# exactly known and is written down rather than guessed at. The two tables
+# must agree, and a member added to one without the other fails here -- which
+# is the point: an answer this manager cannot recognise is not one it accounts
+# for.
+_CUSTODY_RESULT = {
+    "inspect": {"entries": list, "running_as": list},
+    "read": {"entries": list, "total_bytes": int, "running_as": list},
+    "hash": {"entries": list, "total_bytes": int, "running_as": list},
+    "archive": {"entries": list, "total_bytes": int, "running_as": list,
+                "content": str, "tree_digest": str},
+    "normalize": {"entries": int, "not_ours": int, "running_as": list},
+    "discard": {"removed": int, "kept": int, "running_as": list},
+}
+
+# THE CUSTODIAN'S OWN REFUSAL, which is the other document the program can
+# print. It is accountable -- it says the act did not happen and why -- but it
+# is never a successful account of the verb that was asked for.
+_CUSTODY_REFUSED = "refused"
+_CUSTODY_REFUSAL = {"why": str}
+
 # WHERE THE ONE MOUNT LANDS. Fixed rather than composed, because a container
 # path a caller could choose is an operand that decides what the program walks.
 CUSTODY_ROOT = "/custody"
@@ -100,9 +131,171 @@ CUSTODY_ROOT = "/custody"
 # A NAME THIS MANAGER CAN RECOGNISE AFTERWARDS, and the reason it is a prefix
 # rather than a label: a custody helper that outlives its act has to be
 # findable by a restarted manager that never saw it start.
+#
+# W43974: IT IS READ NOW. For the whole of W36540 this was a constant the
+# record mentioned and no code path used, while `name` arrived as an ordinary
+# caller operand -- so the reclamation this Work owed was impossible by
+# construction, because a name a caller chose is a name a restarted manager
+# cannot re-derive. `_custody_identity` derives it; nothing takes it.
 CUSTODY_NAME = "baton-custody"
 
+# How much of the digest rides in the name. 128 bits, which is collision
+# resistance nobody reaches, and it keeps the whole identity inside `_NAME`'s
+# own bound rather than making the bound an exception for this one composer.
+_IDENTITY_HEX = 32
+
 _NAME = re.compile(r"[a-z0-9][a-z0-9._-]{0,60}")
+
+# HOW LONG ONE CUSTODY ACT MAY TAKE, and it is this module's number rather
+# than a caller's. The custodian arms it against itself -- see
+# `CUSTODY_PROGRAM` -- because no engine has a run deadline and the injected
+# run capability's timeout belongs to whoever injected it.
+#
+# Generous on purpose: a `discard` over a large worker tree is real work, and
+# a bound that ordinary work reaches turns custody into a failure. What it
+# rules out is an act that is not going to end.
+CUSTODY_SECONDS = 1800
+
+# THE MANAGER'S OWN BOUND ON THE WHOLE ENGINE CALL, and the review that
+# required it is right that the alarm above cannot be it.
+#
+# W43974 review (2026-08-30T05:15:08Z) [P0]: `CUSTODY_SECONDS` starts when the
+# custodian's Python program starts, so it bounds the act and nothing before
+# it -- an image pull that stalls, a daemon that never answers, a call that
+# loses its result after launch. The first round named an `EnginePort`
+# deadline out of scope and left this child's central acceptance unmet.
+#
+# LARGER THAN THE ALARM DELIBERATELY. The inner refusal is how an overrun is
+# ordinarily reported, because it is typed, accountable and names the bound it
+# crossed; this is the backstop for a call that never reaches the program at
+# all. If they were equal the backstop would race the account and an ordinary
+# slow act would come back as a lost one.
+CUSTODY_ACT_SECONDS = CUSTODY_SECONDS + 300
+
+# THE SAME BOUND ON EVERY RECLAMATION CALL. Reclamation is what runs when
+# something has already gone wrong, so an unbounded stop or inspect there is
+# the failure mode this whole child exists to remove, one layer in.
+CUSTODY_RECLAIM_SECONDS = 120
+
+# How long a stop order is given before the removal forces it. Short, because
+# a custodian has nothing to flush and nothing to shut down gracefully: it is
+# being ended precisely because nobody can collect what it was going to say.
+CUSTODY_STOP_SECONDS = 5
+
+
+def _settled(port, argv, *, seconds, what):
+    """One engine call that is OVER by the time this returns OR raises.
+
+    W43974 review (2026-08-30T05:28:16Z) [P0]. The second round ran the call
+    on a daemon thread and abandoned it on expiry, which bounded THE WAIT and
+    nothing else. The abandoned call was still free to finish a stalled image
+    pull and create the helper -- after recovery had listed, inspected and
+    proved that exact name absent. **The deadline manufactured the stranded
+    helper this child exists to prevent.**
+
+    A thread this manager stops waiting for is not a cancelled engine
+    operation, and it is not a reaped OS child. Nothing inside this process
+    can cancel a synchronous callable it did not write; the party that spawned
+    the child is the only one that can end it.
+
+    SO THE CONTRACT MOVED TO THE BOUNDARY. The capability this manager is
+    given must accept `seconds` and must have TERMINATED AND REAPED its child
+    before it answers -- which is exactly what `subprocess.run(argv,
+    timeout=seconds)` does: it kills the child, waits for it, and only then
+    raises. There is no interval afterwards for a late mutation to happen in,
+    because there is nothing still running. A capability that cannot even be
+    given the deadline is refused on the act's FIRST call, which is a
+    read-only listing -- so the wrong shape is found before anything has been
+    created or removed.
+
+    WHAT THIS MANAGER STILL CANNOT VERIFY, said plainly rather than implied: a
+    capability that accepts `seconds` and ignores it. That is the same class
+    of trust as handing it an argv and believing it ran that argv, and it is
+    the trust boundary `EnginePort` has always been. What changed is that
+    honouring the deadline is now part of the contract instead of an optional
+    kindness, and a capability that cannot even receive it is refused before
+    any engine call.
+
+    Every failure becomes a typed refusal naming which call it was, because a
+    reclamation that could not complete is UNRESOLVED, and unresolved is the
+    one state a custody act must not proceed from.
+    """
+    from .oci import _denied
+
+    try:
+        return port(argv, seconds=seconds)
+    except ContractRefusal:
+        raise
+    except TypeError:
+        # THE CAPABILITY CANNOT BE GIVEN THE DEADLINE, which is refused rather
+        # than worked around. This is the FIRST call a custody act makes and
+        # it is a read-only listing, so a capability of the wrong shape is
+        # discovered before anything has been created or removed.
+        #
+        # A pre-flight signature check was written and removed: `inspect` is
+        # not in the manager's ruled dependency set, and adding a stdlib
+        # module to that allowlist to gain a check the first call already
+        # performs is the wrong trade. Failing on a `ps` is early enough.
+        _denied(f"{what} could not be given this manager's deadline; a "
+                f"custody act needs an engine capability that accepts "
+                f"`seconds` and has terminated and reaped its child before it "
+                f"answers, because one this manager cannot bound is one that "
+                f"can strand the helper it is trying to reclaim")
+    except Exception as failed:
+        # `Exception` AND NOT `BaseException`. W43974 review
+        # (2026-08-30T05:44:32Z) [P1]: the second round ruled that process
+        # control propagates, and the third round kept that rule for the act's
+        # own call while every reclamation step went through here and reversed
+        # it -- so a `KeyboardInterrupt` during a read-only listing was
+        # reported as an ordinary policy denial. An operator ending the
+        # process is not an engine failure and this module does not get to
+        # relabel it as one.
+        _denied(f"{what} did not complete within {seconds}s or could not be "
+                f"performed ({type(failed).__name__}); a custody act does not "
+                f"proceed from a reclamation step whose outcome this manager "
+                f"cannot settle")
+
+
+def _custody_identity(store_place, assignment_id, which, operation):
+    """The ONE name this act's helper can have, DERIVED and never chosen.
+
+    W43974. `name` was a caller operand for eleven rounds, so a manager that
+    restarted could not name the helper its predecessor had started, and
+    `--rm` -- which reclaims only on the engine's normal completion path --
+    was the whole of the lifetime story.
+
+    WHAT IS IN THE DIGEST, and each part earns its place:
+
+      * the configured workspace STORE, because the identity has to be unique
+        to a DEPLOYMENT and not merely to an attempt -- two managers on one
+        host with different stores may hold the same attempt name. It is a
+        digest input and reaches no name, answer or diagnostic;
+      * the ATTEMPT, the ROOT KIND and the VERB, because those are what make
+        one act different from another over the same tree.
+
+    WHAT IS DELIBERATELY NOT IN IT is the store's incarnation. A restarted
+    manager is a new incarnation, and an identity it cannot re-derive is one
+    it cannot reclaim -- which is the entire defect this function exists for.
+
+    The derivation follows `oci._runtime_name`'s rule rather than inventing
+    one: the manager's own identity decides the name, and the engine's
+    alphabet never decides the identity.
+    """
+    from ..contracts.canonical import digest
+
+    found = (CUSTODY_NAME + "-"
+             + digest({"store": store_place, "assignment_id": assignment_id,
+                       "which": which, "operation": operation})
+             [len("sha256:"):][:_IDENTITY_HEX])
+    if not _NAME.fullmatch(found):
+        # UNREACHABLE BY CONSTRUCTION and asserted anyway: this is the one
+        # place a name is made, so a derivation that stopped satisfying the
+        # module's own rule must fail here rather than at a daemon.
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the derived custody identity {name_value(found)} is not a name "
+            f"this build composes")
+    return found
 
 
 def check_custody_operation(operation):
@@ -134,11 +327,38 @@ def check_custody_operation(operation):
 # the mount, so the MANAGER's own removal walk can then proceed under its own
 # containment rules. It does not delete, and it does not touch anything above
 # its mount because there is nothing above its mount to touch.
-CUSTODY_PROGRAM = r'''
-import base64, hashlib, json, os, sys
+_CUSTODY_SOURCE = r'''
+import base64, hashlib, json, os, signal, sys
 
 ROOT = "/custody"
 VERBS = ("inspect", "read", "hash", "archive", "normalize", "discard")
+
+# THE ACT'S OWN DEADLINE, armed against itself.
+#
+# W43974. No engine has a run deadline, and the manager's injected run
+# capability owns whatever transport timeout exists -- which is somebody
+# else's number and, more to the point, cannot tell a slow act from a wedged
+# one. This can: the bound is enforced where the work happens, and expiry
+# prints the module's own typed refusal rather than dying silently and
+# leaving a zero-length stdout for the manager to fail to account for.
+#
+# SECONDS is substituted by the composing module, so the number lives in one
+# place and travels into the program the manager ships.
+SECONDS = __SECONDS__
+
+
+def expired(number, frame):
+    print(json.dumps({"custody": "refused",
+                      "why": "the act did not finish within %ds" % SECONDS}))
+    # `_exit`, not `SystemExit`: an alarm can land inside a `try` this program
+    # does not own, and an exception an ordinary handler swallows is a
+    # deadline that did not apply.
+    sys.stdout.flush()
+    os._exit(3)
+
+
+signal.signal(signal.SIGALRM, expired)
+signal.alarm(SECONDS)
 
 # How much of a file is read at once. Constant memory is the whole point: a
 # worker file larger than this container's memory bound must not be able to
@@ -359,6 +579,13 @@ if verb == "discard":
     raise SystemExit(0)
 '''
 
+# THE FINISHED PROGRAM, with this module's deadline substituted in. The
+# public constant is what actually runs -- the tests that drive the real
+# custodian run THIS, so a template with an unsubstituted placeholder could
+# not pass them unnoticed.
+CUSTODY_PROGRAM = _CUSTODY_SOURCE.replace("__SECONDS__",
+                                          str(CUSTODY_SECONDS))
+
 
 # THE TWO DIRECTORIES A CUSTODY ACT MAY TOUCH, and they are the two the
 # acceptance names: the attempt's exact workspace and its result directory.
@@ -418,8 +645,8 @@ def _derived_root(store, assignment_id, which):
             f"way to compose a home this manager never allocated")
     # READ HERE, USED HERE. The capability objects never leave this frame.
     group = configured_workspace_group(store)
-    root = _real(configured_workspace_storage(store).place,
-                 "the manager's workspace storage")
+    recorded = configured_workspace_storage(store).place
+    root = _real(recorded, "the manager's workspace storage")
     home = os.path.join(root, assignment_id)
     workspace = os.path.join(home, "workspace")
     # EVERY EXISTING PARENT IS PROVED BEFORE ANYTHING IS CREATED. Review [P1],
@@ -449,7 +676,12 @@ def _derived_root(store, assignment_id, which):
             f"{name_value(resolved)} resolves outside this deployment's "
             f"configured workspace store; a custody act is performed on an "
             f"attempt directory this manager allocated")
-    return resolved, group.gid
+    # W43974: THE RECORDED STORE ROOT COMES BACK TOO, and it is the recorded
+    # spelling rather than `root`'s resolved one. It is a digest input for the
+    # helper identity, and an identity that moved when somebody re-pointed a
+    # symlink would be one a restarted manager could not re-derive -- which is
+    # the whole property `_custody_identity` exists to provide.
+    return resolved, group.gid, recorded
 
 
 def _no_link(place, *, what=None, missing_ok=False):
@@ -486,7 +718,234 @@ def _no_link(place, *, what=None, missing_ok=False):
     return True
 
 
-def _custody_vector(engine, *, image_digest, name, store, assignment_id,
+def _list_vector(engine, name):
+    """Ask the engine for candidates whose name CONTAINS this identity.
+
+    W43974. A NARROWING, NEVER A DECISION -- `_reconciled` compares every
+    returned row for exact name equality here. That is `OciAdapter.list`'s own
+    rule ("engine-side selection is not proof that a returned row has the
+    values requested") applied to a selector that is not a label, and it is
+    what leaves a same-prefix stranger untouched.
+
+    A SUBSTRING FILTER RATHER THAN AN ANCHORED REGEX, deliberately. Both
+    engines' `name` filter is a substring match, so it can over-match and
+    cannot under-match a name that is present. An anchored `^...$` would be
+    exact where it is honoured and would match NOTHING on an engine that
+    treats the anchors literally -- and a false ABSENCE is the one answer this
+    must never produce, because it launches into a name conflict or leaves a
+    stranded helper behind forever.
+
+    Composed here rather than through `oci.list_vector`, which selects by
+    label and belongs to the attempt-runtime vocabulary. Custody composes its
+    own run vector for the reason `_custody_vector` states, and the same
+    reason applies to its selector.
+    """
+    from .oci import _engine
+
+    return [_engine(engine), "ps", "--all", "--no-trunc",
+            "--format", "{{json .}}", "--filter", f"name={name}"]
+
+
+def _listed_name(entry):
+    """The name in one listing row, across the engines' two spellings.
+
+    Docker answers `Names` as one comma-separated string; Podman answers a
+    list. Both are read, and anything else refuses rather than being coerced
+    into something comparable.
+    """
+    from .oci import _one_of, _refuse
+
+    found = _one_of(entry, ("Names", "Name"), "an engine listing entry")
+    if type(found) is str:
+        return [one.strip().lstrip("/") for one in found.split(",")
+                if one.strip()]
+    if type(found) is list and all(type(one) is str for one in found):
+        return [one.strip().lstrip("/") for one in found if one.strip()]
+    _refuse(f"an engine listing entry names {name_value(found)}; this "
+            f"adapter reads the engines it speaks and guesses at nothing")
+
+
+def _reconciled(engine, run, *, name, image_digest):
+    """What is already answering to this identity, held to the state table.
+
+    W43974, and the whole point of deriving the name. Every uncertain branch
+    refuses, because launching a second helper over an attempt directory a
+    first one may still be walking is the one outcome worse than failing.
+
+      no candidate                       -> launch
+      one candidate, this act's image    -> end it, prove absence, launch
+      one candidate, another image       -> REFUSE
+      more than one candidate            -> REFUSE
+      the listing failed                 -> REFUSE
+
+    A STRANDED HELPER IS ENDED, NEVER ADOPTED, and the reason is structural
+    rather than a preference. A custody answer is the document the helper
+    printed to the stdout THIS manager held; one started by a process that has
+    since died printed to a pipe nobody holds, so its answer is unrecoverable.
+    Attaching to a running container yields what it writes from now on, not
+    what it already said. There is nothing to adopt, and awaiting is the same
+    problem with a delay in front of it.
+
+    Redoing the act is sound because every verb is safe to interrupt and
+    repeat: `normalize` and `discard` are idempotent in effect, and the four
+    reading verbs write nothing.
+    """
+    from .oci import (_LISTED_IMAGE, _absent_prose, _decoded, _denied,
+                      _engine, _image_identity, _one_of, _refuse,
+                      inspect_vector)
+
+    answer = _settled(run, _list_vector(engine, name),
+                      seconds=CUSTODY_RECLAIM_SECONDS,
+                      what="the custody listing")
+    if answer["status"] != 0:
+        _denied(f"the engine could not be asked what is answering to "
+                f"{name_value(name)}: "
+                f"{name_value(answer['stderr'][:MAX_DIAGNOSTIC])}; a custody "
+                f"act does not launch over an attempt directory whose "
+                f"existing helpers this manager could not observe")
+    found = []
+    for line in answer["stdout"].splitlines():
+        if not line.strip():
+            continue
+        entry = _decoded(line, "an engine listing entry")
+        if type(entry) is not dict:
+            _refuse(f"an engine listing entry is one record; this is "
+                    f"{name_value(entry)}")
+        # THE EXACT NAME, decided HERE. The filter returned everything
+        # CONTAINING the identity, which on a busy host includes any stranger
+        # whose name happens to carry it.
+        if name not in _listed_name(entry):
+            continue
+        found.append(entry)
+    if not found:
+        return None
+    if len(found) > 1:
+        _denied(f"the engine reports {len(found)} runtimes named exactly "
+                f"{name_value(name)}; one derived identity names one helper, "
+                f"and a manager that cannot say which of them its predecessor "
+                f"started reclaims neither")
+    runtime_id = _one_of(found[0], ("ID", "Id", "ContainerID"),
+                         "an engine listing entry")
+    boundaries.identity(runtime_id, "a listed runtime id")
+    # THE IMAGE IS ASKED OF `inspect`, NOT OF THE LISTING, and that is a
+    # measured correction rather than a preference. `ps --format {{json .}}`
+    # answers `Image` as the TAG the container was started from --
+    # `baton-w6636-lifecycle:e4cc3eff` on a real daemon -- and a tag is a
+    # pointer that was true when somebody last pushed, which `_image_identity`
+    # refuses outright. The container's own record carries the digest.
+    #
+    # It costs one call and only when a candidate exists: the ordinary act,
+    # which finds nothing, still asks the engine exactly `ps` and `run`.
+    looked = _settled(run, inspect_vector(engine, runtime_id=runtime_id),
+                      seconds=CUSTODY_RECLAIM_SECONDS,
+                      what="the candidate inspection")
+    if looked["status"] != 0:
+        if _absent_prose(_engine(engine), looked["stderr"], runtime_id):
+            # GONE BETWEEN THE TWO QUESTIONS, which is not an error: the
+            # candidate this was going to reclaim reclaimed itself.
+            return None
+        _denied(f"a runtime named exactly {name_value(name)} was listed and "
+                f"this manager could not then observe it: "
+                f"{name_value(looked['stderr'][:MAX_DIAGNOSTIC])}; a helper "
+                f"whose identity cannot be settled is not one to remove and "
+                f"not one to launch beside")
+    document = _decoded(looked["stdout"], "an engine inspection")
+    if type(document) is not dict:
+        _refuse(f"an engine inspection is one record; this is "
+                f"{name_value(document)}")
+    # THE ENGINE'S OWN ACCOUNT OF WHAT IS RUNNING, against this act's image.
+    # A container answering to a name this manager derives, running an image
+    # this manager did not compose, is not this manager's to end -- and it is
+    # the sharper reading of the two, because it means either the derivation
+    # collided with something or somebody took the name deliberately.
+    image = _image_identity(_one_of(document, _LISTED_IMAGE,
+                                    "an engine inspection"),
+                            "the observed helper's image")
+    if image != _image_identity(image_digest, "this act's image"):
+        _denied(f"a runtime named exactly {name_value(name)} is running an "
+                f"image this act did not compose; a name this manager derives "
+                f"is not authority to remove somebody else's container, so "
+                f"this refuses rather than reclaiming")
+    # AND THE INSPECTION'S OWN NAME, against the identity that selected it.
+    # The listing chose this row and the engine is being asked to confirm it
+    # is about the same object -- the rule `OciAdapter.list` states, applied
+    # to the second question rather than only the first.
+    if name not in _listed_name(document):
+        _denied(f"the engine listed {name_value(runtime_id)} as named "
+                f"{name_value(name)} and its own record names it otherwise; "
+                f"a helper this manager cannot identify twice over is not one "
+                f"it removes")
+    return runtime_id
+
+
+def _reclaimed(engine, run, *, name, runtime_id):
+    """End one helper and PROVE it is gone, never merely order it.
+
+    W43974. `--rm` covers the engine's normal completion path and nothing
+    else, so this is the path for every other ending: stop, force-remove,
+    then INSPECT the exact identity and require this engine's own absence
+    sentence to name it.
+
+    AN ACKNOWLEDGEMENT IS NOT ABSENCE. `rm --force` exiting zero says the
+    engine accepted the order; what this manager needs is what is true
+    afterwards, which is the same rule `OciAdapter.stop` is written under. An
+    inspect that neither succeeds nor produces that sentence leaves the
+    reclamation UNRESOLVED, and unresolved refuses.
+    """
+    from .oci import (_absent_prose, _denied, _engine, destroy_vector,
+                      inspect_vector, stop_vector)
+
+    engine = _engine(engine)
+    # THE STOP IS BEST-EFFORT AND THE REMOVAL IS NOT. A helper that already
+    # exited refuses the stop, which is not a failure -- it is the state this
+    # is trying to reach.
+    _settled(run, stop_vector(engine, runtime_id=runtime_id,
+                              seconds=CUSTODY_STOP_SECONDS),
+             seconds=CUSTODY_RECLAIM_SECONDS, what="the stop order")
+    removal = _settled(run, destroy_vector(engine, runtime_id=runtime_id),
+                       seconds=CUSTODY_RECLAIM_SECONDS,
+                       what="the removal order")
+    _proved_absent(engine, run, name=name, runtime_id=runtime_id,
+                   removal_said=removal["stderr"])
+
+
+def _proved_absent(engine, run, *, name, runtime_id, removal_said=None):
+    """The engine's own absence sentence, naming THIS identity, or a refusal.
+
+    Factored out because two different questions need the same proof and
+    neither may settle for anything weaker. After a removal it is "did the
+    order take effect"; after a lost act that listed no candidate it is "is
+    the helper this manager may have launched actually gone" -- and an empty
+    `ps` filter result is engine-side SELECTION rather than an absence, which
+    is the distinction `OciAdapter.list` already draws for the other
+    direction.
+
+    W43974 review (2026-08-30T05:15:08Z) [P1], second half: the pre-launch
+    path can treat an empty listing as "nothing there" because `run --name`
+    fails closed on a conflict if it was wrong. Recovery has no such backstop
+    -- it would simply conclude the helper was reclaimed -- so it asks.
+    """
+    from .oci import MAX_DIAGNOSTIC as _ENGINE_DIAGNOSTIC, _absent_prose, \
+        _denied, _engine, inspect_vector
+
+    looked = _settled(run, inspect_vector(_engine(engine),
+                                          runtime_id=runtime_id),
+                      seconds=CUSTODY_RECLAIM_SECONDS,
+                      what="the absence proof")
+    if looked["status"] == 0 or not _absent_prose(_engine(engine),
+                                                  looked["stderr"],
+                                                  runtime_id):
+        _denied(f"this manager could not prove the helper {name_value(name)} "
+                f"absent"
+                + (f" after ordering its removal (which said "
+                   f"{name_value(removal_said[:_ENGINE_DIAGNOSTIC])})"
+                   if removal_said is not None else "")
+                + f"; an engine acknowledgement is not absence, and a custody "
+                  f"act does not launch over a directory a helper may still "
+                  f"hold")
+
+
+def _custody_vector(engine, *, image_digest, store, assignment_id,
                     operation, which="workspace"):
     """The closed argv that performs ONE custody act, restrictions and all.
 
@@ -536,17 +995,18 @@ def _custody_vector(engine, *, image_digest, name, store, assignment_id,
         _refuse(f"{name_value(image_digest)} is not a sha256 image digest; a "
                 f"custody act runs the image this manager can name exactly",
                 code="digest")
-    boundaries.identity(name, "a custody act name")
-    if not _NAME.fullmatch(name):
-        raise ContractRefusal(
-            "integrity", "schema",
-            f"{name_value(name)} is not a runtime name this build composes")
     operation = check_custody_operation(operation)
     # THE ONE MOUNT AND THE ONE GROUP, both read from durable state in this
     # same act. There is no host path operand and no path-bearing object at
     # all, so a repository, a credential root or an unrelated sibling cannot
     # be selected -- there is nothing to select them WITH.
-    source, gid = _derived_root(store, assignment_id, which)
+    source, gid, recorded = _derived_root(store, assignment_id, which)
+    # W43974: THE NAME IS DERIVED IN THIS SAME ACT, from the same durable read
+    # the mount comes from. It used to arrive as a caller operand -- the one
+    # that had survived nine rounds of removing them -- and a name a caller
+    # chose is a name a restarted manager cannot re-derive, which made the
+    # reclamation this Work owes impossible rather than merely unwritten.
+    name = _custody_identity(recorded, assignment_id, which, operation)
     argv = [engine, "run", "--rm", "--name", name]
     for flag, value in _CUSTODY_RESTRICTIONS:
         argv.append(flag)
@@ -568,7 +1028,12 @@ def _custody_vector(engine, *, image_digest, name, store, assignment_id,
              f"type=bind,source={source},target={CUSTODY_ROOT},readonly=false"]
     argv += ["--entrypoint", "python3", image_digest,
              "-c", CUSTODY_PROGRAM, operation]
-    return argv
+    # THE NAME COMES BACK BESIDE THE ARGV, and it is neither path-bearing nor
+    # executable. `custody_act` needs it before the run to reconcile what may
+    # already be answering to it, and deriving it twice would be two places
+    # that must agree. It does not cross to a caller: this function is private
+    # and has exactly one.
+    return argv, name
 
 
 class CustodyAnswer:
@@ -583,7 +1048,14 @@ class CustodyAnswer:
 
     Immutable for the ordinary reason every answer in this package is: an
     answer somebody can edit is an account of what happened that disagrees
-    with what happened.
+    with what happened. Review (2026-08-30T04:07:53Z) [P1]: immutable ALL THE
+    WAY DOWN, because a frozen outer mapping over live nested lists and
+    records is an answer somebody can edit with one more subscript.
+
+    AND IT IS TYPED, not merely present. The same review found that a zero
+    exit plus any JSON object at all was reported as custody, so `ok` now
+    requires the document to be the requested verb's own result in the shape
+    that verb answers -- see `_accountable`.
 
     NO PUBLIC CONSTRUCTOR, and it is the same rule the capabilities in this
     package are under rather than a shape chosen for tidiness: an answer is
@@ -592,7 +1064,8 @@ class CustodyAnswer:
     is called in exactly one place -- at the end of the act it describes.
     """
 
-    __slots__ = ("_operation", "_status", "_answer", "_diagnostic")
+    __slots__ = ("_operation", "_status", "_answer", "_rendered",
+                 "_unaccounted", "_diagnostic")
 
     def __setattr__(self, name, value):
         raise AttributeError(
@@ -608,18 +1081,56 @@ class CustodyAnswer:
 
     @property
     def status(self):
-        """The engine's exit status for the act."""
+        """The engine's exit status for the act, or `None`.
+
+        W43974: `None` means the wait ended without an engine answer at all --
+        the injected run capability's own deadline, a killed client -- and the
+        helper was reclaimed by its derived identity before this was minted.
+        It is never `ok`, and the diagnostic says what ended it.
+        """
         return self._status
 
     @property
     def answer(self):
-        """The custodian's own document, read-only, or `None`.
+        """The custodian's document, RECURSIVELY read-only, or `None`.
 
-        `None` means the act did not produce one this manager could read --
-        which is a fact about the act and never a reason to guess at what it
-        did.
+        `None` means the act produced no document this manager could account
+        for -- unreadable, or readable and not one of the two things the
+        program it ran is able to say. That is a fact about the act and never
+        a reason to guess at what it did; `unaccounted` names which.
+
+        W36540 review (2026-08-30T04:07:53Z) [P1]: a `MappingProxyType` froze
+        only the OUTER mapping, so `answer["running_as"][0] = 0` succeeded and
+        the retained account disagreed with what the custodian reported. Every
+        level is frozen now -- see `_frozen`.
         """
         return self._answer
+
+    @property
+    def rendered(self):
+        """The canonical serialization of that document, or `None`.
+
+        One string, produced from the parsed document at mint time and never
+        recomputed, so what a caller reads back is what this act accounted
+        for. It exists because a read-only VIEW cannot be handed to
+        `json.dumps` -- a `mappingproxy` is not a `dict` -- and a caller that
+        rebuilt one to serialize it would be re-deriving the account instead
+        of quoting it.
+        """
+        return self._rendered
+
+    @property
+    def unaccounted(self):
+        """Why no document was accepted, in this module's words, or `None`.
+
+        AUTHORED HERE, NOT QUOTED FROM THE ACT. A custodian document that does
+        not match the requested verb and shape is not partially believed: none
+        of it becomes `answer`, and what a reader gets instead is this
+        module's own statement of what it could not account for. The act's own
+        stderr stays separately in `diagnostic`, so the two provenances never
+        blur.
+        """
+        return self._unaccounted
 
     @property
     def diagnostic(self):
@@ -628,31 +1139,117 @@ class CustodyAnswer:
 
     @property
     def ok(self):
-        """The act ended cleanly AND said what it did.
+        """The act ended cleanly AND said what it did AND said THIS.
 
-        Both halves, because a zero exit with no readable answer is an act
-        this manager cannot account for, and custody that cannot be accounted
-        for is not custody.
+        Three halves now, and the third is the review's finding. A zero exit
+        with no readable answer is an act this manager cannot account for; so
+        is a zero exit carrying a document about some other verb, or one
+        missing the members its own verb answers. Custody that cannot be
+        accounted for is not custody, and an account of a different act is not
+        an account of this one.
         """
-        return self._status == 0 and self._answer is not None
+        return (self._status == 0 and self._answer is not None
+                and self._answer["custody"] == self._operation)
 
     def __repr__(self):
         return (f"CustodyAnswer(operation={self._operation!r}, "
                 f"status={self._status!r}, ok={self.ok!r})")
 
 
+def _frozen(value):
+    """One JSON value, made read-only ALL THE WAY DOWN.
+
+    W36540 review (2026-08-30T04:07:53Z) [P1]. `MappingProxyType` protects
+    assignment to the mapping it wraps and nothing inside it, so every list
+    and dictionary the custodian nested stayed live in the holder's hands.
+
+    A LIST BECOMES A TUPLE RATHER THAN A GUARDED LIST, and that choice is this
+    record's own rule applied to itself. A `list` subclass that refuses its
+    mutators would compare equal to a list and serialize as one -- and
+    `list.append(frozen, x)` reaches straight past it, exactly as
+    `object.__setattr__` reached past six representations of `AllocatedRoots`
+    in rounds one to six. A tuple has no such door. The cost is that a frozen
+    sequence no longer equals the list it came from, which is a real change to
+    what a reader compares against and is preferable to a defence this Work
+    has already been taught not to accept.
+
+    The mapping this wraps is built fresh here and is referenced by nothing
+    else, so the proxy is not a window onto an object somebody still holds.
+    """
+    if type(value) is dict:
+        return MappingProxyType({name: _frozen(one)
+                                 for name, one in value.items()})
+    if type(value) is list:
+        return tuple(_frozen(one) for one in value)
+    return value
+
+
+def _accountable(operation, document):
+    """The document this act may be accounted for by, and why not if not.
+
+    Answers `(document, None)` when it is one of the two things
+    `CUSTODY_PROGRAM` can print for this act -- the requested verb's own
+    result, or the custodian's typed refusal -- and `(None, why)` otherwise.
+
+    HELD TO A CLOSED MEMBER SET, exactly as the task and launch documents in
+    this build are, rather than to "has the members I am about to read". A
+    document with an unexpected member is a document from a program that is
+    not the one this module ships, and reading the recognised parts out of it
+    is how a manager ends up accounting for an act it did not understand.
+    """
+    if document is None:
+        return None, "the act printed no document this manager could read"
+    verb = document.get("custody")
+    if verb == _CUSTODY_REFUSED:
+        shape, what = _CUSTODY_REFUSAL, "a custodian refusal"
+    elif verb == operation:
+        shape, what = _CUSTODY_RESULT[operation], f"a {operation} result"
+    else:
+        return None, (
+            f"the act answered for {name_value(verb)} and this manager asked "
+            f"for {name_value(operation)}; an account of a different act is "
+            f"not an account of this one")
+    missing = sorted(one for one in shape if one not in document)
+    extra = sorted(one for one in document
+                   if one != "custody" and one not in shape)
+    if missing or extra:
+        return None, (
+            f"the act's document is not {what}"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    for one, expected in shape.items():
+        if type(document[one]) is not expected:
+            return None, (
+                f"the act's {name_value(one)} is not the {expected.__name__} "
+                f"{what} answers")
+    if verb != _CUSTODY_REFUSED and (
+            len(document["running_as"]) != 2
+            or any(type(one) is not int for one in document["running_as"])):
+        return None, ("the act did not say which identity it ran as, and an "
+                      "act whose custodian identity is unstated is one this "
+                      "manager cannot attribute")
+    return document, None
+
+
 def _answered(operation, status, answer, diagnostic):
     """Mint the one answer for one act. Private, and called in one place."""
+    import json
+
+    accounted, why = _accountable(operation, answer)
     made = object.__new__(CustodyAnswer)
     object.__setattr__(made, "_operation", operation)
     object.__setattr__(made, "_status", status)
     object.__setattr__(made, "_answer",
-                       None if answer is None else MappingProxyType(answer))
+                       None if accounted is None else _frozen(accounted))
+    object.__setattr__(made, "_rendered",
+                       None if accounted is None
+                       else json.dumps(accounted, sort_keys=True))
+    object.__setattr__(made, "_unaccounted", why)
     object.__setattr__(made, "_diagnostic", diagnostic)
     return made
 
 
-def custody_act(engine, run, *, image_digest, name, store, assignment_id,
+def custody_act(engine, run, *, image_digest, store, assignment_id,
                 operation, which="workspace"):
     """ONE CUSTODY ACT, PERFORMED -- lookup, composition, execution, answer.
 
@@ -675,17 +1272,117 @@ def custody_act(engine, run, *, image_digest, name, store, assignment_id,
     status, the custodian's document and a bounded diagnostic; it carries no
     host path and no command vector, so nothing a caller holds afterwards can
     select a directory or run anything.
+
+    AND THE DOCUMENT IS HELD TO THE VERB THAT WAS ASKED FOR. Review
+    (2026-08-30T04:07:53Z) [P1]: the exit status and the mere presence of JSON
+    were the whole of `ok`, so an act that answered about a different verb, or
+    left out the members its own verb reports, was accounted for as custody.
+    `_accountable` decides that before anything can be `ok`, and `_frozen`
+    makes what is retained read-only all the way down.
     """
     from .oci import EnginePort
 
     port = run if type(run) is EnginePort else EnginePort(run)
-    argv = _custody_vector(engine, image_digest=image_digest, name=name,
-                           store=store, assignment_id=assignment_id,
-                           operation=operation, which=which)
-    answered = port(argv)
+    argv, name = _custody_vector(engine, image_digest=image_digest,
+                                 store=store, assignment_id=assignment_id,
+                                 operation=operation, which=which)
+    # W43974: WHAT IS ALREADY ANSWERING TO THIS IDENTITY, decided before
+    # anything launches. `--rm` reclaims on the engine's normal completion
+    # path and on no other, so a manager or client that died mid-act left a
+    # helper this build never looked for -- and could not have looked for,
+    # because the name was the caller's.
+    stranded = _reconciled(engine, port, name=name, image_digest=image_digest)
+    if stranded is not None:
+        _reclaimed(engine, port, name=name, runtime_id=stranded)
+    try:
+        # THE ACT'S OWN CALL IS NOT WRAPPED BY `_settled`, because its
+        # failure is not a refusal -- it is the lost ending that recovery and
+        # the typed answer below exist for. What `_settled` gives the
+        # reclamation steps is the conversion into a refusal; here the raw
+        # ending is what decides.
+        answered = port(argv, seconds=CUSTODY_ACT_SECONDS)
+    except BaseException as failed:
+        # EVERY ENDING THAT IS NOT AN ENGINE ANSWER GOES THROUGH RECOVERY, and
+        # the exception's CLASS decides nothing about whether the helper ran.
+        #
+        # W43974 review (2026-08-30T05:15:08Z) [P1]: the first round treated a
+        # `ContractRefusal` as proof that invocation never happened and
+        # re-raised it untouched. `EnginePort.__call__` invokes the injected
+        # capability and validates the answer AFTERWARDS, so a malformed
+        # engine answer is a refusal that arrives with the helper already
+        # launched. A pre-invocation refusal is harmless here anyway: recovery
+        # finds nothing and does nothing.
+        #
+        # RECOVERY MAY ITSELF REFUSE and that refusal propagates. An unproved
+        # or contradicted absence is exactly the state a caller must not be
+        # told is a completed act.
+        observed = _recovered(engine, port, name=name,
+                              image_digest=image_digest)
+        if not isinstance(failed, Exception) or isinstance(failed,
+                                                           ContractRefusal):
+            # A REFUSAL IS THIS MANAGER'S OWN JUDGEMENT and is reported as
+            # one; `KeyboardInterrupt` and `SystemExit` are the operator
+            # ending the process and are not this module's to swallow into an
+            # answer. Review [P1]: the first round caught `BaseException` and
+            # turned both into a typed result. The helper is reclaimed either
+            # way -- that part is not conditional.
+            raise
+        # THE TYPE NAME AND NOT THE TEXT. An exception's message is composed
+        # by whoever raised it, which here is the caller's own injected
+        # capability, and this manager's account of an act does not quote
+        # material it did not author.
+        # UNRESOLVED, AND IT SAYS SO. W43974 review (2026-08-30T05:44:32Z)
+        # [P0]: this used to answer "its helper was reclaimed", which claimed
+        # a property the CLI boundary cannot supply -- the daemon's
+        # already-accepted request can create the derived name after any
+        # observation this manager takes. What is true is what was observed
+        # and removed at one instant, and that a submitted operation may still
+        # land; a caller told "reclaimed" would stop looking.
+        return _answered(operation, None, None,
+                         f"UNRESOLVED: the act produced no engine answer "
+                         f"({type(failed).__name__}); {observed}, and an "
+                         f"engine operation already submitted may still "
+                         f"create it, so this is not an absence proof. The "
+                         f"identity is derivable and a later act reclaims "
+                         f"what appears")
     return _answered(operation, answered["status"],
                      _custodian_document(answered["stdout"]),
                      answered["stderr"][-MAX_DIAGNOSTIC:])
+
+
+def _recovered(engine, run, *, name, image_digest):
+    """Reclaim what is THERE after a lost act, and prove nothing about later.
+
+    W43974 review (2026-08-30T05:15:08Z) [P1]: the first round called
+    `_reclaimed` with the derived NAME as the runtime id, so it ordered a stop
+    and a force-remove against whatever answered to that name without ever
+    identifying it. This asks the same question the launch did -- list, match
+    the exact name, inspect, hold the image and the name -- and removes only a
+    candidate identified as THIS act's helper.
+
+    W43974 review (2026-08-30T05:44:32Z) [P0]: AND IT NO LONGER PROVES
+    ABSENCE, because on this path an absence proof is not a proof. Docker is
+    client/server. `subprocess.run(timeout=)` terminates and reaps the local
+    CLI, which is all it can do and all this module ever had a right to claim;
+    the daemon's already-accepted request is a different process and may still
+    create the derived name afterwards. An inspect taken at this instant would
+    therefore be true when it was taken and false a moment later, and custody
+    would have reported a recovery that had not happened.
+
+    So what this does is bounded and honest: it removes a helper that IS
+    there, and it says nothing about one that may yet be. `custody_act`
+    answers UNRESOLVED either way -- see there -- and the derived identity is
+    what makes a later manager able to finish the job.
+
+    THE PROPERTY THIS CANNOT PROVIDE is named rather than approximated: a
+    provider that can settle or CANCEL the engine-side operation, not merely
+    reap its local client. The CLI cannot, and W44342 carries that work.
+    """
+    stranded = _reconciled(engine, run, name=name, image_digest=image_digest)
+    if stranded is not None:
+        _reclaimed(engine, run, name=name, runtime_id=stranded)
+        return "a helper found under this identity was removed"
+    return "no helper was answering to this identity when it was asked"
 
 
 def _custodian_document(stdout):

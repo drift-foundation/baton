@@ -36,6 +36,33 @@ Verification:
 - `just test-v11` — 3,323 main tests and 54 adversarial/PTY tests passed;
   the ACP bridge gate also passed 89 tests.
 - `git diff --check` — clean across the shared dirty checkout.
+- `git diff --check` — clean across the shared dirty checkout.
 
 State: implementation is complete and awaits independent review. No deploy or
 managed-stack restart was performed by this Work episode.
+
+2026-08-30 — `baton.tuner` completed the first-review correction. A rejected
+post-terminal `readThread()` now creates a transient
+`statusRefreshFailure`: control status reports `unknown`, runtime reports
+`retrying`, lifecycle health and delivery fail closed, queued/in-flight
+readiness identities remain retained, and bounded rereads continue until an
+authoritative status arrives. Reusable `idle` clears the transient fence;
+terminal or unrecognized loaded status enters the existing sticky failure.
+The completion-before-`turn/start` race uses the same fence and cannot flush
+cached pre-turn `idle`; an older in-flight retry also cannot overwrite a newer
+authoritative status notification. Existing orphan and quarantine failures
+remain the stronger runtime diagnosis while status reconciliation proceeds.
+
+Operator documentation now distinguishes transient status uncertainty from
+sticky `systemError` and names the `statusRefreshFailure` control row.
+
+Verification after the correction:
+
+- `node tools/codex-event-bridge/test/system_error_target.test.mjs` — 9 passed.
+- focused system-error plus failed-turn-settlement tests — passed.
+- `npm test` in `tools/codex-event-bridge` — 430 passed.
+- `just test-v11` — 3,323 main tests and 54 adversarial/PTY tests passed;
+  the ACP bridge gate also passed 89 tests.
+
+State: first-review correction is complete and awaits a second independent
+review. No deploy or managed-stack restart was performed by this Work episode.
