@@ -809,9 +809,19 @@ def test_the_release_ships_every_lifecycle_template():
 	body = open(os.path.join(REPO, "tools", "deploy_work.py"),
 	            encoding="utf-8").read()
 	for name in ("conf/codex-event-bridge.template.json",
+	             "conf/acp-bridge.template.json",
 	             "conf/acp-claude.template.json",
 	             "conf/acp-gemini.template.json"):
 		assert name in body, name
+
+
+def test_every_acp_lifecycle_template_selects_the_two_hour_turn_deadline():
+	for name in ("acp-bridge.template.json",
+	             "acp-claude.template.json",
+	             "acp-gemini.template.json"):
+		document = json.loads(open(os.path.join(REPO, "conf", name),
+		                           encoding="utf-8").read())
+		assert document["turnTimeoutMs"] == 7200000, name
 
 
 def test_the_setup_documentation_explains_the_acp_boundary():

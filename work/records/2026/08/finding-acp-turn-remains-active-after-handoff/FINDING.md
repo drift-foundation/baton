@@ -101,3 +101,30 @@ operator-selected `turnTimeoutMs`; the installed bridge and launcher match the
 reviewed process-domain boundary; the exact service-context preflight passes;
 the old process domain is positively gone; and one live smoke shows the
 preserved next canonical offer delivered without duplicate claim.
+
+## Turn deadline policy — approved 2026-08-29
+
+Set `turnTimeoutMs` to **7200000 milliseconds (two hours)** in every shipped
+repository ACP lifecycle template and in the Baton deployment rendered from
+those templates.
+
+One hour is too aggressive for this deployment: legitimate observed Claude
+turns have exceeded an hour. Two hours preserves those turns while placing a
+finite wall-clock bound on a permanently wedged provider turn. This value is
+explicit v11 deployment policy, not a protocol default and not a v12 worker
+deadline. Streamed activity does not extend it. Changing it later is an
+operator policy revision, never an inferred adapter behavior.
+
+## Tuner implementation revalidation — 2026-08-29
+
+**Confirmed:** the approved boundary remains current. The bridge requires a
+positive, bounded `turnTimeoutMs` with no default, and no later decision
+supersedes the two-hour deployment policy. Before this change, the generic,
+Claude, and Gemini repository lifecycle templates still omitted that required
+member.
+
+**Implemented by `baton.tuner`:** all three lifecycle templates now select
+`turnTimeoutMs=7200000`, and the lifecycle acceptance suite pins both the
+complete shipped template set and that exact value. This change does not
+modify the bridge recovery mechanism, infer completion from Work handoff, or
+mutate the live service, rendered configuration, or process domain.

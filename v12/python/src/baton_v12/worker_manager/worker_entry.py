@@ -137,7 +137,22 @@ ENDINGS = ("answered", "faulted", "lost")
 # The channel capability's own surface, written out for the reason every port
 # in this package writes one out: a member discovered missing halfway through a
 # conversation is discovered after frames have already been sent.
-CHANNEL_MEMBERS = ("send", "receive", "finish")
+#
+# `close_input` IS A SEPARATE MEMBER FROM `finish`, and review [P1] is why it
+# has to be. A conversation cannot be shown to be closed until the peer's
+# stdout has reached EOF -- and the peer's stdout does not reach EOF until its
+# stdin does, because the worker's loop ends on a clean end of input. So the
+# send side has to close FIRST, then stdout is drained, and only then is the
+# session waited on. Folding the close into `finish` would make those three
+# one act and leave nowhere to observe what arrived in between; doing it in
+# the other order deadlocks against a real worker.
+CHANNEL_MEMBERS = ("send", "receive", "close_input", "finish")
+
+# How many surplus bytes are read before this transport stops asking. A peer
+# that keeps writing is not one to keep reading from, and the CONCLUSION is
+# already fixed by the first byte -- this bound only decides how much of a
+# hostile stream is drained before the session is waited on.
+MAX_SURPLUS = MAX_FRAME
 
 # What a finished channel answers. `status` is the exec session's own ending --
 # the WORKER's, not the container's, because an exec session is a process and
@@ -206,7 +221,22 @@ class _Reader:
         self._held = b""
 
     def _more(self):
-        piece = self._channel.receive(4096)
+        """One more read, and EVERY way it can fail is a `_Lost`.
+
+        Review [P1]: this called `receive` outside any exception boundary, so a
+        channel enforcing the caller's own `seconds` bound by raising
+        `TimeoutError` escaped `converse` unchanged -- past the three closed
+        endings, past the `finish` that ends the session, and out to a caller
+        that was promised peer behaviour always answers one of them.
+        `ChannelPort` deliberately hands the deployment that bound, so a
+        channel raising when it expires is the ORDINARY implementation of the
+        contract rather than a broken one.
+        """
+        try:
+            piece = self._channel.receive(4096)
+        except Exception as failed:                        # noqa: BLE001
+            raise _Lost(f"the channel's receive failed: "
+                        f"{type_name_of(failed)}") from None
         if type(piece) is not bytes:
             raise _Lost(f"the channel answered {name_value(piece)} where this "
                         f"transport reads bytes")
@@ -237,15 +267,53 @@ class _Reader:
         body, self._held = self._held[:length], self._held[length:]
         return body
 
-    def trailing(self):
-        """Whatever is left after the last answer this manager asked for.
+    def surplus(self):
+        """How many bytes the worker wrote that this conversation never asked
+        for -- INCLUDING the ones it had not written yet.
 
-        A worker that wrote MORE than it was asked has not answered this
-        conversation -- it has said something nobody can match to a request --
-        so the conversation is lost rather than quietly truncated at the last
-        frame that happened to correlate.
+        Review [P1]: this used to be `trailing()`, which answered only what was
+        already BUFFERED when the last expected frame was parsed. A peer that
+        returned the one correlated answer and made a second frame available on
+        the NEXT read therefore passed: nothing read again, nothing established
+        EOF, and `finish` reported only a status -- so an unsolicited frame sat
+        unread while the session was reported `answered`. That is a false clean
+        ending at the least trusted boundary this manager has, and it
+        contradicted this module's own stated rule.
+
+        So the stream is READ to its end. The caller closes the send side
+        first; a worker whose stdin has ended finishes its loop and closes
+        stdout, so EOF here is the peer's own ending rather than a timeout.
+
+        BOUNDED, because a peer that keeps writing must not keep this reading.
+        The answer counts BYTES rather than carrying them: what a caller
+        decides is whether there was surplus at all, and keeping unsolicited
+        container output around to put in a diagnostic is how it ends up in a
+        log.
+
+        ANSWERS `(bytes, why)`, and review [P1] is why it is two values rather
+        than one. This returned a count and turned every drain failure into
+        `1` -- so a timeout while draining was reported as "the worker wrote 1
+        byte", which is a fabricated measurement. A timeout IS loss and it is
+        NOT evidence that any byte was written, and a transport that cannot
+        tell those apart is inventing the more alarming of the two. `why` is
+        `None` when the drain reached a real EOF, and names the failure
+        otherwise; the count is only ever bytes actually read.
         """
-        return self._held
+        seen = len(self._held)
+        self._held = b""
+        while seen <= MAX_SURPLUS:
+            try:
+                piece = self._channel.receive(4096)
+            except Exception as failed:                    # noqa: BLE001
+                return seen, (f"the channel's receive failed while draining "
+                              f"to its end: {type_name_of(failed)}")
+            if type(piece) is not bytes:
+                return seen, (f"the channel answered {name_value(piece)} "
+                              f"where this transport reads bytes")
+            if not piece:
+                return seen, None
+            seen += len(piece)
+        return seen, None
 
 
 def converse(channel_port, *, engine, runtime_id, program, session,
@@ -348,13 +416,35 @@ def converse(channel_port, *, engine, runtime_id, program, session,
                 # that unclean would report a working container as a lost one.
                 ending, why = "faulted", answer["message"]
                 break
-        else:
-            left = reader.trailing()
-            if left:
-                raise _Lost(f"the worker wrote {len(left)} bytes this "
-                            f"conversation did not ask for")
     except _Lost as lost:
         ending, why = "lost", str(lost)
+    # THE SEND SIDE CLOSES HERE, ON EVERY PATH, and before anything else is
+    # concluded. It is what lets the worker end its own loop, so the drain
+    # below reads to a real EOF instead of waiting on a peer that is waiting
+    # on us. A close this manager cannot perform is itself a loss: the session
+    # cannot be shown to have ended.
+    if not _closed_input(channel) and ending != "lost":
+        ending, why = "lost", "the channel's send side could not be closed"
+    if ending != "lost":
+        # SURPLUS IS CHECKED ON THE ANSWERED PATH AND THE FAULTED ONE. After a
+        # fault this conversation sent nothing further, so anything the worker
+        # wrote afterwards is exactly as unsolicited as it would have been
+        # after a success -- and a peer saying things nobody asked for is a
+        # channel this manager cannot conclude from, whichever way the last
+        # request went.
+        surplus, undrained = reader.surplus()
+        if surplus:
+            # WHAT WAS MEASURED, and it is measured whether or not the drain
+            # then failed: bytes this conversation did not ask for are the
+            # stronger fact and are stated first.
+            ending = "lost"
+            why = (f"the worker wrote {surplus} byte(s) this conversation did "
+                   f"not ask for")
+        elif undrained is not None:
+            # A CHANNEL THAT COULD NOT BE DRAINED TO ITS END is a session this
+            # manager cannot show ended, and saying so is different from
+            # claiming the worker wrote something.
+            ending, why = "lost", undrained
     finished = _finished(channel)
     if finished is None:
         return {"ending": "lost",
@@ -466,6 +556,21 @@ def _closed(document, members, what):
             f"{what} is exactly {', '.join(members)}"
             + (f"; missing {', '.join(missing)}" if missing else "")
             + (f"; unexpected {', '.join(extra)}" if extra else ""))
+
+
+def _closed_input(channel):
+    """End the request side of the channel, and say whether it ended.
+
+    Separate from `_finished` because the ORDER is the content: the worker's
+    loop returns on a clean end of input, so its stdout cannot reach EOF until
+    this has happened. A transport that waited for the peer first would be
+    waiting for something it had not allowed to occur.
+    """
+    try:
+        channel.close_input()
+    except Exception:                                      # noqa: BLE001
+        return False
+    return True
 
 
 def _finished(channel):

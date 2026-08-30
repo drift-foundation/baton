@@ -635,6 +635,15 @@ whose prerequisites have closed are actionable.
      fix false-success defects and record deferred concerns; require `harden`
      to preserve accepted capability or request plan revision before redesign.
      Keep `tuner` distinct and do not encode provider fallback as `impl2`.
+28b. [confirmed 2026-08-29; pooled scheduling and affinity] Treat route intents
+     and future label-selected policies as eligibility inputs, not exclusive
+     participant partitions. Select offers from the full eligible worker pool;
+     prefer a participant/runtime with useful prior Work, dossier, repository,
+     or revision-cycle context, but fall back after a bounded offer window so
+     affinity never strands Work or leaves compatible capacity idle. Preserve
+     one named recipient per offer, one successful atomic claim, no movement
+     beneath a live Handler, and hard participant/model separation only for an
+     explicitly requested independent opinion.
 27d. [applied 2026-08-28; W6636 capability pass] W6636 closed satisfying as
      the bounded one-container Docker capability proof. W32382 owns the
      deferred negative/race endings; W32385 owns exact ended-runtime restart
@@ -663,3 +672,13 @@ whose prerequisites have closed are actionable.
     materializer, locator, compatibility, projection, and generated-navigation
     follow-up. This does not gate W38956, but must land before the v12 dossier
     materializer and binding contract freeze.
+31. [confirmed 2026-08-29; W39649; later M4 hardening] Normalize worker telemetry and
+    introspection through the existing provider-neutral `probe`/`inquire`
+    boundary. Use stable ACP usage/capability updates for ACP agents, Codex App
+    Server's structured status/usage/account/quota/model/failure surfaces for
+    Codex, and explicit unknowns for less capable agents. Never scrape terminal
+    `/status` output or turn telemetry into workflow authority. The top-level
+    `work/records/2026/08/finding-worker-telemetry-introspection/` record owns
+    this follow-up. Its descriptive Job title deliberately omits a `V12`
+    prefix; label `v12` is the future campaign organizer. It does not gate
+    W38956.

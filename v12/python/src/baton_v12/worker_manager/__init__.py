@@ -104,6 +104,30 @@ from .schema import (CUSTODY, DISPOSITIONS, OUTPUT_STATUSES, OUTPUT_TYPES,
 from .store import (ControlStore, manager_signature, revive_refusal,
                     seal_refusal)
 
+# W39356 review [P2] asked this to be decided explicitly rather than left
+# ambiguous, so it is decided and written down here.
+#
+# NEITHER `exec_vector` NOR `converse` IS EXPORTED. The transport is a
+# COMPONENT and is reached as one -- `from baton_v12.worker_manager import
+# worker_entry` -- which is how every other component in this package is
+# reached: `oci`, `launch`, `credentials`, `custody`, `sealing`, `documents`.
+# No vector is exported anywhere here either, because a vector is how a
+# component composes an argv for itself.
+#
+# THE REASON IS THE COMPONENT BOUNDARY, AND NOTHING ELSE. Re-review [P2]: this
+# note used to add that exporting `converse` would additionally require
+# widening the shared declared-operand vocabulary, and that the widening was
+# outside this checkpoint. That was true when it was written and the SAME
+# checkpoint then made it false -- `network`, `interactive`, `program`,
+# `channel_port`, `operations` and `operation_ids` are all declared now,
+# because `test_dependencies` scans the package source rather than `__all__`
+# and had caught them regardless of any export. So no registry work stands
+# between here and exporting `converse`; what stands there is that a component
+# is reached as a component.
+#
+# Two adjacent owned records saying opposite things is worse than either --
+# the later reader decides against a state that never existed -- so the stale
+# half is removed rather than annotated.
 __all__ = ["CUSTODY", "KEEPS_MATERIAL", "LANE_PARTS",
            "WorkspaceGroup", "configure_workspace_group",
            "configured_workspace_group",

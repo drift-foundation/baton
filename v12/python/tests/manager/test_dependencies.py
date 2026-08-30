@@ -474,6 +474,13 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # one of them -- `ROOT_NAMES` says what a container may MOUNT, and
         # custody is what the worker must not reach after the freeze.
         "custody",
+        # W36540 review [P0], round ten: the ENGINE PORT a custody act runs
+        # through. `custody_act` performs its own act rather than returning a
+        # vector for somebody else to execute, so the capability that reaches
+        # the world has to arrive as an operand -- it is the one crossing the
+        # act makes, exactly as `list` and `observe` are above, and the same
+        # name `OciAdapter` already takes it under.
+        "run",
         # W6629 review [P1]: the two frozen commands this manager issues. The
         # adapter seam used to take a bare runtime id, so the whole body that
         # AUTHORIZES a destroy stopped at the boundary; `command` is that body
@@ -643,6 +650,49 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # A rule with two implementations agrees with itself until it doesn't,
         # so there is one of each and both boundaries call it.
         "place",
+        # W38956/W39356: the two explicit start operands and the worker-entry
+        # transport's four. This gate CAUGHT them -- the transport round ran
+        # its own suite and `test_oci` and not this one, so six new public
+        # parameters reached the package undeclared, which is exactly the
+        # "fixing the two functions a review names" failure the class docstring
+        # is about. Each is a claim, made deliberately:
+        #
+        #   `network`      WHICH engine network a runtime joins. A deployment
+        #                  decision about this assignment's isolation, and the
+        #                  one substitutable value in the restriction table --
+        #                  not bookkeeping, and deliberately not a general
+        #                  engine-flag operand.
+        #   `interactive`  WHETHER this runtime's stdin is held open so the
+        #                  worker-entry channel can be spoken to it. A property
+        #                  of the delivery, decided per assignment.
+        #   `program`      the worker-entry program INSIDE the image. `docker
+        #                  exec` applies no entrypoint, so the party that
+        #                  resolved the image supplies it; it is a fact about
+        #                  the artefact, like `image_digest` beside it.
+        #   `channel_port` the injected capability that opens one framed
+        #                  session -- the transport's `EnginePort`, and an
+        #                  injected capability is an operand here exactly as
+        #                  `mint_bearer` and `credential_provider` are.
+        #   `operations`   WHICH worker-entry operations this conversation
+        #                  asks for, in order. The manager's own plan for the
+        #                  turn rather than state the transport keeps.
+        #   `operation_ids` the manager's effectively-once identities for
+        #                  those operations, one each. Named apart from the
+        #                  singular `operation_id` on purpose: a conversation
+        #                  spends several, the worker consumes each exactly
+        #                  once, and one name for the two contracts is how a
+        #                  replay becomes indistinguishable from a first
+        #                  attempt.
+        "network", "interactive", "program", "channel_port", "operations",
+        "operation_ids",
+        # `workspace_storage` WAS DECLARED HERE AND IS GONE AGAIN, which is
+        # worth a line rather than a silent deletion. W36540's eighth round
+        # added it as a capability operand of the custody mint; its ninth
+        # round removed the operand entirely, because a capability minted from
+        # durable state and then HELD is still a path `object.__setattr__` can
+        # change before it is read. The composition opens the record itself
+        # now, so there is no operand to declare -- and this gate's
+        # stale-declaration half is what caught the leftover.
     }
 
     # Names that are BOOKKEEPING whatever they are attached to. This is the

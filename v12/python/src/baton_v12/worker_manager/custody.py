@@ -58,14 +58,30 @@ re-derive.
 import os
 import re
 import stat
+from types import MappingProxyType
 
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from . import boundaries
 
+# W36540 review [P0], round nine: `CustodyRoot` and `attempt_custody_root` are
+# GONE from the surface rather than hardened again. Both were path-bearing
+# objects a caller held between the authenticated lookup and the use, and every
+# defence over nine rounds was a defence on the wrong side of that interval.
+# There is no interval now: `custody_act` reads the durable record, composes
+# the argv and runs it in one act.
+#
+# W36540 review [P0], round ten: `custody_vector` is GONE from the surface for
+# the same reason `CustodyRoot` was. Returning the composed argv put the
+# authenticated bind source in a caller-held mutable list between the durable
+# lookup and the engine use -- the same interval, one layer further out, and a
+# frozen argv would not have closed it either, because a caller holding a path
+# can compose its own vector. `custody_act` performs the act: it looks up,
+# composes, RUNS and answers, and what comes back is an answer rather than a
+# capability.
 __all__ = ["CUSTODY_OPERATIONS", "CUSTODY_ROOT", "CUSTODY_PROGRAM",
-           "CustodyRoot", "attempt_custody_root", "check_custody_operation",
-           "custody_vector"]
+           "CUSTODY_ROOTS", "CustodyAnswer", "check_custody_operation",
+           "custody_act"]
 
 
 # THE CLOSED VOCABULARY, exactly M36166's six.
@@ -344,118 +360,43 @@ if verb == "discard":
 '''
 
 
-_MINT = object()
-
-
-class CustodyRoot:
-    """ONE directory a custody act may be performed on, as a CAPABILITY.
-
-    Review [P0]: the vector took a raw absolute host path and applied only
-    `realpath`. Every caller supplied the whole assignment HOME, whose
-    siblings are `credentials`, `credential-state`, `inputs` and the launch
-    root -- and my own probe transcript listed those four in the helper's
-    `inspect` answer. Skipping what the helper does not own is NOT absence: a
-    different typed operation, or a bug in this program, still reads whatever
-    the mount exposes, and the pinned boundary is that they are unreachable.
-
-    So a custody root is MINTED from the assignment layout this manager
-    established, never named by a caller. There is no constructor a caller can
-    reach -- the same rule W33936's `WorkspaceGroup` is under, for the same
-    reason: a path a caller can name is a path a caller chose.
-    """
-
-    __slots__ = ("place", "which")
-
-    def __init__(self, place, which, _minted=None):
-        if _minted is not _MINT:
-            raise ContractRefusal(
-                "policy", "denied",
-                "a custody root is minted from this manager's own assignment "
-                "layout and is not constructed; a root a caller can mint is a "
-                "root a caller chose")
-        object.__setattr__(self, "place", place)
-        object.__setattr__(self, "which", which)
-
-    def __setattr__(self, name, value):
-        raise ContractRefusal("integrity", "schema",
-                              "a custody root is immutable")
-
-    def __repr__(self):
-        return f"CustodyRoot({self.which}={self.place!r})"
-
-
-# THE ONLY TWO DIRECTORIES A CUSTODY ACT MAY TOUCH, and they are the two the
+# THE TWO DIRECTORIES A CUSTODY ACT MAY TOUCH, and they are the two the
 # acceptance names: the attempt's exact workspace and its result directory.
 # Never their parent, which is the assignment home and holds the deliveries.
 CUSTODY_ROOTS = ("workspace", "result")
 
 
-def attempt_custody_root(workspace_group, storage, assignment_id,
-                         which="workspace"):
-    """Mint the capability for ONE of this attempt's own directories, by
-    DERIVING it from the allocation rather than reading it off anything.
+def _derived_root(store, assignment_id, which):
+    """The one directory this act may mount, RE-OPENED from durable state.
 
-    SIX REVIEW ROUNDS ENDED HERE, and they were all one defect wearing
-    different clothes. The mount source was READ from an object the caller
-    held: first a plain mapping, then a mapping with the expected basenames,
-    then the nominal type `assignment_workspace` answers with, then that type
-    with its `dict` mutators overridden, then that type with `dict` removed
-    from its bases, then that type with its members in a private attribute.
-    Each round closed one door onto the same room:
+    EIGHT REVIEW ROUNDS ENDED HERE, and the last two are one lesson. Rounds
+    one to six closed doors onto a caller-held object the mint re-read -- a
+    plain mapping, one with the expected basenames, the nominal
+    `AllocatedRoots` type, that type with its `dict` mutators overridden, with
+    `dict` removed from its bases, and with its members behind a private
+    attribute. Round seven replaced the object with a derivation from
+    `storage`, and found that deriving below a CALLER'S root is still caller
+    path selection. Round eight made the store a configured record and handed
+    it over as a `WorkspaceStorage`, and round nine found the same defect one
+    layer out: `object.__setattr__` replaces a slotted member, so a capability
+    minted from durable state and then HELD is a path a caller can still
+    change before it is read.
 
-        roots["workspace"] = elsewhere
-        dict.update(roots, {"workspace": elsewhere})
-        roots |= {"workspace": elsewhere}
-        roots._members.update({"workspace": elsewhere})
+    THE RULE THAT FINALLY FOLLOWS: the operation that selects the mount reads
+    the durable record ITSELF, in the same act, and hands no path-bearing
+    object to anybody. There is no interval between the authenticated lookup
+    and the use, because they are one operation -- so there is nothing to
+    retarget, no slot to overwrite and no later re-read to poison. This is
+    why the function is private and why `_custody_vector` calls it rather than
+    receiving its answer.
 
-    The last one is the whole lesson. `_members` is private by NAME and its
-    value is an ordinary mutable dict, so a holder reads it through ordinary
-    attribute access and edits it in place -- and no amount of further
-    overriding reaches that, because there is no method call to override. The
-    same would be true of the next representation and the one after it: in
-    this language a holder of an object can reach what the object holds, so
-    an authority carried in caller-held process state and re-read later is an
-    authority the caller can change in between.
-
-    SO THE PATH IS NOT AN INPUT AT ALL ANY MORE. There is nothing here to
-    forge, retarget or launder, because nothing here is read: this function
-    RE-DERIVES `<storage>/<assignment>/workspace` by exactly the rule
-    `assignment_workspace` allocates it by, from exactly the operands
-    `assignment_workspace` allocates it from -- the deployment's configured
-    group capability, the manager's storage root and the attempt identity.
-    An `AllocatedRoots` object is no longer accepted, so mutating one cannot
-    influence this and neither can constructing one.
-
-    WHAT AUTHORITY THIS THEREFORE CARRIES, said exactly. It carries the
-    ALLOCATION's, and not one bit more: any directory this can mount is one
-    `assignment_workspace` would have allocated for the same operands, and a
-    caller that can name those operands can already call that function. What
-    is now impossible -- and was the finding -- is selecting something that is
-    NOT an attempt workspace. The composed source is always the `workspace`
-    entry of a home directly under the storage root, so the assignment home,
-    its `inputs`, `credentials`, `credential-state` and `custody` siblings, the
-    repository and every unrelated host path are unreachable rather than
-    merely refused. There is no operand from which any of them could be built.
-
-    AND EVERY COMPONENT IS `lstat`ed, never `isdir`ed. The workspace is
-    worker-writable, so `result` is a name an ended worker can leave as a
-    symlink to any host path the engine can resolve -- and `os.path.isdir`
-    follows it while `_real` resolves it, which between them turned a
-    worker-controlled alias into a mount. A link is refused wherever it sits.
+    THE STORE IS THE AUTHORITY, and it is not a path-bearing value object: it
+    is this manager's own durable handle, and reading the deployment's
+    configured store and group out of it is exactly the act the review asks
+    for.
     """
-    from .workspaces import WorkspaceGroup, _real, _within
-    # THE GROUP CAPABILITY, FIRST AND AS PROVENANCE. `assignment_workspace`
-    # requires it to allocate, so requiring it to derive is what makes this
-    # the same act: a caller that cannot obtain the deployment's configured
-    # group never allocated the root this would name. It is the deployment's
-    # own record rather than a number, on W33936's rule -- a group a caller
-    # can name is a group a caller chose.
-    if type(workspace_group) is not WorkspaceGroup:
-        raise ContractRefusal(
-            "policy", "denied",
-            f"a custody root is derived with this deployment's CONFIGURED "
-            f"workspace group, obtained from this manager's own record; this "
-            f"is {name_value(workspace_group)}")
+    from .workspaces import (configured_workspace_group,
+                             configured_workspace_storage, _real, _within)
     boundaries.text(which, "a custody root name")
     if which not in CUSTODY_ROOTS:
         raise ContractRefusal(
@@ -467,10 +408,7 @@ def attempt_custody_root(workspace_group, storage, assignment_id,
     # AN IDENTITY IS A NAME AND NEVER A PATH. `boundaries.identity` is
     # `boundaries.text` -- it owns durable text and says nothing about path
     # syntax -- so an attempt called `../../etc` would otherwise compose a home
-    # outside the storage root before any containment check could see it. This
-    # is the same rule `assignment_workspace` gets from comparing against its
-    # own `expected_home`, stated directly because this function derives rather
-    # than creates.
+    # outside the configured store before any containment check could see it.
     if os.sep in assignment_id or (os.altsep and os.altsep in assignment_id) \
             or assignment_id in (os.curdir, os.pardir):
         raise ContractRefusal(
@@ -478,38 +416,40 @@ def attempt_custody_root(workspace_group, storage, assignment_id,
             f"{name_value(assignment_id)} is not an assignment identity; an "
             f"attempt is NAMED and a name that carries a path separator is a "
             f"way to compose a home this manager never allocated")
-    root = _real(storage, "the manager's workspace storage")
-    if not os.path.isdir(root):
-        raise ContractRefusal(
-            "integrity", "path",
-            "the manager's workspace storage is not a directory")
-    # THE SAME LAYOUT `assignment_workspace` ESTABLISHES, composed rather than
-    # looked up: one home per attempt directly under the storage root, and
-    # `workspace` inside it.
+    # READ HERE, USED HERE. The capability objects never leave this frame.
+    group = configured_workspace_group(store)
+    root = _real(configured_workspace_storage(store).place,
+                 "the manager's workspace storage")
     home = os.path.join(root, assignment_id)
-    place = (os.path.join(home, "workspace") if which == "workspace"
-             else os.path.join(home, "workspace", "result"))
-    if which == "result" and not _no_link(place, missing_ok=True):
-        os.makedirs(place, exist_ok=True)
-    # EVERY COMPONENT, from the home down: a link anywhere on the way is a
-    # different directory than the one this manager created, and an entry this
-    # manager does not own is not one it allocated.
+    workspace = os.path.join(home, "workspace")
+    # EVERY EXISTING PARENT IS PROVED BEFORE ANYTHING IS CREATED. Review [P1],
+    # round eight: this used to `os.makedirs` the result root FIRST, so a home
+    # entry that was a symlink to another manager-owned directory had
+    # `workspace/result` created inside the TARGET and only then raised. A
+    # refusal that has already written through the alias has not preserved the
+    # boundary it refused for.
     _no_link(home, what="the attempt home")
-    _no_link(os.path.join(home, "workspace"), what="the attempt's workspace")
-    if which == "result":
+    _no_link(workspace, what="the attempt's workspace")
+    if which == "workspace":
+        place = workspace
+    else:
+        # DERIVED FROM THE PROVED REAL WORKSPACE, so the creation below cannot
+        # traverse a link even if one appears at the home between the proof
+        # and the write: the path being created no longer contains the
+        # component that was proved.
+        place = os.path.join(_real(workspace, "the attempt's workspace"),
+                             "result")
+        if not _no_link(place, missing_ok=True):
+            os.makedirs(place, exist_ok=True)
         _no_link(place, what="the attempt's result directory")
     resolved = _real(place, f"the attempt's {which} root")
-    # AND THE RESOLVED SOURCE IS STILL UNDER THE STORAGE ROOT. Redundant given
-    # the link proofs above and kept anyway: containment is the property the
-    # mount actually depends on, and a proof that holds it directly does not
-    # stop holding it when somebody changes how the components are checked.
     if not _within(resolved, root):
         raise ContractRefusal(
             "policy", "denied",
-            f"{name_value(resolved)} resolves outside this manager's "
-            f"workspace storage; a custody act is performed on an attempt "
-            f"directory this manager allocated")
-    return CustodyRoot(resolved, which, _MINT)
+            f"{name_value(resolved)} resolves outside this deployment's "
+            f"configured workspace store; a custody act is performed on an "
+            f"attempt directory this manager allocated")
+    return resolved, group.gid
 
 
 def _no_link(place, *, what=None, missing_ok=False):
@@ -546,9 +486,29 @@ def _no_link(place, *, what=None, missing_ok=False):
     return True
 
 
-def custody_vector(engine, *, image_digest, name, custody, operation,
-                   workspace_group):
+def _custody_vector(engine, *, image_digest, name, store, assignment_id,
+                    operation, which="workspace"):
     """The closed argv that performs ONE custody act, restrictions and all.
+
+    PRIVATE, and review [P0] round ten is why. It used to be the public
+    surface, so the authenticated bind source came back in an ordinary list
+    that its holder could rewrite before anything executed it. It is composed
+    and consumed inside `custody_act` now, and it is reachable only by the
+    engine port that runs it -- which is the party that executes every other
+    vector this manager composes.
+
+    IT SELECTS ITS OWN MOUNT, and review [P0] round nine is why that is the
+    signature rather than an implementation detail. This used to take a minted
+    `CustodyRoot` and a `WorkspaceGroup`, and read `.place` and `.gid` off
+    them -- so a caller holding either could replace a slotted member with
+    `object.__setattr__` after a valid mint and have the replacement land
+    verbatim in `--mount source=...`. Nine rounds of setters, private slots
+    and type checks were all on the wrong side of that interval.
+
+    So there is no interval. What crosses is this manager's own durable STORE
+    and the attempt's NAME; the configured store and group are read here, the
+    root is derived and proved here, and the argv is composed here, in one
+    act with nothing path-bearing handed to anybody.
 
     IT IS NOT A RUNTIME AND DOES NOT REUSE `run_vector`. The two compose
     different things: a runtime is given inputs, a launch document and
@@ -556,10 +516,18 @@ def custody_vector(engine, *, image_digest, name, custody, operation,
     given one directory and a verb. Sharing a composer would mean every
     restriction this needs is one an execution vector could later relax.
 
-    `--rm` AND FOREGROUND, which is what "short-lived" means mechanically: the
-    engine removes the container when the act ends, so nothing it creates
-    outlives the act and a crash between start and ending leaks no capability
-    a later manager would have to find and reclaim.
+    `--rm` AND FOREGROUND, WHICH IS NOT YET A LIFETIME GUARANTEE. Review
+    [P1], round ten: this docstring used to say a crash leaks no capability a
+    later manager would have to reclaim, and that contradicts this dossier's
+    own confirmed first-review finding. What `--rm` actually buys is
+    reclamation on the engine's NORMAL removal path: the container goes when
+    the act ends. A manager or client that dies mid-act leaves a helper the
+    engine never reclaims and this build never looks for.
+
+    `CUSTODY_NAME` exists so a restarted manager COULD find one, and nothing
+    reads it yet. Bounded, derivable and restart-reclaimable helper lifetime
+    is an owed outcome of this Work and is open in `PLAN.md`; it is named here
+    so the code and the record say the same thing.
     """
     from .oci import _engine, _IMAGE, _refuse
     engine = _engine(engine)
@@ -574,16 +542,11 @@ def custody_vector(engine, *, image_digest, name, custody, operation,
             "integrity", "schema",
             f"{name_value(name)} is not a runtime name this build composes")
     operation = check_custody_operation(operation)
-    # THE ONE MOUNT, and it is the capability's own path. There is no host
-    # path operand at all now, so an arbitrary absolute directory -- a
-    # repository, a credential root, an unrelated sibling -- cannot be
-    # selected: it is not a custody root and nothing can make it one.
-    if type(custody) is not CustodyRoot:
-        raise ContractRefusal(
-            "policy", "denied",
-            f"a custody act is performed on a root minted from this manager's "
-            f"own assignment layout; this is {name_value(custody)}")
-    source = custody.place
+    # THE ONE MOUNT AND THE ONE GROUP, both read from durable state in this
+    # same act. There is no host path operand and no path-bearing object at
+    # all, so a repository, a credential root or an unrelated sibling cannot
+    # be selected -- there is nothing to select them WITH.
+    source, gid = _derived_root(store, assignment_id, which)
     argv = [engine, "run", "--rm", "--name", name]
     for flag, value in _CUSTODY_RESTRICTIONS:
         argv.append(flag)
@@ -598,20 +561,160 @@ def custody_vector(engine, *, image_digest, name, custody, operation,
     # entries that were none of its business and never reaching the worker's.
     #
     # It is W33936's capability rather than a gid, on that Work's rule: a
-    # group a caller can name is a group a caller chose.
-    from .workspaces import WorkspaceGroup
-    if type(workspace_group) is not WorkspaceGroup:
-        raise ContractRefusal(
-            "policy", "denied",
-            f"a custody act is composed with this deployment's CONFIGURED "
-            f"workspace group, obtained from this manager's own record; this "
-            f"is {name_value(workspace_group)}")
-    argv += ["--group-add", str(workspace_group.gid)]
+    # group a caller can name is a group a caller chose -- and it is read from
+    # the store above rather than handed in, for the same reason the mount is.
+    argv += ["--group-add", str(gid)]
     argv += ["--mount",
              f"type=bind,source={source},target={CUSTODY_ROOT},readonly=false"]
     argv += ["--entrypoint", "python3", image_digest,
              "-c", CUSTODY_PROGRAM, operation]
     return argv
+
+
+class CustodyAnswer:
+    """WHAT ONE CUSTODY ACT ANSWERED, and it is deliberately not a capability.
+
+    Review [P0] round ten. The old shape handed back an executable argv
+    carrying an authenticated host path; this carries the verb, the engine's
+    exit status, the custodian's own document and a bounded diagnostic. There
+    is no host path in it -- the program answers paths RELATIVE to its mount,
+    which is the only namespace it knows -- and no command vector, so a holder
+    has nothing to retarget and nothing to re-execute.
+
+    Immutable for the ordinary reason every answer in this package is: an
+    answer somebody can edit is an account of what happened that disagrees
+    with what happened.
+
+    NO PUBLIC CONSTRUCTOR, and it is the same rule the capabilities in this
+    package are under rather than a shape chosen for tidiness: an answer is
+    what one act REPORTED, so a caller that could mint one could report an act
+    that never happened. `_answered` below is the only way to make one, and it
+    is called in exactly one place -- at the end of the act it describes.
+    """
+
+    __slots__ = ("_operation", "_status", "_answer", "_diagnostic")
+
+    def __setattr__(self, name, value):
+        raise AttributeError(
+            f"a custody answer records what one act did; {name_value(name)} "
+            f"is not something a holder revises afterwards")
+
+    __delattr__ = __setattr__
+
+    @property
+    def operation(self):
+        """The verb this act performed, from the closed vocabulary."""
+        return self._operation
+
+    @property
+    def status(self):
+        """The engine's exit status for the act."""
+        return self._status
+
+    @property
+    def answer(self):
+        """The custodian's own document, read-only, or `None`.
+
+        `None` means the act did not produce one this manager could read --
+        which is a fact about the act and never a reason to guess at what it
+        did.
+        """
+        return self._answer
+
+    @property
+    def diagnostic(self):
+        """A bounded window of what the act wrote to stderr."""
+        return self._diagnostic
+
+    @property
+    def ok(self):
+        """The act ended cleanly AND said what it did.
+
+        Both halves, because a zero exit with no readable answer is an act
+        this manager cannot account for, and custody that cannot be accounted
+        for is not custody.
+        """
+        return self._status == 0 and self._answer is not None
+
+    def __repr__(self):
+        return (f"CustodyAnswer(operation={self._operation!r}, "
+                f"status={self._status!r}, ok={self.ok!r})")
+
+
+def _answered(operation, status, answer, diagnostic):
+    """Mint the one answer for one act. Private, and called in one place."""
+    made = object.__new__(CustodyAnswer)
+    object.__setattr__(made, "_operation", operation)
+    object.__setattr__(made, "_status", status)
+    object.__setattr__(made, "_answer",
+                       None if answer is None else MappingProxyType(answer))
+    object.__setattr__(made, "_diagnostic", diagnostic)
+    return made
+
+
+def custody_act(engine, run, *, image_digest, name, store, assignment_id,
+                operation, which="workspace"):
+    """ONE CUSTODY ACT, PERFORMED -- lookup, composition, execution, answer.
+
+    Review [P0] round ten, and it is the last interval this Work had left. The
+    previous shape authenticated the bind source, composed it into `--mount`
+    and RETURNED the list; every production ending would then have executed
+    that list separately, so between the durable lookup and the engine use
+    there was an ordinary mutable object in somebody else's hands. Nine
+    earlier rounds closed that interval around progressively smaller objects.
+    This one removes the interval instead: there is no return value a caller
+    can execute, because the execution already happened here.
+
+    `run` IS THE ENGINE PORT, the same one every other vector this manager
+    composes goes through, and handing the argv to it is not a handoff -- it
+    is the invocation. It is the boundary of the process rather than a party
+    inside it, and routing custody through it also puts the act under the §13
+    sweep `EnginePort` owns.
+
+    WHAT COMES BACK IS AN ANSWER. `CustodyAnswer` carries the verb, the exit
+    status, the custodian's document and a bounded diagnostic; it carries no
+    host path and no command vector, so nothing a caller holds afterwards can
+    select a directory or run anything.
+    """
+    from .oci import EnginePort
+
+    port = run if type(run) is EnginePort else EnginePort(run)
+    argv = _custody_vector(engine, image_digest=image_digest, name=name,
+                           store=store, assignment_id=assignment_id,
+                           operation=operation, which=which)
+    answered = port(argv)
+    return _answered(operation, answered["status"],
+                     _custodian_document(answered["stdout"]),
+                     answered["stderr"][-MAX_DIAGNOSTIC:])
+
+
+def _custodian_document(stdout):
+    """The custodian's one JSON line, or `None`.
+
+    THE LAST NON-EMPTY LINE, because an engine may write its own prose to the
+    same stream -- a pull, a warning -- and the custodian's answer is the last
+    thing printed by the program this module owns. It is read rather than
+    trusted: a document that does not parse, or that is not one JSON object,
+    is no document at all, and this answers `None` rather than a partial
+    reading of it.
+    """
+    import json
+
+    for line in reversed((stdout or "").splitlines()):
+        if not line.strip():
+            continue
+        try:
+            document = json.loads(line)
+        except ValueError:
+            return None
+        return document if type(document) is dict else None
+    return None
+
+
+# How much of a failing act's stderr is kept. The diagnostic explains an
+# ending; it is not a transcript, and an unbounded one is a custodian's output
+# stored verbatim in this manager's own account of it.
+MAX_DIAGNOSTIC = 4096
 
 
 # THE SAME UNCONDITIONAL POSTURE THE RUNTIME IS UNDER, minus what a custodian

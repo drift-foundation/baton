@@ -293,7 +293,20 @@ class TheRealRegistryDescribesTheRealTree(unittest.TestCase):
                           "tests.manager.test_credentials_engine",
                           "tests.manager.test_refused_session_engine",
                           "tests.manager.test_custody_engine",
-                          "tests.manager.test_input_delivery"))
+                          "tests.manager.test_input_delivery",
+                          # W39356 added the twelfth:
+                          # `test_worker_entry_engine` inherits the same
+                          # composition fixture, builds the same image and
+                          # drives `docker exec` against containers it started
+                          # under one assignment's labels -- and one case
+                          # removes a container and then asks the daemon, which
+                          # a concurrent suite would answer for it.
+                          "tests.manager.test_worker_entry_engine",
+                          # W39357 added the thirteenth: the dogfood image
+                          # gate builds an image and starts containers from
+                          # it, so it owns the same two artefacts every other
+                          # engine gate does.
+                          "tests.manager.test_dogfood_image"))
         for module in SERIAL_MODULES:
             with self.subTest(module=module):
                 self.assertNotIn(module, PARALLEL_MODULES)

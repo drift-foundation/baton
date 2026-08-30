@@ -31,6 +31,7 @@ import signal
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 WORKER = (pathlib.Path(__file__).resolve().parents[3] / "worker")
 sys.path.insert(0, str(WORKER))
@@ -277,6 +278,59 @@ def run(document, *requests, agent=None):
 
 def asking(operation="describe", **members):
     return ask(operation, EXECUTION_SESSION, **members)
+
+
+# -- the provider injection seam --------------------------------------------
+
+class TheProviderInjectionSeam(unittest.TestCase):
+
+    def test_an_injected_agent_needs_no_scripted_default_module(self):
+        """An override must not import the unused thing it overrides."""
+        imported = __import__
+
+        def without_scripted_default(name, *args, **kwargs):
+            if name == "scripted_agent":
+                raise ModuleNotFoundError("no scripted default in this image")
+            return imported(name, *args, **kwargs)
+
+        with mock.patch("builtins.__import__",
+                        side_effect=without_scripted_default):
+            status = baton_worker.main(
+                stdin=io.BytesIO(b""), stdout=io.BytesIO(), agent=object(),
+                place=delivered(LAUNCH))
+        self.assertEqual(status, 0)
+
+    def test_a_falsey_injected_agent_is_still_the_injected_agent(self):
+        """Injection is an explicit optional value, not a truthiness test."""
+        staged(self)
+
+        class FalseyAgent:
+            called = False
+
+            def __bool__(self):
+                return False
+
+            def work(self, seen, request):
+                self.called = True
+                return ScriptedAgent().work(seen, request)
+
+        injected = FalseyAgent()
+        output = io.BytesIO()
+        status = baton_worker.main(
+            stdin=frames(asking("work")), stdout=output, agent=injected,
+            place=delivered(LAUNCH))
+        self.assertEqual(status, 0)
+        self.assertTrue(injected.called)
+
+    def test_none_still_constructs_the_scripted_default(self):
+        scripted = object()
+        with mock.patch("scripted_agent.ScriptedAgent",
+                        return_value=scripted) as construct:
+            status = baton_worker.main(
+                stdin=io.BytesIO(b""), stdout=io.BytesIO(), agent=None,
+                place=delivered(LAUNCH))
+        self.assertEqual(status, 0)
+        construct.assert_called_once_with()
 
 
 # -- the envelope ------------------------------------------------------------

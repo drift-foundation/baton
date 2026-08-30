@@ -1,7 +1,7 @@
 # Prove reusable Docker worker-entry control transport
 
-Work: W39356  
-Parent: W38956  
+Work: W39356
+Parent: W38956
 Discovery: the W38956 implementation episode returned a coherent transport
 seed that must be reviewed and completed as its own checkpoint.
 

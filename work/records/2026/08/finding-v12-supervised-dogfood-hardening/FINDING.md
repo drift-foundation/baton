@@ -1,6 +1,6 @@
 # Harden the v12 supervised dogfood path
 
-Work: W39366  
+Work: W39366
 Discovery: split from W38956 after its thin vertical slice was decomposed.
 
 ## Purpose

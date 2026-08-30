@@ -64,6 +64,10 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         storage = os.path.join(self.home, "storage")
         os.makedirs(storage, exist_ok=True)
         self.storage = storage
+        # THE DEPLOYMENT'S ACT, then the manager's own record read back --
+        # which is what the custody mint now requires and what a fixture
+        # therefore has to perform rather than shortcut.
+        workspaces.configure_workspace_storage(self.store, storage)
         return workspaces.assignment_workspace(self.group, storage,
                                                "attempt-1")
 
@@ -107,11 +111,12 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         self.assertEqual(done.returncode, 0,
                          done.stderr.decode("utf-8", "replace")[:2000])
 
-    def minted(self, which="workspace"):
-        """THE CAPABILITY, DERIVED from the allocation -- never a host path
-        and, since W36540's sixth review, never read off an object either."""
-        return custody.attempt_custody_root(self.group, self.storage,
-                                            "attempt-1", which)
+    def spawn(self, argv):
+        """The engine port's run operation, over a real process."""
+        finished = subprocess.run(argv, capture_output=True, timeout=300)
+        return {"status": finished.returncode,
+                "stdout": finished.stdout.decode("utf-8", "replace"),
+                "stderr": finished.stderr.decode("utf-8", "replace")}
 
     def custody(self, operation):
         """One custody act over THIS case's allocated attempt.
@@ -120,15 +125,18 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         showing through at the call site: the mount is derived from the
         allocation, so there is no object a case could hand over here that
         would choose a different directory.
+
+        REVIEW [P0] ROUND TEN AT THE CALL SITE. There is no argv here either.
+        The case supplies the engine PORT and the act performs itself, so
+        what a case holds afterwards is the typed answer — and the JSON
+        extraction that used to live in every one of these cases is now the
+        act's own, which is where it belongs.
         """
         name = f"{MARK}-custody-{uuid.uuid4().hex[:10]}"
         self.made.append(name)
-        argv = custody.custody_vector(
-            self.engine, image_digest=self.digest, name=name,
-            custody=self.minted(), operation=operation,
-            workspace_group=self.group)
-        done = subprocess.run(argv, capture_output=True, timeout=300)
-        return done.returncode, done.stdout.decode("utf-8", "replace")
+        return custody.custody_act(
+            self.engine, self.spawn, image_digest=self.digest, name=name,
+            store=self.store, assignment_id="attempt-1", operation=operation)
 
     # -- the acceptance ---------------------------------------------------
 
@@ -147,12 +155,12 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
             workspaces.discard_workspace(self.storage, "attempt-1")
         self.assertIn("owned by uid", caught.exception.message)
 
-        code, answer = self.custody("normalize")
-        self.assertEqual(code, 0, answer)
-        answered = json.loads(answer.strip().splitlines()[-1])
+        acted = self.custody("normalize")
+        self.assertTrue(acted.ok, acted.diagnostic)
+        answered = acted.answer
         self.assertEqual(answered["custody"], "normalize")
         self.assertEqual(answered["running_as"], [65532, 65532])
-        self.assertGreater(answered["entries"], 0, answered)
+        self.assertGreater(answered["entries"], 0, dict(answered))
 
         # AFTER: the same call, unchanged, and the tree is gone.
         self.assertTrue(workspaces.discard_workspace(self.storage,
@@ -171,16 +179,16 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
                 roots = self.allocated()
                 place = roots["workspace"]
                 self.worker_leaves(place, mode=mode)
-                code, _answer = self.custody("normalize")
-                self.assertEqual(code, 0)
+                acted = self.custody("normalize")
+                self.assertTrue(acted.ok, acted.diagnostic)
                 self.assertTrue(
                     workspaces.discard_workspace(self.storage, "attempt-1"))
 
     def test_nested_hostile_modes_do_not_hide_objects_from_custody(self):
         roots = self.allocated()
         self.worker_leaves_nested_barriers(roots["workspace"])
-        code, answer = self.custody("normalize")
-        self.assertEqual(code, 0, answer)
+        acted = self.custody("normalize")
+        self.assertTrue(acted.ok, acted.diagnostic)
         self.assertTrue(workspaces.discard_workspace(self.storage,
                                                      "attempt-1"))
 
@@ -197,10 +205,9 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         # which the manager owns -- keeps its exact mode through the act.
         before = {one: os.lstat(roots[one]).st_mode & 0o7777
                   for one in ("inputs", "workspace")}
-        code, answer = self.custody("normalize")
-        self.assertEqual(code, 0, answer)
-        answered = json.loads(answer.strip().splitlines()[-1])
-        self.assertGreater(answered["entries"], 0, answered)
+        acted = self.custody("normalize")
+        self.assertTrue(acted.ok, acted.diagnostic)
+        self.assertGreater(acted.answer["entries"], 0, dict(acted.answer))
         for one, mode in before.items():
             self.assertEqual(os.lstat(roots[one]).st_mode & 0o7777, mode, one)
 
@@ -209,11 +216,11 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         roots = self.allocated()
         self.worker_leaves(roots["workspace"])
         name = f"{MARK}-custody-{uuid.uuid4().hex[:10]}"
-        argv = custody.custody_vector(
-            self.engine, image_digest=self.digest, name=name,
-            custody=self.minted(),
-            operation="normalize", workspace_group=self.group)
-        subprocess.run(argv, capture_output=True, timeout=300)
+        self.made.append(name)
+        custody.custody_act(
+            self.engine, self.spawn, image_digest=self.digest, name=name,
+            store=self.store, assignment_id="attempt-1",
+            operation="normalize")
         found = subprocess.run(
             [self.engine, "ps", "--all", "--quiet", "--filter", f"name={name}"],
             capture_output=True, timeout=120)
@@ -224,15 +231,15 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         """ONE MOUNT: absent rather than denied."""
         roots = self.allocated()
         self.worker_leaves(roots["workspace"])
-        code, answer = self.custody("inspect")
-        self.assertEqual(code, 0, answer)
-        answered = json.loads(answer.strip().splitlines()[-1])
+        acted = self.custody("inspect")
+        self.assertTrue(acted.ok, acted.diagnostic)
+        answered = acted.answer
         paths = [one["path"] for one in answered["entries"]]
         self.assertIn("worker-made-dir", paths)
         # REVIEW [P0]: the deliveries are ABSENT, not merely skipped.
         for forbidden in ("credentials", "credential-state", "inputs",
                           "custody"):
-            self.assertNotIn(forbidden, paths, answered)
+            self.assertNotIn(forbidden, paths, dict(answered))
         for forbidden in ("credential-state", "credentials", "custody",
                           "inputs"):
             self.assertFalse(
@@ -246,11 +253,14 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
 
     def test_a_verb_outside_the_vocabulary_never_reaches_the_engine(self):
         roots = self.allocated()
+        reached = []
         with self.assertRaises(ContractRefusal):
-            custody.custody_vector(
-                self.engine, image_digest=self.digest, name="baton-custody-x",
-                custody=self.minted(),
-                operation="sh", workspace_group=self.group)
+            custody.custody_act(
+                self.engine, lambda argv: reached.append(argv),
+                image_digest=self.digest, name="baton-custody-x",
+                store=self.store, assignment_id="attempt-1",
+                operation="sh")
+        self.assertEqual(reached, [], "a refused verb reached the engine")
 
 
 class DockerCustody(CustodyRemovesWhatTheWorkerLeaves, unittest.TestCase):

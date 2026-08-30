@@ -133,16 +133,19 @@ of diagnostic fields beside them. This version matches fields and grows no
 expression language.
 
 The dispatcher's own `ready` is true only when EVERY configured target is
-connected and loaded. That is the intended policy: a target configured in a
-managed dispatcher is required by that deployment, so there is no `any` or
-named-subset form. An optional target is omitted rather than tolerated.
+connected, loaded in a reusable `idle` or `active` app-server status, and free
+of a delivery fence. `systemError` is loaded but terminally non-deliverable;
+an unrecognized future status fails closed too. That is the intended policy:
+a target configured in a managed dispatcher is required by that deployment,
+so there is no `any` or named-subset form. An optional target is omitted rather
+than tolerated.
 
 A malformed, oversized, truncated, late or mismatched reply is "not ready
 yet", exactly as an absent socket is. A target slow to resume therefore holds
 startup until the service's existing `startTimeoutSeconds` and then fails
-through the ordinary rollback; a target that becomes unloadable after a
-successful start makes later `just status` unhealthy, and Baton kills or
-restarts nothing on its own.
+through the ordinary rollback; a target that becomes unloadable or enters
+`systemError` after a successful start makes later `just status` unhealthy,
+and Baton kills or restarts nothing on its own.
 
 Unknown keys, duplicate names or participants, dependency cycles, non-absolute
 paths, missing required files, and non-private lifecycle files refuse before

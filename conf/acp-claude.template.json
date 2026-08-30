@@ -12,6 +12,7 @@
   "//11": "them exactly is accepted for compatibility; one that disagrees",
   "//12": "refuses startup by key, because two spellings of one launcher",
   "//13": "contract is the drift rather than the fix.",
+  "//14": "W39092: turnTimeoutMs is the explicit two-hour v11 deployment policy.",
   "baton": {
     "binary": "/absolute/path/to/v11-release/bin/baton",
     "config": "/absolute/path/to/mailbox/baton.json",
@@ -42,6 +43,7 @@
     "/absolute/path/to/claude-policy/protected-paths.txt"
   ],
   "stateDir": "/absolute/path/to/runtime/acp/{{start.id}}/baton.claude",
+  "turnTimeoutMs": 7200000,
   "setupTimeoutMs": 90000,
   "retryMs": 2000
 }

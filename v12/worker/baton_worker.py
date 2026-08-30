@@ -1422,15 +1422,42 @@ def serve(stdin, stdout, agent, place=LAUNCH_DOCUMENT):
                             f"the agent failed: {type(failed).__name__}")))
 
 
-def main(argv=None, stdin=None, stdout=None, agent=None,
-         place=LAUNCH_DOCUMENT):
+def _scripted_default():
+    """The M2 fixture agent, loaded ONLY when nobody injected one.
+
+    W39770. The import lives here rather than at the top of `main` because
+    where it lives decides what an image has to carry. `main` opened with an
+    unconditional `from scripted_agent import ScriptedAgent`, before it looked
+    at whether an agent was supplied -- so the DOCUMENTED INJECTION SEAM could
+    not be used by any image that did not also ship the default it was
+    overriding. W39357's provider image injects a real Claude adapter and
+    carries no scripted agent; its entrypoint died `ModuleNotFoundError`
+    before this program started, which its build gate caught and recipe
+    inspection could not.
+
+    THE REFERENCE IMAGE IS UNCHANGED. Its recipe ships `scripted_agent.py` and
+    its entrypoint supplies no agent, so this is exactly the branch it takes
+    and exactly the object it got before.
+    """
     from scripted_agent import ScriptedAgent
 
+    return ScriptedAgent()
+
+
+def main(argv=None, stdin=None, stdout=None, agent=None,
+         place=LAUNCH_DOCUMENT):
     # NO ENVIRONMENT OPERAND AT ALL, W26291. It is not defaulted to `os.environ`
     # and then ignored: a parameter that still exists is a parameter something
     # can be threaded back through, and the supersession retains no fallback.
+    #
+    # `agent is None`, NOT `agent or`. W39770's review found the second half of
+    # the same line: truthiness discarded an explicitly injected FALSEY adapter
+    # and substituted the fixture, and only `None` means "nobody injected one".
+    # An agent that defines `__bool__` or `__len__` is an ordinary object; a
+    # seam that silently replaced it would run somebody else's agent under the
+    # caller's assignment.
     return serve(stdin or sys.stdin.buffer, stdout or sys.stdout.buffer,
-                 agent or ScriptedAgent(), place)
+                 _scripted_default() if agent is None else agent, place)
 
 
 if __name__ == "__main__":

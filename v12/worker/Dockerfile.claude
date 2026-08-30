@@ -1,0 +1,119 @@
+# The v12 DOGFOOD worker image: the reference worker, with a real provider.
+#
+# W39357. Every line carries the decision behind it, like W6633's recipe does,
+# because each one is either inherited from a measured fact or is a deliberate
+# departure from the reference image.
+#
+# THIS IS NOT `Dockerfile` AND NOT `Dockerfile.claude` IN THE SPIKE. W6633's
+# reference image runs `ScriptedAgent`, carries no network client and pins its
+# base by digest; the spike's image runs `trial.mjs` on its own Docker
+# lifecycle. This one runs W6633's OWN PROGRAM -- `baton_worker.py`, unmodified
+# -- with a real provider injected at its documented seam, and it speaks the
+# accepted worker-entry protocol rather than the spike's result shape.
+#
+# THE BASE IS W17110's, and that is a reuse of measured installation facts
+# rather than of its protocol. A real agent runtime is a Node program, so the
+# reference image's `python:3.13-slim` cannot host it.
+FROM node:22-bookworm-slim
+
+# THE PROVIDER RUNTIME, BY EXACT VERSION. "Which agent answered" is a fact the
+# evidence has to carry, and a floating tag makes that unanswerable the day
+# after the trial. This is W17110's pinned version.
+ARG CLAUDE_VERSION=2.1.247
+RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_VERSION}" \
+    && npm cache clean --force
+
+# THE SYSTEM TRUST STORE, and W17110 paid two review rounds to learn why.
+# `node:22-bookworm-slim` ships no `/etc/ssl/certs/ca-certificates.crt`, and a
+# runtime that is a NATIVE BINARY uses the system store rather than Node's
+# bundled one -- so every TLS handshake fails and surfaces as a connection
+# error that reads exactly like a network fault. The classifier was right and
+# was describing a defect in the recipe.
+#
+# PYTHON COMES WITH IT, because `baton_worker.py` is the program in this image
+# and the base is a Node image. The reference image's rule -- no build
+# toolchain, no package manager state, no network client -- cannot hold here:
+# a provider-backed worker IS a network client, and that is the whole point of
+# the milestone. What is kept from the rule is that nothing else is added.
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y ca-certificates python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# THE WORKER, UNMODIFIED, AND ITS FROZEN CONTRACT AS DATA.
+#
+# `baton_worker.py` is W6633's file and is copied rather than adapted: this
+# checkpoint does not own it, and an image that carried a forked copy would be
+# running a protocol nobody reviewed. `worker-control-1.0.schema.json` travels
+# for the reason W6633 gives -- the closed member sets are DERIVED from it at
+# startup instead of being a hand-typed second copy.
+#
+# NOTHING FROM `baton_v12` IS COPIED IN, exactly as in the reference image: a
+# worker that could import the manager is a worker one bug away from holding
+# the manager's capabilities.
+COPY baton_worker.py /opt/baton/baton_worker.py
+COPY claude_agent.py /opt/baton/claude_agent.py
+COPY dogfood_entry.py /opt/baton/dogfood_entry.py
+COPY worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+
+# `scripted_agent.py` TRAVELS AS A STATED STOPGAP, AND IT IS NOT USED.
+#
+# W39357's build gate found what recipe inspection could not: `main(agent=...)`
+# opens with an UNCONDITIONAL `from scripted_agent import ScriptedAgent`, so
+# the documented injection seam cannot be used by an image that does not also
+# ship the default it is overriding. Without this line the entrypoint dies
+# `ModuleNotFoundError` before the worker starts.
+#
+# The real correction is to make that import conditional on `agent is None`,
+# in `baton_worker.py` — which this checkpoint does not own, and whose finding
+# says an edit there needs an explicit handoff first. So the finding is filed
+# and this is the stopgap, named as one: the module is inert here (nothing
+# constructs `ScriptedAgent` when an agent is injected), and the line goes away
+# with the seam fix rather than becoming the answer.
+COPY scripted_agent.py /opt/baton/scripted_agent.py
+
+# THE SAME FIXED NON-ROOT USER, by numeric id, as the reference image and as
+# the adapter's `--user` restriction. Two places agreeing because they were
+# written from one decision.
+#
+# THE HOME IS CREATED AND OWNED AT BUILD TIME, which W17110 measured the need
+# for: Docker creates a missing bind-mount parent as ROOT, so a container
+# running as an unprivileged uid was left unable to write beside its own
+# credential -- "Permission denied" before it ever reached an authentication
+# decision. This image's credential does NOT arrive as a mount there (the
+# adapter links it into private `/tmp` space, because the root filesystem is
+# read-only), and the owned home is kept anyway so the provider has somewhere
+# valid to fall back to for its own state.
+RUN useradd --uid 65532 --create-home nonroot \
+    && mkdir -p /home/nonroot/.claude \
+    && chown -R 65532:65532 /home/nonroot
+USER 65532:65532
+
+# The entrypoint is the REFERENCE WORKER's program with this image's agent
+# injected -- one line of composition in `dogfood_entry.py`, so the injection
+# is a reviewable artefact rather than a shell incantation.
+#
+# No shell form, so there is no shell in the process tree and nothing to
+# interpret a signal or a metacharacter on the worker's behalf. The manager
+# stops this container by signalling PID 1, and PID 1 is Python.
+ENTRYPOINT ["python3", "/opt/baton/dogfood_entry.py"]
+
+# Deterministic bytes and an explicit module path, as in the reference image.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0 \
+    NODE_NO_WARNINGS=1
+
+# THERE IS DELIBERATELY NO `ENV ANTHROPIC_*` OF ANY KIND, and the reason is
+# sharper than "secrets don't belong in images". The provider resolves its
+# credential from the environment FIRST: an `ANTHROPIC_API_KEY` present here
+# would silently outrank the mounted slot and decide which account every
+# container built from this image ran as. The adapter composes the child's
+# environment itself and forwards nothing.
+#
+# There is also no `ENV BATON_WORKER_*`: that transport was retired with no
+# fallback (W26291), and this image's worker does not read those names at all.
+#
+# No `VOLUME`, no `EXPOSE`, no `HEALTHCHECK`: the writable output is a mount
+# the manager names per assignment, and this container's health is observed by
+# the adapter through the engine rather than announced by the container.

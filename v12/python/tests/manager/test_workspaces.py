@@ -150,6 +150,143 @@ class Workspace(unittest.TestCase):
         return found
 
 
+class TheConfiguredWorkspaceStoreRecord(unittest.TestCase):
+    """W36540 review [P0]: the workspace STORE is a deployment record too.
+
+    The custody mint used to take `storage` as an ordinary path, so a caller
+    could make a directory holding `attempt-1/workspace` and be handed a
+    capability over an unrelated host tree. Deriving from a caller's root is
+    still caller path selection -- it just looks one component deeper.
+
+    The store is now recorded and read exactly as the group is, so these hold
+    the same four properties over it: the two accounts must agree, a row of
+    another kind at the derived identity is not a configuration, an edited
+    result no longer agrees with its signature, and reconfiguration is refused.
+    """
+
+    def opened(self):
+        root = tempfile.TemporaryDirectory(prefix="v12-workspace-store-")
+        self.addCleanup(root.cleanup)
+        store = ControlStore.open(
+            os.path.join(root.name, "control.sqlite3"),
+            incarnation="workspace-store-1",
+            clock=lambda: "2026-08-29T00:00:00.000Z")
+        self.addCleanup(store.close)
+        place = os.path.join(root.name, "storage")
+        os.makedirs(place)
+        return store, place, root.name
+
+    def refused(self, store):
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.configured_workspace_storage(store)
+        return caught.exception
+
+    def test_the_configured_store_is_minted_from_the_deployments_record(self):
+        store, place, _root = self.opened()
+        workspaces.configure_workspace_storage(store, place)
+        held = workspaces.configured_workspace_storage(store)
+        self.assertEqual(held.place, place)
+        self.assertEqual(json.loads(store.operation_record(
+            workspaces.STORAGE_CONFIGURE_OPERATION)["result"]),
+            {"workspace_storage": place})
+
+    def test_a_store_cannot_be_constructed_by_a_caller(self):
+        """The whole point: a path a caller can name is a path a caller
+        chose."""
+        with self.assertRaises(ContractRefusal):
+            workspaces.WorkspaceStorage("/tmp")
+
+    def test_an_unconfigured_manager_mints_nothing(self):
+        store, _place, _root = self.opened()
+        caught = self.refused(store)
+        self.assertEqual((caught.category, caught.code), ("policy", "denied"))
+
+    def test_the_projection_cannot_rewrite_the_journalled_store(self):
+        """The exact defect the group's own case covers, one record over."""
+        store, place, root = self.opened()
+        workspaces.configure_workspace_storage(store, place)
+        elsewhere = os.path.join(root, "elsewhere")
+        os.makedirs(elsewhere)
+        store._connection.execute(
+            "UPDATE meta SET value = ? WHERE key = ?",
+            (elsewhere, workspaces.WORKSPACE_STORAGE_KEY))
+        caught = self.refused(store)
+        self.assertEqual((caught.category, caught.code),
+                         ("integrity", "schema"))
+
+    def test_a_projection_with_no_committed_act_behind_it_is_refused(self):
+        store, place, _root = self.opened()
+        store._connection.execute(
+            "INSERT INTO meta (key, value) VALUES (?, ?)",
+            (workspaces.WORKSPACE_STORAGE_KEY, place))
+        caught = self.refused(store)
+        self.assertEqual((caught.category, caught.code),
+                         ("integrity", "schema"))
+
+    def test_a_committed_act_whose_projection_is_gone_is_refused(self):
+        store, place, _root = self.opened()
+        workspaces.configure_workspace_storage(store, place)
+        store._connection.execute("DELETE FROM meta WHERE key = ?",
+                                  (workspaces.WORKSPACE_STORAGE_KEY,))
+        caught = self.refused(store)
+        self.assertEqual((caught.category, caught.code),
+                         ("integrity", "schema"))
+
+    def test_a_row_of_another_kind_is_not_a_configuration(self):
+        store, place, _root = self.opened()
+        workspaces.configure_workspace_storage(store, place)
+        store._connection.execute(
+            "UPDATE operations SET kind = ? WHERE operation_id = ?",
+            ("something.else", workspaces.STORAGE_CONFIGURE_OPERATION))
+        caught = self.refused(store)
+        self.assertEqual((caught.category, caught.code),
+                         ("integrity", "schema"))
+
+    def test_a_rewritten_result_no_longer_agrees_with_its_signature(self):
+        """The signature is a deterministic function of the operands, so an
+        edited result is visible without a second copy of the value."""
+        store, place, root = self.opened()
+        workspaces.configure_workspace_storage(store, place)
+        elsewhere = os.path.join(root, "elsewhere")
+        os.makedirs(elsewhere)
+        store._connection.execute(
+            "UPDATE operations SET result = ? WHERE operation_id = ?",
+            (json.dumps({"workspace_storage": elsewhere}),
+             workspaces.STORAGE_CONFIGURE_OPERATION))
+        caught = self.refused(store)
+        self.assertEqual((caught.category, caught.code),
+                         ("integrity", "schema"))
+
+    def test_reconfiguring_to_another_store_is_refused(self):
+        """Every attempt already allocated under the first store would become
+        unfindable, so a changed store is a fresh store."""
+        store, place, root = self.opened()
+        workspaces.configure_workspace_storage(store, place)
+        elsewhere = os.path.join(root, "elsewhere")
+        os.makedirs(elsewhere)
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.configure_workspace_storage(store, elsewhere)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+        # AND RE-AFFIRMING THE SAME ONE COMMITS, like the group's does.
+        workspaces.configure_workspace_storage(store, place)
+        self.assertEqual(
+            workspaces.configured_workspace_storage(store).place, place)
+
+    def test_a_store_that_is_not_a_manager_owned_directory_is_refused(self):
+        store, _place, root = self.opened()
+        link = os.path.join(root, "aliased")
+        os.symlink(root, link)
+        ordinary = os.path.join(root, "a-file")
+        with open(ordinary, "w", encoding="utf-8") as handle:
+            handle.write("not a directory")
+        for wrong in (link, ordinary, os.path.join(root, "absent"),
+                      "relative/path", "", None, 5):
+            with self.subTest(storage=wrong):
+                with self.assertRaises(ContractRefusal):
+                    workspaces.configure_workspace_storage(store, wrong)
+
+
 class TheConfiguredWorkspaceGroupRecord(unittest.TestCase):
 
     def test_the_projection_cannot_rewrite_the_journalled_group(self):

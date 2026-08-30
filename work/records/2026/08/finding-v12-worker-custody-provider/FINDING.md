@@ -382,3 +382,226 @@ M36166 names six.
 
 Until that is ruled, `archive` declares `content: "manifest-only"` in its own
 answer, so it can no longer LOOK like content custody while being a manifest.
+
+## 2026-08-29 — seventh independent review findings
+
+**Confirmed corrected:** custody no longer reads a path from
+`AllocatedRoots`; the prior private-mapping retarget is closed. Streaming hash
+and bounded base64 read evidence also replace the whole-file/lossy-head path.
+
+**Observed [P0]: the raw host-path selector moved to `storage`.**
+`attempt_custody_root(workspace_group, storage, assignment_id, which)` derives
+below `storage`, but `storage` is ordinary caller-owned text/path authority.
+A caller can create `<unrelated>/attempt-1/workspace`, pass `<unrelated>` as
+storage and receive a valid `CustodyRoot` for that unrelated host tree. The
+existing structural-forgery case creates `inputs` and `workspace` directly
+under its supplied storage, so the extra `attempt-1` component makes that test
+refuse without exercising the actual derived layout. Derivation under a raw
+caller root is still caller path selection. The storage root must come from
+manager-owned durable/configured authority, not an ordinary path operand.
+
+**Observed [P1]: result creation precedes parent no-link validation.** For a
+missing result, the mint calls `os.makedirs(place)` before it `_no_link`s the
+attempt home and workspace. If the attempt home is a symlink to an unrelated
+manager-owned tree, the call creates `workspace/result` through the link and
+only then refuses the parent. A refused capability mint must not mutate the
+very unrelated tree it rejects; validate every existing component first and
+create only beneath the validated real workspace.
+
+**Confirmed still open:** the archive ruling, bounded/restart-reclaimable
+lifetime, ending composition, retry/restart/crash proof, boundary inventory
+and compatible engine certification remain unchanged.
+
+## 2026-08-29 — the seventh P0 corrected: neither operand is a path any more
+
+**Round seven found the remainder round six honestly recorded.** The sixth
+correction stopped reading a caller-held object and DERIVED
+`<storage>/<assignment>/workspace` instead, and its own finding stated the
+limitation in as many words: "it carries the ALLOCATION's authority and not one
+bit more". The review ruled that this is not sufficient, and it is right —
+`storage` was still an ordinary caller operand, so two `mkdir`s producing a
+directory that holds `attempt-1/workspace` yielded a valid capability over an
+unrelated host tree. **Deriving from a caller's root is still caller path
+selection; it just looks one component deeper.**
+
+**The correction: the workspace STORE becomes a deployment record, exactly as
+its group already is.** `WorkspaceStorage` is minted only by
+`configured_workspace_storage(store)`, which cross-checks the committed
+`workspace-storage.configure` operation against its `meta` projection and fails
+closed in every direction of disagreement — the same four properties W33936
+established for the group, including that a row of another kind at the derived
+identity is not a configuration and that a `result` edited in place no longer
+agrees with its recorded signature. Reconfiguring to a different store is
+refused for the group's reason applied to paths: every attempt already
+allocated under the first store would become unfindable.
+
+`attempt_custody_root(workspace_group, workspace_storage, assignment_id,
+which)` therefore takes **two capabilities and a name**, and no path at all.
+There is no operand left through which an unrelated directory could be
+selected.
+
+**Why the ALLOCATION boundary deliberately still takes a path**, stated so the
+asymmetry is a decision rather than an oversight. `assignment_workspace` is the
+deployment's own allocation act and the review's requirement is about the
+custody MOUNT. A caller may still allocate a workspace wherever it can already
+write; what it can no longer do is have a container mounted on one. Custody is
+confined to the configured store, and allocating elsewhere grants no custody
+there.
+
+## 2026-08-29 — the result root no longer mutates through an unvalidated parent
+
+**Confirmed [P1] and corrected.** For `which="result"` the mint called
+`os.makedirs(place)` BEFORE proving the attempt home and workspace, so a home
+entry that was a symlink to another manager-owned directory had
+`workspace/result` created inside the TARGET — and only then did the parent
+proof raise. A refusal that has already written through the alias has not
+preserved the boundary it refused for.
+
+Every existing parent is now proved first, and the result path is then derived
+from the RESOLVED real workspace rather than from the composed one — so the
+creation cannot traverse a link even if one appeared at the home between the
+proof and the write, because the path being created no longer contains the
+component that was proved.
+
+The review's own regression is kept probative rather than merely passing: it is
+driven through the real store capability, because passing a raw path would now
+refuse at the type check BEFORE the ordering under test is reached. Driving the
+superseded ordering under the corrected code reproduces the failure
+(`the refused mint created through its parent link`) and the fix clears it.
+
+## 2026-08-29 — the ninth P0: the interval itself is removed
+
+**Nine rounds, one defect, and this is the shape of it stated plainly.** Every
+correction until now defended an object that a caller HELD between the
+authenticated lookup and the use:
+
+| round | what was held and re-read |
+|---|---|
+| 1–2 | a plain mapping, then one with the expected basenames |
+| 3–4 | the nominal `AllocatedRoots` answer |
+| 5 | that type with its `dict` mutators overridden |
+| 6 | that type with `dict` removed from its bases |
+| 7 | no object — but `storage`, an ordinary caller path |
+| 8 | `WorkspaceStorage`, minted from durable state |
+| 9 | …and `CustodyRoot`, minted from a valid derivation |
+
+Round eight mirrored `WorkspaceGroup` and the review is right that this
+"copies durable authority back into the forbidden process-state interval":
+`object.__setattr__` replaces a slotted member, so a capability read from the
+journal and then handed to a caller is a path that caller can still change
+before anybody reads it. The same was true of the minted `CustodyRoot`, whose
+`.place` `custody_vector` read straight into `--mount source=`.
+
+**THE CORRECTION IS TO DELETE THE INTERVAL, NOT TO DEFEND IT.**
+`custody_vector(engine, *, image_digest, name, store, assignment_id,
+operation, which)` now reads the deployment's configured store and group out
+of the durable record, derives and proves the attempt's root, and composes the
+argv — **in one act, handing no path-bearing object to anybody**. There is
+nothing to retarget because nothing is held; there is no later re-read because
+there is no earlier hand-off.
+
+`CustodyRoot` and the public `attempt_custody_root` are **gone from the
+surface** rather than hardened a tenth time. What crosses is this manager's own
+store handle and the attempt's NAME. `WorkspaceStorage` survives as the read's
+own return value inside that one frame; a holder can still retarget one, and
+that no longer reaches anything, which is the point.
+
+This is the rule the dossier had already written down at round six —
+"`object.__setattr__` reaches any slot in this language and no representation
+closes that; the guarantee must be that the mint does not read the object" —
+finally applied to every hop instead of one.
+
+## 2026-08-29 — the literal boundary label that stopped the shared inventory
+
+Round eight's `check_workspace_storage` passed its keyword parameter `what` to
+`boundaries.text` instead of a literal. The boundary inventory attributes a
+crossing by the label written at the site, so a variable is a crossing it
+cannot key — and it RAISES rather than guessing, which stopped the whole
+package's scan from producing any verdict at all and blocked every other
+checkpoint's inventory acceptance item, not only this one.
+
+`check_workspace_group`, the function that round mirrored, calls no boundary
+helper at all, so the pattern did not carry the constraint with it. The label
+is a literal now and `what` stays the caller's context word in the refusal
+prose, where it reads correctly and decides nothing.
+
+## 2026-08-29 — the tenth P0: the last interval was the RETURN VALUE
+
+Round nine deleted the interval around every *operand* and left one where
+nobody had looked: the answer. `custody_vector` authenticated the bind source,
+composed it into `--mount source=` and **returned the list**. Every production
+ending would then have executed that list separately, so the authenticated
+host path sat in an ordinary mutable object in somebody else's hands between
+the durable lookup and the engine use — the same defect as rounds one to nine,
+one layer further out.
+
+The review is also right that no wrapper closes it. A tuple, a frozen argv
+type, a read-only sequence: all of them still hand back the PATH, and a caller
+holding a path can compose its own vector. Hardening the container was the
+mistake the previous nine rounds already made.
+
+**Decision (pinned): custody is ONE OWNED ACT that performs itself.**
+`custody_act(engine, run, *, image_digest, name, store, assignment_id,
+operation, which)` reads the durable record, derives and proves the root,
+composes the argv, RUNS it through the engine port and answers. There is no
+return value a caller can execute, because the execution already happened
+inside the act.
+
+`custody_vector` is private (`_custody_vector`) and reachable only by the act
+that runs it. **Superseded:** every earlier statement in this record that
+names `custody_vector` as the composition's public surface, including round
+nine's paragraph above — the composition is unchanged and its name and
+visibility are not.
+
+### Why `run` is an operand and not a leak
+
+The engine port is the boundary of the process, not a party inside it. It is
+the same `oci.EnginePort` every other vector this manager composes goes
+through, and handing it the argv is the INVOCATION rather than a handoff:
+there is no interval after it, because there is nothing after it. Routing
+custody through the port also puts the act under the §13 durable-secret sweep
+that port already owns, which composing-and-returning never had.
+
+### What a holder keeps afterwards
+
+`CustodyAnswer` — the verb, the engine's exit status, the custodian's own
+document as a read-only mapping, and a bounded diagnostic. It carries **no
+host path**: the program answers paths relative to its own mount, which is the
+only namespace it knows. It carries no command vector. It is immutable,
+because an answer somebody can edit is an account that disagrees with what
+happened.
+
+`ok` requires BOTH a zero exit and a readable document. A zero exit with no
+answer is an act this manager cannot account for, and custody that cannot be
+accounted for is not custody. The JSON extraction that used to live in each
+engine case is the act's own now, so there is one reader rather than one per
+caller.
+
+## 2026-08-29 — the `--rm` claim the code made and the record denied
+
+`custody_vector`'s docstring said `--rm` plus foreground meant "a crash between
+start and ending leaks no capability a later manager would have to find and
+reclaim". **That is false and this record already said so** at the first
+review, and `PLAN.md` has carried bounded/derivable/restart-reclaimable helper
+lifetime as NOT DONE since.
+
+**Superseded:** that sentence. What `--rm` buys is reclamation on the engine's
+normal removal path — the container goes when the act ends. A manager or
+client that dies mid-act leaves a helper the engine never reclaims and this
+build never looks for. `CUSTODY_NAME` exists so a restarted manager could find
+one and nothing reads it yet.
+
+Two live rules that contradict each other are worse than either alone, and one
+of them being in a docstring rather than in the record does not make it less
+authoritative to the next reader — the docstring is what an implementer reads.
+
+### The answer has no public constructor either
+
+The first cut of `CustodyAnswer` took an ordinary `__init__`, which the shared
+boundary inventory correctly saw as four more caller entries with no owning
+validator. Removing it is not a way around that gate: an answer is what one
+act REPORTED, so a caller that can mint one can report an act that never
+happened. `_answered` is private and is called in exactly one place — at the
+end of the act it describes — which is the same rule this package already
+applies to `WorkspaceGroup`, `WorkspaceStorage` and every other capability it
+refuses to let a caller compose.

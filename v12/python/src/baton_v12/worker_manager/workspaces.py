@@ -98,6 +98,9 @@ __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
            "prove_workspace_group", "WorkspaceGroup", "AllocatedRoots",
            "WORKSPACE_GROUP_KEY", "CONFIGURE_OPERATION",
            "configure_workspace_group", "configured_workspace_group",
+           "WORKSPACE_STORAGE_KEY", "STORAGE_CONFIGURE_OPERATION",
+           "WorkspaceStorage", "check_workspace_storage",
+           "configure_workspace_storage", "configured_workspace_storage",
            "MAX_BYTES", "MAX_DEPTH", "READ_ONLY_DIR", "READ_ONLY_FILE",
            "assignment_workspace", "compose_input_root", "copied_manifest",
            "directory_manifest", "discard_tree", "discard_workspace",
@@ -226,6 +229,14 @@ WORKSPACE_DIR = 0o2770
 # CAN use; this says what the deployment SAID to use, and only the second
 # authorizes anything.
 WORKSPACE_GROUP_KEY = "workspace-group"
+
+# W36540 review [P0]: THE DEPLOYMENT'S WORKSPACE STORE, recorded the same way
+# its group is. The custody mint used to take `storage` as an ordinary path, so
+# a caller could make a directory holding `attempt-1/workspace`, pass it, and
+# be handed a capability over an unrelated host tree. A root a caller can name
+# is a root a caller chose -- the same sentence W33936 wrote about the group,
+# and the same answer.
+WORKSPACE_STORAGE_KEY = "workspace-storage"
 
 # The token that says this object came from the deployment's own record. A
 # module-private sentinel rather than a flag, because a flag is something a
@@ -432,6 +443,215 @@ def configured_workspace_group(store):
                 f"a group the record was edited to name is not a group the "
                 f"deployment configured", code="schema")
     return WorkspaceGroup(committed, _MINT)
+
+
+class WorkspaceStorage:
+    """The deployment's configured workspace STORE, as a frozen answer.
+
+    W36540 review [P0]. The exact shape `WorkspaceGroup` has, for the exact
+    reason: a path is a value any caller can compose, and the custody mint was
+    deriving its mount source from one. A caller could create an ordinary
+    manager-owned directory holding `attempt-1/workspace`, hand it over as
+    `storage`, and receive a valid custody root over an unrelated host tree --
+    every structural check passing, because the structure is reproducible with
+    two `mkdir`s.
+
+    This can only be obtained from `configured_workspace_storage`, which reads
+    the deployment's own record. Holding one for root B means the deployment
+    configured B.
+
+    WHY ALLOCATION IS NOT ALSO CHANGED, said plainly rather than left as an
+    asymmetry a reader has to explain to themselves. `assignment_workspace`
+    still takes a path: it is the DEPLOYMENT'S OWN allocation act, and the
+    review's requirement is about the custody MOUNT. A caller may still
+    allocate a workspace wherever it may already write; what it can no longer
+    do is have a container mounted on one. Custody is confined to the
+    configured store, and allocating elsewhere grants no custody there.
+    """
+
+    __slots__ = ("place",)
+
+    def __init__(self, place, _minted=None):
+        if _minted is not _MINT:
+            _denied("a configured workspace store is obtained from this "
+                    "manager's own record of what the deployment configured, "
+                    "and is not constructed; a store a caller can mint is a "
+                    "store a caller chose")
+        object.__setattr__(self, "place", check_workspace_storage(place))
+
+    def __setattr__(self, name, value):
+        _refuse("a configured workspace store is immutable", code="schema")
+
+    def __repr__(self):
+        return f"WorkspaceStorage({self.place!r})"
+
+    def __eq__(self, other):
+        return isinstance(other, WorkspaceStorage) and other.place == self.place
+
+    def __hash__(self):
+        return hash(("WorkspaceStorage", self.place))
+
+
+def check_workspace_storage(place, *, what="the configured workspace store"):
+    """One absolute, manager-owned, unaliased directory, validated and owned.
+
+    ASKED WITH `lstat`, never `isdir`. `os.path.isdir` follows a symlink and
+    answers about its target, which is the question an attacker gets to choose
+    the answer to; the entry itself is what this is about.
+
+    NO DEFAULT AND NO INFERENCE, on the rule the group is already under: a
+    store guessed from where this process happens to be running is not a
+    deployment's decision.
+    """
+    # A LITERAL LABEL AT THE OWNER, and it has to be one. The boundary
+    # inventory attributes a crossing by the label written at the site, so a
+    # variable there is a crossing it cannot key -- and it raises rather than
+    # guessing, which stopped the whole package's scan from producing any
+    # verdict at all. `what` stays the caller's context word for the refusal
+    # prose below, where it reads correctly and decides nothing.
+    boundaries.text(place, "the configured workspace store")
+    if not os.path.isabs(place):
+        _refuse(f"{what} is an absolute path; {name_value(place)} is not",
+                code="path")
+    if os.path.normpath(place) != place.rstrip("/") or place != place.rstrip("/") and place != "/":
+        _refuse(f"{what} is a canonical path with no traversal or trailing "
+                f"separator; {name_value(place)} is not", code="path")
+    try:
+        held = os.lstat(place)
+    except OSError:
+        _refuse(f"{what} {name_value(place)} is not a directory this manager "
+                f"can see", code="path")
+    if stat.S_ISLNK(held.st_mode) or not stat.S_ISDIR(held.st_mode):
+        _refuse(f"{what} {name_value(place)} is not a directory this manager "
+                f"created: a link at that name is a store somebody else chose",
+                code="path")
+    if held.st_uid != os.getuid():
+        _refuse(f"{what} {name_value(place)} is owned by uid {held.st_uid} and "
+                f"this manager is uid {os.getuid()}; a store this manager does "
+                f"not own is not one it allocates attempts under", code="path")
+    return place
+
+
+def configure_workspace_storage(store, place):
+    """The DEPLOYMENT's act: name the one workspace store.
+
+    Identical in shape to `configure_workspace_group`, including the rule that
+    RECONFIGURING TO A DIFFERENT ROOT IS REFUSED: a manager already holding
+    attempts under one store cannot be told the store is now another one
+    without every recorded attempt becoming unfindable. Re-affirming the same
+    root is a no-op and commits.
+    """
+    from .store import manager_signature
+    place = check_workspace_storage(place)
+    # THE JOURNAL, not the projection -- the committed operation is the one
+    # account of this a caller holding the store cannot rewrite without the
+    # collision the journal is for.
+    held = _committed_workspace_storage(store)
+    if held is not None and held != place:
+        _denied(f"this manager is already configured with workspace store "
+                f"{name_value(held)} and is being told to use "
+                f"{name_value(place)}; every attempt already allocated under "
+                f"the first store would become unfindable, so a changed store "
+                f"is a fresh store rather than a reconfiguration")
+    signature = manager_signature(STORAGE_CONFIGURE_OPERATION,
+                                  {"place": place})
+
+    def act(connection):
+        connection.execute(
+            "INSERT INTO meta (key, value) VALUES (?, ?) "
+            "ON CONFLICT (key) DO UPDATE SET value = excluded.value",
+            (WORKSPACE_STORAGE_KEY, place))
+        return {"workspace_storage": place}
+
+    return store.transact(STORAGE_CONFIGURE_OPERATION,
+                          STORAGE_CONFIGURE_OPERATION, signature, act)
+
+
+STORAGE_CONFIGURE_OPERATION = "workspace-storage.configure"
+
+
+def _configured_storage(store):
+    found = store._connection.execute(
+        "SELECT value FROM meta WHERE key = ?",
+        (WORKSPACE_STORAGE_KEY,)).fetchone()
+    if found is None:
+        return None
+    # ADOPTED, not trusted: a persisted value this process did not write, and a
+    # store hand-edited to name `/` is exactly what the read has to refuse.
+    return check_workspace_storage(found["value"],
+                                   what="the recorded workspace store")
+
+
+def _committed_workspace_storage(store):
+    """The deployment's own act, read out of the journal.
+
+    The three questions `_committed_workspace_group` asks, in the same order
+    and for the same reasons: the KIND, so a row of another kind at this
+    identity is not a configuration; the ANSWER THROUGH `replay`, so a refused
+    configuration is reproduced as the refusal it was; and the SIGNATURE
+    RECOMPUTED, so a `result` column edited in place to name another root no
+    longer agrees with the signature written beside it.
+    """
+    from .store import manager_signature
+    held = store.operation_record(STORAGE_CONFIGURE_OPERATION)
+    if held is None:
+        return None
+    if held["kind"] != STORAGE_CONFIGURE_OPERATION:
+        _refuse(f"the journalled operation {STORAGE_CONFIGURE_OPERATION!r} is "
+                f"recorded as kind {name_value(held['kind'])}; a row of "
+                f"another kind is not this deployment's workspace store "
+                f"configuration", code="schema")
+    _, committed = store.replay(STORAGE_CONFIGURE_OPERATION,
+                                held["signature"],
+                                kind=STORAGE_CONFIGURE_OPERATION)
+    answer = boundaries.document(committed,
+                                 "the committed workspace store configuration",
+                                 required=("workspace_storage",))
+    place = check_workspace_storage(answer["workspace_storage"],
+                                    what="the committed workspace store")
+    if held["signature"] != manager_signature(STORAGE_CONFIGURE_OPERATION,
+                                              {"place": place}):
+        _refuse(f"the journalled workspace store configuration names "
+                f"{name_value(place)}, which is not the store its recorded "
+                f"signature was written for; the committed answer and the "
+                f"operands it was committed under disagree", code="schema")
+    return place
+
+
+def configured_workspace_storage(store):
+    """The deployment's frozen answer, or a refusal.
+
+    THE ONLY WAY TO OBTAIN A `WorkspaceStorage`, and the two accounts must
+    agree exactly as they must for the group: the committed operation is the
+    deployment's act and `meta` is this manager's projection of it. Every
+    direction of disagreement fails closed, including a projection that is
+    merely absent -- a record this build cannot cross-check is not one it mints
+    a custody root from.
+    """
+    projected = _configured_storage(store)
+    committed = _committed_workspace_storage(store)
+    if projected is None and committed is None:
+        _denied("this manager has no configured workspace store; the "
+                "deployment records the one directory attempts are allocated "
+                "under before any custody act, and a store taken from a "
+                "caller's operand is not a deployment's decision")
+    if committed is None:
+        _refuse(f"this manager's record names workspace store "
+                f"{name_value(projected)} with no committed configuration "
+                f"behind it; a projection nobody configured is not a "
+                f"deployment's act", code="schema")
+    if projected is None:
+        _refuse(f"the deployment configured workspace store "
+                f"{name_value(committed)} and this manager's record of it is "
+                f"gone; a configuration this build cannot cross-check is not "
+                f"one it mints a custody root from", code="schema")
+    if projected != committed:
+        _refuse(f"this manager's record names workspace store "
+                f"{name_value(projected)} and the deployment's committed "
+                f"configuration names {name_value(committed)}; a store the "
+                f"record was edited to name is not a store the deployment "
+                f"configured", code="schema")
+    return WorkspaceStorage(committed, _MINT)
 
 
 def check_workspace_group(gid, *, what="the configured workspace group"):

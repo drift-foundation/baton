@@ -37,7 +37,12 @@ class CustodyCase(unittest.TestCase):
         self.group = input_roots.configured_group(self.store)
         self.storage = os.path.join(self.root, "storage")
         os.makedirs(self.storage, exist_ok=True)
-        self.held = self.custody_root()
+        # THE DEPLOYMENT'S OWN RECORD, for the store exactly as for the group.
+        # W36540 review [P0]: the mint no longer accepts a path, so a fixture
+        # cannot hand it one either -- it has to CONFIGURE the store, which is
+        # the deployment's act, and then read the manager's record back.
+        workspaces.configure_workspace_storage(self.store, self.storage)
+        workspaces.assignment_workspace(self.group, self.storage, "attempt-1")
 
     def opened(self):
         from baton_v12.worker_manager import ControlStore
@@ -48,23 +53,41 @@ class CustodyCase(unittest.TestCase):
         self.addCleanup(store.close)
         return store
 
-    def custody_root(self, which="workspace"):
-        """The capability, DERIVED from the allocation this manager performed.
+    def mounted(self, argv):
+        """The one bind source this act composed."""
+        return argv[argv.index("--mount") + 1]
 
-        The allocation still happens -- custody is over directories that
-        exist -- but its ANSWER is not what the mint reads. Nothing this
-        fixture holds decides the mount.
+    def acted(self, **overrides):
+        """One custody act, run against a recording engine port.
+
+        W36540 review [P0] round ten: there is no composed argv to ask for any
+        more, because `custody_act` performs the act rather than describing
+        it. What this fixture holds is what the ENGINE PORT received — which
+        is the one place the vector legitimately exists, and the place every
+        other vector this manager composes also reaches. Observing it there
+        proves what ran; it is not a handoff, because by the time the port
+        holds it there is nothing left to retarget.
         """
-        workspaces.assignment_workspace(self.group, self.storage, "attempt-1")
-        return custody.attempt_custody_root(self.group, self.storage,
-                                            "attempt-1", which)
+        operands = {"image_digest": IMAGE, "name": "baton-custody-1",
+                    "store": self.store, "assignment_id": "attempt-1",
+                    "operation": "normalize"}
+        operands.update(overrides)
+        self.seen = []
+
+        def run(argv):
+            self.seen.append(list(argv))
+            return {"status": 0,
+                    "stdout": json.dumps({"custody": operands["operation"],
+                                          "entries": 3,
+                                          "running_as": [65532, 65532]}),
+                    "stderr": ""}
+
+        return custody.custody_act("docker", run, **operands)
 
     def vector(self, **overrides):
-        operands = {"image_digest": IMAGE, "name": "baton-custody-1",
-                    "custody": self.held, "operation": "normalize",
-                    "workspace_group": self.group}
-        operands.update(overrides)
-        return custody.custody_vector("docker", **operands)
+        """What the engine port was handed for one act."""
+        self.acted(**overrides)
+        return self.seen[0]
 
 
 class TheVocabularyIsClosed(CustodyCase):
@@ -147,25 +170,134 @@ class OneMountAndNothingElse(CustodyCase):
     def test_the_mount_is_the_attempt_root_at_a_fixed_target(self):
         argv = self.vector()
         mount = argv[argv.index("--mount") + 1]
-        self.assertIn(f"source={self.held.place}", mount)
+        self.assertIn(f"source={os.path.realpath(os.path.join(self.storage, 'attempt-1', 'workspace'))}", mount)
         self.assertIn(f"target={custody.CUSTODY_ROOT}", mount)
         self.assertIn("readonly=false", mount)
 
     def test_an_arbitrary_absolute_path_is_not_a_custody_capability(self):
-        """Review [P0]: a repository, a credential root or an unrelated
-        sibling cannot be selected, because there is no path operand at all."""
+        """A repository, a credential root or an unrelated sibling cannot be
+        selected, because there is no path operand at all -- the only thing
+        that names a directory here is the deployment's own record."""
         for wrong in ("/etc", "/home/sl/src", self.root, "relative", None, 5,
                       {"place": "/etc"}):
-            with self.subTest(custody=wrong):
-                with self.assertRaises(ContractRefusal) as caught:
-                    self.vector(custody=wrong)
-                self.assertEqual(
-                    (caught.exception.category, caught.exception.code),
-                    ("policy", "denied"))
+            with self.subTest(store=wrong):
+                with self.assertRaises((ContractRefusal, TypeError,
+                                        AttributeError)):
+                    self.vector(store=wrong)
 
-    def test_a_custody_root_cannot_be_constructed_by_a_caller(self):
-        with self.assertRaises(ContractRefusal):
-            custody.CustodyRoot("/etc", "workspace")
+    def test_the_vector_takes_no_path_bearing_object_to_retarget(self):
+        """Review [P0] round nine: the handoff is GONE, not hardened again.
+
+        The vector took a minted `CustodyRoot` and read `.place` off it, so
+        `object.__setattr__` on a genuine root put an unrelated directory
+        verbatim into `--mount source=...`. Nine rounds of setters, private
+        slots and type checks were all on the wrong side of that interval.
+
+        There is no interval now: `custody_act` reads the durable record,
+        composes the argv and RUNS it in one act, and its operands are the
+        engine port, a store and a NAME. So this asserts the absence rather
+        than another refusal — there is nothing left to hand it that could
+        carry a path.
+        """
+        import inspect
+        signature = inspect.signature(custody.custody_act)
+        self.assertEqual(list(signature.parameters),
+                         ["engine", "run", "image_digest", "name", "store",
+                          "assignment_id", "operation", "which"])
+        self.assertFalse(hasattr(custody, "CustodyRoot"))
+        self.assertFalse(hasattr(custody, "attempt_custody_root"))
+        self.assertFalse(hasattr(custody, "custody_vector"))
+        # AND THE MOUNT IS THIS ATTEMPT'S OWN, derived rather than supplied.
+        self.assertIn(
+            f"source={os.path.realpath(os.path.join(self.storage, 'attempt-1', 'workspace'))},",
+            self.mounted(self.vector()))
+
+    def test_the_authenticated_mount_is_not_returned_as_a_mutable_handoff(self):
+        """Lookup, composition and execution ARE the same owned act.
+
+        Reviewer regression (2026-08-29T22:28:08Z [P0]). Its original form
+        took the returned argv, rewrote the `--mount` member and required the
+        unrelated path not to be there — a requirement no returned list can
+        meet, which is the review's own point: "a tuple or another frozen argv
+        wrapper would not close the boundary". So the case asserts what the
+        review actually asked for instead. There is no returned vector: the
+        act runs the engine itself and answers a typed result, so a caller has
+        neither a host path nor an executable command to retarget.
+        """
+        unrelated = tempfile.TemporaryDirectory(prefix="v12-vector-retarget-")
+        self.addCleanup(unrelated.cleanup)
+        answered = self.acted()
+        # NOTHING EXECUTABLE AND NOTHING PATH-BEARING CAME BACK.
+        self.assertIsInstance(answered, custody.CustodyAnswer)
+        self.assertFalse(hasattr(custody, "custody_vector"))
+        rendered = repr(answered) + json.dumps(dict(answered.answer))
+        for absent in (self.storage, self.root, "--mount", "docker",
+                       custody.CUSTODY_ROOT, "type=bind"):
+            self.assertNotIn(absent, rendered, absent)
+        # AND THE ACT ALREADY HAPPENED. What the port was handed is the one
+        # vector that ran; rewriting it afterwards reaches no execution,
+        # because there is no second one for a caller to perform.
+        argv = self.seen[0]
+        argv[argv.index("--mount") + 1] = (
+            f"type=bind,source={unrelated.name},"
+            f"target={custody.CUSTODY_ROOT},readonly=false")
+        self.assertEqual(len(self.seen), 1)
+        self.assertNotIn(unrelated.name, json.dumps(dict(answered.answer)))
+
+    def test_the_answer_a_caller_keeps_carries_no_host_path(self):
+        """The custodian answers paths relative to its own mount, which is the
+        only namespace it knows — so what a holder keeps afterwards names
+        nothing on this host."""
+        answered = self.acted(operation="inspect")
+        self.assertTrue(answered.ok)
+        self.assertNotIn(self.storage, json.dumps(dict(answered.answer)))
+        for gone in ("place", "source", "root", "argv", "vector"):
+            self.assertFalse(hasattr(answered, gone), gone)
+
+    def test_a_custody_answer_cannot_be_minted_by_a_caller(self):
+        """An answer is what one act REPORTED, so a caller that could mint one
+        could report an act that never happened — the same rule every
+        capability in this package is under."""
+        with self.assertRaises(TypeError):
+            custody.CustodyAnswer("normalize", 0, {}, "")
+
+    def test_a_custody_answer_is_not_revised_by_its_holder(self):
+        """An answer somebody can edit is an account that disagrees with what
+        happened."""
+        answered = self.acted()
+        for name, value in (("status", 1), ("operation", "discard"),
+                            ("answer", {}), ("_status", 1)):
+            with self.subTest(member=name):
+                with self.assertRaises(AttributeError):
+                    setattr(answered, name, value)
+        with self.assertRaises(TypeError):
+            answered.answer["custody"] = "discard"
+
+    def test_an_act_that_answered_nothing_is_not_reported_as_custody(self):
+        """A zero exit with no readable document is an act this manager cannot
+        account for, and custody that cannot be accounted for is not it."""
+        for stdout in ("", "not a document", "[1, 2, 3]", "null"):
+            with self.subTest(stdout=stdout):
+                answered = custody.custody_act(
+                    "docker",
+                    lambda argv, out=stdout: {"status": 0, "stdout": out,
+                                              "stderr": ""},
+                    image_digest=IMAGE, name="baton-custody-1",
+                    store=self.store, assignment_id="attempt-1",
+                    operation="normalize")
+                self.assertIsNone(answered.answer)
+                self.assertFalse(answered.ok)
+
+    def test_a_failed_act_carries_a_bounded_diagnostic(self):
+        answered = custody.custody_act(
+            "docker",
+            lambda argv: {"status": 3, "stdout": "",
+                          "stderr": "x" * (custody.MAX_DIAGNOSTIC * 4)},
+            image_digest=IMAGE, name="baton-custody-1", store=self.store,
+            assignment_id="attempt-1", operation="normalize")
+        self.assertEqual(answered.status, 3)
+        self.assertFalse(answered.ok)
+        self.assertEqual(len(answered.diagnostic), custody.MAX_DIAGNOSTIC)
 
     def test_a_caller_mapping_cannot_launder_an_unrelated_host_root(self):
         """There is no mapping operand left to launder anything through.
@@ -180,12 +312,9 @@ class OneMountAndNothingElse(CustodyCase):
         forged = {"inputs": roots["inputs"], "workspace": self.root}
         for wrong in (forged, roots, self.root):
             with self.subTest(operand=type(wrong).__name__):
-                with self.assertRaises(ContractRefusal) as caught:
-                    custody.attempt_custody_root(wrong, self.storage,
-                                                 "attempt-1")
-                self.assertEqual(
-                    (caught.exception.category, caught.exception.code),
-                    ("policy", "denied"))
+                with self.assertRaises((ContractRefusal, TypeError,
+                                        AttributeError)):
+                    self.vector(store=wrong)
 
     def test_a_caller_cannot_forge_the_expected_directory_shape(self):
         """Reproducing the layout somewhere else buys nothing any more.
@@ -201,9 +330,8 @@ class OneMountAndNothingElse(CustodyCase):
         self.addCleanup(unrelated.cleanup)
         os.mkdir(os.path.join(unrelated.name, "inputs"))
         os.mkdir(os.path.join(unrelated.name, "workspace"))
-        with self.assertRaises(ContractRefusal):
-            custody.attempt_custody_root(self.group, unrelated.name,
-                                         "attempt-1")
+        with self.assertRaises((ContractRefusal, TypeError, AttributeError)):
+            self.vector(store=unrelated.name)
 
     def test_a_caller_cannot_select_an_unrelated_storage_root(self):
         """Derivation below a caller path is still caller path selection.
@@ -218,9 +346,60 @@ class OneMountAndNothingElse(CustodyCase):
         home = os.path.join(unrelated.name, "attempt-1")
         os.mkdir(home)
         os.mkdir(os.path.join(home, "workspace"))
+        with self.assertRaises((ContractRefusal, TypeError, AttributeError)):
+            self.vector(store=unrelated.name)
+        # AND CONFIGURING IT IS THE ONLY WAY IN, which is the half that makes
+        # the refusal above a boundary rather than a type quibble: a second
+        # store cannot be configured over the first, so a caller cannot reach
+        # this directory by taking the deployment's own route either.
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.configure_workspace_storage(self.store, unrelated.name)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+
+    def test_a_configured_store_capability_cannot_be_retargeted(self):
+        """A caller-held wrapper cannot be the durable storage authority.
+
+        The dossier already records that ``object.__setattr__`` reaches every
+        slot in this language and that no private/frozen representation closes
+        the boundary.  ``WorkspaceStorage.place`` repeats that exact shape: a
+        holder can replace the recorded path after configuration, and the
+        custody mint reads the replacement without reopening manager-owned
+        durable state.
+        """
+        unrelated = tempfile.TemporaryDirectory(prefix="v12-retarget-store-")
+        self.addCleanup(unrelated.cleanup)
+        workspace = os.path.join(unrelated.name, "attempt-1", "workspace")
+        os.makedirs(workspace)
+        # A HELD CAPABILITY CAN STILL BE RETARGETED -- object.__setattr__
+        # reaches every slot and no representation closes that, which this
+        # dossier has said since round six. What changed is that nothing
+        # reads a held one: the vector opens the record itself, so the
+        # retarget cannot reach the mount.
+        held = workspaces.configured_workspace_storage(self.store)
+        object.__setattr__(held, "place", unrelated.name)
+        self.assertIn(
+            f"source={os.path.realpath(os.path.join(self.storage, 'attempt-1', 'workspace'))},",
+            self.mounted(self.vector()))
+        self.assertNotIn(unrelated.name, " ".join(self.vector()))
+
+    def test_a_refused_parent_link_creates_nothing_through_its_target(self):
+        """Validate every parent before creating the optional result root.
+
+        DRIVEN THROUGH THE VECTOR, which is the only door left. The aliased
+        home sits inside the CONFIGURED store, which is where a worker-era
+        alias would actually appear and the only place the derivation looks.
+        """
+        unrelated = tempfile.TemporaryDirectory(prefix="v12-result-target-")
+        self.addCleanup(unrelated.cleanup)
+        workspace = os.path.join(unrelated.name, "workspace")
+        os.mkdir(workspace)
+        os.symlink(unrelated.name,
+                   os.path.join(self.storage, "attempt-through-link"))
         with self.assertRaises(ContractRefusal):
-            custody.attempt_custody_root(self.group, unrelated.name,
-                                         "attempt-1")
+            self.vector(assignment_id="attempt-through-link", which="result")
+        self.assertFalse(os.path.exists(os.path.join(workspace, "result")),
+                         "the refused mint created through its parent link")
 
     def test_an_attempt_identity_cannot_carry_a_path(self):
         """An attempt is NAMED. `boundaries.identity` owns durable text and
@@ -229,8 +408,7 @@ class OneMountAndNothingElse(CustodyCase):
         for named in ("../elsewhere", "a/b", "..", "."):
             with self.subTest(assignment=named):
                 with self.assertRaises(ContractRefusal) as caught:
-                    custody.attempt_custody_root(self.group, self.storage,
-                                                 named)
+                    self.vector(assignment_id=named)
                 self.assertEqual(
                     (caught.exception.category, caught.exception.code),
                     ("policy", "denied"))
@@ -311,10 +489,10 @@ class OneMountAndNothingElse(CustodyCase):
             dict.update(roots, {"inputs": inputs, "workspace": workspace})
         self.assertNotEqual(roots["workspace"], workspace)
         # And the derived root is still this attempt's own workspace.
-        minted = custody.attempt_custody_root(self.group, self.storage,
-                                              "attempt-1")
-        self.assertEqual(minted.place, os.path.realpath(roots["workspace"]))
-        self.assertNotEqual(minted.place, os.path.realpath(workspace))
+        self.assertIn(f"source={os.path.realpath(roots['workspace'])},",
+                      self.mounted(self.vector()))
+        self.assertNotIn(os.path.realpath(workspace),
+                         " ".join(self.vector()))
 
     def test_the_private_member_mapping_cannot_retarget_allocated_roots(self):
         """A private NAME is not an immutable representation.
@@ -346,13 +524,11 @@ class OneMountAndNothingElse(CustodyCase):
         # answer could not choose the mount. Asserted by deriving the root
         # from the allocation operands and finding this attempt's own
         # workspace.
-        minted = custody.attempt_custody_root(self.group, self.storage,
-                                              "attempt-1")
-        self.assertNotEqual(minted.place, os.path.realpath(workspace))
-        self.assertEqual(
-            minted.place,
-            os.path.realpath(os.path.join(self.storage, "attempt-1",
-                                          "workspace")))
+        mount = self.mounted(self.vector())
+        self.assertNotIn(os.path.realpath(workspace), mount)
+        self.assertIn(
+            f"source={os.path.realpath(os.path.join(self.storage, 'attempt-1', 'workspace'))},",
+            mount)
 
     def test_a_worker_created_result_symlink_cannot_choose_the_mount(self):
         roots = workspaces.assignment_workspace(self.group, self.storage,
@@ -360,8 +536,7 @@ class OneMountAndNothingElse(CustodyCase):
         result = os.path.join(roots["workspace"], "result")
         os.symlink(self.root, result)
         with self.assertRaises(ContractRefusal):
-            custody.attempt_custody_root(self.group, self.storage,
-                                         "attempt-1", "result")
+            self.vector(which="result")
 
     def test_the_mount_is_the_workspace_and_never_its_parent(self):
         """The assignment home holds the deliveries; only the attempt's own
@@ -377,32 +552,39 @@ class OneMountAndNothingElse(CustodyCase):
     def test_the_container_path_is_not_a_caller_operand(self):
         """A target a caller could choose decides what the program walks."""
         import inspect
-        signature = inspect.signature(custody.custody_vector)
+        signature = inspect.signature(custody.custody_act)
         self.assertNotIn("target", signature.parameters)
         self.assertNotIn("custody_root", signature.parameters)
 
     def test_the_host_path_is_not_a_raw_caller_operand_either(self):
         """An arbitrary absolute host path is not an attempt capability."""
         import inspect
-        signature = inspect.signature(custody.custody_vector)
+        signature = inspect.signature(custody.custody_act)
         self.assertNotIn("attempt_root", signature.parameters)
 
-    def test_the_mint_reads_no_path_bearing_object_at_all(self):
-        """The sixth review's owner change, asserted as a SIGNATURE.
+    def test_no_operand_of_the_composition_can_carry_a_path(self):
+        """Nine rounds of this Work, asserted as a signature.
 
-        Six rounds were spent closing doors onto an object the caller held
-        and the mint re-read. The correction is that no such operand exists:
-        what crosses is the deployment's group capability, the storage root
-        and the attempt's name, which is what `assignment_workspace` allocates
-        from -- so there is nothing left to retarget between allocation and
-        custody.
+        Rounds one to six closed doors onto a caller-held object the mint
+        re-read. Round seven found that deriving below a caller's `storage`
+        was the same defect one component deeper. Round eight made the store a
+        configured record — and round nine found that a capability minted from
+        durable state and then HELD is still a path a caller can change with
+        `object.__setattr__` before it is read.
+
+        The answer is not a tenth defence. It is that the composition reads
+        the durable record itself, so the only operands are this manager's own
+        store handle and the attempt's NAME, and nothing path-bearing exists
+        for anyone to hold.
         """
         import inspect
-        signature = inspect.signature(custody.attempt_custody_root)
+        signature = inspect.signature(custody.custody_act)
         self.assertEqual(list(signature.parameters),
-                         ["workspace_group", "storage", "assignment_id",
-                          "which"])
-
+                         ["engine", "run", "image_digest", "name", "store",
+                          "assignment_id", "operation", "which"])
+        for gone in ("attempt_root", "custody", "storage", "workspace_group",
+                     "workspace_storage"):
+            self.assertNotIn(gone, signature.parameters)
 
 class TheIdentityIsWhatMakesItUnconditional(CustodyCase):
 
@@ -425,15 +607,26 @@ class TheIdentityIsWhatMakesItUnconditional(CustodyCase):
         self.assertEqual(argv[argv.index("--group-add") + 1],
                          str(self.group.gid))
 
-    def test_a_group_a_caller_minted_is_refused(self):
-        """W33936's rule, one act further along."""
-        for wrong in (self.group.gid, None, "1000", object()):
-            with self.subTest(workspace_group=wrong):
-                with self.assertRaises(ContractRefusal) as caught:
-                    self.vector(workspace_group=wrong)
-                self.assertEqual(
-                    (caught.exception.category, caught.exception.code),
-                    ("policy", "denied"))
+    def test_the_group_is_read_from_the_record_rather_than_handed_in(self):
+        """W33936's rule, one act further along and one operand fewer.
+
+        The group used to cross as a `WorkspaceGroup` the caller held, which
+        is the same shape review [P0] round nine ruled out for the store: a
+        capability minted from durable state and then held is a value
+        `object.__setattr__` can change before it is read. It is read here
+        instead, so an unconfigured deployment refuses at the composition
+        rather than at a type check on something somebody passed.
+        """
+        from baton_v12.worker_manager import ControlStore
+        fresh = ControlStore.open(
+            os.path.join(self.root, "unconfigured.sqlite3"),
+            incarnation="custody-2",
+            clock=lambda: "2026-08-29T00:00:00.000Z")
+        self.addCleanup(fresh.close)
+        with self.assertRaises(ContractRefusal) as caught:
+            self.vector(store=fresh)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
 
     def test_nested_mode_zero_directories_cannot_hide_their_contents(self):
         root = tempfile.TemporaryDirectory(prefix="v12-custody-depth-")

@@ -83,6 +83,11 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     # case owns a disposable authority under its own temporary
                     # directory and shares no file with anything else.
                     "tests.authority.test_work_labels",
+                    # W29401's exposure revalidation. PARALLEL: a disposable
+                    # authority per case and no engine, image or container --
+                    # and deliberately small, because v12 has no CLI or
+                    # protocol host for the rest of that cut to land in.
+                    "tests.authority.test_work_label_exposure",
                     "tests.authority.test_store",
                     "tests.manager.test_attempts",
                     "tests.manager.test_boundary_inventory",
@@ -125,6 +130,12 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     "tests.manager.test_store",
                     "tests.manager.test_text_sweep",
                     "tests.manager.test_validate",
+                    # W39357's real Claude worker adapter. PARALLEL: the
+                    # provider is an INJECTED process-running capability, so
+                    # no provider, credential, network or daemon is reached --
+                    # every case runs against a per-case temporary tree with
+                    # the workload's root constants patched onto the module.
+                    "tests.manager.test_claude_agent",
                     # W38956's Docker worker-entry transport. PARALLEL: the
                     # positive cases run the image's own program in a THREAD
                     # over a private pipe pair with the worker's root
@@ -186,7 +197,22 @@ SERIAL_MODULES = ("tests.manager.test_worker_container",
                   "tests.manager.test_credentials_engine",
                   "tests.manager.test_refused_session_engine",
                   "tests.manager.test_custody_engine",
-                  "tests.manager.test_input_delivery")
+                  "tests.manager.test_input_delivery",
+                  # W39356's real-engine transport gate, APPENDED rather than
+                  # inserted: the image gate stays first and no existing
+                  # member moves. Serial for the reason every other engine
+                  # gate is -- it inherits W6636's class fixture, builds the
+                  # reference image, starts real containers under one
+                  # assignment's labels and drives `docker exec` against them,
+                  # and one of its cases removes a container and asks the
+                  # daemon about it.
+                  "tests.manager.test_worker_entry_engine",
+                  # W39357's no-secret dogfood image gate. SERIAL because it
+                  # BUILDS an image -- with networked npm and Debian installs
+                  # -- and then starts throwaway containers from it. It is the
+                  # only gate in this registry whose build needs egress; the
+                  # containers it then runs are all `--network none`.
+                  "tests.manager.test_dogfood_image")
 
 # The two whole-universe scans from the baseline. Split one test method per
 # shard; every other class ships as one shard.

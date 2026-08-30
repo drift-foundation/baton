@@ -1,7 +1,7 @@
 # Run and accept the first useful dogfood task
 
-Work: W39364  
-Parent: W38956  
+Work: W39364
+Parent: W38956
 Dependency: W39358
 
 ## Purpose

@@ -1976,6 +1976,28 @@ route rather than becoming a substitute hardening coder. `impl2` is not used:
 provider fallback is orthogonal to work intent and belongs in route selection,
 not in the role name.
 
+## Pooled worker selection with soft context affinity — confirmed 2026-08-29
+
+The route intents above describe Work and eligibility; they do not partition
+coders into exclusive fixed lanes. A participant may advertise every capability
+it can honestly serve, and the scheduler selects each offer from the full set of
+currently eligible participants. Labels may later select routing policy, but
+they must not make one otherwise capable worker invisible merely to preserve a
+static persona mapping.
+
+Within that eligible pool, prior context is a scheduling preference. Prefer the
+participant/runtime profile that already knows the Work, dossier, repository,
+or revision cycle when doing so is compatible with priority and availability.
+If that preferred participant is busy, unhealthy, or does not accept within the
+bounded offer window, another eligible participant may receive a fresh offer.
+Affinity must improve cache and context reuse without becoming ownership,
+blocking throughput, or fragmenting capacity into pools that routinely sit idle.
+
+Every concrete offer still names one participant, and the first successful
+atomic claim remains the authority boundary. Scheduling never moves claimed
+Work beneath its Handler. Explicit independent-opinion policy remains a hard
+selection constraint when requested; ordinary continuation uses soft affinity.
+
 Using v12 to build v12 is itself a validation surface. Scheduling, isolation,
 proposal intake, review concurrency and failure recovery defects found there
 become attributable later-pass Work. Waiting for every hardening pass before
@@ -2001,3 +2023,21 @@ each materially unstarted remainder to a separately visible M2 Job. Those
 Jobs must not become accidental dependencies of the next proof stage merely
 because they originated in W6636; add an edge only when that stage genuinely
 cannot produce an honest result without the named hardening outcome.
+
+## Provider-native telemetry introspection — confirmed 2026-08-29
+
+V12 preserves useful agent telemetry through the Worker Manager's existing
+provider-neutral `probe`/`inquire` split. ACP agents contribute stable usage
+and capability updates. Codex contributes structured status, context usage,
+authentication, quota, model and failure facts through Codex App Server over
+JSONL stdio. Other agents contribute the strongest documented structured facts
+their drivers can prove; unavailable fields stay explicitly unknown.
+
+A probe consumes no model turn and never changes workflow authority. A
+provider-specific conversational status command, when advertised, belongs to
+`inquire`, and its prose is not promoted into canonical facts without a typed
+adapter owner. Terminal `/status` screens are never scraped. The independent
+`work/records/2026/08/finding-worker-telemetry-introspection/` record owns this
+later M4 hardening and does not gate the current dogfood finish line. Its Job
+uses a descriptive title; generic label `v12` is the future campaign organizer
+rather than a title prefix.

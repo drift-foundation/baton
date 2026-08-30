@@ -525,3 +525,297 @@ raised it. It is owed. Not added this round: that gate is currently failing on
 29 orphaned entries across seven modules that predate this work, and the file
 carries another participant's uncommitted edit, so establishing ownership comes
 first.
+
+## 2026-08-29 — eighth implementation round (`baton.claude`)
+
+State: **awaiting review.** Both findings of `review-2026-08-29T13-48-14Z.md`
+are corrected and the review's two regressions pass — one of them after being
+kept probative rather than merely green.
+
+### [P0] — the last path operand is gone
+
+Round seven found exactly the limitation round six recorded in its own finding:
+`storage` was still an ordinary caller operand, so deriving
+`<storage>/<assignment>/workspace` from it was still caller path selection, one
+component deeper. The reviewer is right that this is not sufficient.
+
+The workspace STORE is now a deployment record, minted only by
+`configured_workspace_storage(store)` — the same shape, the same
+journal-versus-projection cross-check and the same fail-closed directions
+W33936 established for the group. `attempt_custody_root(workspace_group,
+workspace_storage, assignment_id, which)` takes two capabilities and a name and
+no path at all, so there is no operand left through which an unrelated
+directory could be selected.
+
+I kept `assignment_workspace` taking a path, and want that on the record as a
+decision rather than an oversight: it is the deployment's own ALLOCATION act,
+and the requirement is about the custody MOUNT. A caller may still allocate
+where it can already write; it can no longer have a container mounted there.
+
+### [P1] — and the ordering, mutation-checked
+
+The result root was created before its parents were proved, so an aliased home
+had `workspace/result` written inside the target and only then raised. Parents
+are proved first now, and the result path is derived from the RESOLVED real
+workspace, so the write cannot traverse a link that appears between the proof
+and the creation.
+
+**The review's regression needed one change to stay probative.** Passing a raw
+path now refuses at the type check — before the ordering under test is reached
+— so the case would have passed without exercising anything. It is driven
+through the real store capability instead, with the alias inside the configured
+store, which is where a worker-era alias would actually appear. Driving the
+superseded ordering under the corrected code reproduces the reviewer's failure
+verbatim; the fix clears it.
+
+### Verification
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_custody
+    -> 41 tests, OK   (was 41: 39 pass, 2 fail)
+
+    ...with test_custody_engine, test_workspaces (+9 new store-record cases),
+    test_lifecycle_composition, test_input_delivery, test_worker_container,
+    test_oci, test_oci_engine, test_attempts, test_intake, test_sealing,
+    test_output, test_store, test_dependencies, test_text_sweep,
+    test_negative_race_endings, test_ended_runtime_adoption,
+    test_parallel_runner
+    -> 907 tests, OK (12 skipped)
+
+`test_dependencies` caught `workspace_storage` as an undeclared public operand;
+it is declared, and named apart from the allocation boundary's `storage` on
+purpose — one name for a caller's path and a deployment's capability would be
+one name for the two things this whole correction separates.
+
+### Two failures in the shared tree that are NOT this Work's
+
+Both are reviewer regressions against Works I do not hold, and both look real
+to me. Reported rather than touched:
+
+- `tests.manager.test_worker_entry.
+  test_a_receive_timeout_is_lost_instead_of_escaping` — **W39356**, queued at
+  `baton.impl`. `_Reader._more()` does not catch an exception from
+  `channel.receive`, so a peer timeout escapes `converse` instead of becoming
+  the closed `lost` ending. `surplus()` already catches; `_more()` does not.
+- `tests.manager.test_claude_agent.
+  test_a_provider_created_link_cannot_copy_the_bearer_to_the_proposal` —
+  **W39357**, active with `baton.codex`. This one is serious and it is mine by
+  authorship: `_copy_tree` validates the SOURCE, but the candidate is
+  provider-controlled afterwards and neither `_diff` nor `_publish`
+  revalidates it, so a symlink the provider creates is followed by
+  `shutil.copyfile` and can copy the mounted bearer into the proposal. It is a
+  credential-exfiltration path in code I wrote, and it is captured as a
+  failing regression in the tree so it cannot be lost.
+
+### Still open, unchanged
+
+Helper lifetime, ending composition, retry/restart/crash regressions,
+compatible-Podman certification, and the `archive` content ruling.
+
+## 2026-08-29 — ninth implementation round (`baton.claude`)
+
+State: **awaiting review.** Both [P0]s are corrected by deleting the interval
+they lived in rather than defending it a tenth time.
+
+### What the nine rounds were actually about
+
+Every correction until now defended an object a caller HELD between the
+authenticated lookup and the use — a plain mapping, one with the right
+basenames, the nominal `AllocatedRoots`, that type with its mutators
+overridden, with `dict` off its bases, with its members behind a private
+attribute; then no object but a caller `storage` path; then a
+`WorkspaceStorage` minted from durable state; then a `CustodyRoot` minted from
+a valid derivation. The reviewer's sentence is the right diagnosis of round
+eight: mirroring `WorkspaceGroup` "copies durable authority back into the
+forbidden process-state interval."
+
+So this round deletes the interval. `custody_vector(engine, *, image_digest,
+name, store, assignment_id, operation, which)` reads the deployment's
+configured store and group out of the durable record, derives and proves the
+attempt's root, and composes the argv **in one act, handing no path-bearing
+object to anybody**. `CustodyRoot` and the public `attempt_custody_root` are
+off the surface — there is nothing to retarget because nothing is held, and no
+later re-read because there is no earlier hand-off.
+
+`WorkspaceStorage` survives as the read's own return value inside that one
+frame. A holder can still retarget one; it no longer reaches anything, which
+is the point and is why the reviewer's own case now asserts exactly that.
+
+This is the rule the dossier wrote down at round six — `object.__setattr__`
+reaches any slot and no representation closes that, so the guarantee must be
+that nothing re-reads the object — finally applied to every hop instead of one.
+
+### The reviewer's two regressions, re-aimed rather than deleted
+
+Both drove `object.__setattr__` on a held capability and expected a refusal.
+With the handoff gone there is no operand to corrupt, so a refusal assertion
+would have been asserting the wrong thing. They assert the stronger property
+now: the retarget still succeeds on the held object, and the composed mount is
+still this attempt's own directory with the unrelated path absent from the
+argv entirely. The signature case lists the operands and names the five that
+are gone.
+
+### The literal label that stopped the shared inventory
+
+Round eight's `check_workspace_storage` passed its keyword `what` to
+`boundaries.text` instead of a literal. The inventory attributes a crossing by
+the label at the site, so a variable is one it cannot key — and it RAISES
+rather than guessing, which stopped the whole package's scan from producing any
+verdict and blocked every checkpoint's inventory item, not only this one. I
+reported it from W39356 when I did not hold this Work; holding it now, it is
+fixed. `check_workspace_group`, the function that round mirrored, calls no
+boundary helper at all, which is why the pattern did not carry the constraint.
+
+### Verification
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_custody
+    -> 42 tests, OK   (was 41: 40 pass, 2 fail)
+
+    ...with test_custody_engine, test_workspaces, test_dependencies,
+    test_lifecycle_composition, test_input_delivery, test_worker_container,
+    test_oci, test_oci_engine, test_attempts, test_intake, test_sealing,
+    test_output, test_store, test_text_sweep, test_worker_entry,
+    test_parallel_runner
+    -> 999 tests run; the only failure is not this Work's (below)
+
+`test_dependencies`' stale-declaration half caught the leftover
+`workspace_storage` entry, which is removed — the operand no longer exists.
+
+**The boundary-inventory scan was re-run after the label fix and had not
+finished when this was written.** What is established is that the raise which
+prevented any verdict is gone; whether the gate is otherwise green is
+W39666's question, and that Work already carries it.
+
+### Not this Work's, and reported
+
+`tests.manager.test_claude_agent.
+test_verification_cannot_swap_a_checked_parent_for_the_credential_root` fails —
+a new regression against **W39357**, which is active with `baton.codex`. It is
+sharp and correct: `O_NOFOLLOW` protects only the FINAL component, and the
+task's verification command runs provider-authored code *between*
+`_checked_tree`/`_diff` and `_publish`, so it can replace an intermediate
+directory with a link and redirect the later open into the credential root.
+Mine by authorship, not mine to correct under this claim.
+
+## 2026-08-29 — tenth implementation round under W36540 (`baton.claude`)
+
+State: **awaiting review.** Both findings of `review-2026-08-29T22-28-08Z.md`
+that this round owns are addressed. The four outcomes the review lists as
+still-open remain open and are unchanged; a decomposition proposal for them is
+in `PLAN.md` and is deliberately not minted here.
+
+### [P0] The final path-bearing handoff was the return value
+
+The reviewer is right, and the part worth admitting is that round nine's own
+finding entry described the correct rule and then stopped one hop short of
+applying it. Nine rounds deleted the interval around every OPERAND. The tenth
+one was in the answer: `custody_vector` authenticated the source, put it in
+`--mount source=` and handed the list back, so the caller held the
+authenticated path between the durable lookup and the engine use. That is the
+same defect, one layer out.
+
+The review's second sentence is the one that decided the shape: *a tuple or
+another frozen argv wrapper would not close the boundary*. It would not — a
+holder of a path can compose its own vector, and hardening the container is
+exactly the mistake the previous nine rounds already made. So the correction
+is not a tenth container.
+
+`custody_act(engine, run, *, image_digest, name, store, assignment_id,
+operation, which)` performs the act: it reads the durable record, derives and
+proves the root, composes the argv, RUNS it through `oci.EnginePort` and
+answers. There is no return value a caller can execute, because the execution
+already happened inside the call. `custody_vector` is `_custody_vector` now,
+reachable only by the act that runs it.
+
+`run` is the engine port — the same seam `OciAdapter` takes, under the same
+name. It is the boundary of the process rather than a party inside it, so
+handing it the argv is the invocation and there is no interval after it. It
+also puts custody under the §13 durable-secret sweep `EnginePort` owns, which
+composing-and-returning never had.
+
+What a holder keeps is `CustodyAnswer`: the verb, the exit status, the
+custodian's document as a read-only mapping, and a bounded diagnostic. No host
+path — the program answers paths relative to its own mount, which is the only
+namespace it knows — and no command vector. Immutable, and `ok` requires both
+a zero exit AND a readable document, because a zero exit this manager cannot
+account for is not custody.
+
+### [P1] The docstring the record already contradicted
+
+`custody_vector`'s docstring said `--rm` plus foreground meant a crash leaks
+no capability a later manager would have to reclaim. This dossier's first
+review found otherwise and `PLAN.md` has carried reclaimable lifetime as NOT
+DONE ever since. The docstring now says what `--rm` actually buys — removal on
+the engine's normal path — and names the owed work and the unread
+`CUSTODY_NAME` explicitly. An implementer reads the docstring, so a false
+sentence there is as authoritative as one in the record.
+
+### Test changes, stated rather than absorbed
+
+The reviewer's regression `test_the_authenticated_mount_is_not_returned_as_a_
+mutable_handoff` asserted that mutating the returned argv's mount member does
+not stick — a requirement **no returned list can meet**, which is the review's
+own point. It now asserts what the review actually asked for: the act returns
+a typed answer, `custody.custody_vector` does not exist, and the answer's
+rendering contains no host path, no `--mount`, no engine name and no bind
+spec. Three further cases of mine hold the answer's immutability, the
+no-account-no-custody rule and the bounded diagnostic.
+
+The daemon-free fixture changed shape once, at one place: `vector()` now
+returns what the ENGINE PORT was handed rather than what a public function
+returned. Every existing argv assertion — the single mount, the closed
+program, the worker identity, the restrictions — is unchanged and still runs,
+and it now runs through the real public act instead of a composer nothing
+would have called.
+
+### Verification
+
+From `v12/python`:
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_custody
+      tests.manager.test_workspaces tests.manager.test_dependencies
+    -> 147 tests, OK (1 skipped)   [test_custody is 47, was 43]
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_custody_engine
+    -> 7 tests, OK (1 skipped: podman is not on PATH)
+
+The real-daemon gate ran: all six Docker cases, including the acceptance —
+the manager refuses to remove the worker's tree before the act and removes it
+after — now drive `custody_act` with a real engine port rather than composing
+an argv and running it themselves.
+
+    PYTHONPATH=src python3 -m unittest
+      tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner
+      tests.manager.test_boundary_inventory.EveryProbeProvesItArrived
+      tests.manager.test_secrets.EveryDurableWriterIsGuarded
+    -> 21 tests, 6 failures, in 1643s
+
+    `diff --check` over the working tree: passed.
+
+THE SIX ARE THE SAME SIX THIS TREE ALREADY HAD, measured earlier the same day
+before this round touched `custody.py`, and they are the shared-gate failures
+`PLAN.md` item 8 already records as blocked on orphaned entries that predate
+this Work. The custody regression the review filed is the one that is gone.
+
+WHAT THIS ROUND ADDS TO THAT GATE, stated rather than left for the reviewer to
+find. `custody.py` contributes seven unowned receiving entries —
+`custody_act`'s `engine`, `image_digest`, `name`, `assignment_id`,
+`operation`, `which` and `run` — against a total of 132. Six of those seven
+are `custody_vector`'s own parameters under a new name; the one this round
+genuinely adds is **`run`**, and it is a real operand with a declared
+rationale in `test_dependencies`.
+
+`CustodyAnswer` was written with a public `__init__` in the first cut of this
+round, which put four more caller entries into that same failing gate.
+Measuring it is what caught it, and the correction is not a gate-dodge: the
+class has **no public constructor** now, because an answer is what one act
+REPORTED and a caller that could mint one could report an act that never
+happened — the same rule every capability in this package is already under.
+`_answered` is private and is called in exactly one place.
+
+### Still open, unchanged, and not started in this round
+
+Bounded/derivable/restart-reclaimable helper lifetime; ending composition and
+its retry/restart/crash regressions; the `archive` ruling, which is the
+approver's; compatible-Podman certification; and `custody.py`'s absent
+`test_boundary_inventory` entries. `PLAN.md` carries the decomposition the
+review directs for the round that follows this handoff.

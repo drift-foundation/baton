@@ -1,7 +1,7 @@
 # Compose the minimal supervised dogfood operator
 
-Work: W39358  
-Parent: W38956  
+Work: W39358
+Parent: W38956
 Dependencies: W39356 and W39357
 
 ## Purpose

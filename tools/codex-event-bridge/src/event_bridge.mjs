@@ -13,6 +13,20 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
+// `inProgress` is the pre-v2 spelling still accepted by the bridge's
+// compatibility surface. Current app-server schemas use `active`.
+const REUSABLE_THREAD_STATUSES = new Set(["idle", "active", "inProgress"]);
+
+function threadStatusType(status) {
+  return typeof status?.type === "string" && status.type
+    ? status.type
+    : "unknown";
+}
+
+function reusableThreadStatus(status) {
+  return REUSABLE_THREAD_STATUSES.has(threadStatusType(status));
+}
+
 function wait(ms, signal) {
   if (signal.aborted) return Promise.resolve();
   return new Promise((resolve) => {
@@ -161,6 +175,12 @@ export class EventBridge extends EventEmitter {
         // canonical read proving the claim is gone, and on nothing else.
         orphan: null,
         reconciling: false,
+        // W43539: a configured app-server context that reached
+        // `systemError` is not another idle lane. This record is sticky for
+        // the lifetime of the configured target: a later notification cannot
+        // make the failed context reusable, and only the managed lifecycle
+        // boundary mints and renders a replacement thread.
+        terminalFailure: null,
         // W4303: an `idle` publication held back because a completion
         // arrived while `turn/start` was still in flight, so whether it
         // was OURS is not yet decided.
@@ -325,7 +345,11 @@ export class EventBridge extends EventEmitter {
     if (event.action?.key) state.inFlight.add(event.id);
     this.globalQueueDepth += 1;
     this.logger.info(`[${event.target}] event received: ${event.type}`);
-    if (state.tainted) this.logger.warn(`[${event.target}] context is quarantined; retained (${state.queue.length}) for the fresh context a full managed-stack start mints`);
+    if (state.terminalFailure) {
+      this.logger.warn(`[${event.target}] context is ${state.terminalFailure.status}; retained (${state.queue.length}) for the fresh context a full managed-stack start mints`);
+      this.#reportTerminalFailure(state);
+    }
+    else if (state.tainted) this.logger.warn(`[${event.target}] context is quarantined; retained (${state.queue.length}) for the fresh context a full managed-stack start mints`);
     else if (state.status.type !== "idle") this.logger.info(`[${event.target}] unavailable or active; queued (${state.queue.length})`);
     void this.#drain(state);
     return { accepted: true, reason: "queued", target: event.target, eventId: event.id, queueDepth: state.queue.length, globalQueueDepth: this.globalQueueDepth };
@@ -354,7 +378,13 @@ export class EventBridge extends EventEmitter {
       // actually clear, which is why it reports separately from the
       // permanent quarantine rather than collapsing into it.
       const orphan = state.orphan;
-      if (!loaded || blocked || tainted || orphan) ready = false;
+      // W43539: `loaded` is necessary and not sufficient. The official
+      // app-server status model also contains `systemError`; treating every
+      // non-`notLoaded` value as healthy is the live incident this Work
+      // records. Unknown future statuses fail closed too.
+      const reusable = reusableThreadStatus(state.status);
+      const terminalFailure = state.terminalFailure;
+      if (!loaded || !reusable || blocked || tainted || orphan || terminalFailure) ready = false;
       const oldest = state.queue.length ? state.queue[0].queuedAt : null;
       targets[name] = Object.freeze({
         connected,
@@ -363,7 +393,7 @@ export class EventBridge extends EventEmitter {
         // Everything an operator needs to act without reading a log:
         // who this target is, which Thread and turn are stuck, why,
         // how much is waiting behind it, and for how long.
-        deliverable: Boolean(loaded && !blocked && !tainted && !orphan),
+        deliverable: Boolean(loaded && reusable && !blocked && !tainted && !orphan && !terminalFailure),
         participant: state.identity?.participant ?? null,
         threadId: state.threadId,
         queueDepth: state.queue.length,
@@ -428,6 +458,16 @@ export class EventBridge extends EventEmitter {
             remedy: orphan.remedy,
           })
           : null,
+        ...(terminalFailure ? { terminalFailure: Object.freeze({
+            since: terminalFailure.since,
+            ageMs: Math.max(0, now - terminalFailure.since),
+            participant: state.identity?.participant ?? null,
+            session: state.threadId,
+            failedTurnId: terminalFailure.failedTurnId,
+            status: terminalFailure.status,
+            queuedActionCount: state.queue.length,
+            remedy: terminalFailure.remedy,
+          }) } : {}),
       });
     }
     return Object.freeze({ ready, targets: Object.freeze(targets), globalQueueDepth: this.globalQueueDepth });
@@ -526,7 +566,7 @@ export class EventBridge extends EventEmitter {
     // W30-to-W28 recurrence happened HERE: the turn ended, `blocked`
     // cleared, and the next Work started on the same context, which
     // then ran the previous Work's unfinished cleanup.
-    if (this.stopping || state.draining || state.activeTurn || state.blocked || state.tainted || state.queue.length === 0 || state.status.type !== "idle") return;
+    if (this.stopping || state.draining || state.activeTurn || state.blocked || state.tainted || state.terminalFailure || state.queue.length === 0 || state.status.type !== "idle") return;
     // W4303: a target holding an orphaned claim is idle, loaded and
     // connected — and cannot claim anything, because the participant's
     // one slot is taken. Delivering here spends a model turn to reach a
@@ -658,9 +698,7 @@ export class EventBridge extends EventEmitter {
         // ordering publishing `idle` over an orphaned claim.
         state.deferredIdle = null;
         this.logger.info(`[${state.name}] turn completed before acceptance was observed: ${turn.id} (${completed.status})`);
-        if (!await this.#settleTurn(state, completed, state.threadId)) {
-          void state.runtime.state("idle", { session: state.threadId });
-        }
+        if (!await this.#settleTurn(state, completed, state.threadId)) this.#publishReusableIdle(state, state.threadId);
       } else {
         state.activeTurn = { id: turn.id, event: queued.event };
       }
@@ -938,7 +976,10 @@ export class EventBridge extends EventEmitter {
     const response = await client.resume(state.threadId, {
       developerInstructions: state.developerInstructions,
     });
-    state.status = response.thread.status;
+    this.#observeThreadStatus(state, response.thread.status, {
+      thread: response.thread,
+      turnId: state.activeTurn?.id ?? null,
+    });
 
     // W11910 review [P1], seventh round: the same rule here. This path also
     // assumed the ambiguous delivery was the head, which it is not once a
@@ -1237,6 +1278,83 @@ export class EventBridge extends EventEmitter {
     state.reconcileTimer.unref?.();
   }
 
+  /** W43539: record an app-server status without turning "loaded" into
+   *  "reusable". `systemError` is terminal for this configured context; an
+   *  unknown future loaded status also fails closed. The record never clears
+   *  in place, because v11 recovery is a managed start that renders a new
+   *  thread id, not a notification on this one. */
+  #observeThreadStatus(state, status, { thread = null, turnId = null } = {}) {
+    state.status = status;
+    const type = threadStatusType(status);
+    if (type === "notLoaded" || reusableThreadStatus(status)) {
+      if (state.terminalFailure) this.#reportTerminalFailure(state);
+      return state.terminalFailure;
+    }
+    const failedTurnId = EventBridge.#liveTurnId(turnId)
+      ?? EventBridge.#lastFailedTurnId(thread)
+      ?? EventBridge.#liveTurnId(state.activeTurn?.id);
+    if (!state.terminalFailure) {
+      state.terminalFailure = {
+        since: Date.now(),
+        status: type,
+        failedTurnId,
+        reportedStatus: null,
+        reportedQueueDepth: null,
+        reportedTurnId: null,
+        remedy: "stop and start the managed stack; a full start mints and renders a fresh context, while a dispatcher-only restart resumes this same failed thread",
+      };
+      this.logger.error(
+        `[${state.name}] configured context ${state.threadId} entered ${type}`
+        + (failedTurnId ? ` after turn ${failedTurnId}` : "")
+        + `; ${state.queue.length} readiness event(s) are retained and no `
+        + `further Work will be delivered here. Stop and start the managed `
+        + `stack; a dispatcher-only restart resumes this same context.`);
+    } else if (!state.terminalFailure.failedTurnId && failedTurnId) {
+      state.terminalFailure.failedTurnId = failedTurnId;
+    }
+    this.#reportTerminalFailure(state);
+    return state.terminalFailure;
+  }
+
+  static #lastFailedTurnId(thread) {
+    const turns = Array.isArray(thread?.turns) ? thread.turns : [];
+    for (let index = turns.length - 1; index >= 0; index -= 1) {
+      const turn = turns[index];
+      if (turn?.status === "failed" || turn?.status === "interrupted") {
+        return EventBridge.#liveTurnId(turn.id);
+      }
+    }
+    return null;
+  }
+
+  #reportTerminalFailure(state) {
+    const failure = state.terminalFailure;
+    if (!failure) return;
+    const queueDepth = state.queue.length;
+    if (failure.reportedStatus === failure.status
+        && failure.reportedQueueDepth === queueDepth
+        && failure.reportedTurnId === failure.failedTurnId) return;
+    failure.reportedStatus = failure.status;
+    failure.reportedQueueDepth = queueDepth;
+    failure.reportedTurnId = failure.failedTurnId;
+    const participant = state.identity?.participant ?? "unidentified participant";
+    void state.runtime.state("failed", {
+      cause: "internal",
+      detail: `${participant} configured context ${state.threadId} is ${failure.status}`
+        + (failure.failedTurnId ? ` after failed turn ${failure.failedTurnId}` : "")
+        + `; ${queueDepth} queued action(s) are retained. Stop and start the managed stack`,
+      session: state.threadId,
+    });
+  }
+
+  #publishReusableIdle(state, session) {
+    if (state.terminalFailure) {
+      this.#reportTerminalFailure(state);
+      return;
+    }
+    if (state.status.type === "idle") void state.runtime.state("idle", { session });
+  }
+
   #bindClient(serverState) {
     const { client } = serverState;
     client.on("connected", () => this.logger.info(`[${serverState.name}] connected to Codex app-server`));
@@ -1254,16 +1372,21 @@ export class EventBridge extends EventEmitter {
         // perfectly healthy, which is why this is `retrying` and not
         // `failed` — and why nothing here reports `offline`, a state
         // only an expired lease derives.
-        void target.runtime.state("retrying", {
-          cause: "transport",
-          detail: `${serverState.name} app-server disconnected`,
-        });
+        if (target.terminalFailure) this.#reportTerminalFailure(target);
+        else {
+          void target.runtime.state("retrying", {
+            cause: "transport",
+            detail: `${serverState.name} app-server disconnected`,
+          });
+        }
       }
     });
     client.on("status", ({ threadId, status }) => {
       const state = this.targetByThread.get(`${serverState.name}\u0000${threadId}`);
       if (!state) return;
-      state.status = status;
+      this.#observeThreadStatus(state, status, {
+        turnId: state.activeTurn?.id ?? null,
+      });
       // W3243: an idle thread has no turn left to be blocked on, so the
       // wedge is over and the retained events drain.
       //
@@ -1272,7 +1395,7 @@ export class EventBridge extends EventEmitter {
       // here means "no turn is running", not "deliverable again" — and
       // a target that reaches idle without a completion event still
       // reports its terminal quarantined state.
-      if (status.type === "idle") {
+      if (status.type === "idle" && !state.terminalFailure) {
         this.#clearBlocked(state);
         this.#reportQuarantined(state, threadId);
         void this.#drain(state);
@@ -1900,7 +2023,7 @@ export class EventBridge extends EventEmitter {
       turnId: id,
       status: typeof turn?.status === "string" ? turn.status : null,
       participant: action.participant,
-      actionKey: action.key,
+      actionKey: found.actionKey ?? action.key,
       work: found.work ?? action.work ?? null,
       episode: found.episode ?? (Number.isSafeInteger(action.episode)
         ? action.episode : null),
@@ -1914,8 +2037,10 @@ export class EventBridge extends EventEmitter {
   /** The exact canonical read the settlement decides on.
    *
    *  `claimed` — the authority still records this participant as holding
-   *  the delivered assignment. `released` — it does not, so the lane is
-   *  free and the failure orphaned nothing. `unreadable` — the read
+   *  the delivered assignment. `secondary` — that exact assignment is gone,
+   *  but the participant holds a different claim when the managed turn ends.
+   *  `released` — the participant holds no claim, so the lane
+   *  is free and the failure orphaned nothing. `unreadable` — the read
    *  failed or the projection was malformed, which FAILS CLOSED: it
    *  cannot justify publishing `idle` or draining another Work, because
    *  "I could not ask" and "the answer was no" are not the same fact.
@@ -1925,10 +2050,16 @@ export class EventBridge extends EventEmitter {
    *  by W148 and the producer sends both fields precisely so a consumer
    *  never has to.
    *
-   *  A producer old enough to send neither still gets a real answer: a
-   *  participant holds at most one claim, so ANY claimed Work in its own
-   *  actionable set is the occupied lane this settlement is about. That
-   *  is a weaker correlation, and it is reported as one. */
+   *  W39868: settlement reconciles the PARTICIPANT'S claim slot, not only the
+   *  original action. A managed turn may release its delivered Work, keep
+   *  readiness armed, claim another Work and then fail. Any claimed Work in
+   *  this participant-relative result therefore keeps the lane occupied; the
+   *  exact original match merely decides whether correlation is `claimed` or
+   *  `secondary`.
+   *
+   *  A producer old enough to send neither still gets a real answer. The
+   *  occupied lane is proven, but its relationship to the unlocated delivery
+   *  is weaker, so it remains reported as `held`. */
   async #readAssignment(state, action) {
     if (!this.config.roleInstructions) {
       this.logger.error(
@@ -1966,15 +2097,21 @@ export class EventBridge extends EventEmitter {
           || entry.episode_seq === action.episode))
       : null;
     if (exact) {
-      return { state: "claimed", work: exact.work, episode: exact.episode_seq };
+      return { state: "claimed", work: exact.work, episode: exact.episode_seq,
+               actionKey: exact.action_key };
     }
-    if (!action.work && held.length > 0) {
+    if (held.length > 0) {
+      const current = held[0];
+      if (action.work) {
+        return { state: "secondary", work: current.work,
+                 episode: current.episode_seq, actionKey: current.action_key };
+      }
       // Uncorrelated, and said so. The lane is provably occupied and the
       // failure is provably this dispatcher's, but which of the two the
       // other is remains unproven, so the incident says `held` rather
       // than claiming an attribution it did not make.
-      return { state: "held", work: held[0].work,
-               episode: held[0].episode_seq };
+      return { state: "held", work: current.work,
+               episode: current.episode_seq, actionKey: current.action_key };
     }
     return { state: "released" };
   }
@@ -2117,6 +2254,10 @@ export class EventBridge extends EventEmitter {
         + (orphan.correlation === "unreadable"
           ? `; the canonical reconciliation could not be read, so the target `
             + `is fenced until it can be`
+          : orphan.correlation === "secondary"
+            ? `; the original delivery was released, but the participant `
+              + `still held this different secondary claim when the managed `
+              + `turn failed`
           : orphan.correlation === "held"
             ? `; the delivery carried no Work locator, so this is the `
               + `participant's one occupied claim rather than a proven `
@@ -2330,7 +2471,7 @@ export class EventBridge extends EventEmitter {
     state.deferredIdle = null;
     if (state.activeTurn || state.orphan) return;
     if (state.tainted) this.#reportQuarantined(state, held.session);
-    else void state.runtime.state("idle", { session: held.session });
+    else this.#publishReusableIdle(state, held.session);
   }
 
   async #turnCompleted(serverState, params) {
@@ -2362,9 +2503,12 @@ export class EventBridge extends EventEmitter {
     // than guessed at: with a `turn/start` still in flight, "interactive"
     // and "ours, arriving early" are indistinguishable here, and only
     // the binding decides. `#drain` settles both outcomes.
-    if (!isExternal && state.attempt && state.attempt.turnId === null) {
+    const deferPublication = !isExternal && state.attempt && state.attempt.turnId === null;
+    if (deferPublication) {
       state.deferredIdle = { session: params.threadId };
-    } else {
+    }
+    let settled = false;
+    if (!deferPublication) {
       // Between turns the runner is idle — the honest state, and one an
       // adapter can only report because it OBSERVED the completion.
       // Silence past the lease deadline is what becomes `unknown`, and
@@ -2379,15 +2523,24 @@ export class EventBridge extends EventEmitter {
       // read as interactive and published idle. `#settleTurn` costs one
       // map lookup and no canonical read when nothing is bound to the
       // turn, so an interactive turn stays free.
-      const settled = await this.#settleTurn(state, params.turn, params.threadId);
-      if (state.tainted) this.#reportQuarantined(state, params.threadId);
-      else if (!settled) void state.runtime.state("idle", { session: params.threadId });
+      settled = await this.#settleTurn(state, params.turn, params.threadId);
     }
     try {
       const thread = await serverState.client.readThread(state.threadId);
-      state.status = thread.status;
+      this.#observeThreadStatus(state, thread.status, {
+        thread,
+        turnId: params.turn.id,
+      });
     } catch (error) {
       this.logger.warn(`[${state.name}] could not refresh thread status: ${error.message}`);
+    }
+    // W43539: publication follows the authoritative status refresh. A failed
+    // turn may leave an `idle` reusable thread or a terminal `systemError`
+    // thread; publishing before reading that axis is how the live broken
+    // context was advertised as idle.
+    if (!deferPublication) {
+      if (state.tainted) this.#reportQuarantined(state, params.threadId);
+      else if (!settled) this.#publishReusableIdle(state, params.threadId);
     }
     void this.#drain(state);
   }

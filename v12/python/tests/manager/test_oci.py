@@ -668,8 +668,18 @@ class Adapting(Configured):
             role="implementer")
 
     def adapter(self, *answers, engine="docker", identity=None, roots=None,
-                launch_delivery=False, workspace_group=_UNSET):
+                launch_delivery=False, workspace_group=_UNSET,
+                network=_UNSET, interactive=_UNSET):
         self.engine = Engine(answers)
+        # W38956's two start operands. `_UNSET` means "do not name it", which
+        # is a DIFFERENT request from naming its default -- the whole property
+        # under test is that an adapter which names neither composes exactly
+        # what it composed before they existed.
+        extra = {}
+        if network is not _UNSET:
+            extra["network"] = network
+        if interactive is not _UNSET:
+            extra["interactive"] = interactive
         # The identity is passed THROUGH rather than copied, so a case may
         # hand this door something that is not a document at all -- which is
         # one of the things the door has to refuse.
@@ -684,7 +694,8 @@ class Adapting(Configured):
                                            else workspace_group),
                           launch_delivery=(self.launched()
                                            if launch_delivery is False
-                                           else launch_delivery))
+                                           else launch_delivery),
+                          **extra)
 
 
 class TheRootThatWasProvedIsTheRootThatIsMounted(Adapting):
@@ -1467,3 +1478,123 @@ class TheEngineIsInjectedAndTyped(Adapting):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheTwoExplicitStartOperands(Adapting):
+    """W39356 review [P2]: the network and interactive operands, held directly.
+
+    The transport suite exercises the CONVERSATION and the exec vector; these
+    two decide what the container it speaks to is, and until this class existed
+    nothing drove them at their own boundary. They are the only two operands in
+    this module a deployment may use to widen a runtime, so they are the two
+    most worth a refusal case each.
+    """
+
+    def started(self, **operands):
+        """One real start through the adapter, and the argv it composed.
+
+        The adapter is built here rather than through `Adapting.adapter`
+        because a start needs the mount plan the authorized input root is held
+        against; the duplicate probe answers an empty listing first, which is
+        the ordinary shape every start in this module has.
+        """
+        engine = Engine([answer(stdout=""), answer(stdout="runtime-1\n")])
+        self.engine = engine
+        adapter = OciAdapter("docker", engine, identity=self.IDENTITY,
+                             assignment_roots=dict(self.live_roots),
+                             posture="execution", workspace_group=self.group,
+                             launch_delivery=self.launched(),
+                             mounts=[{"source": self.live_roots["inputs"],
+                                      "target": "/input", "writable": False}],
+                             **operands)
+        adapter.start({"labels": dict(LABELS),
+                       "operation_id": "runtime.start:1",
+                       "input_root": self.live_roots["inputs"]})
+        return next(argv for argv in engine.vectors if "run" in argv)
+
+    # -- the network posture -------------------------------------------------
+
+    def test_naming_nothing_composes_exactly_the_accepted_vector(self):
+        """The property that makes this operand safe to have added at all: an
+        adapter that names neither operand starts the same container it started
+        before either existed."""
+        argv = self.started()
+        self.assertEqual(argv[argv.index("--network") + 1], "none")
+        self.assertNotIn("--interactive", argv)
+
+    def test_an_explicit_posture_reaches_the_argv_exactly_once(self):
+        """One `--network`, whatever was asked for. Two would leave the engine
+        to decide which won, which is the one thing a closed vector must never
+        do."""
+        for named in ("none", "bridge", "baton-egress", "host"):
+            with self.subTest(network=named):
+                argv = run_vector("docker", image_digest=IMAGE, labels=LABELS,
+                                  assignment_roots=ROOTS, posture="execution",
+                                  workspace_group=self.group,
+                                  name="baton-op-1", network=named)
+                self.assertEqual(argv.count("--network"), 1, argv)
+                self.assertEqual(argv[argv.index("--network") + 1], named)
+
+    def test_a_posture_that_is_not_a_network_name_is_refused(self):
+        """The grammar is what keeps this operand a network NAME rather than an
+        opening for a second engine argument."""
+        for wrong in ("", "-none", "none extra", "../etc", "a" * 200,
+                      "net=work", None, 5, ["none"], True):
+            with self.subTest(network=wrong):
+                with self.assertRaises(ContractRefusal):
+                    run_vector("docker", image_digest=IMAGE, labels=LABELS,
+                               assignment_roots=ROOTS, posture="execution",
+                               workspace_group=self.group, name="baton-op-1",
+                               network=wrong)
+
+    def test_the_adapter_refuses_a_bad_posture_before_it_is_built(self):
+        """At CONSTRUCTION, like every other assignment-scoped operand here: an
+        adapter that cannot say what it may reach should not exist."""
+        with self.assertRaises(ContractRefusal):
+            self.adapter(network="not a network")
+
+    def test_an_explicit_posture_survives_to_the_started_container(self):
+        argv = self.started(network="baton-egress")
+        self.assertEqual(argv.count("--network"), 1, argv)
+        self.assertEqual(argv[argv.index("--network") + 1], "baton-egress")
+
+    # -- the interactive channel ---------------------------------------------
+
+    def test_interactive_is_composed_only_when_it_is_asked_for(self):
+        self.assertNotIn("--interactive", self.started())
+        argv = self.started(interactive=True)
+        self.assertIn("--interactive", argv)
+        # BESIDE `--detach` AND BEFORE THE RESTRICTIONS, so the flag order a
+        # reader sees is the order the vector is composed in.
+        self.assertLess(argv.index("--interactive"), argv.index("--cap-drop"))
+
+    def test_interactive_takes_a_boolean_and_not_a_number(self):
+        """Review [P2]: this was `interactive not in (True, False)`, and
+        membership compares by EQUALITY -- so `0` and `1` were accepted at
+        construction and then met the vector's exact test one layer later.
+        An adapter that builds and cannot start is a refusal in the wrong
+        place."""
+        for wrong in (0, 1, "true", "", None, [], 2):
+            with self.subTest(interactive=wrong):
+                with self.assertRaises(ContractRefusal):
+                    self.adapter(interactive=wrong)
+                with self.assertRaises(ContractRefusal):
+                    run_vector("docker", image_digest=IMAGE, labels=LABELS,
+                               assignment_roots=ROOTS, posture="execution",
+                               workspace_group=self.group, name="baton-op-1",
+                               interactive=wrong)
+
+    def test_neither_operand_disturbs_any_other_restriction(self):
+        """A widened network and a held-open stdin change those two things and
+        nothing else: the capability, privilege, user, filesystem and resource
+        posture is the same argv it always was."""
+        argv = self.started(network="baton-egress", interactive=True)
+        pairs = set(zip(argv, argv[1:]))
+        for flag, value in RESTRICTIONS:
+            if flag == "--network":
+                continue
+            with self.subTest(flag=flag, value=value):
+                if value is None:
+                    self.assertIn(flag, argv)
+                else:
+                    self.assertIn((flag, value), pairs)

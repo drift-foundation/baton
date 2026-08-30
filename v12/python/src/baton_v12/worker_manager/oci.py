@@ -20,11 +20,24 @@ follows from taking that literally.
     is ambiguous and fails closed. A stale identity -- one whose labels are not
     this assignment's -- is refused rather than filtered away, because it is not
     absent, it is WRONG, and dropping it leaves a mislabelled runtime running.
-  * THE RESTRICTIONS ARE UNCONDITIONAL. Every capability dropped, privilege
-    escalation denied, no nested runtime or engine socket, a fixed non-root
-    user, and read-only root with the workspace as the one writable mount. They
-    are not options a caller may relax: a policy that a caller can turn off is a
-    default.
+  * THE RESTRICTIONS ARE UNCONDITIONAL, WITH ONE NAMED EXCEPTION. Every
+    capability dropped, privilege escalation denied, no nested runtime or
+    engine socket, a fixed non-root user, and read-only root with the workspace
+    as the one writable mount. Those are not options a caller may relax: a
+    policy that a caller can turn off is a default.
+
+    THE EXCEPTION IS `--network`, and it is stated here rather than discovered
+    at the vector. W38956 found that an unconditional `none` made this
+    campaign's own first provider-backed task impossible rather than isolated:
+    no runtime this adapter starts could reach a provider at all. The value is
+    now one explicit deployment operand whose only default is `none`, so an
+    adapter that names nothing composes exactly what it composed before and a
+    grant is something somebody asked for. The flag itself is still always
+    present; what a deployment may choose is its value.
+
+    `--interactive` IS NOT AN EXCEPTION TO THIS and is not a restriction at
+    all: it is absent by default and is what holds the worker's stdin open so
+    `exec_vector` can speak the worker-entry channel to it.
   * LABELS CARRY NO SECRET. Reconciliation needs to find a runtime again after
     a restart, so the labels are exactly the frozen `runtime.labels` document --
     identities and digests, which are already public facts about an assignment.
@@ -111,15 +124,24 @@ NETWORK_NONE = "none"
 # vector is composed, so a caller cannot smuggle a second argument through it.
 _NETWORK = re.compile(r"\A[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}\Z")
 
-# HOW LONG A WORKER-ENTRY EXEC SESSION IS GIVEN, by default, in seconds. A real
-# provider turn is minutes rather than milliseconds, and a bound that is not
-# generous enough to be reached is a bound that turns ordinary work into
-# transport loss.
-EXEC_SECONDS = 3600
+# HOW MANY WORDS AN EXEC PROGRAM MAY BE. The program is a fact about the IMAGE
+# and is composed by whoever resolved the image, so the ceiling is here rather
+# than a matter of taste: an unbounded operand is an unbounded argv.
+MAX_PROGRAM_WORDS = 16
+
+# THERE IS DELIBERATELY NO DEFAULT SESSION BOUND HERE. Review [P2] found an
+# `EXEC_SECONDS = 3600` constant nothing read, and removing it is the decision
+# rather than wiring it up. How long a provider turn may take is the OPERATOR
+# checkpoint's policy, not this adapter's; `worker_entry.converse` therefore
+# requires the bound as an operand and refuses anything that is not whole
+# positive seconds. A default here would be this module quietly owning a
+# policy it cannot see the inputs to, and an unread constant is a claim that
+# it does.
 
 # §policy: the restrictions, as ONE table rather than as flags spread through a
 # builder. Written out so a reader can see the whole posture at once and a
-# reviewer can diff it.
+# reviewer can diff it. EVERY ENTRY IS APPLIED, and exactly one of them --
+# `--network` -- carries a value a deployment may substitute; see below.
 #
 # EVERY ENTRY IS APPLIED UNCONDITIONALLY EXCEPT ONE, and the exception is named
 # here rather than discovered in `run_vector`. W38956: `--network` carries the
@@ -948,10 +970,29 @@ def exec_vector(engine, *, runtime_id, program):
     """
     engine = _engine(engine)
     boundaries.identity(runtime_id, "a runtime id")
+    # THE SHAPE IS CHECKED BEFORE PYTHON GETS TO INVENT ONE. Review [P1]:
+    # this began `list(program)`, and `list("python3")` is seven one-character
+    # words -- so the commonest possible mistake composed
+    # `docker exec ... p y t h o n 3`, a successfully closed engine vector
+    # rather than a refusal. Iteration is not a contract: a string is iterable
+    # and a program is a sequence of WORDS, and only one of those two facts is
+    # about this operand.
+    #
+    # An explicitly supported sequence shape, therefore, and nothing that
+    # merely happens to iterate. `str` and `bytes` are named in the refusal
+    # because they are the ones a caller actually reaches for.
+    if type(program) not in (list, tuple):
+        _refuse(f"an exec program is a list or tuple of words; this is "
+                f"{name_value(program)}. A string iterates one CHARACTER at a "
+                f"time, so accepting one would compose a vector of "
+                f"single-letter arguments rather than a program")
     named = list(program)
     if not named:
         _refuse("an exec session names the program that speaks the "
                 "worker-entry channel; `docker exec` applies no entrypoint")
+    if len(named) > MAX_PROGRAM_WORDS:
+        _refuse(f"an exec program is at most {MAX_PROGRAM_WORDS} words; this "
+                f"is {len(named)}")
     for one in named:
         boundaries.text(one, "an exec program word")
     return [engine, "exec", "--interactive", runtime_id] + named
@@ -1296,7 +1337,14 @@ class OciAdapter:
         # every other operand here is: an adapter that cannot say what it is
         # allowed to reach should not survive being built.
         self.network = _network(network)
-        if interactive not in (True, False):
+        # `type(...) is not bool`, NOT `not in (True, False)`. Review [P2]:
+        # membership compares by EQUALITY, and `0 == False` and `1 == True` in
+        # Python -- so integers were accepted here and then met `run_vector`'s
+        # exact `is True` / `is not False` test, which is a refusal composed
+        # one layer later than the operand that caused it. Two checks of one
+        # operand disagreeing about what it is, is how an adapter constructs
+        # successfully and then cannot start.
+        if type(interactive) is not bool:
             _refuse(f"an interactive channel is asked for or it is not; this "
                     f"is {name_value(interactive)}")
         self.interactive = interactive

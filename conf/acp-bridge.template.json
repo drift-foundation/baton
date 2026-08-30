@@ -9,6 +9,7 @@
   "//8": "is therefore genuinely new each start, W27's `new` refusal is",
   "//9": "untouched (absence is what it requires), and the previous",
   "//10": "start's selection is left where it was rather than deleted.",
+  "//11": "W39092: turnTimeoutMs is the explicit two-hour v11 deployment policy.",
   "baton": {
     "binary": "/absolute/path/to/v11-release/bin/baton",
     "config": "/absolute/path/to/mailbox/baton.json",
@@ -32,6 +33,7 @@
     "/absolute/path/to/protected-paths-list"
   ],
   "stateDir": "/absolute/path/to/mailbox/run/acp/{{start.id}}/baton.claude",
+  "turnTimeoutMs": 7200000,
   "setupTimeoutMs": 90000,
   "retryMs": 2000
 }

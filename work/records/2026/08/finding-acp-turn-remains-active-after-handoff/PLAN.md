@@ -7,14 +7,14 @@
    `turnTimeoutMs`; current source already bounds the exact never-settling
    prompt shape, tears down its process domain, reports correlated failure,
    retains the readiness key, and polls again.
-3. [next, implementation] Add an explicit deployment-selected
-   `turnTimeoutMs` to every repository ACP lifecycle template and add a gate
-   that keeps those templates aligned with the bridge's mandatory schema. Do
-   not infer a repository-wide duration from the pc.code successor's one-hour
-   choice.
-4. [next, approver/operator] Build and install a current bridge release, render
-   the `baton.claude` config with the approved duration, and install the
-   reviewed PID-domain launcher and preflight through the documented
+3. [done 2026-08-29 by `baton.tuner`] Set `turnTimeoutMs` to
+   `7200000` (two hours) in every repository ACP lifecycle template and add a
+   gate that keeps those templates aligned with the bridge's mandatory
+   schema. This explicit v11 deployment policy supersedes copying the pc.code
+   successor's one-hour choice.
+4. [next, after review, approver/operator] Build and install a current bridge
+   release, render the `baton.claude` config with `turnTimeoutMs=7200000`, and
+   install the reviewed PID-domain launcher and preflight through the documented
    fail-closed cutover. The old config cannot start the current bridge and the
    old launcher cannot satisfy W28681, so replacing only the process is not a
    valid recovery.

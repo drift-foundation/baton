@@ -117,8 +117,19 @@ class LiveWorker:
     def receive(self, count):
         return os.read(self._read, count)
 
+    def close_input(self):
+        """End the worker's stdin, which is what ends its loop.
+
+        Separate from `finish` because the transport drains stdout to EOF
+        between the two, and a worker whose stdin is still open has no reason
+        to close its stdout.
+        """
+        if self._write is not None:
+            os.close(self._write)
+            self._write = None
+
     def finish(self):
-        os.close(self._write)
+        self.close_input()
         self._thread.join(self._seconds)
         if self._thread.is_alive():
             raise AssertionError("the worker did not end within the bound")
@@ -136,14 +147,22 @@ class Composed:
     """
 
     def __init__(self, payloads, *, status=0, stderr="", fail_send=False,
-                 fail_finish=False, finish=None):
+                 fail_finish=False, finish=None, fail_close=False,
+                 late=()):
         self._payloads = list(payloads)
         self._held = b""
+        # WHAT THIS PEER SAYS AFTER ITS STDIN ENDS. Review [P1]'s finding was
+        # exactly this shape: an unsolicited frame that is not buffered when
+        # the last expected answer is parsed, and only becomes readable
+        # afterwards.
+        self._late = list(late)
+        self._closed = False
         self.sent = []
         self._status = status
         self._stderr = stderr
         self._fail_send = fail_send
         self._fail_finish = fail_finish
+        self._fail_close = fail_close
         self._finish = finish
 
     def send(self, payload):
@@ -154,8 +173,15 @@ class Composed:
             self._held += self._payloads.pop(0)
 
     def receive(self, count):
+        if not self._held and self._late:
+            self._held = self._late.pop(0)
         piece, self._held = self._held[:count], self._held[count:]
         return piece
+
+    def close_input(self):
+        if self._fail_close:
+            raise OSError("the exec session's stdin cannot be closed")
+        self._closed = True
 
     def finish(self):
         if self._fail_finish:
@@ -409,6 +435,18 @@ class TransportLossIsNeverCompletion(unittest.TestCase):
         self.assertEqual(answered["ending"], "lost")
         self.assertIn("could not be written", answered["why"])
 
+    def test_a_receive_timeout_is_lost_instead_of_escaping(self):
+        """The channel owns enforcement of the supplied session bound, but
+        its timeout is peer behaviour and must still become this transport's
+        closed `lost` ending rather than escape `converse`."""
+        class TimedOut(Composed):
+            def receive(self, count):
+                raise TimeoutError("the worker did not answer in time")
+
+        answered = spoken(self, TimedOut([]), ["describe"], ["op-1"])
+        self.assertEqual(answered["ending"], "lost")
+        self.assertIn("receive", answered["why"])
+
     def test_a_stream_that_ends_inside_a_body_is_lost(self):
         whole = reply("op-1", DESCRIBE_ANSWER)
         answered = spoken(self, Composed([whole[:-4]]), ["describe"],
@@ -549,6 +587,136 @@ class TransportLossIsNeverCompletion(unittest.TestCase):
         self.assertEqual(answered["ending"], "faulted")
         self.assertEqual(len(answered["answers"]), 1)
         self.assertEqual(len(channel.sent), 1)
+
+    def test_a_late_surplus_frame_cannot_pass_as_a_clean_answer(self):
+        """Review [P1]: the exact peer the reviewer's repro composes.
+
+        It answers the one request correctly, then makes an unsolicited second
+        frame readable only on the NEXT read and exits 0. The superseded check
+        looked at bytes already buffered, found none, and reported `answered`
+        while the surplus sat unread -- a false clean session at the least
+        trusted boundary this manager has.
+        """
+        channel = Composed([reply("op-1", DESCRIBE_ANSWER)],
+                           late=[reply("unsolicited", DESCRIBE_ANSWER)])
+        answered = spoken(self, channel, ["describe"], ["op-1"])
+        self.assertEqual(answered["ending"], "lost")
+        self.assertIn("did not ask for", answered["why"])
+        # AND THE SEND SIDE WAS CLOSED FIRST, which is what made the surplus
+        # readable at all: a peer whose stdin is still open has not finished.
+        self.assertTrue(channel._closed)
+
+    def test_surplus_after_a_fault_is_lost_too(self):
+        """A conversation that stopped at a refusal asked for nothing more, so
+        anything after it is exactly as unsolicited as it would have been
+        after a success."""
+        faulted = framed({"protocol": PROTOCOL, "session": SESSION,
+                          "operation_id": "op-1", "ok": False,
+                          "code": "input", "message": "no readable /input"})
+        answered = spoken(self,
+                          Composed([faulted],
+                                   late=[reply("unsolicited",
+                                               DESCRIBE_ANSWER)]),
+                          ["work"], ["op-1"])
+        self.assertEqual(answered["ending"], "lost")
+        self.assertIn("did not ask for", answered["why"])
+        # THE FAULT IS STILL CARRIED, because what the worker said is evidence
+        # even when the channel it said it on cannot be concluded from.
+        self.assertEqual(answered["answers"][0]["code"], "input")
+
+    def test_a_drain_failure_is_lost_without_claiming_bytes_were_written(
+            self):
+        """Review [P1]: the drain used to fabricate a byte count.
+
+        Every failure while draining returned `1`, so a timeout after the
+        expected answer was reported as "the worker wrote 1 byte this
+        conversation did not ask for" — a measurement nobody made, and the
+        more alarming of the two readings. A timeout IS loss; it is NOT
+        evidence that any byte was written, and the ending has to keep those
+        apart.
+        """
+        class DrainFails(Composed):
+            def receive(self, count):
+                piece = super().receive(count)
+                if piece:
+                    return piece
+                raise TimeoutError("the worker never closed its stdout")
+
+        answered = spoken(self, DrainFails([reply("op-1", DESCRIBE_ANSWER)]),
+                          ["describe"], ["op-1"])
+        self.assertEqual(answered["ending"], "lost")
+        self.assertIn("draining", answered["why"])
+        # THE FABRICATED CLAIM IS ABSENT, which is the whole finding.
+        self.assertNotIn("did not ask for", answered["why"])
+        self.assertNotIn("byte(s)", answered["why"])
+
+    def test_a_drain_that_answers_non_bytes_is_lost_without_a_count(self):
+        class DrainLies(Composed):
+            def receive(self, count):
+                piece = super().receive(count)
+                return piece if piece else None
+
+        answered = spoken(self, DrainLies([reply("op-1", DESCRIBE_ANSWER)]),
+                          ["describe"], ["op-1"])
+        self.assertEqual(answered["ending"], "lost")
+        self.assertIn("where this transport reads bytes", answered["why"])
+        self.assertNotIn("did not ask for", answered["why"])
+
+    def test_real_surplus_is_still_reported_as_surplus(self):
+        """The other side of the same distinction: bytes that WERE read are
+        counted and said so, even when the drain then fails."""
+        class SurplusThenFails(Composed):
+            def receive(self, count):
+                piece = super().receive(count)
+                if piece:
+                    return piece
+                raise TimeoutError("and then it stopped answering")
+
+        channel = SurplusThenFails([reply("op-1", DESCRIBE_ANSWER)],
+                                   late=[b"unsolicited"])
+        answered = spoken(self, channel, ["describe"], ["op-1"])
+        self.assertEqual(answered["ending"], "lost")
+        self.assertIn("did not ask for", answered["why"])
+        self.assertIn("11 byte(s)", answered["why"])
+
+    def test_a_send_side_that_cannot_be_closed_is_lost(self):
+        """A session that cannot be ended cannot be shown to have ended."""
+        answered = spoken(self,
+                          Composed([reply("op-1", DESCRIBE_ANSWER)],
+                                   fail_close=True),
+                          ["describe"], ["op-1"])
+        self.assertEqual(answered["ending"], "lost")
+        self.assertIn("send side", answered["why"])
+
+    def test_a_peer_that_never_stops_writing_is_drained_bounded(self):
+        """The conclusion is fixed by the first surplus byte; the bound only
+        decides how much of a hostile stream is read before giving up."""
+        class Endless(Composed):
+            """The expected answer first, then bytes for ever."""
+
+            def receive(self, count):
+                piece = super().receive(count)
+                return piece if piece else b"x" * count
+
+        answered = spoken(self, Endless([reply("op-1", DESCRIBE_ANSWER)]),
+                          ["describe"], ["op-1"])
+        self.assertEqual(answered["ending"], "lost")
+        self.assertIn("did not ask for", answered["why"])
+
+    def test_a_channel_without_a_close_step_is_refused(self):
+        class NoClose:
+            def send(self, payload):
+                pass
+
+            def receive(self, count):
+                return b""
+
+            def finish(self):
+                return {"status": 0, "stderr": ""}
+
+        with self.assertRaises(ContractRefusal) as refused:
+            spoken(self, NoClose(), ["describe"], ["op-1"])
+        self.assertIn("close_input", str(refused.exception))
 
     def test_the_worker_stderr_is_carried_bounded(self):
         answered = spoken(

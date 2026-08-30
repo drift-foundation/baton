@@ -13,9 +13,10 @@
 // two later review wakes could not be claimed at all. W2928 was never
 // reviewed and its dependent W2929 never moved.
 //
-// The correction, in one shared settlement path used by BOTH completion
-// orderings: re-read the exact delivered (participant, work, episode),
-// and if that claim survives, fence the target, publish
+// The correction, in one shared settlement path used by every completion
+// ordering: re-read the participant's canonical claim slot. If the exact
+// delivered claim OR a different secondary claim survives, fence the target,
+// publish
 // `failed(internal)` rather than `idle`, file one durable Work-correlated
 // incident, and RETAIN the queued readiness so later work is visibly
 // blocked on participant capacity rather than silently spent against a
@@ -154,6 +155,9 @@ const W2928 = "7ba67cb8-W2928";
 const W2929 = "7ba67cb8-W2929";
 const OFFERED = [entry(WORK, EPISODE, false)];
 const HELD = [entry(WORK, EPISODE, true)];
+const SECONDARY_EPISODE = 2928;
+const SECONDARY_KEY = `work:${W2928}:${SECONDARY_EPISODE}:g1`;
+const SECONDARY_HELD = [entry(W2928, SECONDARY_EPISODE, true)];
 
 function bridge({ revalidate, quarantineDir = freshQuarantineDir(),
                   runtime = {} } = {}) {
@@ -251,6 +255,44 @@ test("a turn that fails BEFORE the claim leaves the target deliverable",
 		}
 	});
 
+test("W39868: a failed turn fences the participant's secondary claim",
+	async () => {
+		// The exact W39770/W39357 shape: the delivered action was released,
+		// readiness stayed armed inside the same managed turn, and the
+		// participant claimed another Work before that turn failed. The claim
+		// slot is occupied even though the original correlation is gone.
+		const answer = authority([OFFERED, SECONDARY_HELD]);
+		const { dispatcher, fake, published, incidents } =
+			bridge({ revalidate: answer.revalidate });
+		try {
+			await ready(dispatcher, fake);
+			await deliverThenEnd(dispatcher, fake, "failed");
+			assert.equal(published.some(([name]) => name === "idle"), false,
+				"a secondary live claim was published as a free runner");
+			const row = dispatcher.statusSnapshot().targets.codex;
+			assert.equal(row.deliverable, false);
+			assert.deepEqual({ work: row.orphan.work, episode: row.orphan.episode,
+				actionKey: row.orphan.actionKey,
+				correlation: row.orphan.correlation },
+				{ work: W2928, episode: SECONDARY_EPISODE,
+					actionKey: SECONDARY_KEY, correlation: "secondary" });
+			assert.equal(incidents.length, 1);
+			assert.equal(incidents[0].work, W2928);
+			assert.equal(incidents[0].episode, SECONDARY_EPISODE);
+			assert.equal(incidents[0].actionKey, SECONDARY_KEY);
+			assert.match(incidents[0].detail, /secondary claim/);
+			dispatcher.enqueue(readinessEvent({ key: `work:${W2929}:3:g1`,
+				work: W2929, episode: 3 }));
+			await settle();
+			assert.equal(fake.starts.length, 1,
+				"queued readiness drained into the secondary claim's occupied lane");
+			assert.equal(dispatcher.globalQueueDepth, 1,
+				"queued readiness was dropped instead of retained");
+		} finally {
+			await dispatcher.stop();
+		}
+	});
+
 test("a turn that COMPLETES is never reconciled at all", async () => {
 	// `completed` is the one success terminal, and settling it would spend
 	// a canonical read on every ordinary turn this dispatcher runs.
@@ -326,7 +368,7 @@ test("a completion that beats its own turn/start settles on the same path",
 		// it from an interactive turn — and used to publish `idle` for it
 		// unconditionally. The `idle` is HELD until the binding decides,
 		// and `#drain` then runs the same settlement.
-		const answer = authority([OFFERED, HELD]);
+		const answer = authority([OFFERED, SECONDARY_HELD]);
 		const { dispatcher, fake, published, incidents } =
 			bridge({ revalidate: answer.revalidate });
 		try {
@@ -343,19 +385,20 @@ test("a completion that beats its own turn/start settles on the same path",
 			assert.equal(published.some(([name]) => name === "idle"), false,
 				"the early completion published idle over an orphaned claim");
 			assert.equal(incidents.length, 1);
-			assert.equal(incidents[0].work, WORK);
+			assert.equal(incidents[0].work, W2928);
+			assert.equal(incidents[0].episode, SECONDARY_EPISODE);
 		} finally {
 			await dispatcher.stop();
 		}
 	});
 
-test("a failed turn discovered only during reconnect is settled", async () => {
+test("a failed turn with a secondary claim discovered during reconnect is settled", async () => {
 	// A transport drop can hide `turn/completed`. The resume snapshot is
 	// then the first and only place the dispatcher observes the terminal
 	// failure. Clearing `activeTurn` there without the shared settlement
 	// recreates W4303 exactly: canonical state still has the claim, while
 	// the dispatcher considers the target deliverable.
-	const answer = authority([OFFERED, HELD]);
+	const answer = authority([OFFERED, SECONDARY_HELD]);
 	const { dispatcher, fake, incidents } =
 		bridge({ revalidate: answer.revalidate });
 	try {
@@ -371,7 +414,7 @@ test("a failed turn discovered only during reconnect is settled", async () => {
 		const row = dispatcher.statusSnapshot().targets.codex;
 		assert.deepEqual({ deliverable: row.deliverable,
 			orphan: row.orphan?.work ?? null, incidents: incidents.length },
-			{ deliverable: false, orphan: WORK, incidents: 1 },
+			{ deliverable: false, orphan: W2928, incidents: 1 },
 			"resume cleared a failed turn without reconciling its surviving claim");
 	} finally {
 		await dispatcher.stop();
@@ -909,12 +952,11 @@ test("reconciliation matches the STRUCTURED work and episode", async () => {
 	}
 });
 
-test("a claim under a DIFFERENT episode is not this delivery's orphan",
+test("a claim under a DIFFERENT episode still occupies this participant's lane",
 	async () => {
-		// The same participant, the same Work, a later assignment: the
-		// failed turn's episode is gone, so this failure orphaned nothing.
-		// Fencing on it would block a lane somebody else is legitimately
-		// working, and would name the wrong generation in the incident.
+		// The exact delivered episode is gone, but a managed participant has
+		// one claim slot and its turn has failed. The later episode is therefore
+		// the live claim nothing is executing, not evidence that the lane is free.
 		const later = [{ kind: "work", action_key: `work:${WORK}:9999:g1`,
 			work: WORK, episode_seq: 9999, config_generation: 1, claimed: true }];
 		const answer = authority([OFFERED, later]);
@@ -923,8 +965,13 @@ test("a claim under a DIFFERENT episode is not this delivery's orphan",
 		try {
 			await ready(dispatcher, fake);
 			await deliverThenEnd(dispatcher, fake, "failed");
-			assert.equal(published.some(([name]) => name === "idle"), true);
-			assert.equal(incidents.length, 0);
+			assert.equal(published.some(([name]) => name === "idle"), false);
+			assert.equal(incidents.length, 1);
+			assert.equal(incidents[0].work, WORK);
+			assert.equal(incidents[0].episode, 9999);
+			assert.equal(incidents[0].actionKey, `work:${WORK}:9999:g1`);
+			assert.equal(dispatcher.statusSnapshot().targets.codex.orphan.correlation,
+				"secondary");
 		} finally {
 			await dispatcher.stop();
 		}
@@ -1007,7 +1054,7 @@ function markerPath(dir) {
 test("the fence is durable and a dispatcher restart comes back fenced",
 	async () => {
 		const dir = freshQuarantineDir();
-		const first = bridge({ revalidate: authority([OFFERED, HELD]).revalidate,
+		const first = bridge({ revalidate: authority([OFFERED, SECONDARY_HELD]).revalidate,
 			quarantineDir: dir });
 		try {
 			await ready(first.dispatcher, first.fake);
@@ -1021,15 +1068,17 @@ test("the fence is durable and a dispatcher restart comes back fenced",
 		}
 		// A NEW process against the SAME rendered thread. Restarting a
 		// dispatcher does not release a canonical claim.
-		const second = bridge({ revalidate: authority([HELD]).revalidate,
+		const second = bridge({ revalidate: authority([SECONDARY_HELD]).revalidate,
 			quarantineDir: dir });
 		try {
 			await ready(second.dispatcher, second.fake);
 			const row = second.dispatcher.statusSnapshot().targets.codex;
 			assert.equal(row.deliverable, false);
 			assert.equal(row.restored ?? row.orphan.restored, true);
-			assert.equal(row.orphan.work, WORK);
-			assert.equal(row.orphan.episode, EPISODE);
+			assert.equal(row.orphan.work, W2928);
+			assert.equal(row.orphan.episode, SECONDARY_EPISODE);
+			assert.equal(row.orphan.actionKey, SECONDARY_KEY);
+			assert.equal(row.orphan.correlation, "secondary");
 			assert.equal(second.published.some(([name]) => name === "failed"),
 				true);
 			// Already acknowledged, so the restart does NOT re-file it.
@@ -1090,7 +1139,7 @@ test("a duplicate completion does not count the same failure twice", async () =>
 	// the fence. Re-minting would reset the durable acknowledgement and
 	// file the one failure once per repeat, which is exactly what the
 	// acknowledgement exists to prevent.
-	const answer = authority([OFFERED, HELD]);
+	const answer = authority([OFFERED, SECONDARY_HELD]);
 	const { dispatcher, fake, incidents } =
 		bridge({ revalidate: answer.revalidate });
 	try {

@@ -488,6 +488,19 @@ test thread IDs afterward.
 : This is expected until approval ownership is validated. Do not weaken the
   sandbox or enable automatic approval as a workaround.
 
+`Target reports systemError / Work is retained but never delivered`
+: The configured app-server context is terminally non-deliverable. The
+  `terminalFailure` row in `control: status` names the participant, configured
+  session, failed turn when known, provider status, current queued-action
+  count, and remedy. The dispatcher publishes `failed(internal)`, reports
+  `ready: false`, and retains the exact queued readiness identities without
+  retrying them into that context. **Stop and start the managed stack** to mint,
+  bootstrap, prove, and render a fresh context. Restarting the dispatcher alone
+  resumes the same configured thread and is not recovery. A failed turn whose
+  thread returns to `idle` is different: after claim settlement it remains
+  reusable and drains normally. The app-server's official status model is
+  documented in [Codex App Server](https://developers.openai.com/codex/app-server#read-a-stored-thread-without-resuming).
+
 `Target reports tainted / Work is retained but never delivered`
 : An unexpected approval request quarantines that managed context for the rest
   of the managed-stack start, because an interrupted turn can leave its intent

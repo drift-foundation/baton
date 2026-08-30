@@ -179,3 +179,104 @@ the file carries another participant's uncommitted edit. Adding entries to a
 registry whose attribution mechanism is mid-change, in a file somebody else is
 editing, is the parallel-edit collision `AGENTS.md` requires ownership to be
 established for first.
+
+## 2026-08-29 — seventh independent review: changes requested
+
+1. [accepted narrowly] Preserve removal of the path-bearing
+   `AllocatedRoots` operand and the streamed/bounded read/hash corrections.
+2. [required P0] Authenticate the workspace storage root through
+   manager-owned durable/configured authority. Deriving
+   `<storage>/<attempt>/workspace` does not remove caller path selection while
+   `storage` itself remains an ordinary caller-supplied host path.
+3. [required P1] Validate the attempt home and workspace with no-link/ownership
+   checks before creating a missing result directory; a refused mint must not
+   create through a parent symlink target.
+4. [required, unchanged] Resolve archive semantics, bounded/reclaimable helper
+   lifetime, ending composition, retry/restart/crash proof and the applicable
+   engine/boundary-inventory gates.
+
+## 2026-08-29 — eighth implementation round
+
+1. [done] **[P0] The workspace store is a deployment record.**
+   `WorkspaceStorage`, `configure_workspace_storage` and
+   `configured_workspace_storage` mirror the group's capability exactly,
+   including the journal/projection cross-check and the refusal to
+   reconfigure. `attempt_custody_root` takes two capabilities and a name, and
+   no path.
+2. [done] **[P1] The result root is created only after every existing parent
+   is proved**, and is derived from the resolved real workspace so the write
+   cannot traverse a link that appears after the proof. Held by the review's
+   own regression, kept probative and mutation-checked.
+3. [done] Nine cases for the new store record in `test_workspaces.py`, mirroring
+   the group's four properties plus construction, absence and validation.
+4. [done] `workspace_storage` declared in `test_dependencies`' operand
+   vocabulary, named apart from the allocation boundary's `storage`.
+5. [NOT DONE, unchanged] Bounded/derivable/restart-reclaimable helper lifetime;
+   ending composition; retry/restart/crash regressions.
+6. [OPEN RULING, unchanged] What `archive` must return — the analysis and a
+   proposal are in `FINDING.md` and only the approver can narrow M36166's
+   six-verb decision.
+7. [blocked externally, unchanged] Compatible-Podman certification.
+
+## 2026-08-29 — ninth implementation round
+
+1. [done] **[P0] Both path-bearing handoffs are deleted.** `custody_vector`
+   reads the durable record, derives and proves the root, and composes the
+   argv in one act; `CustodyRoot` and the public `attempt_custody_root` are
+   off the surface. The operands are a store handle and an attempt NAME.
+2. [done] **The inventory-blocking literal label**, which this round's own
+   eighth-round code introduced and which stopped the shared scan from
+   producing any verdict.
+3. [done] The stale `workspace_storage` operand declaration removed — the
+   operand no longer exists, and `test_dependencies`' stale-declaration half
+   caught the leftover.
+4. [NOT DONE, unchanged] Bounded/derivable/restart-reclaimable helper
+   lifetime; ending composition; retry/restart/crash regressions.
+5. [OPEN RULING, unchanged] What `archive` must return.
+6. [blocked externally, unchanged] Compatible-Podman certification.
+
+## 2026-08-29 — tenth implementation round
+
+1. [done] **[P0] The returned argv is gone.** `custody_act(engine, run, ...)`
+   looks up, composes, RUNS through `oci.EnginePort` and answers
+   `CustodyAnswer`; `custody_vector` is private and reachable only by the act
+   that runs it. Nothing a caller holds afterwards is a host path or an
+   executable vector.
+2. [done] **[P1] The `--rm` docstring is truthful.** It claimed a crash leaks
+   no capability, which contradicts this record's own first-review finding and
+   items 4–6 below. It now says what `--rm` actually buys and names the owed
+   lifetime work.
+3. [done] `run` declared in `test_dependencies`' operand vocabulary, with its
+   rationale, under the same name `OciAdapter` already takes it.
+4. [NOT DONE, unchanged] Bounded, derivable and restart-reclaimable helper
+   lifetime. `CUSTODY_NAME` is still unread.
+5. [NOT DONE, unchanged] Ending composition, and the retry/restart/crash
+   regressions that depend on it.
+6. [OPEN RULING, unchanged] What `archive` must return. Only the approver can
+   narrow M36166's six-verb decision.
+7. [blocked externally, unchanged] Compatible-Podman certification.
+8. [OWED, unchanged] `custody.py` has no entries in
+   `tests/manager/test_boundary_inventory.py`. That gate is still failing on
+   orphaned entries that predate this round and the file carries another
+   participant's uncommitted edit.
+
+## Proposed decomposition, for the round that follows this handoff
+
+The 2026-08-29T22:28:08Z review calls this Work's history a decomposition
+warning and directs that items 4–7 be separated into explicit child Jobs
+before another subsystem-sized round is added. Naming them here so the
+proposal is on the record; **minting them is not done in this round**, because
+the review schedules the separation AFTER this correction is handed off and
+formal enrichment and priority are the reviewer's and the human's by default.
+
+1. **Resolve what `archive` must return** — an approver ruling, not an
+   implementation. M36166 names six verbs and narrowing one is the approver's
+   act; `content: "manifest-only"` is the current honest placeholder.
+2. **Bounded, derivable, restart-reclaimable helper lifetime** — make
+   `CUSTODY_NAME` load-bearing so a restarted manager can find and reclaim a
+   helper whose client died mid-act.
+3. **Compose custody into the ended-attempt path** — the retry, restart and
+   crash-mid-act regressions depend on an ending that actually calls the act,
+   and no ending calls it today.
+4. **Compatible-engine certification** — externally blocked, and it should
+   stop blocking a Work that is otherwise finishable.

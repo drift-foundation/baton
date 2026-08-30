@@ -33,3 +33,77 @@ Implementation must revalidate the current v12 protocol and CLI host after W2940
 ## Non-goals
 
 No label inheritance, global label registry, scheduler meaning, implicit route/team labels, OR query language, or fuzzy matching is part of this cut.
+
+## Host revalidation — 2026-08-29 (`baton.claude`, W29401 impl claim)
+
+The Host boundary above required this before anything was written, and it
+decides most of the cut.
+
+### Confirmed: v12 has no CLI and no protocol host
+
+The v12 product is a Python distribution — `baton_v12.authority`,
+`baton_v12.contracts`, `baton_v12.worker_manager`. Every `argparse` /
+`sys.argv` under `v12/` belongs to a test harness (`tools/parallel_test.py`),
+a build tool (`tools/worker_image.py`) or the ping-pong spike. There is no
+`create`, `list`, `search`, `detail` or `label-work` command anywhere in the
+product, and no protocol host serving one. The canonical CLI this repository
+operates through is the **v11** binary, which is a different product and is not
+W29401's to extend.
+
+So the finding's own instruction applies: document the absence, park the
+unavailable exposure, and do not introduce a parallel CLI or protocol product.
+
+### Confirmed: the approved contract is ALREADY exposed at the surface v12 has
+
+W29400 landed the model at the only creation, mutation, projection and search
+surfaces that exist, and the acceptance matrix's substance is satisfied there.
+Driven directly during this revalidation, not inferred:
+
+| Confirmed-boundary bullet | Where it lives now | Held by |
+|---|---|---|
+| creation accepts repeatable `label=` | `Authority.create_work(..., labels=())` | `test_work_labels`, and `test_work_label_exposure` end-to-end |
+| distinct `label-work` / `unlabel-work` mutations | `Session.label_work` / `unlabel_work` | `test_work_labels` |
+| projections expose the normalized, sorted live set | `project_work()["labels"]`, `labels_of()` | both suites |
+| list/search `all_of` AND, `none_of` none-of, composing | `Authority.works_with_labels(all_of=, none_of=)` | both suites |
+| convergent mutation `changed:false`, exact replay | core add/remove + operation journal | `test_work_labels` |
+| no OR syntax; contradictions refuse explicitly | `works_with_labels` refusal | both suites |
+
+`tests/authority/test_work_labels.py` is 52 cases and green; the additive
+`tests/authority/test_work_label_exposure.py` is 7 more.
+
+### Confirmed, and it constrains whoever builds the CLI: the two label
+### vocabularies OVERLAP in spelling
+
+`canonical_label`'s grammar admits dots, so `baton.v12.work_id` — an OCI
+runtime label KEY this manager writes on every container — is a valid **Work**
+label. Only the `key=value` form is refused, and only because `=` is outside
+the alphabet.
+
+That is not a defect. The parent decision says no spelling is reserved and no
+behaviour is inferred from one, and a Work wearing a runtime-shaped label is
+unchanged in every fact anything reads — now asserted rather than assumed.
+
+It IS a constraint on the exposure this Work exists to build: **a CLI must
+separate Work labels from Thread labels and runtime labels by the COMMAND it
+dispatches, never by inspecting how a label is spelled**, because the
+spellings are not disjoint. The acceptance bullet that asks CLI parsing to
+prove non-dispatch is therefore about command routing, and a future
+implementer who tried to disambiguate on the label text would build exactly
+the confusion the bullet exists to prevent.
+
+### What is parked, and it is only the hostless exposure
+
+Nothing below has a surface in the current product, and none of it can be
+built without inventing one:
+
+- repeatable `label=` operands on a CLI Work-creation command;
+- `label-work` / `unlabel-work` CLI commands;
+- `label=` / `without-label=` CLI list/search predicates and their
+  unsupported-form errors;
+- help text, protocol examples and versioned CLI output contracts;
+- CLI parsing regressions proving Work-label commands cannot dispatch
+  Thread-label or OCI-label behaviour.
+
+These are parked with W29401 rather than split into a new record, because they
+are the whole of what remains and they become actionable together the moment a
+v12 CLI or protocol host exists. The library-surface half of the cut is done.

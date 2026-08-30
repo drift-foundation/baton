@@ -43,4 +43,3 @@ relations.
   ancestry.
 - Existing canonical records are not bulk-moved to simulate adoption.
 - Generated navigation indexes are replaceable and non-authoritative.
-
