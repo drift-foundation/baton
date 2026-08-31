@@ -16,6 +16,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 from baton_v12.contracts import ContractRefusal
 from baton_v12.worker_manager import custody, workspaces
@@ -849,10 +850,83 @@ class OneMountAndNothingElse(CustodyCase):
     def test_a_worker_created_result_symlink_cannot_choose_the_mount(self):
         roots = workspaces.assignment_workspace(self.group, self.storage,
                                                 "attempt-1")
-        result = os.path.join(roots["workspace"], "result")
+        result = os.path.join(roots["workspace"], "result-attempt-1")
+        os.rmdir(result)
         os.symlink(self.root, result)
         with self.assertRaises(ContractRefusal):
             self.vector(which="result")
+
+    def test_a_symlink_at_the_RULED_result_locator_cannot_choose_the_mount(
+            self):
+        """The case above's property, at the locator the approver ruled.
+
+        The 2026-08-30 ruling moves the result root to the manager-owned
+        `workspace/result-<attempt-id>`, so a link planted at the retired
+        `workspace/result` is no longer the thing custody mounts and cannot
+        redirect anything. The property it defends is unchanged and is
+        asserted here against the locator that IS mounted.
+        """
+        roots = workspaces.assignment_workspace(self.group, self.storage,
+                                                "attempt-1")
+        ruled = os.path.join(roots["workspace"], "result-attempt-1")
+        os.rmdir(ruled)
+        os.symlink(self.root, ruled)
+
+        with self.assertRaises(ContractRefusal):
+            self.vector(which="result")
+
+    def test_the_ruled_locator_is_the_one_mounted_and_the_other_is_untouched(
+            self):
+        """The review's required proof: which directory is authoritative.
+
+        Sentinels in BOTH `workspace/result` and the ruled
+        `workspace/result-<attempt-id>`. Custody must mount the second, and
+        must neither create nor mutate the first -- a helper that took the
+        retired path would return an accountable success over a tree the
+        attempt never wrote into.
+        """
+        roots = workspaces.assignment_workspace(self.group, self.storage,
+                                                "attempt-1")
+        retired = os.path.join(roots["workspace"], "result")
+        os.makedirs(retired)
+        for place, body in ((retired, b"the retired path"),
+                            (os.path.join(roots["workspace"],
+                                          "result-attempt-1"),
+                             b"the ruled path")):
+            with open(os.path.join(place, "sentinel.txt"), "wb") as handle:
+                handle.write(body)
+
+        mount = self.mounted(self.vector(which="result"))
+
+        self.assertIn(
+            os.path.realpath(os.path.join(roots["workspace"],
+                                          "result-attempt-1")),
+            mount)
+        self.assertNotIn(f"source={os.path.realpath(retired)},", mount)
+        with open(os.path.join(retired, "sentinel.txt"), "rb") as handle:
+            self.assertEqual(handle.read(), b"the retired path",
+                             "custody mutated a directory it does not own")
+
+    def test_a_missing_result_root_is_a_contradiction_and_not_repaired(self):
+        """The other half of the ruling: never create a missing result root.
+
+        This manager establishes it before the runtime starts, so its absence
+        contradicts an attempt that ran. Creating one here would make
+        "custody normalized the result root" a true sentence about an empty
+        tree this manager had just made, while the attempt's real output sat
+        somewhere else entirely.
+        """
+        roots = workspaces.assignment_workspace(self.group, self.storage,
+                                                "attempt-1")
+        ruled = os.path.join(roots["workspace"], "result-attempt-1")
+        os.rmdir(ruled)
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.vector(which="result")
+
+        self.assertIn("contradicts", str(caught.exception))
+        self.assertFalse(os.path.exists(ruled),
+                         "the refusal created the directory it refused over")
 
     def test_the_mount_is_the_workspace_and_never_its_parent(self):
         """The assignment home holds the deliveries; only the attempt's own
@@ -2070,3 +2144,287 @@ class TheExceptionalEndingIsHeldToTheSameTable(CustodyCase):
                                 store=self.store, assignment_id="attempt-1",
                                 operation="normalize")
         self.assertNotIn("rm", [one[1] for one in self.seen])
+
+
+class OneSignedReceiptPerRoot(CustodyCase):
+    """W43975: `directory_custody` as a durable act rather than a noun."""
+
+    class Custodian:
+        """The typed seam, standing in for `OciAdapter.normalize_directory`."""
+
+        custodian_image_digest = "sha256:" + "c" * 64
+
+        def __init__(self, answer=None):
+            self.calls = []
+            self.answer = answer
+
+        def normalize_directory(self, store, *, assignment_id, which):
+            self.calls.append((assignment_id, which))
+            if self.answer is not None:
+                return self.answer
+            return custody._answered(
+                "normalize", 0,
+                {"custody": "normalize", "entries": 3, "not_ours": 0,
+                 "running_as": [0, 0]},
+                None)
+
+    def test_one_accountable_act_commits_one_closed_receipt(self):
+        store = self.opened()
+
+        answered = custody.normalize_directory(
+            store, self.Custodian(), assignment_id="attempt-1",
+            which="result")
+
+        self.assertEqual(sorted(answered),
+                         ["account", "attempt_id", "operation", "root",
+                          "verb"])
+        self.assertEqual(answered["attempt_id"], "attempt-1")
+        self.assertEqual(answered["root"], "result")
+        self.assertEqual(answered["verb"], "normalize")
+        self.assertEqual(answered["operation"], "normalize")
+
+    def test_an_exact_retry_replays_without_acting_again(self):
+        """The receipt exists so a resumed ending does not renormalize a tree
+        its predecessor already normalized."""
+        store = self.opened()
+        custodian = self.Custodian()
+
+        first = custody.normalize_directory(
+            store, custodian, assignment_id="attempt-1", which="workspace")
+        replay = custody.normalize_directory(
+            store, custodian, assignment_id="attempt-1", which="workspace")
+
+        self.assertEqual(replay, first)
+        self.assertEqual(len(custodian.calls), 1,
+                         "an exact replay performed the act a second time")
+
+    def test_the_two_roots_are_separately_attributable(self):
+        """One identity per (attempt, root, verb): a crash after one root
+        settles must not lose that root's independent durable answer."""
+        store = self.opened()
+        custodian = self.Custodian()
+
+        result = custody.normalize_directory(
+            store, custodian, assignment_id="attempt-1", which="result")
+        workspace = custody.normalize_directory(
+            store, custodian, assignment_id="attempt-1", which="workspace")
+
+        self.assertNotEqual(result, workspace)
+        self.assertEqual([one for _a, one in custodian.calls],
+                         ["result", "workspace"])
+        self.assertIsNotNone(custody.adopted_directory_custody(
+            store, custodian, "attempt-1", "result"))
+        self.assertIsNotNone(custody.adopted_directory_custody(
+            store, custodian, "attempt-1", "workspace"))
+
+    def test_a_changed_custodian_collides_rather_than_replaying(self):
+        """The image is a SIGNATURE input, so a changed helper is a different
+        act over the same tree rather than an answer to replay."""
+        store = self.opened()
+        custody.normalize_directory(store, self.Custodian(),
+                                    assignment_id="attempt-1",
+                                    which="result")
+        other = self.Custodian()
+        other.custodian_image_digest = "sha256:" + "e" * 64
+
+        with self.assertRaises(ContractRefusal) as caught:
+            custody.normalize_directory(store, other,
+                                        assignment_id="attempt-1",
+                                        which="result")
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+
+    def test_a_retargeted_workspace_store_collides_per_root(self):
+        """The store is a SIGNATURE input, not a second operation identity.
+
+        The durable receipt is one act per fixed attempt, root and verb.  A
+        redeployment retargeted at another workspace store must therefore hit
+        that same operation and collide on its changed signature; deriving a
+        fresh operation id from the changed store would silently authorize a
+        second normalization over another tree.
+        """
+        store = self.opened()
+        custodian = self.Custodian()
+        with mock.patch.object(custody, "_recorded_store",
+                               return_value="/manager/store-a"):
+            custody.normalize_directory(store, custodian,
+                                        assignment_id="attempt-1",
+                                        which="result")
+
+        with mock.patch.object(custody, "_recorded_store",
+                               return_value="/manager/store-b"):
+            with self.assertRaises(ContractRefusal) as caught:
+                custody.normalize_directory(store, custodian,
+                                            assignment_id="attempt-1",
+                                            which="result")
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertEqual(len(custodian.calls), 1,
+                         "retargeting performed a second custody act")
+
+    def test_an_unaccountable_answer_commits_nothing(self):
+        """A refused, unaccounted or UNRESOLVED answer records no custody.
+
+        Custody that cannot be accounted for is not custody, and a receipt
+        written over one would let a terminal cleanup name an act nobody can
+        show happened.
+        """
+        for answer in (
+                custody._answered("normalize", 1, None, "it failed"),
+                custody._answered("normalize", 0, None, None),
+                custody._answered(
+                    "normalize", 0,
+                    {"custody": "discard", "removed": 1, "kept": 0,
+                     "running_as": [0, 0]}, None)):
+            with self.subTest(status=answer.status):
+                store = self.opened()
+                custodian = self.Custodian(answer=answer)
+
+                with self.assertRaises(ContractRefusal) as caught:
+                    custody.normalize_directory(
+                        store, custodian, assignment_id="attempt-1",
+                        which="result")
+
+                self.assertEqual(caught.exception.code, "precondition")
+                self.assertIn("cannot account for", str(caught.exception))
+                self.assertIsNone(custody.adopted_directory_custody(
+                    store, custodian, "attempt-1", "result"))
+
+    def test_the_adopted_receipt_is_read_from_the_journal(self):
+        """A terminal cleanup binds receipts it READ, never ones it was
+        handed: a caller-held document is one the caller composed."""
+        store = self.opened()
+        custodian = self.Custodian()
+        committed = custody.normalize_directory(
+            store, custodian, assignment_id="attempt-1", which="result")
+
+        self.assertEqual(
+            custody.adopted_directory_custody(store, custodian, "attempt-1",
+                                              "result"),
+            committed)
+        self.assertIsNone(
+            custody.adopted_directory_custody(store, custodian, "attempt-2",
+                                              "result"),
+            "an attempt with no act must adopt nothing")
+
+
+class TheEndingSurvivesInterruptionAtEveryDirectoryAct(CustodyCase):
+    """W43975's required matrix, at the boundary the receipts actually own.
+
+    THE POINT OF PER-ROOT RECEIPTS is that a crash between the two acts loses
+    nothing, and that is a property of the JOURNAL rather than of any one
+    ending. So it is proved here, once, over the operation every ending calls
+    -- and the ending-level cases below then only have to show that they call
+    it and that their own terminal commit replays.
+    """
+
+    class Custodian:
+
+        custodian_image_digest = "sha256:" + "c" * 64
+
+        def __init__(self, fail_on=None):
+            self.calls = []
+            self.fail_on = fail_on
+
+        def normalize_directory(self, store, *, assignment_id, which):
+            self.calls.append(which)
+            if which == self.fail_on:
+                raise RuntimeError(f"the helper died over {which}")
+            return custody._answered(
+                "normalize", 0,
+                {"custody": "normalize", "entries": 1, "not_ours": 0,
+                 "running_as": [0, 0]}, None)
+
+    def normalized(self, store, custodian):
+        for which in ("result", "workspace"):
+            custody.normalize_directory(store, custodian,
+                                        assignment_id="attempt-1",
+                                        which=which)
+
+    def test_a_crash_between_the_two_acts_keeps_the_first_receipt(self):
+        """The whole reason the receipts are per-root.
+
+        A crash after `result` settles and before `workspace` does must leave
+        the first root's independent durable answer intact -- the outer
+        destroy journal alone could not have said that, which is what made a
+        per-root kind necessary.
+        """
+        store = self.opened()
+        dying = self.Custodian(fail_on="workspace")
+
+        with self.assertRaises(RuntimeError):
+            self.normalized(store, dying)
+
+        self.assertIsNotNone(custody.adopted_directory_custody(
+            store, dying, "attempt-1", "result"),
+            "the settled root's receipt was lost with the crash")
+        self.assertIsNone(custody.adopted_directory_custody(
+            store, dying, "attempt-1", "workspace"))
+
+    def test_the_resumed_ending_redoes_only_the_act_that_did_not_settle(self):
+        """A restart does not renormalize what its predecessor finished."""
+        store = self.opened()
+        dying = self.Custodian(fail_on="workspace")
+        with self.assertRaises(RuntimeError):
+            self.normalized(store, dying)
+
+        resumed = self.Custodian()
+        self.normalized(store, resumed)
+
+        self.assertEqual(resumed.calls, ["workspace"],
+                         "the resumed ending renormalized a settled root")
+        for which in ("result", "workspace"):
+            self.assertIsNotNone(custody.adopted_directory_custody(
+                store, resumed, "attempt-1", which))
+
+    def test_an_exact_replay_after_both_receipts_performs_no_act(self):
+        store = self.opened()
+        custodian = self.Custodian()
+        self.normalized(store, custodian)
+
+        replayed = self.Custodian()
+        self.normalized(store, replayed)
+
+        self.assertEqual(replayed.calls, [],
+                         "a settled ending normalized its roots again")
+
+    def test_a_custodian_changed_between_the_two_acts_collides(self):
+        """A helper swapped mid-ending is a different act over the same
+        subject, and the second root must not settle under the first's
+        identity."""
+        store = self.opened()
+        custody.normalize_directory(store, self.Custodian(),
+                                    assignment_id="attempt-1",
+                                    which="result")
+        other = self.Custodian()
+        other.custodian_image_digest = "sha256:" + "e" * 64
+
+        with self.assertRaises(ContractRefusal) as caught:
+            custody.normalize_directory(store, other,
+                                        assignment_id="attempt-1",
+                                        which="result")
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertIsNone(custody.adopted_directory_custody(
+            store, other, "attempt-1", "workspace"),
+            "a collided ending settled its second root anyway")
+
+    def test_a_restarted_manager_re_derives_both_identities(self):
+        """The identity is attempt, root and verb, so a new incarnation over
+        the same store adopts what its predecessor committed."""
+        store = self.opened()
+        custodian = self.Custodian()
+        self.normalized(store, custodian)
+        store.close()
+
+        from baton_v12.worker_manager import ControlStore
+        successor = ControlStore.open(
+            os.path.join(self.root, "control.sqlite3"),
+            incarnation="custody-2",
+            clock=lambda: "2026-08-29T00:00:00.000Z")
+        self.addCleanup(successor.close)
+
+        for which in ("result", "workspace"):
+            self.assertIsNotNone(custody.adopted_directory_custody(
+                successor, custodian, "attempt-1", which),
+                f"a restarted manager could not adopt its own {which} receipt")

@@ -1,0 +1,21 @@
+{
+ "changed_paths": [
+  "v12/spike/ping-pong/test_harness.py"
+ ],
+ "disposition": "verification-failed",
+ "provider": {
+  "seconds_bound": 3600,
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/1",
+ "source_entries": 4,
+ "task_id": "w39364-observed-readable-coverage",
+ "verification": {
+  "argv": [
+   "python3",
+   "v12/spike/ping-pong/test_harness.py"
+  ],
+  "status": 1
+ },
+ "why": "the task's own command ended 1"
+}

@@ -414,11 +414,17 @@ class EnginePort:
             answer = self._run(argv, seconds=seconds)
         taken = boundaries.document(answer, "the engine's answer",
                                     required=("status", "stdout", "stderr"))
-        if type(taken["status"]) is not int or type(taken["status"]) is bool:
-            _refuse(f"the engine's exit status is a number; this is "
-                    f"{name_value(taken['status'])}")
-        for stream in ("stdout", "stderr"):
-            _stream(taken[stream], f"the engine's {stream}")
+        # EACH MEMBER READ BY NAME, and W43977 [P0] is why the loop went.
+        #
+        # `for stream in ("stdout", "stderr")` reads through a LOOP VARIABLE,
+        # so the boundary inventory cannot see which members this manager
+        # consumes -- a member the universe cannot name is a crossing nobody
+        # can be asked to own or witness. The two reads are the same rule and
+        # the same owner; only the spelling changed, so the inventory can
+        # discover them.
+        _status(taken["status"])
+        _stream(taken["stdout"], "the engine's stdout")
+        _stream(taken["stderr"], "the engine's stderr")
         return taken
 
 
@@ -446,6 +452,25 @@ def _runtime_name(operation_id):
     return "baton-" + _NAME_SAFE.sub("-", operation_id)
 
 
+def _status(value):
+    """The engine's exit status: a whole number and never a bool.
+
+    Named rather than inline for the reason `_stream` beside it is: a rule
+    written into the middle of a caller is a rule the inventory cannot name,
+    and this one decides whether an engine's act succeeded.
+    """
+    # NOT `boundaries.injected`, and the attempt is worth recording: that kind
+    # proves an injected answer is DURABLE TEXT, so using it here refused
+    # every integer status the engine has ever returned. An owner that makes
+    # the rule wrong is not an owner. `run.status` therefore has no layer
+    # owner the inventory can see, which is a real gap and is reported rather
+    # than papered over with a table entry.
+    if type(value) is not int or type(value) is bool:
+        _refuse(f"the engine's exit status is a number; this is "
+                f"{name_value(value)}")
+    return value
+
+
 def _stream(value, what):
     """Engine output: text that MAY BE EMPTY, and must be storable.
 
@@ -455,6 +480,9 @@ def _stream(value, what):
     What still has to hold is that the text can be stored and put in a message,
     because a refusal quoting it is a durable value like any other.
     """
+    # AND NOT `boundaries.injected` EITHER, for the reason this docstring
+    # already gives: that kind refuses the empty string, which is exactly what
+    # a quiet engine writes. Naming it here made "nothing on stderr" a fault.
     if type(value) is not str:
         _refuse(f"{what} is text; this is {name_value(value)}")
     try:
@@ -605,10 +633,36 @@ def _roots(assignment_roots, posture):
     if posture not in POSTURES:
         _refuse(f"{name_value(posture)} is not a worker posture; it is one of "
                 f"{', '.join(POSTURES)}")
-    taken = boundaries.document(assignment_roots, "the assignment's roots",
-                                required=ROOT_NAMES)
-    real = {name: canonical_source(taken[name], f"the {name} root")
-            for name in ROOT_NAMES}
+    # THE MANAGER'S OWN PROOF SURVIVES TO THE USE, when there is one.
+    #
+    # W39358 review [P1]: every caller flattened `AllocatedRoots` to a plain
+    # `dict` because the document check below refuses anything carrying
+    # behaviour -- and the flattening threw away exactly the fact worth
+    # keeping. `AllocatedRoots` is minted ONLY by `assignment_workspace` and
+    # `adopted_assignment_workspace`, both of which prove each root is a real
+    # directory of this attempt's own, not a link, resolving to its own path
+    # under the configured store. A caller cannot construct one and cannot
+    # retarget one.
+    #
+    # So a nominal answer is ADOPTED rather than re-derived: canonicalizing it
+    # again would resolve the pathname a second time, which is the
+    # check-then-open interval this correction exists to close. A plain
+    # mapping is still accepted and still proved here, because callers outside
+    # the allocation path legitimately have one.
+    if type(assignment_roots) is workspaces.AllocatedRoots:
+        # RETURNED AS ITSELF, not copied. Review 2026-08-30T19:10:03Z: my first
+        # cut preserved the VALUES and dropped the type, so the adapter held a
+        # plain mapping and `run_vector` re-entered here with it -- and
+        # re-entry took the canonicalizing branch, which is the very
+        # re-resolution this was meant to remove. Provenance that survives one
+        # call and not the next is not provenance.
+        real = assignment_roots
+    else:
+        taken = boundaries.document(assignment_roots,
+                                    "the assignment's roots",
+                                    required=ROOT_NAMES)
+        real = {name: canonical_source(taken[name], f"the {name} root")
+                for name in ROOT_NAMES}
     # NO ROOT CONTAINS ANOTHER. Review: with `workspace` beneath `inputs`, a
     # source inside both has no unique posture authority -- `_mounts` would
     # classify it by whichever root matched first, and whether it may be
@@ -1734,9 +1788,14 @@ class OciAdapter:
         # EVERY IDENTITY AGREED, so the record may now be believed about the
         # one thing the engine cannot answer: which bearer belongs to which
         # slot. `adopt` re-registers from this manager's own files.
+        # W52800: RECOVERY PROVES THE RULED SLOT, so it needs the same grant
+        # the start composed `--group-add` from. This adapter already holds it
+        # -- it is the one it validated at construction -- so the two halves of
+        # the grant are one capability rather than two lookups.
         return {"lifecycle_state": "adopted", "runtime_id": runtime_id,
                 "delivery": home.adopt(record, attempt_id=attempt,
-                                       runtime_id=runtime_id)}
+                                       runtime_id=runtime_id,
+                                       workspace_group=self.workspace_group)}
 
     def _recovery_failed(self, home, attempt, existing, why):
         """Fail closed: no output, stop the worker, bounded orphan cleanup.
@@ -2090,6 +2149,67 @@ class OciAdapter:
             required=documents.REFUSED_SESSION_DESTROY_COMMAND,
             optional=("operation",))
         return self._removed(taken["runtime_id"], "a refused-session")
+
+    # -- W43975: the typed directory-custody seam ---------------------------
+
+    @property
+    def custodian_image_digest(self):
+        """The identity of the helper THIS adapter would run a custody act as.
+
+        Exposed as a read rather than left to a caller to fish out of
+        `identity`, because it is a SIGNATURE input for the per-root receipt:
+        a changed custodian must collide rather than replay an answer about a
+        different helper.
+        """
+        return self.identity["image_digest"]
+
+    def normalize_directory(self, store, *, assignment_id, which):
+        """Normalize ONE of this attempt's roots, composed entirely in here.
+
+        W43975 review 2026-08-30T11:32:34Z: `intake.py` must not reach through
+        a nominally generic adapter to its `engine`, `run` and `image_digest`
+        fields to compose a custody act. Those are this object's, so the act
+        is composed here and what crosses the seam is a typed call and a
+        `CustodyAnswer`.
+
+        THE STORE CROSSES AND IS NOT HELD. `custody_act` performs its own
+        durable lookup in the same act that mounts, which is the property
+        eleven review rounds bought; this adapter holds no store and no path.
+        """
+        from . import custody as _custody
+
+        return _custody.custody_act(
+            self.engine, self.run, image_digest=self.custodian_image_digest,
+            store=store, assignment_id=assignment_id,
+            operation="normalize", which=which)
+
+    def destroy_abandoned(self, command):
+        """W44716: remove the runtime an ABANDONED attempt leaves running.
+
+        THE FOURTH SIBLING, on the rule that made the second and third.
+        Approver ruling 2026-08-30. A runtime that started and whose worker
+        then never answered has no intake receipt, no failed-start record and
+        no refusal record -- the start succeeded, the handshake was never
+        refused, and nothing was frozen or collected. What authorizes this is
+        an OPERATOR'S declaration that the attempt is abandoned, and its own
+        closed body says so rather than borrowing one of the other three.
+
+        THE SAME CORE, AND THE SAME ORDER. `_removed` force-removes the exact
+        identity, observes it, and settles the credential and launch
+        deliveries on positive absence and only on that. The container is
+        RUNNING here, as it is for a refused session, and `docker rm --force`
+        is what makes running and stopped one teardown rather than two.
+
+        AND NOTHING HERE TOUCHES THE RESULT DIRECTORY. Whatever the worker
+        wrote before it stopped answering was written by a worker this manager
+        never heard from, so it began untrusted and stays untrusted and in
+        place -- the same rule M33800 set for the siblings.
+        """
+        taken = boundaries.document(
+            command, "an abandoned-attempt destroy command",
+            required=documents.ABANDONED_DESTROY_COMMAND,
+            optional=("operation",))
+        return self._removed(taken["runtime_id"], "an abandoned-attempt")
 
     def _removed(self, named, what):
         """Force-remove one exact identity and answer what became of it.

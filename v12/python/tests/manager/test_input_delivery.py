@@ -639,6 +639,126 @@ class TheInputRootIsFrozenAndNotOnlyItsFiles(Configured):
         self.assertIn("composed once and then frozen", str(caught.exception))
 
 
+class TheWholeDeliveryIsFrozenAndNotOnlyTheRoot(Configured):
+    """W39358, measured inside the real composed runtime.
+
+    The class above proves the ROOT's own mode and the two documents'. This
+    proves the third thing under `/input` and the one nothing had ever read:
+    the staged source TREE. `copied_manifest` creates every file it copies at
+    `0o600` and makes its directories with a plain `os.makedirs`, and
+    `compose_input_root` chmodded exactly one directory -- so the delivery was
+    owner-only beside two `0o444` documents, and the container's fixed uid
+    65532 got `EACCES` opening the very source the assignment tells it to work
+    from. The dogfood operator's first real worker turn failed exactly there.
+
+    THIS ASKS THE MODE RATHER THAN A CONTAINER, deliberately: the engine half
+    is `TheConfiguredWorkspaceGroup` and the real-engine dogfood gate, and a
+    mode case that needs a daemon is one that cannot run everywhere the rule
+    applies.
+    """
+
+    def setUp(self):
+        super().setUp()
+        if os.geteuid() == 0:
+            raise AssertionError(
+                "these cases establish that ordinary permissions DENY a read, "
+                "and root is not denied by them; run them unprivileged")
+        import tempfile
+
+        self._root = tempfile.TemporaryDirectory(prefix="v12-w39358-freeze-")
+        self.addCleanup(self._root.cleanup)
+        self.storage = os.path.join(self._root.name, "storage")
+        os.makedirs(self.storage)
+
+    def staged(self, assignment="assignment-1", umask=None):
+        """A source tree delivered the way the operator delivers one."""
+        roots = workspaces.assignment_workspace(self.group, self.storage,
+                                                assignment)
+        self.addCleanup(composition.forcibly_remove, roots["inputs"])
+        source = os.path.join(self._root.name, "source")
+        os.makedirs(os.path.join(source, "below", "deeper"))
+        for relative in ("harness.py", "below/one.py", "below/deeper/two.py"):
+            with open(os.path.join(source, relative), "w",
+                      encoding="utf-8") as writing:
+                writing.write(f"# {relative}\n")
+        given, assignment_manifest = composition.input_roots.documents(
+            work_ref=dict(composition.WORK_REF),
+            participant=composition.WHO, generation=1,
+            runtime_attempt_id=f"attempt-{assignment}", given=None,
+            policy_digest=composition.POLICY,
+            profile_digest=composition.PROFILE)
+        previous = None if umask is None else os.umask(umask)
+        try:
+            workspaces.copied_manifest(source,
+                                       os.path.join(roots["inputs"], "source"))
+            compose_input_root(
+                roots["inputs"], given, assignment_manifest,
+                assignment=dict(assignment_manifest["assignment_ref"]),
+                runtime_attempt_id=f"attempt-{assignment}")
+        finally:
+            if previous is not None:
+                os.umask(previous)
+        return roots
+
+    def test_every_staged_file_and_directory_carries_the_declared_mode(self):
+        """Whatever the umask was when the copier ran.
+
+        NOT `0o777`, which the sibling class above does use. A total umask is
+        exact against the ROOT's freeze, because `os.chmod` on an existing
+        directory was never umask-filtered -- but `copied_manifest` MAKES its
+        own subdirectories, so under `0o777` it creates one at mode zero and
+        then refuses `EACCES` writing into it. That is the copier's own
+        question and it fails closed and loudly; this case is about what the
+        freeze leaves behind, and a delivery that never happened has nothing
+        to freeze.
+        """
+        for umask in (None, 0o022, 0o077):
+            with self.subTest(umask=umask if umask is None else oct(umask)):
+                self.setUp()
+                roots = self.staged(umask=umask)
+                seen = 0
+                for base, directories, files in os.walk(roots["inputs"]):
+                    for one in directories:
+                        seen += 1
+                        self.assertEqual(
+                            os.stat(os.path.join(base, one)).st_mode & 0o777,
+                            READ_ONLY_DIR,
+                            f"{one} is not frozen to the declared directory "
+                            f"mode")
+                    for one in files:
+                        seen += 1
+                        self.assertEqual(
+                            os.stat(os.path.join(base, one)).st_mode & 0o777,
+                            READ_ONLY_FILE,
+                            f"{one} is not frozen to the declared file mode")
+                # THE WALK REALLY SAW THE TREE. A case that measured an empty
+                # delivery would pass while proving nothing at all.
+                self.assertEqual(seen, 8, "the staged delivery was not walked")
+
+    def test_a_party_that_is_neither_owner_nor_group_can_still_read_it(self):
+        """WHICH IS THE POINT, and the half that was missing.
+
+        The container's fixed uid is not this manager's and holds the
+        workspace group, not the manager's own -- so `other` is the bit that
+        decides whether a worker can open the source it was given. This asks
+        the mode for exactly that rather than running a container to find out.
+        """
+        roots = self.staged()
+        for relative in ("source", "source/below", "source/below/deeper"):
+            mode = os.stat(os.path.join(roots["inputs"],
+                                        relative)).st_mode & 0o777
+            self.assertEqual(mode & 0o5, 0o5,
+                             f"{relative} is not traversable by a worker")
+        for relative in ("source/harness.py", "source/below/one.py",
+                         "source/below/deeper/two.py"):
+            mode = os.stat(os.path.join(roots["inputs"],
+                                        relative)).st_mode & 0o777
+            self.assertEqual(mode & 0o4, 0o4,
+                             f"{relative} is not readable by a worker")
+            self.assertEqual(mode & 0o222, 0,
+                             f"{relative} is writable by somebody")
+
+
 class TheRootsOwnENTRYIsFrozenToo(Configured):
     """W33935 re-review [P0], kept.
 

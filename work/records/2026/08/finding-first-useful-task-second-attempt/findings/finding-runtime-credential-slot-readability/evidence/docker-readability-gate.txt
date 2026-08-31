@@ -1,0 +1,9 @@
+test_the_execution_runtime_can_actually_READ_its_credential (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_the_execution_runtime_can_actually_READ_its_credential)
+W52800's acceptance, asked of a real container. ... ok
+test_a_runtime_without_the_ruled_group_cannot_read_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_a_runtime_without_the_ruled_group_cannot_read_it)
+The other half, and the one that says `other` is empty. ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.700s
+
+OK

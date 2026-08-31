@@ -33,7 +33,7 @@ an existing assertion, or broaden W17110's spike boundary. Mock the process
 crossing and use a temporary ordinary file whose content is explicitly not a
 credential.
 
-## Delivered source subset
+## Delivered source subset — superseded 2026-08-30
 
 Preserve these repository-relative paths in the read-only input and editable
 copy:
@@ -43,6 +43,22 @@ copy:
 - `v12/spike/ping-pong/test_harness.py`
 
 The candidate output must preserve the same relative layout. No `.git`
+directory or repository metadata is part of the delivery.
+
+## Current delivered source subset — approver correction 2026-08-30
+
+The three-file subset above is superseded because its unchanged verification
+command reads `trial.mjs`; without that file, 11 of the existing 26 cases fail
+before the worker contributes anything. Preserve these four
+repository-relative paths in the read-only input and editable copy:
+
+- `v12/spike/ping-pong/preflight.py`
+- `v12/spike/ping-pong/trial.py`
+- `v12/spike/ping-pong/trial.mjs`
+- `v12/spike/ping-pong/test_harness.py`
+
+This correction changes neither the objective nor the verification command.
+The candidate output preserves the same four-path relative layout. No `.git`
 directory or repository metadata is part of the delivery.
 
 ## Verification

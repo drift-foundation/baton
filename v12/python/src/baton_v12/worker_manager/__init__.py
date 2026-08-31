@@ -90,7 +90,7 @@ from .interrogation import (INTERROGATION_KINDS, inquire,
 from .manifests import load_manifest, retain_manifest
 from .output import (freeze_operation, frozen_output_of, record_frozen_result,
                      request_freeze)
-from .intake import (KEEPS_MATERIAL, authorize_cleanup,
+from .intake import (KEEPS_MATERIAL, abandon_attempt, authorize_cleanup,
                      authorize_failed_start_cleanup,
                      authorize_refused_session_cleanup, collect_operation,
                      decide_retention, destroy_operation,
@@ -128,7 +128,10 @@ from .store import (ControlStore, manager_signature, revive_refusal,
 # Two adjacent owned records saying opposite things is worse than either --
 # the later reader decides against a state that never existed -- so the stale
 # half is removed rather than annotated.
-__all__ = ["CUSTODY", "KEEPS_MATERIAL", "LANE_PARTS",
+# W44716: EXPORTED, and only this one. The declaration and destroy identity
+# builders and the record readers stay internal, because an ending authorized
+# by a record a caller could compose is not authorized by anything.
+__all__ = ["CUSTODY", "KEEPS_MATERIAL", "LANE_PARTS", "abandon_attempt",
            "WorkspaceGroup", "configure_workspace_group",
            "configured_workspace_group",
            "RETENTION_DISPOSITIONS",

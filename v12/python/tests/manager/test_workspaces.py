@@ -33,6 +33,7 @@ import pathlib
 import signal
 import tempfile
 import unittest
+from unittest import mock
 
 # `check_content_manifest` stays in the TEST's imports and left the module's:
 # checking a MEASURED manifest against the frozen `contentManifest` shape is a
@@ -47,7 +48,8 @@ from . import input_roots
 from baton_v12.worker_manager.workspaces import (
     ASSIGNMENT_MANIFEST, INPUT_MANIFEST, MAX_DEPTH, MAX_ENTRIES,
     READ_ONLY_DIR, READ_ONLY_FILE, assignment_workspace, compose_input_root,
-    directory_manifest, discard_workspace, read_input_root)
+    directory_manifest, discard_execution_roots, discard_workspace,
+    read_input_root)
 
 VECTORS = (pathlib.Path(__file__).resolve().parents[4] / "work" / "records"
            / "2026" / "08" / "finding-v12-isolated-agent-workers" / "findings"
@@ -709,6 +711,211 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
     def test_cleanup_never_reaches_outside_its_storage(self):
         with self.assertRaises(ContractRefusal):
             discard_workspace(self.storage, "../..")
+
+    def test_execution_cleanup_refuses_a_home_alias_to_a_sibling(self):
+        """Containment inside the store is not ownership of this attempt.
+
+        Allocation refuses a symlinked attempt home even when its target is a
+        sibling under the same configured store. The narrower destructive
+        path must preserve that exact no-alias proof before it thaws or walks
+        the name.
+        """
+        mine = self.workspace("assignment-1")
+        sibling = self.workspace("assignment-2")
+        sentinel = os.path.join(sibling["workspace"], "sibling.txt")
+        with open(sentinel, "w", encoding="utf-8") as writing:
+            writing.write("belongs to assignment-2")
+        discard_workspace(self.storage, "assignment-1")
+        os.symlink(os.path.dirname(sibling["workspace"]),
+                   os.path.dirname(mine["workspace"]))
+
+        refused = False
+        try:
+            discard_execution_roots(self.storage, "assignment-1")
+        except ContractRefusal:
+            refused = True
+        except OSError:
+            # A raw filesystem failure after following the alias is not the
+            # required fail-closed answer; the survival assertion below keeps
+            # the destructive consequence visible too.
+            pass
+
+        self.assertTrue(os.path.isfile(sentinel),
+                        "execution cleanup entered a sibling attempt's root")
+        self.assertTrue(refused, "the aliased attempt home was not refused")
+
+    def test_execution_cleanup_does_not_follow_a_root_replaced_after_proof(
+            self):
+        """The ownership proof and destructive use are one boundary.
+
+        A static no-link check is not enough when removal later reopens the
+        same pathname.  Replacing a proved root with a sibling alias in that
+        interval must not let cleanup traverse the sibling; the manager needs
+        a descriptor-relative/no-follow use or an equivalent identity hold.
+        """
+        mine = self.workspace("assignment-1")
+        sibling = self.workspace("assignment-2")
+        sentinel = os.path.join(sibling["workspace"], "sibling.txt")
+        with open(sentinel, "w", encoding="utf-8") as writing:
+            writing.write("belongs to assignment-2")
+        displaced = mine["workspace"] + ".displaced"
+        emptied = workspaces._emptied
+
+        def replace_after_proof(opened):
+            emptied(opened)
+            place = mine["workspace"]
+            if os.path.isdir(place) and not os.path.islink(place):
+                os.rename(place, displaced)
+                os.symlink(sibling["workspace"], place)
+
+        refused = False
+        with mock.patch.object(workspaces, "_emptied",
+                               side_effect=replace_after_proof):
+            try:
+                discard_execution_roots(self.storage, "assignment-1")
+            except ContractRefusal:
+                refused = True
+            except OSError:
+                # A raw filesystem error after following the replacement is
+                # not the typed, non-destructive refusal required here.
+                pass
+
+        self.assertTrue(os.path.isfile(sentinel),
+                        "execution cleanup followed a replaced root into a "
+                        "sibling attempt")
+        self.assertTrue(refused,
+                        "the root replacement was not refused before use")
+
+    def test_a_root_replaced_at_the_real_seam_is_a_typed_refusal(self):
+        """The reviewer's property, at the seam the descriptor design leaves.
+
+        Their witness injects the replacement through `workspaces._remove`,
+        which the corrected removal no longer calls at all -- the identity is
+        a descriptor now, so there is no pathname re-open to interpose on.
+        The one place a NAME is still used is the final `rmdir`, and a
+        replacement there must be a typed refusal rather than a raw
+        `ENOTDIR`. This drives it at that seam and asserts both halves of what
+        they asked for: the sibling survives, and the ending refuses.
+        """
+        mine = self.workspace("assignment-1")
+        sibling = self.workspace("assignment-2")
+        sentinel = os.path.join(sibling["workspace"], "sibling.txt")
+        with open(sentinel, "w", encoding="utf-8") as writing:
+            writing.write("belongs to assignment-2")
+        emptied = workspaces._emptied
+
+        def replace_after_the_walk(opened):
+            emptied(opened)
+            place = mine["workspace"]
+            if os.path.isdir(place) and not os.path.islink(place):
+                os.rename(place, place + ".displaced")
+                os.symlink(sibling["workspace"], place)
+
+        with mock.patch.object(workspaces, "_emptied",
+                               side_effect=replace_after_the_walk):
+            with self.assertRaises(ContractRefusal) as caught:
+                discard_execution_roots(self.storage, "assignment-1")
+
+        self.assertIn("replaced while its ending", str(caught.exception))
+        self.assertTrue(os.path.isfile(sentinel),
+                        "execution cleanup reached a sibling attempt")
+
+    def test_execution_cleanup_proves_every_root_before_removing_one(self):
+        """One invalid root refuses the whole selective removal up front.
+
+        The review required the home and every surviving execution root to be
+        proved before thaw or traversal.  Proving and deleting ``inputs``
+        before discovering that ``workspace`` is a sibling alias leaves a
+        partial destructive ending whose typed refusal says nothing started.
+        """
+        mine = self.workspace("assignment-1")
+        sibling = self.workspace("assignment-2")
+        sentinel = os.path.join(mine["inputs"], "mine.txt")
+        with open(sentinel, "w", encoding="utf-8") as writing:
+            writing.write("still belongs to assignment-1")
+        home = os.path.dirname(mine["workspace"])
+        displaced = mine["workspace"] + ".displaced"
+        os.chmod(home, 0o700)
+        os.rename(mine["workspace"], displaced)
+        os.symlink(sibling["workspace"], mine["workspace"])
+
+        with self.assertRaises(ContractRefusal):
+            discard_execution_roots(self.storage, "assignment-1")
+
+        self.assertTrue(os.path.isfile(sentinel),
+                        "cleanup removed one root before proving the other")
+
+
+    def test_the_thaw_is_skipped_for_a_directory_this_manager_does_not_own(
+            self):
+        """W39358, measured against a real daemon before it was written here.
+
+        `_emptied` opened with an UNCONDITIONAL `os.fchmod`, and `chmod` is the
+        OWNER's operation. `/output/proposal` is created by the CONTAINER, so
+        it is owned by the runtime's fixed uid and this manager is not its
+        owner: the first real worker tree this build ever tried to remove died
+        `EPERM`, which made every ending after a completed worker turn
+        unreachable.
+
+        A directory this manager does not own is not one it may repair and
+        does not need to -- `custody.normalize_directory` runs as the owner
+        immediately before and grants the workspace GROUP rwx on every object,
+        which is the access this walk actually uses.
+
+        THE FOREIGN OWNER IS MODELLED BY MOVING THIS PROCESS'S IDENTITY rather
+        than by making a file somebody else owns, which needs a privilege the
+        suite must not have. The question `_emptied` asks is "am I the owner",
+        and answering it `no` is the whole of the condition.
+        """
+        mine = self.workspace("assignment-1")
+        below = os.path.join(mine["workspace"], "worker-made")
+        os.makedirs(below)
+        with open(os.path.join(below, "result.txt"), "w",
+                  encoding="utf-8") as writing:
+            writing.write("what the worker wrote")
+
+        # WHICH DIRECTORY, and not merely how many times. The home's own thaw
+        # is a different call site over material this manager plainly owns, so
+        # a bare "never called" would be asserting something untrue about the
+        # removal as a whole. The inode is what names the subject.
+        foreign = os.stat(below).st_ino
+        thawed = []
+        real = os.fchmod
+
+        def recorded(descriptor, mode):
+            thawed.append(os.fstat(descriptor).st_ino)
+            return real(descriptor, mode)
+
+        with mock.patch.object(os, "getuid", return_value=os.getuid() + 1), \
+                mock.patch.object(os, "fchmod", side_effect=recorded):
+            removed = discard_execution_roots(self.storage, "assignment-1")
+
+        self.assertNotIn(foreign, thawed,
+                         "the walk tried to chmod a directory it does not own")
+        self.assertEqual(sorted(removed), ["inputs", "workspace"])
+        self.assertFalse(os.path.exists(mine["workspace"]),
+                         "the worker's own tree survived the removal")
+
+    def test_the_thaw_still_happens_on_a_root_this_manager_does_own(self):
+        """The other half: an owned directory is repaired, as it always was.
+
+        A root frozen by a delivery is unwritable by design, and removing it
+        is this manager's own act over its own material -- so the repair is
+        not merely permitted, it is the only way the walk proceeds.
+        """
+        mine = self.workspace("assignment-1")
+        with open(os.path.join(mine["inputs"], "frozen.txt"), "w",
+                  encoding="utf-8") as writing:
+            writing.write("a delivered byte")
+        workspaces._frozen_delivery(mine["inputs"])
+        self.assertEqual(os.stat(mine["inputs"]).st_mode & 0o777,
+                         workspaces.READ_ONLY_DIR)
+
+        removed = discard_execution_roots(self.storage, "assignment-1")
+
+        self.assertEqual(sorted(removed), ["inputs", "workspace"])
+        self.assertFalse(os.path.exists(mine["inputs"]),
+                         "a frozen root this manager owns was not removed")
 
 
 class TheInputRootIsComposedOnceAndThenFrozen(Workspace):

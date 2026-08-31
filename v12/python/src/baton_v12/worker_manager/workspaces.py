@@ -103,7 +103,9 @@ __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
            "configure_workspace_storage", "configured_workspace_storage",
            "MAX_BYTES", "MAX_DEPTH", "READ_ONLY_DIR", "READ_ONLY_FILE",
            "assignment_workspace", "compose_input_root", "copied_manifest",
-           "directory_manifest", "discard_tree", "discard_workspace",
+           "adopted_assignment_workspace",
+           "directory_manifest", "discard_execution_roots", "discard_tree",
+           "discard_workspace",
            "read_input_root"]
 
 # THE TWO MANAGER-AUTHORED PROTOCOL DOCUMENTS, at the names the contract fixes
@@ -1283,6 +1285,38 @@ def assignment_workspace(workspace_group, storage, assignment_id):
     # so allocation and the grant are one step and a workspace this function
     # returns is one the worker can write.
     adopt_workspace_group(made, workspace_group)
+    # THE RESULT ROOT IS MANDATORY AND THIS MANAGER ESTABLISHES IT.
+    #
+    # Approver ruling 2026-08-30 (W43975): the manager creates
+    # `workspace/result-<attempt-id>` BEFORE runtime start; custody derives
+    # that exact manager-owned locator, never creates a missing one, and
+    # refuses a contradictory absence.
+    #
+    # WHY IT IS ESTABLISHED RATHER THAN CREATED ON DEMAND. A directory a
+    # cleanup act invents is a directory that did not exist when the attempt
+    # ran, so an ending could report accountable custody over an empty tree it
+    # had just made while the worker's actual output sat somewhere else. The
+    # only way "this is the attempt's result root" can be a FACT at cleanup is
+    # for allocation to have made it a fact before the worker ever started.
+    #
+    # NESTED UNDER `workspace` RATHER THAN A HOME ENTRY, because it is the
+    # worker's own writable output area and the home is closed after
+    # allocation. It is deliberately not a member of the answer: `ROOT_NAMES`
+    # is what a container may MOUNT, and this is a subject of custody rather
+    # than a third mount.
+    #
+    # LOGS MAY EXIST WITH NO ACCEPTED ARTIFACTS -- the same ruling -- so an
+    # empty one is an ordinary outcome and never evidence that nothing ran.
+    result = os.path.join(made["workspace"], f"result-{assignment_id}")
+    _own_directory(result,
+                   os.path.join(expected_home, "workspace",
+                                f"result-{assignment_id}"),
+                   "result root")
+    _contained(result, root, "the assignment's result root")
+    # THE SAME GRANT THE WORKSPACE ITSELF GETS, through the same owner:
+    # `adopt_workspace_group` names its subject `workspace` because it adopts
+    # ONE writable root, and this is a writable root under it.
+    adopt_workspace_group({"workspace": result}, workspace_group)
     # W36540 review [P0]: THE ANSWER CARRIES ITS OWN PROVENANCE.
     #
     # A custody act has to be able to tell "this manager allocated these roots"
@@ -1481,6 +1515,44 @@ def _own_directory(place, expected, what):
     return place
 
 
+def _frozen_delivery(root):
+    """THE WHOLE ROOT made read-only, deepest first -- not just its top.
+
+    W39358, measured inside the real composed runtime. `compose_input_root`
+    said it exposed "the whole surface" read-only and chmodded exactly ONE
+    directory: the root. Everything staged BELOW it kept what its writer left,
+    and `copied_manifest` -- the manager's own copier, and the only thing that
+    delivers a source TREE -- creates every file `0o600`. So the third thing
+    under `/input` was owner-only while the two documents beside it were
+    `0o444`, and the container's fixed uid 65532 got `EACCES` opening the very
+    source the assignment tells it to work from. The dogfood operator's first
+    real worker turn failed exactly there, on `/input/source/harness.py`.
+    That is W33935's defect again, one level down: the two DOCUMENTS were
+    fixed then because they were the only things anything read.
+
+    THE DIRECTORIES TOO, and for the same reason the root gets `0o555` rather
+    than `0o500`: a directory the worker cannot traverse is one whose readable
+    files it cannot reach. `copied_manifest` makes its subdirectories with a
+    plain `os.makedirs`, so their modes are whatever the umask happened to
+    produce -- `0o775` on the host this was measured on and `0o700` under the
+    ordinary service umask, which is the accident `WORKSPACE_DIR` exists to
+    end.
+
+    DEEPEST FIRST, because a directory made unwritable before its children are
+    is a directory whose children this process can no longer chmod.
+
+    `sealing._frozen` is the same walk over custody rather than over a
+    delivery. They are deliberately NOT merged here: this Work owns the input
+    path, and one owner for both is a change to a module it does not.
+    """
+    for base, directories, files in os.walk(root, topdown=False):
+        for one in files:
+            os.chmod(os.path.join(base, one), READ_ONLY_FILE)
+        for one in directories:
+            os.chmod(os.path.join(base, one), READ_ONLY_DIR)
+    os.chmod(root, READ_ONLY_DIR)
+
+
 def compose_input_root(inputs, input_manifest, assignment_manifest, *,
                        assignment, runtime_attempt_id):
     """Materialize BOTH `/input/` documents, in the order the ruling fixes.
@@ -1587,7 +1659,7 @@ def compose_input_root(inputs, input_manifest, assignment_manifest, *,
     # `_remove` makes each directory writable as it goes, inside a tree
     # `discard_workspace` has already proved contained, so a frozen root is
     # removable by the manager that owns it and by nothing else.
-    os.chmod(root, READ_ONLY_DIR)
+    _frozen_delivery(root)
     # AND THE PARENT, which is the only thing that governs the root's own
     # ENTRY.  Re-review [P0]: `0555` on `inputs` denies create, unlink and
     # rename INSIDE it; renaming or replacing `inputs` itself is a write to
@@ -1703,6 +1775,226 @@ def discard_workspace(storage, assignment_id):
     _contained(home, root, "the assignment's workspace")
     _remove(home)
     return True
+
+
+def adopted_assignment_workspace(storage, assignment_id):
+    """The roots an attempt ALREADY HAS, proved and never allocated.
+
+    W39358 review [P1]. A deployment resuming an attempt needs its roots and
+    must not create them: `assignment_workspace` creates, chmods and chgrps,
+    which is an allocation performed by something that only means to read. The
+    deployment's own answer was a check followed later by an ordinary open --
+    a second, weaker door onto the same directories, and a check-then-open
+    race besides.
+
+    So the proof lives here, where the invariant does. It is exactly
+    `_own_directory`'s question asked read-only -- not a link, a real
+    directory, resolving to its own path under the configured store -- applied
+    to the home and to both roots, and it changes nothing on disk.
+
+    ANSWERS THE SAME MAPPING `assignment_workspace` DOES, so a caller reads
+    `roots["workspace"]` whichever way it obtained them, and refuses an
+    attempt whose roots are gone: that is not a state an ending can be
+    performed over.
+    """
+    boundaries.identity(assignment_id, "an assignment identity")
+    root = _real(storage, "the manager's workspace storage")
+    home = os.path.join(root, assignment_id)
+    _proved_own(home, root, assignment_id, "home")
+    return AllocatedRoots(
+        {name: _proved_own(os.path.join(home, name), root, assignment_id,
+                           name)
+         for name in ROOT_NAMES}, _MINT)
+
+
+def discard_execution_roots(storage, assignment_id):
+    """Remove the two roots this attempt's WORKSPACE ENDING owns, and no more.
+
+    W43975 review 2026-08-30T15:21:44Z [P0] chose the boundary: `inputs` and
+    `workspace` -- what this attempt's execution was given and what its ending
+    is about -- because `discard_workspace` removes the whole home, and the
+    home also holds `custody`, where intaken material lives, plus the two
+    credential roots. An ordinary cleanup using it recorded `retained`, named
+    the kept artifacts, and had already deleted the locators that claim was
+    about.
+
+    Review 2026-08-30T15:39:31Z then found the boundary right and the
+    EXECUTION wrong, twice:
+
+      NOTHING IS DELETED UNTIL EVERYTHING IS PROVED. It proved and removed
+      each root in turn, so a valid `inputs` beside an aliased `workspace` was
+      deleted and only then refused -- a partial destructive ending whose
+      refusal does not describe the mutation it already performed. The
+      complete identity preflight now runs over the home and every present
+      root BEFORE the home is thawed or anything is removed.
+
+      THE IDENTITY IS HELD THROUGH USE. `_proved_own` validated a PATHNAME and
+      `_remove` reopened it, so a replacement in that interval turned the
+      proved root into a sibling alias and the walk followed it. Static
+      `islink`/`realpath` checks cannot close that interval, and a broad catch
+      afterwards cannot restore deleted material. So the proof and the removal
+      are one boundary now: a directory descriptor opened `O_NOFOLLOW`, which
+      is the identity, and every traversal, mode change and unlink below it is
+      relative to that descriptor rather than to a name something else can
+      move.
+    """
+    boundaries.identity(assignment_id, "an assignment identity")
+    root = _real(storage, "the manager's workspace storage")
+    home = os.path.join(root, assignment_id)
+    if not os.path.lexists(home):
+        return ()
+    _proved_own(home, root, assignment_id, "home")
+    try:
+        holding = os.open(home, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
+    except OSError as failure:
+        _denied(f"attempt {name_value(assignment_id)}'s home could not be "
+                f"opened as its own directory ({type(failure).__name__})")
+    try:
+        # THE COMPLETE PREFLIGHT, over descriptors rather than names. Opening
+        # a child `O_NOFOLLOW|O_DIRECTORY` relative to the proved home refuses
+        # a link ATOMICALLY -- the open either gets this attempt's directory
+        # or fails -- and the descriptor it answers is what the removal then
+        # uses, so there is no interval between proving and using at all.
+        held = {}
+        try:
+            for name in ROOT_NAMES:
+                try:
+                    held[name] = os.open(
+                        name, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY,
+                        dir_fd=holding)
+                except FileNotFoundError:
+                    continue
+                except OSError as failure:
+                    _denied(f"attempt {name_value(assignment_id)}'s {name} "
+                            f"root is not its own directory "
+                            f"({type(failure).__name__}); an aliased or stale "
+                            f"entry is refused rather than removed, and "
+                            f"nothing has been deleted")
+            # ONLY NOW is the home thawed. W33935 closed it at `0555` so its
+            # entries could not be renamed or replaced, and unlinking an entry
+            # is the parent's permission -- but a thaw before the preflight
+            # would open that window for a refusal that never removes.
+            frozen = stat.S_IMODE(os.stat(holding).st_mode)
+            os.fchmod(holding, 0o700)
+            try:
+                for name, opened in held.items():
+                    _emptied(opened)
+                    # THE NAME MUST STILL BE THE DESCRIPTOR. Everything above
+                    # went through the held identity, so nothing outside this
+                    # attempt could have been touched -- but the final
+                    # `rmdir` takes a NAME, and a name replaced during the
+                    # walk is no longer the directory this proved. Answered as
+                    # a typed refusal rather than a raw `ENOTDIR`, because an
+                    # ending that was interfered with is a fact an operator
+                    # acts on.
+                    _still_the_same(opened, name, holding, assignment_id)
+                    os.rmdir(name, dir_fd=holding)
+            finally:
+                os.fchmod(holding, frozen)
+            return tuple(sorted(held))
+        finally:
+            for opened in held.values():
+                os.close(opened)
+    finally:
+        os.close(holding)
+
+
+def _still_the_same(opened, name, parent, assignment_id):
+    """The held descriptor and the name, proved to be one directory."""
+    held = os.stat(opened)
+    try:
+        found = os.stat(name, dir_fd=parent, follow_symlinks=False)
+    except OSError as failure:
+        _denied(f"attempt {name_value(assignment_id)}'s {name} root could not "
+                f"be re-identified before its removal "
+                f"({type(failure).__name__})")
+    if (found.st_dev, found.st_ino) != (held.st_dev, held.st_ino):
+        _denied(f"attempt {name_value(assignment_id)}'s {name} root was "
+                f"replaced while its ending was removing it; nothing outside "
+                f"the proved directory was touched, and the removal stops "
+                f"rather than acting on a name that is no longer what it "
+                f"proved")
+
+
+def _emptied(opened):
+    """Empty ONE proved directory, descriptor-relative and no-follow.
+
+    Every child is unlinked relative to the descriptor its parent was opened
+    as, and a child directory is opened `O_NOFOLLOW` before it is descended --
+    so a name replaced mid-walk is refused at the open rather than followed.
+    Nothing here resolves a path.
+
+    THE CHMOD IS A REPAIR, AND ONLY ON THIS MANAGER'S OWN DIRECTORIES.
+    W39358, measured: `os.fchmod` was unconditional, and `chmod` is the
+    OWNER's operation -- so the first real worker tree this build ever removed
+    died `EPERM` on `/output/proposal`, a directory the CONTAINER's fixed uid
+    65532 created and this manager does not own. Every ending after a
+    completed worker turn was unreachable for that reason.
+
+    A directory this manager does not own is not one it may repair, and it
+    does not need to: `custody.normalize_directory` runs as the owner of the
+    worker's objects immediately before this and grants the workspace GROUP
+    rwx on every one of them, which is the access this walk actually uses.
+    That act is exactly why the custodian grants the group instead of
+    chowning. If it did not run, the `unlink` below refuses on its own and the
+    removal fails closed -- which is the honest ending, and a nearer one than
+    a chmod that could never have succeeded.
+    """
+    if os.fstat(opened).st_uid == os.getuid():
+        os.fchmod(opened, 0o700)
+    for name in os.listdir(opened):
+        try:
+            below = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY,
+                            dir_fd=opened)
+        except NotADirectoryError:
+            os.unlink(name, dir_fd=opened)
+            continue
+        except OSError:
+            # A LINK, a device, a socket -- anything that is not a directory
+            # this manager may descend. It is removed as an ENTRY and never
+            # followed.
+            os.unlink(name, dir_fd=opened)
+            continue
+        try:
+            _emptied(below)
+        finally:
+            os.close(below)
+        os.rmdir(name, dir_fd=opened)
+
+
+def _proved_own(place, root, assignment_id, what):
+    """This attempt's OWN directory at its own path, or a refusal.
+
+    The same question `_own_directory` asks at allocation, asked read-only:
+    not a link, a real directory, and resolving to exactly its own path under
+    the configured store.
+    """
+    expected = os.path.join(os.path.realpath(root), assignment_id)
+    if what != "home":
+        expected = os.path.join(expected, what)
+    if os.path.islink(place) or not os.path.isdir(place) \
+            or os.path.realpath(place) != expected:
+        _denied(f"{name_value(place)} is not attempt "
+                f"{name_value(assignment_id)}'s own {what} at its own path; "
+                f"an aliased or stale entry is refused rather than removed, "
+                f"because material under it would be another attempt's")
+    return place
+
+
+def _discarded_roots(home, root, assignment_id):
+    removed = []
+    for name in ROOT_NAMES:
+        place = os.path.join(home, name)
+        if not os.path.lexists(place):
+            continue
+        # EACH ROOT PROVED THIS ATTEMPT'S OWN, not merely contained. A root
+        # entry linked to another attempt's tree resolves inside the store
+        # too, and containment would accept it.
+        _proved_own(place, root, assignment_id, name)
+        _remove(place)
+        removed.append(name)
+    return tuple(removed)
+
 
 
 def discard_tree(place):

@@ -1,0 +1,97 @@
+W54802 bounded probe rescan — 2026-08-31
+
+Command (from v12/python):
+  PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory.EveryProbeProvesItArrived
+
+Result:
+  Ran 5 tests in 2.114s
+  FAILED (failures=2)
+  test_every_declared_probe_reaches_its_named_boundary: PASS (549 probes)
+  test_every_owned_entry_has_exactly_one_probe: FAIL
+  test_the_missing_probe_check_can_actually_fail: FAIL on the same missing set
+
+Owned, never probed — 46 pairs
+
+  adopted handshake.py:certified_agent_session_profile
+    profiles.body.postures
+    profiles.body.postures.declared_output
+    profiles.body.postures.policy
+    profiles.body.postures.workspace
+  adopted intake.py:retentions_of
+    retentions.retain_operation_id
+  adopted sessions.py:_session_row
+    agent_sessions.authority_uuid
+    agent_sessions.generation
+    agent_sessions.participant
+    agent_sessions.posture
+    agent_sessions.profile_digest
+    agent_sessions.runtime_attempt_id
+    agent_sessions.work_id
+  adopted workspaces.py:_configured_gid
+    meta
+    meta.value
+  caller attempts.py:request_runtime_start
+    adapter.target
+  caller intake.py:abandon_attempt
+    adapter
+    attempt_id
+    reason
+    retention_policy_digest
+  caller oci.py:OciAdapter.destroy_abandoned
+    command
+    command.runtime_id
+  caller oci.py:OciAdapter.retain
+    command
+    command.artifact_ids
+    command.disposition
+    command.runtime_attempt_id
+  caller oci.py:OciAdapter.start
+    request.input_root
+  caller oci.py:canonical_source
+    place
+  caller oci.py:canonical_target
+    place
+  caller oci.py:exec_vector
+    runtime_id
+  caller worker_entry.py:ChannelPort.__init__
+    open_channel
+  caller worker_entry.py:converse
+    session
+  caller workspaces.py:check_workspace_storage
+    place
+  caller workspaces.py:compose_input_root
+    assignment
+    runtime_attempt_id
+  injected intake.py:_destroyed
+    adapter.destroy                         [label: a  teardown ending]
+    adapter.destroy.lifecycle_state         [label: a  teardown ending's state]
+  injected intake.py:_destroyed_abandoned
+    adapter.destroy_abandoned               [label: a  teardown ending]
+    adapter.destroy_abandoned               [label: an abandoned-attempt destroy observation]
+    adapter.destroy_abandoned.lifecycle_state [label: a  teardown ending's state]
+    adapter.destroy_abandoned.runtime_id     [label: an observed runtime id]
+    adapter.destroy_abandoned.state          [label: a destroy observation's state]
+    adapter.destroy_abandoned.why            [label: a destroy observation's reason]
+  injected intake.py:_destroyed_failed_start
+    adapter.destroy_failed_start             [label: a  teardown ending]
+    adapter.destroy_failed_start.lifecycle_state [label: a  teardown ending's state]
+  injected intake.py:_destroyed_refused_session
+    adapter.destroy_refused_session          [label: a  teardown ending]
+    adapter.destroy_refused_session.lifecycle_state [label: a  teardown ending's state]
+
+Probed, never owned — 3 pairs
+
+  adopted handshake.py:certified_agent_session_profile
+    profiles.body.client_capabilities        [label: a retained agent-session profile]
+    profiles.body.wire_protocol              [label: a retained agent-session profile]
+  adopted lanes.py:_occupy_lane
+    runtime_lanes                            [label: a persisted runtime lane]
+
+Adjacent bounded owner scan (not W54802 scope):
+  PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner
+  Ran 12 tests in 0.496s
+  FAILED (failures=3)
+  133 receiving entries with no owner
+  34 boundary calls attributed to no entry
+  persisted columns operation_id and settled_at untracked
+

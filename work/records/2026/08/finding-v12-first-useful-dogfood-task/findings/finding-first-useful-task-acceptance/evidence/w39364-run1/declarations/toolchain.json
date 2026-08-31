@@ -1,0 +1,11 @@
+{
+ "engine": "docker",
+ "engine_version": "29.1.3",
+ "image_base": "node:22-bookworm-slim",
+ "node": "v22.23.2",
+ "operator_python": "Python 3.13.7",
+ "provider_cli": "2.1.247 (Claude Code)",
+ "python": "Python 3.11.2",
+ "schema": "baton.w39364-toolchain/1",
+ "worker_image_digest": "sha256:9b83e49cd8bbb1de4f802ab9f984b16666e2d3a21ac671c178970fb49180f356"
+}

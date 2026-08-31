@@ -469,3 +469,20 @@ lightweight child Work rows with independent routes and lifecycle:
   custody/OCI/cleanup suites. The single owner test exceeded 90 seconds with
   no output in this managed review and was interrupted; a completed result is
   still required rather than treating elapsed time as a pass.
+
+### 2026-08-30 — W43977 scope ruling supersedes the global-green gate
+
+- **Superseded:** the requirement above that W43977 keep the complete shared
+  boundary-inventory module green. That accidentally made one custody-specific
+  child own unread crossings in ten other modules.
+- **Current acceptance:** W43977 owns the custody/declaration slice only. It
+  may close when custody has zero unowned entries, every one of its 25 declared
+  `(entry,label)` pairs has an independently driven witness, and the focused
+  custody gate and adjacent suites pass without weakening existing assertions.
+- **Preserved global debt:** the observed 131 unowned entries and 57 missing
+  probes remain confirmed debt. `worker_entry` stays with W39666. A separately
+  ledgered hardening umbrella W48697 at
+  `work/records/2026/08/finding-v12-global-boundary-inventory-debt/` owns
+  `workspaces`, `documents`, `oci`, `handshake`, `lanes`, `attempts`,
+  `authority_port`, `intake` and `sessions`; it must decompose by module before
+  implementation rather than expanding W43977 ad hoc.

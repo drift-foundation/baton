@@ -188,6 +188,36 @@ is rejected if it opens credential content, relies on a real Docker daemon or
 host credential, changes production probe behavior, weakens an existing
 assertion, or only tests the mocked `main()` path.
 
+### 2026-08-30 — approver correction and live-run grants
+
+The earlier three-file delivery is superseded by the same subset plus
+`v12/spike/ping-pong/trial.mjs`. The harness reads that sibling in 11 existing
+cases; omitting it made the frozen verification command fail before the worker
+could contribute. Adding only this fourth read-only source makes the unchanged
+command pass all 26 baseline cases and does not change the task objective.
+
+For this private development-box pilot, the exact credential source is
+`/run/baton/credentials/claude` and the explicit Docker network posture is
+`bridge`. The credential path is an operator input; credential content is
+never recorded. These grants are bounded to this supervised trial and do not
+become ambient defaults.
+
+**Operational revalidation, 2026-08-31:** the named credential source exists
+as a 509-byte regular file at mode `0400`, owned by `nobody:nogroup`, and the
+managed repository process running as uid 1000 cannot read it. This was
+checked with `stat` and `test -r` only; no credential bytes were opened or
+recorded. The grant is pinned, but the live run still waits for an exact source
+the operator process may open or an explicit operator-owned permission
+correction. The reviewer does not copy, chmod or substitute credential
+material.
+
+**Superseding operational verification, 2026-08-31:** the approver corrected
+only the external ownership. The same 509-byte regular file remains mode
+`0400`, is now owned by `sl:sl`, and `test -r` succeeds as the managed uid
+1000 operator. No credential bytes were opened or recorded. The credential
+gate is satisfied; the exact path and explicit `bridge` posture remain
+unchanged for the one authorized trial.
+
 ## Clarified output boundary — 2026-08-29
 
 The earlier `/output/result.json` wording is superseded at the exact-path
@@ -518,3 +548,24 @@ this campaign's approved top-down vertical-slice rule. Remove only that
 dependency edge. W39666 stays open and attributable, and any observed defect
 that can make the positive dogfood result falsely succeed still returns to the
 critical path; unimplemented inventory bookkeeping alone does not.
+
+## 2026-08-31 — first live attempt rejected; critical path continues
+
+W39364 closed `non-satisfying` after the one authorized live provider attempt.
+The supervised platform arc resolved, but the worker answered `unable`, the
+candidate was byte-identical to the four-file input, and hard-coded discard
+removed it before direct reviewer inspection. The explicit rejection is
+`findings/finding-first-useful-task-acceptance/review-2026-08-31T04-56-33Z.md`.
+
+The continuing critical path is explicit rather than hidden in the closed
+attempt:
+
+- W51473 fixes the operator's retention decision and terminal-retained
+  resolution; it blocks this parent.
+- W51487 owns a later fresh useful-task attempt after W51473 and after new
+  operator authorization; it also blocks this parent.
+- W51476 owns the separately observed human-contract preflight interval. It is
+  real but does not independently authorize or force another live attempt.
+
+No W39364 credential/network grant carries into W51487, and no second provider
+turn is authorized by this record.

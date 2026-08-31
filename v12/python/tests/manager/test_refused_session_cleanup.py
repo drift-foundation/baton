@@ -27,6 +27,8 @@ delivery roots, LEAVE the untrusted result directory where it is, end at
 `retained`, and only then release the lane.
 """
 
+import os
+import sqlite3
 import unittest
 
 from baton_v12.contracts import ContractRefusal, digest
@@ -50,7 +52,20 @@ class Custodian:
     would make every case below silent about which door was opened.
     """
 
+    # W43975: the typed directory-custody seam this ending now settles on.
+    custodian_image_digest = "sha256:" + "c" * 64
+
+    def normalize_directory(self, store, *, assignment_id, which):
+        from baton_v12.worker_manager import custody
+
+        self.normalized.append((assignment_id, which))
+        return custody._answered(
+            "normalize", 0,
+            {"custody": "normalize", "entries": 0, "not_ours": 0,
+             "running_as": [0, 0]}, None)
+
     def __init__(self, **overrides):
+        self.normalized = []
         self.commands = []
         self.overrides = overrides
 
@@ -639,3 +654,96 @@ class ReuseIsOrderedBehindTheEnding(RefusedSessionCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheRefusedSessionEndingSurvivesInterruption(RefusedSessionCase):
+    """W43975's public-ending matrix, for the refused-handshake sibling."""
+
+    def interrupted(self, fail_on=None):
+        from baton_v12.worker_manager import custody
+
+        adapter = Custodian()
+
+        def normalize_directory(store, *, assignment_id, which):
+            adapter.normalized.append((assignment_id, which))
+            if which == fail_on:
+                raise RuntimeError(f"the helper died over {which}")
+            return custody._answered(
+                "normalize", 0,
+                {"custody": "normalize", "entries": 0, "not_ours": 0,
+                 "running_as": [0, 0]}, None)
+
+        adapter.normalize_directory = normalize_directory
+        return adapter
+
+    def attempt_row(self):
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        beside.row_factory = sqlite3.Row
+        try:
+            found = beside.execute(
+                "SELECT * FROM attempts WHERE runtime_attempt_id = ?",
+                (ATTEMPT,)).fetchone()
+            return {k: found[k] for k in found.keys()}
+        finally:
+            beside.close()
+
+    def test_the_ending_binds_both_receipts_and_replays_them(self):
+        self.refused()
+        self.ended()
+        adapter = self.interrupted()
+
+        answered = self.settled(adapter)
+
+        self.assertEqual([one for _a, one in adapter.normalized],
+                         ["result", "workspace"])
+        self.assertEqual(sorted(answered["directory_custody"]),
+                         ["result", "workspace"])
+        self.assertEqual(self.settled(adapter), answered,
+                         "the settled ending did not replay")
+        self.assertEqual(len(adapter.normalized), 2,
+                         "a replayed ending normalized a root again")
+
+    def test_an_interrupted_normalization_commits_no_ending_and_resumes(self):
+        self.refused()
+        self.ended()
+        dying = self.interrupted(fail_on="workspace")
+
+        with self.assertRaises(RuntimeError):
+            self.settled(dying)
+        self.assertEqual(self.attempt_row()["cleanup"], "pending",
+                         "an ending was claimed on an unfinished custody")
+
+        resumed = self.interrupted()
+        answered = self.settled(resumed)
+
+        self.assertEqual(answered["cleanup"], "retained")
+        self.assertEqual([one for _a, one in resumed.normalized],
+                         ["workspace"],
+                         "the resumed ending renormalized a settled root")
+
+    def test_a_changed_custodian_collides_rather_than_settling(self):
+        self.refused()
+        self.ended()
+        dying = self.interrupted(fail_on="workspace")
+        with self.assertRaises(RuntimeError):
+            self.settled(dying)
+
+        other = self.interrupted()
+        other.custodian_image_digest = "sha256:" + "e" * 64
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settled(other)
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertEqual(self.attempt_row()["cleanup"], "pending")
+
+    def test_the_home_is_retained_rather_than_removed(self):
+        self.refused()
+        self.ended()
+        home = os.path.join(self.storage, ATTEMPT)
+        os.makedirs(os.path.join(home, "workspace"), exist_ok=True)
+
+        self.settled(self.interrupted())
+
+        self.assertTrue(os.path.isdir(os.path.join(home, "workspace")),
+                        "a recordless ending removed the material it retained")

@@ -1,0 +1,10 @@
+{
+ "instructions": "Add focused unit coverage for v12/spike/ping-pong/preflight.py::_observed_readable, in v12/spike/ping-pong/test_harness.py, establishing all four facts:\n1. An absent nominated path returns the existing `probed: false` answer and invokes no subprocess.\n2. A successful probe uses the nominated engine, --rm, uid/gid 65532:65532, --network none, an exact read-only bind from the nominated file to /probe, the pinned alpine:3.20 image and `test -r`.\n3. Exit zero plus stdout `readable` maps to `probed: true, readable: true`; exit zero with the unreadable answer remains a completed negative probe.\n4. A nonzero probe process remains `probed: false`, carries the bounded status already returned by production, and is not misreported as unreadable.\nAdd the smallest maintainable cases. Do not change preflight.py unless a test exposes a genuine defect. Do not read credential bytes, use a real credential, require a Docker daemon, weaken an existing assertion, or broaden W17110's spike boundary. Mock the process crossing and use a temporary ordinary file whose content is explicitly not a credential. Preserve the four delivered repository-relative paths in the candidate.",
+ "schema": "baton.dogfood-task/1",
+ "source_root": "source",
+ "task_id": "w39364-observed-readable-coverage",
+ "verification": [
+  "python3",
+  "v12/spike/ping-pong/test_harness.py"
+ ]
+}

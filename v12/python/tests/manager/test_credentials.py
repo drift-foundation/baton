@@ -132,6 +132,10 @@ class CredentialCase(unittest.TestCase):
         return mint
 
     def delivery(self, slots=("api",), **overrides):
+        # W52800: the slot's reader group is a grant, so it arrives as the
+        # capability this fixture already minted from its own manager store --
+        # never a bare integer, which is what `_reader_group` refuses.
+        overrides.setdefault("workspace_group", self.group)
         return self.home().materialize(
             credentials.resolved_delivery(slots, profile=PROFILE),
             attempt_id="attempt-1",
@@ -239,6 +243,7 @@ class TheTrustedProfileMapsEverySlot(CredentialCase):
         self.home().materialize(
             credentials.resolved_delivery(["api"], profile=PROFILE),
             attempt_id="attempt-1",
+            workspace_group=self.group,
             credential_provider=self.provider())
         self.assertEqual(self.minted, [("vault", "kv/one")])
 
@@ -262,8 +267,10 @@ class MaterializationArmsTheRegistryFirst(CredentialCase):
                          credentials.VOLATILE_DIR)
         for name, value in (("api", BEARER), ("signing", SECOND)):
             place = os.path.join(delivered.root, name)
+            # W52800: the ruled group-readable mode, and the configured gid.
             self.assertEqual(stat.S_IMODE(os.stat(place).st_mode),
                              credentials.VOLATILE_FILE)
+            self.assertEqual(os.stat(place).st_gid, self.group.gid)
             with open(place, "rb") as reading:
                 self.assertEqual(reading.read().decode("utf-8"), value)
         self.home().tear_down(delivered)
@@ -345,6 +352,7 @@ class MaterializationArmsTheRegistryFirst(CredentialCase):
                 credentials.resolved_delivery(["api", "signing"],
                                               profile=PROFILE),
                 attempt_id="attempt-1",
+                workspace_group=self.group,
                 credential_provider=mint)
         self.assertFalse(
             os.path.exists(self.home().volatile_root("attempt-1")))
@@ -363,7 +371,8 @@ class MaterializationArmsTheRegistryFirst(CredentialCase):
             self.home().materialize(
                 credentials.resolved_delivery(["api"], profile=PROFILE),
                 attempt_id="attempt-1",
-                credential_provider=self.provider(
+                workspace_group=self.group,
+            credential_provider=self.provider(
                     "x" * (credentials.MAX_BEARER + 1)))
         self.assertFalse(
             os.path.exists(self.home().volatile_root("attempt-1")))
@@ -373,6 +382,7 @@ class MaterializationArmsTheRegistryFirst(CredentialCase):
             self.home().materialize(
                 credentials.resolved_delivery(["api"], profile=PROFILE),
                 attempt_id="attempt-1",
+                workspace_group=self.group,
                 credential_provider="vault")
         self.assertFalse(
             os.path.exists(self.home().volatile_root("attempt-1")))
@@ -395,17 +405,38 @@ class ThePermissionsAreTheContractsRatherThanTheCodes(CredentialCase):
     """
 
     def test_the_required_modes_are_exactly_these(self):
-        self.assertEqual(credentials.VOLATILE_FILE, 0o600)
+        # W52800: `VOLATILE_FILE` IS the ruled slot mode and is the one every
+        # live slot is created at.
+        # ONE authoritative constant. Review [P1]: the first cut exported a
+        # second one at 0o640 and kept this name at the superseded 0o600 "as
+        # decision history", and this case asserted BOTH -- so the suite
+        # claimed two modes were required for one file. Review
+        # 2026-08-31T15:45:28Z [P1]: the comment describing that arrangement
+        # outlived it and still said nothing creates a slot at this constant,
+        # which the line below has contradicted since the constant was
+        # corrected.
+        self.assertEqual(credentials.VOLATILE_FILE, 0o640)
         self.assertEqual(credentials.VOLATILE_DIR, 0o700)
 
-    def test_a_delivered_credential_is_readable_only_by_this_manager(self):
-        """The LITERAL modes, on the bytes that actually landed.
+    def test_a_delivered_credential_is_readable_by_its_ruled_group_only(self):
+        """The LITERAL modes and the LITERAL gid, on the bytes that landed.
+
+        W52800 replaces this case's old claim -- manager-only `0600` -- with
+        the ruled one. The old contract was the right answer to who OWNS the
+        bearer and the wrong answer to who READS it: the execution container
+        runs as the fixed uid 65532, so an owner-only file is one it can
+        `stat` and cannot open, which is exactly what stopped three live
+        attempts.
+
+        `other` STAYS EMPTY, and that is the half worth asserting hardest.
+        `/input` is evidence and W33935 made it world-readable; this is a
+        BEARER, so the grant is the group the execution runtime already holds
+        and nothing wider.
 
         Under a permissive umask on purpose. `os.open`'s mode is masked by the
-        process umask, so a case run under `0o077` would see 0o600 even for a
-        file created 0o666 -- and would pass for exactly the defect it is
-        meant to catch. Setting the umask to zero makes the assertion about
-        the open, which is where the rule lives.
+        process umask, so a case run under `0o077` would see a narrow mode
+        even for a file created wide -- and would pass for exactly the defect
+        it is meant to catch.
         """
         previous = os.umask(0)
         try:
@@ -415,34 +446,121 @@ class ThePermissionsAreTheContractsRatherThanTheCodes(CredentialCase):
         self.assertEqual(stat.S_IMODE(os.stat(delivered.root).st_mode), 0o700)
         for name in ("api", "signing"):
             place = os.path.join(delivered.root, name)
-            self.assertEqual(stat.S_IMODE(os.stat(place).st_mode), 0o600,
-                             name)
+            found = os.stat(place)
+            self.assertEqual(stat.S_IMODE(found.st_mode), 0o640, name)
+            self.assertEqual(found.st_uid, os.getuid(),
+                             f"{name} left this manager's ownership")
+            self.assertEqual(found.st_gid, self.group.gid,
+                             f"{name} is not in the configured group")
+            self.assertEqual(stat.S_IMODE(found.st_mode) & 0o007, 0,
+                             f"{name} is readable by anybody")
         self.home().tear_down(delivered)
 
-    def test_the_mode_is_given_to_the_open_rather_than_applied_after(self):
-        """There is no instant at which the bytes are wider than 0600.
+    def test_a_restrictive_umask_cannot_narrow_the_ruled_mode(self):
+        """The umask does not get to decide who may read the bearer.
 
-        Applying the mode afterwards leaves a window in which the file exists
-        at whatever the umask allowed -- and the resulting file looks identical
-        once the window closes, which is why the mode assertion above cannot
-        see the difference. This watches the open itself.
+        `os.open`'s mode is FILTERED by the umask, so under the ordinary
+        service umask `0o077` the slot would be created `0600` and the worker
+        would be handed a credential it cannot read -- the original defect,
+        arriving by a different route. The `fchmod` after the `fchown` is what
+        makes the mode exact, and this is the case that requires it.
+        """
+        for umask in (0o000, 0o022, 0o077, 0o007):
+            with self.subTest(umask=oct(umask)):
+                # The provider answers in call order from a fixed list, so a
+                # loop that reuses the fixture has to reset its own counter.
+                self.minted.clear()
+                previous = os.umask(umask)
+                try:
+                    delivered = self.delivery()
+                finally:
+                    os.umask(previous)
+                place = os.path.join(delivered.root, "api")
+                found = os.stat(place)
+                self.assertEqual(stat.S_IMODE(found.st_mode), 0o640,
+                                 oct(umask))
+                self.assertEqual(found.st_gid, self.group.gid)
+                self.home().tear_down(delivered)
+                self._quiet()
+
+    def test_the_bearer_is_written_only_after_the_group_and_mode_are_set(self):
+        """THE ORDER, watched rather than inferred from the final `stat`.
+
+        W52800's ruling is an ordering: create empty, `fchown` the descriptor,
+        `fchmod` the still-empty descriptor, and only then write. Every step
+        before the write is on an inode holding no bearer, so a failure at any
+        of them unwinds a file that never held one. A `stat` afterwards cannot
+        tell that order from the reverse, which is why this watches the calls.
         """
         seen = []
-        opened = credentials.os.open
+        opened, chown, chmod, write = (credentials.os.open,
+                                       credentials.os.fchown,
+                                       credentials.os.fchmod,
+                                       credentials.os.write)
 
-        def watched(path, flags, mode=0o777):
+        def watched_open(path, flags, mode=0o777):
             if os.path.dirname(path).startswith(self.home_place):
-                seen.append((os.path.basename(path), mode,
+                seen.append(("open", os.path.basename(path), mode,
                              bool(flags & os.O_EXCL)))
             return opened(path, flags, mode)
 
-        credentials.os.open = watched
+        def watched_chown(handle, uid, gid):
+            seen.append(("fchown", uid, gid, os.fstat(handle).st_size))
+            return chown(handle, uid, gid)
+
+        def watched_chmod(handle, mode):
+            seen.append(("fchmod", mode, os.fstat(handle).st_size))
+            return chmod(handle, mode)
+
+        def watched_write(handle, body):
+            seen.append(("write", len(body)))
+            return write(handle, body)
+
+        credentials.os.open = watched_open
+        credentials.os.fchown = watched_chown
+        credentials.os.fchmod = watched_chmod
+        credentials.os.write = watched_write
         try:
             delivered = self.delivery()
         finally:
-            credentials.os.open = opened
-        self.assertEqual(seen, [("api", 0o600, True)])
+            (credentials.os.open, credentials.os.fchown,
+             credentials.os.fchmod, credentials.os.write) = (opened, chown,
+                                                             chmod, write)
+
+        self.assertEqual(seen[0], ("open", "api", 0o640, True),
+                         "the slot is not exclusively created at the ruled "
+                         "mode")
+        # THE OWNER IS UNTOUCHED and the group is the configured one, on a
+        # file that is still EMPTY.
+        self.assertEqual(seen[1], ("fchown", -1, self.group.gid, 0))
+        self.assertEqual(seen[2], ("fchmod", 0o640, 0))
+        self.assertEqual(seen[3][0], "write")
         self.home().tear_down(delivered)
+
+    def test_a_group_that_is_not_the_deployments_capability_refuses(self):
+        """The gid is a GRANT, so a number is not one.
+
+        `oci.run_vector` holds the same capability the same way for the other
+        half of this grant -- the `--group-add` that lets the runtime use it.
+        An integer accepted here would be this module deciding who may read a
+        bearer.
+        """
+        for given in (None, self.group.gid, str(self.group.gid), 0, True,
+                      {"gid": self.group.gid}):
+            with self.subTest(given=given):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.home().materialize(
+                        credentials.resolved_delivery(("api",),
+                                                      profile=PROFILE),
+                        attempt_id="attempt-1", workspace_group=given,
+                        credential_provider=self.provider())
+                self.assertIn("configured workspace group",
+                              str(caught.exception))
+                self.assertFalse(
+                    os.path.exists(self.home().volatile_root("attempt-1")),
+                    "a refused group still made a root")
+                self.assertFalse(live_secret(BEARER),
+                                 "a refused group still armed the registry")
 
 
 class TheAuthorizedSetIsBounded(CredentialCase):
@@ -532,7 +650,8 @@ class AFailedMaterializationRemovesBeforeItForgets(CredentialCase):
                 self.home().materialize(
                     credentials.resolved_delivery(("api", "signing"),
                                                   profile=PROFILE),
-                    attempt_id="attempt-1", credential_provider=failing)
+                    attempt_id="attempt-1", credential_provider=failing,
+                        workspace_group=self.group)
         finally:
             credentials._discard = discard
         self.assertTrue(seen["live_at_discard"],
@@ -570,7 +689,8 @@ class AFailedMaterializationRemovesBeforeItForgets(CredentialCase):
             self.home().materialize(
                 credentials.resolved_delivery(("api", "signing"),
                                               profile=PROFILE),
-                attempt_id="attempt-1", credential_provider=failing)
+                attempt_id="attempt-1", credential_provider=failing,
+                    workspace_group=self.group)
         # THE ENDING IS ITS OWN, and it is not the provider's failure wearing
         # a different hat: what an operator has to act on is a stranded
         # bearer, not a provider that was down a moment ago.
@@ -621,7 +741,8 @@ class EveryPublicDoorOwnsWhatItIsHanded(CredentialCase):
                 with self.assertRaises(ContractRefusal):
                     self.home().materialize(
                         spoiled, attempt_id="attempt-1",
-                        credential_provider=self.provider())
+                        workspace_group=self.group,
+            credential_provider=self.provider())
         self.assertFalse(
             os.path.exists(self.home().volatile_root("attempt-1")))
 
@@ -783,7 +904,8 @@ class TheWorkerSeesOnlyTheFixedRoot(CredentialCase):
 
         delivered = self.home().materialize(
             credentials.resolved_delivery(("api",), profile=PROFILE),
-            attempt_id=BEARER, credential_provider=self.provider())
+            attempt_id=BEARER, workspace_group=self.group,
+        credential_provider=self.provider())
         built = oci.OciAdapter(
             "docker", Engine(), identity=dict(IDENTITY),
             assignment_roots={"inputs": self.inputs,
@@ -1150,6 +1272,7 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
                 delivered = self.home().materialize(
                     credentials.resolved_delivery(("api",), profile=PROFILE),
                     attempt_id="attempt-1",
+                    workspace_group=self.group,
                     credential_provider=lambda _p, _r: BEARER)
                 built = oci.OciAdapter(
                     "docker", Engine(), identity=dict(IDENTITY),
@@ -1371,12 +1494,266 @@ class RestartAdoptsOnlyAnExactAgreement(CredentialCase):
 
         adopted = self.home().adopt(record,
                                     attempt_id="attempt-1",
-                                    runtime_id="runtime-1")
+                                    runtime_id="runtime-1", workspace_group=self.group)
         self.assertEqual(adopted.state, "adopted")
         self.assertTrue(live_secret(BEARER))
         self.assertEqual([target for _source, target in adopted.mounts()],
                          ["/run/baton/credentials/api"])
         self.home().tear_down(adopted)
+
+    def restarted(self, delivered):
+        """The restart: this process forgets what it held in memory."""
+        record = self.published(delivered)
+        forget_secret(BEARER)
+        self.assertFalse(live_secret(BEARER))
+        return record
+
+    def refuses_recovery(self, record, why):
+        """Adoption refuses, and NOTHING was re-registered.
+
+        The second half is the one that matters. Recovery's whole job is to
+        put the bearer back in the registry, so a refusal that had already
+        done that would leave a live value no `Delivery` owns -- the exact
+        shape this module's fourth review found and fixed.
+        """
+        with self.assertRaises(ContractRefusal) as caught:
+            self.home().adopt(record, attempt_id="attempt-1",
+                              runtime_id="runtime-1",
+                              workspace_group=self.group)
+        self.assertIn(why, str(caught.exception))
+        self.assertFalse(live_secret(BEARER),
+                         "a refused recovery re-registered the bearer anyway")
+
+    def test_a_widened_root_is_refused_before_any_bearer_is_read(self):
+        """W52800 review [P0]. The ruling has TWO halves and this is the one
+        recovery did not check.
+
+        The slot is group-readable at `0640` ONLY because the root above it is
+        manager-owned at `0700`, so nothing else can traverse to it. A root at
+        `0770` hands every host member of the configured workspace group a
+        path to the bearer -- the group grant was scoped to a container
+        holding it as a supplementary group, not to every account on the host.
+        """
+        delivered = self.delivery()
+        record = self.restarted(delivered)
+        os.chmod(delivered.root, 0o770)
+
+        self.refuses_recovery(record, "is mode 0o770")
+        os.chmod(delivered.root, 0o700)
+        self.home().tear_down(self.home().adopt(
+            record, attempt_id="attempt-1", runtime_id="runtime-1",
+            workspace_group=self.group))
+
+    def test_a_substituted_root_is_refused_rather_than_followed(self):
+        """A link where the root should be is refused AS ITSELF.
+
+        `lstat` and not `stat`: resolving it would run every child check under
+        a pathname whose custody nobody proved, which is what makes
+        substitution worth attempting in the first place.
+        """
+        delivered = self.delivery()
+        record = self.restarted(delivered)
+        elsewhere = os.path.join(self.home_place, "elsewhere")
+        os.makedirs(elsewhere, mode=0o700, exist_ok=True)
+        # The real root moves aside so the recorded path resolves to a
+        # directory this manager did make -- so what the refusal catches is
+        # the SUBSTITUTION rather than a missing file.
+        moved = delivered.root + ".moved"
+        os.rename(delivered.root, moved)
+        os.symlink(elsewhere, delivered.root)
+        self.addCleanup(lambda: os.path.islink(delivered.root)
+                        and os.unlink(delivered.root))
+
+        self.refuses_recovery(record, "is mode")
+
+        os.unlink(delivered.root)
+        os.rename(moved, delivered.root)
+        self.home().tear_down(self.home().adopt(
+            record, attempt_id="attempt-1", runtime_id="runtime-1",
+            workspace_group=self.group))
+
+    def test_a_root_this_manager_cannot_interrogate_is_refused(self):
+        """An `lstat` that fails is a REFUSAL, not an exception escaping.
+
+        A door that promises a typed answer owes one even when the filesystem
+        will not answer it. Driven by making the PARENT untraversable, which
+        is a real state a host can be in rather than a mocked one.
+        """
+        delivered = self.delivery()
+        record = self.restarted(delivered)
+        parent = os.path.dirname(delivered.root)
+        self.addCleanup(os.chmod, parent, 0o700)
+        os.chmod(parent, 0o000)
+        try:
+            self.refuses_recovery(record, "could not be interrogated")
+        finally:
+            os.chmod(parent, 0o700)
+        self.home().tear_down(self.home().adopt(
+            record, attempt_id="attempt-1", runtime_id="runtime-1",
+            workspace_group=self.group))
+
+    def test_a_slot_whose_mode_or_kind_drifted_is_refused(self):
+        """The child half, over state this process did not write.
+
+        Each is a different way the delivered bearer stops being the thing
+        this deployment ruled: a mode that widened, a mode that narrowed back
+        to the superseded owner-only one, and a name that is no longer a
+        regular file. All three are arranged on the REAL filesystem, because
+        all three are things an unprivileged process can actually do to a file
+        it owns.
+
+        THE OTHER TWO FIELDS `_proved_slot` COMPARES -- owner and group -- are
+        driven by the case below instead. Review 2026-08-31T15:45:28Z [P1]:
+        this case used to name them and arrange neither. Its group arrangement
+        called `chown(2)`, which answers `EINVAL` on this host for every gid
+        including ones this process belongs to, so the subtest skipped and the
+        comparison went undriven; and its name promised an owner case that was
+        never written at all. Acceptance must not depend on privilege to give
+        an inode away.
+        """
+        for what, spoil, why in (
+                ("a widened mode", lambda place: os.chmod(place, 0o644),
+                 "is not the delivery this manager writes"),
+                ("a narrowed mode", lambda place: os.chmod(place, 0o600),
+                 "is not the delivery this manager writes"),
+                ("a link in its place", self._relinked,
+                 "is not the delivery this manager writes")):
+            with self.subTest(what=what):
+                # A FRESH ATTEMPT PER ITERATION. A spoiled root is not one
+                # this manager will materialize into again, and reusing the
+                # name would make the next iteration refuse for the previous
+                # one's reason.
+                self.minted.clear()
+                self._quiet()
+                delivered = self.delivery()
+                record = self.published(delivered)
+                forget_secret(BEARER)
+                place = os.path.join(delivered.root, "api")
+                # THE ORPHAN GOES WHATEVER HAPPENS: a spoiled root left behind
+                # makes the NEXT iteration refuse for the previous one's
+                # reason, which is a case proving nothing about itself.
+                try:
+                    spoil(place)
+                    with self.assertRaises(ContractRefusal) as caught:
+                        self.home().adopt(record, attempt_id="attempt-1",
+                                          runtime_id="runtime-1",
+                                          workspace_group=self.group)
+                    self.assertIn(why, str(caught.exception))
+                    self.assertFalse(
+                        live_secret(BEARER),
+                        "a refused recovery re-registered the bearer anyway")
+                finally:
+                    self.home().discard_orphan("attempt-1")
+                self.assertFalse(os.path.lexists(delivered.root),
+                                 "the spoiled root survived its discard")
+
+    def drifting(self, place, field):
+        """Make `lstat` answer a drifted uid or gid for exactly one slot.
+
+        WHAT THE FILESYSTEM WILL NOT ARRANGE, ASKED OF THE BOUNDARY DIRECTLY.
+        `_proved_slot` decides on what `os.lstat` ANSWERS, so controlling that
+        answer for the one path under test drives the owner and group
+        comparisons deterministically, on every host, without this suite
+        needing the privilege to chown an inode to somebody else -- which is
+        the requirement the review set.
+
+        EXACTLY ONE PATH, and everything else is the real answer: `adopt` also
+        proves the ROOT through this call, and a substitution that answered for
+        every path would be arranging a different test. Returns the restore,
+        so the caller can put `os.lstat` back before the discard runs.
+        """
+        real = os.lstat
+
+        def answering(target, *rest, **named):
+            found = real(target, *rest, **named)
+            if isinstance(target, str) and target == place:
+                fields = list(found)
+                # PLUS ONE, so the drifted identity is a different one and
+                # nothing else about the slot changes: it is still a regular
+                # file at the ruled mode, so this drives the uid/gid halves of
+                # the comparison and only those.
+                fields[field] += 1
+                return os.stat_result(fields)
+            return found
+
+        os.lstat = answering
+        return lambda: setattr(os, "lstat", real)
+
+    def test_a_slot_whose_owner_or_group_drifted_is_refused(self):
+        """The two identity fields, driven rather than promised.
+
+        A recovered slot owned by somebody else, or granted to a group this
+        deployment did not configure, is not the delivery this manager wrote --
+        and reading a bearer back out of it would register a value another
+        party's permissions govern. Both refusals must land BEFORE the read,
+        which is why each case also requires the bearer still unregistered.
+        """
+        for what, field in (("a foreign owner", 4), ("a foreign group", 5)):
+            with self.subTest(what=what):
+                self.minted.clear()
+                self._quiet()
+                delivered = self.delivery()
+                record = self.published(delivered)
+                forget_secret(BEARER)
+                place = os.path.join(delivered.root, "api")
+                restore = self.drifting(place, field)
+                try:
+                    with self.assertRaises(ContractRefusal) as caught:
+                        self.home().adopt(record, attempt_id="attempt-1",
+                                          runtime_id="runtime-1",
+                                          workspace_group=self.group)
+                    self.assertIn("is not the delivery this manager writes",
+                                  str(caught.exception))
+                    self.assertFalse(
+                        live_secret(BEARER),
+                        "a refused recovery re-registered the bearer anyway")
+                finally:
+                    # THE REAL `lstat` BACK BEFORE THE DISCARD, so the cleanup
+                    # acts on the filesystem rather than on the substitution.
+                    restore()
+                    self.home().discard_orphan("attempt-1")
+                self.assertFalse(os.path.lexists(delivered.root),
+                                 "the drifted root survived its discard")
+
+    def test_the_drift_arrangement_can_actually_fail(self):
+        """The substitution above is only evidence if it changes the answer.
+
+        A wrapper that quietly returned the real `lstat` for every path would
+        make both cases above pass against an implementation that compares
+        nothing. So: the same delivery adopts cleanly with the real answer, and
+        the drifted answer is the only difference between that and the refusal.
+        """
+        delivered = self.delivery()
+        place = os.path.join(delivered.root, "api")
+        restore = self.drifting(place, 4)
+        try:
+            drifted = os.lstat(place)
+        finally:
+            restore()
+        honest = os.lstat(place)
+        self.assertEqual(drifted.st_uid, honest.st_uid + 1)
+        self.assertEqual(drifted.st_gid, honest.st_gid)
+        self.assertEqual(stat.S_IMODE(drifted.st_mode), 0o640)
+        # And an untouched path is untouched, which is what lets the ROOT keep
+        # being proved for real while one slot is drifted.
+        restore = self.drifting(place, 4)
+        try:
+            self.assertEqual(os.lstat(delivered.root).st_uid, os.getuid())
+        finally:
+            restore()
+        record = self.published(delivered)
+        forget_secret(BEARER)
+        adopted = self.home().adopt(record, attempt_id="attempt-1",
+                                    runtime_id="runtime-1",
+                                    workspace_group=self.group)
+        self.assertTrue(live_secret(BEARER))
+        self.home().tear_down(adopted)
+
+    @staticmethod
+    def _relinked(place):
+        target = place + ".real"
+        os.rename(place, target)
+        os.symlink(target, place)
 
     def test_any_disagreement_fails_closed(self):
         delivered = self.delivery()
@@ -1393,14 +1770,15 @@ class RestartAdoptsOnlyAnExactAgreement(CredentialCase):
                 with self.assertRaises(ContractRefusal):
                     self.home().adopt(dict(record, **{member: value}),
                                       attempt_id="attempt-1",
-                                      runtime_id="runtime-1")
+                                      runtime_id="runtime-1",
+                                  workspace_group=self.group)
         with self.subTest(member="target"):
             moved = dict(record, slots=[dict(record["slots"][0],
                                              target="/etc/api")])
             with self.assertRaises(ContractRefusal):
                 self.home().adopt(moved,
                                   attempt_id="attempt-1",
-                                  runtime_id="runtime-1")
+                                  runtime_id="runtime-1", workspace_group=self.group)
         self.home().tear_down(delivered)
 
     def test_a_volatile_file_wider_than_the_bound_is_not_adoptable(self):
@@ -1414,7 +1792,7 @@ class RestartAdoptsOnlyAnExactAgreement(CredentialCase):
             handle.write(b"x" * (credentials.MAX_BEARER + 1))
         with self.assertRaises(ContractRefusal):
             self.home().adopt(record, attempt_id="attempt-1",
-                              runtime_id="runtime-1")
+                              runtime_id="runtime-1", workspace_group=self.group)
 
     def test_a_registration_that_cannot_finish_unwinds_completely(self):
         """The unwind, driven. Everything is proved before the first
@@ -1435,7 +1813,7 @@ class RestartAdoptsOnlyAnExactAgreement(CredentialCase):
         try:
             with self.assertRaises(ContractRefusal):
                 self.home().adopt(record, attempt_id="attempt-1",
-                                  runtime_id="runtime-1")
+                                  runtime_id="runtime-1", workspace_group=self.group)
         finally:
             credentials.Delivery = built
         self.assertFalse(live_secret(BEARER))
@@ -1447,7 +1825,7 @@ class RestartAdoptsOnlyAnExactAgreement(CredentialCase):
         os.remove(os.path.join(delivered.root, "api"))
         with self.assertRaises(ContractRefusal):
             self.home().adopt(record, attempt_id="attempt-1",
-                              runtime_id="runtime-1")
+                              runtime_id="runtime-1", workspace_group=self.group)
         forget_secret(BEARER)
 
     def test_a_partial_adoption_does_not_leave_an_unowned_live_bearer(self):
@@ -1461,7 +1839,7 @@ class RestartAdoptsOnlyAnExactAgreement(CredentialCase):
 
         with self.assertRaises(ContractRefusal):
             self.home().adopt(record, attempt_id="attempt-1",
-                              runtime_id="runtime-1")
+                              runtime_id="runtime-1", workspace_group=self.group)
         self.assertFalse(live_secret(BEARER))
         self.assertFalse(live_secret(SECOND))
 
@@ -1719,7 +2097,8 @@ class RecoveryIsDrivenAgainstTheLiveRuntime(CredentialCase):
         lifecycle record."""
         other = self.home().materialize(
             credentials.resolved_delivery(["api"], profile=PROFILE),
-            attempt_id="attempt-2", credential_provider=self.provider())
+            attempt_id="attempt-2", credential_provider=self.provider(),
+                workspace_group=self.group)
         self.home().written_state(
             "attempt-2", other.record(runtime_id="runtime-2"))
 
@@ -1737,6 +2116,7 @@ class RecoveryIsDrivenAgainstTheLiveRuntime(CredentialCase):
         other = self.home().materialize(
             credentials.resolved_delivery(["api"], profile=PROFILE),
             attempt_id="attempt-2",
+            workspace_group=self.group,
             # A FRESH PROVIDER: `self.provider` answers in call order and the
             # first delivery already spent this case's first answer.
             credential_provider=lambda name, reference: SECOND)

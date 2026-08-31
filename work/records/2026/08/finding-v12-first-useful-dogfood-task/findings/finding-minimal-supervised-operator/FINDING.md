@@ -392,6 +392,22 @@ does not describe a successful handoff, and inventing a transition here would
 be this deployment deciding what an authority ending means. The call site is
 left where the ruling drops in.
 
+### 2026-08-30 — approver ruling: successful work passes explicitly
+
+The question above is resolved as v11 business-as-usual carried into v12:
+claim, work and then an explicit pass to the next Route. A worker process
+ending, output appearing, intake succeeding or verification passing does not
+silently end authority. After successful intake, independent verification and
+retention, the trusted operator calls the already-minted Session's
+`pass_work` for the exact assignment generation to an explicit review Route
+operand. Only a committed pass permits `authorize_cleanup` to run.
+
+`DeploymentSession` is widened with that exact capability. The destination is
+an explicit operator operand, never a default and never chosen by the worker.
+If the pass refuses or its outcome is uncertain, cleanup does not run and the
+attempt remains unresolved. Cancellation remains the wrong success ending:
+it fences failed work rather than handing a completed candidate to review.
+
 ## 2026-08-30 — eighth round, after `review-2026-08-30T06-44-13Z.md`
 
 ### Superseded, for the THIRD time: "one guarded ending" was still not one
@@ -446,3 +462,426 @@ runtime named, and **W44716** carries the manager finding — which is the
 review's own instruction: "If the public manager surface cannot honestly end
 one of these states, record that as a manager finding rather than calling
 observation cleanup."
+
+### 2026-08-30 — W44716 ruling supersedes direct stop on unanswered paths
+
+The rule above that every post-start ending begins with this deployment's
+`adapter.stop` is **superseded for a lost conversation or unusable worker
+disposition**. The runtime still belongs to a live authority generation, so a
+deployment-owned stop before a fence is not a safe ending.
+
+W44716 now owns one minimal composite manager operation: durably name the
+attempt/generation/runtime, fence that exact generation, stop/remove the exact
+runtime, prove absence, retain untrusted output and tear down exact deliveries.
+W39358 consumes that public ending and grows no second removal boundary. A
+timer alone does not invoke it; explicit operator or Route policy decides
+abandonment. Successful worker completion retains its ordinary quiesce,
+freeze, verify, pass-to-review and cleanup path.
+
+### 2026-08-30 — M44657 implemented: the pass is the deployment's, and it is an ORDER
+
+The approver's ruling is carried out: after intake, the independent
+verification and retention, this deployment explicitly `pass_work`s the EXACT
+assignment generation to an operator-supplied review Route. The v11 lifecycle
+is preserved — the operator does not close the Work, it hands it on.
+
+**Pinned: the pass is the DEPLOYMENT's act, not the manager's.**
+`AuthorityPort` names seven session operations, checks those seven are
+callable at construction, and ignores anything else. So `pass_work` is an
+eighth member on `DeploymentSession`, over the deployment's own already-minted
+session, and the manager's closed member set is untouched. This is what the
+ruling says in as many words — "add `pass_work` to `DeploymentSession`" — and
+it is also the only reading that does not widen a manager contract from a
+deployment.
+
+**Pinned: the session is an explicit operand.** `run_dogfood_task` takes
+`session=` beside `port=`, and holds it to a callable `pass_work` before
+anything is staged. It does NOT read `port._session`: helping itself to a
+private attribute of another module to obtain a capability is exactly the
+mistake review 2026-08-30T06:44:13Z caught in `_derived` reaching for
+`adapter._custody`. A capability this deployment uses is one it was given.
+
+**Interpretation recorded, because the ruling admits two readings.** "Permit
+cleanup only after the pass commits" is implemented as an ORDERING
+requirement, not as an additional precondition on cleanup:
+
+- the pass is the last step of `_custody`, and cleanup runs in
+  `_ended_however` after it — so on the success path cleanup necessarily
+  happens on an assignment the pass has already ENDED. That is the substance
+  of the rule: `pass_work` moves the Route and ends the assignment in one
+  authority act, so cleanup afterwards is never cleanup of a live assignment;
+- it is NOT read as "an attempt that never reached the pass may not be
+  cleaned up". Review 2026-08-30T06:56:26Z [P0] ruled that a committed intake
+  receipt authorizes `authorize_cleanup` and that every later failure must
+  reach it. Making the pass a second precondition would reopen exactly that
+  finding. On such a path the manager's own operation decides what it can
+  settle — a still-live assignment is its refusal to make, not this
+  deployment's to pre-empt.
+
+If the approver meant the stronger reading, the change is one condition in
+`_ended_however` and I will make it; I have not guessed in that direction
+because the weaker one is the only one that keeps both rulings true.
+
+**Pinned: the review Route is a named grant.** Held in `preflight` beside the
+network, so an operator who did not say where the Work goes next gets a
+refusal rather than this module's guess at a sensible destination.
+
+**Pinned: the pass is effectively once by identity.** The operation id is
+`pass:<attempt_id>`, derived from the attempt, so an exact replay of the arc
+replays the authority's committed answer instead of passing twice; a different
+generation carries a different signature and collides rather than silently
+reusing this one's pass. What the evidence keeps is the route the AUTHORITY
+recorded, and an answer naming another route is a refusal.
+
+### 2026-08-30 — DEFECT: the arc could not run, and mocking is why nobody knew
+
+`compose_input_root` exposes the whole input surface READ-ONLY as its last act
+— the root ends `r-xr-xr-x`. `_copied_task` wrote `task.json` into that root
+*after* the composition, so the real sequence raised `PermissionError` and this
+deployment could not complete a single attempt.
+
+**Nine rounds of composition tests did not catch it because every one of them
+patched `compose_input_root` to a no-op.** The seal never happened, so the
+write always succeeded. A mock that removes the very act an ordering depends
+on cannot observe that ordering — and the case that finally ran the real
+operation failed on its first attempt.
+
+Corrected: the task is written before the root is sealed. The pinned decision
+that the frozen task does not travel in the input manifest is unaffected — the
+manifest was composed from the staged tree above and names nothing here.
+
+### 2026-08-30 — Recorded limitation: an exact replay REFUSES rather than resumes
+
+The acceptance requires that an exact replay start no second runtime and open
+no second provider turn. This arc keeps that property, and it keeps it by
+refusing before either: `stage_source` will not stage into an input root that
+already holds a delivery the manager has measured, so a second run of the same
+attempt identity stops in the delivery half.
+
+That is a stronger guarantee than the manager's own effectively-once would
+give, and a narrower capability. **An interrupted attempt is therefore not
+continued by re-running the command; it is rerun under a fresh attempt
+identity.** Recorded rather than dressed up as resumption, because the two read
+identically in a passing test and differently to an operator whose attempt died
+half-way. If the reviewer or approver wants resumption instead, the change is
+in `stage_source`'s refusal and not in the arc.
+
+### 2026-08-30 — approver ruling on M46497: refuse exact rerun; request settlement after pass failure
+
+The recorded exact-rerun limitation above is accepted for the pilot. An
+interrupted attempt is not resumed under the same attempt identity. Re-running
+that identity refuses before a second runtime or provider turn; retry requires
+a fresh attempt identity and assignment generation. Same-attempt resumption is
+later hardening, not a gate on the first useful dogfood run.
+
+This ruling also clarifies and partially supersedes two sentences in the
+earlier successful-pass ruling: "Only a committed pass permits
+`authorize_cleanup` to run" and "If the pass refuses or its outcome is
+uncertain, cleanup does not run." Those sentences remain true only when
+"cleanup" means the successful path's authorized destructive cleanup. They do
+not mean that the deployment skips asking the manager to settle an attempt
+after a committed intake receipt.
+
+After intake commits, every later path calls the manager's
+`authorize_cleanup`, including a refused or uncertain pass. The call is a
+settlement request, not proof that cleanup happened. While the exact assignment
+is live, the manager must refuse it; no workspace, result, credential delivery
+or runtime is thereby destroyed or relabelled trusted. The refusal leaves an
+explicit unresolved attempt for the operator to either retry through the
+effectively-once pass or end through W44716's explicit abandonment path. That
+path fences the exact generation before stopping the runtime, retains output as
+untrusted and releases the lane. The successful path still performs actual
+cleanup only after `pass_work` commits.
+
+**Clarification: a post-worker machinery failure is not worker abandonment.**
+The worker may have completed normally, become quiescent and produced a frozen,
+independently verified result while some later manager, handoff, repository or
+external-service operation fails. That later failure does not taint the result,
+does not make the worker wedged and does not justify rerunning or reassigning
+the worker. The trusted retained result is the input to an idempotent retry of
+only the failed middle-machinery step. The worker runtime may be stopped after
+its clean quiescence; the retained result remains available until the handoff
+commits or an explicit operator disposition replaces it.
+
+An external service such as GitHub is an example of why middle machinery can
+fail, not part of Baton protocol vocabulary and not part of Baton's local
+`pass_work` transaction. Where possible, Baton passes the retained result to
+the next local Route and that Route owns the independently retryable external
+operation. If a manager or Baton handoff step itself fails before that pass,
+retry that exact step with its existing operation identity. Neither case opens
+a second provider turn or restages the worker attempt.
+
+### 2026-08-30 — critical-path scope freeze after the oversized review loop
+
+W39358 has run for days, through twenty-eight implementation rounds and
+twenty-nine independent reviews. It is no longer acceptable to treat another
+failed check as one more undifferentiated round on this parent. The current
+implementation episode is the final parent-level correction round.
+
+The remaining parent acceptance is frozen to the latest review's two items:
+
+1. decode and validate the manager's local `file:///...` custody locator once,
+   then use that one absolute proposal root for the candidate and every member;
+2. complete the real-Docker failed-handoff then fresh-retry settlement gate,
+   proving resolved evidence, cleanup, positive absence and no second worker
+   act.
+
+The next review checks those items and nothing broader. A newly discovered
+issue that does not prevent W39364's live provider run becomes separately
+ledgered follow-up Work. If either frozen item still fails, the reviewer
+creates one separately claimable leaf Work per failure and blocks W39358 on
+those visible leaves; W39358 is not returned for a thirtieth monolithic round.
+Live provider authorization and the useful task itself remain W39364's scope.
+
+### 2026-08-30 — DEFECT: the transport execd the worker's FIXTURE agent
+
+`WORKER_PROGRAM` named `/opt/baton/baton_worker.py`. That module's `main` runs
+with `agent=None` and falls back to `_scripted_default()` — the M2 fixture
+agent. Against the dogfood image this is wrong twice over:
+
+- **in principle**, a supervised pilot would have reported a stub's output as
+  the worker's work, which is the one failure mode this deployment must not
+  have;
+- **in fact**, W39770 removed `scripted_agent.py` from this image, so the
+  fallback dies `ModuleNotFoundError` and the conversation is lost for a
+  reason that names nothing true about the attempt.
+
+`dogfood_entry.py` is the documented injection seam — one line calling
+`baton_worker.main(agent=ClaudeAgent())` — and it is what the image's own
+`ENTRYPOINT` names. Corrected, and the agreement is now asked of the RECIPE
+rather than restated in a constant: an `ENTRYPOINT` and an `exec`ed program
+that drifted apart would be two workers.
+
+Found while composing the real-engine gate, like the input-root ordering
+defect before it. Both were invisible to composition cases that supplied the
+image and the engine themselves.
+
+### 2026-08-30 — The launcher is the deployment's half, and it was missing
+
+`worker_entry` says of the framed channel: *"this is the object the package
+deliberately does not contain"* — every outward act in the Worker Manager
+crosses an injected capability, and the thing that actually spawns a process
+belongs to the deployment. This module IS the deployment, so the channel, the
+engine runner, the adapter factory and the store opening live here now.
+
+That is the whole of review 2026-08-30T12:40:47Z [P0]: every rule had been
+written and the half that RUNS them had not, so the documented command loaded
+definitions and exited 0.
+
+`main` takes ONE injected thing and it is a FUNCTION OF THE GRANTS, because
+the authority store, the control store and the credential home are all named
+in the file and no capability can be built before it is read.
+
+**Pinned: the bearer is minted in-process and the credential material is named
+by PATH.** Neither is a grant member and neither is an environment variable,
+because both of those are durable surfaces and §13 keeps the one deliberate
+secret off every one of them. The path is not the secret. Live provider
+authorization remains W39364's operator gate; what this launcher does is hand
+whatever the operator authorized to the manager's own credential home, which
+registers it live before a byte of it lands.
+
+### 2026-08-30 — DEFECT: the editable record holds member names, not member values
+
+**Observed.** `read_evidence` holds the byte ceiling, secret boundary and
+closed top-level member set, then returns allowed nested values without
+validating their shapes. `retry_handoff` and `_committed` consume those values
+with `.get`, subscripting and sorting. Truthy JSON booleans in `independent`,
+`output` or `intake_receipt`, a boolean custody item, and a string `retention`
+escape as raw `AttributeError` or `TypeError` rather than `OperatorRefusal`.
+
+**Confirmed boundary.** The retained file is explicitly operator-editable and
+untrusted. A closed set of member names does not make the value under an
+allowed name trusted. The retry must hold the complete nested result and
+manager-projection contracts before consuming any of them. Broadly catching
+Python faults after consumption would hide implementation defects and is not
+the correction.
+
+### 2026-08-30 — DEFECT: editable evidence can suppress the authority pass
+
+The first nested hold covers the five witnessed result projections but omits
+retry-owned history and the pass projection. A boolean `unresolved` therefore
+still leaks raw `TypeError` when copied into history.
+
+More importantly, a non-null editable `review_pass` makes `retry_handoff` skip
+`_passed` entirely. The authority pass is effectively once and is exactly the
+operation this retry exists to finish, so there is no reason to believe the
+file instead of replaying its durable identity. Evidence may retain the
+authority's answer only if the retry replay-reads and holds that answer whole;
+it cannot mint or suppress the pass.
+
+### 2026-08-30 — clarification: moving a path check is not holding identity
+
+`workspaces.adopted_assignment_workspace` correctly centralizes the no-link
+grammar and performs no allocation or permission mutation. It returns plain
+path strings, however, and `OciAdapter` later reopens those names and derives
+provider homes from them. The duplicate grammar is removed; the proof/use
+interval is not. A manager-owned adoption boundary must preserve the proved
+identity through use, not only relocate the same check before a later open.
+
+### 2026-08-30 — resolved: retry replay-reads the authority pass and holds history
+
+The editable-pass defect above is resolved. The narrow retry always performs
+the exact authority operation; its attempt-derived identity makes an already
+committed pass replay, and any retained pass projection must equal that replay
+answer whole. A file can no longer suppress the pass by claiming it happened.
+
+Retry-owned unresolved history is now held as a bounded list of durable text
+before it is copied, and malformed history produces `OperatorRefusal` rather
+than a raw Python fault. The adopted-root identity-through-use clarification
+above and the real public fresh-process retry proof remain open.
+
+### 2026-08-30 — public retry fixture produces the failure but does not prove the ending
+
+**Confirmed correction.** The real-authority fixture now runs the ordinary
+public command first and retries only the evidence and grants that command
+wrote. The retained failure is produced rather than fabricated, and the
+retry-specific builder's authority and control-store handles are closed.
+
+**Observed open P0.** The same fixture discards the retry's process status and
+does not inspect `resolved`, cleanup or current unresolved reasons. Its adapter
+cannot complete the real custody settlement, a fact the implementation record
+also states. Thus an exact authority pass beside an unfinished exit-1 ending
+currently satisfies the test named as the final acceptance. Acceptance still
+requires fresh capabilities, exact pass, complete manager settlement, positive
+absence, exit 0 and no second worker-side act in one public-path case.
+
+### 2026-08-30 — ordinary capability construction leaks durable handles
+
+**Observed P1.** The 122-test focused run emits an unclosed SQLite warning;
+tracemalloc points to `Authority.open` inside `_launched`. That function opens
+both authority and control-store handles, but the ordinary `main` path has no
+ownership/closure bundle or `finally`. The positive launcher test manually
+closes only the store, so the authority warning is visible; the real command
+closes neither. Ordinary capability lifetime must be explicit across success,
+unresolved return and exception.
+
+**Clarified after the first correction.** `main` now closes every handle in a
+successfully returned ordinary capability bundle, including on a later compose
+fault. Construction itself remains unsafe: `_launched` opens Authority before
+ControlStore/configuration/credential setup, and a failure in any later step
+returns no closure bundle for `main` to unwind. A reviewer regression makes
+Authority open and ControlStore fail and observes zero disposals. Ownership
+begins when each handle opens, so `_launched` must unwind the resources it has
+already acquired on its own partial-construction path.
+
+**Resolved after correcting the reviewer fixture.** Both builders now register
+and locally unwind handles acquired during partial construction. The prior
+reviewer witness had wrapped `dispose` without installing the wrapper on the
+Authority instance and therefore could not observe any implementation; after
+that harness correction, both partial-build cases and all 124 focused tests
+pass with resource warnings fatal. The real-engine settlement and adopted-root
+identity-through-use gates remain open and are separate from handle lifetime.
+
+### 2026-08-30 — correction attempt still flattens the nominal root proof
+
+The operator call sites now pass `AllocatedRoots` intact, but `oci._roots`
+immediately copies its two members into a plain dictionary. The adapter stores
+that copy and later gives it to `run_vector`, whose plain-mapping branch
+canonicalizes the pathnames again. Thus the manager's nominal answer still
+does not survive to use and the recorded proof/use interval remains open.
+
+The initial witnesses only compared equal path strings and could not detect
+the lost provenance. An additive reviewer witness now requires the adapter to
+retain the exact minted value; it fails on the plain dictionary currently
+stored. The public real-engine retry settlement gate remains independently
+open.
+
+### 2026-08-30 — resolved: nominal root proof survives adapter re-entry
+
+`oci._roots` now returns the exact `AllocatedRoots` value on its nominal path.
+Both operator constructions pass that value intact, the adapter stores it,
+and `run_vector` re-enters the nominal path rather than canonicalizing a copied
+dictionary. The reviewer identity witness and the full OCI and operator
+modules pass. The manager-proved root identity-through-use gate is closed;
+the public real-engine retry settlement gate remains open.
+
+### 2026-08-30 — the reference-image mismatch does not block settlement proof
+
+**Observed:** a live probe using the reference image reaches Docker and the
+transport but loses the conversation because that image intentionally has no
+`/opt/baton/dogfood_entry.py`. The operator must not revert to invoking
+`baton_worker.py` directly; doing so would restore the fixture-agent binding
+defect already corrected here.
+
+**Confirmed:** W39364 is already blocked by W39358, so a reverse dependency is
+not a possible ledger resolution. W39364 owns the live Claude turn and its
+human credential/network grants; W39358's remaining gate owns lifecycle and
+retry settlement.
+
+**Proposed and implementation-ready:** build a test-owned Docker context that
+keeps the exact `/opt/baton/dogfood_entry.py` injection seam and supplies a
+deterministic agent which writes the declared proposal. Then drive the public
+ordinary and retry commands with real Docker, OCI adapter, authority, stores,
+deliveries and manager operations. This needs no live provider authority and
+does not substitute a fake adapter. The public real-engine retry settlement
+gate remains open pending that witness.
+
+### 2026-08-30 — channel ending corrected; retry fixture remains partial
+
+**Confirmed correction:** `_Channel.finish` now returns the exact
+`{status, stderr}` document the worker-entry transport requires. The prior
+bare status made every real conversation unreadable at its ending even after
+the worker answered. Focused operator and worker-entry tests pass, and the
+bounded stderr is not copied into durable evidence.
+
+**Observed incomplete gate:** the test-owned image proves the exact dogfood
+entry path can inject a deterministic agent and reach a completed worker
+disposition, but the generic scripted agent does not write the operator's
+declared proposal shape. Freeze refuses, so no real intake, retention, failed
+pass, retry or settlement has yet been witnessed.
+
+**Required fixture correction:** the fixture currently registers the review
+Route before the ordinary command. After its proposal agent is fixed, the pass
+would therefore succeed rather than produce the failed handoff under test.
+Withhold that handler until the ordinary command has failed, then add it before
+the fresh retry. The temporary image build context must also be removed by
+class cleanup.
+
+The managed reviewer could not independently run the Docker module because
+the local daemon socket denied access; no escalation was requested. The P0
+gate remains open.
+
+### 2026-08-30 — launcher forwarding fixed; URI use and settling remain open
+
+**Confirmed:** the ordinary adapter factory now forwards the declared outputs
+and input-manifest digest it accepts. The real fixture withholds the review
+handler until retry and cleans its temporary build context.
+
+**Observed:** `_derived` strips `file://` to find `candidate`, but checks every
+other proposal member below the unchanged URI string. A reviewer regression
+places all four members below a real `file:///...` receipt root; verification
+passes and `members_present` is still empty. The locator must be validated and
+decoded once to one absolute local proposal root used for every read.
+
+**Still open:** the deterministic proposal-writing agent is not installed and
+the real settling case remains unwritten. The current ordinary witness expects
+an implementation `FileNotFoundError` before retention/pass and invokes no
+retry. The complete public real-engine retry P0 remains open.
+
+### 2026-08-30 — resolved: receipt URI has one root; settling still absent
+
+`_proposal_root` now validates the manager's local `file://` locator as an
+absolute pathname and supplies one proposal root to both candidate derivation
+and all member checks. The reviewer URI regression and all 125 non-daemon
+operator tests pass. The URI finding is resolved.
+
+The real-engine module still uses `ScriptedAgent`, expects an independent-
+derivation `FileNotFoundError`, and contains no public retry. The proposed
+proposal-writing agent currently faults on a nested `/output` write and is not
+installed. Therefore the public real-engine settlement P0 remains open in
+full.
+
+### 2026-08-30 — verification cadence ruling after the long correction loop
+
+The remaining W39358 correction iterates only with the smallest deterministic
+proposal-writing/retry-engine witness and its focused operator dependencies.
+It does not rerun the whole source tree or unrelated boundary inventories after
+each edit. Once the frozen settlement witness is green, the handoff runs one
+broader relevant regression sweep.
+
+That broad sweep uses the repository's reviewed parallel harness: isolated
+source shards consume the host's available CPUs, while the explicitly
+registered Docker/shared-daemon modules remain serial. A broad failure blocks
+W39358 only when it can invalidate the promised supervised dogfood path;
+unrelated failures become separately ledgered Work. This ruling changes the
+verification cadence, not the frozen acceptance boundary above.

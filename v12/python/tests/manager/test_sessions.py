@@ -116,6 +116,13 @@ class SessionCase(unittest.TestCase):
         # the wrong composition was consumed.
         worker_manager.certify_profile(self.store, "runtime", "reference",
                                        PROFILE)
+        # W43975: every ending settles on a directory-custody receipt, and a
+        # custody act reads the DEPLOYMENT's configured store.
+        self.storage = os.path.join(self._root.name, "workspace-store")
+        os.makedirs(self.storage, exist_ok=True)
+        from baton_v12.worker_manager.workspaces import (
+            configure_workspace_storage)
+        configure_workspace_storage(self.store, self.storage)
         self.session = FakeSession()
         self.port = AuthorityPort(self.session, fake_claim_signature)
         self.profile = acp_profile()

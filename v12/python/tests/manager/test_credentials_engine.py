@@ -136,7 +136,7 @@ class ARealDaemonNeverHoldsTheBearer(ContainerCase):
         home = credentials.CredentialHome(self.home_place)
         return home, home.materialize(
             credentials.resolved_delivery(("api",), profile=PROFILE),
-            attempt_id="attempt-1",
+            attempt_id="attempt-1", workspace_group=self.group,
             credential_provider=lambda provider, reference: BEARER)
 
     def started(self, delivery):
@@ -270,6 +270,64 @@ class ARealDaemonNeverHoldsTheBearer(ContainerCase):
         self.assertFalse(binds[target]["RW"], "the credential is writable")
         self.assertEqual(os.path.realpath(binds[target]["Source"]),
                          os.path.realpath(os.path.join(delivery.root, "api")))
+
+    def test_the_execution_runtime_can_actually_READ_its_credential(self):
+        """W52800's acceptance, asked of a real container.
+
+        THE DEFECT THIS CLOSES was found by three live attempts and by nothing
+        else. The slot was `0600` and manager-owned; the runtime is the fixed
+        uid 65532; so the delivery existed at the authorized path and the
+        worker could `stat` it and not open it. The provider printed
+        `Not logged in`, exited 1, and its own diagnostic is deliberately
+        unpublishable -- so the cause was three layers from the symptom.
+
+        MEASURED INSIDE THE CONTAINER, because that is the only place the
+        question is real. The manager's `stat` of its own file cannot answer
+        what a different uid may do with it.
+
+        AND THE BEARER IS NOT PRINTED. The probe answers with the two words
+        `readable`/`unreadable` and a mode, never with content -- the same
+        shape `preflight._observed_readable` uses in the spike, and for the
+        same reason.
+        """
+        _home, delivery = self.delivered()
+        answered = self.spawn([
+            ENGINE, "run", "--rm", "--network", "none",
+            "--user", "65532:65532", "--group-add", str(self.group.gid),
+            "--read-only", "--tmpfs", "/tmp:rw,noexec,nosuid,nodev,size=16m",
+            "--mount", f"type=bind,source={os.path.join(delivery.root, 'api')}"
+                       f",target={credentials.CREDENTIAL_ROOT}/api,readonly",
+            "--entrypoint", "/bin/sh", self.digest, "-c",
+            f"test -r {credentials.CREDENTIAL_ROOT}/api "
+            f"&& echo readable || echo unreadable"])
+
+        self.assertEqual(answered["status"], 0, answered["stderr"])
+        self.assertEqual(answered["stdout"].split(), ["readable"],
+                         "the execution identity cannot read its credential")
+
+    def test_a_runtime_without_the_ruled_group_cannot_read_it(self):
+        """The other half, and the one that says `other` is empty.
+
+        A credential readable by the container is not the same claim as a
+        credential readable by ANYONE. `/input` is evidence and W33935 made it
+        world-readable; this is a bearer, so the grant is exactly the
+        supplementary group the execution posture already holds -- and a
+        container without it must be refused by the filesystem.
+        """
+        _home, delivery = self.delivered()
+        answered = self.spawn([
+            ENGINE, "run", "--rm", "--network", "none",
+            "--user", "65532:65532",
+            "--read-only", "--tmpfs", "/tmp:rw,noexec,nosuid,nodev,size=16m",
+            "--mount", f"type=bind,source={os.path.join(delivery.root, 'api')}"
+                       f",target={credentials.CREDENTIAL_ROOT}/api,readonly",
+            "--entrypoint", "/bin/sh", self.digest, "-c",
+            f"test -r {credentials.CREDENTIAL_ROOT}/api "
+            f"&& echo readable || echo unreadable"])
+
+        self.assertEqual(answered["status"], 0, answered["stderr"])
+        self.assertEqual(answered["stdout"].split(), ["unreadable"],
+                         "the credential is readable without the ruled group")
 
     def test_the_bearer_stays_live_while_the_container_exists(self):
         """The registry is armed THROUGH the container's life.

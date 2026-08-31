@@ -1,0 +1,13 @@
+{
+ "changed_paths": [],
+ "disposition": "provider-failed",
+ "provider": {
+  "seconds_bound": 3600,
+  "status": 1
+ },
+ "schema": "baton.dogfood-proposal/1",
+ "source_entries": 4,
+ "task_id": "w39364-observed-readable-coverage",
+ "verification": null,
+ "why": "the provider exited 1; its own diagnostic is not published, because the process that wrote it holds this attempt's credential"
+}

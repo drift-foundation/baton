@@ -1048,6 +1048,16 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
     "failed_start_destroy_operation":
         "derives an operation identity and walks it for §13 at the "
         "constructor, exactly as `destroy_operation` does",
+    # W44716. The fourth ending, and the same statement as the other three:
+    # what comes back is composed from an adapter observation, this manager's
+    # own axis values and the authority's own closed fence answer. The
+    # operator's `reason` is durable text this manager was handed and stores;
+    # it is walked for §13 at `manager_signature` when the declaration is
+    # committed, exactly as every other operand-bearing signature is.
+    "abandon_attempt":
+        "answers the frozen cleanup ending beside the authority's own fence "
+        "answer and this manager's committed declaration, from an adapter "
+        "observation and this manager's own axis values",
     # W32576. The same three statements, one ending further along.
     "authorize_refused_session_cleanup":
         "answers the frozen cleanup ending, from an adapter observation and "

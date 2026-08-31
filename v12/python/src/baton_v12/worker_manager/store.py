@@ -271,17 +271,31 @@ class ControlStore:
                 cls._adopt(connection, path)
             else:
                 cls._initialize(connection)
+            store = cls(connection, incarnation=incarnation, clock=clock)
+            # Proved AFTER the store exists, because the clock is the store's
+            # and a clock that cannot stamp a row is a fault worth finding at
+            # open rather than at the first journalled act.
+            #
+            # AND INSIDE THIS `try`, W54881. It used to be proved after the
+            # close-on-error region ended, so a refused clock answer raised
+            # while the only reference to the connection was the local `store`
+            # this frame was about to lose -- and `open`'s own promise that
+            # every failure closes the handle was false for the one failure
+            # that happens last. The existing focused clock case reported OK
+            # and leaked five connections; W54182's probe driver leaked one.
+            #
+            # THE HANDLER STILL RE-RAISES UNCHANGED, which is the other half.
+            # A configured clock that raises is a trusted collaborator's fault
+            # and is deliberately left to raise as itself; what this widening
+            # fixes is custody of the handle, never the identity of the
+            # exception.
+            store._now()
         except BaseException:
             try:
                 connection.close()
             except BaseException:
                 pass
             raise
-        store = cls(connection, incarnation=incarnation, clock=clock)
-        # Proved AFTER the store exists, because the clock is the store's and a
-        # clock that cannot stamp a row is a fault worth finding at open rather
-        # than at the first journalled act.
-        store._now()
         return store
 
     @staticmethod

@@ -1,0 +1,96 @@
+{
+  "abandoned": null,
+  "assignment_manifest_digest": "sha256:8267cf0ebcb87620f8f3c98ae4e15929b24427b32b7cff90cf0f48cf3d958a2d",
+  "attempt_id": "attempt-w39364-run2",
+  "cleanup": {
+    "cleanup": "complete",
+    "state": "absent"
+  },
+  "conversation": {
+    "answered": [
+      "describe",
+      "work"
+    ],
+    "ending": "answered",
+    "why": null
+  },
+  "custody": [
+    {
+      "artifact_id": "attempt-w39364-run2:proposal",
+      "bytes": 86417,
+      "content_digest": "sha256:e002024b91fc1f643efeb954d1f7563c1838359fe6d24dc227846e4515f6c33c"
+    }
+  ],
+  "generation": 1,
+  "independent": {
+    "changed_paths": [],
+    "members_present": [
+      "candidate",
+      "change.patch",
+      "result.json",
+      "verification.txt"
+    ],
+    "verification_argv": [
+      "python3",
+      "v12/spike/ping-pong/test_harness.py"
+    ],
+    "verification_status": 0
+  },
+  "input_manifest_digest": "sha256:658b18fe2acc72e245a292b7505c6708cdefe6e56cc687886d5e96c8eb9d7d0f",
+  "intake_receipt": {
+    "receipt_digest": "sha256:45f5fe443d122f783e0e1bb6b7533259f873f4b5d5eee2477377b05395023b45"
+  },
+  "network": "bridge",
+  "observed_after": {
+    "mounts": null,
+    "state": "absent",
+    "why": "the engine answered that this exact identity does not exist"
+  },
+  "offer_id": "offer-w39364-run2",
+  "output": {
+    "manifest_digest": "sha256:3285f2ee96753fdfe4375e219fc053b8454f8ac279aaffff54211f594a1266ca",
+    "result_id": "result-attempt-w39364-run2"
+  },
+  "participant": "baton.claude",
+  "quiescence": {
+    "ordered": true,
+    "state": "quiescent",
+    "why": "the engine reports it not running"
+  },
+  "resolved": true,
+  "retention": {
+    "artifact_ids": [
+      "attempt-w39364-run2:proposal"
+    ],
+    "disposition": "discard-after-intake",
+    "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0"
+  },
+  "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0",
+  "review_pass": {
+    "assignment": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "5252f0c8c67b49ed89b3b2804a661032",
+        "work_id": "5252f0c8-W39364"
+      }
+    },
+    "cause": "pass",
+    "fenced": false,
+    "gate": null,
+    "phase": "queued",
+    "route": "rview"
+  },
+  "review_route": "rview",
+  "runtime_id": "76776832e5a5b0f4dc30555c1dbde230b7105a323225355ca7a48060726eb494",
+  "schema": "baton.dogfood-evidence/1",
+  "source_tree_digest": "sha256:9e70c7337cf7150f3004dd74abf55d26e4a4fd5740dfc0a83cdc43d69df3dfd3",
+  "task_id": "w39364-observed-readable-coverage",
+  "unresolved": [],
+  "work_ref": {
+    "authority_uuid": "5252f0c8c67b49ed89b3b2804a661032",
+    "work_id": "5252f0c8-W39364"
+  },
+  "worker_disposition": "unable",
+  "worker_image_digest": "sha256:9b83e49cd8bbb1de4f802ab9f984b16666e2d3a21ac671c178970fb49180f356"
+}

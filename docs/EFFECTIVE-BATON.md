@@ -493,6 +493,31 @@ architecture that has first earned further investment. This is engineering
 toward a useful product, not an academic pursuit of perfection detached from
 whether the whole design works.
 
+Use a TWO-STAGE verification cadence. During an implementation or correction
+loop, run the smallest deterministic reproducer and focused tests that can
+answer whether that edit worked. Once the focused acceptance is green and the
+candidate is ready to hand over, run one broader relevant regression sweep.
+Do not pay for the broad sweep after every small correction, and do not pass a
+candidate merely because its focused tests passed.
+
+A broad verification campaign must still be bounded and visible. If one test
+command can monopolize a Handler for an extended period, decompose it into
+named, independently runnable, time-bounded slices. A substantial slice that
+can be diagnosed, corrected, reviewed or accepted independently is contained
+Baton Work, not hidden terminal activity inside one implementation Job. Keep
+the aggregate suite as a later integration gate after the slices are green.
+Once an aggregate run has already reported failure, preserve that partial
+evidence and stop it rather than spending the rest of the managed turn proving
+only that the already-failed aggregate eventually ends.
+
+The broad sweep uses the host's safe parallel harness wherever tests own
+isolated state. On a multi-core host, independent shards run concurrently;
+tests that share a Docker daemon, image name, port, database or other mutable
+resource remain in an explicit serial lane. Parallelism is a property of the
+verified harness, never an improvised shell fan-out. A broad failure that can
+invalidate the current capability remains a gate. An unrelated failure is
+recorded as separate Work rather than expanding the current correction loop.
+
 Capture “TODO,” “improve,” “come back and fix,” “do not hard-code,” and similar
 concerns as durable Work while building the slice. Give each material concern
 an owning finding or lightweight Job, link it to the pass where it was found,

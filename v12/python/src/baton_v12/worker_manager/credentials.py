@@ -26,10 +26,15 @@ THE FOUR PARTIES, and the whole design is the boundary between them:
                  context can be pointed at wrongly.
 
 WHERE THE BYTES ARE ALLOWED TO BE. In one manager-owned volatile file per slot,
-mode 0600 under a 0700 assignment-private root, and in the in-memory live-secret
-registry. That is the entire list. §13 bars the value from argv, environment,
-image layers, labels, logs, durable state, protocol Events and output metadata,
-and every function below that produces a durable document walks it before it
+mode 0640 in the deployment's configured workspace group, under a 0700
+assignment-private root, and in the in-memory live-secret registry. W52800:
+the mode was 0600 and the worker could not read what it was delivered -- the
+group bits are the grant the execution runtime already holds, and `other` stays
+empty because this is a bearer rather than evidence.
+
+That is the entire list. §13 bars the value from argv, environment, image
+layers, labels, logs, durable state, protocol Events and output metadata, and
+every function below that produces a durable document walks it before it
 returns.
 
 THE REGISTRY IS THE POINT, not a formality. It is registered BEFORE the bytes
@@ -59,6 +64,7 @@ frozen output may sit quarantined while the credential lifecycle stays open.
 import json
 import os
 import re
+import stat
 
 from ..contracts import (ContractRefusal, check_no_durable_secret,
                          forget_secret, remember_secret)
@@ -99,7 +105,31 @@ MAX_BEARER = 4096
 MAX_ORPHANS = 64
 
 VOLATILE_DIR = 0o700
-VOLATILE_FILE = 0o600
+
+# THE LIVE SLOT'S EXACT MODE, and the ruling that decided it.
+#
+# W52800, approver ruling 2026-08-31, found by `attempt-w51487-run3`. This was
+# `0o600` and manager-only, which is the right answer to "who owns the bearer"
+# and the wrong answer to "who READS it": the execution container runs as the
+# fixed uid 65532, so a manager-owned owner-only file is one the worker can
+# `stat` and cannot open. Measured inside the real runtime, `os.path.exists`
+# answered True, `os.access(R_OK)` answered False, and the provider reported
+# `Not logged in` and exited 1 -- an opaque failure three layers from its cause.
+#
+# 0640 AND NOT 0444, and the difference is the whole ruling. `/input` is
+# evidence and W33935 made it world-readable; this is a BEARER. The execution
+# runtime already holds the deployment's configured workspace group as a
+# supplementary group (W33936, `--group-add`), so the group bits are a grant
+# that already exists and `other` stays empty.
+#
+# ONE NAME AND ONE ANSWER. Review 2026-08-31T13:56:33Z [P1]: the first cut
+# added a SECOND constant at `0o640` and kept this one at `0o600` beside it
+# "as decision history", so this module exported two authoritative-looking modes
+# for one file and the suite asserted both. A future caller reaching for the
+# established name would have recreated the defect with a constant that said
+# it was the contract. Decision history belongs in the append-only finding;
+# an exported constant is an executable claim about what is true NOW.
+VOLATILE_FILE = 0o640
 
 # What a lifecycle record may say a delivery IS. Durable state may name the
 # logical slot, the provider identity and the lifecycle state -- never the
@@ -237,6 +267,109 @@ def resolved_delivery(slots, *, profile):
     return tuple(resolution)
 
 
+def _proved_root(root, attempt):
+    """The private root proved, BEFORE any child or bearer is read.
+
+    W52800 review 2026-08-31T13:56:33Z [P0], and the reviewer is right that
+    this is load-bearing rather than tidy. The approved argument has TWO
+    halves: the slot is group-readable at `0640`, AND the root above it stays
+    manager-owned at `0700` so host members of that group cannot traverse to
+    the bearer. The first cut proved only the first half at recovery.
+
+    WHY MATERIALIZATION IS NOT THE EVIDENCE. `adopt` exists precisely because
+    this process did not create the state it is accepting -- that is the whole
+    definition of a restart. "An earlier run set 0700" is a fact about a
+    process that is gone; what governs the bytes now is what is on the disk
+    now. A root widened to `0770` hands every host member of the configured
+    group a traversal to a `0640` slot, and a root SUBSTITUTED means every
+    child check below happens under a pathname whose custody nobody proved.
+
+    `lstat` AND NOT `stat`, so a symbolic link standing where the root should
+    be is refused as itself rather than resolved into whatever it points at.
+
+    AND AN `lstat` THAT FAILS IS A REFUSAL, not an exception escaping a door
+    that promises a typed answer: a root this manager cannot even interrogate
+    is not one it may adopt a bearer out of.
+    """
+    try:
+        found = os.lstat(root)
+    except OSError as failure:
+        _refuse(f"the volatile credential root for attempt "
+                f"{name_value(attempt)} could not be interrogated "
+                f"({type(failure).__name__}); a root this manager cannot ask "
+                f"about is not one it adopts a bearer out of",
+                category="refused", code="precondition")
+    mode = found.st_mode & 0o7777
+    if not stat.S_ISDIR(found.st_mode) or mode != VOLATILE_DIR \
+            or found.st_uid != os.getuid():
+        _refuse(f"the volatile credential root for attempt "
+                f"{name_value(attempt)} is mode {oct(mode)} owned by "
+                f"{found.st_uid}, and a live root is an ordinary directory at "
+                f"{oct(VOLATILE_DIR)} owned by this manager. The slot's group "
+                f"grant is only safe while the root above it admits nobody "
+                f"else, so a widened or substituted root is refused before "
+                f"any bearer is read",
+                category="refused", code="precondition")
+
+
+def _proved_slot(place, name, gid):
+    """A live slot proved to be THIS deployment's, BEFORE it is read back.
+
+    W52800. `adopt` proved the slot was a file and then read it; it proved
+    neither who owns it nor who may read it. A recovered delivery is material
+    this process did not write -- the whole reason recovery exists -- so a slot
+    whose owner, group or mode is not the ruled one is not the slot this
+    manager materialized, and reading a bearer back out of it would be
+    registering a value somebody else's permissions govern.
+
+    `lstat` AND NOT `stat`, because a symbolic link at this name resolving to a
+    correct-looking file elsewhere is exactly the substitution this proves
+    against.
+
+    ASKED BEFORE THE READ, which is the ordering that matters: refusing after
+    the bytes are in memory would be refusing a value already registered.
+    """
+    found = os.lstat(place)
+    mode = found.st_mode & 0o7777
+    if not stat.S_ISREG(found.st_mode) or mode != VOLATILE_FILE \
+            or found.st_uid != os.getuid() or found.st_gid != gid:
+        _refuse(f"the volatile credential for slot {name_value(name)} is not "
+                f"the delivery this manager writes -- it is mode {oct(mode)} "
+                f"owned by {found.st_uid}:{found.st_gid}, and a live slot is "
+                f"a regular file at {oct(VOLATILE_FILE)} owned by this manager "
+                f"in the configured workspace group. A bearer read out of "
+                f"something else is a value another party's permissions "
+                f"govern",
+                category="refused", code="precondition")
+
+
+def _reader_group(workspace_group):
+    """WHO MAY READ A LIVE BEARER, as an explicit capability.
+
+    W52800's ruling in one function. The slot's gid is a GRANT, so it arrives
+    the way every other grant in this package does -- as the nominal
+    capability this manager minted from its own configured record, never as a
+    bare integer a caller composed and never as whatever group the parent
+    directory happened to give the file.
+
+    THE SAME HOLD `oci.run_vector` APPLIES TO THE SAME CAPABILITY, and
+    deliberately so: that is the function that adds this group to the
+    execution container with `--group-add`, and the two halves of one grant
+    must be the same value proved the same way. An integer accepted here would
+    be this module deciding who may read a bearer.
+    """
+    from . import workspaces
+
+    if type(workspace_group) is not workspaces.WorkspaceGroup:
+        _refuse(f"a credential delivery is given the deployment's configured "
+                f"workspace group, read from this manager's own record; this "
+                f"delivery names {name_value(workspace_group)}. The group is "
+                f"who may READ the live bearer, so it is a capability rather "
+                f"than a number",
+                category="refused", code="precondition")
+    return workspaces.check_workspace_group(workspace_group.gid)
+
+
 class CredentialHome:
     """WHERE THIS MANAGER KEEPS CREDENTIAL MATERIAL, owned once.
 
@@ -286,7 +419,7 @@ class CredentialHome:
             boundaries.identity(attempt_id, "a credential attempt id")
             + ".json")
 
-    def materialize(self, resolution, *, attempt_id,
+    def materialize(self, resolution, *, attempt_id, workspace_group,
                     credential_provider):
         """One private file per resolved slot, bearer registered FIRST.
 
@@ -298,7 +431,8 @@ class CredentialHome:
           2. the value is REGISTERED LIVE -- before any byte of it is
              anywhere this process did not put it, so every §13 walk from
              here on can see it;
-          3. only then does it reach a 0600 file under a 0700 private root.
+          3. only then does it reach a 0640 file in the deployment's
+             configured workspace group, under a 0700 manager-only root.
 
         Registering after the write would leave a window in which the bytes
         exist and the registry says there is nothing to find, which is the
@@ -312,6 +446,7 @@ class CredentialHome:
         """
         boundaries.capability(credential_provider, "a credential provider")
         attempt = boundaries.identity(attempt_id, "a credential attempt id")
+        gid = _reader_group(workspace_group)
         # EVERY OPERAND PROVED BEFORE ANYTHING EXISTS ON DISK.
         #
         # The first version created the root and then read the resolution
@@ -369,13 +504,38 @@ class CredentialHome:
                 remember_secret(bearer)
                 bearers[name] = bearer
                 place = os.path.join(root, name)
-                # EXCLUSIVE CREATION AT 0600. `O_EXCL` so nothing that already
-                # exists under this name is written through, and the mode
-                # is given to `open` rather than applied after, so the
-                # bytes are never readable at a wider mode even briefly.
+                # THE CREATION ORDER IS THE SECURITY PROPERTY, and W52800's
+                # ruling writes it out step by step because getting it in the
+                # wrong order is how a bearer ends up briefly readable by
+                # somebody it was never granted to.
+                #
+                #   1. exclusive-create the slot EMPTY, at a mode no broader
+                #      than the ruled one. `O_EXCL` so nothing already at this
+                #      name is written through, and the mode goes to `open`
+                #      rather than being applied after.
+                #   2. `fchown` the DESCRIPTOR to the configured gid. Only the
+                #      group moves: `-1` leaves the owner, so lifecycle
+                #      custody stays with this manager.
+                #   3. `fchmod` the STILL-EMPTY descriptor to exactly the ruled
+                #      mode. This is what makes the mode exact rather than
+                #      whatever the umask left -- `os.open`'s mode is filtered
+                #      by it, so a service umask of 077 would otherwise create
+                #      an unreadable slot and nothing would say so.
+                #   4. ONLY THEN the bearer bytes.
+                #
+                # Every step before the write is on an EMPTY inode, so a
+                # failure at any of them unwinds a file that never held a
+                # bearer. Doing the `fchown` afterwards would leave real bytes
+                # sitting in whatever group the parent happened to give them.
+                #
+                # ALL THREE ON THE DESCRIPTOR rather than on the path, for the
+                # reason this package applies everywhere: a name resolved a
+                # second time is a name something else can have replaced.
                 handle = os.open(place, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
                                  VOLATILE_FILE)
                 try:
+                    os.fchown(handle, -1, gid)
+                    os.fchmod(handle, VOLATILE_FILE)
                     _write_whole(handle, bearer.encode("utf-8"), name)
                 finally:
                     os.close(handle)
@@ -418,7 +578,7 @@ class CredentialHome:
         return Delivery(attempt_id=attempt, root=root, slots=slots,
                         state="live", bearers=bearers)
 
-    def adopt(self, record, *, attempt_id, runtime_id):
+    def adopt(self, record, *, attempt_id, runtime_id, workspace_group):
         """Recover one attempt after a manager restart, or FAIL CLOSED.
 
         The approved boundary admits recovery only on an EXACT agreement
@@ -432,6 +592,12 @@ class CredentialHome:
                                     required=_STATE_MEMBERS)
         attempt = boundaries.identity(attempt_id, "a credential attempt id")
         runtime = boundaries.identity(runtime_id, "a credential runtime id")
+        # THE SAME GRANT RECOVERY IS ABOUT, HELD THE SAME WAY. W52800: a
+        # restart adopts a delivery it did not write, so "is this slot still
+        # the thing this deployment ruled" is a question only recovery can
+        # ask. Answering it needs the configured group, and the ordinary retry
+        # builder already holds it.
+        gid = _reader_group(workspace_group)
         root = self.volatile_root(attempt)
         for member, expected in (("attempt_id", attempt),
                                  ("runtime_id", runtime),
@@ -461,7 +627,13 @@ class CredentialHome:
         #
         # So this pass touches nothing global. Registration is one act at the
         # end, and it unwinds itself if it cannot finish.
-        prepared = []
+        # THE RECORD'S OWN SHAPE FIRST, WITH NOTHING TOUCHED. Every slot the
+        # caller named is proved as a DOCUMENT before this function asks the
+        # filesystem anything -- the same rule `materialize` states in its own
+        # words, "every operand proved before anything exists on disk". A door
+        # that reads a disk to refuse a malformed operand is a door whose
+        # refusal depends on state the operand has nothing to do with.
+        recorded = []
         for entry in taken["slots"]:
             one = boundaries.document(entry, "a recorded credential slot",
                                       required=_SLOT_MEMBERS)
@@ -473,6 +645,20 @@ class CredentialHome:
                         f"not an entry of {CREDENTIAL_ROOT}; a mount this "
                         f"manager cannot place is not one it will adopt",
                         category="refused", code="precondition")
+            recorded.append((name, one))
+        # THEN THE ROOT, BEFORE ANY CHILD OR BEARER IS READ. Review [P0]: this
+        # proved each slot and never the directory holding them, so the second
+        # half of the ruling -- a manager-owned 0700 root that nobody else may
+        # traverse -- was unchecked at exactly the boundary that inherits
+        # somebody else's filesystem state.
+        #
+        # AFTER THE SHAPE AND BEFORE THE DISK is the whole of the ordering:
+        # nothing below this line has looked at a file yet, so "before any
+        # child or bearer read" still holds exactly, and a caller handing a
+        # malformed record still learns that rather than learning about a root.
+        _proved_root(root, attempt)
+        prepared = []
+        for name, one in recorded:
             place = os.path.join(root, name)
             if not os.path.isfile(place):
                 _refuse(f"the volatile credential for slot {name_value(name)} "
@@ -480,9 +666,12 @@ class CredentialHome:
                         f"missing a slot is not the delivery that was "
                         f"recorded",
                         category="refused", code="precondition")
+            _proved_slot(place, name, gid)
             # READ BACK, and the module docstring argues why re-registration
-            # is right. Reading this manager's own 0600 file is not publishing
-            # it; sealing an adopted attempt with an EMPTY registry would be.
+            # is right. Reading the slot this manager wrote and `_proved_slot`
+            # has just proved -- manager-owned, 0640, in the configured group --
+            # is not publishing it; sealing an adopted attempt with an EMPTY
+            # registry would be.
             try:
                 with open(place, "rb") as reading:
                     # ONE MORE THAN THE BOUND, so a file that is too wide is

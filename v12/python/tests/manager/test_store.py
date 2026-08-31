@@ -79,7 +79,15 @@ class OwnershipBeforeAdoption(StoreCase):
         self.store()
         # The second open validates. It may not grow the schema, and the marker
         # must still say the same thing.
-        objects = {row[0] for row in sqlite3.connect(self.path).execute(
+        # W54881: this read used to be an unnamed `sqlite3.connect(...)` whose
+        # handle nothing ever closed, so `test_store` reported OK and then
+        # emitted one unclosed-database warning of its own. That is the same
+        # custody failure this class now proves `ControlStore.open` does not
+        # commit; a suite that leaks while asserting nothing leaks is one whose
+        # warnings a reader learns to ignore.
+        reading = sqlite3.connect(self.path)
+        self.addCleanup(reading.close)
+        objects = {row[0] for row in reading.execute(
             "SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'")}
         # Cut C added the offers table and cut D the attempt and its
         # observations, each with the indexes their invariants need -- so the
@@ -309,6 +317,82 @@ class OwnershipBeforeAdoption(StoreCase):
                 path = os.path.join(self.root, f"clock-{what[:4]}.sqlite3")
                 with self.assertRaises(ContractRefusal):
                     ControlStore.open(path, incarnation="m", clock=clock)
+
+    def test_a_refused_clock_answer_leaves_no_handle_open(self):
+        """W54881: the refusal that happens LAST is the one custody forgot.
+
+        `open`'s promise is that every failure closes the handle, and the two
+        cases above prove it for the refusals that happen while the connection
+        is still a local. The clock is proved after the `ControlStore` is
+        constructed, and that construction used to be outside the
+        close-on-error region: the refusal lost the only reference to the
+        connection, so the caller had no object it could close and the handle
+        waited for the collector. The focused clock case above reported `OK`
+        and leaked five connections; W54182's 549-probe driver leaked one.
+
+        DESCRIPTORS, for the same reason the two cases above use them: a
+        leaked connection with no open transaction holds no lock, so proving
+        that something else can still write proves nothing about custody.
+
+        A FRESH PATH PER CLOCK, because a leaked descriptor from an earlier
+        iteration would be counted against the next one and the case would
+        report the wrong clock.
+        """
+        for what, clock in [("answers a number", lambda: 7),
+                            ("answers nothing", lambda: ""),
+                            ("answers prose", lambda: "banana"),
+                            ("answers a near-miss",
+                             lambda: "2026-08-24T00:00:00Z"),
+                            ("answers a local time",
+                             lambda: "2026-08-24 00:00:00.000Z")]:
+            with self.subTest(what=what):
+                path = os.path.join(self.root, f"leak-{what[8:12]}.sqlite3")
+                before = self.open_descriptors(path)
+                with self.assertRaises(ContractRefusal):
+                    ControlStore.open(path, incarnation="m", clock=clock)
+                self.assertEqual(self.open_descriptors(path), before,
+                                 "a refused clock answer left its handle open")
+
+    def test_a_clock_that_raises_takes_its_handle_with_it_and_nothing_else(self):
+        """The other half of W54881, and the ruling it must not disturb.
+
+        A configured clock that RAISES is a trusted collaborator's fault and is
+        deliberately left to raise as itself -- the fault is not translated into
+        a manager refusal, because rewriting it would hide whose fault it is.
+        Widening the close-on-error region must not change that. So this
+        requires both halves at once: the exact exception object escapes, and
+        the connection it escaped through is closed.
+        """
+        fault = RuntimeError("the deployment's clock is broken")
+
+        def raising():
+            raise fault
+
+        path = os.path.join(self.root, "clock-raises.sqlite3")
+        before = self.open_descriptors(path)
+        with self.assertRaises(RuntimeError) as caught:
+            ControlStore.open(path, incarnation="m", clock=raising)
+        self.assertIs(caught.exception, fault,
+                      "the collaborator's own fault was translated")
+        self.assertEqual(self.open_descriptors(path), before,
+                         "a raising clock left its handle open")
+
+    def test_a_successful_open_still_holds_its_handle(self):
+        """The counterweight, so the two cases above cannot pass vacuously.
+
+        `open_descriptors` returning the baseline for a refusal only means
+        something if it does NOT return the baseline for a store that opened.
+        Measured: without this, closing the connection unconditionally at the
+        end of `open` would satisfy every leak case in this class.
+        """
+        path = os.path.join(self.root, "held.sqlite3")
+        before = self.open_descriptors(path)
+        store = self.store(path=path)
+        self.assertGreater(self.open_descriptors(path), before,
+                           "an opened store holds no descriptor on its file")
+        store.close()
+        self.assertEqual(self.open_descriptors(path), before,
+                         "a closed store kept its handle")
 
 
 class OneAtomicBoundary(StoreCase):

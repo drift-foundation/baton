@@ -1069,6 +1069,7 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     boundaries.text(retention_policy_digest, "a retention policy digest")
     boundaries.capability(getattr(adapter, "destroy", None),
                           "the runtime adapter's destroy")
+    _custody_capable(adapter)
     attempt = _attempt_of(store._connection, attempt_id)
     expect = _require_assignment(attempt, attempt_id)
     _require_participant(port, expect, attempt_id)
@@ -1181,11 +1182,17 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     pending = _not_an_ending(store, attempt, attempt_id, observed, operation)
     if pending is not None:
         return pending
+    # BOTH ROOTS NORMALIZED BEFORE ANYTHING TERMINAL IS COMMITTED, and only on
+    # the path that will actually claim an ending. A positively surviving
+    # runtime settles `failed` without a directory act, because no removal and
+    # no retention claim follows from it.
+    if observed["state"] == "absent":
+        _normalized(store, adapter, attempt_id)
     return store.transact(
         operation["operation_id"], "runtime.destroy", signature,
         lambda connection: _settle(store, connection, attempt_id, receipt,
                                    retention_policy_digest, observed,
-                                   operation))
+                                   operation, custody=adapter))
 
 
 def authorize_failed_start_cleanup(store, port, adapter, *, attempt_id,
@@ -1228,6 +1235,7 @@ def authorize_failed_start_cleanup(store, port, adapter, *, attempt_id,
     # undo that at the only place it matters.
     boundaries.capability(getattr(adapter, "destroy_failed_start", None),
                           "the runtime adapter's failed-start destroy")
+    _custody_capable(adapter)
     attempt = _attempt_of(store._connection, attempt_id)
     expect = _require_assignment(attempt, attempt_id)
     _require_participant(port, expect, attempt_id)
@@ -1287,11 +1295,13 @@ def authorize_failed_start_cleanup(store, port, adapter, *, attempt_id,
     pending = _not_an_ending(store, attempt, attempt_id, observed, operation)
     if pending is not None:
         return pending
+    if observed["state"] == "absent":
+        _normalized(store, adapter, attempt_id)
     return store.transact(
         operation["operation_id"], "runtime.destroy-failed-start", signature,
         lambda connection: _settle_recordless_cleanup(
             store, connection, attempt_id, observed, operation,
-            why="failed-start cleanup settled retained"))
+            why="failed-start cleanup settled retained", custody=adapter))
 
 
 def authorize_refused_session_cleanup(store, port, adapter, *, session_ref,
@@ -1340,6 +1350,7 @@ def authorize_refused_session_cleanup(store, port, adapter, *, session_ref,
     # here would undo the closed member sets at the only place it matters.
     boundaries.capability(getattr(adapter, "destroy_refused_session", None),
                           "the runtime adapter's refused-session destroy")
+    _custody_capable(adapter)
     row = _require_session(store._connection, reference)
     attempt_id = row["runtime_attempt_id"]
     attempt = _attempt_of(store._connection, attempt_id)
@@ -1402,12 +1413,422 @@ def authorize_refused_session_cleanup(store, port, adapter, *, session_ref,
     pending = _not_an_ending(store, attempt, attempt_id, observed, operation)
     if pending is not None:
         return pending
+    if observed["state"] == "absent":
+        _normalized(store, adapter, attempt_id)
     return store.transact(
         operation["operation_id"], "runtime.destroy-refused-session",
         signature,
         lambda connection: _settle_recordless_cleanup(
             store, connection, attempt_id, observed, operation,
-            why="refused-session cleanup settled retained"))
+            why="refused-session cleanup settled retained", custody=adapter))
+
+
+def abandon_attempt(store, port, adapter, *, attempt_id, reason,
+                    retention_policy_digest):
+    """W44716: end the attempt an operator DECLARES abandoned.
+
+    THE FOURTH ENDING, and approver ruling 2026-08-30 is why it is one. A
+    runtime that STARTED and whose worker then never answered has none of the
+    three existing authorizations: `authorize_cleanup` is authorized by an
+    intake receipt and nothing was frozen or collected;
+    `authorize_failed_start_cleanup` by a start failure that did not happen;
+    `authorize_refused_session_cleanup` by a handshake refusal that did not
+    happen either. The start SUCCEEDED and the worker simply stopped saying
+    anything, so all three decline and the manager cannot end a runtime it
+    started itself.
+
+    WHAT AUTHORIZES IT IS A DECLARATION, and CALLING THIS IS THE DECLARATION.
+    There is deliberately no deadline, elapsed-time, retry-count or heartbeat
+    operand and nothing here reads a clock: a timer alone does not abandon an
+    attempt, because "it has been quiet a while" is not a decision and the
+    thing being ended may be a worker doing slow, correct work. An operator or
+    an explicit Route policy decides, and `reason` is that decision written
+    down.
+
+    THE ORDER IS THE RULING'S, and each step's proof is the next one's
+    precondition:
+
+      1. own the operands, the participant, the exact assignment and runtime,
+         the adapter capability and the eligibility -- so a deployment missing
+         the capability cannot leave an assignment half-recorded;
+      2. commit or replay the intent BEFORE any external call, so a crash
+         after the fence or after the removal resumes from a record that
+         already names what was declared;
+      3. fence the exact generation at the authority, through an operation
+         identity distinct from both the declaration and an ordinary cancel.
+         Nothing calls the adapter before that answer;
+      4. read the committed intent back as the authorization;
+      5. call only `destroy_abandoned`, whose force-removal is the combined
+         stop and remove and whose observation owns positive absence;
+      6. settle through `_settle_recordless_cleanup`: positive absence plus
+         both provider endings, cleanup `retained`, and the lane released --
+         and nothing else records an ending.
+
+    AND THE RESULT DIRECTORY IS LEFT WHERE IT IS, on the rule M33800 set for
+    both siblings. Whatever the worker wrote before it stopped answering was
+    written by a worker this manager never heard from: it began untrusted and
+    stays untrusted. This ends at `retained` and deletes nothing, freezes
+    nothing, and admits not one byte to the proposal pipeline.
+    """
+    boundaries.identity(attempt_id, "a runtime attempt id")
+    reason = boundaries.text(reason, "an abandonment reason")
+    if not reason.strip():
+        raise ContractRefusal(
+            "integrity", "schema",
+            "an abandonment carries the operator's own reason; calling this "
+            "operation IS the declaration, so a blank one is a declaration "
+            "nobody made")
+    boundaries.text(retention_policy_digest, "a retention policy digest")
+    # THE CAPABILITY BEFORE ANYTHING IS RECORDED OR FENCED. A deployment that
+    # cannot perform the removal must not leave an abandoned assignment
+    # half-recorded and an authority generation fenced with nothing following.
+    boundaries.capability(getattr(adapter, "destroy_abandoned", None),
+                          "the runtime adapter's abandoned-attempt destroy")
+    _custody_capable(adapter)
+    attempt = _attempt_of(store._connection, attempt_id)
+    expect = _require_assignment(attempt, attempt_id)
+    _require_participant(port, expect, attempt_id)
+    if attempt["runtime_id"] is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} has no attached runtime; "
+            f"abandonment ends an attempt whose runtime STARTED and whose "
+            f"worker then never answered, and there is nothing here to end")
+    authority_operation_id = _abandon_fence_operation_id(attempt)
+    intent = _abandon_intent(store, attempt, attempt_id, expect, reason,
+                             authority_operation_id)
+    operation = _abandoned_destroy_operation(attempt, intent["digest"],
+                                             retention_policy_digest)
+    signature = manager_signature(
+        "runtime.destroy-abandoned",
+        {"attempt_id": attempt_id, "expect": expect,
+         "runtime_id": attempt["runtime_id"],
+         "abandonment_record_digest": intent["digest"],
+         "retention_policy_digest": retention_policy_digest})
+    found, already = store.replay(operation["operation_id"], signature,
+                                  kind="runtime.destroy-abandoned")
+    if found:
+        # EXACT REPLAY IS CHECKED BEFORE THE MUTABLE PRECONDITIONS, so a
+        # successfully retained ending stays replayable after it is terminal.
+        return already
+    # THIS DERIVED CLEANUP MAY NOT REVISIT A FINISHED ENDING. Review
+    # 2026-08-30T11:56:53Z [P0]: skipping the mutable eligibility for a
+    # REPLAYED INTENT is right, and I wrongly extended it to every destroy
+    # operation later derived from that intent. The retention policy rides the
+    # destroy identity but not the declaration, so a second policy over an
+    # already-settled attempt missed the replay above and went on to fence and
+    # remove again, refusing only afterwards inside the settlement.
+    #
+    # The distinction the intent replay actually protects is narrower than it
+    # looked. An INTERRUPTED same-policy call has no terminal cleanup result --
+    # it is exactly the caller that must be allowed to finish what it started,
+    # and its axis is still pending or blocked-on-intake. A COMPLETED
+    # same-policy call is caught by the exact replay above. So a terminal axis
+    # at this point can only mean a NEWLY DERIVED cleanup arriving after some
+    # ending already happened, and that one refuses here -- before the
+    # authority is touched and before the engine is called.
+    #
+    # Read fresh rather than trusting the attempt read at entry: the
+    # declaration was committed in between, and what this refuses on is the
+    # axis as it stands NOW.
+    current = _attempt_of(store._connection, attempt_id)
+    if current["cleanup"] not in ("pending", "blocked-on-intake"):
+        raise ContractRefusal(
+            "refused", "already-terminal",
+            f"attempt {name_value(attempt_id)} cleanup is "
+            f"{current['cleanup']}, which is terminal; this abandonment "
+            f"cleanup was derived after that ending and an ending is not "
+            f"revisited")
+    # THE FENCE, AND IT IS NOT CONDITIONAL ON THE ASSIGNMENT LOOKING DEAD.
+    # The siblings refuse a still-live assignment because somebody else ended
+    # it; abandonment is the act that ends it, so this fences rather than
+    # asking whether somebody already did. `AuthorityPort.cancel` owns the
+    # closed answer and proves this exact generation was fenced -- no
+    # pre-read and no post-fence inference substitutes for that.
+    # FENCED WITH THE ADOPTED RECORD'S OWN VALUES. A resumed call must reissue
+    # the SAME authority operation with the SAME reason, and reading them off
+    # the committed declaration is what makes that true across a restart.
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+    # THE WORLD IS READ AGAIN BEFORE THE DESTRUCTIVE STEP, because the
+    # authority call is the one place this operation waits on somebody else.
+    #
+    # Review 2026-08-30T12:10:41Z [P0]: the gates below were being applied to
+    # the row read at ENTRY -- before the declaration, before the destroy
+    # replay and before `cancel`. RECONCILIATION IS AN INDEPENDENT MANAGER
+    # OPERATION and can move the execution runtime to `uncertain` while the
+    # fence is in flight; the abandonment then crossed the destructive
+    # boundary on a `running` snapshot that had already been revoked, and only
+    # discovered the conflict during settlement, as a refused state
+    # regression. A refusal after the removal is not a refusal.
+    #
+    # So both gates are applied to the CURRENT row, immediately before any
+    # runtime control, and this read is deliberately the last thing between
+    # the fence and the engine.
+    settled = _attempt_of(store._connection, attempt_id)
+    # ANOTHER ENDING MAY HAVE SETTLED DURING THE AUTHORITY CALL. The
+    # pre-fence check cannot see that, and an ending is not revisited however
+    # narrow the window was.
+    if settled["cleanup"] not in ("pending", "blocked-on-intake"):
+        raise ContractRefusal(
+            "refused", "already-terminal",
+            f"attempt {name_value(attempt_id)} cleanup became "
+            f"{settled['cleanup']} while the generation was being fenced; "
+            f"the generation is fenced and an ending is not revisited")
+    # `uncertain` MAY BE FENCED AND MAY NOT BE CLEANED UP. Stopping further
+    # authorized execution is the whole point of abandonment, so the fence
+    # above stands; but this manager cannot say what exists, so there is
+    # nothing to prove absent and the lane is not released.
+    if settled["execution_runtime"] == "uncertain":
+        raise ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            f"attempt {name_value(attempt_id)} execution runtime is "
+            f"uncertain; the generation is fenced, and cleanup waits for a "
+            f"reconciliation that observes what is true")
+    # AND IT IS STILL THE CONTAINER THE DECLARATION NAMES. The adopted record
+    # authorizes destroying ONE runtime; if the row now names another, this
+    # removal is not the one that was authorized, whatever moved it.
+    if settled["runtime_id"] != intent["document"]["runtime_id"]:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the recorded abandonment names runtime_id "
+            f"{name_value(intent['document']['runtime_id'])} and attempt "
+            f"{name_value(attempt_id)} is now attached to "
+            f"{name_value(settled['runtime_id'])}; the record and the act it "
+            f"authorizes must describe one runtime")
+    observed = _destroyed_abandoned(adapter, settled, attempt_id, operation,
+                                    intent["digest"], retention_policy_digest)
+    pending = _not_an_ending(store, settled, attempt_id, observed, operation)
+    if pending is not None:
+        # UNSETTLED, AND SAID IN THE SAME SHAPE. Nothing is journalled, so a
+        # retry runs the removal again -- which is safe, because force-removal
+        # of an already absent exact identity answers absent.
+        return documents.abandonment(intent=dict(intent["document"]),
+                                     fenced=dict(fenced), cleanup=pending)
+    # THE COMMITTED RESULT IS THE WHOLE COMPOSITE. Review
+    # 2026-08-30T11:44:55Z [P0]: the first cut committed the bare
+    # `cleanup.settled` document and wrapped it for the FIRST caller only, so
+    # the same public operation answered `{intent, fenced, cleanup}` once and
+    # a bare cleanup document on every replay. A resumed terminal attempt then
+    # failed in its caller as an implementation error instead of replaying its
+    # ending. What is journalled is what is answered, and replay returns it
+    # without rereading a removed runtime or a mutable axis.
+    if observed["state"] == "absent":
+        _normalized(store, adapter, attempt_id)
+    return store.transact(
+        operation["operation_id"], "runtime.destroy-abandoned", signature,
+        lambda connection: documents.abandonment(
+            intent=dict(intent["document"]), fenced=dict(fenced),
+            cleanup=_settle_recordless_cleanup(
+                store, connection, attempt_id, observed, operation,
+                why="abandonment cleanup settled retained",
+                custody=adapter)))
+
+
+def _abandon_operation_id(attempt):
+    """The ONE declaration identity for an attempt and its fixed generation.
+
+    DERIVED FROM THE ATTEMPT AND THE ASSIGNMENT, and deliberately not from the
+    reason or the runtime. Both of those ride the SIGNATURE instead, so a
+    second declaration naming a different reason or a different attached
+    runtime collides against this identity rather than committing a second
+    abandonment of one attempt.
+    """
+    taken = boundaries.document(attempt, "a persisted attempt",
+                                required=tuple(schema.ATTEMPT_COLUMNS))
+    return "attempt.abandon:" + digest({
+        "attempt_id": taken["runtime_attempt_id"],
+        "assignment": _fixed_assignment(taken)})[len("sha256:"):]
+
+
+def _abandon_fence_operation_id(attempt):
+    """The authority's own effectively-once identity for this fence.
+
+    DISTINCT FROM BOTH the declaration and `attempt.cancel:*`. An abandonment
+    is not a cancellation and must not be able to replay one, and the
+    declaration is this manager's record rather than the authority's act --
+    three identities because they are three acts.
+    """
+    taken = boundaries.document(attempt, "a persisted attempt",
+                                required=tuple(schema.ATTEMPT_COLUMNS))
+    return "authority.abandon-fence:" + digest({
+        "attempt_id": taken["runtime_attempt_id"],
+        "assignment": _fixed_assignment(taken)})[len("sha256:"):]
+
+
+def _abandon_intent(store, attempt, attempt_id, expect, reason,
+                    authority_operation_id):
+    """Commit or replay the declaration, and answer it with its digest.
+
+    COMMITTED BEFORE ANY EXTERNAL CALL, which is what makes every later step
+    resumable: the fence and the removal both read this rather than a caller's
+    operands, so a crash between them resumes from what was declared instead
+    of from what somebody remembers declaring.
+    """
+    operation_id = _abandon_operation_id(attempt)
+    signature = manager_signature(
+        "attempt.abandon",
+        {"attempt_id": attempt_id, "expect": expect,
+         "runtime_id": attempt["runtime_id"], "reason": reason,
+         "authority_operation_id": authority_operation_id})
+    document = documents.abandon_intent(
+        attempt_id=attempt_id, assignment=dict(expect),
+        runtime_id=attempt["runtime_id"], decision="abandoned",
+        authority_operation_id=authority_operation_id, reason=reason)
+    found, already = store.replay(operation_id, signature,
+                                  kind="attempt.abandon")
+    # FRESH ELIGIBILITY IS CHECKED ATOMICALLY WITH THE COMMIT, and only for a
+    # FRESH declaration. Review 2026-08-30T11:44:55Z [P0]: the first cut
+    # checked neither the worker nor the output at all and checked cleanup
+    # only AFTER committing and fencing -- so a worker that had already
+    # answered `completed` was destroyed and relabelled as operator-abandoned,
+    # and an already-terminal cleanup could acquire a new declaration and a
+    # new authority fence before the eventual refusal.
+    #
+    # INSIDE THE WRITE TRANSACTION, because "check then commit" is two acts
+    # and an axis can move between them. A REPLAYED declaration deliberately
+    # does not re-check: those axes have moved precisely because this ending
+    # already ran, and a resumed call must be able to finish what it started.
+    committed = already if found else store.transact(
+        operation_id, "attempt.abandon", signature,
+        lambda connection: _declared(connection, attempt_id, document))
+    held = boundaries.document(committed, "a committed abandonment record",
+                               required=documents.ABANDON_INTENT)
+    # READ BACK AS THE AUTHORIZATION, and held to the world it names. The
+    # sibling records are checked this way for the reason this one is: a
+    # record written when the attempt was attached to one container must not
+    # authorize destroying a different one.
+    # ALL SIX MEMBERS, not the four that name the world. Review
+    # 2026-08-30T11:44:55Z [P1]: the first cut adopted the record and then
+    # fenced with the caller's own freshly derived operation id and reason --
+    # a parallel spelling of two members the record already carries. The
+    # RECORD is the authorization, so every member of it is compared, and the
+    # fence below uses what was adopted rather than what was recomputed.
+    for member, mine in (("attempt_id", attempt_id),
+                         ("assignment", _fixed_assignment(attempt)),
+                         ("runtime_id", attempt["runtime_id"]),
+                         ("decision", "abandoned"),
+                         ("authority_operation_id", authority_operation_id),
+                         ("reason", reason)):
+        if held[member] != mine:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the recorded abandonment names {member} "
+                f"{name_value(held[member])} and this ending is for "
+                f"{name_value(mine)}; the record and the act it authorizes "
+                f"must describe one attempt, one runtime and one declaration")
+    return {"document": held, "digest": digest(held)}
+
+
+def _declared(connection, attempt_id, document):
+    """Prove the attempt is eligible to be abandoned, then answer the record.
+
+    THE THREE THE CONTRACT NAMES, read inside the write transaction that
+    commits the declaration. An attempt whose worker ANSWERED has an ending of
+    its own and abandoning it would relabel what the worker said; an attempt
+    whose output has moved off `open` is one this manager has already begun
+    accounting for; and a terminal cleanup is not revisited.
+    """
+    attempt = _attempt_of(connection, attempt_id)
+    if attempt["worker_disposition"] != "none":
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} has worker disposition "
+            f"{name_value(attempt['worker_disposition'])}; abandonment ends "
+            f"an attempt whose worker never answered, and this one did")
+    if attempt["output"] != "open":
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} output is "
+            f"{name_value(attempt['output'])}; abandonment ends an attempt "
+            f"this manager never began accounting for, and this one it did")
+    if attempt["cleanup"] not in ("pending", "blocked-on-intake"):
+        raise ContractRefusal(
+            "refused", "already-terminal",
+            f"attempt {name_value(attempt_id)} cleanup is "
+            f"{attempt['cleanup']}, which is terminal; an ending is not "
+            f"revisited, and a declaration is not recorded over one")
+    return document
+
+
+def _destroyed_abandoned(adapter, attempt, attempt_id, operation,
+                         record_digest, retention_policy_digest):
+    """The abandonment crossing, under the same observation rules.
+
+    THE WHOLE BODY CROSSES, as it does on both siblings: what makes this
+    removal authorized rather than merely requested is the digest of the
+    declaration, and the operation rides beside the body so the delivery is
+    effectively-once at the adapter too.
+    """
+    answer = boundaries.document(
+        adapter.destroy_abandoned({
+            **documents.abandoned_destroy_command(
+                assignment_ref=_fixed_assignment(attempt),
+                runtime_attempt_id=attempt_id,
+                runtime_id=attempt["runtime_id"],
+                abandonment_record_digest=record_digest,
+                retention_policy_digest=retention_policy_digest),
+            "operation": dict(operation)}),
+        "an abandoned-attempt destroy observation",
+        required=_DESTROY_MEMBERS[0], optional=_DESTROY_MEMBERS[1])
+    boundaries.identity(answer["runtime_id"], "an observed runtime id")
+    boundaries.text(answer["why"], "a destroy observation's reason")
+    boundaries.text(answer["state"], "a destroy observation's state")
+    if answer["state"] not in _DESTROY_STATES:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{name_value(answer['state'])} is not a destroy observation; the "
+            f"four this build reads are {', '.join(_DESTROY_STATES)}")
+    for provider in ("credentials", "launch"):
+        _provider_ending(answer[provider], provider)
+    if answer["runtime_id"] != attempt["runtime_id"]:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"the adapter answered about {name_value(answer['runtime_id'])} "
+            f"and this attempt is attached to "
+            f"{name_value(attempt['runtime_id'])}")
+    return answer
+
+
+def _abandoned_destroy_operation(attempt, abandonment_record_digest,
+                                 retention_policy_digest):
+    """The `runtime.destroy-abandoned` identity.
+
+    THE FOURTH SIBLING OF `destroy_operation`. The declaration's digest rides
+    the identity exactly as the receipt's, the failure record's and the
+    refusal's do: removing under a different declaration or a different policy
+    is a different act, and a different retention policy after a terminal
+    ending is refused without another engine call.
+    """
+    taken = boundaries.document(attempt, "a persisted attempt",
+                                required=tuple(schema.ATTEMPT_COLUMNS))
+    boundaries.text(abandonment_record_digest, "an abandonment record digest")
+    boundaries.text(retention_policy_digest, "a retention policy digest")
+    assignment = _fixed_assignment(taken)
+    operands = {"attempt_id": taken["runtime_attempt_id"],
+                "expect": assignment,
+                "runtime_id": taken["runtime_id"],
+                "abandonment_record_digest": abandonment_record_digest,
+                "retention_policy_digest": retention_policy_digest}
+    check_no_durable_secret({"kind": "runtime.destroy-abandoned",
+                             "operands": operands},
+                            what="an operation signature")
+    # THE ID IS COMPOSED ONCE AND THEN BOUND INTO THE SIGNATURE, exactly as
+    # `destroy_operation` and both recordless siblings do. Review
+    # 2026-08-30T11:44:55Z [P1]: the first cut hashed the five body operands
+    # alone, so the envelope did not carry the binding its own `operation`
+    # contract promises -- and it did not mirror the siblings it says it
+    # mirrors, which is worse than either alone.
+    operation_id = "runtime.destroy-abandoned:" + digest(
+        operands)[len("sha256:"):]
+    return documents.operation(
+        operation_id=operation_id,
+        signature_digest=digest({
+            "kind": "runtime.destroy-abandoned",
+            "operands": {**operands, "operation_id": operation_id}}))
 
 
 def _refused_session_record(store, attempt, attempt_id, operation_id,
@@ -1554,8 +1975,73 @@ def _destroyed_refused_session(adapter, attempt, attempt_id, operation,
     return answer
 
 
+def _custody_capable(adapter):
+    """The mandatory custody seam, PROVED BEFORE ANY DESTRUCTIVE WORK.
+
+    W43975 review 2026-08-30T15:21:44Z [P0]. `normalize_directory` and
+    `custodian_image_digest` were first read inside `_normalized` -- after the
+    runtime had been removed and both providers settled -- so a deployment
+    missing the seam mutated the world and only then got a capability
+    refusal. A capability discovered once durable state depends on it was not
+    typed at all, which is the rule `AuthorityPort` states about its session
+    and the reason it checks at construction.
+    """
+    boundaries.capability(getattr(adapter, "normalize_directory", None),
+                          "the runtime adapter's directory-custody act")
+    boundaries.text(getattr(adapter, "custodian_image_digest", None),
+                    "the custodian image identity custody acts are signed "
+                    "with")
+    return adapter
+
+
+def _normalized(store, adapter, attempt_id):
+    """Both roots, RESULT FIRST, before anything terminal is committed.
+
+    W43975 review [P0] point 4 and 5. The order is the containment: `result`
+    is nested BELOW `workspace`, so they are separately attributable custody
+    subjects rather than two independent deletion trees, and normalizing the
+    inner one first means the outer act never runs over a subject nobody has
+    accounted for yet.
+
+    OUTSIDE THE TRANSACTION, because each act runs a container. A helper
+    invocation inside a write transaction would hold the control store open
+    across an engine call, and the receipt each act commits is its own
+    journalled operation anyway -- which is the whole reason a crash between
+    the two loses nothing.
+    """
+    from . import custody as _custody
+
+    for which in ("result", "workspace"):
+        _custody.normalize_directory(store, adapter, assignment_id=attempt_id,
+                                     which=which)
+
+
+def _adopted_custody(store, adapter, attempt_id):
+    """The two receipts, READ BACK, as the terminal claim's own evidence.
+
+    Never the answers the caller happens to be holding: a caller-held document
+    is one the caller composed, and what makes the terminal claim worth
+    anything is that it names acts this manager can show it journalled.
+    """
+    from . import custody as _custody
+
+    adopted = {}
+    for which in ("result", "workspace"):
+        receipt = _custody.adopted_directory_custody(store, adapter,
+                                                     attempt_id, which)
+        if receipt is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"attempt {name_value(attempt_id)} has no committed "
+                f"directory-custody receipt for its {which} root; an ending is "
+                f"not claimed on a normalization this manager cannot show it "
+                f"performed")
+        adopted[which] = receipt
+    return adopted
+
+
 def _settle_recordless_cleanup(store, connection, attempt_id, observed,
-                               operation, *, why):
+                               operation, *, why, custody=None):
     """The ending for a removal NO INTAKE RECEIPT authorized.
 
     `_settle` chooses between `complete` and `retained` from what retention
@@ -1588,10 +2074,15 @@ def _settle_recordless_cleanup(store, connection, attempt_id, observed,
             f"revisited")
     state = observed["state"]
     if state != "absent":
+        # A POSITIVELY SURVIVING RUNTIME NEEDS NO DIRECTORY ACT. No removal and
+        # no retention claim follows from it, so there is nothing for a custody
+        # receipt to authorize.
         observe(store, attempt_id=attempt_id, axis="cleanup", value="failed")
         return documents.cleanup_settled(
             attempt_id=attempt_id, cleanup="failed", state=state,
-            why=observed["why"], kept=[], operation=dict(operation))
+            why=observed["why"], kept=[], operation=dict(operation),
+            directory_custody=None)
+    adopted = _adopted_custody(store, custody, attempt_id)
     if attempt["execution_runtime"] != "destroyed":
         observe(store, attempt_id=attempt_id, axis="execution_runtime",
                 value="destroyed")
@@ -1601,9 +2092,13 @@ def _settle_recordless_cleanup(store, connection, attempt_id, observed,
     # beside it.
     lanes._release_lane(connection, attempt_id=attempt_id,
                         reference=lanes.lane_reference(attempt), why=why)
+    # THE HOME IS RETAINED AND NOT REMOVED. Both recordless endings keep the
+    # untrusted result directory -- that is what `retained` MEANS here -- so
+    # they commit the two receipts and call no removal at all.
     return documents.cleanup_settled(
         attempt_id=attempt_id, cleanup="retained", state=state,
-        why=observed["why"], kept=[], operation=dict(operation))
+        why=observed["why"], kept=[], operation=dict(operation),
+        directory_custody=adopted)
 
 
 def _failed_start_record(store, attempt, attempt_id):
@@ -1967,7 +2462,7 @@ def _destroyed(adapter, attempt, attempt_id, operation, receipt_digest,
 
 
 def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
-            observed, operation):
+            observed, operation, custody=None):
     """The ending, decided from the observation and from what stays."""
     attempt = _attempt_of(connection, attempt_id)
     if attempt["cleanup"] not in ("pending", "blocked-on-intake"):
@@ -1988,7 +2483,8 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
         observe(store, attempt_id=attempt_id, axis="cleanup", value="failed")
         return documents.cleanup_settled(
             attempt_id=attempt_id, cleanup="failed", state=state,
-            why=observed["why"], kept=[], operation=dict(operation))
+            why=observed["why"], kept=[], operation=dict(operation),
+            directory_custody=None)
     if attempt["execution_runtime"] != "destroyed":
         observe(store, attempt_id=attempt_id, axis="execution_runtime",
                 value="destroyed")
@@ -2000,6 +2496,7 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     # cleanup with nothing left behind is `complete`.
     ending = "retained" if kept or receipt["custody"] == "quarantined" \
         else "complete"
+    adopted = _adopted_custody(store, custody, attempt_id)
     observe(store, attempt_id=attempt_id, axis="cleanup", value=ending)
     # W32649: AND THE LANE IS GIVEN BACK, in the same write as the ending.
     #
@@ -2019,6 +2516,27 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     lanes._release_lane(connection, attempt_id=attempt_id,
                        reference=lanes.lane_reference(attempt),
                        why=f"cleanup settled {ending}")
+    # THE ONE ORDINARY REMOVAL, ORDERED BEHIND BOTH RECEIPTS.
+    #
+    # W43975 review [P0] point 5, as CORRECTED by review 2026-08-30T15:21:44Z.
+    # "Contained" was always the operative word and the container was wrong:
+    # this removed the whole attempt HOME, which also holds `custody` -- where
+    # intaken material lives -- so a `retained` ending deleted the very
+    # locators it said were kept, and in the real-engine gate reached a
+    # sibling attempt's credential root. `result` is nested below `workspace`,
+    # so removing the two execution roots is still ONE contained removal
+    # rather than two independent deletion trees -- and it happens only after both roots are normalized and
+    # both receipts adopted, because a removal is the act those receipts
+    # authorize. A crash after either helper act replays or re-performs that
+    # act; a crash after this removal replays both receipts, observes the home
+    # already absent, and commits the ending. `discard_workspace` is
+    # recoverable rather than exact for exactly that reason.
+    from .workspaces import (configured_workspace_storage,
+                             discard_execution_roots)
+
+    discard_execution_roots(configured_workspace_storage(store).place,
+                            attempt_id)
     return documents.cleanup_settled(
         attempt_id=attempt_id, cleanup=ending, state=state,
-        why=observed["why"], kept=list(kept), operation=dict(operation))
+        why=observed["why"], kept=list(kept), operation=dict(operation),
+        directory_custody=adopted)

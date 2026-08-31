@@ -67,8 +67,8 @@ to the child plans, not one implementation checklist for W38956's live claim.
    public offer/claim/start/control/freeze/intake/retention/cleanup operations.
    Test positive, provider/control/transport negatives, exact retry, isolation
    and every cleanup ending with injected capabilities before real Docker.
-7. [next] Run the frozen ping-pong regression task through one real Claude
-   container, using `evidence/first-task.md` and its exact three-file source
+7. [ready] Run the frozen ping-pong regression
+   task through one real Claude container, using `evidence/first-task.md` and its exact four-file source
    subset. Retain the correlated input, task, image, assignment, runtime,
    output, cleanup and redacted verification transcript; retain no bearer or
    raw provider conversation.
@@ -110,6 +110,19 @@ implementer. They gate the live trial whatever state items 4 to 6 reach:
   the alternative reading -- an egress allowlist or proxy for provider traffic
   only -- produces a materially different operator command.
 
+### 2026-08-31 grant status
+
+- [done] M50427 selected the superseding four-file subset and explicit Docker
+  network `bridge`.
+- [superseded by M51386] M50427 selected `/run/baton/credentials/claude`, but that `0400`
+  `nobody:nogroup` file is not readable by the uid 1000 operator process.
+  Obtain an exact readable source or an operator-owned permission correction
+  before spending the live provider turn; do not read, copy, chmod or infer
+  credential material in this Work.
+- [done] M51386 records the operator-owned metadata correction. The exact file
+  is now `0400 sl:sl` and readable by uid 1000 without opening or recording its
+  bytes. The one fresh supervised attempt is authorized.
+
 ## Owed against item 3, and named rather than quietly left
 
 Three boundary entries this change introduces have no owner in
@@ -128,3 +141,17 @@ current tree. Adding entries to a registry whose attribution mechanism is
 mid-change, in a file somebody else is editing, is the parallel-edit collision
 `AGENTS.md` requires ownership to be established for first. The three are owed
 and are recorded here so they cannot be lost.
+
+## 2026-08-31 — current critical path after W39364
+
+1. [done, non-satisfying] W39364 ran one live supervised attempt and rejected
+   the unchanged `unable` candidate. The platform arc resolved; the useful
+   task did not.
+2. [blocked on W51473] Make retention an explicit operator decision, preserve
+   the candidate for review and resolve intended terminal retention honestly.
+3. [blocked on W51473 and fresh operator authorization] W51487 runs a later
+   fresh attempt and records direct independent accept/reject evidence.
+4. [separate non-gating correction] W51476 closes the human-contract preflight
+   side-effect interval.
+5. Close W38956 only after W51487 returns satisfying. W39364 does not reopen
+   and its consumed grants authorize no later provider turn.

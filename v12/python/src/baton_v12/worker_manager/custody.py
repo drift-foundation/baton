@@ -55,6 +55,7 @@ are the rules that make a deletion safe and they are not the helper's to
 re-derive.
 """
 
+import hashlib
 import os
 import re
 import stat
@@ -314,6 +315,27 @@ def check_custody_operation(operation):
             f"custody act is chosen from that vocabulary rather than "
             f"described by its caller")
     return operation
+
+
+def check_custody_root(which):
+    """One root kind from the closed pair, or a refusal.
+
+    W43977. The rule existed three times as an inline `if` -- in
+    `_derived_root`, and again at each public entry that had to refuse before
+    acting -- which is three places to edit and, as the boundary inventory
+    puts it, a rule owned nowhere. It is the same shape
+    `check_custody_operation` already has for the verb, and for the same
+    reason: a root kind SELECTS among directories this manager allocated, so
+    a value that is not one of the two selects nothing at all.
+    """
+    boundaries.text(which, "a custody root name")
+    if which not in CUSTODY_ROOTS:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{name_value(which)} is not a custody root; the two an attempt "
+            f"has are {', '.join(CUSTODY_ROOTS)}, and their parent holds the "
+            f"deliveries and is never mounted")
+    return which
 
 
 # THE PROGRAM, AND IT IS A CONSTANT OF THIS MODULE.
@@ -624,13 +646,7 @@ def _derived_root(store, assignment_id, which):
     """
     from .workspaces import (configured_workspace_group,
                              configured_workspace_storage, _real, _within)
-    boundaries.text(which, "a custody root name")
-    if which not in CUSTODY_ROOTS:
-        raise ContractRefusal(
-            "integrity", "schema",
-            f"{name_value(which)} is not a custody root; the two an attempt "
-            f"has are {', '.join(CUSTODY_ROOTS)}, and their parent holds the "
-            f"deliveries and is never mounted")
+    check_custody_root(which)
     boundaries.identity(assignment_id, "an assignment identity")
     # AN IDENTITY IS A NAME AND NEVER A PATH. `boundaries.identity` is
     # `boundaries.text` -- it owns durable text and says nothing about path
@@ -660,14 +676,43 @@ def _derived_root(store, assignment_id, which):
     if which == "workspace":
         place = workspace
     else:
-        # DERIVED FROM THE PROVED REAL WORKSPACE, so the creation below cannot
-        # traverse a link even if one appears at the home between the proof
-        # and the write: the path being created no longer contains the
-        # component that was proved.
+        # THE MANAGER-OWNED RESULT LOCATOR, AND IT IS NEVER CREATED HERE.
+        #
+        # Review 2026-08-30T11:32:34Z [P0] and the approver's ruling that
+        # settled it. Two things were wrong and they compounded:
+        #
+        #   THE PATH. This composed `workspace/result`. The retained untrusted
+        #   directory every ending actually establishes is
+        #   `workspace/result-<attempt-id>`, which is also `sealed_result`'s
+        #   manager-derived `result_id`. Those are different directories, so
+        #   wiring the old helper would have returned an accountable success
+        #   over one tree while the attempt's real result sat untouched in the
+        #   other.
+        #
+        #   THE CREATION. It made the directory when it was missing. A
+        #   directory a cleanup act invents did not exist while the attempt
+        #   ran, so "custody normalized the result root" would have been a
+        #   true sentence about an empty tree this manager had just made --
+        #   and the retained-mode caveat would have applied to the wrong
+        #   object entirely.
+        #
+        # So the ruling: allocation establishes it before runtime start, this
+        # derives that exact locator, and an absence is a CONTRADICTION rather
+        # than something to repair. An empty one is ordinary -- logs may exist
+        # with no accepted artifacts, and no artifacts at all is a result too.
+        #
+        # DERIVED FROM THE PROVED REAL WORKSPACE, so nothing below can
+        # traverse a link that appears at the home after the proof.
         place = os.path.join(_real(workspace, "the attempt's workspace"),
-                             "result")
-        if not _no_link(place, missing_ok=True):
-            os.makedirs(place, exist_ok=True)
+                             f"result-{assignment_id}")
+        if not os.path.lexists(place):
+            raise ContractRefusal(
+                "integrity", "path",
+                f"attempt {name_value(assignment_id)} has no result root at "
+                f"{name_value(place)}; this manager establishes it before the "
+                f"runtime starts, so its absence contradicts an attempt that "
+                f"ran -- and custody does not create one, because a directory "
+                f"made now is not the directory the worker wrote into")
         _no_link(place, what="the attempt's result directory")
     resolved = _real(place, f"the attempt's {which} root")
     if not _within(resolved, root):
@@ -1247,6 +1292,150 @@ def _answered(operation, status, answer, diagnostic):
     object.__setattr__(made, "_unaccounted", why)
     object.__setattr__(made, "_diagnostic", diagnostic)
     return made
+
+
+def normalize_directory(store, custody, *, assignment_id, which):
+    """ONE ROOT NORMALIZED, ONCE, WITH A SIGNED RECEIPT.
+
+    W43975 review 2026-08-30T11:32:34Z [P0]. `directory_custody` was a noun:
+    the record pinned one operation identity per (attempt, root, verb) and
+    defined no journal kind, no closed result and no way for a terminal
+    cleanup to bind the two receipts. Reusing only the outer `runtime.destroy*`
+    journal is not enough -- a crash after the result root settles and before
+    the workspace root does would lose the first root's independent durable
+    answer, and a changed custodian could not be stated as a collision PER
+    ROOT.
+
+    THE IDENTITY IS THE ONE THE RECORD PINS: the fixed attempt, the root kind
+    and the closed verb, derived exactly as the helper's own name is so a
+    restarted manager re-derives both from the same durable read.
+
+    THE SIGNATURE BINDS WHAT WOULD MAKE THIS A DIFFERENT ACT: the custodian
+    IMAGE identity and the durable workspace-store identity W43974 already
+    made load-bearing. A changed helper or a retargeted deployment therefore
+    COLLIDES rather than replaying an answer about another act over another
+    tree.
+
+    NOTHING IS COMMITTED UNLESS THE ANSWER IS ACCOUNTABLE. `CustodyAnswer.ok`
+    is the whole gate -- a clean exit, a readable document, and a document
+    about THIS verb. A refused, unaccounted or `UNRESOLVED` answer commits
+    nothing at all and raises, so the ending above returns its existing
+    retryable unsettled shape rather than recording a custody act that did not
+    happen.
+
+    THE CAPABILITY IS TYPED AND OWNED ELSEWHERE. The review refused to let
+    `intake.py` reach through a nominally generic adapter to its mutable
+    `engine`, `run` and `image_digest` fields; what crosses here is one object
+    exposing `normalize_directory`, and composing the act stays inside the
+    thing that holds those fields.
+    """
+    from . import documents
+    from .store import manager_signature
+
+    boundaries.capability(getattr(custody, "normalize_directory", None),
+                          "the runtime adapter's directory-custody act")
+    boundaries.identity(assignment_id, "an assignment identity")
+    check_custody_root(which)
+    # THE CUSTODIAN IMAGE IS THE CAPABILITY'S, READ THROUGH ITS OWN SURFACE.
+    # It is a signature input rather than an operand: the act's meaning
+    # depends on which helper performed it, so a changed helper must collide
+    # rather than replay. Reading it off the custody is what keeps
+    # `intake.py` from reaching into the adapter's mutable fields for it.
+    image = boundaries.text(
+        getattr(custody, "custodian_image_digest", None),
+        "the custodian image identity this act is signed with")
+    recorded = _recorded_store(store)
+    operation_id = _custody_operation_id(assignment_id, which)
+    signature = manager_signature(
+        "directory-custody.normalize",
+        {"attempt_id": assignment_id, "root": which, "verb": "normalize",
+         "custodian_image_digest": image, "workspace_store": recorded})
+    found, already = store.replay(operation_id, signature,
+                                  kind="directory-custody.normalize")
+    if found:
+        # EXACT REPLAY BEFORE THE ACT, so a resumed ending does not normalize
+        # a tree its predecessor already normalized and does not re-run a
+        # helper over a home the manager may since have removed.
+        return already
+    answered = custody.normalize_directory(store, assignment_id=assignment_id,
+                                           which=which)
+    if not isinstance(answered, CustodyAnswer) or not answered.ok:
+        # §9's pairing is CLOSED, so this refuses under a pair that exists
+        # rather than minting a code for the occasion: an act this manager
+        # cannot account for did not meet the precondition for recording one.
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the directory custody act over attempt "
+            f"{name_value(assignment_id)}'s {which} root did not answer "
+            f"accountably; nothing is recorded, and an ending is not claimed "
+            f"on an act this manager cannot account for")
+    return store.transact(
+        operation_id, "directory-custody.normalize", signature,
+        lambda _connection: documents.directory_custody_settled(
+            attempt_id=assignment_id, root=which, verb="normalize",
+            # THE CUSTODIAN'S OWN ACCOUNT, QUOTED. `rendered` is the
+            # canonical serialization produced at mint time from the parsed
+            # document; recomposing a dict here would be re-deriving the
+            # account instead of recording the one that was accepted.
+            account=answered.rendered,
+            operation=answered.operation))
+
+
+def adopted_directory_custody(store, custody, assignment_id, which):
+    """The committed receipt, READ BACK FROM THE JOURNAL.
+
+    Review [P0] point 3: a terminal cleanup binds the receipts a caller HOLDS
+    only if it read them from the journal itself. A caller-held document is
+    one the caller composed, and the terminal claim's whole value is naming
+    which directory acts authorized it.
+    """
+    from .store import manager_signature
+
+    # HELD HERE TOO, and W43977 is what found it missing. This derives an
+    # operation identity from the attempt and the root kind, so an unheld
+    # identity would look one up for a name this manager never allocated --
+    # a read, but a read of somebody else's act.
+    boundaries.identity(assignment_id, "an assignment identity")
+    check_custody_root(which)
+    image = boundaries.text(
+        getattr(custody, "custodian_image_digest", None),
+        "the custodian image identity this act is signed with")
+    recorded = _recorded_store(store)
+    found, already = store.replay(
+        _custody_operation_id(assignment_id, which),
+        manager_signature(
+            "directory-custody.normalize",
+            {"attempt_id": assignment_id, "root": which, "verb": "normalize",
+             "custodian_image_digest": image, "workspace_store": recorded}),
+        kind="directory-custody.normalize")
+    return already if found else None
+
+
+def _recorded_store(store):
+    from .workspaces import configured_workspace_storage
+
+    return configured_workspace_storage(store).place
+
+
+def _custody_operation_id(assignment_id, which):
+    """One identity per (attempt, root, verb), derived and never chosen.
+
+    THE STORE AND THE IMAGE ARE SIGNATURE INPUTS AND NOT IDENTITY INPUTS, and
+    the difference is the whole point of the collision the record requires.
+    Review 2026-08-30T14:51:22Z [P0]: my first cut folded the recorded
+    workspace store into the id, so a RETARGETED deployment derived a
+    DIFFERENT identity and quietly performed a second act over the same
+    attempt's root -- exactly the fork the collision exists to prevent. An
+    identity that varies with the thing whose change must collide can never
+    collide with it.
+
+    So the identity is the three facts the record pins, and everything that
+    would make this a different ACT over the same subject rides the signature.
+    """
+    material = "\n".join(("baton-v12-directory-custody",
+                           assignment_id, which, "normalize"))
+    return ("directory-custody-"
+            + hashlib.sha256(material.encode("utf-8")).hexdigest())
 
 
 def custody_act(engine, run, *, image_digest, store, assignment_id,

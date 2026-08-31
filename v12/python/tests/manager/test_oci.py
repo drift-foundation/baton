@@ -19,6 +19,7 @@ drives a real engine is its own cut, as the acceptance itself separates it.
 import json
 import os
 import re
+import shutil
 import tempfile
 import unittest
 
@@ -1608,3 +1609,80 @@ class TheTwoExplicitStartOperands(Adapting):
                     self.assertIn(flag, argv)
                 else:
                     self.assertIn((flag, value), pairs)
+
+
+class TheManagersProvedRootsSurviveToTheUse(Configured):
+    """W39358 [P1]: an allocation's answer is adopted, never re-derived.
+
+    `AllocatedRoots` is minted only by `assignment_workspace` and
+    `adopted_assignment_workspace`, both of which prove each root is a real
+    directory of this attempt's own -- not a link, resolving to its own path
+    under the configured store. Flattening it to a plain mapping threw that
+    away and left the adapter re-resolving pathnames a caller then held, which
+    is the check-then-open interval this closes.
+    """
+
+    def storage(self):
+        place = tempfile.mkdtemp(prefix="v12-proved-roots-")
+        self.addCleanup(shutil.rmtree, place, True)
+        from baton_v12.worker_manager.workspaces import (
+            configure_workspace_storage)
+        configure_workspace_storage(self.store, place)
+        return place
+
+    def allocated(self):
+        from baton_v12.worker_manager.workspaces import assignment_workspace
+
+        return assignment_workspace(self.group, self.storage(), "attempt-1")
+
+    def test_a_nominal_answer_is_accepted_without_being_flattened(self):
+        roots = self.allocated()
+
+        held, posture = oci._roots(roots, "execution")
+
+        self.assertEqual(posture, "execution")
+        self.assertEqual(sorted(held), ["inputs", "workspace"])
+        for name in ("inputs", "workspace"):
+            self.assertEqual(held[name], roots[name],
+                             "the adapter re-derived a root the manager proved")
+
+    def test_the_answer_the_adapter_holds_is_the_one_it_was_given(self):
+        """No second resolution: what the adapter uses is what was proved."""
+        roots = self.allocated()
+
+        made = oci.OciAdapter(
+            "docker", oci.EnginePort(lambda argv: {"status": 0, "stdout": "",
+                                                   "stderr": ""}),
+            identity={"image_digest": "sha256:" + "5" * 64,
+                      "profile_digest": "sha256:" + "6" * 64,
+                      "policy_digest": "sha256:" + "2" * 64,
+                      "adapter_digest": "sha256:" + "3" * 64},
+            assignment_roots=roots, posture="execution", mounts=[],
+            workspace_group=self.group)
+
+        for name in ("inputs", "workspace"):
+            self.assertEqual(made.assignment_roots[name], roots[name])
+
+    def test_the_adapter_retains_the_managers_nominal_answer(self):
+        """A copied dict loses provenance and is re-resolved at start."""
+        roots = self.allocated()
+
+        made = oci.OciAdapter(
+            "docker", oci.EnginePort(lambda argv: {"status": 0, "stdout": "",
+                                                   "stderr": ""}),
+            identity={"image_digest": "sha256:" + "5" * 64,
+                      "profile_digest": "sha256:" + "6" * 64,
+                      "policy_digest": "sha256:" + "2" * 64,
+                      "adapter_digest": "sha256:" + "3" * 64},
+            assignment_roots=roots, posture="execution", mounts=[],
+            workspace_group=self.group)
+
+        self.assertIs(made.assignment_roots, roots,
+                      "construction flattened the manager's nominal answer")
+
+    def test_a_plain_mapping_is_still_proved_here(self):
+        """Callers outside the allocation path legitimately hold one, and
+        theirs is still canonicalized and contained by this owner."""
+        with self.assertRaises(ContractRefusal):
+            oci._roots({"inputs": "relative/inputs",
+                        "workspace": "relative/workspace"}, "execution")

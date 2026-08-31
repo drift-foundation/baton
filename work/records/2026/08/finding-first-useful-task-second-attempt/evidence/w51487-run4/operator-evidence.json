@@ -1,0 +1,99 @@
+{
+  "abandoned": null,
+  "assignment_manifest_digest": "sha256:2ca20d391774adae79c1a0aa561507b86b04b42a3a1654d222d7c1c50a37ae10",
+  "attempt_id": "attempt-w51487-run4",
+  "cleanup": {
+    "cleanup": "retained",
+    "state": "absent"
+  },
+  "conversation": {
+    "answered": [
+      "describe",
+      "work"
+    ],
+    "ending": "answered",
+    "why": null
+  },
+  "custody": [
+    {
+      "artifact_id": "attempt-w51487-run4:proposal",
+      "bytes": 97845,
+      "content_digest": "sha256:195a00491b45f3e67cd20f2a6df9fbbdca607c25cecdfd19e545430d0662fa4b",
+      "custody_locator": "file:///tmp/w51487/run4/storage/attempt-w51487-run4/custody/attempt-w51487-run4/proposal"
+    }
+  ],
+  "generation": 1,
+  "independent": {
+    "changed_paths": [
+      "v12/spike/ping-pong/test_harness.py"
+    ],
+    "members_present": [
+      "candidate",
+      "change.patch",
+      "result.json",
+      "verification.txt"
+    ],
+    "verification_argv": [
+      "python3",
+      "v12/spike/ping-pong/test_harness.py"
+    ],
+    "verification_status": 0
+  },
+  "input_manifest_digest": "sha256:f7876a5d41c6ec9b46c51019958515e03e65d669fd52d2358842fd2e00e656a9",
+  "intake_receipt": {
+    "receipt_digest": "sha256:0732caff70bb0d74da38b08fc7ee91a0b8b3523e4dfb3deec60576eb073b7e08"
+  },
+  "network": "bridge",
+  "observed_after": {
+    "mounts": null,
+    "state": "absent",
+    "why": "the engine answered that this exact identity does not exist"
+  },
+  "offer_id": "offer-w51487-run4",
+  "output": {
+    "manifest_digest": "sha256:494175e42e59d94c0e0a8ff690fd4fadc486d7643b43aa1cfd9388fd8a4f3c54",
+    "result_id": "result-attempt-w51487-run4"
+  },
+  "participant": "baton.claude",
+  "quiescence": {
+    "ordered": true,
+    "state": "quiescent",
+    "why": "the engine reports it not running"
+  },
+  "resolved": true,
+  "retention": {
+    "artifact_ids": [
+      "attempt-w51487-run4:proposal"
+    ],
+    "disposition": "retain",
+    "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0"
+  },
+  "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0",
+  "review_pass": {
+    "assignment": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "1e49a06dad63423da2eb087bd230dd7c",
+        "work_id": "1e49a06d-W51487"
+      }
+    },
+    "cause": "pass",
+    "fenced": false,
+    "gate": null,
+    "phase": "queued",
+    "route": "rview"
+  },
+  "review_route": "rview",
+  "runtime_id": "840cd967e67d67a748a9006cd6ea0432e4c4e1fb654b8a4a67b24eea8d56fa4b",
+  "schema": "baton.dogfood-evidence/1",
+  "source_tree_digest": "sha256:9e70c7337cf7150f3004dd74abf55d26e4a4fd5740dfc0a83cdc43d69df3dfd3",
+  "task_id": "w39364-observed-readable-coverage",
+  "unresolved": [],
+  "work_ref": {
+    "authority_uuid": "1e49a06dad63423da2eb087bd230dd7c",
+    "work_id": "1e49a06d-W51487"
+  },
+  "worker_disposition": "unable",
+  "worker_image_digest": "sha256:b471399a7dcb8300795fe884c471b817ec1d61644130d66ec12fbd4fef76c003"
+}

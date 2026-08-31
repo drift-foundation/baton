@@ -226,11 +226,16 @@ class Lifecycle:
                                   incarnation=incarnation, clock=lambda: NOW)
         self.addCleanup(store.close)
         certify_profile(store, "runtime", "reference", PROFILE)
+        # W43975: every ending settles on a directory-custody receipt, and a
+        # custody act reads the DEPLOYMENT's configured store.
+        from baton_v12.worker_manager.workspaces import (
+            configure_workspace_storage)
+        configure_workspace_storage(store, self.storage)
         return store
 
     # -- the one thing this suite does to the world --------------------------
 
-    def spawn(self, argv):
+    def spawn(self, argv, *, seconds=None):
         """The engine port's run operation, over a real process.
 
         Every `--name` the adapter composes is registered for removal BEFORE
@@ -383,6 +388,9 @@ class Lifecycle:
                                "reference": f"ref-{one}"}
                          for one in slots}),
             attempt_id=self.attempt,
+            # W52800: the slot's reader group is a grant, minted from this
+            # fixture's own manager store like every other capability here.
+            workspace_group=self.group,
             credential_provider=lambda name, reference: f"bearer-{reference}")
         self.addCleanup(self._release_credential, home, delivery)
         return delivery
@@ -1546,6 +1554,7 @@ class Composition(Lifecycle):
                     profile={"registry": {"provider": "vault",
                                           "reference": "ref-registry"}}),
                 attempt_id=attempt,
+                workspace_group=self.group,
                 credential_provider=lambda name, reference: f"bearer-{name}")
         for delivery in deliveries.values():
             self.addCleanup(self._release_credential, home, delivery)

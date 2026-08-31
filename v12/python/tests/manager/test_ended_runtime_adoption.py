@@ -163,6 +163,7 @@ class EndedRuntimeAdoption(Lifecycle):
                 profile={"registry": {"provider": "vault",
                                       "reference": "ref-registry"}}),
             attempt_id=sibling,
+            workspace_group=self.group,
             credential_provider=lambda name, reference: f"bearer-{name}")
         self.addCleanup(self._release_credential, home, theirs)
 
@@ -177,7 +178,7 @@ class EndedRuntimeAdoption(Lifecycle):
         engine = adopting.run
 
         class Traced:
-            def __call__(self, argv):
+            def __call__(self, argv, *, seconds=None):
                 if "rm" in argv:
                     order.append("force-remove")
                 if "inspect" in argv:

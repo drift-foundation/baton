@@ -1,0 +1,114 @@
+--- a/v12/spike/ping-pong/test_harness.py
++++ b/v12/spike/ping-pong/test_harness.py
+@@ -579,5 +579,111 @@
+         return json.loads(printed.getvalue()), status
+ 
+ 
++class TheProbeAsksTheEngineRatherThanTheHost(unittest.TestCase):
++    """`_observed_readable` on its own, at the seam where it leaves the process.
++
++    The class above drives the whole preflight with this function REPLACED, so
++    nothing there observes what it actually asks the engine or how it reads the
++    answer back. Both are the claim: the probe is the authority that superseded
++    the host-side model, and an authority nobody checks is an assertion.
++
++    NO DAEMON AND NO CREDENTIAL. The process crossing is mocked, and the path
++    probed is an ordinary temporary file whose bytes are the literal string
++    below -- it is not a credential and is never opened by anything here.
++    """
++
++    NOT_A_CREDENTIAL = "not-a-credential: ordinary bytes, never opened"
++
++    class Seam:
++        """The `subprocess` module as `_observed_readable` uses it: one `run`.
++
++        It RECORDS rather than answers a script, because the argument vector is
++        half of what is under test here.
++        """
++
++        def __init__(self, status=0, stdout=""):
++            self.status = status
++            self.stdout = stdout
++            self.calls = []
++
++        def run(self, arguments, **options):
++            self.calls.append(arguments)
++            return subprocess.CompletedProcess(
++                arguments, self.status, self.stdout, "")
++
++    def probed(self, place, *, status=0, stdout=""):
++        seam = self.Seam(status=status, stdout=stdout)
++        with patch.object(preflight, "subprocess", seam):
++            return preflight._observed_readable("docker", place), seam
++
++    def place(self):
++        root = tempfile.mkdtemp(prefix="w17110-probe-")
++        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
++        where = os.path.join(root, "nominated")
++        with open(where, "w", encoding="utf-8") as writing:
++            writing.write(self.NOT_A_CREDENTIAL)
++        return where
++
++    def test_an_absent_path_is_not_probed_at_all(self):
++        """Nothing to mount is nothing to ask about, and the answer must be the
++        SAME 'concluded nothing' the failed-probe branch gives -- reached
++        without paying for a container, which is why the seam is asked whether
++        it was called rather than only what it returned."""
++        answer, seam = self.probed(self.place() + "-absent")
++        self.assertFalse(answer["probed"])
++        self.assertNotIn("readable", answer)
++        self.assertEqual(seam.calls, [])
++
++    def test_the_probe_asks_the_nominated_engine_about_the_exact_path(self):
++        """The argument vector, which is the whole observation.
++
++        Each of these is load-bearing rather than decoration: the nominated
++        engine (not whatever `docker` resolves to here), the container identity
++        whose readability is the question, `--network none` so a probe cannot
++        reach anything, a read-only bind of THAT path and no other, the pinned
++        image, and `test -r`, which asks the kernel and does not read the file.
++        """
++        where = self.place()
++        _answer, seam = self.probed(where, stdout="readable")
++        self.assertEqual(len(seam.calls), 1)
++        asked = seam.calls[0]
++        self.assertEqual(asked[0], "docker")
++        self.assertEqual(asked[1], "run")
++        self.assertIn("--rm", asked)
++        self.assertEqual(asked[asked.index("--user") + 1], "65532:65532")
++        self.assertEqual(asked[asked.index("--network") + 1], "none")
++        mount = dict(field.split("=", 1)
++                     for field in asked[asked.index("--mount") + 1].split(","))
++        self.assertEqual(mount, {"type": "bind", "source": where,
++                                 "target": "/probe", "readonly": "true"})
++        self.assertIn("alpine:3.20", asked)
++        self.assertIn("test -r /probe", asked[-1])
++
++    def test_a_probe_that_ran_reports_what_it_found(self):
++        """Both completed answers, and the negative one needs saying as much as
++        the positive: a probe that RAN and found the path unreadable is a
++        finished observation, not a probe that failed. Only the first of these
++        makes an entry usable, and reading the second as anything but
++        `probed: True` would lose the distinction the whole function exists
++        for."""
++        for said, readable in (("readable\n", True), ("unreadable\n", False)):
++            with self.subTest(said=said.strip()):
++                answer, _seam = self.probed(self.place(), stdout=said)
++                self.assertTrue(answer["probed"])
++                self.assertIs(answer["readable"], readable)
++
++    def test_a_probe_that_did_not_run_is_not_an_unreadable_verdict(self):
++        """THE FAILURE THE FUNCTION WAS WRITTEN NOT TO MAKE. A container that
++        never started says nothing about the path, and the empty stdout it
++        leaves behind is not the word `readable` -- so a branch that only
++        compared strings would quietly publish `readable: False` and refuse a
++        provider for a reason that was never observed. The status is carried so
++        the operator can see what actually happened."""
++        answer, _seam = self.probed(self.place(), status=125, stdout="")
++        self.assertFalse(answer["probed"])
++        self.assertNotIn("readable", answer)
++        self.assertEqual(answer["status"], 125)
++
++
+ if __name__ == "__main__":
+     unittest.main()

@@ -1,0 +1,64 @@
+{
+ "adapter_digest": "sha256:037e66064e95fe4fc2a328467f39bcd63b1d97821bcc7b1ce47f3abaebc7968b",
+ "adapter_name": "oci",
+ "assignment_contract": "v12-assignment-1",
+ "attempt_id": "attempt-w39364-run2",
+ "authority_store": "/tmp/w39364/run2/authority.sqlite3",
+ "control_store": "/tmp/w39364/run2/control.sqlite3",
+ "credential_home": "/tmp/w39364/run2/credential-home",
+ "credential_profile": {
+  "claude": {
+   "provider": "operator-file",
+   "reference": "w39364-run1"
+  }
+ },
+ "credential_slots": [
+  "claude"
+ ],
+ "engine": "docker",
+ "generation": 1,
+ "human_contract": {
+  "artifact_id": "w38956-first-task",
+  "bytes": 3291,
+  "content_digest": "sha256:e4dc000285728dea68a7bbac2f90118232a50d900f3e25b3ca0ecd212710f392",
+  "locator": "file:///home/sl/src/baton/work/records/2026/08/finding-v12-first-useful-dogfood-task/evidence/first-task.md",
+  "media_type": "text/markdown"
+ },
+ "image_digest": "sha256:9b83e49cd8bbb1de4f802ab9f984b16666e2d3a21ac671c178970fb49180f356",
+ "incarnation": "w39364-run2",
+ "labels": {
+  "attempt": "attempt-w39364-run2"
+ },
+ "launch_home": "/tmp/w39364/run2/launch",
+ "network": "bridge",
+ "now": "2026-08-30T22:45:00.000Z",
+ "offer_id": "offer-w39364-run2",
+ "participant": "baton.claude",
+ "policies": {
+  "credential_policy_digest": "sha256:e1b79136cecd474ddcc22b37450ac11c372e516d076e10956946606cc9513be6",
+  "mount_policy_digest": "sha256:850cef242139942eb1620ffcd886a56bfc8fafc2b8f8005474f0da58d9f01f3e",
+  "network_policy_digest": "sha256:27bbe5ad07e4a4064265013467d18be3b107473cf6dc4f97d2c2b5477b1b3576",
+  "policy_digest": "sha256:738b102ba8bc8ef03991ea8654d022053eb842a5cbdf7020bf48139edf71e1bb",
+  "resource_policy_digest": "sha256:699a979adf66d67d9af7750372bfae8700fec1a83731fd4beee95a39adb8af95",
+  "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0",
+  "tool_policy_digest": "sha256:3ee4634d9e8577967256627f7ab526f404b160203c1de2ae9de25df470de4424"
+ },
+ "record_binding": {
+  "finding_digest": "sha256:495b13a1192afb09f38e2a851352099a0453bb094eb22df4c603752746208b67",
+  "path": "work/records/2026/08/finding-v12-first-useful-dogfood-task/findings/finding-first-useful-task-acceptance",
+  "plan_digest": "sha256:57c147f4c1831fbbd67cddaac28d422b2c3d170e5e6eeb8ada21649cd9a1e769",
+  "root": "baton"
+ },
+ "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0",
+ "review_route": "rview",
+ "role_instructions_digest": "sha256:fa14ea86dc496b1eceaa966582ab26e3788da693d0c9fc5afa376b2bb265ad15",
+ "runtime_profile_digest": "sha256:45f80133d10d16351bc5e944b260dbd733dae0f87116ebd5a83defe8742ad7fc",
+ "source": "/tmp/w39364/run2/source",
+ "storage": "/tmp/w39364/run2/storage",
+ "task_path": "/tmp/w39364/run2/task.json",
+ "toolchain_digest": "sha256:455c172e45df3d95172a3b52aa69bf39b1806fa09627362b3817d9931dbb9285",
+ "work_ref": {
+  "authority_uuid": "5252f0c8c67b49ed89b3b2804a661032",
+  "work_id": "5252f0c8-W39364"
+ }
+}

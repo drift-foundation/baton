@@ -388,6 +388,28 @@ class ClaudeAgent:
                 f"this container has no credential at {slot}; the operator "
                 f"authorizes the exact credential source and this adapter "
                 f"has no home-directory or ambient fallback")
+        # PRESENT IS NOT READABLE, and W52800 is what that distinction cost.
+        #
+        # The check above is a `stat`, which needs only search permission on
+        # the parents -- so a slot delivered at a mode this container's fixed
+        # uid cannot open passed it, was symlinked into the private home, and
+        # became a provider that printed `Not logged in` and exited 1. The
+        # manager's mode was the defect and is corrected there; this is the
+        # half that makes the SAME failure say what it is. Three attempts and
+        # a day of probing separated the symptom from the cause, and the
+        # question that would have closed the gap is one line.
+        #
+        # `os.access` AND NOT AN OPEN. It answers for this process's effective
+        # identity, which is exactly the question, and it does so without a
+        # descriptor onto bearer bytes. This adapter must not read the
+        # credential to find out whether it could have.
+        if not os.access(slot, os.R_OK):
+            raise TaskRefusal(
+                f"this container cannot READ its credential at {slot}; the "
+                f"delivery exists and its permissions do not admit this "
+                f"runtime's identity, so the provider would fail to "
+                f"authenticate for a reason no diagnostic of its own may "
+                f"publish")
         home = os.path.join(scratch, "home")
         state = os.path.join(home, PROVIDER_HOME_STATE)
         os.makedirs(state, exist_ok=True)

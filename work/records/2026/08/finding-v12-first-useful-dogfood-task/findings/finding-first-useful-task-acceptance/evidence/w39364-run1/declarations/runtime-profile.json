@@ -1,0 +1,23 @@
+{
+ "credential_slots": [
+  "claude"
+ ],
+ "mounts": [
+  "/input:ro",
+  "/output:rw"
+ ],
+ "name": "dogfood",
+ "network": "bridge",
+ "posture": "execution",
+ "read_only_root": true,
+ "schema": "baton.w39364-runtime-profile/1",
+ "tmpfs": [
+  "/tmp",
+  "/dev/shm"
+ ],
+ "user": "65532:65532",
+ "worker_program": [
+  "python3",
+  "/opt/baton/dogfood_entry.py"
+ ]
+}

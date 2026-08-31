@@ -17,6 +17,7 @@ module froze, so a suite that built its own frozen output would be proving
 custody of a document the freeze receiver would never have produced.
 """
 
+import os
 import unittest
 from unittest.mock import patch
 
@@ -52,7 +53,20 @@ class Custodian:
     an adapter ASSERTS about its own success decides nothing here.
     """
 
+    # W43975: THE TYPED DIRECTORY-CUSTODY SEAM every ending now settles on.
+    custodian_image_digest = "sha256:" + "c" * 64
+
+    def normalize_directory(self, store, *, assignment_id, which):
+        from baton_v12.worker_manager import custody
+
+        self.normalized.append((assignment_id, which))
+        return custody._answered(
+            "normalize", 0,
+            {"custody": "normalize", "entries": 0, "not_ours": 0,
+             "running_as": [0, 0]}, None)
+
     def __init__(self, answer=None, destroyed=None):
+        self.normalized = []
         self.collected_with = []
         self.destroyed_with = []
         self.answer = answer
@@ -574,6 +588,28 @@ class TheDeliveryProvidersMustEndBeforeCleanupIsClean(IntakeCase):
     would have read them if they had been admitted.
     """
 
+    def test_directory_custody_is_required_before_runtime_destruction(self):
+        """A mandatory ending capability is proved before the first mutation.
+
+        Directory custody is now a precondition of every positively absent
+        ending. Discovering that the adapter cannot perform it only after
+        ``destroy`` removed the runtime and tore down its providers leaves a
+        half-ending that the refused call claimed not to start.
+        """
+        self.retained_ready("discard-after-intake")
+        self.ended()
+        adapter = Custodian()
+        adapter.normalize_directory = None
+
+        with self.assertRaises(ContractRefusal):
+            authorize_cleanup(
+                self.store, self.port, adapter, attempt_id=ATTEMPT,
+                retention_policy_digest=RETENTION)
+
+        self.assertEqual(
+            adapter.destroyed_with, [],
+            "cleanup destroyed the runtime before proving directory custody")
+
     def settled(self, **endings):
         self.retained_ready("discard-after-intake")
         self.ended()
@@ -847,6 +883,41 @@ class RetainedAndCompleteAreDifferentEndings(IntakeCase):
         self.assertEqual(answer["cleanup"], "retained")
         self.assertEqual(answer["kept"], ["artifact-1"])
         self.assertEqual(self.attempt_axis("cleanup"), "retained")
+
+    def test_material_kept_by_policy_survives_at_its_custody_locator(self):
+        """A retained ending is an account of bytes that still exist.
+
+        The manager custody tree is a sibling of the writable roots inside
+        the attempt home. Removing that whole home after deciding ``retain``
+        destroys the very locator the terminal document says was kept.
+        """
+        from baton_v12.worker_manager.workspaces import assignment_workspace
+
+        roots = assignment_workspace(
+            input_roots.configured_group(self.store), self.storage, ATTEMPT)
+        locator = os.path.join(os.path.dirname(roots["workspace"]),
+                               "custody", ATTEMPT, "artifact-1")
+        os.makedirs(os.path.dirname(locator), exist_ok=True)
+        with open(locator, "wb") as writing:
+            writing.write(b"retained material")
+        self.frozen_attempt()
+        collection = self.collection()
+        collection["artifacts"][0]["custody_locator"] = "file://" + locator
+        receipt = request_intake(
+            self.store, self.port, Custodian(collection), attempt_id=ATTEMPT)
+        decide_retention(
+            self.store, self.port, Custodian(), attempt_id=ATTEMPT,
+            artifact_ids=[one["artifact_id"] for one in receipt["artifacts"]],
+            disposition="retain", retention_policy_digest=RETENTION)
+        self.ended()
+
+        answer = authorize_cleanup(
+            self.store, self.port, Custodian(), attempt_id=ATTEMPT,
+            retention_policy_digest=RETENTION)
+
+        self.assertEqual(answer["cleanup"], "retained")
+        self.assertTrue(os.path.isfile(locator),
+                        "retained cleanup deleted the custody locator")
 
     def test_quarantined_material_ends_retained_too(self):
         """`quarantine` is doubt keeping the bytes and `retain` is policy
@@ -1417,3 +1488,175 @@ class IndependentContractReview(IntakeCase):
         with self.assertRaises(ContractRefusal) as caught:
             retentions_of(self.store, ATTEMPT)
         self.assertEqual(caught.exception.category, "integrity")
+
+
+class TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct(IntakeCase):
+    """W43975's public-ending matrix, for the receipt-authorized ending.
+
+    The abandonment sibling and the receipt boundary are covered in
+    `test_attempts` and `test_custody`. This is the ordinary ending, which is
+    the only one that REMOVES -- so it carries the two cases the others cannot:
+    a crash between the removal and the terminal commit, and the retry that
+    follows it once the roots are already gone.
+    """
+
+    class Interrupted(Custodian):
+
+        def __init__(self, fail_on=None, **overrides):
+            super().__init__(**overrides)
+            self.fail_on = fail_on
+
+        def normalize_directory(self, store, *, assignment_id, which):
+            if which == self.fail_on:
+                self.normalized.append((assignment_id, which))
+                raise RuntimeError(f"the helper died over {which}")
+            return super().normalize_directory(
+                store, assignment_id=assignment_id, which=which)
+
+    def ready(self):
+        self.retained_ready("discard-after-intake")
+        self.ended()
+
+    def settle(self, adapter):
+        return authorize_cleanup(self.store, self.port, adapter,
+                                 attempt_id=ATTEMPT,
+                                 retention_policy_digest=RETENTION)
+
+    def test_the_ending_binds_both_receipts_and_replays_them(self):
+        self.ready()
+        adapter = self.Interrupted()
+
+        answered = self.settle(adapter)
+
+        self.assertEqual([one for _a, one in adapter.normalized],
+                         ["result", "workspace"])
+        bound = answered["directory_custody"]
+        self.assertEqual(sorted(bound), ["result", "workspace"])
+        for which in ("result", "workspace"):
+            self.assertEqual(bound[which]["attempt_id"], ATTEMPT)
+            self.assertEqual(bound[which]["verb"], "normalize")
+
+        replay = self.settle(adapter)
+
+        self.assertEqual(replay, answered)
+        self.assertEqual(len([one for _a, one in adapter.normalized
+                              if one == "result"]), 1,
+                         "a replayed ending normalized a root again")
+
+    def test_an_interrupted_normalization_commits_no_ending_and_resumes(self):
+        self.ready()
+        dying = self.Interrupted(fail_on="workspace")
+
+        with self.assertRaises(RuntimeError):
+            self.settle(dying)
+
+        self.assertEqual(self.attempt_row()["cleanup"], "pending",
+                         "an ending was claimed on an unfinished custody")
+
+        dying.fail_on = None
+        answered = self.settle(dying)
+
+        self.assertEqual(answered["cleanup"], "complete")
+        self.assertEqual([one for _a, one in dying.normalized],
+                         ["result", "workspace", "workspace"],
+                         "the resumed ending renormalized a settled root")
+
+    def test_a_changed_custodian_collides_rather_than_settling(self):
+        """A helper swapped between the two acts is a different act over the
+        same subject, and the ending must not settle under the first's
+        identity."""
+        self.ready()
+        dying = self.Interrupted(fail_on="workspace")
+        with self.assertRaises(RuntimeError):
+            self.settle(dying)
+
+        other = self.Interrupted()
+        other.custodian_image_digest = "sha256:" + "e" * 64
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settle(other)
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertEqual(self.attempt_row()["cleanup"], "pending")
+
+    def test_a_crash_between_the_removal_and_the_commit_retries_clean(self):
+        """THE CASE ONLY THIS ENDING HAS.
+
+        The removal happens inside the terminal transaction, so a crash after
+        it and before the commit leaves the roots GONE and the cleanup axis
+        pending. The retry must then complete over an attempt whose execution
+        roots no longer exist -- which is exactly what `discard_execution_roots`
+        answering an absent home with `()` is for.
+        """
+        from baton_v12.worker_manager.workspaces import (
+            discard_execution_roots)
+
+        self.ready()
+        adapter = self.Interrupted()
+        # THE STATE A CRASH BETWEEN THE REMOVAL AND THE COMMIT LEAVES, modelled
+        # rather than faked. The removal is a filesystem act inside the
+        # terminal transaction: the transaction's writes roll back and the
+        # removal does not, so what survives is roots that are GONE beside a
+        # cleanup axis still `pending`. Driving `store.transact` to run its
+        # action and then raise would have committed the axis moves outside
+        # the journal, which is a state no crash produces.
+        discard_execution_roots(self.storage, ATTEMPT)
+        self.assertEqual(self.attempt_row()["cleanup"], "pending")
+
+        home = os.path.join(self.storage, ATTEMPT)
+        for name in ("inputs", "workspace"):
+            self.assertFalse(os.path.exists(os.path.join(home, name)),
+                             f"the {name} root survived the removal")
+
+        answered = self.settle(adapter)
+
+        self.assertEqual(answered["cleanup"], "complete")
+        self.assertEqual(sorted(answered["directory_custody"]),
+                         ["result", "workspace"])
+
+    def test_retry_after_removal_replays_receipts_without_absent_root_access(
+            self):
+        """The real crash state already has both custody receipts.
+
+        Ordinary removal is ordered after `_adopted_custody`, so a crash after
+        removal and before the outer commit cannot leave unjournalled custody.
+        The retry must replay both receipts and must not ask an adapter to
+        normalize roots that are now absent.
+        """
+        from baton_v12.worker_manager import custody
+        from baton_v12.worker_manager.workspaces import (
+            discard_execution_roots)
+
+        self.ready()
+        adapter = self.Interrupted()
+        for which in ("result", "workspace"):
+            custody.normalize_directory(
+                self.store, adapter, assignment_id=ATTEMPT, which=which)
+        self.assertEqual([one for _a, one in adapter.normalized],
+                         ["result", "workspace"])
+        adapter.normalized.clear()
+        discard_execution_roots(self.storage, ATTEMPT)
+
+        answered = self.settle(adapter)
+
+        self.assertEqual(adapter.normalized, [],
+                         "retry tried to normalize an already removed root")
+        self.assertEqual(answered["cleanup"], "complete")
+        self.assertEqual(sorted(answered["directory_custody"]),
+                         ["result", "workspace"])
+
+    def test_a_deployment_without_the_seam_destroys_nothing(self):
+        self.ready()
+
+        class Seamless(Custodian):
+            normalize_directory = None
+
+        adapter = Seamless()
+
+        with self.assertRaises(ContractRefusal):
+            self.settle(adapter)
+
+        self.assertEqual(adapter.destroyed_with, [],
+                         "the runtime was destroyed before the missing seam "
+                         "was discovered")
+        self.assertEqual(self.attempt_row()["cleanup"], "pending")

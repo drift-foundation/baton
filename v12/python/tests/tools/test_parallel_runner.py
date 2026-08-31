@@ -306,7 +306,23 @@ class TheRealRegistryDescribesTheRealTree(unittest.TestCase):
                           # gate builds an image and starts containers from
                           # it, so it owns the same two artefacts every other
                           # engine gate does.
-                          "tests.manager.test_dogfood_image"))
+                          "tests.manager.test_dogfood_image",
+                          # W44716 added the fourteenth:
+                          # `test_abandoned_attempt_engine` starts real
+                          # containers and then asks the daemon whether a
+                          # RUNNING one was removed, which is a question a
+                          # concurrent suite could answer for it.
+                          "tests.manager.test_abandoned_attempt_engine",
+                          # W39358 added the fifteenth: the whole-arc gate
+                          # builds the dogfood image, runs the composed arc
+                          # over a real container and asks the daemon whether
+                          # the runtime is gone.
+                          "tests.tools.test_dogfood_arc_engine",
+                          # W39358 added the sixteenth: the public-retry gate
+                          # derives an image from the reference worker and
+                          # drives the documented commands over real
+                          # containers.
+                          "tests.tools.test_dogfood_retry_engine"))
         for module in SERIAL_MODULES:
             with self.subTest(module=module):
                 self.assertNotIn(module, PARALLEL_MODULES)

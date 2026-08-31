@@ -423,6 +423,44 @@ class TheCredentialIsLinkedAndNeverRead(AdapterCase):
         self.assertIn("no home-directory or ambient fallback",
                       str(refused.exception))
 
+    def test_an_unreadable_credential_refuses_before_the_provider_runs(self):
+        """W52800, and it is the case that would have saved three attempts.
+
+        THE OLD GUARD WAS `os.path.exists`, which is a `stat` -- so a slot
+        delivered at a mode this container's fixed uid cannot open passed it,
+        was symlinked into the private home, and became a provider that
+        printed `Not logged in` and exited 1. The manager's mode was the
+        defect and is corrected there; this is the half that makes the same
+        failure SAY WHAT IT IS instead of arriving three layers away from its
+        cause.
+
+        MISSING AND UNREADABLE ARE DIFFERENT REFUSALS, because they are
+        different operator actions: one is a delivery that did not happen, the
+        other is a delivery whose permissions do not admit this runtime.
+
+        THAT THE CHECK ITSELF READS NOTHING is already the property
+        `test_the_bearer_bytes_are_never_opened` measures, by replacing the
+        slot with a directory and requiring the turn to complete: `os.access`
+        answers for the effective identity without a descriptor, so that case
+        still passes with this guard in place.
+        """
+        os.chmod(self.slot, 0o000)
+        self.addCleanup(os.chmod, self.slot, 0o600)
+
+        with self.assertRaises(TaskRefusal) as refused:
+            self.worked(edits={"harness.py": "print('covered')\n"})
+
+        self.assertIn("cannot READ its credential", str(refused.exception))
+        self.assertNotIn("no home-directory or ambient fallback",
+                         str(refused.exception))
+        # AND NO PROVIDER RAN. The refusal is before the launch, which is the
+        # whole point: an unreadable delivery must not become a provider
+        # failure whose diagnostic may not be published.
+        self.assertEqual(
+            [argv for argv, _options in self.calls
+             if argv and argv[0] == claude_agent.PROVIDER_PROGRAM], [],
+            "the provider was launched with a credential it cannot read")
+
     def test_no_bearer_reaches_the_argv_or_the_result(self):
         self.worked(edits={"harness.py": "print('now covered')\n"})
         rendered = json.dumps(self.result()) + json.dumps(

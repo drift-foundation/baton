@@ -273,6 +273,16 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
                      retention_policy_digest="sha256:" + "7" * 64), []),
             "failed_start_destroy_operation": (
                 ({}, "sha256:" + "9" * 64, "sha256:" + "7" * 64), {}, [1, 2]),
+            # W44716: the abandonment ending. It is the only one of the four
+            # that carries an OPERATOR'S OWN SENTENCE -- the reason the attempt
+            # is being declared over -- so unlike its three siblings it has a
+            # caller text operand to sweep, and that sentence becomes durable.
+            "abandon_attempt": (
+                (store, port, _NoAdapter()),
+                dict(attempt_id="attempt-1",
+                     reason="the operator declared this attempt abandoned",
+                     retention_policy_digest="sha256:" + "7" * 64),
+                ["reason"]),
             # W32576: the refused-session ending and its two identities. The
             # ending takes the session reference and the retention policy
             # digest; the operation identity takes the attempt row and two

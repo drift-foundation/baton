@@ -52,7 +52,8 @@ __all__ = ["CONTRACTS", "ASSIGNMENT", "profile_certified",
            "refused_session_destroy_command", "intake_artifact",
            "intake_receipt", "retain_command",
            "retention", "retention_decided", "cleanup_blocked",
-           "cleanup_settled", "cleanup_unsettled"]
+           "cleanup_settled", "cleanup_unsettled",
+           "directory_custody_settled"]
 
 # name -> (required, optional). ONE table, so "what does this manager answer
 # with" is a question with a written answer rather than a survey of return
@@ -357,6 +358,35 @@ CONTRACTS = {
                                          "runtime_attempt_id", "runtime_id",
                                          "refusal_record_digest",
                                          "retention_policy_digest"), ()),
+    # W44716: THE FOURTH SIBLING, on the rule that made the second and third.
+    #
+    # Approver ruling 2026-08-30. A runtime that STARTED and whose worker then
+    # never answered has none of the three existing authorizations: no intake
+    # receipt, because nothing was frozen or collected; no failed-start
+    # record, because the start succeeded; and no refusal record, because the
+    # handshake was never refused. It never got to say anything, and the
+    # manager never got to decide anything about it -- so an OPERATOR
+    # declares the attempt abandoned, and that declaration is the
+    # authorization.
+    #
+    # FOUR CLOSED MEMBER SETS, still not a union. A caller holding one of
+    # these cannot spend it on another ending, which is the whole reason the
+    # digest member is named for the record it carries rather than shared.
+    "destroy.abandoned-command": (("assignment_ref", "runtime_attempt_id",
+                                   "runtime_id",
+                                   "abandonment_record_digest",
+                                   "retention_policy_digest"), ()),
+    # W44716: the operator's declaration, committed BEFORE anything external
+    # happens, and the composite answer that reports what became of it.
+    #
+    # `decision` is the constant `"abandoned"` rather than a vocabulary: there
+    # is one decision this record can carry, and a member that could say
+    # something else would be inviting a second meaning into a document whose
+    # only job is to say that a human ended this attempt deliberately.
+    "attempt.abandon-intent": (("attempt_id", "assignment", "runtime_id",
+                                "decision", "authority_operation_id",
+                                "reason"), ()),
+    "attempt.abandonment": (("intent", "fenced", "cleanup"), ()),
     "intake.artifact": (("artifact_id", "content_digest", "bytes",
                          "custody_locator"), ()),
     # THE RECEIPT, and it is THIS MANAGER'S DOCUMENT.
@@ -387,9 +417,21 @@ CONTRACTS = {
     # AND UNSETTLED IS A THIRD ANSWER. An engine account that did not settle
     # what became of the runtime moves nothing, because a cleanup axis that
     # advanced on it would record an ending nobody observed.
+    # W43975: ONE DIRECTORY ACT, SIGNED. A per-root receipt exists because the
+    # outer `runtime.destroy*` journal cannot answer "which directory acts
+    # authorized this ending": a crash after the result root settled and
+    # before the workspace root did would lose the first one's independent
+    # durable answer, and a changed custodian or a retargeted store could not
+    # be stated as a collision per root.
+    "directory-custody.settled": (("attempt_id", "root", "verb", "account",
+                                   "operation"), ()),
     "cleanup.unsettled": (("attempt_id", "state", "why", "operation"), ()),
+    # W43975: the terminal claim NAMES THE DIRECTORY ACTS THAT AUTHORIZED IT.
+    # `directory_custody` carries the two adopted per-root receipts, read back
+    # from the journal rather than held by the caller, so an operator reading
+    # a settled ending can see which normalization it was settled on.
     "cleanup.settled": (("attempt_id", "cleanup", "state", "why", "kept",
-                         "operation"), ()),
+                         "operation", "directory_custody"), ()),
     # -- W6627: the operator interrogation split -----------------------------
     #
     # THE REQUEST, journalled before the adapter is asked. Its four bindings
@@ -431,6 +473,10 @@ FAILED_START_DESTROY_COMMAND = CONTRACTS["destroy.failed-start-command"][0]
 SESSION_UNSUPPORTED_VERSION = CONTRACTS["session.unsupported-version"][0]
 REFUSED_SESSION_DESTROY_COMMAND = CONTRACTS[
     "destroy.refused-session-command"][0]
+# W44716: read back by the abandonment cleanup crossing, for the same reason
+# the two other recordless commands are.
+ABANDONED_DESTROY_COMMAND = CONTRACTS["destroy.abandoned-command"][0]
+ABANDON_INTENT = CONTRACTS["attempt.abandon-intent"][0]
 
 
 def _emit(name, members):
@@ -572,6 +618,39 @@ def refused_session_destroy_command(**members):
     return _emit("destroy.refused-session-command", members)
 
 
+def abandoned_destroy_command(**members):
+    """W44716: the removal an operator's abandonment declaration authorizes.
+
+    `runtime_id` is non-null by this emitter's contract, as it is on both
+    other recordless siblings: this command exists only for the exact runtime
+    the abandoned attempt is attached to.
+    """
+    return _emit("destroy.abandoned-command", members)
+
+
+def abandon_intent(**members):
+    """W44716: the operator's declaration that this attempt is abandoned.
+
+    COMMITTED BEFORE ANYTHING EXTERNAL. It is the authorization every later
+    step reads, so a crash after the fence or after the engine removal is
+    resumed from a record that already names the exact attempt, assignment,
+    runtime and reason rather than from a caller's memory of them.
+    """
+    return _emit("attempt.abandon-intent", members)
+
+
+def abandonment(**members):
+    """W44716: what became of one abandonment, as one closed answer.
+
+    THREE FACTS AND NO SUMMARY. The intent is what was declared, `fenced` is
+    the authority's own closed answer, and `cleanup` is the ending -- which
+    stays explicitly unsettled when it is, because a stop order and an
+    uncertain observation are not an ending and this document never converts
+    one into one.
+    """
+    return _emit("attempt.abandonment", members)
+
+
 def failed_start_destroy_command(**members):
     """W34998: the removal a failed start authorizes, and it is not a receipt.
 
@@ -600,6 +679,10 @@ def retention_decided(**members):
 
 def cleanup_blocked(**members):
     return _emit("cleanup.blocked", members)
+
+
+def directory_custody_settled(**members):
+    return _emit("directory-custody.settled", members)
 
 
 def cleanup_unsettled(**members):

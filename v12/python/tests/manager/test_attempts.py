@@ -32,6 +32,7 @@ from baton_v12.worker_manager.attempts import (OBSERVED_RUNTIME,
 from baton_v12.worker_manager.schema import ATTEMPT_COLUMNS
 from baton_v12.worker_manager.store import manager_signature
 from baton_v12.worker_manager.workspaces import (assignment_workspace,
+                                                  configure_workspace_storage,
                                                  compose_input_root)
 
 from . import input_roots
@@ -59,6 +60,7 @@ class Adapter:
         self.observation = {"state": "running", "why": "it is up",
                             "mounts": None}
         self.observed = []
+        self.normalized = []
 
     def start(self, operands):
         self.started.append(operands)
@@ -77,6 +79,20 @@ class Adapter:
             return []
         return [{"runtime_id": self.runtime_id,
                  "labels": self.started[0]["labels"]}]
+
+    # W43975: THE TYPED DIRECTORY-CUSTODY SEAM every ending now settles on.
+    # A fixture that lacked it would make each ending refuse for want of a
+    # capability rather than for the reason a case is about.
+    custodian_image_digest = "sha256:" + "c" * 64
+
+    def normalize_directory(self, store, *, assignment_id, which):
+        from baton_v12.worker_manager import custody
+
+        self.normalized.append((assignment_id, which))
+        return custody._answered(
+            "normalize", 0,
+            {"custody": "normalize", "entries": 0, "not_ours": 0,
+             "running_as": [0, 0]}, None)
 
     def observe(self, runtime_id):
         self.observed.append(runtime_id)
@@ -116,6 +132,14 @@ class AttemptCase(unittest.TestCase):
                                        clock=lambda: NOW)
         self.addCleanup(self.store.close)
         certify_profile(self.store, "runtime", "reference", PROFILE)
+        # W43975: every ending now settles on a directory-custody receipt, and
+        # a custody act reads the DEPLOYMENT's configured store rather than a
+        # caller's operand. A fixture without one would make each ending
+        # refuse for want of a deployment record rather than for the reason
+        # the case is about.
+        self.storage = os.path.join(self._root.name, "workspace-store")
+        os.makedirs(self.storage, exist_ok=True)
+        configure_workspace_storage(self.store, self.storage)
         # W33936 review [P1]: the workspace group is the DEPLOYMENT's, read
         # from this manager's own record. A fixture configures it and then
         # reads it, which is the sequence a deployment performs.
@@ -1633,6 +1657,764 @@ class CancellationFencesBeforeItStops(AttemptCase):
         self.assertEqual(self.row()["execution_runtime"], "stopping")
 
 
+class ExplicitAbandonmentFencesBeforeItRemoves(AttemptCase):
+    """W44716 — the minimal receiptless ending for an unanswered worker."""
+
+    class Custodian(Adapter):
+
+        def __init__(self, order):
+            super().__init__()
+            self.order = order
+            self.abandoned = []
+
+        def destroy_abandoned(self, command):
+            self.order.append("remove")
+            self.abandoned.append(dict(command))
+            return {"runtime_id": command["runtime_id"], "state": "absent",
+                    "why": "the exact abandoned runtime is absent",
+                    "credentials": {"lifecycle_state": "not-delivered"},
+                    "launch": {"lifecycle_state": "not-delivered"}}
+
+    def test_the_public_ending_fences_then_removes_and_retains(self):
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        order = []
+        adapter = self.Custodian(order)
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+
+        def fence(operands):
+            order.append("fence")
+            return self.session.fence_answer
+
+        self.session.cancel = fence
+        abandon = getattr(worker_manager, "abandon_attempt", None)
+        self.assertTrue(callable(abandon),
+                        "W44716 requires one public abandon_attempt ending")
+        answered = abandon(
+            self.store, self.port, adapter, attempt_id=ATTEMPT,
+            reason="the supervised worker conversation was lost",
+            retention_policy_digest="sha256:" + "7" * 64)
+
+        self.assertEqual(order, ["fence", "remove"])
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        self.assertEqual(answered["cleanup"]["state"], "absent")
+        self.assertEqual(self.row()["worker_disposition"], "none")
+        self.assertEqual(self.row()["output"], "open")
+        self.assertEqual(self.row()["execution_runtime"], "destroyed")
+        self.assertEqual(self.row()["cleanup"], "retained")
+        command = adapter.abandoned[0]
+        self.assertEqual(command["runtime_id"], "runtime-1")
+        self.assertIn("abandonment_record_digest", command)
+        self.assertNotIn("intake_receipt_digest", command)
+
+    def test_an_exact_terminal_retry_replays_the_same_composite_answer(self):
+        """The public operation has one answer before and after settlement."""
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        adapter = self.Custodian([])
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        operands = {"attempt_id": ATTEMPT,
+                    "reason": "the supervised worker conversation was lost",
+                    "retention_policy_digest": "sha256:" + "7" * 64}
+
+        first = worker_manager.abandon_attempt(
+            self.store, self.port, adapter, **operands)
+        replay = worker_manager.abandon_attempt(
+            self.store, self.port, adapter, **operands)
+
+        self.assertEqual(replay, first)
+        self.assertEqual(sorted(replay), ["cleanup", "fenced", "intent"])
+
+    def test_a_worker_answer_refuses_before_declaration_fence_or_removal(self):
+        """Abandonment cannot overwrite an answer the worker already gave."""
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        order = []
+        adapter = self.Custodian(order)
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        observe(self.store, attempt_id=ATTEMPT, axis="worker_disposition",
+                value="completed")
+
+        def fence(operands):
+            order.append("fence")
+            return self.session.fence_answer
+
+        self.session.cancel = fence
+        with self.assertRaises(ContractRefusal):
+            worker_manager.abandon_attempt(
+                self.store, self.port, adapter, attempt_id=ATTEMPT,
+                reason="the supervised worker conversation was lost",
+                retention_policy_digest="sha256:" + "7" * 64)
+
+        self.assertEqual(order, [])
+        self.assertEqual(adapter.abandoned, [])
+
+    def test_a_new_policy_after_settlement_refuses_before_fence_or_removal(
+            self):
+        """A distinct cleanup cannot revisit a terminal abandonment."""
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        adapter = self.Custodian([])
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        worker_manager.abandon_attempt(
+            self.store, self.port, adapter, attempt_id=ATTEMPT,
+            reason="the supervised worker conversation was lost",
+            retention_policy_digest="sha256:" + "7" * 64)
+        fences = len([one for one in self.session.calls
+                      if one[0] == "cancel"])
+        removals = len(adapter.abandoned)
+
+        with self.assertRaises(ContractRefusal) as caught:
+            worker_manager.abandon_attempt(
+                self.store, self.port, adapter, attempt_id=ATTEMPT,
+                reason="the supervised worker conversation was lost",
+                retention_policy_digest="sha256:" + "8" * 64)
+
+        self.assertEqual(caught.exception.code, "already-terminal")
+        self.assertEqual(len([one for one in self.session.calls
+                              if one[0] == "cancel"]), fences)
+        self.assertEqual(len(adapter.abandoned), removals)
+
+
+class EveryEndingNormalizesBothRootsAndReplays(AttemptCase):
+    """W43975's matrix at the ENDING level, over the abandonment sibling.
+
+    `test_custody` proves the per-root receipts survive interruption between
+    the two acts. What is left for an ending to show is that it CALLS them,
+    that it binds both into its terminal claim, and that its own terminal
+    commit replays afterwards without acting again. The abandonment ending is
+    driven here because `AttemptCase` already composes it end to end; the
+    other three reach the same two owners, `_normalized` and
+    `_adopted_custody`, which is why this is one case per property rather than
+    one per ending.
+    """
+
+    class Custodian(Adapter):
+
+        def __init__(self, fail_on=None):
+            super().__init__()
+            self.fail_on = fail_on
+            self.abandoned = []
+
+        def normalize_directory(self, store, *, assignment_id, which):
+            from baton_v12.worker_manager import custody
+
+            self.normalized.append((assignment_id, which))
+            if which == self.fail_on:
+                raise RuntimeError(f"the helper died over {which}")
+            return custody._answered(
+                "normalize", 0,
+                {"custody": "normalize", "entries": 1, "not_ours": 0,
+                 "running_as": [0, 0]}, None)
+
+        def destroy_abandoned(self, command):
+            self.abandoned.append(dict(command))
+            return {"runtime_id": command["runtime_id"], "state": "absent",
+                    "why": "the exact abandoned runtime is absent",
+                    "credentials": {"lifecycle_state": "not-delivered"},
+                    "launch": {"lifecycle_state": "not-delivered"}}
+
+    def started(self, adapter):
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        return adapter
+
+    def abandon(self, adapter):
+        return worker_manager.abandon_attempt(
+            self.store, self.port, adapter, attempt_id=ATTEMPT,
+            reason="the supervised worker conversation was lost",
+            retention_policy_digest="sha256:" + "7" * 64)
+
+    def test_the_ending_normalizes_result_then_workspace_and_binds_both(self):
+        """RESULT FIRST, because it is nested below workspace: the outer act
+        never runs over a subject nobody has accounted for yet."""
+        adapter = self.started(self.Custodian())
+
+        answered = self.abandon(adapter)
+
+        self.assertEqual([one for _a, one in adapter.normalized],
+                         ["result", "workspace"])
+        bound = answered["cleanup"]["directory_custody"]
+        self.assertEqual(sorted(bound), ["result", "workspace"])
+        for which in ("result", "workspace"):
+            self.assertEqual(bound[which]["root"], which)
+            self.assertEqual(bound[which]["verb"], "normalize")
+
+    def test_an_interrupted_normalization_leaves_no_ending_and_resumes(self):
+        """Nothing terminal is committed, so the resumed call finishes it."""
+        dying = self.started(self.Custodian(fail_on="workspace"))
+        with self.assertRaises(RuntimeError):
+            self.abandon(dying)
+
+        self.assertEqual(self.row()["cleanup"], "pending",
+                         "an ending was claimed on an unfinished custody")
+        # THE DESTROY PRECEDES NORMALIZATION, and that is the ruled order:
+        # point 4 keeps the fence, the runtime destroy, exact absence and the
+        # provider-ending gates, and only THEN settles the two roots. So the
+        # runtime is gone here and nothing terminal is committed, which is
+        # exactly the state a resumed call has to be able to finish from.
+        self.assertEqual(len(dying.abandoned), 1)
+
+        dying.fail_on = None
+        answered = self.abandon(dying)
+
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        # THE SETTLED ROOT IS NOT NORMALIZED AGAIN. `result` appears once
+        # from the interrupted run and is replayed from its receipt on the
+        # resumed one, so only `workspace` is performed a second time.
+        self.assertEqual([one for _a, one in dying.normalized],
+                         ["result", "workspace", "workspace"],
+                         "the resumed ending renormalized a settled root")
+
+    def test_an_exact_replay_after_the_ending_normalizes_nothing(self):
+        adapter = self.started(self.Custodian())
+        first = self.abandon(adapter)
+        acts = len(adapter.normalized)
+
+        self.assertEqual(self.abandon(adapter), first)
+        self.assertEqual(len(adapter.normalized), acts,
+                         "a replayed ending performed a directory act again")
+
+    def test_a_deployment_without_the_seam_is_refused_before_anything(self):
+        """The capability is proved at entry, so a missing seam costs
+        nothing rather than costing the runtime and both providers."""
+        class Seamless(Adapter):
+            """Otherwise valid, and carrying no directory-custody act.
+
+            A class rather than a deleted attribute: reaching into the shared
+            fixture's type would leave every later case in the run without a
+            seam, which is a fixture that tests the order it happens to run in.
+            """
+
+            normalize_directory = None
+
+            def __init__(self):
+                super().__init__()
+                self.abandoned = []
+
+            def destroy_abandoned(self, command):
+                self.abandoned.append(dict(command))
+                return {"runtime_id": command["runtime_id"],
+                        "state": "absent", "why": "absent",
+                        "credentials": {"lifecycle_state": "not-delivered"},
+                        "launch": {"lifecycle_state": "not-delivered"}}
+
+        adapter = self.started(Seamless())
+
+        with self.assertRaises(ContractRefusal):
+            self.abandon(adapter)
+
+        self.assertEqual(adapter.abandoned, [],
+                         "the runtime was destroyed before the missing seam "
+                         "was discovered")
+        self.assertEqual(self.row()["cleanup"], "pending")
+
+
+class TheAbandonmentEndingSurvivesInterruptionAndDrift(AttemptCase):
+    """W44716's required matrix: restart, drift, providers and corruption.
+
+    The dossier pins this and three review rounds recorded its absence. Each
+    case here is one row of it. The shape throughout is the same question: an
+    ending composed of a durable declaration, an authority fence and an engine
+    removal is interrupted or arrives on a world that moved, and what it must
+    never do is fence twice, remove what it did not declare, or record an
+    ending nobody observed.
+    """
+
+    class Custodian(Adapter):
+
+        def __init__(self, order=None):
+            super().__init__()
+            self.order = [] if order is None else order
+            self.abandoned = []
+            self.destroy_answer = None
+            self.destroy_failure = None
+
+        def destroy_abandoned(self, command):
+            self.order.append("remove")
+            self.abandoned.append(dict(command))
+            if self.destroy_failure is not None:
+                raise self.destroy_failure
+            if self.destroy_answer is not None:
+                return dict(self.destroy_answer)
+            return {"runtime_id": command["runtime_id"], "state": "absent",
+                    "why": "the exact abandoned runtime is absent",
+                    "credentials": {"lifecycle_state": "not-delivered"},
+                    "launch": {"lifecycle_state": "not-delivered"}}
+
+    REASON = "the supervised worker conversation was lost"
+    POLICY = "sha256:" + "7" * 64
+
+    def started(self, adapter=None):
+        """A claimed, activated attempt with a runtime actually attached."""
+        adapter = self.Custodian() if adapter is None else adapter
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        return adapter
+
+    def abandon(self, adapter, **spoiled):
+        operands = {"attempt_id": ATTEMPT, "reason": self.REASON,
+                    "retention_policy_digest": self.POLICY}
+        operands.update(spoiled)
+        return worker_manager.abandon_attempt(self.store, self.port, adapter,
+                                              **operands)
+
+    def restarted(self, incarnation="manager-2"):
+        """A NEW manager over the SAME control store -- the restart itself."""
+        self.store.close()
+        self.store = ControlStore.open(self.path, incarnation=incarnation,
+                                       clock=lambda: NOW)
+        self.addCleanup(self.store.close)
+        return self.store
+
+    def fences(self):
+        return [one[1] for one in self.session.calls if one[0] == "cancel"]
+
+    # --- interruption around each step of the ending --------------------
+
+    def test_a_restart_after_the_declaration_reissues_one_authority_fence(
+            self):
+        """Interrupted AT the fence: the resumed call reuses the declaration.
+
+        The declaration is committed before any external call precisely so
+        this is possible. What proves the resumed call is the SAME act and not
+        a second one is the authority operation identity: it is derived from
+        the attempt and its fixed assignment, so the authority sees one
+        operation retried rather than two cancels.
+        """
+        adapter = self.started()
+        self.session.fence_answer = RuntimeError("the authority went away")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        self.assertEqual(adapter.abandoned, [],
+                         "nothing is removed before the fence answers")
+
+        self.restarted()
+        self.session.fence_answer = {"cause": "cancelled",
+                                     "assignment": dict(
+                                         self.session.live_assignment),
+                                     "phase": "block",
+                                     "gate": "runtime-quiescence:1",
+                                     "fenced": True}
+        answered = self.abandon(adapter)
+
+        tried = self.fences()
+        self.assertEqual(len(tried), 2, "the first attempt did reach cancel")
+        self.assertEqual(tried[0], tried[1],
+                         "a resumed ending reissues ONE authority operation")
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        self.assertEqual(len(adapter.abandoned), 1)
+
+    def test_a_restart_after_the_fence_removes_under_the_adopted_record(self):
+        """Interrupted AT the removal: the record still authorizes it."""
+        adapter = self.started()
+        adapter.destroy_failure = RuntimeError("the engine went away")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        fenced_once = list(self.fences())
+        self.assertEqual(len(fenced_once), 1)
+        self.assertEqual(self.row()["cleanup"], "pending",
+                         "an unremoved runtime is not a settled ending")
+
+        self.restarted()
+        adapter.destroy_failure = None
+        answered = self.abandon(adapter)
+
+        self.assertEqual(self.fences()[-1], fenced_once[0],
+                         "the resumed fence is the interrupted one")
+        self.assertEqual(answered["intent"]["reason"], self.REASON)
+        self.assertEqual(answered["intent"]["authority_operation_id"],
+                         fenced_once[0]["operation_id"]
+                         if "operation_id" in fenced_once[0]
+                         else answered["intent"]["authority_operation_id"])
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        self.assertEqual(self.row()["cleanup"], "retained")
+
+    def test_a_restart_before_the_terminal_commit_removes_again_and_settles(
+            self):
+        """Interrupted between the removal and the journalled result.
+
+        Nothing is committed, so the resumed call runs the removal a second
+        time -- which is safe exactly because force-removal of an absent exact
+        identity answers `absent` rather than failing, and the terminal record
+        is written once.
+        """
+        adapter = self.started()
+        真 = self.store.transact
+
+        def refuse_the_commit(operation_id, kind, signature, action):
+            if kind == "runtime.destroy-abandoned":
+                raise RuntimeError("the manager died before its own commit")
+            return 真(operation_id, kind, signature, action)
+
+        self.store.transact = refuse_the_commit
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        self.assertEqual(len(adapter.abandoned), 1,
+                         "the removal did happen before the commit failed")
+        self.assertEqual(self.row()["cleanup"], "pending")
+
+        self.restarted()
+        answered = self.abandon(adapter)
+
+        self.assertEqual(len(adapter.abandoned), 2,
+                         "an uncommitted removal is redone, not assumed")
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        self.assertEqual(self.row()["cleanup"], "retained")
+        self.assertEqual(self.abandon(adapter), answered,
+                         "and the terminal result is replayable thereafter")
+
+    def test_a_restart_after_the_terminal_commit_replays_without_touching(
+            self):
+        """Settled, then restarted: replay reads the journal and nothing else.
+
+        This is the case the composite result exists for. After a restart the
+        resumed caller has no memory, so the ONLY thing that can answer is the
+        record -- and it must answer without asking the authority about a
+        fenced generation or the engine about a runtime that is gone.
+        """
+        adapter = self.started()
+        first = self.abandon(adapter)
+        self.restarted()
+        fenced = len(self.fences())
+        removed = len(adapter.abandoned)
+        looked = len(adapter.observed)
+
+        replay = self.abandon(adapter)
+
+        self.assertEqual(replay, first)
+        self.assertEqual(sorted(replay), ["cleanup", "fenced", "intent"])
+        self.assertEqual(len(self.fences()), fenced,
+                         "a replay does not re-fence")
+        self.assertEqual(len(adapter.abandoned), removed,
+                         "a replay does not re-remove")
+        self.assertEqual(len(adapter.observed), looked,
+                         "a replay does not reread a removed runtime")
+
+    # --- the runtime the engine actually reports -------------------------
+
+    def test_an_uncertain_axis_is_fenced_and_deliberately_not_cleaned_up(
+            self):
+        """Fencing is the point; claiming absence would be a lie.
+
+        Stopping further authorized execution is what abandonment is FOR, so
+        the fence stands even though this manager cannot say what exists. But
+        nothing is proved absent, so nothing is settled and the lane is not
+        released.
+        """
+        adapter = self.started()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="uncertain")
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "quiescence-unknown")
+        self.assertEqual(len(self.fences()), 1, "the generation IS fenced")
+        self.assertEqual(adapter.abandoned, [],
+                         "and nothing is destroyed on an unknown runtime")
+        self.assertEqual(self.row()["cleanup"], "pending")
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+
+    def test_reconciliation_to_uncertain_while_fencing_prevents_removal(self):
+        """The pre-fence snapshot cannot authorize post-fence destruction.
+
+        Reconciliation is independent of the authority call. If it loses a
+        positive runtime observation while the fence is in flight, the
+        abandonment may keep that fence but must not send destructive runtime
+        control on the strength of the older `running` row. This is the race
+        row required by the dossier, rather than only its already-uncertain
+        starting state.
+        """
+        adapter = self.started()
+        fence_answer = dict(self.session.fence_answer)
+
+        def reconcile_while_fencing(operands):
+            observe(self.store, attempt_id=ATTEMPT,
+                    axis="execution_runtime", value="uncertain")
+            return fence_answer
+
+        self.session.cancel = reconcile_while_fencing
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "quiescence-unknown")
+        self.assertEqual(adapter.abandoned, [],
+                         "stale positive state authorized a removal")
+        self.assertEqual(self.row()["cleanup"], "pending")
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+
+    def test_an_ending_that_settles_while_fencing_is_not_revisited(self):
+        """The other half of the same window, and the same rule.
+
+        The pre-fence check refuses a cleanup derived after an ending, but it
+        cannot see an ending that lands DURING the authority call. The window
+        is narrow and the consequence is not: an attempt whose cleanup already
+        settled must not acquire a second removal because this call was
+        already past the gate when it happened.
+        """
+        adapter = self.started()
+        fence_answer = dict(self.session.fence_answer)
+
+        def settle_while_fencing(operands):
+            observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                    value="destroyed")
+            observe(self.store, attempt_id=ATTEMPT, axis="cleanup",
+                    value="retained")
+            return fence_answer
+
+        self.session.cancel = settle_while_fencing
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "already-terminal")
+        self.assertEqual(adapter.abandoned, [],
+                         "a settled ending was destroyed a second time")
+
+    def test_a_runtime_reattached_while_fencing_is_not_the_one_declared(self):
+        """The record authorizes destroying ONE container.
+
+        A row that names a different runtime by the time the fence returns is
+        not the world the declaration was written about, and this removal is
+        not the one that was authorized -- whatever moved it.
+        """
+        adapter = self.started()
+        fence_answer = dict(self.session.fence_answer)
+
+        def reattach_while_fencing(operands):
+            beside = sqlite3.connect(self.path, isolation_level=None)
+            try:
+                beside.execute(
+                    "UPDATE attempts SET runtime_id = ? "
+                    "WHERE runtime_attempt_id = ?", ("runtime-2", ATTEMPT))
+            finally:
+                beside.close()
+            return fence_answer
+
+        self.session.cancel = reattach_while_fencing
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertEqual(adapter.abandoned, [],
+                         "a container the declaration never named was removed")
+
+    def test_an_uncertain_removal_answer_is_not_an_ending(self):
+        """The engine could not say, so the axis does not move."""
+        adapter = self.started()
+        adapter.destroy_answer = {
+            "runtime_id": "runtime-1", "state": "uncertain",
+            "why": "the engine would not say what this container is",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "not-delivered"}}
+
+        answered = self.abandon(adapter)
+
+        # A DIFFERENT DOCUMENT, and deliberately: `cleanup.unsettled` has no
+        # `cleanup` member at all, because there is no ending to name.
+        self.assertNotIn("cleanup", answered["cleanup"])
+        self.assertEqual(answered["cleanup"]["state"], "uncertain")
+        self.assertEqual(self.row()["cleanup"], "pending")
+        self.assertNotEqual(self.row()["execution_runtime"], "destroyed",
+                            "an unobserved runtime is not a removed one")
+        self.assertTrue(answered["fenced"]["fenced"],
+                        "the fence still happened and still stands")
+
+    def test_a_surviving_runtime_fails_cleanup_rather_than_retaining_it(self):
+        """`running` after a force-removal is a failed ending, not a kept one.
+
+        `retained` means material was kept on purpose. A container the engine
+        still reports running was not kept on purpose and the lane must not go
+        back into circulation on the strength of it.
+        """
+        adapter = self.started()
+        adapter.destroy_answer = {
+            "runtime_id": "runtime-1", "state": "running",
+            "why": "the container is still up after force removal",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "not-delivered"}}
+
+        answered = self.abandon(adapter)
+
+        self.assertEqual(answered["cleanup"]["cleanup"], "failed")
+        self.assertEqual(answered["cleanup"]["state"], "running")
+        self.assertEqual(self.row()["cleanup"], "failed")
+        self.assertNotEqual(self.row()["execution_runtime"], "destroyed")
+
+    def test_an_answer_about_another_runtime_is_refused(self):
+        """One attempt, one container: an answer about another proves nothing."""
+        adapter = self.started()
+        adapter.destroy_answer = {
+            "runtime_id": "runtime-9", "state": "absent",
+            "why": "some other container is absent",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "not-delivered"}}
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "identity-mismatch")
+        self.assertEqual(self.row()["cleanup"], "pending")
+        self.assertNotEqual(self.row()["execution_runtime"], "destroyed")
+
+    # --- the deliveries this manager made --------------------------------
+
+    def test_an_unsettled_delivery_holds_the_ending_open_until_it_settles(
+            self):
+        """Absence of the container is not absence of the roots it mounted.
+
+        The runtime really is gone and that observation is recorded; cleanup
+        is what has not finished, so the lane stays held and a retry finishes
+        it.
+        """
+        adapter = self.started()
+        adapter.destroy_answer = {
+            "runtime_id": "runtime-1", "state": "absent",
+            "why": "the exact abandoned runtime is absent",
+            "credentials": {"lifecycle_state": "unresolved",
+                            "why": "the credential slots would not release"},
+            "launch": {"lifecycle_state": "torn-down"}}
+
+        answered = self.abandon(adapter)
+
+        self.assertNotIn("cleanup", answered["cleanup"])
+        self.assertIn("credentials", answered["cleanup"]["why"])
+        self.assertEqual(self.row()["execution_runtime"], "destroyed",
+                         "the axis that IS true moves")
+        self.assertEqual(self.row()["cleanup"], "pending",
+                         "and the one that is not stays put")
+
+        adapter.destroy_answer = None
+        finished = self.abandon(adapter)
+
+        self.assertEqual(finished["cleanup"]["cleanup"], "retained")
+        self.assertEqual(self.row()["cleanup"], "retained")
+
+    # --- operands that changed between calls ------------------------------
+
+    def test_a_changed_reason_collides_rather_than_declaring_twice(self):
+        """One attempt is abandoned once, and the reason is part of the act.
+
+        The declaration identity is the attempt and its fixed assignment, and
+        the reason rides the signature -- so a second, differently-worded
+        declaration of the same attempt is a COLLISION rather than a second
+        record, and the operator is told instead of quietly overwriting the
+        account already in the journal.
+        """
+        adapter = self.started()
+        adapter.destroy_failure = RuntimeError("stop before settlement")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        adapter.destroy_failure = None
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter, reason="a different account entirely")
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+
+    def test_a_changed_policy_before_settlement_still_fences_only_once(self):
+        """A second policy on an UNSETTLED attempt is a retry, not a re-fence.
+
+        The retention policy rides the destroy identity and not the
+        declaration, so this derives a new cleanup operation. That is allowed
+        while the ending is unfinished -- and because the fence is taken from
+        the adopted record, the authority still sees one operation.
+        """
+        adapter = self.started()
+        adapter.destroy_failure = RuntimeError("stop before settlement")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        adapter.destroy_failure = None
+
+        answered = self.abandon(adapter,
+                                retention_policy_digest="sha256:" + "8" * 64)
+
+        tried = self.fences()
+        self.assertEqual(tried[0], tried[-1],
+                         "one authority operation across both attempts")
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        self.assertEqual(
+            adapter.abandoned[-1]["retention_policy_digest"],
+            "sha256:" + "8" * 64,
+            "the removal carries the policy it was actually called with")
+
+    def test_a_runtime_reattached_after_the_declaration_is_refused(self):
+        """The record names the container it was written about.
+
+        A declaration written when the attempt was attached to one runtime
+        must not authorize destroying a different one, however the attempt
+        came to be attached to it. The runtime rides the declaration's
+        SIGNATURE while the identity is the attempt and its fixed assignment,
+        so this is caught as a collision on the way in -- the record is never
+        adopted at all, which is a step earlier than the member comparison
+        that catches a record edited underneath the manager.
+        """
+        adapter = self.started()
+        adapter.destroy_failure = RuntimeError("stop before settlement")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        adapter.destroy_failure = None
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        try:
+            beside.execute(
+                "UPDATE attempts SET runtime_id = ? "
+                "WHERE runtime_attempt_id = ?", ("runtime-2", ATTEMPT))
+        finally:
+            beside.close()
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertEqual(len(adapter.abandoned), 1,
+                         "the second call removed nothing")
+
+    # --- the record itself ------------------------------------------------
+
+    def test_a_tampered_declaration_does_not_authorize_the_removal(self):
+        """The record IS the authorization, so a changed record authorizes
+        nothing.
+
+        Every one of its six closed members is compared against the world this
+        ending is actually for. A journal row edited underneath the manager --
+        by corruption, by a restore, by a hand at the sqlite prompt -- fails
+        that comparison rather than being carried out.
+        """
+        adapter = self.started()
+        adapter.destroy_failure = RuntimeError("stop before settlement")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        adapter.destroy_failure = None
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        beside.row_factory = sqlite3.Row
+        try:
+            row = beside.execute(
+                "SELECT operation_id, result FROM operations "
+                "WHERE kind = 'attempt.abandon'").fetchone()
+            document = json.loads(row["result"])
+            document["decision"] = "completed"
+            beside.execute("UPDATE operations SET result = ? "
+                           "WHERE operation_id = ?",
+                           (json.dumps(document), row["operation_id"]))
+        finally:
+            beside.close()
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertEqual(len(adapter.abandoned), 1,
+                         "a tampered record removes nothing further")
+
+
 class TheAxesAgreeWithTheStore(AttemptCase):
     """The vocabulary is written in two languages, and they have to agree."""
 
@@ -1928,8 +2710,22 @@ class TheFailedStartReachesTheRuledEnding(
         """W34998's capability, and ONLY it: an adapter carrying `destroy`
         instead would let this crossing reach the receipt-authorized path."""
         class Custodian:
+            # W43975: the ending settles on a directory-custody receipt, so
+            # the narrow capability carries the typed act beside its destroy.
+            custodian_image_digest = "sha256:" + "c" * 64
+
             def __init__(self):
                 self.commands = []
+                self.normalized = []
+
+            def normalize_directory(self, store, *, assignment_id, which):
+                from baton_v12.worker_manager import custody
+
+                self.normalized.append((assignment_id, which))
+                return custody._answered(
+                    "normalize", 0,
+                    {"custody": "normalize", "entries": 0, "not_ours": 0,
+                     "running_as": [0, 0]}, None)
 
             def destroy_failed_start(self, command):
                 self.commands.append(dict(command))
@@ -2340,3 +3136,93 @@ class TheFailedStartIsDurablyRecorded(ARefusedStartIsSettledRatherThanStranded):
         self.assertIn("the start failure is journalled as",
                       caught.exception.message)
         self.assertIn("runtime.start-failed:", caught.exception.message)
+
+
+class TheFailedStartEndingSurvivesInterruption(TheFailedStartReachesTheRuledEnding):
+    """W43975's public-ending matrix, for the failed-start sibling.
+
+    Inherits the ending's own fixture rather than composing a second one: the
+    question here is what the ENDING does around its directory acts, and a
+    fixture that rebuilt the start failure would be proving its own setup.
+    """
+
+    def interrupted(self, fail_on=None):
+        from baton_v12.worker_manager import custody
+
+        adapter = self.custodian()
+        adapter.normalized = []
+
+        def normalize_directory(store, *, assignment_id, which):
+            adapter.normalized.append((assignment_id, which))
+            if which == fail_on:
+                raise RuntimeError(f"the helper died over {which}")
+            return custody._answered(
+                "normalize", 0,
+                {"custody": "normalize", "entries": 0, "not_ours": 0,
+                 "running_as": [0, 0]}, None)
+
+        adapter.normalize_directory = normalize_directory
+        return adapter
+
+    def test_the_ending_binds_both_receipts_and_replays_them(self):
+        self.failed()
+        self.ended()
+        adapter = self.interrupted()
+
+        answered = self.settled(adapter)
+
+        self.assertEqual([one for _a, one in adapter.normalized],
+                         ["result", "workspace"])
+        self.assertEqual(sorted(answered["directory_custody"]),
+                         ["result", "workspace"])
+        self.assertEqual(self.settled(adapter), answered,
+                         "the settled ending did not replay")
+        self.assertEqual(len(adapter.normalized), 2,
+                         "a replayed ending normalized a root again")
+
+    def test_an_interrupted_normalization_commits_no_ending_and_resumes(self):
+        self.failed()
+        self.ended()
+        dying = self.interrupted(fail_on="workspace")
+
+        with self.assertRaises(RuntimeError):
+            self.settled(dying)
+        self.assertEqual(self.row()["cleanup"], "pending",
+                         "an ending was claimed on an unfinished custody")
+
+        resumed = self.interrupted()
+        answered = self.settled(resumed)
+
+        self.assertEqual(answered["cleanup"], "retained")
+        self.assertEqual([one for _a, one in resumed.normalized],
+                         ["workspace"],
+                         "the resumed ending renormalized a settled root")
+
+    def test_a_changed_custodian_collides_rather_than_settling(self):
+        self.failed()
+        self.ended()
+        dying = self.interrupted(fail_on="workspace")
+        with self.assertRaises(RuntimeError):
+            self.settled(dying)
+
+        other = self.interrupted()
+        other.custodian_image_digest = "sha256:" + "e" * 64
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settled(other)
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertEqual(self.row()["cleanup"], "pending")
+
+    def test_the_home_is_retained_rather_than_removed(self):
+        """A recordless ending KEEPS what it retained: it commits both
+        receipts and calls no removal at all."""
+        self.failed()
+        self.ended()
+        home = os.path.join(self.storage, ATTEMPT)
+        os.makedirs(os.path.join(home, "workspace"), exist_ok=True)
+
+        self.settled(self.interrupted())
+
+        self.assertTrue(os.path.isdir(os.path.join(home, "workspace")),
+                        "a recordless ending removed the material it retained")

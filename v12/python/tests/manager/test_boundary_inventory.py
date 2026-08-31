@@ -38,12 +38,14 @@ receiving domain and is not blanket-revalidated afterwards.
 """
 
 import ast
+import functools
 import json
 import os
 import pathlib
 import shutil
 import sqlite3
 import tempfile
+import types
 import unittest
 
 import baton_v12.worker_manager as worker_manager
@@ -154,7 +156,24 @@ class _Collecting:
 
 
 class _Custodian:
-    """collect, retain and destroy, each answering what a probe needs."""
+    """collect, retain and destroy, each answering what a probe needs.
+
+    W43975 made a directory-custody seam mandatory at every ending's ENTRY, so
+    an adapter without one is refused before the destroy observation these
+    probes are about. Carrying it here keeps each probe reaching the boundary
+    it NAMES rather than the capability check in front of it -- which is the
+    same rule the probe gate applies to every other driver.
+    """
+
+    custodian_image_digest = "sha256:" + "c" * 64
+
+    def normalize_directory(self, store, *, assignment_id, which):
+        from baton_v12.worker_manager import custody
+
+        return custody._answered(
+            "normalize", 0,
+            {"custody": "normalize", "entries": 0, "not_ours": 0,
+             "running_as": [0, 0]}, None)
 
     def __init__(self, collected=None, destroyed=None):
         self._collected = collected
@@ -243,7 +262,16 @@ CAPABILITIES = {"_session", "session", "_clock", "clock", "mint_bearer",
                 # deployment's and NOT trusted to be correct, exactly like
                 # `mint_bearer` -- so what it ANSWERS is an injected crossing
                 # and gets an owner and a probe like any other.
-                "credential_provider"}
+                "credential_provider",
+                # W43977: THE ENGINE'S OWN ANSWER. `EnginePort.__call__` is
+                # where the deployment's injected runner answers, and until
+                # this was named the universe could not discover that document
+                # or the `status`, `stdout` and `stderr` it consumes at all --
+                # so custody's listing, inspection, stop and removal paths all
+                # crossed an injected boundary the inventory could not see.
+                # Modelled once at the real crossing rather than once per
+                # vector, which is where the rule already lives.
+                "_run"}
 
 # Capabilities whose MEMBER NAME is not enough to identify a crossing. `cancel`
 # exists on the authority session AND on the provider agent, so for these the
@@ -262,11 +290,33 @@ PORTS = {"port"}
 POSITIONS = {"deadline": (1, 2)}
 
 
+# THE DISCOVERY PROJECTIONS BELOW ARE PURE AND MEMOISED, W54182. They read the
+# manager package and nothing else -- no fixture, no store, no temporary
+# directory -- so their answer is a property of the source tree and is the same
+# every time it is asked for within one process. It used to be recomputed
+# instead: `_sources` was a generator, so each of `receiving_entries`,
+# `owning_validators`, `propagated_owners`, `columns_read` and `_crossings`
+# re-walked the package and re-parsed all 21 modules between one and four times,
+# and the probe driver asked for them once per probe. That is how a 21-module
+# package reached 103,950 parses and 620 measured seconds in one test.
+#
+# EVERY CACHED ANSWER IS HANDED OUT IMMUTABLE -- a tuple, a `frozenset` or a
+# `MappingProxyType` -- because a shared mutable projection is a way for one
+# assertion to change what a later one is told. The cache is what makes the
+# result cheap; the immutability is what keeps it the same answer.
+
+
+@functools.cache
 def _sources():
-    for source in sorted(PACKAGE.rglob("*.py")):
-        if source.name in (LAYER, "__init__.py"):
-            continue
-        yield source, ast.parse(source.read_text(encoding="utf-8"), str(source))
+    """The manager package, parsed ONCE per process, in one immutable snapshot.
+
+    The trees are read-only to every walker in this file: they are traversed
+    with `ast.walk` and never mutated, so one parse serves every projection.
+    """
+    return tuple(
+        (source, ast.parse(source.read_text(encoding="utf-8"), str(source)))
+        for source in sorted(PACKAGE.rglob("*.py"))
+        if source.name not in (LAYER, "__init__.py"))
 
 
 def _functions(tree, module):
@@ -476,6 +526,16 @@ def _returned_origins(sources):
     return found
 
 
+@functools.cache
+def _helper_returns():
+    """`_returned_origins` over the one source snapshot, computed once.
+
+    Three projections need it and each used to run the four-pass fixpoint over
+    a freshly parsed package of its own.
+    """
+    return types.MappingProxyType(dict(_returned_origins(_sources())))
+
+
 def _origins(node, site, returns=None, seed=None, own_parameters=True):
     """Which local names hold a value that CROSSED a trust boundary.
 
@@ -503,17 +563,36 @@ def _origins(node, site, returns=None, seed=None, own_parameters=True):
         if origin is not None and isinstance(target, ast.Name):
             origins[target.id] = origin
 
-    for piece in ast.walk(node):
-        if isinstance(piece, ast.Assign):
-            for target in piece.targets:
-                bind(target, _source(piece.value, origins, site, returns))
-        elif isinstance(piece, (ast.For, ast.AsyncFor)):
-            bind(piece.target, _source(piece.iter, origins, site, returns))
-        elif isinstance(piece, ast.comprehension):
-            bind(piece.target, _source(piece.iter, origins, site, returns))
-    return origins
+    # TO A FIXED POINT, because `ast.walk` is BREADTH-FIRST and a binding can
+    # depend on one the walk has not reached yet.
+    #
+    # W43977 [P0]: `EnginePort.__call__` assigns `answer` inside both arms of
+    # an `if`, then joins with `taken = boundaries.document(answer, ...)` at
+    # the top level. Breadth-first visits the JOIN first -- `answer` has no
+    # origin yet -- so `taken` was bound to nothing and the engine's answer,
+    # with the `status`, `stdout` and `stderr` this manager consumes, was
+    # invisible to the universe. One more pass would have caught that one, and
+    # a chain one link longer would have needed another; a fixed point needs
+    # no guess about depth.
+    #
+    # It terminates because origins only ever GAIN names and each name's
+    # origin is derived from names already bound, so the map is monotone over
+    # a finite set of local names.
+    while True:
+        before = dict(origins)
+        for piece in ast.walk(node):
+            if isinstance(piece, ast.Assign):
+                for target in piece.targets:
+                    bind(target, _source(piece.value, origins, site, returns))
+            elif isinstance(piece, (ast.For, ast.AsyncFor)):
+                bind(piece.target, _source(piece.iter, origins, site, returns))
+            elif isinstance(piece, ast.comprehension):
+                bind(piece.target, _source(piece.iter, origins, site, returns))
+        if origins == before:
+            return origins
 
 
+@functools.cache
 def receiving_entries():
     """Every receiving trust-domain entry, from a structure no owner defines.
 
@@ -523,7 +602,7 @@ def receiving_entries():
     """
     found = set()
     crossings = _crossings()
-    _returns = _returned_origins(list(_sources()))
+    _returns = _helper_returns()
     for source, tree in _sources():
         helpers = _helpers(tree, source.name)
         returns = _returns
@@ -577,7 +656,7 @@ def receiving_entries():
             # CALLER's site, because that is where the value entered.
             found |= _through_helpers(crossings, site, node, origins,
                                       helpers)
-    return found
+    return frozenset(found)
 
 
 def _parameters(node):
@@ -618,6 +697,7 @@ def _origins_of(node, origins):
     return _source(node, origins)
 
 
+@functools.cache
 def columns_read():
     """Every persisted column name this package reads, found WITHOUT tracking.
 
@@ -639,7 +719,7 @@ def columns_read():
             read = _member_read(piece)
             if read is not None and read[1] in known:
                 found.add(read[1])
-    return found
+    return frozenset(found)
 
 
 def _crossing_of(crossings, subject):
@@ -658,6 +738,7 @@ def _crossing_of(crossings, subject):
     raise AssertionError(f"{subject} belongs to no crossing")
 
 
+@functools.cache
 def _crossings():
     """capability member -> the ONE lexical site where it crosses.
 
@@ -680,7 +761,7 @@ def _crossings():
                     raise AssertionError(
                         f"{member} crosses at {found[member]} and at {site}; a "
                         f"capability with two crossings has two owners")
-    return found
+    return types.MappingProxyType(found)
 
 
 def _helpers(tree, module):
@@ -734,6 +815,7 @@ def _through_helpers(crossings, site, node, origins, helpers):
     return found
 
 
+@functools.cache
 def owning_validators():
     """site -> {(kind, label, subject)} for every boundary call in the package.
 
@@ -747,7 +829,7 @@ def owning_validators():
     ends up applied at both of its sites rather than at one.
     """
     owners = {}
-    _returns = _returned_origins(list(_sources()))
+    _returns = _helper_returns()
     for source, tree in _sources():
         helpers = _helpers(tree, source.name)
         returns = _returns
@@ -774,7 +856,8 @@ def owning_validators():
                 owners.setdefault(site, set()).add(
                     (piece.func.attr, label,
                      _subject(piece.args[subject_at], origins)))
-    return owners
+    return types.MappingProxyType(
+        {site: frozenset(found) for site, found in owners.items()})
 
 
 def _delegations(node, origins, helpers):
@@ -802,6 +885,7 @@ def _delegations(node, origins, helpers):
                    _origins(helper, where, seed=inside, own_parameters=False))
 
 
+@functools.cache
 def propagated_owners():
     """(helper site, kind, label) for every owner attributed to a caller.
 
@@ -810,7 +894,7 @@ def propagated_owners():
     not orphans -- they are the same calls, seen where they were written.
     """
     found = set()
-    _returns = _returned_origins(list(_sources()))
+    _returns = _helper_returns()
     for source, tree in _sources():
         helpers = _helpers(tree, source.name)
         returns = _returns
@@ -819,7 +903,15 @@ def propagated_owners():
             for where, helper, inside in _delegations(node, origins, helpers):
                 for kind, label, _ in _calls_in(helper, inside, site):
                     found.add((where, kind, label))
-    return found
+    return frozenset(found)
+
+
+# EVERY MEMOISED PROJECTION, NAMED ONCE. W54182's boundedness regression clears
+# and counts exactly these, so a cached projection missing from this tuple is
+# one the check cannot see -- and a cache nobody checks is how the repeated
+# package walk came back the first time.
+MEMOISED = (_sources, _helper_returns, _crossings, receiving_entries,
+            columns_read, owning_validators, propagated_owners)
 
 
 def _calls_in(node, origins, site):
@@ -985,6 +1077,25 @@ STATED_OWNERS = {
         "forwarded to the authority's own derivation",
     ("caller", "authority_port.py:AuthorityPort.claim_signature",
      "participant"): "the same",
+    # -- W43977: the engine's answer, member by member -----------------------
+    #
+    # The ENVELOPE is layer-owned at the port -- `boundaries.document` names
+    # the three members required -- and each MEMBER's rule lives in a private
+    # owner beside it. Stated rather than layer-owned because neither rule is
+    # a boundary KIND and neither could honestly become one: an exit status is
+    # a whole number that may be ZERO, and an engine stream is text that may
+    # be EMPTY, which is exactly what a quiet engine writes. `boundaries.text`
+    # and `boundaries.injected` refuse both of those, so naming either here
+    # would make the rule wrong to satisfy the table -- and a round of this
+    # Work proved it, with thirty failures and ninety-nine errors in
+    # `test_oci`.
+    ("injected", "oci.py:EnginePort.__call__", "run.status"):
+        "owned by `oci.py:_status`: a whole number and never a bool, and zero "
+        "is the ordinary answer rather than an absence",
+    ("injected", "oci.py:EnginePort.__call__", "run.stdout"):
+        "owned by `oci.py:_stream`: storable text that MAY be empty, because "
+        "nothing on this stream is what a quiet engine writes",
+    ("injected", "oci.py:EnginePort.__call__", "run.stderr"): "the same",
     # -- outbound: 4bz leaves the values to the next receiver ----------------
     ("caller", "documents.py:offer_bearer", "issued"):
         "an outbound constructor receives this build's own values; the "
@@ -1666,6 +1777,50 @@ DELEGATED = {
         ("oci.py:_launch_mount", "caller:pair"),
     ("caller", "oci.py:OciAdapter.__init__", "run"):
         ("oci.py:EnginePort.__init__", "caller:run"),
+    # -- W43977: the custody acts, owned where each rule actually lives -------
+    #
+    # `custody_act` is a COMPOSER: it hands every operand to the private
+    # composer that owns it and then to the engine port, and owning them again
+    # at this entry would be a second spelling of five rules. The delegates
+    # below are the sites that refuse, and each is named rather than implied.
+    #
+    # `_custody_vector` performs the durable lookup and the argv composition in
+    # ONE act -- eleven review rounds went into removing the interval between
+    # them -- so it is also where the engine, the image identity, the verb, the
+    # attempt and the root kind are held.
+    ("caller", "custody.py:custody_act", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    ("caller", "custody.py:custody_act", "run"):
+        ("oci.py:EnginePort.__init__", "caller:run"),
+    ("caller", "custody.py:custody_act", "operation"):
+        ("custody.py:check_custody_operation", "caller:operation"),
+    ("caller", "custody.py:custody_act", "which"):
+        ("custody.py:check_custody_root", "caller:which"),
+    ("caller", "custody.py:custody_act", "assignment_id"):
+        ("custody.py:_derived_root", "caller:assignment_id"),
+    ("caller", "custody.py:custody_act", "image_digest"):
+        ("custody.py:_custody_vector", "caller:image_digest"),
+    # The two public composition entries hold the attempt and the capability
+    # themselves; the root kind is the one rule they share with the act, and
+    # W43977 gave it a single named owner rather than the three inline copies
+    # it had -- which is the same shape the verb has had since W36540.
+    ("caller", "custody.py:normalize_directory", "which"):
+        ("custody.py:check_custody_root", "caller:which"),
+    ("caller", "custody.py:adopted_directory_custody", "which"):
+        ("custody.py:check_custody_root", "caller:which"),
+    # -- W47225: the launch delivery a restarted process adopts ---------------
+    #
+    # Adoption AUTHORS what this component would have written, through the same
+    # `launch_document` that wrote it, and requires the canonical bytes to
+    # match. So the three values it is given are owned exactly where the
+    # writing side owns them -- which is the whole reason adoption reuses the
+    # authoring owner instead of re-implementing its rules.
+    ("caller", "launch.py:adopt", "session"):
+        ("launch.py:_value", "caller:given"),
+    ("caller", "launch.py:adopt", "contract"):
+        ("launch.py:_value", "caller:given"),
+    ("caller", "launch.py:adopt", "role"):
+        ("launch.py:_value", "caller:given"),
     # The ONE resolved identity a delivery is made under, owned once at
     # construction so the started image and the reconciliation labels are one
     # account rather than two.
@@ -1801,6 +1956,15 @@ DELEGATED = {
     ("caller", "workspaces.py:assignment_workspace", "storage"):
         ("workspaces.py:_real", "caller:path"),
     ("caller", "workspaces.py:discard_workspace", "storage"):
+        ("workspaces.py:_real", "caller:path"),
+    # W43975 and W39358 added two more entries onto the same store, and they
+    # are handed to the same one owner: the read-only adoption a resuming
+    # deployment uses, and the selective removal an ordinary ending performs.
+    # Registered here rather than left for whoever next runs the inventory,
+    # because they are debts those Works created.
+    ("caller", "workspaces.py:adopted_assignment_workspace", "storage"):
+        ("workspaces.py:_real", "caller:path"),
+    ("caller", "workspaces.py:discard_execution_roots", "storage"):
         ("workspaces.py:_real", "caller:path"),
     # W19784: the assignment's own read-only root, delegated to the same one
     # owner as every other path this component is handed.
@@ -2475,6 +2639,31 @@ class BoundaryCase(unittest.TestCase):
         found[(at(f"{A}:EnginePort.__init__", "run"),
                "the engine's run operation")] = (
             "the engine's run operation", lambda: oci.EnginePort(object()))
+        # W43977: AND WHAT THAT CAPABILITY ANSWERS, which is a different
+        # crossing from whether it is callable. The port is the one place a
+        # deployment's runner speaks to this manager -- every vector this
+        # module composes, and every custody listing, inspection, stop and
+        # removal, arrives back through here -- so the answer is owned once,
+        # at the real crossing, rather than once per vector.
+        def answering(**members):
+            # A NON-ZERO STATUS and non-empty streams, so a probe that means
+            # to spoil ONE member is not stopped by the injected-answer rule
+            # refusing another's falsey default first.
+            body = {"status": 1, "stdout": "out", "stderr": "err"}
+            body.update(members)
+            return lambda: oci.EnginePort(lambda argv: body)(
+                ["docker", "version"])
+
+        found[(("injected", f"{A}:EnginePort.__call__", "run"),
+               "the engine's answer")] = (
+            "the engine's answer",
+            lambda: oci.EnginePort(lambda argv: "not a document")(
+                ["docker", "version"]))
+        # The three members this manager consumes are DISCOVERED now and have
+        # no layer owner the scanner can see; W43977's handoff explains why
+        # and what closing it needs. Probing them would assert an ownership
+        # that does not exist.
+        del answering
         # A mount, member by member.
         # THE EMPTY STRING RATHER THAN THE SURROGATE for members inside an
         # owned envelope: the envelope's own encodability walk refuses a
@@ -3138,6 +3327,19 @@ class BoundaryCase(unittest.TestCase):
                       **answer}
 
         class _RefusedSessionCustodian:
+            # W43975 made the directory-custody seam mandatory at every
+            # ending's ENTRY, so a driver without one is refused before the
+            # observation this probe NAMES.
+            custodian_image_digest = "sha256:" + "c" * 64
+
+            def normalize_directory(self, store, *, assignment_id, which):
+                from baton_v12.worker_manager import custody
+
+                return custody._answered(
+                    "normalize", 0,
+                    {"custody": "normalize", "entries": 0, "not_ours": 0,
+                     "running_as": [0, 0]}, None)
+
             def destroy_refused_session(self, command):
                 return answer or None
 
@@ -3162,6 +3364,19 @@ class BoundaryCase(unittest.TestCase):
                       **answer}
 
         class _FailedStartCustodian:
+            # W43975 made the directory-custody seam mandatory at every
+            # ending's ENTRY, so a driver without one is refused before the
+            # observation this probe NAMES.
+            custodian_image_digest = "sha256:" + "c" * 64
+
+            def normalize_directory(self, store, *, assignment_id, which):
+                from baton_v12.worker_manager import custody
+
+                return custody._answered(
+                    "normalize", 0,
+                    {"custody": "normalize", "entries": 0, "not_ours": 0,
+                     "running_as": [0, 0]}, None)
+
             def destroy_failed_start(self, command):
                 return answer or None
 
@@ -3364,7 +3579,20 @@ class BoundaryCase(unittest.TestCase):
             body.update(overrides)
             return lambda: launch.launch_document(**body)
 
+        def adopting(**overrides):
+            body = {"storage": "/srv/launch", "attempt_id": "attempt-1",
+                    "session": "session-1", "contract": "do the thing",
+                    "role": "implementer"}
+            body.update(overrides)
+            place = body.pop("storage")
+            return lambda: launch.adopt(place, **body)
+
         found = {
+            (at(f"{L}:adopt", "attempt_id"), "a launch attempt id"): (
+                "a launch attempt id", adopting(attempt_id=7)),
+            (at(f"{L}:adopt", "storage"),
+             "the manager's launch storage"): (
+                "the manager's launch storage", adopting(storage=7)),
             (at(f"{L}:materialize", "attempt_id"), "a launch attempt id"): (
                 "a launch attempt id", making(attempt_id=7)),
             (at(f"{L}:materialize", "storage"),
@@ -3382,6 +3610,12 @@ class BoundaryCase(unittest.TestCase):
             found[(at(f"{L}:materialize", name),
                    "a launch document value")] = (
                 "a launch document value", making(**{name: 7}))
+            # W47225: adoption AUTHORS the expected document through the same
+            # owner before it reads anything, so the same refusal arrives
+            # through it -- which is what makes that delegation a fact.
+            found[(at(f"{L}:adopt", name),
+                   "a launch document value")] = (
+                "a launch document value", adopting(**{name: 7}))
         # And the pair the adapter's capability answers with, owned where the
         # argv is composed exactly as a credential delivery's pairs are.
         found[(("caller", "oci.py:run_vector", "launch_delivered"),
@@ -3446,7 +3680,8 @@ class BoundaryCase(unittest.TestCase):
             body.update(overrides)
             return lambda: home.adopt(
                 body["record"], attempt_id=body["attempt_id"],
-                runtime_id=body["runtime_id"])
+                runtime_id=body["runtime_id"],
+                workspace_group=self.configured_group())
 
         def delivery(**spoiled):
             body = {"attempt_id": "attempt-1", "root": root,
@@ -3471,6 +3706,7 @@ class BoundaryCase(unittest.TestCase):
                 ("materialize", lambda: home.materialize(
                     [{"slot": "api", "provider": "vault",
                       "reference": "kv/one"}], attempt_id=7,
+                    workspace_group=self.configured_group(),
                     credential_provider=lambda one, two: "x" * 40)),
                 ("adopt", adopting(attempt_id=7))):
             found[(at(f"{C}:CredentialHome.{site}", "attempt_id"),
@@ -3480,8 +3716,10 @@ class BoundaryCase(unittest.TestCase):
         found[(at(f"{C}:CredentialHome.materialize", "credential_provider"),
                "a credential provider")] = (
             "a credential provider",
-            lambda: home.materialize([], attempt_id="attempt-1",
-                                     credential_provider="not a capability"))
+            lambda: home.materialize(
+                [], attempt_id="attempt-1",
+                workspace_group=self.configured_group(),
+                credential_provider="not a capability"))
         found[(at(f"{C}:CredentialHome.discard_orphans", "live"),
                "a live attempt id")] = (
             "a live attempt id", lambda: home.discard_orphans(live=[7]))
@@ -3561,6 +3799,7 @@ class BoundaryCase(unittest.TestCase):
         def materializing(resolution, mint=None):
             return lambda: home.materialize(
                 resolution, attempt_id="attempt-1",
+                workspace_group=self.configured_group(),
                 credential_provider=mint or (lambda one, two: "x" * 40))
 
         def resolved(**spoiled):
@@ -3598,6 +3837,7 @@ class BoundaryCase(unittest.TestCase):
             "a materialized credential",
             lambda: writable.materialize(
                 [resolved()], attempt_id="attempt-1",
+                workspace_group=self.configured_group(),
                 credential_provider=lambda one, two: 7))
         found[(at(f"{C}:Delivery.__init__", "slots"),
                "a delivered credential slot")] = (
@@ -4673,6 +4913,25 @@ class BoundaryCase(unittest.TestCase):
             (at("workspaces.py:discard_workspace", "storage"),
              "a filesystem root"): ("a filesystem root",
                 lambda: workspaces.discard_workspace(SURROGATE, "a-1")),
+            # W43975 and W39358 put two more entries onto the same store, and
+            # both reach `_real` before anything else: the read-only adoption
+            # a resuming deployment uses, and the selective removal an
+            # ordinary ending performs.
+            (at("workspaces.py:adopted_assignment_workspace", "storage"),
+             "a filesystem root"): ("a filesystem root",
+                lambda: workspaces.adopted_assignment_workspace(
+                    SURROGATE, "a-1")),
+            (at("workspaces.py:discard_execution_roots", "storage"),
+             "a filesystem root"): ("a filesystem root",
+                lambda: workspaces.discard_execution_roots(SURROGATE, "a-1")),
+            (at("workspaces.py:adopted_assignment_workspace", "assignment_id"),
+             "an assignment identity"): ("an assignment identity",
+                lambda: workspaces.adopted_assignment_workspace(
+                    "/srv/workspaces", 7)),
+            (at("workspaces.py:discard_execution_roots", "assignment_id"),
+             "an assignment identity"): ("an assignment identity",
+                lambda: workspaces.discard_execution_roots(
+                    "/srv/workspaces", 7)),
             # W19784: the input root, at the same single owner. `_real`
             # refuses the surrogate as TEXT, before the pair is validated and
             # before anything reaches the filesystem -- so this probe proves
@@ -5434,6 +5693,23 @@ class EveryReceivingEntryHasOneOwner(BoundaryCase):
             with self.subTest(domain=domain):
                 self.assertGreaterEqual(counted[domain], least)
 
+    def test_the_universe_sees_the_engine_answer_and_every_consumed_member(self):
+        """The branch join must not hide members of an injected answer.
+
+        W43977 review 2026-08-30T18:25:36Z. `ast.walk` reaches the top-level
+        `taken = document(answer, ...)` before either nested assignment to
+        `answer`, so a one-pass origin projection saw the envelope and lost
+        all three members subsequently consumed from it. The inventory must
+        discover these from source structure; a declaration table would make
+        the check circular again.
+        """
+        entries = receiving_entries()
+        for subject in ("run", "run.status", "run.stdout", "run.stderr"):
+            with self.subTest(subject=subject):
+                self.assertIn(
+                    ("injected", "oci.py:EnginePort.__call__", subject),
+                    entries)
+
     def test_every_site_is_lexical(self):
         """Module, class and function -- because a name alone collapses methods.
 
@@ -5767,8 +6043,117 @@ class EveryProbeProvesItArrived(BoundaryCase):
             (attempt_id,)).fetchone()
         return {key: found[key] for key in found.keys()}
 
+    def custody_probes(self):
+        """One driver per (entry, label) W43977 declared for `custody.py`.
+
+        EACH DRIVES THE DELEGATE'S OWN REFUSAL, which is the whole point of a
+        delegation: `custody_act` forwards these to the private composer and
+        the engine port, so the SAME refusal has to arrive through the public
+        entry or the declaration is a note rather than a fact.
+
+        THE ORDER IS WHY EACH PROBE VARIES ONE OPERAND. `_custody_vector`
+        holds the engine, then the image digest, then the verb, and only then
+        performs the durable lookup that owns the attempt and the root kind --
+        so a probe that spoiled two would prove the earlier one twice and the
+        later one never.
+        """
+        from baton_v12.worker_manager import custody
+
+        def at(site, subject):
+            return ("caller", f"custody.py:{site}", subject)
+
+        def acting(**overrides):
+            body = {"engine": "docker", "run": lambda argv: {},
+                    "image_digest": self.OCI_IMAGE, "store": self.store,
+                    "assignment_id": "attempt-1", "operation": "normalize",
+                    "which": "workspace"}
+            body.update(overrides)
+            engine = body.pop("engine")
+            run = body.pop("run")
+            return lambda: custody.custody_act(engine, run, **body)
+
+        class Seam:
+            custodian_image_digest = "sha256:" + "c" * 64
+
+            def normalize_directory(self, store, *, assignment_id, which):
+                raise AssertionError("the root kind is held before the act")
+
+        class Untyped:
+            """Carries the act and no identity to sign it with."""
+            custodian_image_digest = 7
+
+            def normalize_directory(self, store, *, assignment_id, which):
+                raise AssertionError("the image identity is held first")
+
+        found = {
+            # The two owners this module holds directly, each at its own site.
+            (at("check_custody_operation", "operation"),
+             "a custody operation"): (
+                "a custody operation",
+                lambda: custody.check_custody_operation(7)),
+            (at("check_custody_root", "which"), "a custody root name"): (
+                "a custody root name", lambda: custody.check_custody_root(7)),
+            # The attempt, at both public composition entries.
+            (at("normalize_directory", "assignment_id"),
+             "an assignment identity"): (
+                "an assignment identity",
+                lambda: custody.normalize_directory(
+                    self.store, Seam(), assignment_id=7, which="workspace")),
+            (at("adopted_directory_custody", "assignment_id"),
+             "an assignment identity"): (
+                "an assignment identity",
+                lambda: custody.adopted_directory_custody(
+                    self.store, Seam(), 7, "workspace")),
+            # The typed seam itself: it must BE the act, and it must carry the
+            # identity the receipt is signed with. Two rules, two probes.
+            (at("normalize_directory", "custody"),
+             "the runtime adapter's directory-custody act"): (
+                "the runtime adapter's directory-custody act",
+                lambda: custody.normalize_directory(
+                    self.store, object(), assignment_id="attempt-1",
+                    which="workspace")),
+            (at("normalize_directory", "custody"),
+             "the custodian image identity this act is signed with"): (
+                "the custodian image identity this act is signed with",
+                lambda: custody.normalize_directory(
+                    self.store, Untyped(), assignment_id="attempt-1",
+                    which="workspace")),
+            (at("adopted_directory_custody", "custody"),
+             "the custodian image identity this act is signed with"): (
+                "the custodian image identity this act is signed with",
+                lambda: custody.adopted_directory_custody(
+                    self.store, Untyped(), "attempt-1", "workspace")),
+            (at("custody_act", "engine"), "an engine name"): (
+                "an engine name", acting(engine=7)),
+            (at("custody_act", "run"), "the engine's run operation"): (
+                "the engine's run operation", acting(run=7)),
+            (at("custody_act", "image_digest"), "an image digest"): (
+                "an image digest", acting(image_digest=7)),
+            (at("custody_act", "operation"), "a custody operation"): (
+                "a custody operation", acting(operation=7)),
+            (at("custody_act", "which"), "a custody root name"): (
+                "a custody root name", acting(which=7)),
+            (at("custody_act", "assignment_id"), "an assignment identity"): (
+                "an assignment identity", acting(assignment_id=7)),
+            # The two public composition entries share the one root-kind owner
+            # with the act, and each holds it before it touches the capability
+            # it was given -- which is what the `Seam` above asserts by
+            # refusing to be reached.
+            (at("normalize_directory", "which"), "a custody root name"): (
+                "a custody root name",
+                lambda: custody.normalize_directory(
+                    self.store, Seam(), assignment_id="attempt-1", which=7)),
+            (at("adopted_directory_custody", "which"),
+             "a custody root name"): (
+                "a custody root name",
+                lambda: custody.adopted_directory_custody(
+                    self.store, Seam(), "attempt-1", 7)),
+        }
+        return found
+
     def all_probes(self):
         return {**self.probes(), **self.column_probes(),
+                **self.custody_probes(),
                 **self.attempt_probes(), **self.lane_probes(),
                 **self.session_probes(), **self.output_probes(),
                 **self.interrogation_probes(), **self.oci_probes(),
@@ -5812,15 +6197,40 @@ class EveryProbeProvesItArrived(BoundaryCase):
         self.assertEqual(sorted(declared - wanted), [], "probed, never owned")
 
     def test_every_declared_probe_reaches_its_named_boundary(self):
-        for entry, fragment in sorted(self.all_probes()):
+        # THE KEY UNIVERSE ONCE, THE FIXTURE-BOUND CATALOG PER PROBE. W54182:
+        # which (entry, label) pairs exist is a property of the source inventory
+        # and the static probe tables, so the keys are taken once. The catalog's
+        # VALUES are not a property of the source: its closures capture THIS
+        # fixture's store, credential homes and ports, so a catalog carried
+        # across fixtures would either hand a later probe an already-closed
+        # store or let two probes share one. It is rebuilt inside each fresh
+        # fixture instead, which the memoised discovery above makes cheap.
+        keys = sorted(self.all_probes())
+        # AND THE FRAMEWORK'S OWN FIXTURE IS RELEASED BEFORE THE LOOP. `unittest`
+        # already called `setUp` once to get here; leaving its store open would
+        # be the same leak this correction is about, one fixture smaller.
+        self.doCleanups()
+        for entry, fragment in keys:
             with self.subTest(entry=entry, label=fragment):
-                self.setUp()
-                full, probe = self.all_probes()[(entry, fragment)]
-                # The fragment is what the SOURCE says; the full label is what
-                # the refusal must carry. Requiring the one to contain the other
-                # is what stops a probe naming a boundary it never reaches.
-                self.assertIn(fragment, full)
-                self.refusing(full, probe)
+                # ONE FIXTURE PER PROBE, RECLAIMED IMMEDIATELY -- including when
+                # the probe fails and when `setUp` itself does, which is why the
+                # setup is inside the `try`. This loop used to call `setUp` 549
+                # times against one cleanup stack: 1,098 temporary directories
+                # and SQLite connections waited for the end of the test while
+                # `self._root`, `self.store`, `self.session` and `self.port`
+                # were overwritten under them, and the measured file-descriptor
+                # count grew with the probe count instead of staying flat.
+                try:
+                    self.setUp()
+                    full, probe = self.all_probes()[(entry, fragment)]
+                    # The fragment is what the SOURCE says; the full label is
+                    # what the refusal must carry. Requiring the one to contain
+                    # the other is what stops a probe naming a boundary it never
+                    # reaches.
+                    self.assertIn(fragment, full)
+                    self.refusing(full, probe)
+                finally:
+                    self.doCleanups()
 
     def test_the_missing_probe_check_can_actually_fail(self):
         """Every entry has a probe today, so relaxing the check changes no
@@ -5969,6 +6379,12 @@ WITNESSES = {
     ("caller", "authority_port.py:AuthorityPort.claim_signature",
      "participant"):
         "test_a_forwarded_operand_reaches_the_authority_unchanged",
+    ("injected", "oci.py:EnginePort.__call__", "run.status"):
+        "test_an_engine_status_is_a_whole_number_and_zero_is_ordinary",
+    ("injected", "oci.py:EnginePort.__call__", "run.stdout"):
+        "test_an_engine_stream_is_text_that_may_be_empty",
+    ("injected", "oci.py:EnginePort.__call__", "run.stderr"):
+        "test_a_quiet_engine_stderr_is_not_a_fault",
     ("caller", "documents.py:offer_bearer", "issued"):
         "test_an_outbound_constructor_refuses_a_shape_its_contract_omits",
     ("caller", "documents.py:offer_bearer", "bearer"):
@@ -6251,6 +6667,49 @@ class StatedRules(BoundaryCase):
 
     # -- W6627's stated owners, exercised through the public operation -------
 
+    # -- W43977's engine-answer members, one witness each --------------------
+
+    @staticmethod
+    def _answering(**members):
+        from baton_v12.worker_manager import oci
+
+        body = {"status": 1, "stdout": "out", "stderr": "err"}
+        body.update(members)
+        return oci.EnginePort(lambda argv: body)(["docker", "version"])
+
+    def test_an_engine_status_is_a_whole_number_and_zero_is_ordinary(self):
+        """`_status` owns it, and ZERO is what success looks like.
+
+        A rule that refused zero would refuse every engine act that worked,
+        which is why no existing boundary kind fits this member.
+        """
+        self.assertEqual(self._answering(status=0)["status"], 0)
+        # EACH IS JSON DATA and wrong only for THIS member: the envelope's own
+        # walk refuses a float or bytes first, so such a probe would prove the
+        # envelope's rule and call it the member's.
+        for wrong in ("0", True, None, []):
+            with self.subTest(status=wrong):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self._answering(status=wrong)
+                self.assertIn("exit status", str(caught.exception))
+
+    def test_an_engine_stream_is_text_that_may_be_empty(self):
+        """`_stream` owns it, and the EMPTY string is admitted on purpose."""
+        self.assertEqual(self._answering(stdout="")["stdout"], "")
+        for wrong in (7, None, {}):
+            with self.subTest(stdout=wrong):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self._answering(stdout=wrong)
+                self.assertIn("stdout", str(caught.exception))
+
+    def test_a_quiet_engine_stderr_is_not_a_fault(self):
+        """The same owner at the other stream, witnessed independently: two
+        entries that share a rule are still two crossings."""
+        self.assertEqual(self._answering(stderr="")["stderr"], "")
+        with self.assertRaises(ContractRefusal) as caught:
+            self._answering(stderr=[])
+        self.assertIn("stderr", str(caught.exception))
+
     def test_an_interrogation_discriminator_decides_before_anything_is_read(
             self):
         """An unrecognised answer is refused rather than read as the least
@@ -6338,8 +6797,10 @@ class StatedRules(BoundaryCase):
                     credentials.resolved_delivery(spoiled, profile={})
             with self.subTest(spoiled=spoiled, door="materialize"):
                 with self.assertRaises(ContractRefusal):
-                    home.materialize(spoiled, attempt_id="attempt-1",
-                                     credential_provider=lambda a, b: "x" * 40)
+                    home.materialize(
+                        spoiled, attempt_id="attempt-1",
+                        workspace_group=self.configured_group(),
+                        credential_provider=lambda a, b: "x" * 40)
             with self.subTest(spoiled=spoiled, door="Delivery"):
                 with self.assertRaises(ContractRefusal):
                     self.a_delivery(slots=spoiled)
@@ -6488,6 +6949,7 @@ class StatedRules(BoundaryCase):
                 ["api"], profile={"api": {"provider": "vault",
                                           "reference": "kv/one"}}),
             attempt_id="attempt-1",
+            workspace_group=self.configured_group(),
             credential_provider=lambda one, two: "z" * 40)
         # W26291 re-review [P1]: a start REQUIRES a materialized launch
         # document, so this witness carries one — otherwise it would refuse
@@ -7945,6 +8407,273 @@ class AnIdentityIsMoreThanAShape(BoundaryCase):
         self.assertEqual(
             [entry for entry in {**NO_PROBE, invented: "fabricated"}
              if not layer_labels(entry)], [invented])
+
+
+# The label a substituted probe proves it arrived at, for the driver regressions
+# below. It is this file's own string rather than a real boundary's, because
+# what those tests exercise is the LOOP, not the package.
+PROBE_LABEL = "a witnessed boundary"
+
+
+class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
+    """W54182: the inventory's discovery is pure, so it is computed once.
+
+    Before this, `_sources` was a generator and the projections below rebuilt it
+    on every call: one `all_probes()` walked the package nine times and parsed
+    189 files, and the probe driver asked for a catalog once per probe. The
+    repetition was invisible because every rebuild agreed with the last one --
+    which is why the check is on the WORK, not on the answer.
+    """
+
+    def counting(self):
+        """`ast.parse`, replaced by one that records the file it was given."""
+        parsed = []
+        parse = ast.parse
+
+        def counted(text, *rest, **named):
+            parsed.append(rest[0] if rest else None)
+            return parse(text, *rest, **named)
+
+        self.addCleanup(setattr, ast, "parse", parse)
+        ast.parse = counted
+        return parsed
+
+    def test_the_package_is_parsed_once_however_many_projections_ask(self):
+        modules = [source for source in sorted(PACKAGE.rglob("*.py"))
+                   if source.name not in (LAYER, "__init__.py")]
+        self.assertGreater(len(modules), 15)
+        for projection in MEMOISED:
+            projection.cache_clear()
+        parsed = self.counting()
+        for _ in range(2):
+            for projection in (receiving_entries, owning_validators,
+                               propagated_owners, columns_read, _crossings):
+                projection()
+        self.assertEqual(sorted(parsed), sorted(str(found) for found in modules),
+                         "the package is walked and parsed more than once")
+
+    def test_a_projection_answers_with_the_same_object_every_time(self):
+        for projection in MEMOISED:
+            with self.subTest(projection=projection.__name__):
+                self.assertIs(projection(), projection())
+
+    def test_no_caller_can_poison_a_cached_projection(self):
+        """A shared projection is only safe if nobody can edit it.
+
+        Every consumer takes a set difference, a membership test or a sorted
+        list; none of them may reach the one cached answer the next assertion
+        will be given.
+        """
+        self.assertIsInstance(_sources(), tuple)
+        for projection in (receiving_entries, columns_read, propagated_owners):
+            with self.subTest(projection=projection.__name__):
+                self.assertIsInstance(projection(), frozenset)
+        for projection in (_crossings, owning_validators, _helper_returns):
+            with self.subTest(projection=projection.__name__):
+                self.assertIsInstance(projection(), types.MappingProxyType)
+                with self.assertRaises(TypeError):
+                    projection()["nowhere.py:invented"] = "invented"
+        for site, found in owning_validators().items():
+            with self.subTest(site=site):
+                self.assertIsInstance(found, frozenset)
+        entries = receiving_entries()
+        self.assertGreater(len(entries), 50)
+        taken = set(entries)
+        taken.clear()
+        self.assertEqual(len(receiving_entries()), len(entries))
+
+    def test_a_probe_catalog_costs_no_further_discovery(self):
+        """The driver builds one catalog per probe, and that has to be cheap.
+
+        The catalog is fixture-bound and cannot be shared; what made rebuilding
+        it cost 1.1 seconds was the discovery underneath, and that is shared.
+        """
+        case = EveryProbeProvesItArrived(
+            "test_every_declared_probe_reaches_its_named_boundary")
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        case.all_probes()
+        parsed = self.counting()
+        first = set(case.all_probes())
+        second = set(case.all_probes())
+        self.assertEqual(parsed, [])
+        self.assertEqual(first, second)
+        self.assertGreater(len(first), 400)
+
+
+class TheProbeDriverIsBounded(unittest.TestCase):
+    """W54182: the probe driver's fixture lifetime, as a check.
+
+    The driver used to call `setUp` once per probe against ONE cleanup stack, so
+    549 probes registered 1,098 pending cleanups, overwrote `self.store` under
+    each of them and grew the process file-descriptor table for the whole run.
+    Every test here runs the SHIPPED driver method; the only substitution is the
+    catalog it iterates, so the loop, the per-probe setup and the teardown under
+    test are the real ones.
+
+    Checking the eventual framework teardown would not do: that teardown is what
+    the leaking shape relied on, and it passed throughout.
+    """
+
+    def driving(self, *probes, opening=None):
+        """Run the real driver over a catalog of `probes`.
+
+        Each probe is called with the live case and every fixture `setUp` has
+        produced so far, in creation order and INCLUDING the one `unittest`
+        itself opened before the test method began. `opening` is called with
+        each fixture's index as it is created, so a setup failure can be staged.
+        """
+        case = EveryProbeProvesItArrived(
+            "test_every_declared_probe_reaches_its_named_boundary")
+        fixtures = []
+        builds = []
+        opened = case.setUp
+
+        def recording():
+            opened()
+            fixtures.append((case.root, case.store))
+            if opening is not None:
+                opening(len(fixtures) - 1)
+
+        def catalog():
+            builds.append(case.store)
+            return {(("caller", f"probe.py:probe_{index:03d}", "operand"),
+                     PROBE_LABEL): (PROBE_LABEL,
+                                    lambda run=run: run(case, fixtures))
+                    for index, run in enumerate(probes)}
+
+        case.setUp = recording
+        case.all_probes = catalog
+        result = unittest.TestResult()
+        case.run(result)
+        return case, result, fixtures, builds
+
+    def refuse(self):
+        """What an arriving probe does: refuse at the label it was named for."""
+        raise ContractRefusal("integrity", "schema", PROBE_LABEL)
+
+    def closed(self, store):
+        """Whether this store's connection is gone, asked through its own API."""
+        try:
+            store.operation_record("op-absent")
+        except sqlite3.ProgrammingError:
+            return True
+        return False
+
+    def test_each_probe_runs_in_its_own_reclaimed_fixture(self):
+        seen = []
+
+        def probe(case, fixtures):
+            seen.append([(os.path.isdir(root), self.closed(store))
+                         for root, store in fixtures])
+            self.refuse()
+
+        case, result, fixtures, _ = self.driving(probe, probe, probe)
+        self.assertEqual((result.failures, result.errors), ([], []))
+        # The framework's own fixture, then exactly one more per probe.
+        self.assertEqual(len(fixtures), 4)
+        self.assertEqual(len({root for root, _ in fixtures}), 4)
+        self.assertEqual(len({id(store) for _, store in fixtures}), 4)
+        for index, earlier in enumerate(seen):
+            with self.subTest(probe=index):
+                self.assertEqual(len(earlier), index + 2)
+                # This probe's own fixture is live and open ...
+                self.assertEqual(earlier[-1], (True, False))
+                # ... and every fixture before it, the framework's included, is
+                # already removed and closed rather than waiting for the end.
+                self.assertEqual(earlier[:-1], [(False, True)] * (index + 1))
+        self.assertEqual(case._cleanups, [])
+
+    def test_a_failing_probe_releases_its_fixture_before_the_next(self):
+        """The `finally` is the point: a probe that fails is a probe that ran.
+
+        The failure this stages is the vacuity one -- an operation that returns
+        instead of refusing -- because that is the failure the real inventory
+        reports, and it must not also leak a store.
+        """
+        seen = []
+
+        def accepting(case, fixtures):
+            seen.append(len(fixtures))
+
+        def following(case, fixtures):
+            seen.append([(os.path.isdir(root), self.closed(store))
+                         for root, store in fixtures[:-1]])
+            self.refuse()
+
+        case, result, fixtures, _ = self.driving(accepting, following)
+        self.assertEqual(result.errors, [])
+        self.assertEqual(len(result.failures), 1)
+        self.assertIn("accepted", str(result.failures[0][1]))
+        self.assertEqual(seen[1], [(False, True), (False, True)])
+        self.assertEqual(len(fixtures), 3)
+        self.assertEqual(case._cleanups, [])
+
+    def test_a_fixture_that_fails_to_open_is_still_reclaimed(self):
+        """Setup is inside the `try`, so a half-built fixture is not stranded."""
+        def breaking(index):
+            if index == 2:
+                raise RuntimeError("the fixture did not open")
+
+        case, result, fixtures, _ = self.driving(
+            lambda case, fixtures: self.refuse(),
+            lambda case, fixtures: self.refuse(),
+            opening=breaking)
+        self.assertEqual(result.failures, [])
+        self.assertEqual(len(result.errors), 1)
+        self.assertIn("the fixture did not open", str(result.errors[0][1]))
+        self.assertEqual(len(fixtures), 3)
+        for root, store in fixtures:
+            with self.subTest(root=root):
+                self.assertFalse(os.path.isdir(root))
+                self.assertTrue(self.closed(store))
+        self.assertEqual(case._cleanups, [])
+
+    def test_nothing_accumulates_with_the_probe_count(self):
+        """The measured defect, stated as an invariant.
+
+        Twenty setups took the process from four file descriptors to sixty-four
+        and left forty pending cleanups. What has to be true is that neither the
+        cleanup stack nor the number of live fixtures depends on how many probes
+        have already run.
+        """
+        depths = []
+        live = []
+
+        def probe(case, fixtures):
+            depths.append(len(case._cleanups))
+            live.append(sum(1 for root, _ in fixtures if os.path.isdir(root)))
+            self.refuse()
+
+        for count in (2, 12):
+            depths.clear()
+            live.clear()
+            case, result, fixtures, _ = self.driving(*[probe] * count)
+            with self.subTest(probes=count):
+                self.assertEqual((result.failures, result.errors), ([], []))
+                self.assertEqual(len(fixtures), count + 1)
+                # One temporary directory and one SQLite connection at a time,
+                # whatever the probe count.
+                self.assertEqual(live, [1] * count)
+                self.assertEqual(depths, [2] * count)
+                self.assertEqual(case._cleanups, [])
+
+    def test_every_probes_catalog_is_built_against_its_own_fixture(self):
+        """The catalog cannot be hoisted: its closures capture this fixture.
+
+        One current catalog captured eighty stores, twenty-four credential homes
+        and forty ports directly, so a catalog carried across fixtures would
+        hand a later probe an already-closed store. The keys are taken once; the
+        values are rebuilt where they are used.
+        """
+        case, result, fixtures, builds = self.driving(
+            lambda case, fixtures: self.refuse(),
+            lambda case, fixtures: self.refuse())
+        self.assertEqual((result.failures, result.errors), ([], []))
+        # Once for the key universe, then once inside each probe's fixture.
+        self.assertEqual(len(builds), 3)
+        self.assertEqual([id(store) for store in builds],
+                         [id(store) for _, store in fixtures])
 
 
 class TheInstantRuleIsThreeProperties(BoundaryCase):

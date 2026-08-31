@@ -339,3 +339,153 @@ class TheComponentIsOnThePublicSurface(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheDeliveryIsAdoptedRatherThanReconstructed(Home):
+    """W47225: a restarted process recovers the delivery it already made."""
+
+    def adopted(self, **overrides):
+        """Adoption asks for the values this attempt was LAUNCHED with.
+
+        Review 2026-08-30T15:05:35Z [P0]: shape agreement is not delivery
+        identity, so the expectation is authored through the same owner that
+        wrote the document and the canonical bytes must match exactly.
+        """
+        given = {"attempt_id": "attempt-1", "session": "session-1",
+                 "contract": "do the thing", "role": "implementer"}
+        given.update(overrides)
+        return launch.adopt(self.home, **given)
+
+    def test_an_existing_delivery_is_adopted_whole(self):
+        made = self.made()
+
+        adopted = self.adopted()
+
+        self.assertIsInstance(adopted, launch.LaunchDelivery)
+        self.assertEqual(adopted.root, made.root)
+        self.assertEqual(adopted.place, made.place)
+        self.assertEqual(adopted.document, made.document)
+        self.assertEqual(adopted.mount(), made.mount())
+
+    def test_an_attempt_with_no_delivery_adopts_nothing(self):
+        """An ordinary state, and distinguishable from a failed proof: an
+        attempt may have had no launch delivery at all."""
+        self.assertIsNone(self.adopted())
+
+    def test_a_root_this_manager_did_not_write_is_refused(self):
+        """Bytes this manager cannot account for are not a launch contract,
+        and a container told to read them would be told what it is by
+        somebody else."""
+        os.makedirs(os.path.join(self.home, "attempt-1"), mode=0o555)
+
+        with self.assertRaises(ContractRefusal):
+            self.adopted()
+
+    def test_a_delivery_whose_modes_have_moved_is_refused(self):
+        """`materialize` chmods both exactly, so anything else is a root
+        somebody has since changed -- and a writable launch document is one
+        the worker could rewrite between being given it and being asked."""
+        made = self.made()
+        os.chmod(made.root, 0o755)
+
+        with self.assertRaises(ContractRefusal):
+            self.adopted()
+
+    def test_a_document_that_is_not_this_contract_is_refused(self):
+        made = self.made()
+        os.chmod(made.root, 0o700)
+        os.chmod(made.place, 0o600)
+        with open(made.place, "wb") as writing:
+            writing.write(b'{"schema": "somebody.else/1"}')
+        os.chmod(made.place, launch.READ_ONLY_FILE)
+        os.chmod(made.root, launch.READ_ONLY_DIR)
+
+        with self.assertRaises(ContractRefusal):
+            self.adopted()
+
+    def test_a_well_formed_document_from_another_delivery_is_refused(self):
+        """Schema agreement is not delivery identity.
+
+        Both documents are valid launch contracts, so validating only the
+        closed shape and schema adopts the second attempt's session and role
+        as the first attempt's typed capability.  Restart adoption must hold
+        the bytes against the launch values this attempt was actually given.
+        """
+        first = self.made()
+        other = self.made(attempt_id="attempt-2", session="session-2",
+                          contract="another contract", role="reviewer")
+        with open(other.place, "rb") as reading:
+            foreign = reading.read()
+        os.chmod(first.root, 0o700)
+        os.chmod(first.place, 0o600)
+        with open(first.place, "wb") as writing:
+            writing.write(foreign)
+        os.chmod(first.place, launch.READ_ONLY_FILE)
+        os.chmod(first.root, launch.READ_ONLY_DIR)
+
+        with self.assertRaises(ContractRefusal):
+            self.adopted()
+
+    def test_adoption_applies_the_member_value_contract(self):
+        """A closed member set does not validate any member's value."""
+        made = self.made()
+        malformed = dict(made.document)
+        malformed["session"] = 7
+        os.chmod(made.root, 0o700)
+        os.chmod(made.place, 0o600)
+        with open(made.place, "wb") as writing:
+            writing.write(json.dumps(malformed).encode("utf-8"))
+        os.chmod(made.place, launch.READ_ONLY_FILE)
+        os.chmod(made.root, launch.READ_ONLY_DIR)
+
+        with self.assertRaises(ContractRefusal):
+            self.adopted()
+
+    def test_adoption_refuses_an_extra_entry_it_would_later_delete(self):
+        """The root materializer made exactly one entry.
+
+        Adopting a wider root would authorize ``launch.discard`` to delete a
+        file this component did not create when cleanup later proves the
+        runtime absent.
+        """
+        made = self.made()
+        os.chmod(made.root, 0o700)
+        with open(os.path.join(made.root, "foreign"), "wb") as writing:
+            writing.write(b"not this component's launch document")
+        os.chmod(made.root, launch.READ_ONLY_DIR)
+
+        with self.assertRaises(ContractRefusal):
+            self.adopted()
+
+    def test_a_document_authored_for_other_values_is_refused(self):
+        """Which delivery, not which kind of thing.
+
+        The bytes are what prove it, so a document this component would have
+        written for a DIFFERENT session, contract or role is refused even
+        though it is a perfectly valid launch document.
+        """
+        self.made()
+        for member, wrong in (("session", "session-2"),
+                              ("contract", "do something else"),
+                              ("role", "reviewer")):
+            with self.subTest(member=member):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.adopted(**{member: wrong})
+                self.assertIn("not the one this manager would have written",
+                              str(caught.exception))
+
+    def test_the_expectation_is_authored_by_the_owner_that_writes_it(self):
+        """Reused rather than copied: a value contract re-implemented here
+        would drift from the one `materialize` enforces, and would silently
+        drop the authored document's own whole-document secret check."""
+        self.made()
+        for wrong in (7, "", "x" * 100000):
+            with self.subTest(session=type(wrong).__name__):
+                with self.assertRaises(ContractRefusal):
+                    self.adopted(session=wrong)
+
+    def test_adoption_is_on_the_public_surface(self):
+        """A deployment that built its own delivery from a path would be
+        minting the typed capability the adapter trusts out of bytes nobody
+        proved, which is why the proving lives in this component."""
+        self.assertIn("adopt", launch.__all__)

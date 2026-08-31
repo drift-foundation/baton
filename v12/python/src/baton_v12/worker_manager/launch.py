@@ -52,6 +52,7 @@ document is readable at any instant.
 
 import json
 import os
+import stat
 
 from ..contracts import ContractRefusal, check_no_durable_secret
 from ..contracts.errors import name_value
@@ -60,7 +61,7 @@ from . import boundaries
 __all__ = ["LAUNCH_MEMBERS", "LAUNCH_SCHEMA", "LAUNCH_TARGET",
            "MAX_LAUNCH_BYTES", "MAX_LAUNCH_VALUE", "MAX_SESSION",
            "READ_ONLY_DIR", "READ_ONLY_FILE", "LaunchDelivery",
-           "launch_document", "materialize"]
+           "adopt", "launch_document", "materialize"]
 
 # THE FIXED CONTAINER PATH, a constant of the contract at BOTH ends. A path a
 # caller could vary is a path a runtime can be pointed at wrongly, so there is
@@ -114,8 +115,11 @@ MAX_LAUNCH_BYTES = 65536                       # 64 KiB
 # metadata, and §13 is what keeps it that way rather than this comment --
 # `launch_document` walks the authored document before any of it is written, so
 # a bearer cannot arrive in a world-readable file by way of a `contract` line.
-# Credentials are the opposite case and have the opposite mode: 0600 under a
-# 0700 root, in `credentials.py`, which is where secret material lives.
+# Credentials are the opposite case and the narrow one: 0640 in the
+# deployment's configured workspace group, under a 0700 manager-only root, in
+# `credentials.py`, which is where secret material lives. W52800 ruled those
+# group bits; `other` stays empty there, which is the whole difference from
+# this document.
 #
 # WRITABLE BY NOBODY, including this manager after the write. The document is
 # finished when it is written and nothing writes it again; the mode says so on
@@ -318,6 +322,131 @@ def materialize(storage, *, attempt_id, session, contract, role):
         raise
     return LaunchDelivery(attempt_id=attempt, root=root, place=place,
                           document=document)
+
+
+def adopt(storage, *, attempt_id, session, contract, role):
+    """Recover the delivery THIS MANAGER already made, or FAIL CLOSED.
+
+    W47225. `materialize` refuses an existing root and `discard` removes one,
+    so a restarted process had no way to hold a delivery it had already made
+    -- and W39358's narrow handoff retry, which runs in a FRESH process after
+    the original exited, reconstructed its cleanup adapter with
+    `launch_delivery=None`. `authorize_cleanup` could then remove the runtime
+    while `_launch_ended` reported `not-delivered`, and the launch root the
+    ordinary attempt materialized was left on disk with nothing that would
+    ever come back for it.
+
+    WHAT PROVES THE DELIVERY IS THE BYTES, and review 2026-08-30T15:05:35Z
+    [P0] is why nothing weaker will do. Holding the document to its member
+    NAMES and schema proves only that it is *a* launch document: a valid
+    four-member document copied out of another attempt's root passed every
+    one of those checks and came back as this attempt's delivery. Member
+    values were not held either, so an integer `session` -- which
+    `materialize` refuses before writing -- was adopted after the fact.
+
+    So adoption AUTHORS what this component would have written, through the
+    same `launch_document` and `_bytes` owners that wrote it, and requires the
+    canonical bytes to match exactly. That one comparison closes identity and
+    value drift together, and it reuses the authoring rules rather than
+    copying them -- including the whole-document secret check, which a
+    re-implementation here would have quietly dropped.
+
+    AND THE ROOT IS HELD TO THE ONE ENTRY `materialize` CREATES. `discard`
+    removes every name in the root it is given, so a sibling entry accepted
+    here is a foreign file this component would later delete. [P0] again, and
+    it is the difference between recovering a delivery and adopting a
+    directory.
+
+    EVERY PROOF IS DESCRIPTOR-RELATIVE AND NO-FOLLOW. [P1]: checking with
+    `islink`/`isfile`, mode-checking with `lstat` and then reopening by name
+    is three lookups of a path that can change between them, so the bytes
+    could arrive through a link the earlier checks never inspected. The root
+    is opened once with `O_NOFOLLOW|O_DIRECTORY`, the document is opened
+    relative to THAT descriptor with `O_NOFOLLOW`, and the type, mode and
+    bytes all come from the descriptor that is already open.
+
+    ABSENT ADOPTS NOTHING, and that is an ordinary answer: an attempt may have
+    had no launch delivery, and `None` is what lets a caller tell that apart
+    from a delivery it failed to prove. A caller for whom absence is
+    contradictory -- one whose attempt demonstrably started a runtime -- is
+    the caller that must refuse, and this component does not decide that for
+    it.
+    """
+    attempt = boundaries.identity(attempt_id, "a launch attempt id")
+    home = boundaries.text(storage, "the manager's launch storage")
+    if not os.path.isabs(home):
+        _refuse(f"the manager's launch storage is not an absolute path; a "
+                f"root this build cannot name exactly is not a root",
+                code="path")
+    # AUTHORED FIRST, through the owner that writes it. A document this
+    # component would refuse to WRITE is one it must refuse to adopt, and
+    # deriving the expectation before touching the disk is what makes the
+    # comparison below a comparison rather than a second rule set.
+    expected = _bytes(launch_document(session=session, contract=contract,
+                                      role=role))
+    root = os.path.join(os.path.realpath(home), attempt)
+    if not os.path.lexists(root):
+        return None
+    name = os.path.basename(LAUNCH_TARGET)
+    try:
+        opened = os.open(root, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
+    except OSError as failure:
+        _denied(f"the launch root for attempt {name_value(attempt)} is not a "
+                f"directory this manager made ({type(failure).__name__}); an "
+                f"entry of another type is state this build cannot account "
+                f"for")
+    try:
+        held = os.stat(opened)
+        if stat.S_IMODE(held.st_mode) != READ_ONLY_DIR:
+            _denied(f"attempt {name_value(attempt)}'s launch root is mode "
+                    f"{oct(stat.S_IMODE(held.st_mode))} and this manager "
+                    f"established {oct(READ_ONLY_DIR)}; a delivery whose "
+                    f"modes have moved is not the one it wrote")
+        # EXACTLY THE ONE ENTRY, because `discard` deletes every name here.
+        entries = sorted(os.listdir(opened))
+        if entries != [name]:
+            _denied(f"attempt {name_value(attempt)}'s launch root holds "
+                    f"{entries!r} and this manager creates exactly "
+                    f"{[name]!r}; adopting a widened root would authorize "
+                    f"deleting an entry this component never wrote")
+        try:
+            document = os.open(name, os.O_RDONLY | os.O_NOFOLLOW,
+                               dir_fd=opened)
+        except OSError as failure:
+            _denied(f"attempt {name_value(attempt)}'s launch document could "
+                    f"not be opened as this manager wrote it "
+                    f"({type(failure).__name__})")
+        try:
+            found = os.stat(document)
+            if not stat.S_ISREG(found.st_mode):
+                _denied(f"attempt {name_value(attempt)}'s launch document is "
+                        f"not a regular file")
+            if stat.S_IMODE(found.st_mode) != READ_ONLY_FILE:
+                _denied(f"attempt {name_value(attempt)}'s launch document is "
+                        f"mode {oct(stat.S_IMODE(found.st_mode))} and this "
+                        f"manager established {oct(READ_ONLY_FILE)}; a "
+                        f"writable launch document is one the worker could "
+                        f"rewrite between being given it and being asked "
+                        f"about it")
+            raw = os.read(document, MAX_LAUNCH_BYTES + 1)
+        finally:
+            os.close(document)
+    finally:
+        os.close(opened)
+    # THE ONE COMPARISON, and it is exact. Canonical bytes, so a document that
+    # merely MEANS the same thing in a different spelling is not this
+    # delivery's document either -- `_bytes` is what wrote it and there is
+    # only one serialization of a given launch document.
+    if raw != expected:
+        _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+                f"one this manager would have written for it; a document that "
+                f"is merely well formed proves which KIND of thing it is and "
+                f"not which delivery")
+    place = os.path.join(root, name)
+    return LaunchDelivery(attempt_id=attempt, root=root, place=place,
+                          document=launch_document(session=session,
+                                                   contract=contract,
+                                                   role=role))
 
 
 def discard(root):

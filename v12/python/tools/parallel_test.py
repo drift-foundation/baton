@@ -219,7 +219,23 @@ SERIAL_MODULES = ("tests.manager.test_worker_container",
                   # -- and then starts throwaway containers from it. It is the
                   # only gate in this registry whose build needs egress; the
                   # containers it then runs are all `--network none`.
-                  "tests.manager.test_dogfood_image")
+                  "tests.manager.test_dogfood_image",
+                  # W44716's abandonment gate, APPENDED for the same reason
+                  # the two before it were: no existing member moves. Serial
+                  # because it builds the reference image, starts real
+                  # containers, and then asks the daemon whether a RUNNING
+                  # container was removed -- a question a concurrent suite
+                  # could answer for it.
+                  "tests.manager.test_abandoned_attempt_engine",
+                  # W39358's whole-arc gate, and the heaviest in this
+                  # registry: it builds the dogfood image and then runs the
+                  # composed arc over a real container, asking the daemon
+                  # afterwards whether the runtime is gone.
+                  "tests.tools.test_dogfood_arc_engine",
+                  # W39358's public-retry gate: it derives an image from the
+                  # reference worker and runs real containers through the
+                  # documented commands.
+                  "tests.tools.test_dogfood_retry_engine")
 
 # The two whole-universe scans from the baseline. Split one test method per
 # shard; every other class ships as one shard.
