@@ -1,0 +1,12 @@
+{
+  "schema": "baton.dogfood-task/1",
+  "task_id": "w52821-user-scoped-credential-source",
+  "source_root": "source",
+  "verification": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_user_credentials"
+  ],
+  "instructions": "Implement only W52821's approved user-scoped credential-source slice. The Worker Manager already owns attempt-private CredentialHome roots, exact-attempt teardown, 0640 configured-group slots, worker readability refusal and lazy post-activation materialization; do not change src/baton_v12/worker_manager/credentials.py, OCI code or the worker adapter. Add one small standard-library tools/user_credentials.py owner for a closed baton.user-credential-sources/1 registry containing bounded sources entries with provider, reference and path. Replace the supported ordinary command's --credential-file bypass with explicit --credential-sources PATH. Resolve the exact provider and opaque reference supplied by credentials.resolved_delivery; duplicates and unknown selections refuse with no fallback. Open the registry and selected source without following a final symlink, prove an ordinary file owned by the effective uid with no group/other permission, read through the proved descriptor under the existing bearer-size limit, and never place content or host source paths in grants, evidence, lifecycle state or worker-visible documents. Construct the resolver per ordinary command and keep the existing lazy window: no source read and no attempt slot before activation. Recovery and handoff retry read no registry or source and must refuse a contradictory --credential-sources operand. Add self-contained focused tests in tests/tools/test_user_credentials.py and register that module in tools/parallel_test.py. Cover closed schema and bounds, exact provider/reference selection, duplicate and unknown refusal, final-symlink/type/owner/mode/unreadable refusal, no early read, cleanup after resolver failure, two synchronized independent contexts with distinct references, generations, attempt ids, homes and harmless canaries, exact teardown isolation, help/mode contradictions, and absence of bearer/source path from durable documents. Update DEPLOYMENT.md with the private per-user setup and removal of shared /run/baton/credentials staging. Change no other file and do not use a real credential, provider, engine, network, second live worker or global lock/cache/singleton."
+}

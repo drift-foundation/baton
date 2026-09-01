@@ -1,0 +1,26 @@
+# Closed W52821 worker input/edit boundary, rooted at v12/python.
+# Existing context supplied to the worker:
+DEPLOYMENT.md
+src/baton_v12/worker_manager/credentials.py
+tools/__init__.py
+tools/dogfood_operator.py
+tools/parallel_test.py
+tests/__init__.py
+tests/tools/__init__.py
+
+# New paths the proposal may add:
+tools/user_credentials.py
+tests/tools/test_user_credentials.py
+
+# Allowed edits:
+#   DEPLOYMENT.md
+#   tools/dogfood_operator.py
+#   tools/parallel_test.py (only to register the new focused module)
+#   tools/user_credentials.py (new)
+#   tests/tools/test_user_credentials.py (new)
+# Read-only context:
+#   src/baton_v12/worker_manager/credentials.py
+#   tools/__init__.py
+#   tests/__init__.py
+#   tests/tools/__init__.py
+# Everything read-only above must remain byte-identical.
