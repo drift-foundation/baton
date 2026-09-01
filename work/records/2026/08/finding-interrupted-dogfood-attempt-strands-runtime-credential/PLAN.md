@@ -279,10 +279,10 @@
 
 ## 2026-09-01 eighth review
 
-44. [decision requested] Choose the public fixed-assignment recovery
-    projection recorded in FINDING.md. Recommendation: APPROVE-EXTEND
+44. [done; approved in Baton response M60437] Extend
     `attempt_runtime_of` with the complete fixed `assignment`, then require an
-    exact grants match before either branch or any external act.
+    exact grants match before either branch or any external act. ADD-READ is
+    not the W55758 contract.
 45. [changes requested after item 44] Add authority UUID, Work, participant,
     generation, and absent-assignment refusals through documented
     `main --abandon`; each must leave authority, runtime, credential, launch,
@@ -295,3 +295,218 @@
     receiver of `CredentialHome.adopt`, and prove the adapter owns that exact
     object by identity. A private-builder call plus same-path comparison is
     not the required command-level shared-owner assertion.
+
+## 2026-09-01 approved ruling and implementation handoff
+
+48. [changes requested] Implement M60437's approved projection and pre-act
+    hold. The recovery record must use the manager-fixed identity after the
+    match, not repeat editable grants. Complete item 45's five negative cases
+    through the documented command and prove that every external capability
+    remains untouched on refusal.
+49. [changes requested] Revalidate the recovery path against M60437's Worker
+    Manager incarnation boundary. Never adopt or resume an older-incarnation
+    runtime. Stop or kill one only with exact identity, settle its credential,
+    mark the attempt interrupted, and preserve logs/output as untrusted
+    evidence. Unknown, ambiguous, and mismatched runtimes stay untouched and
+    are reported as zombies; automatic reconciliation is out of scope.
+50. [pending final review] Complete items 46-49, rerun the focused suites and
+    attached-state class, and return the exact results for independent review.
+
+## 2026-09-01 ninth implementer round (APPROVE-EXTEND, M60437)
+
+44. [done] `attempt_runtime_of` carries the attempt's complete FIXED
+    ASSIGNMENT beside the runtime axes, in the one atomic read the branch
+    already turns on.
+45. [done] `recover_abandoned` holds the grants against that assignment BEFORE
+    either branch and before any external act. All four parts, exactly; an
+    absent assignment and an unrecorded attempt each refuse with their own
+    sentence.
+46. [done] Command-level negative cases for every assignment member,
+    for an attempt with no fixed assignment, and for grants naming another
+    attempt — each proving zero authority, engine, credential, launch and
+    custody mutation and unmoved manager axes.
+47. [done] The credential-to-launch restart boundary, injected at the public
+    `launch.discard` after the real teardown made the credential absent: the
+    first command writes a partial record with the runtime absent, the
+    credential torn down and the launch unresolved, and a fresh invocation
+    converges.
+48. [done] The retry's credential owner is asserted BY IDENTITY: the receiver
+    of `CredentialHome.adopt` is captured and the adapter must own that exact
+    object. Measured — handing a fresh same-path home fails the case.
+49. [partly done] The `--retry-handoff` assertion is load-bearing but is still
+    made at `_for_retry` rather than by driving the documented command over
+    real trusted-result state. Named in PROGRESS.
+
+## 2026-09-01 ninth review
+
+51. [done] Verify the complete assignment projection, four mismatch refusals,
+    absent-assignment refusal, credential-to-launch restart convergence, and
+    focused gates. The four-module gate is 793 tests; secret/text registries
+    add 93 passing cases.
+52. [changes requested] Move the exact fixed-assignment hold ahead of the
+    documented command's abandonment capability builder. The current builder
+    runs before `recover_abandoned` reads the assignment; the retained
+    `/tmp/w55758-prehold-capability-probe.py` proves mismatched participant
+    grants reach it. Preserve one atomic projection rather than split reads.
+53. [changes requested] After a successful hold, source the recovery record's
+    top-level Work, participant, and generation from the manager-fixed
+    assignment. Current initialization still copies editable grants.
+54. [changes requested] Make the absent-assignment no-act case load-bearing
+    across authority, engine, credential, launch, custody, manager axes, and
+    host material. Complete the documented `--retry-handoff` exact-owner case.
+55. [changes requested] Complete item 49's fresh-Manager-incarnation cases and
+    zombie reporting under M60437. Update the `attempt_runtime_of` secret-
+    inventory rationale and return a clean `git diff --check`.
+56. [pending final review] Complete items 52-55 and return focused and full
+    verification with the same pre-existing failures identified separately.
+
+## 2026-09-01 tenth implementer round (response to review 2026-09-01T10-21-35Z)
+
+50. [done] The hold is performed by `_for_abandonment` itself, after opening
+    only the control store and BEFORE the authority, the session, the roots,
+    the credential owners or `launch.adopt` exist. On disagreement the builder
+    returns the projection and the reason and constructs nothing else; the
+    command writes the account and closes what was opened.
+51. [done] A successful recovery composes `work_ref`, `participant` and
+    `generation` from the manager's fixed assignment rather than from the
+    grants. A refusal keeps the identity the operator ASKED for, so the two
+    accounts stay distinguishable.
+52. [done] The mismatch cases watch the capability seams themselves —
+    `Authority.open`, `_proved_roots`, `OrphanTeardown`, `launch.adopt` — and
+    assert none was exercised, which is the ruled boundary rather than
+    "nothing mutated afterwards".
+53. [done] M60437's incarnation rule: a `zombies` member reports every runtime
+    this recovery left untouched, and cases prove a fresh incarnation still
+    ends the exactly identified old runtime while an unidentifiable or running
+    one is reported and left alone.
+54. [done] `tests.manager.test_secrets` prose matches the widened projection.
+55. [NOT DONE] The command-level `--retry-handoff` shared-owner proof.
+
+## 2026-09-01 tenth review
+
+57. [done] Verify the pre-capability command hold, manager-sourced successful
+    identity, widened inventory, and focused gates. Six modules pass 910 tests.
+58. [changes requested] Remove the caller-forgeable raw `state` override from
+    exported `recover_abandoned`. The retained forged-state probe ends the
+    manager's generation 1 while publishing generation 2.
+59. [changes requested] Make zombie evidence structured and truthful. Report
+    actual engine-returned candidate IDs and each action/outcome; do not call a
+    target untouched after issuing force-remove. Cover mismatched and duplicate
+    candidates, and supersede the pre-attach rule that stops every ambiguous
+    candidate contrary to M60437.
+60. [changes requested] Prove fresh-incarnation cleanup preserves actual
+    worker output in place as untrusted, without freeze/intake/promotion.
+    Complete documented `--retry-handoff` exact-owner coverage.
+61. [pending final review] Complete items 58-60, rerun focused/full gates, and
+    return with pre-existing full-suite failures identified separately.
+
+## 2026-09-01 eleventh implementer round (response to review 2026-09-01T10-35-20Z)
+
+56. [done] The carried projection is a typed capability this deployment mints,
+    not an operand a caller composes. The exported operation refuses anything
+    else and reads AND holds for a caller that supplies none.
+57. [done] `OciAdapter.observe` carries the identities it actually saw, so a
+    mismatched or ambiguous answer names its runtimes instead of reducing them
+    to prose and a count.
+58. [done] The zombie report names those identities and states the act
+    truthfully per runtime: a target a removal was issued for is not `left
+    untouched`, and candidates that were never targeted are.
+59. [reported, not implemented] The pre-attach `OciAdapter._recovery_failed`
+    stops every ambiguous or mismatched candidate, which contradicts M60437.
+    That rule is W6634's and the supersession belongs in its record; named in
+    PROGRESS for the owning reviewer rather than changed here.
+60. [NOT DONE] The command-level `--retry-handoff` shared-owner proof and the
+    workspace-marker assertion on the fresh-incarnation case.
+
+## 2026-09-01 eleventh review
+
+61. [changes requested] Remove the caller-supplied `state` boundary from the
+    exported `recover_abandoned` operation. `_HeldProjection` is an ordinary
+    module attribute with a public constructor, so a caller can wrap the same
+    forged dictionary the nominal type check rejects and replay the original
+    generation-confusion defect. The exported operation must obtain and hold
+    manager state itself; keep any command-internal carried observation behind
+    a non-exported composition seam rather than treating a Python class name
+    as an unforgeable capability.
+62. [changes requested] Carry each engine-reported candidate's own validated
+    state and reason into `zombies`. Candidate IDs alone do not satisfy PLAN
+    item 53's exact locator, observed state and reason: the current report
+    writes `unidentified` for a candidate whose inspection says
+    `Running: true` and repeats the target's diagnostic as the candidate's.
+63. [changes requested] Apply M60437 to the pre-attach branch.
+    `_recovery_failed` must not stop ambiguous or mismatched candidates, and
+    `--abandon` must report their structured zombie evidence. W6634 is terminal
+    non-satisfying, so its provisional stop-every-candidate wording needs no
+    supersession; W32385 and M60437 are the current untouched-candidate rule.
+64. [changes requested] Put a marker in the fresh-incarnation worker workspace
+    and prove its exact bytes survive in place while freeze, intake and
+    promotion remain absent. Cleanup `retained` is not evidence about file
+    content.
+65. [changes requested] Drive documented `main --retry-handoff` over real
+    frozen, intaken, retained, independently verified state with a real
+    credential. Capture the receiver of `CredentialHome.adopt` and prove the
+    adapter owns that exact object. The existing public-command fixture has
+    `credential_slots: []`; the exact-owner assertion remains private-builder
+    only.
+66. [pending final review] Complete items 61-65, rerun the focused gate and
+    the relevant derived command classes, then return for independent review.
+
+## 2026-09-01 twelfth implementer round (response to review 2026-09-01T10-56-54Z)
+
+61. [done] The `state` operand is GONE from the exported `recover_abandoned`,
+    and `_HeldProjection` is deleted rather than hardened: an importable class
+    with a public constructor was never a capability. The exported operation
+    reads and holds the manager's row itself; the documented command carries
+    its builder's one observation through private `_recovery_of`.
+62. [done] `OciAdapter.observe` carries a closed candidate observation --
+    exact locator, its OWN validated state and its own reason -- on every
+    branch, and `_zombie_account` composes the report from those rather than
+    reconstructing members from the expected target.
+63. [done] `_recovery_failed` stops only a runtime a caller identified
+    EXACTLY; ambiguous and mismatched candidates are left untouched, observed
+    once and carried on the refusal, and `--abandon`'s pre-attach branch
+    writes them into the recovery record.
+64. [done] The fresh-incarnation case writes real bytes into the worker's
+    workspace and proves them unmoved and unchanged, with `frozen_output_of`
+    and `intake_receipt_of` both still absent and the only custody verb
+    `normalize`.
+65. [done] Documented `main --retry-handoff` over the ordinary command's own
+    real freeze, intake, retention and independent verification, with a real
+    credential materialized through the granted home: the `CredentialHome.
+    adopt` receiver is captured and the adapter is required to own that exact
+    object.
+67. [pending final review] Independent review of items 61-65, including the
+    new pre-attach fixture and the four manager-level untouched-candidate
+    cases.
+68. [changes requested in review-2026-09-01T11-38-25Z.md] Canonicalize
+    repeated engine candidate observations by runtime identity before writing
+    `zombies`. Conflicting observations for one locator must become one
+    `uncertain` row with one truthful reason and the correct per-runtime action;
+    add the documented-command duplicate/conflicting-state regression and
+    return for final review.
+
+## 2026-09-01 thirteenth implementer round (response to review 2026-09-01T11-38-25Z)
+
+68. [done] `_canonical_candidates` settles candidate observations by runtime
+    identity before either branch composes `zombies`. Agreeing repeats and
+    aliases collapse to one row; disagreeing ones become one `uncertain` row
+    whose reason carries both of the engine's accounts. The per-runtime
+    `targeted`/action fact is unchanged and is now stated once per runtime.
+69. [pending final review] Independent review of item 68 and its three new
+    cases: the documented command's conflicting duplicate, its agreeing
+    duplicate, and the pre-attach branch's duplicate listing.
+70. [changes requested in review-2026-09-01T11-53-38Z.md] Define candidate
+    agreement over the complete canonical account, not state alone. Two
+    `uncertain` observations with different reasons must preserve both accounts
+    in one per-runtime `uncertain` row; add the documented-command regression
+    and return for final review.
+
+## 2026-09-01 fourteenth implementer round (response to review 2026-09-01T11-53-38Z)
+
+70. [done] Agreement is decided over the whole `(state, why)` account.
+    Identical accounts collapse and nothing else does, so two `uncertain`
+    answers with different reasons -- a document with no state record and one
+    with `Running: "yes"` -- become one `uncertain` row carrying both.
+71. [done; signed off in review-2026-09-01T12-01-09Z.md] Independent review
+    of item 70 and the documented-command two-uncertain-accounts regression,
+    with the agreeing and different-state cases retained.

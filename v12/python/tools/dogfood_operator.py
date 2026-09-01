@@ -952,6 +952,18 @@ RECOVERY_MEMBERS = (
     "schema", "attempt_id", "work_ref", "participant", "generation",
     "reason", "branch", "attempt_state", "authority_fence", "runtime",
     "credentials", "launch", "custody", "cleanup", "observed_after",
+    # W55758, approver ruling M60437: RUNTIMES THIS RECOVERY LEFT ALONE.
+    #
+    # V12 does not adopt or resume a runtime from an older Worker Manager
+    # incarnation. An EXACTLY IDENTIFIED one may be stopped, its credential
+    # settled and its attempt marked interrupted, with its output preserved as
+    # untrusted evidence -- that is the ordinary ending and it needs no new
+    # member. What needs one is the other half: unknown, ambiguous and
+    # mismatched runtimes are UNTOUCHED, and a recovery that silently left
+    # something running would be exactly the stranded state this Work exists
+    # to end. Automatic reconciliation of these is deliberately out of scope,
+    # so the report IS the deliverable.
+    "zombies",
     "resolved", "unresolved")
 
 # A CEILING ON WHAT IS WRITTEN, not a truncation of what happened. Prose in
@@ -2268,23 +2280,42 @@ def recover_abandoned(store, port, adapter, given, *, reason, orphan,
     no pass, and not one byte of the workspace proposal is read or promoted.
     The complete-looking output stays exactly where the worker left it, open
     and untrusted, which is the rule M33800 set for every recordless ending.
-    """
-    from baton_v12.contracts import ContractRefusal as _Refusal
-    from baton_v12.worker_manager import abandon_attempt, attempt_runtime_of
 
-    record = {"schema": RECOVERY_SCHEMA,
-              "attempt_id": given["attempt_id"],
-              "work_ref": dict(given["work_ref"]),
-              "participant": given["participant"],
-              "generation": given["generation"],
-              "reason": reason, "branch": None, "attempt_state": None,
-              "authority_fence": None, "runtime": None, "credentials": None,
-              "launch": None, "custody": None, "cleanup": None,
-              "observed_after": None, "resolved": False, "unresolved": []}
+    AND IT ACCEPTS NO PROJECTION FROM ITS CALLER. W55758 review
+    (2026-09-01T10:56:54Z) [P1]: the carried observation was first a plain
+    operand and then a nominal `_HeldProjection`, and neither is a capability.
+    An importable class with a public constructor is something any caller can
+    compose, so a forged generation-2 projection beside generation-2 grants
+    still ended the real generation-1 attempt and published generation 2 as
+    the identity the ending used. There is no operand to forge now: this
+    operation performs the manager read and the hold itself, and the
+    documented command carries its own one observation through `_recovery_of`
+    -- private composition between two parts of one command, not a door.
+    """
+    from baton_v12.worker_manager import attempt_runtime_of
+
+    return _recovery_of(attempt_runtime_of(store, given["attempt_id"]),
+                        store, port, adapter, given, reason=reason,
+                        orphan=orphan, launch_home=launch_home,
+                        session=session)
+
+
+def _recovery_of(state, store, port, adapter, given, *, reason, orphan,
+                 launch_home, session=None):
+    """The recovery over ONE manager projection, held and then acted on.
+
+    THE PRIVATE SEAM, and the reason there is one. M60437 requires the
+    fixed-assignment hold BEFORE any capability exists, so `_for_abandonment`
+    takes the projection itself; re-reading it here would make the identity
+    held and the state acted on two answers at two moments. The exported
+    operation reaches this only by performing that read itself, so nothing a
+    caller composed can arrive as the manager's own answer.
+    """
+    record = _recovery_record(given, reason)
     try:
-        return _recovering(record, store, port, adapter, given, reason=reason,
-                           orphan=orphan, launch_home=launch_home,
-                           session=session)
+        return _recovering(record, state, store, port, adapter, given,
+                           reason=reason, orphan=orphan,
+                           launch_home=launch_home, session=session)
     except BaseException as failed:                        # noqa: BLE001
         # W55758 review (2026-09-01T04:57:06Z) [P1]: THE RECORD RIDES OUT WITH
         # THE FAULT. Once this ending has begun, an external act may already
@@ -2292,20 +2323,69 @@ def recover_abandoned(store, port, adapter, given, *, reason, orphan,
         # written would leave an operator with a partially ended attempt and
         # no account of it. Only the fault's TYPE is recorded -- its text is
         # untrusted prose and this is the most durable surface here.
+        # AND WHAT IT HAD ALREADY DONE, on the same rule as a refusal. A
+        # fault between the credential and the launch teardown leaves a
+        # runtime absent and a credential gone, and a record saying only "it
+        # faulted" would leave an operator unable to tell any of that.
+        try:
+            _partial_account(record, store, adapter, given,
+                             record.get("attempt_state"), orphan=orphan,
+                             launch_home=launch_home, session=session)
+        except BaseException:                              # noqa: BLE001
+            # THE ORIGINAL FAULT IS WHAT AN OPERATOR HAS TO SEE. A second one
+            # raised while accounting for the first must not replace it.
+            pass
         _unresolved(record, f"this recovery faulted after it began: "
                             f"{type(failed).__name__}")
         failed.dogfood_recovery = record
         raise
 
 
-def _recovering(record, store, port, adapter, given, *, reason, orphan,
-                launch_home, session=None):
-    """The two branches, composed into the record `recover_abandoned` owns."""
-    from baton_v12.contracts import ContractRefusal as _Refusal
-    from baton_v12.worker_manager import abandon_attempt, attempt_runtime_of
+def _recovering(record, state, store, port, adapter, given, *, reason,
+                orphan, launch_home, session=None):
+    """The two branches, composed into the record `recover_abandoned` owns.
 
-    state = attempt_runtime_of(store, given["attempt_id"])
+    THE ONE OBSERVATION ARRIVES ALREADY TAKEN, by whichever of this module's
+    two entry points is standing in front of it, and the hold below is what
+    it was taken for.
+    """
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import abandon_attempt
+
     record["attempt_state"] = state
+    # W55758, approver ruling APPROVE-EXTEND (M60437): THE GRANTS ARE HELD
+    # AGAINST THE MANAGER'S OWN FIXED ASSIGNMENT, BEFORE EITHER BRANCH AND
+    # BEFORE ANY EXTERNAL ACT.
+    #
+    # THE DEFECT. A grants file is an editable durable surface, and nothing
+    # compared it with what activation fixed: `abandon_attempt` takes its
+    # assignment from the ATTEMPT ROW, so a recovery granted another
+    # generation ended the generation-1 attempt anyway and then wrote its own
+    # generation into the record as though it were the identity the ending
+    # used. The same held for the authority, the Work and the participant.
+    #
+    # ALL FOUR PARTS, EXACTLY. `_fixed_assignment` reads the four columns
+    # together because the schema keeps them together, and this compares them
+    # together for the same reason: three quarters of an identity matching is
+    # not an identity matching.
+    #
+    # AN ATTEMPT WITH NO FIXED ASSIGNMENT REFUSES TOO. Activation is what
+    # fixes one, and a grants file cannot be held against something that was
+    # never decided.
+    disagreed = _assignment_disagrees(state, given)
+    if disagreed is not None:
+        return _unresolved(record, disagreed)
+    # W55758 review [P1]: AND THE RECORD'S IDENTITY IS NOW THE MANAGER'S.
+    #
+    # The members were composed from the grants, which are editable. Equal
+    # values kept that honest only because the hold above had just proved them
+    # equal -- and value equality is not provenance. What an operator reads as
+    # "the identity this ending used" is now the identity the MANAGER fixed,
+    # taken from the same atomic projection the hold compared.
+    fixed = state["assignment"]
+    record["work_ref"] = dict(fixed["work_ref"])
+    record["participant"] = fixed["participant"]
+    record["generation"] = fixed["generation"]
     if state is None or state["runtime_id"] is None:
         record["branch"] = "pre-attach"
         return _pre_attach_recovered(record, store, adapter, given,
@@ -2348,6 +2428,7 @@ def _recovering(record, store, port, adapter, given, *, reason, orphan,
     record["credentials"] = _credential_account(orphan)
     record["launch"] = _launch_after(given, launch_home)
     record["observed_after"] = _observed_after(adapter, state["runtime_id"])
+    record["zombies"] = _reported_zombies(record)  # after the observation
     if settled.get("cleanup") != "retained" \
             or settled.get("state") != "absent":
         _unresolved(record,
@@ -2362,6 +2443,63 @@ def _recovering(record, store, port, adapter, given, *, reason, orphan,
     if not record["unresolved"]:
         record["resolved"] = True
     return record
+
+
+def _recovery_record(given, reason):
+    """The empty recovery account, with the identity the operator ASKED for.
+
+    Composed from the grants because that is what a refusal is about: an
+    account of a request that was not this attempt's. A recovery that PASSES
+    the hold replaces these three members with the manager's own fixed
+    assignment, so a record of an ending that really ran never names an
+    editable identity as the one it used.
+    """
+    return {"schema": RECOVERY_SCHEMA,
+            "attempt_id": given["attempt_id"],
+            "work_ref": dict(given.get("work_ref") or {}),
+            "participant": given.get("participant"),
+            "generation": given.get("generation"),
+            "reason": reason, "branch": None, "attempt_state": None,
+            "authority_fence": None, "runtime": None, "credentials": None,
+            "launch": None, "custody": None, "cleanup": None,
+            "observed_after": None, "zombies": None,
+            "resolved": False, "unresolved": []}
+
+
+def _assignment_disagrees(state, given):
+    """Why these grants are not this attempt's, or `None` when they are.
+
+    W55758 (M60437). Read out of the ONE atomic recovery projection the branch
+    also turns on, so the identity held and the state acted on are one
+    observation rather than two moments.
+    """
+    if state is None:
+        return (f"the manager has no attempt {given['attempt_id']!r}; a "
+                f"recovery ends an attempt this manager recorded and refuses "
+                f"a grants file naming one it did not")
+    fixed = state.get("assignment")
+    if not fixed:
+        return (f"attempt {given['attempt_id']!r} has no fixed assignment, so "
+                f"there is nothing to hold these grants against; activation "
+                f"is what fixes one and this attempt never reached it")
+    granted = {"authority_uuid": (given.get("work_ref") or {}).get(
+                   "authority_uuid"),
+               "work_id": (given.get("work_ref") or {}).get("work_id"),
+               "participant": given.get("participant"),
+               "generation": given.get("generation")}
+    held = {"authority_uuid": (fixed.get("work_ref") or {}).get(
+                "authority_uuid"),
+            "work_id": (fixed.get("work_ref") or {}).get("work_id"),
+            "participant": fixed.get("participant"),
+            "generation": fixed.get("generation")}
+    differing = sorted(one for one in held if granted[one] != held[one])
+    if differing:
+        return (f"these grants and the assignment this manager fixed for "
+                f"attempt {given['attempt_id']!r} disagree on "
+                f"{', '.join(differing)}; a recovery ends ONE attempt, and a "
+                f"grants file naming another identity is not this attempt's "
+                f"however well formed it is")
+    return None
 
 
 def _partial_account(record, store, adapter, given, state, *, orphan,
@@ -2409,6 +2547,7 @@ def _partial_account(record, store, adapter, given, state, *, orphan,
     # did not reach. `cleanup` is the axis rather than a settlement's word
     # here, and that is the honest reading of a refusal.
     record["cleanup"] = (current or {}).get("cleanup")
+    record["zombies"] = _reported_zombies(record)
     if session is not None:
         # THE FENCE, ASKED OF THE AUTHORITY. An assignment the authority no
         # longer has is a generation that was fenced; this reads and decides
@@ -2423,6 +2562,141 @@ def _partial_account(record, store, adapter, given, state, *, orphan,
             record["authority_fence"] = {"fenced": live is None,
                                          "generation": None}
     return record
+
+
+def _reported_zombies(record):
+    """Runtimes still on this host after the ending, EACH with what was done.
+
+    M60437: only an EXACTLY IDENTIFIED old-incarnation runtime may be stopped;
+    unknown, ambiguous and mismatched ones stay where they are, and automatic
+    reconciliation of those is out of scope -- so the report IS the
+    deliverable.
+
+    W55758 review (2026-09-01T10:35:20Z) [P1] corrects two things it got
+    wrong. IT NAMED THE WRONG RUNTIMES: the report was reconstructed from the
+    EXPECTED target while the engine had answered about other identities
+    entirely, and `observe` was reducing those to prose and a count. They are
+    carried structurally now, so what is named is what the engine reported.
+    AND IT MISSTATED THE ACT: a target this command really issued a removal
+    for and which is still present was called `left untouched`, which is
+    false and is the one sentence an operator would act on. The two are
+    different facts and get different words.
+
+    W55758 review (2026-09-01T10:56:54Z) [P1]: AND EACH CANDIDATE KEEPS ITS
+    OWN STATE. This wrote the literal `unidentified` for every non-target and
+    copied the target's diagnostic as their reason -- for runtimes whose own
+    inspection said `Running: true`. `observe` decides that per runtime now
+    and this composes rather than reconstructs.
+    """
+    observed = record.get("runtime") or {}
+    state = observed.get("state")
+    if state is None or state == "absent":
+        return None
+    target = observed.get("runtime_id")
+    after = record.get("observed_after") or {}
+    seen = [one for one in (after.get("candidates") or ())
+            if type(one) is dict and one.get("runtime_id")]
+    # THE TARGET IS NAMED EVEN WHEN THE ENGINE NEVER MENTIONED IT, which is
+    # exactly the mismatched answer: a removal was issued for this identity
+    # and the engine then talked about a different one. Its own state is the
+    # ending's, because that is all anybody knows about it.
+    if target and not any(one["runtime_id"] == target for one in seen):
+        seen = [{"runtime_id": target, "state": state,
+                 "why": observed.get("why")}, *seen]
+    return _zombie_account(
+        seen, target,
+        acted="removal was issued for this exact identity and it is still "
+              "present; it is NOT untouched, and it is not proved absent "
+              "either",
+        untouched="left untouched: the engine reported this identity while "
+                  "answering about another, so this recovery neither "
+                  "targeted nor stopped it, and reconciling an unknown or "
+                  "ambiguous runtime is not in this command's scope")
+
+
+def _canonical_candidates(candidates):
+    """ONE ROW PER RUNTIME IDENTITY, and a contradiction reported as one.
+
+    W55758 review (2026-09-01T11:38:25Z) [P1]. An engine that named the same
+    runtime twice under conflicting `Running` members produced TWO zombie rows
+    for one exact locator -- one `quiescent`, one `running`, both targeted --
+    while the runtime itself was reported `uncertain`. Two mutually exclusive
+    states under one identity leave an operator no fact to act on, which is
+    exactly the ambiguity M60437's per-runtime report exists to remove.
+
+    AGREEMENT IS ONE OBSERVATION SEEN TWICE, so repeated or aliasing documents
+    that say the same thing collapse. ANYTHING ELSE IS `uncertain` AND CARRIES
+    EVERY ACCOUNT: the engine said more than one thing about this identity,
+    and a row that kept whichever arrived first would publish an observation
+    the rest of the answer contradicts.
+
+    AND AGREEMENT IS THE WHOLE ACCOUNT, NOT THE COARSE STATE. W55758 review
+    (2026-09-01T11:53:38Z) [P1]: comparing `state` alone made two DIFFERENT
+    `uncertain` answers -- one document carrying no state record, another
+    carrying `Running: "yes"` -- look like one observation seen twice, and the
+    second engine account was dropped without a word. For `uncertain` the
+    reason IS the evidence; it is the whole of what an operator has to act on,
+    so identical accounts are what collapses here and nothing else.
+    """
+    order = []
+    accounts = {}
+    for candidate in candidates:
+        runtime_id = candidate.get("runtime_id")
+        if not runtime_id:
+            continue
+        if runtime_id not in accounts:
+            order.append(runtime_id)
+            accounts[runtime_id] = []
+        account = (candidate.get("state"), candidate.get("why"))
+        if account not in accounts[runtime_id]:
+            accounts[runtime_id].append(account)
+    found = []
+    for runtime_id in order:
+        seen = accounts[runtime_id]
+        if len(seen) == 1:
+            state, why = seen[0]
+            found.append({"runtime_id": runtime_id, "state": state,
+                          "why": why})
+            continue
+        # THE ENGINE'S OWN WORDS, DEDUPLICATED BUT NOT SUMMARISED. An operator
+        # deciding what to do about this runtime needs to see that the several
+        # answers exist; a reason saying only "conflicting" would replace one
+        # unusable row with one uninformative one.
+        said = "; ".join(f"{state!r} ({why})" for state, why in seen)
+        found.append({"runtime_id": runtime_id, "state": "uncertain",
+                      "why": f"the engine reported this exact identity more "
+                             f"than once and its answers disagree: {said}"})
+    return found
+
+
+def _zombie_account(candidates, target, *, acted, untouched):
+    """One composer for both branches of M60437's leave-alone report.
+
+    The attached ending reports what the engine said after its removal; the
+    pre-attach ending reports what `recover_credentials` refused over. Those
+    are the same obligation -- name every runtime this recovery left on the
+    host, with its exact locator, its observed state and why -- and a second
+    composer would be a second vocabulary for one deliverable.
+
+    THE ACT IS PER RUNTIME AND THE TWO SENTENCES ARE NOT INTERCHANGEABLE.
+    Whichever runtime this recovery was permitted to act on gets `acted`;
+    every other one gets `untouched`, and calling a runtime somebody just
+    tried to remove untouched is the false sentence an operator would act on.
+
+    AND THE RUNTIME IS THE ROW. `_canonical_candidates` settles repeated
+    observations before this composes, so `targeted` and its sentence are said
+    once per identity rather than once per document the engine emitted.
+    """
+    found = []
+    for candidate in _canonical_candidates(candidates):
+        runtime_id = candidate["runtime_id"]
+        targeted = target is not None and runtime_id == target
+        found.append({"runtime_id": runtime_id,
+                      "state": candidate["state"],
+                      "why": candidate["why"],
+                      "targeted": targeted,
+                      "action": acted if targeted else untouched})
+    return found or None
 
 
 def _credential_account(orphan):
@@ -2498,6 +2772,22 @@ def _pre_attach_recovered(record, store, adapter, given, *, orphan,
                            "generation": given["generation"]},
             "context": context})
     except _Refusal as refused:
+        # W55758 review (2026-09-01T10:56:54Z) [P1]: AND WHAT IT LEFT ON THE
+        # HOST IS REPORTED HERE TOO. M60437's untouched-runtime rule applies
+        # to this branch exactly as it does to the attached one, and reducing
+        # the manager's refusal to prose left an operator a sentence where the
+        # ruling requires a per-runtime locator, state and reason.
+        record["zombies"] = _zombie_account(
+            getattr(refused, "runtime_zombies", ()),
+            getattr(refused, "stopped_runtime", None),
+            acted="this runtime was identified exactly and stopped, and it "
+                  "is still present; it is NOT untouched, and it is not "
+                  "proved absent either",
+            untouched="left untouched: this recovery could not identify it "
+                      "exactly as this attempt's runtime, so it was neither "
+                      "stopped nor adopted, and reconciling an unknown, "
+                      "ambiguous or mismatched runtime is not in this "
+                      "command's scope")
         return _unresolved(
             record,
             f"this attempt's credential material could not be proved unheld: "
@@ -2913,14 +3203,31 @@ def _abandoned(given, reason, capabilities, place):
     THE CARRIED RECORD IS THIS DEPLOYMENT'S OWN. Only the exception's TYPE
     name is recorded, never its text: a fault's message is untrusted prose on
     the most durable surface this command has.
+
+    AND IT GOES THROUGH `_recovery_of` RATHER THAN THE EXPORTED OPERATION,
+    because the builder above has already taken the one projection M60437
+    requires before any capability exists. The exported operation takes no
+    projection from anybody -- review (2026-09-01T10:56:54Z) [P1] -- so the
+    command's own carried observation travels by private composition instead.
     """
     from baton_v12.worker_manager import AuthorityPort
     from baton_v12.authority import claim_signature
 
     built = capabilities(given)
+    # W55758 review [P1]: THE HOLD REFUSED BEFORE ANY CAPABILITY WAS BUILT, so
+    # there is nothing to run and nothing that could have acted. What is owed
+    # is the account.
+    if built.get("disagreement"):
+        record = _recovery_record(given, reason)
+        record["attempt_state"] = built.get("state")
+        _unresolved(record, built["disagreement"])
+        for closing in built.get("closing", ()):
+            closing()
+        write_recovery(record, place)
+        return 1
     try:
-        answered = recover_abandoned(
-            built["store"],
+        answered = _recovery_of(
+            built["state"], built["store"],
             AuthorityPort(built["session"], claim_signature),
             built["adapter"], given, reason=reason, orphan=built["orphan"],
             launch_home=built["launch_home"], session=built["session"])
@@ -3490,14 +3797,42 @@ def _for_abandonment(given, *, run=None):
     from baton_v12.worker_manager import ControlStore, credentials, launch
     from baton_v12.worker_manager.oci import EnginePort, OciAdapter
 
-    authority = Authority.open(given["authority_store"])
-    opened = [authority.dispose]
+    from baton_v12.worker_manager import attempt_runtime_of
+
+    # W55758 review (2026-09-01T10:21:35Z) [P1]: THE HOLD COMES FIRST, BEFORE
+    # A CAPABILITY EXISTS.
+    #
+    # M60437 requires the fixed-assignment match before any external act, and
+    # this builder was the act: by the time `recover_abandoned` compared
+    # anything it had already opened the authority, selected a participant
+    # session, proved roots, constructed credential owners and adopted the
+    # launch delivery. A hold after all of that is a hold after most of what
+    # it exists to prevent.
+    #
+    # THE CONTROL STORE IS OPENED FIRST AND ALONE, because the projection is
+    # the question and there is no way to ask it without one. Opening a file
+    # this manager owns is not one of the capabilities the ruling names --
+    # no authority, engine, credential, launch or custody act happens here.
+    #
+    # AND IT IS THE ONE OBSERVATION. The projection is carried out to the
+    # caller rather than re-read there, so the identity held and the state
+    # acted on are one atomic answer at one moment.
+    store = ControlStore.open(given["control_store"],
+                              incarnation=given["incarnation"], clock=_now)
+    opened = [store.close]
     try:
+        state = attempt_runtime_of(store, given["attempt_id"])
+        disagreement = _assignment_disagrees(state, given)
+        if disagreement is not None:
+            # NOTHING ELSE IS BUILT. The caller writes the account and closes
+            # what this opened; no other capability was ever constructed, so
+            # there is nothing else to release and nothing that could act.
+            return {"store": store, "state": state,
+                    "disagreement": disagreement,
+                    "held": None, "closing": (store.close,)}
+        authority = Authority.open(given["authority_store"])
+        opened.append(authority.dispose)
         session = DeploymentSession(authority.session(given["participant"]))
-        store = ControlStore.open(given["control_store"],
-                                  incarnation=given["incarnation"],
-                                  clock=_now)
-        opened.append(store.close)
         roots = _proved_roots(given)
         granted = credentials.CredentialHome(given["credential_home"])
         assignment = credentials.CredentialHome(
@@ -3510,7 +3845,8 @@ def _for_abandonment(given, *, run=None):
             **_launch_operands(given["attempt_id"],
                                frozen_task(given["task_path"])))
         return {"store": store, "session": session, "orphan": orphan,
-                "launch_home": given["launch_home"],
+                "launch_home": given["launch_home"], "state": state,
+                "disagreement": None,
                 "closing": (store.close, authority.dispose),
                 "adapter": OciAdapter(
                     given["engine"], EnginePort(run or _engine_run),

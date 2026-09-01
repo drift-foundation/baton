@@ -4149,6 +4149,11 @@ class ThePublicRecoveryEndsAnInterruptedAttempt(
             return {"stdout": "", "stderr": "", "status": 0}
 
         built = dogfood_operator._for_abandonment(given, run=run)
+        if built.get("disagreement"):
+            # THE HOLD REFUSED BEFORE ANY CAPABILITY EXISTED, so there is no
+            # adapter to decorate -- which is the property under test in the
+            # cases that reach here.
+            return built
         # THE DIRECTORY CUSTODY ACT IS THE WORLD OUTSIDE THE MANAGER TOO.
         #
         # W55758 review (2026-09-01T05:54:54Z): the real `OciAdapter` runs a
@@ -4207,6 +4212,142 @@ class ThePublicRecoveryEndsAnInterruptedAttempt(
         del record_attempt, activate_assignment, attempts_module
         return given, grants_path, home
 
+    # -- the documented retry, over a REAL credential -----------------------
+
+    def test_the_documented_retry_adopts_through_the_granted_owner(self):
+        """W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 65.
+
+        THE GAP THIS CLOSES. The exact-owner assertion existed only around a
+        direct `_for_retry` call, and the one public-command retry fixture
+        configures no credential at all -- so nothing proved that the
+        DOCUMENTED command adopts a real delivery through the granted home and
+        hands the adapter that same object. `_for_retry` used to read the
+        granted home while `OciAdapter` derived its own from the assignment
+        workspace, and the two agreed only when the paths happened to
+        coincide.
+
+        THE STATE IS THE ORDINARY COMMAND'S OWN: a real freeze, a real intake
+        receipt, a real retention decision and this operator's own independent
+        verification, produced by running `main` with its pass made to refuse.
+        What this fixture supplies is the half the stubbed engine does not --
+        `OciAdapter.start` materializes and publishes the lifecycle record
+        after the container is created, and there is no container here.
+
+        AND THE OWNER IS COMPARED BY IDENTITY. A freshly constructed
+        `CredentialHome` over the same path satisfies a path comparison and is
+        a different owner, which is the assertion gap this campaign has now
+        corrected at three builders.
+        """
+        from baton_v12.contracts import forget_secret, live_secret
+        from baton_v12.worker_manager import credentials, worker_entry
+        from tests.manager.input_roots import configured_group
+
+        task_path = os.path.join(self._root.name, "task.json")
+        with open(task_path, "w", encoding="utf-8") as writing:
+            json.dump(dict(TASK), writing)
+        given = self.grants(task_path)
+        self.assertEqual(given["credential_slots"], ["api"],
+                         "a retry over no credential cannot prove adoption")
+        grants_path = os.path.join(self._root.name, "grants.json")
+        with open(grants_path, "wb") as writing:
+            writing.write(json.dumps(given).encode("utf-8"))
+        evidence_path = os.path.join(self._root.name, "evidence.json")
+
+        # -- the ordinary command, whose handoff fails ----------------------
+        spoken = {"ending": "answered", "why": "clean",
+                  "answers": [{"operation": "work",
+                               "answer": {"disposition": "completed",
+                                          "outputs": [], "recap": "done"}}]}
+        with ExitStack() as patches:
+            patches.enter_context(mock.patch.object(
+                worker_entry, "converse", return_value=spoken))
+            patches.enter_context(mock.patch.object(
+                dogfood_operator, "_derived",
+                return_value={"changed_paths": [], "verification_status": 0,
+                              "verification_argv": ["python3", "harness.py"],
+                              "members_present": ["candidate"]}))
+            ordinary = dogfood_operator.main(
+                ["--grants", grants_path, "--evidence", evidence_path],
+                capabilities=self.ordinary_capabilities)
+        self.assertEqual(ordinary, 1, "the ordinary command reported success")
+        with open(evidence_path, "rb") as reading:
+            failed = json.loads(reading.read())
+        self.assertIsNone(failed["review_pass"],
+                          "the pass this case needs to fail did not")
+        # THE MANAGER FACTS ARE REAL, written by the arc rather than here.
+        self.assertIsNotNone(failed["output"]["manifest_digest"])
+        self.assertIsNotNone(failed["intake_receipt"]["receipt_digest"])
+        self.assertEqual(failed["retention"]["disposition"],
+                         "discard-after-intake")
+
+        # -- the credential a started runtime would have left behind --------
+        home = credentials.CredentialHome(given["credential_home"])
+        delivery = home.materialize(
+            credentials.resolved_delivery(
+                given["credential_slots"],
+                profile=given["credential_profile"]),
+            attempt_id=given["attempt_id"],
+            workspace_group=configured_group(self.store),
+            credential_provider=lambda _slot, _reference: self.CANARY)
+        home.written_state(given["attempt_id"],
+                           delivery.record(
+                               runtime_id=failed["runtime_id"]))
+        # THE OWNING PROCESS'S REGISTRATION DIES WITH IT, as everywhere else
+        # in this suite: what the retry must recover is the durable material.
+        for value in delivery.bearers().values():
+            forget_secret(value)
+
+        # -- the retry, through the documented command ----------------------
+        received = []
+        constructed = {}
+        held_adopt = credentials.CredentialHome.adopt
+
+        def adopt(owner, *arguments, **operands):
+            received.append(owner)
+            return held_adopt(owner, *arguments, **operands)
+
+        def retry_capabilities(evidence, operands):
+            built = dogfood_operator._for_retry(evidence, operands)
+            constructed["adapter"] = built["adapter"]
+            return built
+
+        with ExitStack() as patches:
+            patches.enter_context(mock.patch.object(
+                credentials.CredentialHome, "adopt", adopt))
+            patches.enter_context(mock.patch.object(worker_entry, "converse"))
+            patches.enter_context(mock.patch.object(dogfood_operator,
+                                                    "stage_source"))
+            patches.enter_context(mock.patch.object(dogfood_operator,
+                                                    "_derived"))
+            dogfood_operator.main(
+                ["--grants", grants_path, "--evidence", evidence_path,
+                 "--retry-handoff"],
+                capabilities=lambda _g: self.fail("the ordinary builder ran"),
+                retry_capabilities=retry_capabilities)
+
+        adapter = constructed["adapter"]
+        self.assertEqual(len(received), 1,
+                         "the command adopted no delivery, or adopted twice")
+        self.assertIsInstance(adapter.credential_delivery,
+                              credentials.Delivery)
+        self.assertEqual(adapter.credential_delivery.attempt_id,
+                         given["attempt_id"])
+        self.assertIs(adapter.credential_home, received[0],
+                      "the command adopted through one home and handed the "
+                      "adapter another over the same path")
+        self.assertIs(adapter._credential_home(), received[0])
+        # AND THE PASS REALLY HAPPENED, asked of the authority rather than of
+        # the record this deployment wrote.
+        self.assertIsNone(self.facade.assignment_of(intake_fixture.JOB),
+                          "the assignment was not ended by the pass")
+        self.assertEqual(self.facade.project_work(
+            intake_fixture.JOB)["route"], "rview")
+        # THE ADOPTION RE-REGISTERED THE BEARER, so this case ends it through
+        # the same home rather than leaving it live.
+        if live_secret(self.CANARY):
+            adapter.credential_home.tear_down(adapter.credential_delivery)
+        self.assertFalse(live_secret(self.CANARY))
+
     # -- the refusals, before anything is opened ----------------------------
 
     def test_the_declaration_is_required_and_is_the_operators_own(self):
@@ -4258,7 +4399,7 @@ class ThePublicRecoveryEndsAnInterruptedAttempt(
 
     # -- the pre-attach branch ----------------------------------------------
 
-    def test_an_unactivated_orphan_is_non_terminal_rather_than_removed(self):
+    def test_an_unrecorded_orphan_refuses_before_any_act(self):
         """The window this fixture reproduces is CLOSED at the launcher now.
 
         W55758, approver ruling APPROVE-LAZY (M59057): `_launched` no longer
@@ -4275,6 +4416,13 @@ class ThePublicRecoveryEndsAnInterruptedAttempt(
         therefore the RULED outcome for this input, not an outstanding defect;
         the ordering cases above are what prove the deployment cannot produce
         the input any more.
+
+        W55758 (M60437) SHARPENS THE REFUSAL and moves it earlier. The command
+        now holds its grants against the assignment the manager FIXED, before
+        either branch and before any external act -- and this fixture's
+        attempt was never recorded at all, so there is nothing to hold them
+        against. The refusal is the hold's rather than the selector's, and it
+        lands before anything is even branched on.
         """
         _given, grants_path, home = self.interrupted()
         out = os.path.join(self._root.name, "recovery.json")
@@ -4287,9 +4435,12 @@ class ThePublicRecoveryEndsAnInterruptedAttempt(
         with open(out, "rb") as reading:
             written = json.loads(reading.read())
         self.assertEqual(written["schema"], dogfood_operator.RECOVERY_SCHEMA)
-        self.assertEqual(written["branch"], "pre-attach")
+        self.assertIsNone(written["branch"],
+                          "the hold must land before either branch")
         self.assertFalse(written["resolved"])
-        self.assertTrue(written["unresolved"])
+        self.assertTrue(any("no attempt" in one
+                            for one in written["unresolved"]),
+                        written["unresolved"])
         # AND NOTHING WAS REMOVED ON THAT ACCOUNT.
         self.assertTrue(os.path.isdir(
             home.volatile_root(intake_fixture.ATTEMPT)))
@@ -4378,11 +4529,21 @@ class TheAttachedRecoveryEndsThroughTheRuledAbandonment(unittest.TestCase):
         return adapter
 
     def given(self):
+        """Grants that name the assignment THIS MANAGER FIXED.
+
+        W55758 (M60437): the recovery holds its grants against the attempt's
+        fixed assignment before any act, so a fixture composing an identity of
+        its own would be testing the refusal rather than the ending. The
+        identity is read out of the same projection the command reads.
+        """
+        from baton_v12.worker_manager import attempt_runtime_of
+
+        found = attempt_runtime_of(self.rig.store, self.A.ATTEMPT) or {}
+        fixed = found.get("assignment") or {}
         return {"attempt_id": self.A.ATTEMPT,
-                "work_ref": {"authority_uuid": self.A.AUTHORITY,
-                             "work_id": self.A.JOB}
-                if hasattr(self.A, "AUTHORITY") else {"work_id": "w"},
-                "participant": "baton.claude", "generation": 1,
+                "work_ref": dict(fixed.get("work_ref") or {}),
+                "participant": fixed.get("participant"),
+                "generation": fixed.get("generation"),
                 "retention_policy_digest": "sha256:" + "7" * 64,
                 "task_path": None, "launch_home": None}
 
@@ -4462,6 +4623,69 @@ class TheAttachedRecoveryEndsThroughTheRuledAbandonment(unittest.TestCase):
                          "unresolved")
         self.assertFalse(record["resolved"])
 
+    def test_the_exported_operation_takes_no_projection_from_a_caller(self):
+        """W55758 review (2026-09-01T10:56:54Z) [P1]: the door built to close
+        the hole must not be the hole, and a Python class is not a lock.
+
+        The carried observation was first a plain `state` operand and then a
+        nominal `_HeldProjection`. Both let a DIRECT caller of the exported
+        operation supply a forged projection -- a generation-2 document beside
+        generation-2 grants ended the real generation-1 attempt and published
+        generation 2 as the identity the ending used -- because the nominal
+        type was an ordinary module attribute with a public constructor.
+
+        SO THERE IS NOTHING LEFT TO FORGE. The operand is gone from the
+        exported surface, which reads and holds the manager's own row itself.
+        """
+        import inspect
+
+        self.assertNotIn(
+            "state",
+            inspect.signature(dogfood_operator.recover_abandoned).parameters,
+            "the exported recovery accepts a caller-supplied projection "
+            "again, which is the forgery this row exists to refuse")
+        self.assertFalse(
+            [one for one in vars(dogfood_operator)
+             if one.endswith("HeldProjection")],
+            "the nominal capability is back, and an importable class with a "
+            "public constructor is not one")
+
+        home = self.materialized(self.credential_home())
+        orphan = self.orphan(home)
+        adapter = self.attached(orphan)
+        forged = dict(self.given())
+        forged["generation"] = 2
+        state = {"attempt_id": self.A.ATTEMPT, "runtime_id": "runtime-1",
+                 "execution_runtime": "running", "cleanup": "pending",
+                 "assignment": {"work_ref": dict(forged["work_ref"]),
+                                "participant": forged["participant"],
+                                "generation": 2}}
+
+        with self.assertRaises(TypeError):
+            dogfood_operator.recover_abandoned(
+                self.rig.store, self.rig.port, adapter, forged,
+                reason="a forged projection", orphan=orphan, state=state)
+
+        # AND THE OPERATION'S OWN READ REFUSES THE SAME GRANTS, which is what
+        # makes the missing operand a closure rather than a hole moved.
+        record = dogfood_operator.recover_abandoned(
+            self.rig.store, self.rig.port, adapter, forged,
+            reason="a forged projection", orphan=orphan)
+        self.assertFalse(record["resolved"])
+        self.assertIsNone(record["branch"],
+                          "the hold must land before either branch")
+        self.assertTrue(any("disagree on" in one
+                            for one in record["unresolved"]),
+                        record["unresolved"])
+        self.assertEqual(record["generation"], 2,
+                         "a refusal accounts for the identity that was ASKED "
+                         "for, and this ending never ran")
+
+        # NOTHING HAPPENED: no removal, and the material is where it was.
+        self.assertEqual(adapter.abandoned, [])
+        self.assertTrue(os.path.lexists(home.volatile_root(self.A.ATTEMPT)))
+        self.assertEqual(self.rig.row()["cleanup"], "pending")
+
     def test_a_refused_ending_is_recorded_rather_than_raised(self):
         """An attempt whose worker answered cannot be abandoned, and the
         recovery says so instead of failing the command."""
@@ -4513,8 +4737,11 @@ class ARecoveryThatBeganAlwaysLeavesAnAccount(unittest.TestCase):
 
     def capabilities(self, closing=()):
         def build(_given):
+            # `state` IS PART OF THE BUILDER'S CONTRACT, because M60437's
+            # hold is the builder's own act; this stand-in takes the place of
+            # a builder that took one, and `_recovering` is patched out below.
             return {"store": object(), "session": self.session(),
-                    "adapter": object(), "orphan": None,
+                    "adapter": object(), "orphan": None, "state": None,
                     "launch_home": None, "closing": closing}
 
         return build
@@ -4891,7 +5118,7 @@ class TheDocumentedRecoveryEndsRealAttachedState(
     convenience.
     """
 
-    def interrupted_attached(self, publish=True):
+    def interrupted_attached(self, publish=True, activate=True):
         """Run the ordinary command and stop it where run7 stopped.
 
         `publish=False` is the other interruption the matrix names: the
@@ -4941,6 +5168,16 @@ class TheDocumentedRecoveryEndsRealAttachedState(
                 worker_entry, "converse",
                 side_effect=RuntimeError(
                     "the supervising turn was torn down")))
+            if not activate:
+                # RECORDED AND NEVER ACTIVATED: the attempt exists and no
+                # assignment was ever fixed for it.
+                from baton_v12 import worker_manager
+
+                patches.enter_context(mock.patch.object(
+                    worker_manager, "activate_assignment",
+                    side_effect=ContractRefusal(
+                        "unavailable", "authority",
+                        "the authority went away before activation")))
             # THE ENDING THE KILLED PROCESS NEVER REACHED.
             patches.enter_context(mock.patch.object(
                 dogfood_operator, "_ended_however", lambda *a, **k: None))
@@ -4970,6 +5207,34 @@ class TheDocumentedRecoveryEndsRealAttachedState(
         self.assertFalse(live_secret(self.CANARY),
                          "the interrupted process's registration outlived it")
         return given, grants_path, deliveries
+
+    def interrupted_before_attach(self):
+        """The OTHER interruption the matrix names, cut one step earlier.
+
+        The attempt is recorded, claimed and activated and its credential is
+        materialized through the granted home in the arc's own order -- and
+        the manager never records a runtime, which is the state
+        `attempt_runtime_of` answers with a null `runtime_id` and the state
+        the pre-attach branch exists for. The lifecycle record the fixture's
+        `adapter_of` publishes is the half a real `OciAdapter.start` performs
+        after the engine has created something, so what is left behind is
+        exactly a bearer whose runtime this manager cannot name.
+        """
+        from baton_v12 import worker_manager
+
+        with mock.patch.object(
+                worker_manager, "request_runtime_start",
+                side_effect=ContractRefusal(
+                    "refused", "precondition",
+                    "the supervising turn was torn down before the runtime "
+                    "was requested")):
+            given, grants_path, made = self.interrupted_attached()
+        found = self.state(given)
+        self.assertIsNotNone(found, "no attempt was recorded at all")
+        self.assertIsNone(found["runtime_id"],
+                          "a runtime attached, so this is not the pre-attach "
+                          "branch and this fixture proves nothing")
+        return given, grants_path, made
 
     def state(self, given):
         from baton_v12.worker_manager import attempt_runtime_of
@@ -5211,16 +5476,64 @@ class TheRecoveryMatrixOverDurableAttachedState(
     over state the operator's own arc really produced.
     """
 
-    def engine(self, *, inspect):
-        """A recovery capability set whose engine answers `inspect` so."""
+    def attempt_labels(self, given):
+        """The whole frozen label set that selects THIS attempt's runtimes.
+
+        Composed exactly as `OciAdapter._attempt_labels` composes it -- the
+        activated context plus the grants' assignment plus the three resolved
+        digests -- because a listing the adapter cannot reconcile on is not
+        evidence about this attempt at all.
+        """
+        from baton_v12.worker_manager import documents, label_context
+        from baton_v12.worker_manager.oci import LABEL_PREFIX
+
+        context = label_context(self.store, given["attempt_id"])
+        labels = documents.runtime_labels(
+            runtime_attempt_id=given["attempt_id"],
+            authority_uuid=given["work_ref"]["authority_uuid"],
+            work_id=given["work_ref"]["work_id"],
+            participant=given["participant"],
+            generation=given["generation"],
+            principal=context["principal"],
+            effective_scope=context["effective_scope"],
+            profile_digest=given["runtime_profile_digest"],
+            policy_digest=given["policies"]["policy_digest"],
+            adapter_digest=given["adapter_digest"])
+        return {f"{LABEL_PREFIX}{name}": str(labels[name])
+                for name in documents.RUNTIME_LABELS}
+
+    def engine(self, *, inspect, listed=()):
+        """A recovery capability set whose engine answers `inspect` so.
+
+        `listed` is what the engine says carries this attempt's whole label
+        set. That is the question the PRE-ATTACH branch asks before it removes
+        anything, and until this fixture could answer it that branch had no
+        command-level coverage of M60437's untouched-runtime rule.
+
+        EVERY ARGV IS RECORDED, because the rule is about what this recovery
+        did NOT do: a `stop` issued for a runtime it could not identify
+        exactly is the defect, and only the vectors can show its absence.
+        """
+        self.commands = []
+
         def capabilities(operands):
             def run(argv, *, seconds=None):
                 del seconds
+                self.commands.append(list(argv))
                 if "inspect" in argv:
                     return inspect(argv[-1])
+                if "ps" in argv:
+                    rows = [json.dumps(
+                        {"ID": one, "Image": operands["image_digest"],
+                         "Labels": self.attempt_labels(operands)})
+                        for one in listed]
+                    return {"status": 0, "stderr": "",
+                            "stdout": "\n".join(rows)}
                 return {"stdout": "", "stderr": "", "status": 0}
 
             built = dogfood_operator._for_abandonment(operands, run=run)
+            if built.get("disagreement"):
+                return built
             from baton_v12.worker_manager import custody
 
             built["adapter"].normalize_directory = (
@@ -5314,6 +5627,8 @@ class TheRecoveryMatrixOverDurableAttachedState(
         """A recovery capability set that faults at ONE named boundary."""
         def capabilities(operands):
             built = self.recovery_capabilities(operands)
+            if built.get("disagreement"):
+                return built
             adapter = built["adapter"]
             if where == "fence":
                 session = built["session"]
@@ -5402,19 +5717,664 @@ class TheRecoveryMatrixOverDurableAttachedState(
                     if one in given}
         evidence.update({"runtime_id": "runtime-1",
                          "worker_image_digest": given["image_digest"]})
-        built = dogfood_operator._for_retry(evidence, given)
+        # W55758 review (2026-09-01T06:09:21Z) [P1]: BY IDENTITY, NOT BY PATH.
+        # A freshly constructed same-path `CredentialHome` satisfies a path
+        # comparison and is a different owner, which is the same assertion gap
+        # caught earlier at `_launched`. So the RECEIVER of the `adopt` call
+        # is captured and the adapter is required to own that exact object.
+        received = []
+        held_adopt = credentials.CredentialHome.adopt
+
+        def adopt(home, *arguments, **operands):
+            received.append(home)
+            return held_adopt(home, *arguments, **operands)
+
+        with mock.patch.object(credentials.CredentialHome, "adopt", adopt):
+            built = dogfood_operator._for_retry(evidence, given)
         self.addCleanup(lambda: [close() for close in built["closing"]])
         adapter = built["adapter"]
 
+        self.assertEqual(len(received), 1,
+                         "the retry adopted no delivery, or adopted twice")
         self.assertIsInstance(adapter.credential_delivery,
                               credentials.Delivery)
         self.assertEqual(adapter.credential_delivery.attempt_id,
                          given["attempt_id"])
-        self.assertEqual(adapter.credential_home.place,
-                         given["credential_home"])
-        self.assertIs(adapter._credential_home(), adapter.credential_home)
+        self.assertIs(adapter.credential_home, received[0],
+                      "the retry adopted through one home and handed the "
+                      "adapter another over the same path")
+        self.assertIs(adapter._credential_home(), received[0])
         # THE ADOPTION RE-REGISTERED THE BEARER, so this case owns it and
         # ends it through the same home rather than leaving it live.
         adapter.credential_home.tear_down(adapter.credential_delivery)
         self.assertFalse(live_secret(self.CANARY))
         del made
+
+
+class TheGrantsAreHeldAgainstTheFixedAssignment(
+        TheRecoveryMatrixOverDurableAttachedState):
+    """W55758, approver ruling APPROVE-EXTEND (M60437).
+
+    THE MEASURED DEFECT. A grants file is an editable durable surface and
+    nothing compared it with what activation FIXED: `abandon_attempt` takes
+    its assignment from the attempt ROW, so a recovery granted generation 2
+    ended the generation-1 attempt anyway and wrote its own generation into
+    the record as though it were the identity the ending used.
+
+    THE HOLD IS BEFORE EITHER BRANCH AND BEFORE ANY EXTERNAL ACT, which is
+    what each of these asserts: no authority act, no engine act, no credential
+    or launch teardown, no custody, and the branch itself unset.
+    """
+
+    def watched(self):
+        """Recovery capabilities that RECORD every external seam they touch.
+
+        W55758 review (2026-09-01T10:21:35Z) [P1]. Asserting that no member of
+        the record was filled proves nothing happened AFTER the builder ran;
+        the ruling is about what happens INSIDE it. So the seams the builder
+        would exercise are watched, and the assertion is that none was.
+        """
+        from baton_v12.authority import Authority
+        from baton_v12.worker_manager import credentials, launch
+
+        self.exercised = []
+        held = {"authority": Authority.open, "roots": dogfood_operator._proved_roots,
+                "orphan": credentials.OrphanTeardown,
+                "launch": launch.adopt}
+
+        def capabilities(operands):
+            with ExitStack() as watching:
+                for name, original in held.items():
+                    watching.enter_context(self.watching(name, original))
+                return self.recovery_capabilities(operands)
+
+        return capabilities
+
+    def watching(self, name, original):
+        from baton_v12.authority import Authority
+        from baton_v12.worker_manager import credentials, launch
+
+        def noted(*arguments, **operands):
+            self.exercised.append(name)
+            return original(*arguments, **operands)
+
+        targets = {"authority": (Authority, "open"),
+                   "roots": (dogfood_operator, "_proved_roots"),
+                   "orphan": (credentials, "OrphanTeardown"),
+                   "launch": (launch, "adopt")}
+        owner, member = targets[name]
+        return mock.patch.object(owner, member, noted)
+
+    def edited(self, grants_path, **overrides):
+        with open(grants_path, encoding="utf-8") as reading:
+            given = json.load(reading)
+        for name, value in overrides.items():
+            if name == "work_ref":
+                given["work_ref"] = dict(given["work_ref"], **value)
+            else:
+                given[name] = value
+        place = os.path.join(self._root.name, "edited-grants.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            json.dump(given, writing)
+        return place
+
+    def test_every_assignment_member_refuses_with_nothing_touched(self):
+        for name, overrides in (
+                ("generation", {"generation": 2}),
+                ("authority_uuid",
+                 {"work_ref": {"authority_uuid": "f" * 32}}),
+                ("work_id", {"work_ref": {"work_id": "2bdb4a5d-W99999"}}),
+                ("participant", {"participant": "baton.someone"})):
+            with self.subTest(member=name):
+                self.setUp()
+                given, grants_path, _made = self.interrupted_attached()
+                edited = self.edited(grants_path, **overrides)
+                home = self.home(given)
+                before = self.state(given)
+
+                status, written = self.abandoned(edited, self.watched())
+
+                self.assertEqual(status, 1)
+                self.assertFalse(written["resolved"])
+                self.assertIsNone(written["branch"],
+                                  "the hold must land before either branch")
+                self.assertTrue(any("disagree on" in one
+                                    for one in written["unresolved"]),
+                                written["unresolved"])
+                # NO CAPABILITY WAS EVER BUILT, which is the ruled boundary
+                # rather than merely "nothing mutated afterwards": the builder
+                # opens the authority, selects a session, proves roots,
+                # constructs the credential owners and adopts the launch
+                # delivery, and none of that may happen behind a grants file
+                # that is not this attempt's.
+                self.assertEqual(self.exercised, [],
+                                 f"capabilities were built: {self.exercised}")
+                # NOTHING WAS TOUCHED: no authority act, no engine act, no
+                # credential or launch teardown, no custody.
+                for member in ("authority_fence", "runtime", "credentials",
+                               "launch", "custody", "cleanup"):
+                    self.assertIsNone(written[member], member)
+                self.assertEqual(self.state(given), before,
+                                 "the manager's own axes moved")
+                self.assertTrue(os.path.lexists(
+                    home.volatile_root(given["attempt_id"])),
+                    "a bearer was removed under mismatched grants")
+                self.assertTrue(os.path.exists(
+                    home.state_path(given["attempt_id"])))
+
+    def test_matching_grants_still_end_the_attempt(self):
+        """The positive half, so the refusals above are not passing because
+        nothing works."""
+        _given, grants_path, _made = self.interrupted_attached()
+        status, written = self.abandoned(grants_path,
+                                         self.recovery_capabilities)
+        self.assertEqual(status, 0, written["unresolved"])
+        self.assertEqual(written["cleanup"], "retained")
+
+    def test_grants_naming_another_attempt_never_reach_an_act(self):
+        """A grants file naming an attempt this manager never recorded.
+
+        It used to refuse at `_proved_roots`, INSIDE the capability builder --
+        after the authority was open and a participant session selected. The
+        hold now lands before any of that, so the refusal is the hold's and
+        the command still writes the account an operator reads.
+        """
+        given, grants_path, _made = self.interrupted_attached()
+        edited = self.edited(grants_path, attempt_id="attempt-never-recorded")
+        home = self.home(given)
+        before = self.state(given)
+
+        status, written = self.abandoned(edited, self.recovery_capabilities)
+
+        self.assertEqual(status, 1)
+        self.assertIsNone(written["branch"])
+        self.assertTrue(any("no attempt" in one
+                            for one in written["unresolved"]),
+                        written["unresolved"])
+        self.assertEqual(self.state(given), before)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+
+
+class TheCredentialToLaunchBoundaryConverges(
+        TheRecoveryMatrixOverDurableAttachedState):
+    """W55758 review (2026-09-01T06:09:21Z) [P1]: the boundary INSIDE the
+    composite answer, reached at a PUBLIC act.
+
+    `_removed` settles the credential and then the launch root on one absence
+    observation, and a process can die between those two acts even though the
+    adapter answers once. The injection point is `launch.discard`, which is a
+    public manager act -- no private seam is touched.
+    """
+
+    def test_a_fault_between_the_two_teardowns_leaves_an_account(self):
+        from baton_v12.worker_manager import launch
+
+        given, grants_path, _made = self.interrupted_attached()
+        place = os.path.join(self._root.name, "recovery.json")
+        home = self.home(given)
+
+        with mock.patch.object(
+                launch, "discard",
+                side_effect=RuntimeError("the launch root would not go")):
+            with self.assertRaises(RuntimeError):
+                dogfood_operator.main(
+                    ["--grants", grants_path, "--evidence", place,
+                     "--abandon", "--abandon-reason",
+                     "the supervising turn was torn down"],
+                    capabilities=lambda _g: self.fail("built"),
+                    abandon_capabilities=self.recovery_capabilities)
+
+        with open(place, encoding="utf-8") as reading:
+            faulted = json.load(reading)
+        self.assertFalse(faulted["resolved"])
+        # THE CREDENTIAL HALF REALLY HAPPENED, and the record says so.
+        self.assertEqual(faulted["runtime"]["state"], "absent")
+        self.assertEqual(faulted["credentials"]["lifecycle_state"],
+                         "torn-down")
+        self.assertFalse(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+        # AND THE LAUNCH HALF DID NOT.
+        self.assertNotEqual((faulted["launch"] or {}).get("lifecycle_state"),
+                            "torn-down")
+        self.assertTrue(any("faulted after it began" in one
+                            for one in faulted["unresolved"]))
+
+        # THE RESTART CONVERGES.
+        status, written = self.abandoned(grants_path,
+                                         self.recovery_capabilities,
+                                         out=place)
+        self.assertEqual(status, 0, written["unresolved"])
+        self.assertEqual(written["cleanup"], "retained")
+        self.assertEqual(written["launch"]["lifecycle_state"], "torn-down")
+        self.assertFalse(live_secret(self.CANARY))
+
+    def test_an_attempt_with_no_fixed_assignment_refuses_before_any_act(self):
+        """Activation is what fixes an assignment, and a grants file cannot be
+        held against something that was never decided.
+
+        The attempt EXISTS here -- it was recorded -- so this is the hold's
+        second branch rather than its first.
+        """
+        given, grants_path, _made = self.interrupted_attached(activate=False)
+        status, written = None, None
+        found = self.state(given)
+        self.assertIsNotNone(found, "this row needs a recorded attempt")
+        self.assertIsNone(found["assignment"],
+                          "this row needs an attempt with no fixed assignment")
+
+        status, written = self.abandoned(grants_path,
+                                         self.recovery_capabilities)
+
+        home = self.home(given)
+        before = self.state(given)
+        self.assertEqual(status, 1)
+        self.assertIsNone(written["branch"],
+                          "the hold must land before either branch")
+        self.assertTrue(any("no fixed assignment" in one
+                            for one in written["unresolved"]),
+                        written["unresolved"])
+        for member in ("authority_fence", "runtime", "credentials", "launch",
+                       "custody", "cleanup"):
+            self.assertIsNone(written[member], member)
+        self.assertEqual(self.state(given), before)
+        # AND THERE IS NO BEARER HERE AT ALL, which is the lazy-materialization
+        # ruling showing through: activation is what admits the credential, so
+        # an attempt that never activated never had one. The row is about the
+        # HOLD refusing before any act, not about material it could protect.
+        self.assertFalse(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+
+
+class TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime(
+        TheGrantsAreHeldAgainstTheFixedAssignment):
+    """W55758, approver ruling M60437.
+
+    V12 does not adopt or resume a runtime from an older Worker Manager
+    incarnation. An EXACTLY IDENTIFIED one may be stopped, its credential
+    settled and its attempt marked interrupted, with its output preserved as
+    untrusted evidence. Unknown, ambiguous and MISMATCHED runtimes stay
+    untouched and are reported as zombies; automatic reconciliation of those
+    is deliberately out of scope, so the report IS the deliverable.
+    """
+
+    def test_a_fresh_incarnation_ends_the_exactly_identified_old_runtime(self):
+        """The attempt was attached under one incarnation and the recovery
+        runs under another. Nothing is adopted or resumed: the exact runtime
+        is removed, its credential settled and its attempt left `retained`
+        with the worker's output untouched."""
+        from baton_v12.worker_manager import (frozen_output_of,
+                                              intake_receipt_of)
+
+        given, grants_path, _made = self.interrupted_attached()
+        fresh = self.edited(grants_path,
+                            incarnation="w55758-a-later-manager")
+        with open(fresh, encoding="utf-8") as reading:
+            self.assertNotEqual(json.load(reading)["incarnation"],
+                                given["incarnation"])
+        # W55758 review (2026-09-01T10:56:54Z) [P1]: REAL BYTES, WRITTEN WHERE
+        # A WORKER WRITES THEM. `cleanup: retained` is the manager's word for
+        # material kept on purpose and says nothing about file content, so
+        # this case asserted the axis and proved nothing about the output the
+        # ruling requires preserved.
+        marker = os.path.join(
+            dogfood_operator._proved_roots(given)["workspace"],
+            "proposal", "candidate", "the-worker-wrote-this.txt")
+        os.makedirs(os.path.dirname(marker), exist_ok=True)
+        body = b"an interrupted worker's untrusted output\n"
+        with open(marker, "wb") as writing:
+            writing.write(body)
+
+        status, written = self.abandoned(fresh, self.recovery_capabilities)
+
+        self.assertEqual(status, 0, written["unresolved"])
+        self.assertEqual(written["cleanup"], "retained")
+        self.assertEqual(written["runtime"]["state"], "absent")
+        self.assertEqual(written["credentials"]["lifecycle_state"],
+                         "torn-down")
+        self.assertIsNone(written["zombies"],
+                          "an exactly identified runtime is not a zombie")
+        home = self.home(given)
+        self.assertFalse(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+        # THE WORKER'S OWN OUTPUT IS PRESERVED, untrusted and in place: the
+        # ending is `retained`, which is the frozen axis's word for material
+        # kept on purpose.
+        self.assertEqual(self.state(given)["cleanup"], "retained")
+        # AND THE BYTES ARE STILL THERE, unmoved and unchanged.
+        self.assertTrue(os.path.exists(marker),
+                        "the worker's output was removed by an ending that "
+                        "reports it retained")
+        with open(marker, "rb") as reading:
+            self.assertEqual(reading.read(), body)
+        # UNTRUSTED, which means NOTHING PROMOTED IT. A recovery runs no
+        # freeze and no intake, so the manager's own two readers must still
+        # answer that this attempt reached neither.
+        self.assertIsNone(frozen_output_of(self.store, given["attempt_id"]),
+                          "a recovery froze the worker's output")
+        self.assertIsNone(intake_receipt_of(self.store, given["attempt_id"]),
+                          "a recovery took the worker's output into custody")
+        self.assertEqual(
+            sorted({one["verb"] for one in written["custody"].values()}),
+            ["normalize"],
+            "the only custody act an ending performs is normalization; a "
+            "promotion verb here would be a proposal this recovery trusted")
+
+    def test_an_unidentifiable_runtime_is_reported_and_left_alone(self):
+        """The other half. An engine answering about another id cannot
+        identify this attempt's runtime, so nothing is stopped and the
+        recovery's one obligation is to name what it left."""
+        given, grants_path, _made = self.interrupted_attached()
+
+        def elsewhere(_runtime):
+            return {"status": 0, "stderr": "", "stdout": json.dumps(
+                [{"Id": "some-other-runtime", "State": {"Running": True},
+                  "Mounts": []}])}
+
+        status, written = self.abandoned(grants_path,
+                                         self.engine(inspect=elsewhere))
+
+        self.assertEqual(status, 1)
+        self.assertFalse(written["resolved"])
+        self.assertIsNotNone(written["zombies"],
+                             "a runtime this recovery could not identify was "
+                             "left running and never reported")
+        named = {one["runtime_id"]: one for one in written["zombies"]}
+        # THE IDENTITY THE ENGINE ACTUALLY REPORTED IS NAMED, which the first
+        # cut of this report could not do: it reconstructed the list from the
+        # EXPECTED target while the engine had answered about another.
+        self.assertIn("some-other-runtime", named)
+        self.assertFalse(named["some-other-runtime"]["targeted"])
+        self.assertIn("left untouched", named["some-other-runtime"]["action"])
+        # W55758 review (2026-09-01T10:56:54Z) [P1]: ITS OWN STATE AND ITS OWN
+        # REASON. This candidate's inspection says `Running: true`, and the
+        # report wrote the literal `unidentified` for it and copied the
+        # target's diagnostic as its explanation.
+        self.assertEqual(named["some-other-runtime"]["state"], "running")
+        self.assertEqual(named["some-other-runtime"]["why"],
+                         "the engine reports it running")
+        # AND THE TARGET IS NAMED TRUTHFULLY: a removal really was issued for
+        # it, so calling it untouched would be false.
+        target = self.state(given)["runtime_id"]
+        self.assertIn(target, named)
+        self.assertTrue(named[target]["targeted"])
+        self.assertIn("removal was issued", named[target]["action"])
+        self.assertNotIn("left untouched", named[target]["action"])
+        # AND NOTHING WAS TOUCHED.
+        home = self.home(given)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+        self.assertNotEqual(written["cleanup"], "retained")
+
+    def test_a_running_runtime_is_reported_rather_than_resumed(self):
+        given, grants_path, _made = self.interrupted_attached()
+
+        def running(runtime):
+            return {"status": 0, "stderr": "", "stdout": json.dumps(
+                [{"Id": runtime, "State": {"Running": True}, "Mounts": []}])}
+
+        status, written = self.abandoned(grants_path,
+                                         self.engine(inspect=running))
+
+        self.assertEqual(status, 1)
+        [zombie] = written["zombies"]
+        self.assertEqual(zombie["state"], "running")
+        self.assertEqual(zombie["runtime_id"],
+                         self.state(given)["runtime_id"])
+        self.assertTrue(zombie["targeted"])
+        self.assertIn("removal was issued", zombie["action"])
+        home = self.home(given)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+
+    def test_an_ambiguous_answer_reports_every_candidate_it_named(self):
+        """The duplicate shape, which the first report omitted entirely: the
+        engine answered about two runtimes and the report named neither."""
+        given, grants_path, _made = self.interrupted_attached()
+
+        def duplicated(_runtime):
+            return {"status": 0, "stderr": "", "stdout": json.dumps(
+                [{"Id": "runtime-a", "State": {"Running": True},
+                  "Mounts": []},
+                 {"Id": "runtime-b", "State": {"Running": True},
+                  "Mounts": []}])}
+
+        status, written = self.abandoned(grants_path,
+                                         self.engine(inspect=duplicated))
+
+        self.assertEqual(status, 1)
+        named = {one["runtime_id"]: one for one in written["zombies"]}
+        for candidate in ("runtime-a", "runtime-b"):
+            self.assertIn(candidate, named,
+                          f"the engine named {candidate} and the report "
+                          f"omitted it")
+            self.assertFalse(named[candidate]["targeted"])
+            self.assertIn("left untouched", named[candidate]["action"])
+            # EACH ONE'S OWN OBSERVED STATE, not the target's and not a
+            # placeholder: both of these inspections say `Running: true`.
+            self.assertEqual(named[candidate]["state"], "running")
+            self.assertEqual(named[candidate]["why"],
+                             "the engine reports it running")
+        target = self.state(given)["runtime_id"]
+        self.assertIn(target, named)
+        self.assertIn("removal was issued", named[target]["action"])
+        home = self.home(given)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+
+    def test_one_identity_answered_twice_in_conflict_is_one_zombie_row(self):
+        """W55758 review (2026-09-01T11:38:25Z) [P1], PLAN item 68.
+
+        The engine named `runtime-1` TWICE for one exact identity, once
+        `Running: false` and once `Running: true`. The runtime itself was
+        reported `uncertain`, which is the truth; the durable record then
+        carried both documents as independent rows -- one `quiescent`, one
+        `running`, both targeted -- and an operator reading it had two
+        mutually exclusive facts about one locator and no way to choose.
+        """
+        given, grants_path, _made = self.interrupted_attached()
+
+        def conflicting(runtime):
+            return {"status": 0, "stderr": "", "stdout": json.dumps(
+                [{"Id": runtime, "State": {"Running": False}, "Mounts": []},
+                 {"Id": runtime, "State": {"Running": True}, "Mounts": []}])}
+
+        status, written = self.abandoned(grants_path,
+                                         self.engine(inspect=conflicting))
+
+        self.assertEqual(status, 1)
+        self.assertFalse(written["resolved"])
+        self.assertEqual(written["runtime"]["state"], "uncertain")
+        # EXACTLY ONE ROW for the one identity the engine talked about.
+        [zombie] = written["zombies"]
+        self.assertEqual(zombie["runtime_id"], self.state(given)["runtime_id"])
+        self.assertEqual(zombie["state"], "uncertain")
+        # AND ITS REASON NAMES THE CONFLICT ITSELF, with both of the engine's
+        # accounts, rather than the one that happened to be read first.
+        self.assertIn("disagree", zombie["why"])
+        self.assertIn("the engine reports it not running", zombie["why"])
+        self.assertIn("the engine reports it running", zombie["why"])
+        # THE PER-RUNTIME ACT IS UNCHANGED AND STILL TRUE: a removal really
+        # was issued for this exact identity, so it is not untouched.
+        self.assertTrue(zombie["targeted"])
+        self.assertIn("removal was issued", zombie["action"])
+        self.assertNotIn("left untouched", zombie["action"])
+        # AND NOTHING RODE ON AN UNPROVED ABSENCE.
+        self.assertNotEqual(written["cleanup"], "retained")
+        self.assertNotEqual(written["credentials"]["lifecycle_state"],
+                            "torn-down")
+        home = self.home(given)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+
+    def test_two_uncertain_accounts_for_one_identity_keep_both(self):
+        """W55758 review (2026-09-01T11:53:38Z) [P1], PLAN item 70.
+
+        Agreement was decided on the coarse `state` alone, and `uncertain` is
+        the state whose REASON is the whole of the evidence. One document
+        carrying no state record and another carrying `Running: "yes"` are two
+        different engine accounts that both map to `uncertain`; collapsing
+        them published the first reason and dropped the second without a word,
+        which is the same silent loss this canonicalization exists to end.
+        """
+        given, grants_path, _made = self.interrupted_attached()
+
+        def two_uncertainties(runtime):
+            return {"status": 0, "stderr": "", "stdout": json.dumps(
+                [{"Id": runtime, "Mounts": []},
+                 {"Id": runtime, "State": {"Running": "yes"},
+                  "Mounts": []}])}
+
+        status, written = self.abandoned(
+            grants_path, self.engine(inspect=two_uncertainties))
+
+        self.assertEqual(status, 1)
+        self.assertFalse(written["resolved"])
+        [zombie] = written["zombies"]
+        self.assertEqual(zombie["runtime_id"], self.state(given)["runtime_id"])
+        self.assertEqual(zombie["state"], "uncertain")
+        # BOTH ACCOUNTS, because neither is the other's summary.
+        self.assertIn("carries no state record", zombie["why"])
+        self.assertIn("Running as 'yes'", zombie["why"])
+        self.assertTrue(zombie["targeted"])
+        self.assertIn("removal was issued", zombie["action"])
+        self.assertNotEqual(written["cleanup"], "retained")
+        self.assertNotEqual(written["credentials"]["lifecycle_state"],
+                            "torn-down")
+        home = self.home(given)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+
+    def test_one_identity_answered_twice_in_agreement_is_one_zombie_row(self):
+        """The other half of the same rule: an engine repeating itself is one
+        observation seen twice, and collapsing it must not invent an
+        `uncertain` the engine never reported."""
+        given, grants_path, _made = self.interrupted_attached()
+
+        def repeated(runtime):
+            return {"status": 0, "stderr": "", "stdout": json.dumps(
+                [{"Id": runtime, "State": {"Running": True}, "Mounts": []},
+                 {"Id": runtime, "State": {"Running": True}, "Mounts": []}])}
+
+        status, written = self.abandoned(grants_path,
+                                         self.engine(inspect=repeated))
+
+        self.assertEqual(status, 1)
+        [zombie] = written["zombies"]
+        self.assertEqual(zombie["runtime_id"], self.state(given)["runtime_id"])
+        self.assertEqual(zombie["state"], "running")
+        self.assertEqual(zombie["why"], "the engine reports it running")
+        self.assertTrue(zombie["targeted"])
+        home = self.home(given)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+
+    # -- the PRE-ATTACH branch, under the same rule --------------------------
+
+    def running_elsewhere(self, runtime):
+        """The engine's answer about whichever runtime it was asked about."""
+        return {"status": 0, "stderr": "", "stdout": json.dumps(
+            [{"Id": runtime, "State": {"Running": True}, "Mounts": []}])}
+
+    def assertNothingWasStopped(self):
+        acted = [one for one in self.commands
+                 if "stop" in one or "kill" in one or "rm" in one]
+        self.assertEqual(acted, [],
+                         "M60437 leaves an unidentified runtime untouched and "
+                         "this recovery acted on one")
+
+    def test_ambiguous_pre_attach_candidates_are_reported_not_stopped(self):
+        """W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 63.
+
+        `OciAdapter._recovery_failed` stopped EVERY candidate it had listed,
+        including the ambiguous ones, and reduced the whole answer to prose
+        with no zombie member at all. W32385's signed-off contract and M60437
+        both say multiplicity fails closed WITHOUT removing unrelated
+        candidates, and that the survivors are reported.
+        """
+        given, grants_path, _made = self.interrupted_before_attach()
+
+        status, written = self.abandoned(
+            grants_path,
+            self.engine(inspect=self.running_elsewhere,
+                        listed=("runtime-a", "runtime-b")))
+
+        self.assertEqual(status, 1)
+        self.assertFalse(written["resolved"])
+        self.assertEqual(written["branch"], "pre-attach")
+        self.assertNothingWasStopped()
+        named = {one["runtime_id"]: one for one in written["zombies"]}
+        self.assertEqual(sorted(named), ["runtime-a", "runtime-b"])
+        for candidate in ("runtime-a", "runtime-b"):
+            self.assertFalse(named[candidate]["targeted"])
+            self.assertIn("left untouched", named[candidate]["action"])
+            self.assertEqual(named[candidate]["state"], "running")
+            self.assertEqual(named[candidate]["why"],
+                             "the engine reports it running")
+        # AND NOTHING OF THIS ATTEMPT'S WAS REMOVED on that account.
+        home = self.home(given)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+
+    def test_a_pre_attach_identity_listed_twice_is_one_zombie_row(self):
+        """The same canonicalization, through the OTHER composer's branch.
+
+        The engine listed one identity twice under this attempt's whole label
+        set and then answered differently about it on each observation. One
+        composer serves both endings, so a contradiction has to arrive as one
+        `uncertain` row here too -- and the runtime is still untouched,
+        because nothing about it was ever identified exactly.
+        """
+        given, grants_path, _made = self.interrupted_before_attach()
+        answers = ["Running: false", "Running: true"]
+
+        def alternating(runtime):
+            running = answers.pop(0) == "Running: true" if answers else True
+            return {"status": 0, "stderr": "", "stdout": json.dumps(
+                [{"Id": runtime, "State": {"Running": running},
+                  "Mounts": []}])}
+
+        status, written = self.abandoned(
+            grants_path,
+            self.engine(inspect=alternating,
+                        listed=("runtime-a", "runtime-a")))
+
+        self.assertEqual(status, 1)
+        self.assertFalse(written["resolved"])
+        self.assertEqual(written["branch"], "pre-attach")
+        self.assertNothingWasStopped()
+        [zombie] = written["zombies"]
+        self.assertEqual(zombie["runtime_id"], "runtime-a")
+        self.assertEqual(zombie["state"], "uncertain")
+        self.assertIn("disagree", zombie["why"])
+        self.assertIn("the engine reports it not running", zombie["why"])
+        self.assertIn("the engine reports it running", zombie["why"])
+        self.assertFalse(zombie["targeted"])
+        self.assertIn("left untouched", zombie["action"])
+        home = self.home(given)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))
+
+    def test_a_mismatched_pre_attach_candidate_is_reported_not_stopped(self):
+        """The other half: one runtime carries this attempt's labels and the
+        lifecycle record names a different one, so nothing is exactly
+        identified and nothing is acted on."""
+        given, grants_path, _made = self.interrupted_before_attach()
+
+        status, written = self.abandoned(
+            grants_path,
+            self.engine(inspect=self.running_elsewhere,
+                        listed=("runtime-somebody-elses",)))
+
+        self.assertEqual(status, 1)
+        self.assertFalse(written["resolved"])
+        self.assertEqual(written["branch"], "pre-attach")
+        self.assertNothingWasStopped()
+        [zombie] = written["zombies"]
+        self.assertEqual(zombie["runtime_id"], "runtime-somebody-elses")
+        self.assertFalse(zombie["targeted"])
+        self.assertEqual(zombie["state"], "running")
+        self.assertIn("left untouched", zombie["action"])
+        home = self.home(given)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])))

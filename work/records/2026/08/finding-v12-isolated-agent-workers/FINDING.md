@@ -2077,3 +2077,35 @@ completed through v12 offer, claim, execution, retained result, independent
 review and explicit acceptance or rejection. Expand the migrated tranche only
 from that evidence; later hardening continues in parallel unless an observed
 defect makes the pilot result false.
+
+## Manual adoption precedes the native scheduler — confirmed 2026-09-01
+
+The automated bridge language above is superseded. There is no interim v11 to
+v12 adapter, synchronization service or migration layer. W38956 remains a
+truthful non-satisfying historical result rather than being reopened; after
+W55758 closes the orphan-runtime and credential recovery gap, the next useful
+proof is itself one real v11-managed Work executed manually through v12.
+
+V11 remains the only Work authority. The human-attached prompt and approver
+select or create one low-risk real Work, claim and discuss it in v11, freeze
+its instructions and source into one correlated v12 attempt, invoke the v12
+Worker Manager, monitor its logs and result envelope, inspect and test the
+untrusted output, then record and disposition the same v11 Work. No second
+Work enters this lane before the first is explicitly resolved. V12 is an
+execution subsystem during this trial, not a second scheduler or authority.
+
+Repeat this manually for two or three Works. Do not automate the temporary
+cross-version procedure: its purpose is to validate the v12 execution model,
+not to create integration code that will be discarded. Once those executions
+are credible, the next product objective is the native v12 scheduler and
+control plane. Build and exercise its structured CLI/JSON surfaces first; the
+v12 TUI is deliberately last, after scheduler semantics have stabilized.
+
+**Clarification, confirmed 2026-09-01:** “TUI last” above applies to a
+command-capable TUI, not to observability. Once the native scheduler publishes
+an honest inspectable projection, build the first v12 TUI as a read-only
+viewer for its Jobs, workers, offers, attempts, gates, logs and results. During
+this phase, commands continue through the human-attached context and the v11
+bus. Add mutation commands to the v12 TUI only after scheduler behavior and
+the viewer's projections have proved stable; that interactive command surface
+is the low-priority final layer.

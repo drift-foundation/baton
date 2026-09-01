@@ -703,3 +703,24 @@ whose prerequisites have closed are actionable.
     leaf end to end before expanding beyond serialized migration. Do not start
     this pilot from a provisional or non-satisfying W38956 outcome, and do not
     treat it as the production cutover or a second Work authority.
+33a. [confirmed 2026-09-01; supersedes item 33's trigger and automated bridge]
+     Keep W38956's non-satisfying outcome as history. After W55758 closes the
+     orphan-runtime and credential recovery gap, manually execute one low-risk
+     real v11 Work through one correlated v12 attempt. V11 remains the sole
+     Work authority; the prompt and approver freeze the input, invoke and
+     monitor v12, inspect and test its untrusted result, and return progress,
+     review and disposition to the same v11 Work. Admit no second Work until
+     the first is resolved. Build no adapter, synchronization service or
+     temporary migration automation.
+33b. [confirmed 2026-09-01; native scheduler follows manual evidence] Repeat
+     item 33a for two or three strictly serialized Works. If that evidence is
+     credible, make the native v12 scheduler and control plane the next product
+     objective rather than automating the v11-to-v12 procedure. Establish and
+     exercise structured CLI/JSON scheduler surfaces first. Implement the v12
+     TUI last, after the scheduler contract and recovery behavior stabilize.
+33c. [clarified 2026-09-01; supersedes item 33b's unqualified last sentence]
+     After the scheduler publishes an honest inspectable projection, build a
+     read-only v12 TUI viewer for Jobs, workers, offers, attempts, gates, logs
+     and results. Keep all commands in the human-attached context over the v11
+     bus during this phase. A command-capable v12 TUI remains last and does not
+     gate scheduler dogfooding or the first read-only monitoring surface.

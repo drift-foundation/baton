@@ -1177,6 +1177,76 @@ def _absent_prose(engine, stderr, runtime_id):
     return False
 
 
+def _named_runtime(document):
+    """The one identity an inspection document names, or `None`.
+
+    Docker and Podman spell it three ways between them and this adapter reads
+    the engines it speaks; a document naming none is not evidence about any
+    runtime, which is a different answer from naming the wrong one.
+    """
+    for member in ("Id", "ID", "ContainerID"):
+        if type(document) is dict and member in document:
+            named = document[member]
+            return named if type(named) is str and named else None
+    return None
+
+
+def _observed_runtime(document):
+    """One runtime the engine named, with ITS OWN state and the reason.
+
+    W55758 review (2026-09-01T10:56:54Z) [P1]. `observe` kept candidate
+    IDENTITIES and nothing else, so a recovery reporting what it left alone
+    had to write `unidentified` for a runtime whose own inspection said
+    `Running: true`, and copied the target's diagnostic as that candidate's
+    explanation. Both members are in the document that was read; they are
+    decided here rather than reconstructed by a caller from the runtime it
+    expected.
+
+    A MISSING STATE IS `uncertain` AND NOT A REFUSAL. This reads documents the
+    engine volunteered ABOUT OTHER RUNTIMES while answering one exact
+    question, so an incomplete one is an incomplete answer about a runtime
+    nobody asked about -- while the exact target's own state record is still
+    owned by `_one_of` at the one site that requires it.
+    """
+    named = _named_runtime(document)
+    if named is None:
+        return None
+    state = document.get("State")
+    if type(state) is not dict:
+        return {"runtime_id": named, "state": "uncertain",
+                "why": "the engine's inspection carries no state record"}
+    return {"runtime_id": named, **_running_state(state.get("Running"))}
+
+
+def _running_state(running):
+    """The engine's `Running` member, in this manager's own vocabulary.
+
+    ONE DECISION, made once. The exact target's own branch and the candidate
+    reader above both need it, and two spellings of "what does `Running` mean"
+    is the shape this report has already been corrected for twice.
+
+    NEVER TRUSTED, ONLY COMPARED: the two exact singletons decide, and
+    anything else -- absent, text, a number, `None` -- is `uncertain`, because
+    a manager that treated confusion as death would release an assignment
+    whose worker is still running.
+    """
+    if running is True:
+        return {"state": "running", "why": "the engine reports it running"}
+    if running is False:
+        return {"state": "quiescent",
+                "why": "the engine reports it not running"}
+    return {"state": "uncertain",
+            "why": f"the engine reports Running as {name_value(running)}, "
+                   f"which is neither"}
+
+
+def _observed_runtimes(documents):
+    """Every runtime a listing answer named, each with its own observation."""
+    found = [_observed_runtime(one) for one in documents
+             if type(one) is dict]
+    return [one for one in found if one is not None]
+
+
 def _observed_mounts(document):
     """What the engine says this runtime's binds ACTUALLY are, or None.
 
@@ -1813,6 +1883,8 @@ class OciAdapter:
                     "orphans": home.discard_orphan(attempt)}
         existing = self.list({"labels": labels})
         if len(existing) != 1:
+            # AMBIGUOUS, so nothing here is exactly identified and nothing is
+            # acted on. M60437 / W32385.
             return self._recovery_failed(
                 home, attempt, existing,
                 f"{len(existing)} runtime(s) carry this attempt's labels; "
@@ -1820,6 +1892,8 @@ class OciAdapter:
                 f"refuses every other count")
         runtime_id = existing[0]["runtime_id"]
         if record["runtime_id"] != runtime_id:
+            # MISMATCHED, likewise: the engine's live runtime is not the one
+            # this manager's own record names.
             return self._recovery_failed(
                 home, attempt, existing,
                 f"the live runtime is {name_value(runtime_id)} and the "
@@ -1827,7 +1901,11 @@ class OciAdapter:
         observed = self.observe(runtime_id)
         disagreement = _mounts_disagree(observed["mounts"], record)
         if disagreement is not None:
-            return self._recovery_failed(home, attempt, existing, disagreement)
+            # EXACTLY IDENTIFIED. The labels and the record agree on WHICH
+            # runtime this is; what disagrees is what it has mounted. This is
+            # the one candidate the ruling permits stopping.
+            return self._recovery_failed(home, attempt, existing,
+                                         disagreement, exact=runtime_id)
         # EVERY IDENTITY AGREED, so the record may now be believed about the
         # one thing the engine cannot answer: which bearer belongs to which
         # slot. `adopt` re-registers from this manager's own files.
@@ -1840,17 +1918,35 @@ class OciAdapter:
                                        runtime_id=runtime_id,
                                        workspace_group=self.workspace_group)}
 
-    def _recovery_failed(self, home, attempt, existing, why):
-        """Fail closed: no output, stop the worker, bounded orphan cleanup.
+    def _recovery_failed(self, home, attempt, existing, why, *, exact=None):
+        """Fail closed: no output, stop only what is exactly identified,
+        bounded orphan cleanup.
 
         THE ORDER MATTERS AND THE CLEANUP IS CONDITIONAL. A stop this adapter
         cannot prove leaves a container that may still be reading the mount, so
         the attempt's own root stays LIVE for the cleanup pass and the refusal
         says the credential lifecycle is unresolved. Reporting a clean ending
         there would be exactly the cleanup uncertainty the ruling forbids.
+
+        AND `exact` IS WHAT MAY BE STOPPED AT ALL. W55758 review
+        (2026-09-01T10:56:54Z) [P1]: this stopped EVERY candidate it had
+        listed, including the ambiguous and mismatched ones. W32385's
+        signed-off restart contract and M60437 both say identity mismatch,
+        multiplicity and observation uncertainty fail closed WITHOUT removing
+        unrelated candidates -- so only the caller that proved one identity
+        exactly names it here, and every other runtime is left where it is and
+        reported. W6634's stop-every-candidate wording is a terminal
+        non-satisfying spike's provisional text, not the live rule.
+
+        WHAT IS LEFT BEHIND TRAVELS WITH THE REFUSAL. Automatic reconciliation
+        of an unknown runtime is out of scope for initial v12, which makes the
+        REPORT the deliverable: each surviving candidate is observed once more
+        after the stop and carried as its own exact locator, state and reason.
         """
         stopped = []
         for entry in existing:
+            if entry["runtime_id"] != exact:
+                continue
             answer = self.stop({"runtime_id": entry["runtime_id"],
                                 "operation_id": f"runtime.stop:{attempt}"})
             stopped.append(answer["state"] == "absent")
@@ -1868,16 +1964,51 @@ class OciAdapter:
         # holding the mount, and targeted cleanup may settle it. `list` refuses
         # rather than returning empty when it could not ask, so an empty answer
         # here is an answer.
-        gone = all(stopped)
+        #
+        # AND AN EMPTY `stopped` NO LONGER MEANS ABSENCE ON ITS OWN, because
+        # this method now declines to stop candidates it may not touch. The
+        # zero-candidate answer is still positive absence; a candidate left
+        # standing is not.
+        gone = all(stopped) if stopped else not existing
         orphans = (home.discard_orphan(attempt) if gone
                    else {"discarded": [], "remaining": 1, "bounded": False})
-        raise ContractRefusal(
+        left = [seen for seen in (self._left_behind(entry["runtime_id"])
+                                  for entry in existing)
+                if seen["state"] != "absent"]
+        refusal = ContractRefusal(
             "refused", "precondition",
             f"this attempt cannot be recovered: {why}. No output is accepted, "
-            f"{len(existing)} runtime(s) were stopped, and the credential "
-            f"lifecycle is "
+            f"{len(stopped)} exactly identified runtime(s) were stopped and "
+            f"{len(left)} were left untouched and reported, and the "
+            f"credential lifecycle is "
             f"{'settled by cleanup' if gone else 'UNRESOLVED'} after "
             f"discarding {len(orphans['discarded'])} orphaned root(s)")
+        # THE EVIDENCE RIDES THE REFUSAL, because the refusal is the only
+        # thing this operation returns to a caller that has to write the
+        # recovery record. Both members are absent-safe on purpose: a caller
+        # reading them off any other refusal gets nothing rather than a guess.
+        refusal.runtime_zombies = tuple(left)
+        refusal.stopped_runtime = exact if stopped else None
+        raise refusal
+
+    def _left_behind(self, runtime_id):
+        """One runtime this refusal is leaving on the host, as the engine
+        sees it AFTER the stop that was or was not issued.
+
+        AN UNREADABLE ANSWER IS `uncertain` RATHER THAN A SECOND REFUSAL. This
+        runs inside the composition of a refusal that already has its reason,
+        and letting an engine's malformed answer about a bystander replace it
+        would lose the account of what this recovery actually did.
+        """
+        try:
+            seen = self.observe(runtime_id)
+        except ContractRefusal as unreadable:
+            return {"runtime_id": runtime_id, "state": "uncertain",
+                    "why": f"the engine's answer about this runtime could "
+                           f"not be read: "
+                           f"{unreadable.message[:MAX_DIAGNOSTIC]}"}
+        return {"runtime_id": runtime_id, "state": seen["state"],
+                "why": seen["why"]}
 
     def _attempt_labels(self, attempt_id, expect, work, context):
         """The frozen label set that selects THIS attempt's runtimes.
@@ -2631,7 +2762,7 @@ class OciAdapter:
         runtime_id = boundaries.identity(runtime_id, "a runtime id")
         answer = self.run(inspect_vector(self.engine, runtime_id=runtime_id))
 
-        def unknown(state, why):
+        def unknown(state, why, candidates=()):
             # `mounts` IS `None` on every branch that read no document: the
             # honest value for "this adapter did not see what this runtime
             # has". `_mounts_disagree` refuses an unknown reading outright, so
@@ -2645,7 +2776,26 @@ class OciAdapter:
             # case can currently tell the two apart, and a comment claiming a
             # distinction nothing can drive is the vacuity this campaign keeps
             # correcting.
-            return {"state": state, "why": why, "mounts": None}
+            # W55758 review (2026-09-01T10:35:20Z) [P1]: THE IDENTITIES THIS
+            # ANSWER SAW, kept rather than reduced to prose.
+            #
+            # A recovery owes an operator the exact locator of every runtime
+            # it left alone, and this method was discarding precisely those:
+            # a mismatched inspection became a sentence naming the id, and an
+            # ambiguous one became a count. A report reconstructed from the
+            # EXPECTED target then named the wrong runtime and called it
+            # untouched. Empty on every branch that saw none, which is the
+            # true value rather than an absent member to interpret.
+            #
+            # W55758 review (2026-09-01T10:56:54Z) [P1]: AND EACH ONE'S OWN
+            # STATE. Carrying bare identities left the caller nothing to say
+            # about a candidate but `unidentified`, and it copied the
+            # TARGET's diagnostic as that candidate's reason -- for a runtime
+            # whose inspection said `Running: true`. The locator, the
+            # observed state and the reason are one closed record per
+            # runtime, decided here where the document was actually read.
+            return {"state": state, "why": why, "mounts": None,
+                    "candidates": tuple(candidates)}
 
         if answer["status"] != 0:
             # POSITIVE ABSENCE IS ABOUT THIS IDENTITY, and the engine has to
@@ -2669,9 +2819,11 @@ class OciAdapter:
         document = _decoded(answer["stdout"], "an engine inspection")
         if type(document) is list:
             if len(document) != 1:
-                return unknown("uncertain",
-                               f"the engine answered about {len(document)} "
-                               f"runtimes for one exact identity")
+                return unknown(
+                    "uncertain",
+                    f"the engine answered about {len(document)} "
+                    f"runtimes for one exact identity",
+                    candidates=_observed_runtimes(document))
             document = document[0]
         if type(document) is not dict:
             return unknown("uncertain",
@@ -2680,12 +2832,8 @@ class OciAdapter:
         # ABOUT. Review [P1]: this read `State` from whatever document came
         # back, so an engine answering about another container -- or about
         # nothing identifiable -- was reported as this one's state.
-        named = None
-        for member in ("Id", "ID", "ContainerID"):
-            if member in document:
-                named = document[member]
-                break
-        if type(named) is not str or not named:
+        named = _named_runtime(document)
+        if named is None:
             return unknown("uncertain",
                            "the engine's inspection names no runtime, so it "
                            "is not evidence about this one")
@@ -2693,7 +2841,8 @@ class OciAdapter:
             return unknown("uncertain",
                            f"the engine answered about "
                            f"{name_value(named)} and this asked about "
-                           f"{name_value(runtime_id)}")
+                           f"{name_value(runtime_id)}",
+                           candidates=_observed_runtimes([document]))
         state = _one_of(document, ("State",), "an engine inspection")
         if type(state) is not dict:
             return unknown("uncertain",
@@ -2703,18 +2852,15 @@ class OciAdapter:
         # observation of one runtime rather than two questions asked at two
         # moments -- which is what recovery needs them to be.
         mounts = _observed_mounts(document)
-        running = state.get("Running")
-        if running is True:
-            return {"state": "running", "why": "the engine reports it running",
-                    "mounts": mounts}
-        if running is False:
-            return {"state": "quiescent",
-                    "why": "the engine reports it not running",
-                    "mounts": mounts}
-        return {"state": "uncertain",
-                "why": f"the engine reports Running as "
-                       f"{name_value(running)}, which is neither",
-                "mounts": mounts}
+        # THE `Running` READ STAYS AT THIS CROSSING, which is where the
+        # boundary inventory owns it and where its witness case drives it. The
+        # VOCABULARY is shared with the candidate reader rather than spelled
+        # twice, and the target is carried as a candidate record of its own so
+        # a caller composing a report never has to reconstruct one.
+        found = _running_state(state.get("Running"))
+        return {"state": found["state"], "why": found["why"],
+                "mounts": mounts,
+                "candidates": ({"runtime_id": runtime_id, **found},)}
 
     def _labels_of(self, entry):
         """The labels the engine reports, back in the manager's vocabulary.

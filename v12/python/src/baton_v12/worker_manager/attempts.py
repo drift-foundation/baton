@@ -207,7 +207,24 @@ def attempt_runtime_of(store, attempt_id):
     return {"attempt_id": found["runtime_attempt_id"],
             "runtime_id": found["runtime_id"],
             "execution_runtime": found["execution_runtime"],
-            "cleanup": found["cleanup"]}
+            "cleanup": found["cleanup"],
+            # W55758, approver ruling APPROVE-EXTEND (M60437): THE FIXED
+            # ASSIGNMENT TRAVELS WITH THE RUNTIME AXES, in ONE atomic read.
+            #
+            # A public recovery command is editable-grants-driven, and nothing
+            # was holding those grants against what the manager fixed: a
+            # grants file naming another generation ended the attempt anyway
+            # and then wrote its own generation into the recovery record as
+            # though it were the identity the ending used. The hold needs the
+            # complete four-part identity, and it needs it from the SAME read
+            # the branch turns on -- two reads are two moments, and a caller
+            # comparing one against the other would be comparing an attempt
+            # with itself at two times.
+            #
+            # `None` when activation never fixed one, which is its own
+            # refusal at the caller: an attempt with no fixed assignment is
+            # not one a grants file can be held against.
+            "assignment": _fixed_assignment(found)}
 
 
 def _require_attempt(store, attempt_id):

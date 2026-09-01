@@ -1080,9 +1080,13 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
     "lane_reference": "projects four authority-owned identity parts off the "
                       "attempt row; there is no operand to construct from",
     "runtime_lane": "the same, plus who holds the lane and what blocks it",
-    "attempt_runtime_of": "projects three columns off the attempt row so a "
-                          "recovery can branch on durable manager state; no "
-                          "document is constructed and no bearer is reachable",
+    "attempt_runtime_of": "projects four runtime axes off the attempt row "
+                          "plus the assignment document activation fixed, so "
+                          "a recovery can branch on durable manager state and "
+                          "hold its editable grants against that identity in "
+                          "ONE atomic read; the assignment is `documents."
+                          "assignment` composed of owned row values and no "
+                          "bearer is reachable from any of it",
     "label_context": "projects the two label members off the activated row; "
                      "there is no operand to construct from",
     "AuthorityPort": "a capability wrapper; it constructs no document",

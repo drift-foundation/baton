@@ -415,3 +415,45 @@ publishes editable grants as though they were the identity the ending used.
 adds a second public surface and read where the existing recovery projection
 already owns the same row. No implementation should choose between these
 public contracts without approval.
+
+## 2026-09-01 — APPROVE-EXTEND ruling binds recovery to the fixed assignment
+
+Baton response M60437 approves **APPROVE-EXTEND**. This supersedes the open
+status of the preceding decision and rejects ADD-READ for W55758; the observed
+defect and reproduction remain current evidence.
+
+The existing atomic `attempt_runtime_of` recovery projection gains the
+attempt's complete fixed assignment. Before choosing either recovery branch
+or performing any external act, the deployment requires exact authority UUID,
+Work, participant, and assignment-generation matches between that fixed
+assignment and the held grants. An absent assignment or any mismatch refuses
+closed. After a match, the recovery record publishes the manager-fixed
+identity, never the editable grants identity.
+
+The ruling also fixes the restart boundary. V12 does not adopt or resume a
+runtime from an older Worker Manager incarnation. Recovery may stop or kill an
+old-incarnation runtime only when it is identified exactly; it then settles
+that runtime's credentials, marks the attempt interrupted, and preserves its
+logs and output solely as untrusted evidence. An unknown, ambiguous, or
+mismatched runtime remains untouched and is reported as a zombie in initial
+v12. Automatic zombie reconciliation is not a prerequisite for dogfooding.
+
+## 2026-09-01 — reviewer clarification: the untouched-runtime rule is current
+
+The eleventh implementation round reports that changing
+`OciAdapter._recovery_failed` requires superseding W6634. **Confirmed:** it
+does not. W6634 closed non-satisfying and explicitly says its source and
+focused evidence remain provisional; its stop-worker recovery wording is not
+an accepted rule a successor must supersede.
+
+The current successor records already agree with M60437. W6636 assigns exact
+ended-runtime restart adoption to W32385, and W32385's accepted boundary says
+identity mismatch, multiplicity and observation uncertainty fail closed
+without removing unrelated candidates. M60437 applies that same current rule
+to W55758's initial-v12 recovery command: an unknown, ambiguous or mismatched
+candidate is not stopped, adopted or resumed and is reported as a zombie.
+
+No historical record is rewritten and no cross-record supersession is needed.
+The implementation must revalidate the provisional `_recovery_failed` code
+against W32385 and M60437 rather than treating W6634's terminal spike as live
+authority.

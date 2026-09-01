@@ -500,6 +500,20 @@ candidate is ready to hand over, run one broader relevant regression sweep.
 Do not pay for the broad sweep after every small correction, and do not pass a
 candidate merely because its focused tests passed.
 
+Implementation and review own different evidence. The implementer records the
+exact focused and broad commands, their results, and any known baseline
+failures. The reviewer audits the change, its assertions, and that evidence;
+it does not rerun the same commands merely to reproduce an already recorded
+result. Reviewer execution must add information: a narrowly targeted probe for
+a specifically identified uncovered risk, an independent reproduction at a
+different boundary, or a missing gate whose absence prevents a verdict. When
+the recorded evidence is sufficient, proceed directly to the verdict.
+
+Repeating a command is justified when environmental independence is itself an
+acceptance claim. In that case, record why the second environment or identity
+is the evidence under test rather than treating the repetition as a routine
+review step.
+
 A broad verification campaign must still be bounded and visible. If one test
 command can monopolize a Handler for an extended period, decompose it into
 named, independently runnable, time-bounded slices. A substantial slice that

@@ -766,3 +766,519 @@ state.
 Awaiting review, including a ruling on the grants-versus-manager hold above.
 Passing back rather than closing.
 
+## 2026-09-01 — ninth implementer round (`baton.claude`, W55758 impl claim)
+
+### [P1] The grants are held against the manager's fixed assignment
+
+APPROVE-EXTEND implemented. `attempt_runtime_of` now carries the complete
+fixed assignment beside the runtime axes, in the ONE atomic read the branch
+already turns on — two reads would be two moments, and a caller comparing one
+against the other would be comparing an attempt with itself at two times.
+
+`recover_abandoned` holds the grants against it before either branch and
+before any external act. All four parts together, because the schema keeps
+them together and three quarters of an identity matching is not an identity
+matching. An attempt the manager never recorded, and one whose activation
+never fixed an assignment, each refuse with their own sentence.
+
+The reviewer's probe is the case: editing only the generation to 2 previously
+ended the generation-1 attempt and wrote 2 into the record as the identity the
+ending used. Now each of `generation`, `authority_uuid`, `work_id` and
+`participant` refuses with `branch` unset, `authority_fence`, `runtime`,
+`credentials`, `launch`, `custody` and `cleanup` all null, the manager's axes
+unmoved and the bearer and its record still on the host.
+
+### [P1] The credential-to-launch restart boundary
+
+Injected at the PUBLIC `launch.discard`, after the real orphan teardown has
+made the credential absent — no private seam is touched. The first command
+writes a partial record saying the runtime is absent and the credential is
+torn down while the launch is not, and a fresh invocation converges to
+`retained` with the launch `torn-down` and no registration left live.
+
+This also needed the fault path to build the partial account, which it now
+does on the same rule as the refusal path.
+
+### [P1] The retry's owner, by identity
+
+The receiver of `CredentialHome.adopt` is captured and the adapter must own
+that exact object. Measured: handing the adapter a freshly constructed
+same-path home fails the case, which is precisely what the old path
+comparison would have accepted.
+
+**Still short of what was asked:** the assertion is made at `_for_retry`
+rather than by driving documented `main --retry-handoff` over real
+trusted-result state. Reaching the command needs the ordinary arc to commit a
+freeze, an intake receipt and a retention decision WITH a credential
+materialized, and this fixture's ordinary path supplies its own adapter and
+materializes none. That is one fixture change and it is the next round's work.
+
+### Mutation check
+
+Seven mutations, all caught — one only after adding the recorded-but-never-
+activated fixture, which is recorded rather than quietly fixed:
+
+    CAUGHT  the grants are never held against the fixed assignment
+    CAUGHT  the hold runs after the branch instead of before it
+    CAUGHT  an absent fixed assignment is accepted   [after adding the
+            recorded-and-never-activated row]
+    CAUGHT  only the generation is compared
+    CAUGHT  the projection carries no assignment
+    CAUGHT  a fault after the ending began reports nothing it did
+    CAUGHT  the retry hands the adapter a fresh same-path home
+
+### Verification
+
+    tests.tools.test_dogfood_operator + test_credentials
+      + tests.manager.test_oci + test_attempts       793 tests, OK (752 before)
+    the whole v12 python suite                      2926 tests, 7 failures,
+      the same seven pre-existing ones, unchanged in number and identity
+
+No new over-width line and no trailing whitespace. No engine command, no
+authority mutation, no credential read and no change to the preserved run7/run8
+state.
+
+### State
+
+Awaiting review. One row remains and is named above. Passing back rather than
+closing.
+
+## 2026-09-01 — tenth implementer round (`baton.claude`, W55758 impl claim)
+
+**Three of the four [P1]s and the [P2] are corrected. The fourth is not, and
+it is the same one I flagged last round.**
+
+### [P1] The hold now precedes every capability
+
+The reviewer is right and the probe is exact: the hold was after
+`capabilities(given)`, and by then the builder had opened the authority,
+selected a session, proved roots, constructed the credential owners and
+adopted the launch delivery. A hold after all of that is a hold after most of
+what it exists to prevent.
+
+`_for_abandonment` now opens ONLY the control store, takes the one atomic
+projection, and holds it. Opening a file this manager owns is not one of the
+capabilities the ruling names — no authority, engine, credential, launch or
+custody act happens before the comparison. On disagreement it returns the
+projection and the reason and builds nothing else, and `_abandoned` writes the
+account and closes what was opened.
+
+THE PROJECTION IS CARRIED OUT rather than re-read, so the identity held and
+the state acted on remain one answer at one moment. A direct caller supplying
+none is still answered by reading it, which is the same question at the only
+other moment there is.
+
+And the mismatch cases now watch the SEAMS — `Authority.open`,
+`_proved_roots`, `OrphanTeardown`, `launch.adopt` — and assert none was
+exercised. Asserting that no record member was filled proved nothing happened
+AFTER the builder ran; the ruling is about what happens inside it.
+
+### [P1] The record's identity is the manager's
+
+After the hold passes, `work_ref`, `participant` and `generation` are composed
+from the fixed assignment the projection carried. Equal values kept the old
+composition honest only because the hold had just proved them equal, and value
+equality is not provenance. A refusal keeps the identity the operator ASKED
+for, so an account of a rejected request stays distinguishable from an account
+of an ending that ran.
+
+### [P1] The incarnation boundary and the zombie report
+
+M60437 revalidated against the tree. The recovery already stops only the
+runtime the manager's own row names, so "never adopt or resume an older
+incarnation's runtime" holds by construction — what was missing was the other
+half. `zombies` is a new closed member reporting every runtime this recovery
+LEFT ALONE, with its exact locator, its observed state and why it was not
+touched. Automatic reconciliation stays out of scope, so the report is the
+deliverable rather than a step towards one.
+
+Three cases: a fresh incarnation still ends the exactly identified old runtime
+with the credential settled, the attempt `retained` and the worker's output
+preserved untrusted; an engine answering about ANOTHER id reports a zombie and
+touches nothing; a runtime the engine says is RUNNING is reported rather than
+resumed.
+
+### [P2] The registry prose
+
+`tests.manager.test_secrets` now describes the actual surface: four runtime
+axes plus the assignment document activation fixed, in one atomic read.
+
+### [P1] NOT DONE: the command-level `--retry-handoff` proof
+
+Unchanged from my last account, and I am not dressing it up. The shared-owner
+assertion is load-bearing — the `CredentialHome.adopt` receiver is captured
+and compared by identity, and handing a fresh same-path home fails the case —
+but it is made around a direct `_for_retry` call rather than by driving
+documented `main --retry-handoff` over durable frozen, intaken, retained,
+independently verified state with a real credential. That fixture's ordinary
+path supplies its own adapter and materializes no credential, so reaching the
+command needs it to materialize through the granted home and publish the
+lifecycle record the way `_launched.adapter_of` now does. One fixture change,
+and it is what I would do first next round.
+
+### Mutation check
+
+Four mutations, three caught:
+
+    CAUGHT  the hold runs after the capabilities are built
+    CAUGHT  the record keeps the grants identity after a match
+    CAUGHT  every runtime is reported as a zombie
+    MISSED  the zombie report is dropped from the REFUSAL path
+
+The miss is recorded rather than papered over, and it is an equivalent mutant
+today: `abandon_attempt` ANSWERS `cleanup_unsettled` for an uncertain or
+running runtime rather than refusing, so every case that produces a zombie
+goes through the settled branch. The line in `_partial_account` fires only if
+a refusal coincides with a runtime not proved absent, and no case reaches that
+combination. It is defensive, and I would rather say so than invent machinery
+to drive it.
+
+### Verification
+
+    tests.tools.test_dogfood_operator + test_credentials + test_oci
+      + test_attempts + test_secrets + test_text_sweep   910 tests, OK
+    the whole v12 python suite                          2950 tests, 7 failures,
+      the same seven pre-existing ones, unchanged in number and identity
+
+No new over-width line and no trailing whitespace. No engine command, no
+authority mutation, no credential read and no change to the preserved run7/run8
+state.
+
+### State
+
+Awaiting review. One row remains and is named above. Passing back rather than
+closing.
+
+## 2026-09-01 — eleventh implementer round (`baton.claude`, W55758 impl claim)
+
+**Two of the four [P1]s are corrected. One is reported as another record's
+supersession, and one is still not done.**
+
+### [P1] The door built to close the hole was the hole
+
+The reviewer is right and the probe is exact: carrying the projection as a
+plain operand let a direct caller of the EXPORTED operation supply a forged
+one, and a generation-2 dictionary beside generation-2 grants ended the real
+generation-1 attempt while publishing generation 2 as the identity the ending
+used. That is the original defect, reintroduced through the door added to
+close it.
+
+The carried form is now `_HeldProjection`, a capability this deployment mints
+after its own read and its own hold — the same rule a credential delivery is
+under, and for the same reason: a dict is something any caller can compose. The
+exported operation refuses anything else and, given none, performs the read AND
+the hold itself. A case drives the reviewer's forgery through the exported
+function and proves nothing is removed and no axis moves.
+
+### [P1] The zombie report named the wrong runtimes and misstated the act
+
+Both halves were wrong and both are corrected.
+
+`OciAdapter.observe` was reducing a mismatched inspection to prose and an
+ambiguous one to a count, so the identities an operator needs were discarded at
+the only place that saw them. It now carries them structurally, empty on every
+branch that saw none.
+
+The report is composed from those, not from the expected target — and it says
+what was actually done PER RUNTIME. A target this command really issued a
+removal for and which is still present is not `left untouched`; that sentence
+was false and is the one an operator would act on. Candidates the engine named
+while answering about something else were never targeted, and those are the
+untouched ones. Three cases: a mismatched answer, an ambiguous two-runtime
+answer that the first report omitted entirely, and a running target.
+
+### [P1] The pre-attach branch contradicts M60437 — reported, not changed
+
+`OciAdapter._recovery_failed` stops EVERY ambiguous or mismatched candidate
+before its bounded cleanup. M60437 says unknown, ambiguous and mismatched
+runtimes remain untouched for initial v12. Those two cannot both hold.
+
+That rule is W6634's, pinned in its own record with its own reasoning — the
+stop is conditional and the cleanup rides on it being proved. Appending a
+supersession to another finding's ruling, at the end of a round, unreviewed, is
+exactly what this repository's pinned-decision gate forbids. So it is reported
+here for the owning reviewer to place. It is a real contradiction and I am not
+implying otherwise.
+
+### [P1] NOT DONE
+
+The command-level `--retry-handoff` shared-owner proof, unchanged and for the
+unchanged reason. And the fresh-incarnation case still argues "output preserved
+untrusted" from the cleanup axis rather than retaining a marker in the
+workspace and proving its bytes survive; the reviewer is right that a comment
+plus an axis is not that proof.
+
+### Mutation check
+
+Five mutations, all caught — one only after adding the forged-projection case,
+which is recorded rather than quietly fixed:
+
+    CAUGHT  the exported recovery accepts a caller's dictionary  [after
+            adding the case that drives the reviewer's forgery]
+    CAUGHT  the report is rebuilt from the expected target alone
+    CAUGHT  a targeted runtime is called left untouched
+    CAUGHT  observe discards the identities it saw
+
+### Verification
+
+    tests.tools.test_dogfood_operator                297 tests, OK
+    the whole v12 python suite                      2953 tests, 7 failures,
+      the same seven pre-existing ones, unchanged in number and identity
+
+No new over-width line and no trailing whitespace. No engine command, no
+authority mutation, no credential read and no change to the preserved run7/run8
+state.
+
+### State
+
+Awaiting review. Two rows remain and both are named above. Passing back rather
+than closing.
+
+
+## 2026-09-01 — twelfth implementer round (`baton.claude`, W55758 impl claim)
+
+**All five rows are done. The two I have been carrying for three rounds are
+among them, and neither needed the machinery I kept saying it did.**
+
+### [P1] The nominal capability is deleted, not hardened
+
+The reviewer is right and the probe is exact: `_HeldProjection` was an
+ordinary module attribute with a public constructor, so wrapping the forged
+dictionary in it satisfied the check and ended the real generation-1 attempt
+while publishing generation 2. A type name is not a lock.
+
+So the class is GONE rather than made cleverer. The exported
+`recover_abandoned` has no `state` operand at all: it performs the manager
+read and the hold itself. The documented command still carries ONE
+observation, because `_for_abandonment` must take it before any capability
+exists, and it travels through private `_recovery_of` -- composition between
+two parts of one command rather than a door anybody can knock on.
+
+The regression drives both halves. The old operand raises `TypeError`, no
+`*HeldProjection` attribute exists on the module, and the exported operation
+answered with the reviewer's own generation-2 grants refuses on its own read
+with nothing removed and no axis moved.
+
+### [P1] Each candidate keeps its own state and its own reason
+
+`observe` was carrying identities and nothing else, so the report wrote the
+literal `unidentified` for a runtime whose inspection said `Running: true`
+and copied the target's diagnostic as that candidate's explanation. Both
+members were in the document that was read.
+
+`_observed_runtime` now composes a closed record -- exact locator, its own
+validated state, its own reason -- for every runtime an answer named, and
+`_running_state` is the ONE place `Running` is given a meaning. The read
+itself stays at the `observe` crossing, which is where the boundary inventory
+owns it and where its witness case drives it; what is shared is the
+vocabulary, not a second reading.
+
+### [P1] The pre-attach branch stops only what is exactly identified
+
+`OciAdapter._recovery_failed` stopped EVERY candidate it had listed. It now
+stops only a runtime whose caller proved one identity exactly -- the mounts
+disagreement, where the labels and the lifecycle record agree on WHICH
+runtime this is -- and leaves ambiguous and mismatched ones where they are.
+Zero candidates is still positive absence, so the convergence the seventh
+review fixed is unchanged; an empty `stopped` no longer stands in for it.
+
+The survivors are observed once more after the stop and ride the refusal, and
+`--abandon`'s pre-attach branch writes them into the record through the same
+`_zombie_account` composer the attached branch uses. One obligation, one
+vocabulary, two branches.
+
+The reviewer's ownership finding is accepted in full: W6634 closed
+non-satisfying and its stop-every-candidate wording is provisional text, not a
+rule needing supersession. W32385's accepted boundary and M60437 are the live
+rule and this is written against them. I was wrong to report it as another
+record's supersession last round.
+
+### [P1] The two witnesses I have been deferring
+
+Both are done, and the fixtures they needed were smaller than the reasons I
+gave for not building them.
+
+The fresh-incarnation case writes real bytes into the worker's own workspace
+before the ending and proves them unmoved and unchanged afterwards, with
+`frozen_output_of` and `intake_receipt_of` both still absent and the only
+custody verb `normalize`. `cleanup: retained` is an axis; this is the file.
+
+The documented `main --retry-handoff` now runs over a real credential. The
+ordinary command produces the real freeze, intake receipt, retention decision
+and this operator's own independent verification; the fixture supplies only
+the half a stubbed engine does not -- `OciAdapter.start` materializes and
+publishes the lifecycle record after the container exists, and there is no
+container here. The `CredentialHome.adopt` receiver is captured and the
+adapter is required to own that exact object by identity.
+
+### New coverage
+
+- a pre-attach interruption fixture: recorded, claimed, activated, credential
+  materialized in the arc's own order, and no runtime ever attached;
+- command-level ambiguous and mismatched pre-attach cases asserting the
+  absence of every `stop`, `kill` and `rm` vector; and
+- four manager-level cases on `recover_credentials`: ambiguous and mismatched
+  candidates untouched and reported, the exactly identified one still stopped
+  and named, and an unreadable answer about a bystander recorded as
+  uncertainty rather than replacing the refusal's own account.
+
+### Mutation check
+
+Five mutations, all caught:
+
+    CAUGHT  the exported recovery takes a caller's projection again
+    CAUGHT  the retry hands the adapter a fresh same-path home
+    CAUGHT  the report writes a placeholder state for non-targets
+    CAUGHT  the pre-attach recovery stops every candidate again
+    CAUGHT  the ending removes the worker's workspace
+
+### Verification
+
+    tests.tools.test_dogfood_operator + test_credentials + test_oci
+      + the stale-owner boundary check              529 tests, OK
+    the whole v12 python suite                      2967 tests, 7 failures,
+      the same seven pre-existing ones, unchanged in number and identity
+
+One of that suite's failures WAS mine for a while and is not now: moving the
+`Running` read out of `observe` made the boundary inventory's declared owner
+for `oci.py:OciAdapter.observe / document.Running` stale. The read is back at
+its crossing and only the vocabulary is shared.
+
+No new over-width line and no trailing whitespace. No engine command, no
+authority mutation, no credential read and no change to the preserved run7/run8
+state.
+
+### State
+
+Awaiting review. No row is outstanding. Passing back rather than closing.
+
+## 2026-09-01 — thirteenth implementer round (`baton.claude`, W55758 impl claim)
+
+**One row, and it was a report saying two mutually exclusive things about one
+container.**
+
+### [P1] One runtime is one row, and a contradiction says so
+
+The reviewer's probe is exact. `OciAdapter.observe` was right about the
+runtime -- an engine answering twice for one exact identity is `uncertain`,
+and it said so -- but `_zombie_account` composed one zombie row PER DOCUMENT.
+An engine that named `runtime-1` twice with disagreeing `Running` members
+therefore wrote two rows for one locator, `quiescent` and `running`, both
+targeted, under a top-level runtime that already said `uncertain`. The host
+behaviour was fail-closed throughout; the durable evidence was not usable.
+
+`_canonical_candidates` now settles observations by runtime identity before
+either branch composes. Repeated or aliasing documents that agree are one
+observation seen twice and collapse to one row; documents that disagree
+produce ONE `uncertain` row whose reason names both of the engine's own
+accounts rather than the one that happened to be read first. The per-runtime
+`targeted` fact and its two non-interchangeable sentences are unchanged, and
+they are now said once per runtime instead of once per document.
+
+The composer is the seam because it is the ONE place both endings meet:
+`observe`'s candidates on the attached branch and `_recovery_failed`'s
+`runtime_zombies` on the pre-attach one. Canonicalizing inside `observe`
+would have left the other branch's duplicate-listing shape uncovered, and two
+canonicalizers would be the second vocabulary this composer exists to prevent.
+
+### New coverage
+
+- the reviewer's recorded shape at the documented command: one identity
+  answered twice in conflict is exactly one `uncertain` zombie row, still
+  targeted, with an unresolved recovery, no `retained` cleanup and the
+  credential material still on the host;
+- its other half, so the collapse cannot invent an `uncertain` the engine
+  never reported: one identity answered twice in AGREEMENT stays `running`
+  with its own reason; and
+- the pre-attach branch's own duplicate shape -- one identity listed twice
+  under this attempt's whole label set, answered differently on each
+  observation -- reported as one untouched `uncertain` row with nothing
+  stopped.
+
+### Mutation check
+
+One mutation, caught by all three new cases:
+
+    CAUGHT  the composer keeps every document as its own row again
+
+### Verification
+
+    tests.tools.test_dogfood_operator + test_credentials + test_oci
+      + test_secrets + test_text_sweep + test_attempts
+                                                    930 tests, OK (927 before)
+    the whole v12 python suite                      2970 tests, 7 failures,
+      the same seven pre-existing ones, unchanged in number and identity:
+      five in `test_boundary_inventory`, one in `tests.authority.test_catalog`
+      and `test_credentials_engine`'s host check, which still sees run8's
+      deliberately preserved container
+
+Cached and working-tree diff checks are clean. No engine command, no authority
+mutation, no credential read and no change to the preserved run7/run8 state.
+The reviewer's `/tmp/w55758-round12-probe.py` is left where it was; my own
+`/tmp/w55758-round13-shape.py` is left beside it for the operator.
+
+### State
+
+Awaiting review. No row is outstanding. Passing back rather than closing.
+
+## 2026-09-01 — fourteenth implementer round (`baton.claude`, W55758 impl claim)
+
+**One row, and the reviewer is right: I made agreement mean less than an
+account.**
+
+### [P1] Agreement is the whole account, not the coarse state
+
+`_canonical_candidates` compared `state` and nothing else, so two DIFFERENT
+`uncertain` answers about one identity -- one document carrying no state
+record, another carrying `Running: "yes"` -- looked like one observation seen
+twice, and the second engine account was dropped without a word. That is the
+same silent loss this canonicalization was added to end, one layer in: for
+`uncertain`, the reason IS the evidence, and a coarse state that all confusion
+maps onto cannot be the thing that decides two answers are the same answer.
+
+Agreement is now the complete `(state, why)` account. Identical accounts
+collapse and nothing else does, so any distinct pair for one locator produces
+one `uncertain` row whose reason preserves every unique account in the order
+the engine gave them -- including the same-state/different-reason case that
+produced this correction. The composer got smaller rather than larger: the
+distinct accounts are collected once at the identity, and the row is decided
+by how many survived.
+
+### New coverage
+
+- the reviewer's recorded pair at the documented command: one document with no
+  `State` and one with `Running: "yes"` produce a single targeted `uncertain`
+  row carrying BOTH reasons, with the recovery unresolved, no `retained`
+  cleanup and the credential material still on the host.
+
+The three cases from the previous round are retained unchanged and still
+pass: the conflicting `running`/`quiescent` duplicate, the agreeing duplicate
+that must not become `uncertain`, and the pre-attach duplicate listing.
+
+### Mutation check
+
+Two mutations, both caught:
+
+    CAUGHT  agreement is decided on the coarse state again
+    CAUGHT  identical accounts no longer collapse
+
+The second is the guard on the correction itself: an account comparison that
+stopped deduplicating would report a repeated identical observation as a
+disagreement with itself.
+
+### Verification
+
+    tests.tools.test_dogfood_operator + test_credentials + test_oci
+      + test_secrets + test_text_sweep + test_attempts
+                                                    931 tests, OK (930 before)
+    the whole v12 python suite                      2971 tests, 7 failures,
+      the same seven pre-existing ones, unchanged in number and identity
+
+Cached and working-tree diff checks are clean. No engine command, no authority
+mutation, no credential read and no change to the preserved run7/run8 state.
+The reviewer's `/tmp/w55758-round13-review-probe.py` is left where it was and
+now prints both accounts.
+
+### State
+
+Awaiting review. No row is outstanding. Passing back rather than closing.

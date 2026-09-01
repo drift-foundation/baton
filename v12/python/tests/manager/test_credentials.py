@@ -2141,6 +2141,131 @@ class RecoveryIsDrivenAgainstTheLiveRuntime(CredentialCase):
                         "remove")
         self.home().tear_down(other)
 
+    # -- M60437 / W32385: what is NOT exactly identified is not touched ------
+
+    def many(self, *runtime_ids, running=True):
+        """An engine that lists these runtimes under this attempt's labels."""
+        case = self
+
+        class Engine:
+            def __call__(self, argv):
+                case.vectors.append(list(argv))
+                if "ps" in argv:
+                    return {"status": 0, "stderr": "", "stdout": "\n".join(
+                        json.dumps({"ID": one,
+                                    "Image": IDENTITY["image_digest"],
+                                    "Labels": {f"baton.v12.{name}": str(value)
+                                               for name, value
+                                               in case.labels().items()}})
+                        for one in runtime_ids)}
+                if "inspect" in argv:
+                    return {"status": 0, "stderr": "", "stdout": json.dumps(
+                        {"Id": argv[-1], "State": {"Running": running},
+                         "Mounts": []})}
+                return {"status": 0, "stdout": "", "stderr": ""}
+
+        return Engine()
+
+    def test_ambiguous_candidates_are_left_untouched_and_reported(self):
+        """W55758 (M60437), and W32385's own signed-off restart contract:
+        multiplicity fails closed WITHOUT removing unrelated candidates.
+
+        This stopped every runtime it had listed, which is the provisional
+        wording of the terminal non-satisfying W6634 spike rather than the
+        live rule -- and it then reduced the whole answer to prose, so a
+        caller composing a recovery record had nothing to report.
+        """
+        delivered = self.launched()
+        built = self.built(self.many("runtime-a", "runtime-b"))
+
+        with self.assertRaises(ContractRefusal) as caught:
+            built.recover_credentials(self.request())
+
+        self.assertFalse([one for one in self.vectors if "stop" in one],
+                         "an ambiguous candidate was stopped")
+        self.assertIn("left untouched", caught.exception.message)
+        named = {one["runtime_id"]: one
+                 for one in caught.exception.runtime_zombies}
+        self.assertEqual(sorted(named), ["runtime-a", "runtime-b"])
+        for one in named.values():
+            self.assertEqual(one["state"], "running")
+            self.assertEqual(one["why"], "the engine reports it running")
+        self.assertIsNone(caught.exception.stopped_runtime)
+        # AND NOTHING WAS CLEANED UP ON AN UNPROVED ACCOUNT.
+        self.assertIn("UNRESOLVED", caught.exception.message)
+        self.assertTrue(os.path.exists(delivered.root))
+        self.home().discard_orphans(live=[])
+
+    def test_a_mismatched_candidate_is_left_untouched_and_reported(self):
+        """The live runtime carries this attempt's labels and the lifecycle
+        record names another, so nothing here is exactly identified."""
+        delivered = self.launched()
+        built = self.built(self.many("runtime-somebody-elses"))
+
+        with self.assertRaises(ContractRefusal) as caught:
+            built.recover_credentials(self.request())
+
+        self.assertFalse([one for one in self.vectors if "stop" in one],
+                         "a mismatched candidate was stopped")
+        [zombie] = caught.exception.runtime_zombies
+        self.assertEqual(zombie["runtime_id"], "runtime-somebody-elses")
+        self.assertEqual(zombie["state"], "running")
+        self.assertIsNone(caught.exception.stopped_runtime)
+        self.assertTrue(os.path.exists(delivered.root))
+        self.home().discard_orphans(live=[])
+
+    def test_an_exactly_identified_runtime_is_still_stopped_and_named(self):
+        """The one candidate the ruling permits acting on: the labels and the
+        record agree on WHICH runtime this is and only its mounts disagree.
+        A stop that did not prove absence leaves it reported as targeted."""
+        delivered = self.launched()
+        built = self.built(self.engine(mounts=[]))
+
+        with self.assertRaises(ContractRefusal) as caught:
+            built.recover_credentials(self.request())
+
+        self.assertTrue([one for one in self.vectors if "stop" in one],
+                        "the exactly identified runtime was never stopped")
+        [zombie] = caught.exception.runtime_zombies
+        self.assertEqual(zombie["runtime_id"], "runtime-1")
+        self.assertEqual(caught.exception.stopped_runtime, "runtime-1")
+        self.assertTrue(os.path.exists(delivered.root))
+        self.home().discard_orphans(live=[])
+
+    def test_an_unreadable_answer_about_a_candidate_is_uncertain(self):
+        """The report is composed inside a refusal that already has its
+        reason, so an engine's malformed answer about a bystander is recorded
+        as uncertainty rather than replacing the account of what was done."""
+        case = self
+
+        class Engine:
+            def __call__(self, argv):
+                case.vectors.append(list(argv))
+                if "ps" in argv:
+                    return {"status": 0, "stderr": "", "stdout": "\n".join(
+                        json.dumps({"ID": one,
+                                    "Image": IDENTITY["image_digest"],
+                                    "Labels": {f"baton.v12.{name}": str(value)
+                                               for name, value
+                                               in case.labels().items()}})
+                        for one in ("runtime-a", "runtime-b"))}
+                if "inspect" in argv:
+                    return {"status": 0, "stderr": "",
+                            "stdout": "not a document at all"}
+                return {"status": 0, "stdout": "", "stderr": ""}
+
+        delivered = self.launched()
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.built(Engine()).recover_credentials(self.request())
+
+        self.assertIn("cannot be recovered", caught.exception.message)
+        for one in caught.exception.runtime_zombies:
+            self.assertEqual(one["state"], "uncertain")
+            self.assertIn("could not be read", one["why"])
+        self.assertTrue(os.path.exists(delivered.root))
+        self.home().discard_orphans(live=[])
+
     def test_a_multi_slot_recovery_adopts_every_slot(self):
         delivered = self.launched(slots=("api", "signing"))
         answer = self.built(
