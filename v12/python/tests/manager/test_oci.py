@@ -1812,3 +1812,85 @@ class ARecoveryEndingNeverClaimsNoCredentialWasDelivered(Adapting):
         self.assertEqual(self.recovering(None)._credential_home().place,
                          os.path.dirname(
                              self.live_roots["workspace"].rstrip("/")))
+
+
+class OneAttemptsEndingNeverRemovesAnothersCredential(
+        ARecoveryEndingNeverClaimsNoCredentialWasDelivered):
+    """W55758 review (2026-09-01T04:57:06Z) [P1]: the binding that was missing.
+
+    THE MEASURED DEFECT. `OrphanTeardown` carries its own attempt id and this
+    adapter checked only its NOMINAL TYPE, so a recovery built over one
+    assignment's roots with another attempt's teardown removed that other
+    attempt's real credential material on positive absence. A type is not an
+    identity, and nothing in the removal path compared the two.
+
+    THE CHECK IS BEFORE THE ENGINE, because a refusal after the engine has
+    acted is not a refusal: the mismatched attempt's container would already
+    be gone and the wrong credential would be next.
+    """
+
+    def command(self, attempt="attempt-1", runtime="runtime-1"):
+        return {"assignment_ref": {"authority_uuid": "a" * 32,
+                                   "work_id": "w-1", "participant": "p.q",
+                                   "generation": 1},
+                "runtime_attempt_id": attempt, "runtime_id": runtime,
+                "abandonment_record_digest": "sha256:" + "4" * 64,
+                "retention_policy_digest": "sha256:" + "5" * 64}
+
+    def removing(self, orphan, home=None, answers=None):
+        """An adapter whose engine really answers, so the ORDER is testable."""
+        self.engine = Engine(answers if answers is not None
+                             else [{"stdout": "", "stderr": "", "status": 0},
+                                   {"stdout": "", "stderr": "no such object",
+                                    "status": 1}])
+        return OciAdapter(
+            "docker", self.engine, identity=self.IDENTITY,
+            assignment_roots=dict(self.live_roots), posture="execution",
+            workspace_group=self.group, launch_delivery=None,
+            credential_orphan=orphan, credential_home=home)
+
+    def test_a_teardown_for_another_attempt_refuses_before_the_engine(self):
+        other = self.materialized(self.credential_home("other-home"),
+                                  attempt="attempt-other")
+        orphan = self.orphan(other, attempt="attempt-other")
+        adapter = self.removing(orphan, home=other)
+        with self.assertRaises(ContractRefusal):
+            adapter.destroy_abandoned(self.command(attempt="attempt-1"))
+        # NEITHER ATTEMPT WAS TOUCHED, and the engine was never called.
+        self.assertTrue(os.path.lexists(
+            other.volatile_root("attempt-other")))
+        self.assertTrue(os.path.exists(other.state_path("attempt-other")))
+        self.assertEqual(self.engine.vectors, [],
+                         "a container was removed before the refusal")
+
+    def test_the_matching_attempt_still_ends(self):
+        """The positive half, so the refusal above is not passing because
+        nothing works: the SAME command reaches the engine and the ending."""
+        home = self.materialized(self.credential_home())
+        orphan = self.orphan(home)
+        adapter = self.removing(orphan, home=home)
+        adapter.observe = lambda runtime_id: {
+            "runtime_id": runtime_id, "state": "absent",
+            "why": "the exact runtime is absent"}
+        answered = adapter.destroy_abandoned(self.command())
+        self.assertEqual(answered["credentials"]["lifecycle_state"],
+                         "torn-down")
+        self.assertFalse(os.path.lexists(home.volatile_root("attempt-1")))
+        self.assertTrue(self.engine.vectors,
+                        "the engine was never asked to remove anything")
+
+    def test_a_removal_that_names_no_attempt_refuses_too(self):
+        """An ending that cannot say whose material it is removing is not one
+        this manager performs."""
+        home = self.materialized(self.credential_home())
+        adapter = self.removing(self.orphan(home), home=home)
+        with self.assertRaises(ContractRefusal) as raised:
+            adapter._removed("runtime-1", "an unnamed")
+        # THE REFUSAL IS THIS RULE'S, not an identity door's downstream. A
+        # missing operand refused by `boundaries.identity` would answer
+        # `integrity/schema` and would leave the rule itself unproved.
+        self.assertEqual((raised.exception.category, raised.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("names no attempt", raised.exception.message)
+        self.assertTrue(os.path.lexists(home.volatile_root("attempt-1")))
+        self.assertEqual(self.engine.vectors, [])

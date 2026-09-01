@@ -808,6 +808,22 @@ async () => {
 
 test("non-Work actions beside a deferred Work keep their own delivery rule",
 async () => {
+	// W11910's property, and it is UNCHANGED: the one-claim Work slot governs
+	// Work offers and nothing else, so the poke is not deferred BY THAT RULE
+	// and the unclaimed W10265 still is.
+	//
+	// W55705 return review (2026-09-01T05:03:30Z) [P1] SUPERSEDES THE COUNT.
+	// Delivering the claimed recovery wake mints a settlement fence -- the
+	// turn ended while that claim survived, which is this Work's whole defect
+	// state -- and the ruling retains every LATER wake until the exact claim
+	// is reconciled. So the poke is retained here by the settlement fence
+	// rather than by the claim-slot rule, which is a different gate for a
+	// different reason. Retained, not withdrawn: it is offered again on the
+	// next poll once the claim is gone, and the case below proves that.
+	//
+	// FLAGGED RATHER THAN QUIETLY EDITED. This is an accepted prior case whose
+	// expectation the return review's required correction moves; the reviewer
+	// accepts or overrules it.
 	const { log, config } = rig();
 	const held = workAction("7ba67cb8-W6627", { claimed: true });
 	const waiting = workAction("7ba67cb8-W10265");
@@ -817,11 +833,39 @@ async () => {
 	await runBridge(config, { signal, runWait, logger: quiet });
 	const prompts = events(log)
 		.filter((entry) => entry.event === "prompt/start").map((e) => e.text);
+	assert.equal(prompts.length, 1, prompts);
+	assert.match(prompts[0], /W6627.*claimed by you/);
+	assert.ok(!prompts.some((text) => /W10265/.test(text)),
+		"an unclaimed offer was delivered into an occupied claim slot");
+	assert.ok(!prompts.some((text) => /asks baton\.claude/.test(text)),
+		"a later wake was spent while the exact claim was unreconciled");
+});
+
+test("a retained later wake is delivered once the exact claim is reconciled",
+async () => {
+	// The other half of the correction above, and the reason `retained` is
+	// the right word: the poke is not withdrawn, it is waiting. A canonical
+	// read that says the slot is free clears the fence and the same poke goes
+	// through on the next poll, without anybody restarting this process.
+	const { log, config } = rig();
+	const spy = runtimeSpy();
+	const time = clock();
+	const held = workAction("7ba67cb8-W6627", { claimed: true });
+	const poke = pokeAction(9);
+	const { signal, runWait } = script([
+		envelope([held, poke]),
+		() => { time.advance(RECONCILE_MS + 1); return envelope([poke]); },
+	]);
+	const settlement = settlementFor(config, {
+		spy, now: time.now,
+		reads: [slot([held]), slot([]), slot([])] });
+	await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+		runtime: spy.runtime, settlement });
+	const prompts = events(log)
+		.filter((entry) => entry.event === "prompt/start").map((e) => e.text);
 	assert.equal(prompts.length, 2, prompts);
 	assert.match(prompts[0], /W6627.*claimed by you/);
 	assert.match(prompts[1], /asks baton\.claude/);
-	assert.ok(!prompts.some((text) => /W10265/.test(text)),
-		"an unclaimed offer was delivered into an occupied claim slot");
 });
 
 test("a retained offer withdrawn while it waits is never delivered", async () => {
@@ -3291,4 +3335,228 @@ test("W55705: a release whose delete failed stays fenced on the settle path",
 			"a canonically released claim resumed over an undeleted marker");
 		assert.equal(f.settle.settled(), true);
 		assert.equal(f.settle.fenced(), true);
+	});
+
+test("W55705: a drifted authority is fenced BEFORE a turn, not after one",
+	async () => {
+		// W55705 return review (2026-09-01T04:30:00Z) [P1]. A durable,
+		// verified `claimed` fence is deliberately not `fenced()` -- that is
+		// W11910's recoverable redelivery -- so the loop skipped
+		// reconciliation, revalidated and prompted, and only the POST-turn
+		// settlement compared the answer with the fence's recorded authority.
+		// One action from the new authority had already reached the model.
+		//
+		// ONE BRIDGE, A THEN B, and the assertion is a count: the A prompt is
+		// spent and the B prompt is not.
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const seen = [];
+		const { signal, runWait } = script([
+			envelope([action]),
+			() => {
+				time.advance(config.retryMs * 8);
+				// THE SAME ACTION, FROM ANOTHER AUTHORITY.
+				return envelope([action], { uuid: OTHER_UUID });
+			},
+		]);
+		const settlement = settlementFor(config, {
+			spy, now: time.now, reads: [slot([surviving])] });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement,
+			sessionFactory: () => ({
+				alive: () => true,
+				sessionId: "sess-1",
+				async start() { return "sess-1"; },
+				async promptText() {
+					// FAILED, so the offer is an unspent wake and is really
+					// re-delivered by the ordinary rules -- which is what
+					// makes the second poll reach the gate under test.
+					seen.push(true);
+					throw new Error("the turn died mid-attempt");
+				},
+				async stop() {},
+			}) });
+		assert.equal(seen.length, 1,
+			"an action from another authority reached the model");
+		// AND THE FENCE KEPT THE AUTHORITY IT WAS TAKEN AGAINST.
+		assert.equal(settlement.fence.authority, UUID);
+		assert.equal(settlement.fence.drift, OTHER_UUID);
+		assert.equal(settlement.fenced(), true);
+		assert.ok(!spy.published.some(([state]) => state === "idle"));
+	});
+
+test("W55705: an unnamed authority is drift rather than a match, before a turn",
+	async () => {
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const settlement = settlementFor(config, {
+			spy, now: time.now, reads: [slot([surviving])] });
+		await settlement.settle(action);
+		assert.equal(settlement.fenced(), false, "the premise is a live offer");
+		for (const unnamed of [undefined, null, 7]) {
+			assert.equal(await settlement.admits(unnamed), false,
+				`${unnamed} was read as a match`);
+		}
+		assert.equal(settlement.fence.authority, UUID);
+	});
+
+test("W55705: a bridge may not owe its own stranded-claim incident",
+	async () => {
+		// W55705 return review [P1]. Naming the runner explicitly reaches the
+		// same deadlock as inferring it: while a stranded settlement retains
+		// every readiness action, the incident obligation addressed back to
+		// this participant is one of them -- queued behind the fence it is
+		// supposed to resolve.
+		//
+		// AND IT REFUSES BEFORE ROLE LOADING, the lease and the first wait,
+		// which the injected instruction loader and the empty publication
+		// both assert.
+		const { config } = rig({ runtime: { actionOwner: "baton.claude" } });
+		assert.equal(config.runtime.actionOwner, config.baton.participant);
+		const spy = runtimeSpy();
+		let waited = 0;
+		await assert.rejects(
+			productionRunBridge(config, {
+				signal: new AbortController().signal,
+				runWait: async () => { waited += 1; return envelope([]); },
+				logger: quiet, runtime: spy.runtime,
+				loadInstructions: async () => {
+					assert.fail("the role was resolved before the refusal");
+				} }),
+			/is this bridge's own participant/);
+		assert.equal(waited, 0, "a wait was armed before the refusal");
+		assert.deepEqual(spy.published, [],
+			"the runtime lease was published before the refusal");
+	});
+
+test("W55705: a same-authority SUCCESSOR is reconciled before a turn is spent",
+	async () => {
+		// W55705 return review (2026-09-01T05:03:30Z) [P1]. `admits` answers
+		// whose ledger is talking; once it agreed, a verified `claimed` fence
+		// made `fenced()` false and every fresh action went on to prompt. So
+		// W1's fence was still current when W2 was delivered, and only the
+		// POST-turn settlement replaced it and filed W2's incident -- after
+		// a turn had been spent against a slot W2 could not claim.
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const first = workAction("7ba67cb8-W1", { episode: 11 });
+		const firstHeld = workAction("7ba67cb8-W1",
+			{ episode: 11, claimed: true });
+		const second = workAction("7ba67cb8-W2", { episode: 22 });
+		const secondHeld = workAction("7ba67cb8-W2",
+			{ episode: 22, claimed: true });
+		let prompts = 0;
+		const { signal, runWait } = script([
+			envelope([first]),
+			() => { time.advance(config.retryMs * 8); return envelope([second]); },
+		]);
+		const settlement = settlementFor(config, {
+			spy, now: time.now,
+			// SAME AUTHORITY throughout: this case is about identity, not
+			// about drift.
+			reads: [slot([firstHeld]), slot([secondHeld])] });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement,
+			sessionFactory: () => ({
+				alive: () => true, sessionId: "sess-1",
+				async start() { return "sess-1"; },
+				async promptText() { prompts += 1; },
+				async stop() {},
+			}) });
+		assert.equal(prompts, 1,
+			"a successor claim was spent before the fence was reconciled");
+		// AND THE SUCCESSOR IS RECORDED, through reconciliation rather than
+		// through a turn: its own fence, its own unfiled incident.
+		assert.equal(settlement.fence.work, "7ba67cb8-W2");
+		assert.equal(settlement.fence.episode, 22);
+		assert.equal(spy.incidents.length, 2, JSON.stringify(spy.incidents));
+		assert.equal(spy.incidents[0].work, "7ba67cb8-W1");
+		assert.equal(spy.incidents[1].work, "7ba67cb8-W2");
+		assert.ok(!spy.published.some(([state]) => state === "idle"));
+	});
+
+test("W55705: a later wake beside the exact recovery wake is retained",
+	async () => {
+		// The second probe. The FAILED recovery wake correctly stays eligible
+		// -- W11910's exception is exactly one action wide -- while the poke
+		// beside it does not, because settling it turned the same W1 fence
+		// from `claimed` to `held` and filed a SECOND incident for one
+		// stranded claim.
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const action = workAction("7ba67cb8-W1", { episode: 11 });
+		const held = workAction("7ba67cb8-W1", { episode: 11, claimed: true });
+		const seen = [];
+		const { signal, runWait } = script([
+			envelope([action, pokeAction(9)]),
+		]);
+		const settlement = settlementFor(config, {
+			spy, now: time.now, reads: [slot([held])] });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement,
+			sessionFactory: () => ({
+				alive: () => true, sessionId: "sess-1",
+				async start() { return "sess-1"; },
+				async promptText(text) {
+					seen.push(text);
+					throw new Error("the turn died mid-attempt");
+				},
+				async stop() {},
+			}) });
+		assert.equal(seen.length, 1,
+			"a later wake was spent while the exact claim was unreconciled");
+		assert.match(seen[0], /W1/);
+		// ONE STRANDED CLAIM, ONE INCIDENT, and the fence is still the
+		// delivered assignment's rather than a weaker reading of it.
+		assert.equal(spy.incidents.length, 1, JSON.stringify(spy.incidents));
+		assert.equal(settlement.fence.correlation, "claimed");
+		assert.equal(settlement.fence.work, "7ba67cb8-W1");
+		assert.equal(settlement.fence.episode, 11);
+	});
+
+test("W55705: the exact wake is the whole identity, not just the Work",
+	async () => {
+		// A NEWER EPISODE OF THE SAME WORK IS NOT THE WAKE THAT WAS SPENT.
+		// W11910's exception names the same participant AND assignment
+		// episode, so matching on the Work alone would re-admit a different
+		// assignment behind a fence taken for the old one.
+		const surviving = workAction("7ba67cb8-W1",
+			{ episode: 11, claimed: true });
+		const f = focused({ reads: [slot([surviving]), slot([surviving])] });
+		const wake = workAction("7ba67cb8-W1", { episode: 11 });
+		assert.equal(await f.settle.settle(wake), "recoverable");
+		assert.equal(await f.settle.permits(wake), true,
+			"the exact unspent recovery wake was retained");
+		for (const other of [workAction("7ba67cb8-W1", { episode: 99 }),
+		                     workAction("7ba67cb8-W1",
+		                                { episode: 11, generation: 7 })]) {
+			assert.equal(await f.settle.permits(other), false,
+				`${other.action_key} was read as the exact wake`);
+		}
+	});
+
+test("W55705: a STRANDED fence retains even its own offer's action",
+	async () => {
+		// The recoverable exception belongs to a fence that is not fenced. A
+		// `secondary` fence still records the offer it was taken for, so
+		// matching the offer without first asking whether the lane is fenced
+		// would hand the one blocked case its own action back.
+		const other = workAction("7ba67cb8-W999", { episode: 77, claimed: true });
+		const f = focused({ reads: [slot([other])] });
+		const wake = workAction("7ba67cb8-W1", { episode: 11 });
+		assert.equal(await f.settle.settle(wake), "stranded");
+		assert.equal(f.settle.fenced(), true);
+		assert.equal(f.settle.fence.offered.work, "7ba67cb8-W1");
+		assert.equal(await f.settle.permits(wake), false,
+			"a stranded lane admitted the action its fence was taken for");
 	});

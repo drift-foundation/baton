@@ -180,6 +180,85 @@ export class AcpSettlement {
 		return fence.correlation !== "claimed";
 	}
 
+	/** W55705 return review (2026-09-01T04:30:00Z) [P1]: may a turn start at
+	 *  all, given the authority now answering?
+	 *
+	 *  THE ONE QUESTION `fenced()` CANNOT ASK. A durable, verified `claimed`
+	 *  fence is not fenced -- W11910's recoverable redelivery depends on that
+	 *  -- so nothing stopped a bridge repointed at a different authority from
+	 *  revalidating and prompting, and the drift was found only by the
+	 *  POST-turn settlement. One action had already reached the model, which
+	 *  is the side effect the approved split forbids: authority-drifted
+	 *  readiness is retained, and identity is a pre-delivery fence rather
+	 *  than a post-turn diagnostic.
+	 *
+	 *  A COMPARISON, NOT A READ. The caller passes the `authority_uuid` its
+	 *  envelope validator already proved, so this costs nothing and cannot
+	 *  itself fail. A fence that recorded no authority has nothing to compare
+	 *  and is left to `fenced()`, which is already true for every shape that
+	 *  can produce one.
+	 *
+	 *  AND A DISAGREEMENT DROPS THE VERIFICATION rather than re-minting: the
+	 *  fence keeps its identity, its instant and its acknowledgement, and the
+	 *  lane is retained until a readable, matching answer arrives.
+	 */
+	async admits(authority, { session = null } = {}) {
+		if (this.fence === null) return true;
+		const expected = this.fence.authority;
+		if (!expected) return true;
+		const found = typeof authority === "string" ? authority : null;
+		if (found === expected) return true;
+		await this.#keepUnverified(
+			{ state: "authority-drift", expected, found }, session);
+		return false;
+	}
+
+	/** W55705 return review (2026-09-01T05:03:30Z) [P1]: may THIS ACTION be
+	 *  delivered while a marker exists?
+	 *
+	 *  SAME AUTHORITY IS NOT SAME ACTION, and conflating them widened the
+	 *  approved exception. `admits` answers whose ledger is talking; once it
+	 *  agreed, a verified `claimed` fence made `fenced()` false and EVERY
+	 *  fresh action in the envelope went on to revalidate and prompt. W11910's
+	 *  ruling permits redelivery of exactly one thing -- the unspent recovery
+	 *  wake for the same participant and assignment episode -- and this
+	 *  record's own acceptance says later wakes stay retained until the exact
+	 *  claim is reconciled. A successor claim and a neighbouring poke are
+	 *  neither.
+	 *
+	 *  THE COMPARISON IS AGAINST THE OFFER, not the occupant, for the same
+	 *  reason `reconcile` asks about the offer: the occupant of a `secondary`
+	 *  fence is a different Work from the one that was delivered.
+	 *
+	 *  AND A NON-EXACT ACTION RECONCILES FIRST. That is what makes a
+	 *  successor RECORDED before a turn is spent rather than discovered by
+	 *  spending one: the canonical read either proves the slot released --
+	 *  and then anything may go -- or mints the successor and files its own
+	 *  incident, with every action retained meanwhile.
+	 */
+	async permits(action, { session = null } = {}) {
+		if (this.fence === null) return true;
+		if (this.fenced()) return false;
+		const offer = this.fence.offered ?? {};
+		const exact = action?.kind === "work"
+			&& offer.work !== null && offer.work !== undefined
+			&& action.work === offer.work
+			&& action.episode_seq === offer.episode
+			&& action.action_key === offer.actionKey;
+		if (exact) return true;
+		await this.reconcile({ force: true });
+		if (this.fence === null) return true;
+		this.logger.warn(
+			`${this.participant} still holds `
+			+ `${this.fence.work ?? "a claim"}`
+			+ (Number.isSafeInteger(this.fence.episode)
+				? ` at assignment episode ${this.fence.episode}` : "")
+			+ `; ${action?.action_key ?? "a later action"} is not that claim's `
+			+ `own recovery wake and is retained until the claim is reconciled`);
+		if (session !== null) await this.#publish(session);
+		return false;
+	}
+
 	/** Whether a claim survived at all, recoverable or not. */
 	settled() { return this.fence !== null; }
 

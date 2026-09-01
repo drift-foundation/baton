@@ -1911,6 +1911,13 @@ class OciAdapter:
         duplicate-start and disagreeing-label exits are the same shape and are
         corrected with it rather than after the next review.
         """
+        # W55758 review [P1]: this exit has no destroy command and therefore
+        # no `runtime_attempt_id` to bind an orphan teardown against. A start
+        # this adapter never completed is not a path an unbound credential
+        # ending may ride on, so it is refused rather than performed -- and it
+        # is unreachable in practice, because a recovery adapter starts
+        # nothing.
+        self._bound_orphan(None, "a refused-start")
         settled = self._undelivered(labels)
         _denied(f"{why}; the credential delivery is "
                 f"{settled['credentials']['lifecycle_state']} and the launch "
@@ -2134,7 +2141,8 @@ class OciAdapter:
         taken = boundaries.document(command, "a destroy command",
                                     required=documents.DESTROY_COMMAND,
                                     optional=("operation",))
-        return self._removed(taken["runtime_id"], "a destroyed")
+        return self._removed(taken["runtime_id"], "a destroyed",
+                             attempt_id=taken["runtime_attempt_id"])
 
     def destroy_failed_start(self, command):
         """W34998: remove the runtime a FAILED START created, and prove it.
@@ -2170,7 +2178,8 @@ class OciAdapter:
             command, "a failed-start destroy command",
             required=documents.FAILED_START_DESTROY_COMMAND,
             optional=("operation",))
-        return self._removed(taken["runtime_id"], "a failed-start")
+        return self._removed(taken["runtime_id"], "a failed-start",
+                             attempt_id=taken["runtime_attempt_id"])
 
     def destroy_refused_session(self, command):
         """W32576: remove the runtime a REFUSED HANDSHAKE leaves running.
@@ -2198,7 +2207,8 @@ class OciAdapter:
             command, "a refused-session destroy command",
             required=documents.REFUSED_SESSION_DESTROY_COMMAND,
             optional=("operation",))
-        return self._removed(taken["runtime_id"], "a refused-session")
+        return self._removed(taken["runtime_id"], "a refused-session",
+                             attempt_id=taken["runtime_attempt_id"])
 
     # -- W43975: the typed directory-custody seam ---------------------------
 
@@ -2259,9 +2269,10 @@ class OciAdapter:
             command, "an abandoned-attempt destroy command",
             required=documents.ABANDONED_DESTROY_COMMAND,
             optional=("operation",))
-        return self._removed(taken["runtime_id"], "an abandoned-attempt")
+        return self._removed(taken["runtime_id"], "an abandoned-attempt",
+                             attempt_id=taken["runtime_attempt_id"])
 
-    def _removed(self, named, what):
+    def _removed(self, named, what, *, attempt_id=None):
         """Force-remove one exact identity and answer what became of it.
 
         NOTHING IN THE COMMAND IS INTERPRETED HERE. This core answers facts
@@ -2277,6 +2288,22 @@ class OciAdapter:
         the value is.
         """
         runtime_id = boundaries.identity(named, f"{what} runtime id")
+        # W55758 review (2026-09-01T04:57:06Z) [P1]: THE CREDENTIAL TARGET IS
+        # BOUND TO THIS REMOVAL'S OWN ATTEMPT, and it is bound BEFORE the
+        # engine is called.
+        #
+        # An `OrphanTeardown` carries its own attempt id and this adapter
+        # checked only its nominal type, so a recovery built over one
+        # assignment's roots with another attempt's teardown removed that
+        # OTHER attempt's real credential material on positive absence.
+        # Nothing in the path compared the two. Every destroy command already
+        # names `runtime_attempt_id`; this is where that name becomes
+        # load-bearing.
+        #
+        # BEFORE THE REMOVAL, because a refusal after the engine has acted is
+        # not a refusal -- the mismatched attempt's container would already be
+        # gone, and the wrong credential would be next.
+        self._bound_orphan(attempt_id, what)
         self.run(destroy_vector(self.engine, runtime_id=runtime_id))
         observed = self.observe(runtime_id)
         return {"runtime_id": runtime_id, "state": observed["state"],
@@ -2290,6 +2317,38 @@ class OciAdapter:
                 # delivery with no credential still has a launch document.
                 "launch": self._launch_ended(observed["state"] == "absent",
                                              observed["why"])}
+
+    def _bound_orphan(self, attempt_id, what):
+        """W55758: the orphan teardown acts for THIS attempt or not at all.
+
+        A `Delivery` needs no such check -- `start` already refuses one whose
+        attempt disagrees with the runtime it is delivering to -- but an
+        orphan teardown is constructed from durable facts by a recovery, so
+        the only thing tying it to a removal is this comparison. Without it
+        the type was the whole check, and a type is not an identity.
+
+        AN UNNAMED ATTEMPT REFUSES TOO. A removal that cannot say which
+        attempt it is for is not one an exact credential ending may ride on,
+        and every destroy command this adapter reads names one.
+        """
+        if self.credential_orphan is None:
+            return
+        if attempt_id is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} removal names no attempt and this adapter holds an "
+                f"orphan credential teardown for "
+                f"{name_value(self.credential_orphan.attempt_id)}; an ending "
+                f"that cannot say whose material it is removing is not one "
+                f"this manager performs")
+        named = boundaries.identity(attempt_id, f"{what} runtime attempt id")
+        if named != self.credential_orphan.attempt_id:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} removal is for attempt {name_value(named)} and this "
+                f"adapter's orphan credential teardown is for "
+                f"{name_value(self.credential_orphan.attempt_id)}; one "
+                f"attempt's ending never removes another's material")
 
     def _torn_down(self, observed):
         """W6634: the credential ending, ordered AFTER container removal.

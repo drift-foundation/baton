@@ -2226,7 +2226,7 @@ def _ended_however(store, port, adapter, evidence, *, attempt_id, runtime_id,
 
 
 def recover_abandoned(store, port, adapter, given, *, reason, orphan,
-                      launch_home=None):
+                      launch_home=None, session=None):
     """W55758: end an attempt whose SUPERVISING PROCESS died, from the grants.
 
     THE OBSERVED DEFECT. A managed turn was torn down while `attempt-w51487-
@@ -2281,6 +2281,29 @@ def recover_abandoned(store, port, adapter, given, *, reason, orphan,
               "authority_fence": None, "runtime": None, "credentials": None,
               "launch": None, "custody": None, "cleanup": None,
               "observed_after": None, "resolved": False, "unresolved": []}
+    try:
+        return _recovering(record, store, port, adapter, given, reason=reason,
+                           orphan=orphan, launch_home=launch_home,
+                           session=session)
+    except BaseException as failed:                        # noqa: BLE001
+        # W55758 review (2026-09-01T04:57:06Z) [P1]: THE RECORD RIDES OUT WITH
+        # THE FAULT. Once this ending has begun, an external act may already
+        # have happened, and a command that propagated with nothing durable
+        # written would leave an operator with a partially ended attempt and
+        # no account of it. Only the fault's TYPE is recorded -- its text is
+        # untrusted prose and this is the most durable surface here.
+        _unresolved(record, f"this recovery faulted after it began: "
+                            f"{type(failed).__name__}")
+        failed.dogfood_recovery = record
+        raise
+
+
+def _recovering(record, store, port, adapter, given, *, reason, orphan,
+                launch_home, session=None):
+    """The two branches, composed into the record `recover_abandoned` owns."""
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import abandon_attempt, attempt_runtime_of
+
     state = attempt_runtime_of(store, given["attempt_id"])
     record["attempt_state"] = state
     if state is None or state["runtime_id"] is None:
@@ -2294,6 +2317,18 @@ def recover_abandoned(store, port, adapter, given, *, reason, orphan,
             reason=reason,
             retention_policy_digest=given["retention_policy_digest"])
     except _Refusal as refused:
+        # THE ENDING MAY HAVE GOT PART WAY, and the record has to say so.
+        #
+        # Found by the attached-state case: `abandon_attempt` refuses at the
+        # TERMINAL SETTLEMENT -- directory custody, for one -- after the
+        # destroy answer has already proved the runtime absent and torn the
+        # credential down. A record that left `credentials` null there would
+        # leave an operator unable to tell whether the bearer is still on the
+        # host, which is the exact half-state this Work exists to stop anybody
+        # having to infer.
+        _partial_account(record, store, adapter, given, state,
+                         orphan=orphan, launch_home=launch_home,
+                         session=session)
         return _unresolved(record, f"the manager declined to abandon the "
                                    f"attempt: {refused.message}")
     settled = ended["cleanup"]
@@ -2310,19 +2345,7 @@ def recover_abandoned(store, port, adapter, given, *, reason, orphan,
     # abandonment document reports the runtime and the cleanup; what the
     # credential owner did is its own answer, and reading it here is how this
     # record can say `torn-down` without asserting anything itself.
-    if orphan is None:
-        record["credentials"] = {"lifecycle_state": "not-delivered"}
-    elif orphan.ending is None:
-        # THE ENDING RAN AND THE CREDENTIAL OWNER WAS NOT ASKED. That is not
-        # an ending for the credential, and it is not `not-delivered` either
-        # -- this deployment built the teardown precisely because durable
-        # facts say a credential WAS delivered. Unresolved, and named.
-        record["credentials"] = {
-            "lifecycle_state": "unresolved",
-            "why": "the attempt ending reported no credential teardown for "
-                   "an attempt this recovery holds credential material for"}
-    else:
-        record["credentials"] = orphan.ending
+    record["credentials"] = _credential_account(orphan)
     record["launch"] = _launch_after(given, launch_home)
     record["observed_after"] = _observed_after(adapter, state["runtime_id"])
     if settled.get("cleanup") != "retained" \
@@ -2339,6 +2362,103 @@ def recover_abandoned(store, port, adapter, given, *, reason, orphan,
     if not record["unresolved"]:
         record["resolved"] = True
     return record
+
+
+def _partial_account(record, store, adapter, given, state, *, orphan,
+                     launch_home, session):
+    """What the refused ending had ALREADY DONE, re-observed rather than
+    inferred.
+
+    W55758 review (2026-09-01T05:54:54Z) [P1]. `abandon_attempt` refuses at
+    its terminal settlement long after it has declared, fenced the authority,
+    removed the runtime and proved it absent -- and the record kept only the
+    credential fact, so an operator could not tell whether the container was
+    gone, whether the fence landed, or which step refused. This record's own
+    acceptance requires the fence, the runtime removal, both provider endings,
+    custody and the terminal manager state reported SEPARATELY, and that is
+    exactly the case where the separation earns its keep.
+
+    EVERY MEMBER IS RE-OBSERVED THROUGH A PUBLIC SURFACE, never read out of
+    the refusal's sentence and never out of the store: `attempt_runtime_of`
+    for the manager's own axes, the adapter's observation for the engine, the
+    credential owner's own account, and the authority's assignment for the
+    fence. What genuinely did not happen stays unset -- `custody` is the act
+    that refused, and a record inventing a value for it would be the failure
+    this whole function is correcting, one member further on.
+    """
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import attempt_runtime_of
+
+    record["credentials"] = _credential_account(orphan)
+    try:
+        record["launch"] = _launch_after(given, launch_home)
+    except _Refusal as unsettled:
+        record["launch"] = {"lifecycle_state": "unresolved",
+                            "why": unsettled.message}
+    runtime_id = (state or {}).get("runtime_id")
+    if runtime_id is not None:
+        record["observed_after"] = _observed_after(adapter, runtime_id)
+        record["runtime"] = {"runtime_id": runtime_id,
+                             "state": (record["observed_after"] or {}).get(
+                                 "state"),
+                             "why": (record["observed_after"] or {}).get(
+                                 "why")}
+    current = attempt_runtime_of(store, given["attempt_id"])
+    record["attempt_state"] = current
+    # THE MANAGER'S OWN AXIS, which is the terminal state this ending did or
+    # did not reach. `cleanup` is the axis rather than a settlement's word
+    # here, and that is the honest reading of a refusal.
+    record["cleanup"] = (current or {}).get("cleanup")
+    if session is not None:
+        # THE FENCE, ASKED OF THE AUTHORITY. An assignment the authority no
+        # longer has is a generation that was fenced; this reads and decides
+        # nothing else, and says `null` rather than guessing when it cannot
+        # ask.
+        try:
+            live = session.assignment_of(given["work_ref"]["work_id"])
+        except Exception:                                  # noqa: BLE001
+            live = None
+            record["authority_fence"] = None
+        else:
+            record["authority_fence"] = {"fenced": live is None,
+                                         "generation": None}
+    return record
+
+
+def _credential_account(orphan):
+    """What the credential owner DID, reported whether the attempt settled.
+
+    THE CAPABILITY'S OWN ACCOUNT and not an inference from the settlement:
+    the teardown rides inside the destroy answer and follows positive runtime
+    absence, while the terminal settlement comes after it, so an ending that
+    refused later may still have made the host clean.
+
+    AND `not-delivered` IS STILL A CLAIM. It is made only when this recovery
+    holds no teardown at all -- an attempt granted no credential slots. A
+    teardown that exists and was never asked is `unresolved`, because durable
+    facts say a credential WAS delivered and nothing has proved it gone.
+    """
+    if orphan is None:
+        return {"lifecycle_state": "not-delivered"}
+    if orphan.ending is not None:
+        return orphan.ending
+    # THIS CAPABILITY WAS NOT ASKED, so the answer comes from the HOST rather
+    # than from the absence of an act.
+    #
+    # Found by the exact-retry case: a replayed ending returns the composite
+    # the first call journalled without calling this process's teardown, and
+    # reporting `unresolved` there would call a provably clean host unsettled
+    # on every retry. `torn-down` means PROVED ABSENT -- the same thing it
+    # means everywhere else in this component -- so every held home being
+    # empty is that proof, and anything still present is not.
+    found = orphan.evidence()
+    if all(not one["volatile_root"] and not one["lifecycle_record"]
+           for one in found):
+        return {"attempt_id": orphan.attempt_id,
+                "lifecycle_state": "torn-down", "homes": found}
+    return {"lifecycle_state": "unresolved",
+            "why": "the attempt ending reported no credential teardown and "
+                   "material for this attempt is still present"}
 
 
 def _pre_attach_recovered(record, store, adapter, given, *, orphan,
@@ -2394,11 +2514,32 @@ def _pre_attach_recovered(record, store, adapter, given, *, orphan,
     # PROVED UNHELD, so the rest of this attempt's material may end. The
     # orphan capability covers the OTHER home the legacy split put a record
     # under; `recover_credentials` acted only through the adapter's own.
-    record["credentials"] = (orphan.tear_down() if orphan is not None
-                             else {"lifecycle_state": "not-delivered"})
+    #
+    # W55758 review (2026-09-01T04:57:06Z) [P1]: EACH MUTATION IS ACCOUNTED
+    # FOR SEPARATELY. A real multi-home ending can remove the first home and
+    # then refuse on the second, and a raise there produced no durable
+    # recovery document at all -- after an external act had already happened.
+    # An expected cleanup refusal is a named `unresolved` fact here; the
+    # record is still composed, and `_abandoned` writes it either way.
     record["runtime"] = {"runtime_id": None, "state": "absent",
                          "why": "no runtime was ever attached to this attempt"}
-    record["launch"] = _launch_after(given, launch_home, discard=True)
+    if orphan is None:
+        record["credentials"] = {"lifecycle_state": "not-delivered"}
+    else:
+        try:
+            record["credentials"] = orphan.tear_down()
+        except _Refusal as refused:
+            record["credentials"] = {"lifecycle_state": "unresolved",
+                                     "why": refused.message}
+            _unresolved(record, f"the credential teardown did not settle: "
+                                f"{refused.message}")
+    try:
+        record["launch"] = _launch_after(given, launch_home, discard=True)
+    except _Refusal as refused:
+        record["launch"] = {"lifecycle_state": "unresolved",
+                            "why": refused.message}
+        _unresolved(record, f"the launch teardown did not settle: "
+                            f"{refused.message}")
     _held_orphan_absent(record, orphan)
     if not record["unresolved"]:
         record["resolved"] = True
@@ -2759,7 +2900,20 @@ def _held_grants(given):
 
 
 def _abandoned(given, reason, capabilities, place):
-    """The public recovery, over freshly built ending-only capabilities."""
+    """The public recovery, over freshly built ending-only capabilities.
+
+    AND A FAULT AFTER THE FIRST MUTATION STILL LEAVES A RECORD. W55758 review
+    (2026-09-01T04:57:06Z) [P1]: the document was written only after
+    `recover_abandoned` returned, so an unexpected fault between two homes --
+    or anywhere after the ending began -- propagated with nothing durable
+    saying an external act had happened. `main`'s ordinary branch already
+    holds the opposite rule for the same reason ("a post-start fault still
+    leaves a file"), and one rule is right for both.
+
+    THE CARRIED RECORD IS THIS DEPLOYMENT'S OWN. Only the exception's TYPE
+    name is recorded, never its text: a fault's message is untrusted prose on
+    the most durable surface this command has.
+    """
     from baton_v12.worker_manager import AuthorityPort
     from baton_v12.authority import claim_signature
 
@@ -2769,7 +2923,17 @@ def _abandoned(given, reason, capabilities, place):
             built["store"],
             AuthorityPort(built["session"], claim_signature),
             built["adapter"], given, reason=reason, orphan=built["orphan"],
-            launch_home=built["launch_home"])
+            launch_home=built["launch_home"], session=built["session"])
+    except BaseException as failed:                        # noqa: BLE001
+        carried = getattr(failed, "dogfood_recovery", None)
+        if carried is not None:
+            try:
+                write_recovery(carried, place)
+            except OperatorRefusal:
+                # A RECORD THAT WILL NOT WRITE MUST NOT REPLACE THE FAULT.
+                # The original failure is what an operator has to see.
+                pass
+        raise
     finally:
         for closing in built.get("closing", ()):
             closing()
@@ -3496,19 +3660,60 @@ def _launched(given, *, credential_provider):
         opened.append(store.close)
         group = _configured_group(store)
         home = credentials.CredentialHome(given["credential_home"])
-        delivery = home.materialize(
-            credentials.resolved_delivery(given["credential_slots"],
-                                          profile=given["credential_profile"]),
-            attempt_id=given["attempt_id"],
-            # W52800: the slot's reader group is a grant, and this launcher
-            # already read the one nominal capability for the adapter below.
-            # One lookup, both halves.
-            workspace_group=group,
-            credential_provider=credential_provider)
+        # W55758, approver ruling APPROVE-LAZY (M59057): THE CREDENTIAL IS
+        # MATERIALIZED HERE, INSIDE THE ADAPTER FACTORY, AND NOT WHEN THIS
+        # BUNDLE IS BUILT.
+        #
+        # THE DEFECT THIS CLOSES. Building the bundle wrote the bearer to disk
+        # before `run_dogfood_task` had recorded, claimed or activated
+        # anything -- so a process that died in that window left a readable
+        # credential with no attempt row, no activated assignment and
+        # therefore no `label_context` from which a recovery could compose a
+        # runtime selector. `--abandon` could prove nothing and clean nothing,
+        # which is this record's sharpest failure with no path out of it.
+        #
+        # THE ORDER IS WHAT MAKES IT SAFE, and the arc already had it: this
+        # factory is called AFTER `record_attempt`, the claim and
+        # `activate_assignment` and BEFORE `request_runtime_start`. So a crash
+        # before activation leaves no bearer at all, and a crash after it
+        # leaves one the manager can name.
+        #
+        # EXACTLY ONCE. The delivery is a live registration and a set of files;
+        # a second materialization would refuse against its own root, and
+        # silently answering the first one twice would hide a second caller.
+        # `run_dogfood_task` builds one adapter, and this says so rather than
+        # relying on it.
+        #
+        # THE PARAMETER LIST DOES NOT MOVE, which the ruling also names: the
+        # arc still forwards whatever `compose` was given, and this factory
+        # ignores that operand because a deployment materializing lazily is
+        # the one that owns the act.
+        materialized = []
+
+        def deliver():
+            if materialized:
+                raise OperatorRefusal(
+                    "this launcher materializes one attempt's credential "
+                    "exactly once; a second delivery for the same attempt "
+                    "would refuse against its own root, and answering the "
+                    "first one again would hide the caller that asked twice")
+            made = home.materialize(
+                credentials.resolved_delivery(
+                    given["credential_slots"],
+                    profile=given["credential_profile"]),
+                attempt_id=given["attempt_id"],
+                # W52800: the slot's reader group is a grant, and this
+                # launcher already read the one nominal capability for the
+                # adapter below. One lookup, both halves.
+                workspace_group=group,
+                credential_provider=credential_provider)
+            materialized.append(made)
+            return made
 
         def adapter_of(*, engine, run, image_digest, network, labels, roots,
                        declared, launch, credential_delivery,
                        input_manifest_digest):
+            del credential_delivery
             return OciAdapter(
                 engine, EnginePort(run),
                 identity={"image_digest": image_digest,
@@ -3539,7 +3744,10 @@ def _launched(given, *, credential_provider):
                          "writable": True}],
                 workspace_group=group,
                 launch_delivery=launch,
-                credential_delivery=credential_delivery,
+                # THE OPERAND IS DELIBERATELY DISCARDED. What the arc forwards
+                # is whatever `compose` was handed, and this deployment's
+                # delivery does not exist until this line runs.
+                credential_delivery=deliver(),
                 # W55758: ONE OWNER, from the first act of the attempt. The
                 # home that materialized the delivery is the home that
                 # publishes its lifecycle record, so a later restart finds the
@@ -3551,7 +3759,10 @@ def _launched(given, *, credential_provider):
                 interactive=True)
 
         return {"session": session, "bearer": _minted_bearer(),
-                "credential_delivery": delivery,
+                # NOTHING IS MATERIALIZED YET, and that is the ruling: bundle
+                # construction leaves no volatile credential root and no
+                # lifecycle record on the host.
+                "credential_delivery": None,
                 # WHAT THIS BUILDER OPENED, so the caller can close it. Review
                 # 2026-08-30T18:34:00Z [P1]: the retry path was corrected and this
                 # one was not, so the ORDINARY command left an authority and a

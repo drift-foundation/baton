@@ -2456,3 +2456,139 @@ class TheOrphanEndingStandsInForADeliveryNobodyHolds(CredentialCase):
         for found in orphan.evidence():
             self.assertFalse(found["volatile_root"])
             self.assertFalse(found["lifecycle_record"])
+
+
+class APartialMultiHomeEndingConvergesOnAnExactRetry(CredentialCase):
+    """W55758 review (2026-09-01T04:57:06Z), promoted from the probe.
+
+    THE SHAPE THAT ACTUALLY HAPPENS. A recovery holds two proved homes -- the
+    operator-granted one and the assignment-derived one the legacy split
+    published a record under -- and tears them down in order. The FIRST can
+    succeed and the SECOND refuse, which leaves one home already proved absent,
+    an external act that really happened, and an ending that did not.
+
+    WHAT THE ENDING OWES THEN is not a rollback -- nothing can put a removed
+    root back, and it should not -- but CONVERGENCE: an exact retry finishes
+    what the first attempt started, and both homes end absent. `_gone` is what
+    makes that true rather than a hope: it proves absence, and something
+    already absent is proved rather than re-removed.
+    """
+
+    def homed(self, name):
+        place = os.path.join(self.home_place, name)
+        os.makedirs(place, exist_ok=True)
+        return credentials.CredentialHome(place)
+
+    def delivered(self, home, attempt="attempt-1"):
+        delivery = home.materialize(
+            credentials.resolved_delivery(
+                ["api"], profile={"api": {"provider": "vault",
+                                          "reference": "kv/one"}}),
+            attempt_id=attempt, workspace_group=self.group,
+            credential_provider=self.provider())
+        home.written_state(attempt, delivery.record(runtime_id="runtime-1"))
+        for value in delivery.bearers().values():
+            forget_secret(value)
+        return home
+
+    def test_a_second_home_that_refuses_leaves_the_first_proved_absent(self):
+        first = self.delivered(self.homed("granted"))
+        second = self.delivered(self.homed("assignment"), attempt="attempt-1")
+        orphan = credentials.OrphanTeardown("attempt-1",
+                                            homes=[first, second])
+        # THE SECOND HOME IS MADE UNREMOVABLE, at the directory that holds the
+        # volatile root -- which is how a real filesystem refuses one.
+        holding = os.path.join(second.place, "credentials")
+        os.chmod(holding, 0o500)
+        self.addCleanup(os.chmod, holding, 0o700)
+
+        with self.assertRaises(ContractRefusal):
+            orphan.tear_down()
+
+        # THE FIRST HOME REALLY ENDED, and its bytes are gone.
+        self.assertFalse(os.path.lexists(first.volatile_root("attempt-1")))
+        self.assertFalse(os.path.exists(first.state_path("attempt-1")))
+        # THE SECOND DID NOT, and says so rather than being reported settled.
+        found = orphan.evidence()
+        self.assertFalse(found[0]["volatile_root"])
+        self.assertTrue(found[1]["volatile_root"])
+        # AND NOTHING WAS PUBLISHED. The refusal names a root, never a bearer.
+        self.assertNotIn(BEARER, json.dumps(found))
+
+    def test_an_exact_retry_converges_with_both_homes_absent(self):
+        first = self.delivered(self.homed("granted"))
+        second = self.delivered(self.homed("assignment"), attempt="attempt-1")
+        orphan = credentials.OrphanTeardown("attempt-1",
+                                            homes=[first, second])
+        holding = os.path.join(second.place, "credentials")
+        os.chmod(holding, 0o500)
+        with self.assertRaises(ContractRefusal):
+            orphan.tear_down()
+        self.assertIsNone(orphan.ending,
+                          "a partial ending recorded itself as an ending")
+
+        # THE OPERATOR CLEARS WHAT REFUSED, and the SAME capability retries.
+        os.chmod(holding, 0o700)
+        answered = orphan.tear_down()
+
+        self.assertEqual(answered["lifecycle_state"], "torn-down")
+        for home in (first, second):
+            self.assertFalse(os.path.lexists(home.volatile_root("attempt-1")))
+            self.assertFalse(os.path.exists(home.state_path("attempt-1")))
+        # THE ALREADY-ABSENT HOME IS PROVED, NOT RE-REMOVED, which is what
+        # makes the retry exact rather than a second ending: its per-home
+        # account says it held nothing this time.
+        self.assertFalse(orphan.ending["homes"][0]["held_root"])
+        self.assertTrue(orphan.ending["homes"][1]["held_root"])
+
+
+class TheOrphanEndingFollowsNoPathAndReadsNoRecord(CredentialCase):
+    """W55758 matrix: damaged lifecycle state and a mismatched recorded root.
+
+    THE PROPERTY IS THAT NEITHER CAN MISLEAD IT. `tear_down_orphan` computes
+    both locations from the home it was constructed with and never opens the
+    record, so a record this manager cannot parse is unlinked rather than
+    consulted, and a `credential_root` member naming somewhere else is not
+    followed -- a raw path out of a document is not authority for touching a
+    filesystem.
+    """
+
+    def homed(self, name="granted"):
+        place = os.path.join(self.home_place, name)
+        os.makedirs(place, exist_ok=True)
+        return credentials.CredentialHome(place)
+
+    def test_a_damaged_record_is_unlinked_rather_than_read(self):
+        home = self.homed()
+        os.makedirs(os.path.dirname(home.state_path("attempt-1")),
+                    exist_ok=True)
+        with open(home.state_path("attempt-1"), "wb") as writing:
+            writing.write(b"\xff\xfe not a lifecycle record at all")
+        # THE READER REFUSES IT, which is the contrast this case draws.
+        with self.assertRaises(ContractRefusal):
+            home.read_state("attempt-1")
+        answered = home.tear_down_orphan("attempt-1")
+        self.assertTrue(answered["held_record"])
+        self.assertFalse(os.path.exists(home.state_path("attempt-1")))
+
+    def test_a_recorded_root_elsewhere_is_never_followed(self):
+        home = self.homed()
+        elsewhere = os.path.join(self.home_place, "somewhere-else")
+        os.makedirs(elsewhere, exist_ok=True)
+        marker = os.path.join(elsewhere, "do-not-touch")
+        with open(marker, "w", encoding="utf-8") as writing:
+            writing.write("another component's file\n")
+        home.written_state("attempt-1", {
+            "attempt_id": "attempt-1", "runtime_id": "runtime-1",
+            # THE LIE THIS CASE IS ABOUT.
+            "credential_root": elsewhere,
+            "container_root": credentials.CREDENTIAL_ROOT,
+            "slots": [{"slot": "api", "provider": "vault",
+                       "target": f"{credentials.CREDENTIAL_ROOT}/api"}],
+            "lifecycle_state": "live"})
+
+        home.tear_down_orphan("attempt-1")
+
+        self.assertTrue(os.path.exists(marker),
+                        "a path out of a record was followed and removed")
+        self.assertFalse(os.path.exists(home.state_path("attempt-1")))

@@ -139,6 +139,30 @@ export async function runBridge(config, {
 			+ "team.member; it is never inferred from the runner participant, "
 			+ "session, Route or runtime telemetry.");
 	}
+	// W55705 return review (2026-09-01T04:30:00Z) [P1]: AND IT MAY NOT BE THIS
+	// RUNNER. Naming the runner explicitly reaches the same deadlock as
+	// inferring it, so the earlier gate -- which only asked for a nonblank
+	// string -- accepted exactly the configuration the ruling exists to
+	// prevent.
+	//
+	// The scheduling consequence is what makes it a refusal rather than a
+	// preference: while a secondary, held, unreadable or drifted settlement
+	// holds the lane, this bridge RETAINS every readiness action. An incident
+	// obligation addressed back to this participant is one of them, so the one
+	// durable notice that a claim is stranded would be queued behind the fence
+	// it exists to resolve, waiting on the runner it is telling to stop.
+	//
+	// LOCALLY PROVABLE, and only that. This says nothing about whether some
+	// other participant can actually act; it closes the one case this process
+	// can decide on its own.
+	if (actionOwner === config.baton.participant) {
+		throw new Error(
+			`runtime.actionOwner is ${actionOwner}, which is this bridge's own `
+			+ `participant: a stranded-claim incident addressed back to the `
+			+ `fenced runner is retained behind the fence it is supposed to `
+			+ `resolve. Name an explicitly configured recovery/operations `
+			+ `participant instead.`);
+	}
 	// W101: resolve the accepted role before session selection or process use.
 	// Missing and ambiguous configuration is a launch refusal, never a prompt
 	// an operator must remember to paste into an already-running agent.
@@ -351,6 +375,33 @@ export async function runBridge(config, {
 		// fence the moment a canonical read says the slot is free — an
 		// operator's `release` therefore resumes delivery without anybody
 		// restarting this process.
+		// W55705 return review (2026-09-01T04:30:00Z) [P1]: AND THE AUTHORITY
+		// IS COMPARED BEFORE A TURN, NOT AFTER ONE.
+		//
+		// A durable, verified `claimed` fence is deliberately NOT fenced --
+		// that is W11910's recoverable redelivery -- so this loop skipped
+		// reconciliation entirely and went on to revalidate and prompt. The
+		// only comparison with the fence's recorded authority happened in the
+		// POST-turn settlement, which meant a dispatcher repointed at another
+		// authority spent one action against the model and reported the drift
+		// afterwards. Authority identity is a fence, and a fence that reports
+		// is not a fence.
+		//
+		// THE ENVELOPE ALREADY CARRIES THE ANSWER. `validateEnvelope` proved
+		// this poll's `authority_uuid` before anything read it, so the check
+		// is a comparison rather than a second canonical read -- and a changed
+		// or unnamed authority retains the WHOLE envelope without starting a
+		// turn.
+		if (settle.settled()
+				&& !await settle.admits(envelope.authority_uuid)) {
+			logger.warn(
+				`${config.baton.participant}'s claim settlement fence was `
+				+ `taken against another authority than the one now `
+				+ `answering; ${fresh.length} readiness action(s) are `
+				+ `retained and no turn is spent`);
+			await delay(config.retryMs, signal);
+			continue;
+		}
 		if (settle.fenced()) {
 			await settle.reconcile();
 			if (settle.fenced()) {
@@ -363,6 +414,27 @@ export async function runBridge(config, {
 			}
 		}
 		for (const action of fresh) {
+			// W55705 return review (2026-09-01T05:03:30Z) [P1]: AND THE
+			// ACTION'S OWN IDENTITY IS A FENCE TOO.
+			//
+			// The gate above answers whose ledger is talking. Once it agreed,
+			// a verified `claimed` fence made `fenced()` false and EVERY
+			// fresh action went on to revalidate and prompt -- so a successor
+			// claim and a neighbouring poke were both spent, and settling the
+			// poke afterwards turned the surviving Work's fence from
+			// `claimed` to `held` and filed a second incident for one
+			// stranded claim.
+			//
+			// W11910's exception is exactly one action wide: the unspent
+			// recovery wake for the same Work and assignment episode. Anything
+			// else reconciles the recorded claim FIRST, so a successor is
+			// recorded before a turn is spent rather than discovered by
+			// spending one, and is retained until a canonical read says the
+			// slot is free.
+			if (settle.settled() && !await settle.permits(action)) {
+				failed = true;
+				continue;
+			}
 			// W28681: WHICH EPISODE THE CURRENT DOMAIN IS SERVING, reset per
 			// ACTION rather than per envelope.
 			//

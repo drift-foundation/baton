@@ -350,3 +350,68 @@ No supersession is therefore appended, and nothing in the grants contract moves.
 `tests.tools.test_dogfood_operator`, `tests.manager.test_credentials` and
 `tests.manager.test_attempts` together: **557 tests, OK** — the exact recorded
 baseline, unchanged.
+
+## 2026-09-01 — APPROVE-LAZY ruling closes the earliest credential window
+
+The approver accepted the reviewer's exact recommendation in Baton response
+M59057. Ordinary credential materialization moves into
+`_launched.adapter_of`, after assignment activation and before runtime
+creation. `run_dogfood_task` keeps its current parameter list.
+
+This ruling **supersedes** the existing bundle-build expectation that
+`_launched` already returns a `credentials.Delivery`. The authorized current
+temporal contract is instead:
+
+- constructing the launcher bundle leaves no credential root or lifecycle
+  record;
+- invoking the adapter factory after assignment activation materializes the
+  credential exactly once; and
+- the resulting adapter receives that exact `Delivery` and the same granted
+  `CredentialHome`.
+
+The purpose is to close, rather than recover through, the earliest crash
+window: before activation there is no bearer; after materialization the
+durable assignment identity and label context needed for bounded recovery
+already exist. This does not authorize cleanup from raw grants, move the
+accepted grants contract, or supersede option (a)'s one-owner decision.
+
+## 2026-09-01 — open decision: bind recovery grants to the fixed assignment
+
+**Observed:** the documented recovery command does not hold the grants'
+`work_ref`, `participant`, and `generation` against the attempt's durable fixed
+assignment before acting. A redacted public-command probe changed only the
+grants generation from 1 to 2; `main --abandon` still fenced and ended the
+generation-1 attempt, returned success, and wrote a recovery record naming
+generation 2. The retained reproduction is
+`/tmp/w55758-mismatched-grants-probe.py`.
+
+**Confirmed:** `recover_abandoned` branches on `attempt_runtime_of`, whose
+public answer currently includes only attempt/runtime/cleanup axes. The
+manager has the exact four-part fixed assignment in the same attempt row, but
+exposes it only through private `_fixed_assignment`. `abandon_attempt` uses
+that row internally, so the ending can act on one assignment while the
+deployment record repeats different identities from editable grants.
+
+This violates Required recovery contract item 2. A recovery whose grants do
+not exactly name the durable attempt assignment must refuse before authority,
+engine, credential, launch, or custody mutation.
+
+**Proposed — APPROVE-EXTEND:** extend the existing public
+`attempt_runtime_of` recovery projection with one required `assignment`
+member, composed by the manager as the complete four-part assignment document
+or `None`. It already projects this same attempt row for this recovery command
+and has no unrelated consumer. Returning assignment and runtime facts in one
+closed answer avoids a second public reader and a split recovery snapshot.
+
+The deployment then compares that assignment exactly with the held grants
+identity `{work_ref, participant, generation}` before choosing either recovery
+branch or performing any external act. An absent fixed assignment or any
+authority UUID, Work, participant, or generation mismatch refuses closed. The
+recovery record uses the manager-fixed identity after the match; it never
+publishes editable grants as though they were the identity the ending used.
+
+**Alternative — ADD-READ:** add a separate public
+`attempt_assignment_of(store, attempt_id)` projection. This is coherent but
+adds a second public surface and read where the existing recovery projection
+already owns the same row. No implementation should choose between these
+public contracts without approval.

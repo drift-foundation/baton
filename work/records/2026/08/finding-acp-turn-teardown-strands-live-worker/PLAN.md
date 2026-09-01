@@ -70,6 +70,61 @@
     `tools/codex-event-bridge/`, including its 54-case W4303 settlement suite.
     Fifteen mutations of the corrected guards, all caught; three started as
     misses and the TESTS were corrected.
-16. [changes requested in review-2026-09-01T04-30-00Z.md] Refuse a configured
-    action owner equal to the runner participant, and reconcile an existing
-    recoverable fence's authority before any later prompt is delivered.
+16. [resolved by items 18-20; re-review found the narrower exact-wake gap in
+    item 21] Refuse a configured action owner equal to the runner participant,
+    and reconcile an existing recoverable fence's authority before any later
+    prompt is delivered.
+
+## 2026-09-01 third implementer round (response to review 2026-09-01T04-30-00Z)
+
+18. [done] Authority identity is a PRE-delivery fence. `AcpSettlement.admits`
+    compares the fence's recorded authority with the `authority_uuid` the
+    envelope validator already proved, and the loop consults it whenever a
+    marker exists — before revalidation and before any prompt. A matching
+    exact claim still takes W11910's recoverable redelivery; a changed or
+    unnamed authority retains the WHOLE envelope and drops the fence's
+    verification without re-minting it.
+19. [done] `runtime.actionOwner` equal to the runner participant is refused at
+    startup, before role loading, the runtime lease and the first wait. It is
+    the same self-addressed deadlock the ruling rules out, reached by spelling
+    the runner instead of inferring it.
+20. [done] Three new regressions — a single bridge across an A-to-B authority
+    change proving only the A prompt is spent, an unnamed authority as drift,
+    and a startup-order case for the self-owner. Five mutations of the two new
+    guards, all caught. 122 ACP tests (from 119) and 430 in
+    `tools/codex-event-bridge/`.
+
+## 2026-09-01 third review
+
+21. [changes requested in review-2026-09-01T05-03-30Z.md] Do not treat a
+    matching `authority_uuid` as admission for every action in the envelope.
+    While a claim-settlement marker exists, admit only the exact unspent
+    recovery wake covered by the approved refinement. Reconcile and retain a
+    same-authority successor claim or any neighboring action before a turn is
+    spent, and preserve one incident for the original Work/episode fence.
+22. [pending] Add the same-authority successor and same-envelope neighboring
+    wake regressions, re-run the ACP and sibling settlement gates, and return
+    for independent review.
+
+## 2026-09-01 fourth implementer round (response to review 2026-09-01T05-03-30Z)
+
+21. [done] `AcpSettlement.permits(action)` is a PER-ACTION gate beside the
+    per-envelope authority one. Only the exact unspent recovery wake — same
+    Work, same assignment episode, same action key, compared against the
+    fence's recorded OFFER — takes W11910's redelivery path. Anything else
+    reconciles the recorded claim first and is retained unless that read
+    proves the slot released, so a successor is recorded before a turn is
+    spent.
+22. [done] Six new regressions, including the review's two probes end to end
+    with the one-incident assertion, and a case proving a retained later wake
+    is delivered once the exact claim is reconciled.
+23. [done; approved in Baton response M59062] The existing
+    `non-Work actions beside a deferred Work keep their own delivery rule`
+    prompt-count expectation is superseded from two to one after the claimed
+    recovery wake strands settlement. The retained poke is delivered after
+    canonical claim release.
+24. [done] Eight mutations of the new gate, all caught after two tests were
+    made load-bearing. 127 ACP tests (from 122) and 430 in
+    `tools/codex-event-bridge/`.
+25. [done] Record the approval and complete final sign-off. No further code
+    change was required after the 2026-09-01T05:17:42Z conditional review.

@@ -317,3 +317,44 @@ that obligation as `responded`, with `resolved_seq: 58545`; message M58545 is
 the approver response that confirms the scheduling split. The repository
 ruling and the ledger now agree, and no obligation disposal remains for this
 decision.
+
+## 2026-09-01 — the recoverable exception is exactly one action wide
+
+The approved scheduling refinement above says an exact claimed-Work recovery
+prompt that FAILED remains eligible for redelivery. The return review
+(`review-2026-09-01T05-03-30Z.md` [P1]) establishes how narrow that is, and it
+is recorded here because the implementation first read it as an envelope-wide
+permission:
+
+- **the exception is one ACTION wide**, not one authority wide. The same
+  ledger answering is not proof that the next action is the exact unspent
+  recovery wake for the same participant and assignment episode;
+- **a same-authority successor claim and a neighbouring wake stay retained**
+  until the exact claim is reconciled, which is what this record's own
+  acceptance already said;
+- **a successor is recorded through reconciliation BEFORE a turn is spent**,
+  never discovered by spending one.
+
+**Consequential supersession, flagged for acceptance.** W11910's accepted case
+`non-Work actions beside a deferred Work keep their own delivery rule`
+asserted that a poke is delivered beside a claimed Work. Its underlying
+property is untouched — the one-claim Work slot governs Work offers and
+nothing else — but delivering a claimed recovery wake mints a settlement fence,
+and the rule above then retains the poke through that SECOND gate. The case's
+prompt count therefore moves from two to one, with the poke retained rather
+than withdrawn and delivered again once a canonical read says the slot is
+free. The implementer changed the expectation rather than the rule, recorded
+it in the test itself, and it is the reviewer's to accept or overrule.
+
+## 2026-09-01 — exact neighboring-wake assertion supersession approved
+
+Baton response M59062 approves the consequential supersession above. In the
+existing test `non-Work actions beside a deferred Work keep their own delivery
+rule`, the current expected prompt count is one after the claimed recovery
+wake strands post-turn settlement, not two.
+
+This **supersedes** only the old same-envelope prompt-count expectation. The
+claim-slot rule is unchanged: a claimed Work does not itself defer non-Work
+actions. The later settlement fence is the distinct gate that retains the
+poke beside a known orphaned claim. The poke remains unspent and is delivered
+after a canonical read proves claim release.

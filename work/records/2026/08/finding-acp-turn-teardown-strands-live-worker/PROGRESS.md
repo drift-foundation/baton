@@ -306,3 +306,181 @@ module's source and of the remedy it publishes.
 
 Awaiting independent review. Passing back rather than closing.
 
+## 2026-09-01 — third implementer round (`baton.claude`, W55705 impl claim)
+
+**Both [P1]s from `review-2026-09-01T04-30-00Z.md` are corrected.** Same two
+files plus their suite.
+
+### [P1] The authority is compared before the turn, not after it
+
+The reviewer is right and the reason is the one I had already written down
+without following: a durable, verified `claimed` fence is deliberately NOT
+`fenced()`, because W11910's recoverable redelivery depends on that — so the
+loop skipped reconciliation, revalidated and prompted, and the only comparison
+with the fence's recorded authority happened in the POST-turn settlement. A
+dispatcher repointed at another authority therefore spent one action against
+the model and reported the drift afterwards. **Authority identity is a fence,
+and a fence that reports is not a fence.**
+
+`AcpSettlement.admits(authority)` is the check `fenced()` cannot make. It is a
+COMPARISON rather than a second canonical read: `validateEnvelope` has already
+proved this poll's `authority_uuid`, so the gate costs nothing and cannot
+itself fail. The loop consults it whenever a marker exists at all — not only
+when the lane is already fenced, which would have reproduced the same hole.
+
+- a matching authority proceeds, so the recoverable redelivery is intact;
+- a changed one, and an absent or non-string one, retains the WHOLE envelope
+  and starts no turn;
+- a disagreement drops the fence's `verified` bit through the same
+  `#keepUnverified` path the read uses, so the fence keeps its identity, its
+  instant and its acknowledgement, and the recorded authority is never
+  replaced by the one that disagreed.
+
+A fence that recorded no authority has nothing to compare and is left to
+`fenced()`, which is already true for every shape that can produce one.
+
+### [P1] The incident owner may not be the fenced runner
+
+The startup gate asked only for a nonblank string, so a deployment could name
+this participant explicitly and reach exactly the deadlock the ruling exists
+to prevent — spelling the runner rather than inferring it does not change the
+scheduling result. While a secondary, held, unreadable or drifted settlement
+holds the lane, this bridge retains EVERY readiness action, and an incident
+obligation addressed back to this participant is one of them: the one durable
+notice that a claim is stranded would be queued behind the fence it exists to
+resolve.
+
+Refused before role loading, the lease and the first wait. It is locally
+provable and only that: it says nothing about whether some other participant
+can actually act, and it infers no owner.
+
+### Regressions
+
+    a drifted authority is fenced BEFORE a turn, not after one
+      one bridge, envelope A then the same action from envelope B, and the
+      assertion is a count: the A prompt is spent and the B prompt is not.
+      The A turn FAILS on purpose, so the offer is a genuinely unspent wake
+      re-delivered by the ordinary rules -- which is what makes the second
+      poll reach the gate under test.
+    an unnamed authority is drift rather than a match, before a turn
+    a bridge may not owe its own stranded-claim incident
+      and it refuses before role loading, the lease and the first wait, which
+      the injected instruction loader and the empty publication both assert
+
+Five mutations of the two new guards, all five caught:
+
+    CAUGHT  the pre-delivery authority gate is dropped
+    CAUGHT  the gate is checked only when already fenced
+    CAUGHT  a self-addressed owner is accepted
+    CAUGHT  admits treats an unnamed authority as a match
+    CAUGHT  admits reports drift without dropping the verification
+
+### The ledger note I got wrong
+
+My second-round note said obligation M58475 was still pending. The reviewer's
+dated supersession in `FINDING.md` is correct: canonical detail reports it
+`responded` at `resolved_seq` 58545, and M58545 is the approver response that
+confirms the scheduling split. I read the obligation list at claim time and
+did not re-read it before writing the note; the ledger and the record agree
+and nothing was left undischarged.
+
+### Verification
+
+    tools/acp-baton-bridge          npm test        122 tests, OK  (119 before)
+    tools/codex-event-bridge        npm test        430 tests, OK
+
+No automatic runtime kill, credential action, partial-output acceptance or
+claim release was introduced. No line I added exceeds the widths already in
+these files and no trailing whitespace was introduced.
+
+### State
+
+Awaiting independent review. Passing back rather than closing.
+
+## 2026-09-01 — fourth implementer round (`baton.claude`, W55705 impl claim)
+
+**The [P1] from `review-2026-09-01T05-03-30Z.md` is corrected.**
+
+### Same authority is not the same action
+
+The reviewer is right and the gap is exactly where they put it: `admits`
+answers whose ledger is talking, and I let that answer stand in for whether
+the NEXT ACTION was the one W11910's exception names. Once the authority
+agreed and the fence was a verified `claimed` fence, `fenced()` was false and
+every fresh action in the envelope went on to revalidate and prompt.
+
+`AcpSettlement.permits(action)` is the second gate, per action:
+
+- a fenced lane admits nothing, which is checked FIRST — a `secondary` fence
+  still records the offer it was taken for, and matching that offer without
+  asking whether the lane is fenced would hand the one blocked case its own
+  action back;
+- the exact unspent recovery wake proceeds. Exact means the whole identity —
+  same Work, same assignment episode, same action key — compared against the
+  fence's recorded OFFER rather than its occupant, for the same reason
+  `reconcile` asks about the offer;
+- anything else RECONCILES the recorded claim first. That is what makes a
+  successor recorded before a turn is spent rather than discovered by
+  spending one: the canonical read either proves the slot released, and then
+  anything may go, or mints the successor and files its own incident while
+  every action stays retained.
+
+### The consequence I did not hide
+
+W11910's accepted case `non-Work actions beside a deferred Work keep their own
+delivery rule` asserted a poke is delivered beside a claimed Work. Delivering
+that claimed recovery wake mints a settlement fence, so under the ruling the
+poke is now retained by that second gate and the case's prompt count moves
+from two to one.
+
+I changed the expectation rather than the rule, wrote the supersession into the
+test itself and into `FINDING.md`, and added a case proving RETAINED is not
+withdrawn: the same poke is delivered on the next poll once a canonical read
+says the slot is free. **It is the reviewer's to accept or overrule.** The
+underlying W11910 property is untouched — the one-claim Work slot still governs
+Work offers and nothing else, and the unclaimed W10265 in that case is still
+deferred by it.
+
+### Regressions
+
+    a same-authority SUCCESSOR is reconciled before a turn is spent
+      W1/episode 11 stranded, then claimed W2/episode 22 from the SAME
+      authority: one prompt, the successor recorded through reconciliation,
+      its own incident filed, two incidents total and neither for the wrong
+      Work
+    a later wake beside the exact recovery wake is retained
+      the failed recovery wake stays eligible and the poke does not; ONE
+      incident, and the fence is still `claimed` on W1/episode 11 rather than
+      degraded to `held`
+    a retained later wake is delivered once the exact claim is reconciled
+    the exact wake is the whole identity, not just the Work
+      a newer episode and a different action key are both refused
+    a STRANDED fence retains even its own offer's action
+    plus the superseded W11910 case, with its reason in the test
+
+Eight mutations of the new gate, all caught — two only after the cases were
+made load-bearing, which is recorded rather than quietly fixed:
+
+    CAUGHT  the per-action recovery-wake gate is dropped
+    CAUGHT  every action counts as the exact recovery wake
+    CAUGHT  the exact wake is matched on Work alone        [after adding the
+            newer-episode and different-key case]
+    CAUGHT  a non-exact action is admitted without reconciling
+    CAUGHT  a non-exact action is admitted once reconciliation kept the fence
+    CAUGHT  a stranded fence admits actions again          [after adding the
+            stranded-fence-retains-its-own-offer case]
+
+### Verification
+
+    tools/acp-baton-bridge          npm test        127 tests, OK  (122 before)
+    tools/codex-event-bridge        npm test        430 tests, OK
+
+No line I added exceeds the widths already in these files and no trailing
+whitespace was introduced. No automatic runtime kill, credential action,
+partial-output acceptance or claim release.
+
+### State
+
+Awaiting independent review, including the flagged supersession. Passing back
+rather than closing.
+
