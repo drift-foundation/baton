@@ -134,10 +134,27 @@ The ordinary attempt may remain live until the explicit decision is made.
    not only `unable`. A `completed` worker whose independent verification
    fails reaches the same lifecycle state, while `none` still refuses.
 
+## Confirmed finalization policy — 2026-09-01
+
+The three approver decisions above are accepted. Add a distinct public
+already-quiescent assignment-finalization operation. It is an explicit
+operator action, never an automatic consequence of a worker stopping or
+returning a terminal disposition. The operation accepts any recorded terminal
+worker disposition, including `completed` and `unable`, and refuses when the
+disposition is still `none`.
+
+The operation fences the exact live assignment and releases the participant's
+claim slot without contacting the agent or runtime. It makes no decision about
+whether retained output is accepted, rejected, trustworthy, importable or
+disposable. Custody and logs remain available for inspection; the Work remains
+subject to its runtime-quiescence gate, and cleanup still requires positive
+runtime absence. Exact retries are idempotent and changed attempt, assignment,
+generation, runtime or reason operands fail closed.
+
 ### Scheduling and overlap
 
-Implementation remains a later fresh isolated v12 attempt. It must start after
-the exact W52821 candidate is imported or otherwise explicitly rejected, and
-must revalidate W61599's overlapping `attempts.py`, schema and dogfood-operator
-changes. This research authorizes no merge of either retained candidate and no
-raw authority/store workaround.
+Implementation remains a fresh isolated v12 attempt. W52821 is now accepted
+and closed at checkpoint `7456ac385ad76c5d8092dfadf3abe9bcf07f00a5`.
+Implementation must still revalidate W61599's overlapping `attempts.py`, schema
+and dogfood-operator changes against the current tree. This ruling authorizes
+no raw authority/store workaround.
