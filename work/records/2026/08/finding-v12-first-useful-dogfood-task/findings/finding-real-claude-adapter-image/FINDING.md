@@ -421,3 +421,27 @@ child's file, which is why the correction arrives here as its own history.
 The regression is `test_a_task_identity_is_text_before_it_is_matched` in
 `tests/manager/test_claude_agent.py`, filed additive by the reviewer and now
 passing.
+
+## 2026-08-31 — approved W55360 supersession of one stream crossing
+
+**This record's Work remains closed.** This is explicit follow-up decision
+history owned by W55360, `work/records/2026/08/finding-provider-failure-reason-without-bearer`, not a reopening of W39357.
+
+**Superseded in one exact respect:** the fifth-round rule above said no byte
+either child writes is read and placed both provider streams on
+`subprocess.DEVNULL`. Approver return event 55479 on W55360 now authorizes the
+real Claude adapter to select structured JSON output and read **provider
+stdout only** through a bounded in-memory, continuously drained pipe.
+
+Everything else in the fifth-round safety decision remains live. Provider
+stderr and both provider-edited verification streams stay unread on
+`subprocess.DEVNULL`. No provider-authored byte, JSON value, member name,
+parser diagnostic or excerpt becomes proposal evidence or protocol output.
+Only an adapter-authored closed word crosses: exact observed
+`terminal_reason` value `api_error` maps to `api-error`; every malformed,
+unknown, duplicate, trailing, invalid-UTF8 or overflowing answer maps to
+`unclassified`.
+
+`api-error` is not a credential, account, scope or network diagnosis. W55360
+must preserve that limitation in code, tests and documentation. Any future raw
+diagnostic classification remains a different security decision and Work.

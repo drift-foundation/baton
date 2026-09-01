@@ -55,7 +55,8 @@ fact and IS provable now; it recovers a posture and satisfies no runtime gate.
 
 from .authority_port import (AuthorityPort, SESSION_MEMBERS,
                              SESSION_OPERATIONS)
-from .attempts import (AXES, TRANSITIONS, activate_assignment, observe,
+from .attempts import (AXES, TRANSITIONS, activate_assignment,
+                       attempt_runtime_of, label_context, observe,
                        reconcile_runtime, record_attempt, request_cancellation,
                        request_runtime_start)
 from .offers import (OFFER_TTL_SECONDS, SETTLE_SECONDS, accept_offer,
@@ -170,7 +171,8 @@ __all__ = ["CUSTODY", "KEEPS_MATERIAL", "LANE_PARTS", "abandon_attempt",
            "negotiate_acp",
            "SESSION_MEMBERS", "SESSION_OPERATIONS", "SCHEMA_VERSION",
            "SETTLE_SECONDS", "STORE_KIND", "TABLES", "TRANSITIONS",
-           "accept_offer", "activate_assignment", "certify_profile",
+           "accept_offer", "activate_assignment", "attempt_runtime_of",
+           "certify_profile", "label_context",
            "claim_operation_id", "claimed_offers_for", "expire_overdue",
            "issue_offer", "manager_signature", "observe",
            "reconcile_runtime", "record_attempt", "recover_on_restart",

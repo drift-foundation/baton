@@ -1080,6 +1080,11 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
     "lane_reference": "projects four authority-owned identity parts off the "
                       "attempt row; there is no operand to construct from",
     "runtime_lane": "the same, plus who holds the lane and what blocks it",
+    "attempt_runtime_of": "projects three columns off the attempt row so a "
+                          "recovery can branch on durable manager state; no "
+                          "document is constructed and no bearer is reachable",
+    "label_context": "projects the two label members off the activated row; "
+                     "there is no operand to construct from",
     "AuthorityPort": "a capability wrapper; it constructs no document",
     "ControlStore": "opens a store; it constructs no document",
     "issue_offer":

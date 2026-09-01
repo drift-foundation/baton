@@ -1321,7 +1321,8 @@ class OciAdapter:
 
     def __init__(self, engine, run, *, identity, assignment_roots,
                  posture, mounts=(), outputs=(), input_manifest_digest=None,
-                 credential_delivery=None, launch_delivery=None,
+                 credential_delivery=None, credential_home=None,
+                 credential_orphan=None, launch_delivery=None,
                  workspace_group=None, network=NETWORK_NONE,
                  interactive=False):
         self.engine = _engine(engine)
@@ -1370,6 +1371,48 @@ class OciAdapter:
             _refuse(f"a credential delivery is one this manager materialized; "
                     f"this is {name_value(credential_delivery)}")
         self.credential_delivery = credential_delivery
+        # W55758: THE CREDENTIAL HOME, OWNED AT CONSTRUCTION when the
+        # deployment has one, and this is the one-owner correction.
+        #
+        # THE DEFECT. `_credential_home()` derived a home from this adapter's
+        # assignment workspace while the deployment materialized under the
+        # operator-GRANTED home. Two `CredentialHome` objects each assumed the
+        # volatile root and the lifecycle record were siblings below
+        # themselves, and for a real attempt they were not: the root sat below
+        # the granted home and the record below the assignment-derived one. So
+        # adoption refused, the restart builder constructed no delivery, and
+        # the ending misreported a delivered credential.
+        #
+        # A CAPABILITY, NOT A PATH, for the same reason the delivery is one:
+        # the granted home is already validated where the grants are read, and
+        # re-deriving it here would be a second owner for one deployment fact.
+        # Absent, this adapter derives its own exactly as before -- every
+        # caller that never had the split is untouched.
+        if credential_home is not None \
+                and type(credential_home) is not credentials.CredentialHome:
+            _refuse(f"a credential home is this manager's own; this is "
+                    f"{name_value(credential_home)}")
+        self.credential_home = credential_home
+        # W55758: THE ORPHAN ENDING, for a delivery this process did not make.
+        #
+        # A recovery holds no `Delivery` -- the object died with the process
+        # that materialized it -- and the ending answered `not-delivered`,
+        # positively claiming no credential was ever delivered. This is the
+        # typed alternative: what the deployment durably knows, handed over
+        # like the delivery it replaces.
+        #
+        # NEVER BOTH. An attempt has ONE credential ending, and an adapter
+        # holding a live delivery beside an orphan teardown for the same
+        # attempt would have two acts racing one root.
+        if credential_orphan is not None \
+                and type(credential_orphan) is not credentials.OrphanTeardown:
+            _refuse(f"an orphan credential teardown is this manager's own; "
+                    f"this is {name_value(credential_orphan)}")
+        if credential_orphan is not None and credential_delivery is not None:
+            _refuse("an attempt has one credential ending: the delivery this "
+                    "manager materialized or the orphan teardown that stands "
+                    "in for one it cannot hold, never both")
+        self.credential_orphan = credential_orphan
         # W26291: THE LAUNCH DOCUMENT, OWNED AT CONSTRUCTION for exactly the
         # reasons the credential delivery is, and NOT as a member of the start
         # REQUEST.
@@ -1901,7 +1944,13 @@ class OciAdapter:
         # still has a launch document. The absence question is asked once and
         # both mounts are settled on the answer.
         undelivered = {"lifecycle_state": "not-delivered"}
-        if self.credential_delivery is None and self.launch_delivery is None:
+        # W55758: an orphan teardown is a credential ending exactly as a
+        # delivery is, so it counts here too -- a start that never completed
+        # for an attempt whose material this deployment can name still has
+        # something to settle.
+        held = (self.credential_delivery is not None
+                or self.credential_orphan is not None)
+        if not held and self.launch_delivery is None:
             return {"credentials": undelivered, "launch": undelivered}
         why = None
         try:
@@ -1916,12 +1965,13 @@ class OciAdapter:
         launched = self._launch_ended(why is None, why)
         if why is not None:
             return {"credentials": ({"lifecycle_state": "unresolved",
-                                     "why": why}
-                                    if self.credential_delivery is not None
-                                    else undelivered),
+                                     "why": why} if held else undelivered),
                     "launch": launched}
-        if self.credential_delivery is None:
+        if not held:
             return {"credentials": undelivered, "launch": launched}
+        if self.credential_delivery is None:
+            return {"credentials": self.credential_orphan.tear_down(),
+                    "launch": launched}
         return {"credentials": self._credential_home()
                                    .tear_down(self.credential_delivery),
                 "launch": launched}
@@ -2263,10 +2313,31 @@ class OciAdapter:
         drift from this one.
         """
         if self.credential_delivery is None:
-            # NOT `absent`, which is what the RUNTIME state beside this says.
-            # One word meaning two things in one document is how a reader
-            # concludes a credential was torn down because a container was.
-            return {"lifecycle_state": "not-delivered"}
+            # W55758: AND `not-delivered` IS A CLAIM, so it is only made when
+            # nothing durable contradicts it.
+            #
+            # A recovery process is exactly the shape in which the in-memory
+            # delivery is gone, and this answered `not-delivered` there --
+            # positively recording that no credential was ever delivered for
+            # an attempt whose bearer had been on the host for hours. The word
+            # is deliberately not `absent` so a reader cannot conclude a
+            # credential was torn down because a container was; unqualified it
+            # made the opposite mistake, and no reader could tell that record
+            # from a genuine no-credential attempt.
+            #
+            # An orphan teardown is the deployment saying, from durable facts,
+            # that this attempt HAD one. With it the ending is a real ending;
+            # without it, nothing was ever delivered and the old word is true.
+            if self.credential_orphan is None:
+                # NOT `absent`, which is what the RUNTIME state beside this
+                # says. One word meaning two things in one document is how a
+                # reader concludes a credential was torn down because a
+                # container was.
+                return {"lifecycle_state": "not-delivered"}
+            if observed["state"] != "absent":
+                return {"lifecycle_state": "unresolved",
+                        "why": observed["why"]}
+            return self.credential_orphan.tear_down()
         if observed["state"] != "absent":
             return {"lifecycle_state": "unresolved",
                     "why": observed["why"]}
@@ -2303,7 +2374,14 @@ class OciAdapter:
         Built per call rather than held, because it is derived entirely from
         the roots this adapter already owns -- and a second copy of a value
         that is already owned is a second thing to keep true.
+
+        W55758: UNLESS THE DEPLOYMENT OWNS ONE, in which case that is the
+        home. Materialization, lifecycle publication, restart adoption and
+        teardown then have one owner instead of two that agree only when the
+        deployment happens to grant the path this derives.
         """
+        if self.credential_home is not None:
+            return self.credential_home
         return credentials.CredentialHome(self._home())
 
     def _home(self):

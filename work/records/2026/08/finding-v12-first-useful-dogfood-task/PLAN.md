@@ -155,3 +155,22 @@ and are recorded here so they cannot be lost.
    side-effect interval.
 5. Close W38956 only after W51487 returns satisfying. W39364 does not reopen
    and its consumed grants authorize no later provider turn.
+
+## Terminal roll-up — 2026-08-31
+
+The prior item 5 is superseded by the approver's terminal disposition of
+W51487, not reinterpreted as satisfied.
+
+1. [done, satisfying] W39356, W39357 and W39358 proved the transport,
+   provider image/adapter and minimum supervised operator path.
+2. [done, non-satisfying] W39364 produced no accepted useful candidate.
+3. [done, satisfying prerequisite] W51473 made retention a real operator
+   decision and enabled direct review of later candidates.
+4. [done, non-satisfying] W51487 produced no independently accepted
+   correction. Run4 failed independent acceptance; runs 5 and 6 failed at the
+   provider; runs 7 and 8 were orphaned by ACP delivery teardown and stopped
+   without trusted terminal evidence.
+5. [terminal] Close W38956 `non-satisfying`. Do not spend another provider turn
+   or infer any credential/network grant under this Work. W55705 and W55758 own
+   the observed recovery defects; any later useful-task attempt is separately
+   authorized Work after current gates are revalidated.

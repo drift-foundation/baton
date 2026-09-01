@@ -73,7 +73,7 @@ from . import boundaries
 
 __all__ = ["CREDENTIAL_ROOT", "LIFECYCLE_STATES", "MAX_BEARER", "MAX_ORPHANS",
            "MAX_SLOTS", "VOLATILE_DIR", "VOLATILE_FILE", "CredentialHome",
-           "Delivery", "resolved_delivery", "slot_name"]
+           "Delivery", "OrphanTeardown", "resolved_delivery", "slot_name"]
 
 # THE FIXED CONTAINER ROOT. A constant of this contract and not an operand --
 # approver ruling, and the reason is the same one W14828 names for a launcher:
@@ -782,6 +782,55 @@ class CredentialHome:
         return {"discarded": [attempt] if gone else [],
                 "remaining": 0 if gone else 1, "bounded": False}
 
+    def orphan_evidence(self, attempt_id):
+        """What this home DURABLY holds for one attempt, without a read.
+
+        W55758. Presence of the bounded root and of the lifecycle record, and
+        nothing else: no slot is opened, no record is parsed, and no path
+        inside either is followed. A recovery process needs to know whether a
+        credential was ever delivered here, and that question is answered by
+        this manager's own two locations rather than by a `credential_root`
+        member the record carries -- a raw path out of a document is not
+        authority for touching a filesystem.
+        """
+        attempt = boundaries.identity(attempt_id, "a credential attempt id")
+        root = self.volatile_root(attempt)
+        return {"home": self.place,
+                "volatile_root": os.path.lexists(root),
+                "lifecycle_record": os.path.isfile(self.state_path(attempt))}
+
+    def tear_down_orphan(self, attempt_id):
+        """The ending for a delivery THIS PROCESS did not materialize.
+
+        W55758. `tear_down` acts on a `Delivery`, which is the object the
+        materializing process held; a recovery is exactly the shape in which
+        that object died with its process. Reading the slots back merely to
+        rebuild one whose only next act is deletion would open a bearer for no
+        reason at all, so this unlinks and PROVES, and no byte enters this
+        process.
+
+        THE SAME TWO LOCATIONS AS `discard_orphan`, and the same order --
+        the root before the record, each proved gone before the next -- so a
+        restart never finds a record still saying `live` beside a root that is
+        already gone. What is different is the ANSWER: this one speaks the
+        lifecycle vocabulary the runtime ending reports, because it IS that
+        ending for an attempt whose delivery object is gone.
+
+        AND IT IS EXACTLY ONE ATTEMPT'S. A `CredentialHome` is
+        assignment-scoped and can hold sibling attempts' roots; "this attempt
+        is over" is not evidence about any other one.
+        """
+        attempt = boundaries.identity(attempt_id, "a credential attempt id")
+        root = self.volatile_root(attempt)
+        found = self.orphan_evidence(attempt)
+        _discard(root)
+        _gone(root, "a credential root", os.rmdir)
+        _gone(self.state_path(attempt), "a credential lifecycle record",
+              os.remove)
+        return {"home": self.place, "attempt_id": attempt,
+                "held_root": found["volatile_root"],
+                "held_record": found["lifecycle_record"]}
+
     def discard_orphans(self, *, live):
         """Bounded cleanup of volatile roots no live attempt owns.
 
@@ -940,6 +989,97 @@ class Delivery:
         see that exactly one act consumes this.
         """
         return dict(self._bearers)
+
+
+class OrphanTeardown:
+    """W55758: a previously delivered credential whose OWNER PROCESS is gone.
+
+    THE DEFECT THIS EXISTS FOR, measured rather than supposed. An interrupted
+    supervised attempt leaves its runtime, its bounded credential root and its
+    lifecycle record on the host, and the in-memory `Delivery` dies with the
+    process. A recovery reconstructs the adapter with `credential_delivery
+    is None` -- and the ending then answered `not-delivered`, which is a
+    POSITIVE CLAIM THAT NO CREDENTIAL WAS EVER DELIVERED about an attempt that
+    demonstrably had one and left a bearer on disk for hours. `oci.py` chooses
+    that word so a reader cannot conclude a credential was torn down because a
+    container was; here it made the opposite mistake, and nothing told that
+    record apart from a genuine no-credential attempt.
+
+    SO THIS IS A CAPABILITY AND NOT A PATH. A recovery constructs it from what
+    the deployment durably knows -- the operator's granted home, the
+    assignment-derived home, and the attempt's own granted slots -- and hands
+    it to the adapter exactly as the ordinary arc hands over a `Delivery`. A
+    caller-selected path is the one thing the fixed locations exist to remove,
+    and the `credential_root` member of a record is precisely such a path.
+
+    TWO HOMES, BECAUSE ONE LEGACY ATTEMPT REALLY HAS TWO. The deployment
+    materialized under the operator-granted home while the adapter published,
+    recovered and removed under its assignment-derived one, so run7's root and
+    its record are under different homes. Both are proved `CredentialHome`
+    capabilities and each is asked only about its own two locations; the split
+    is handled by HOLDING both, never by deriving a third place or by
+    following a path a document supplied.
+
+    IT READS NOTHING. Presence, unlink, proof. A bearer is never opened, never
+    registered, never hashed and never reported.
+    """
+
+    __slots__ = ("attempt_id", "homes", "ending")
+
+    def __init__(self, attempt_id, *, homes):
+        self.attempt_id = boundaries.identity(attempt_id,
+                                              "a credential attempt id")
+        held = _list(homes, "the credential homes a recovery holds")
+        if not held:
+            _refuse("an orphan credential teardown acts through at least one "
+                    "credential home; a teardown with nowhere to act is not "
+                    "an ending")
+        for one in held:
+            if type(one) is not CredentialHome:
+                _refuse(f"an orphan credential teardown acts through this "
+                        f"manager's own credential home; this is "
+                        f"{name_value(one)}")
+        # DEDUPLICATED BY PLACE, because the ordinary case is one home named
+        # twice -- the granted one and the assignment-derived one agree for
+        # every attempt this deployment starts from now on -- and tearing the
+        # same two locations down twice would report a second ending for one.
+        seen = {}
+        for one in held:
+            seen.setdefault(one.place, one)
+        self.homes = tuple(seen.values())
+        # WHAT THIS CAPABILITY DID, kept so the deployment can record it
+        # without reading the adapter's internals or repeating the act.
+        self.ending = None
+
+    def evidence(self):
+        """What each home holds right now. A read of PRESENCE, never bytes."""
+        return [home.orphan_evidence(self.attempt_id) for home in self.homes]
+
+    def tear_down(self):
+        """Every held home's two locations, proved gone, as one ending.
+
+        `torn-down` MEANS PROVED ABSENT, which is the same thing it means for
+        `CredentialHome.tear_down`: the ending is a fact about the host, not a
+        claim about which act removed the file. So an attempt whose material a
+        separate emergency `discard_orphan` already removed still ends
+        `torn-down` here -- what would be false is calling it `not-delivered`.
+        """
+        homes = [home.tear_down_orphan(self.attempt_id) for home in self.homes]
+        # THE ANSWER IS THE PROVIDER-ENDING CONTRACT'S, and the per-home
+        # detail is kept beside it rather than inside it.
+        #
+        # Found by the composition case: `intake._provider_ending` refuses an
+        # unrecognised member outright -- "ignoring one silently assumes the
+        # members we do recognise still mean what they did" -- so a richer
+        # ending returned into `destroy_abandoned` refused the WHOLE
+        # abandonment. What the crossing reads is `lifecycle_state` plus the
+        # named optional members; what an operator's recovery record wants is
+        # which homes were ended, and those are two different documents.
+        self.ending = {"attempt_id": self.attempt_id,
+                       "lifecycle_state": "torn-down",
+                       "homes": homes}
+        return {"attempt_id": self.attempt_id,
+                "lifecycle_state": "torn-down"}
 
 
 def _write_whole(handle, payload, slot):

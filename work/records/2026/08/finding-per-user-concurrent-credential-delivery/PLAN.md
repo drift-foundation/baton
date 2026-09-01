@@ -13,3 +13,13 @@
 6. Remove the global manual staging requirement from the supported operator
    path and document migration from the private-box workaround.
 
+## Revalidated scheduling state — 2026-08-31
+
+1. [done, gate not satisfied] W38956 is terminal `non-satisfying`, not the
+   satisfying close required above. Its terminality cleared the ledger edge but
+   did not authorize steps 2-6.
+2. [parked] Preserve this confirmed defect and its accepted direction without
+   research or implementation. Resume only under an explicit superseding
+   scheduling ruling or a recorded replacement successful-dogfood gate.
+3. [not started] Original steps 2-6 remain the implementation-ready sequence
+   once the scheduling gate is validly superseded or satisfied.

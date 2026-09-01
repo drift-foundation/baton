@@ -1,0 +1,14 @@
+{
+  "assignment_record_adoption": {
+    "accepted": false,
+    "category": "refused",
+    "code": "precondition",
+    "message": "the recorded credential credential_root is not the one this restart proved; recovery adopts an exactly agreeing attempt, container, mount and root, and refuses everything else"
+  },
+  "attempt_id": "attempt-w51487-run7",
+  "narrow_retry_builder": {
+    "credential_delivery_adopted": false,
+    "launch_delivery_adopted": true,
+    "positive_absence_credential_ending": "not-delivered"
+  }
+}

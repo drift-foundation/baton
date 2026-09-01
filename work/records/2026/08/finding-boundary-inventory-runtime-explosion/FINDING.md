@@ -244,3 +244,114 @@ closures capture die with the fixture that made them.
 
 **Supersedes nothing.** No earlier ruling in this record was contradicted; the
 Direction and the Acceptance boundary are implemented as written.
+
+## Independent focused re-review — 2026-08-31
+
+**Accepted:** the refused-open leak is closed by W54881; the 549-probe driver
+runs without a resource warning; fixture cleanup stays prompt; the bounded
+discovery/driver slice passes in 1.582 seconds; and the two semantic inventory
+classes retain the same five independently routed failure categories. No
+aggregate inventory was run.
+
+**Observed [P2]: the narrowed read-only-AST invariant does not exercise every
+shared-tree walker it claims to cover.**
+`test_the_shared_trees_are_never_mutated_by_a_projection` clears and
+recomputes `receiving_entries`, `owning_validators`, `propagated_owners`,
+`columns_read` and `_crossings`, but not `_helper_returns`. `_helper_returns`
+is itself a cached derived projection in `MEMOISED`; it walks the shared AST
+through `_returned_origins`, and the other recomputed projections consume its
+already-cached answer.
+
+The omission is live in the focused test process. After clearing `MEMOISED`
+and warming `_helper_returns` once, the invariant test passes while
+`_helper_returns.cache_info()` changes from one miss/zero hits to one
+miss/three hits: it was reused and never recomputed under the before/after AST
+fingerprint. Because the preceding boundedness tests already warm this cache,
+a mutation introduced in `_helper_returns` could become part of the fingerprint
+baseline and evade the guard.
+
+The correction is narrow: after taking the before fingerprint, clear and
+recompute every derived member of `MEMOISED` (all except `_sources`) before
+comparing the after fingerprint. Retain the current mutable-AST wording and
+the detector counterexample. Review: `review-2026-08-31T17-23-04Z.md`.
+
+## 2026-08-31 — the [P2] invariant gap is closed, and its measurement corrected
+
+The correction required above landed:
+`test_the_shared_trees_are_never_mutated_by_a_projection` now derives its
+cleared-and-recomputed set from `MEMOISED` — every member except `_sources` —
+rather than from a hand-written list of five, and asserts that derived set has
+more than five members. `_sources` stays uncleared on purpose: reparsing would
+hand the second fingerprint a different node graph, and the question is whether
+a projection edited THIS one.
+
+**A correction to the evidence method recorded above, and it matters for
+anybody re-deriving the check.** The `cache_info()` reading is a sound
+detection of the gap and is NOT a sound confirmation of the fix:
+`functools.cache.cache_clear()` RESETS the hit/miss counters, so a corrected
+run that clears and recomputes `_helper_returns` also reports one miss and
+three hits. The two states are indistinguishable through `CacheInfo` alone.
+
+The measurement that does distinguish them counts the shared-tree walker
+itself, `_returned_origins`, between the two fingerprints:
+
+    reverted five-projection form   walker ran 0 times   mutation noticed: False
+    corrected every-derived form    walker ran 1 time    mutation noticed: True
+
+The second column is the one that establishes coverage rather than execution: a
+`_returned_origins` replacement that pops a statement out of `oci.py`'s tree —
+the same hazard `test_the_mutation_check_can_actually_notice` stages — is
+invisible to the reverted form and caught by the corrected one.
+
+**Observed, offered rather than taken:**
+`test_the_package_is_parsed_once_however_many_projections_ask` still drives the
+same hand-written five-projection list. Its assertion would not change, because
+`_sources` is cleared there and the package is parsed once whichever derived
+projections run — but it is the same shape of list, and the next projection
+added is again invisible to it.
+
+## Independent focused re-review — 2026-08-31, one adjacent [P2] remains
+
+**Accepted:** the shared-tree invariant now derives every cached projection
+except `_sources` from `MEMOISED`; `_helper_returns` is recomputed against the
+same tree graph and can no longer disappear from a hand-maintained list. The
+11-test bounded gate and warning-sensitive 549-probe method pass independently,
+and the measured driver remains at 21 parses, flat file descriptors and about
+0.005 seconds per probe.
+
+**Observed [P2], accepting the implementer's offered issue:** the parse-once
+regression still clears `MEMOISED` but invokes a literal list of five derived
+projections. It reaches `_helper_returns` only through today's transitive call
+graph and will not exercise a future member of `MEMOISED` under the parse
+counter. This is the same second-source-of-truth shape corrected in the prior
+test. Derive every member except `_sources`, assert the set is non-vacuous, and
+retain the exact package parse-set assertion. No inventory semantics or
+aggregate run belongs in that correction. Review:
+`review-2026-08-31T17-47-05Z.md`.
+
+## Independent terminal review — 2026-08-31
+
+**Accepted.** The final parse-once regression now derives every cached
+projection except `_sources` from `MEMOISED`, matching the already accepted
+shared-tree invariant and eliminating the second hand-maintained list. The
+current integrated catalog contains 555 probes after W39666's six additions;
+the warning-sensitive arrival method passes, and the bounded driver measures 21
+package parses, a 0.001-second catalog, about 0.005 seconds per probe, cleanup
+depth zero and file descriptors `4 -> 4`.
+
+The two semantic inventory classes still report five failures in the same
+independently routed categories owned by W48697 and W54802. Their current entry
+membership changed with concurrent inventory work, but W54182 neither weakens
+nor absorbs those assertions. W54881 is closed satisfying, and no unclosed
+SQLite warning remains.
+
+Two wording-only drifts are retained as non-blocking observations. The header
+comment above `_sources()` still says the invariant runs “all five
+projections,” though it now derives six, and `measure_probe_driver.py` still
+labels its dynamic `len(keys)` extrapolation as “549 probes” even while the
+preceding line reports the current 555. The calculation and regression use the
+dynamic sets and are correct; these stale historical labels do not weaken the
+bounded-time or resource verdict.
+
+Terminal review:
+`review-2026-09-01T00-46-24Z.md`.

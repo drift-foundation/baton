@@ -182,6 +182,34 @@ def _attempt_row(store, attempt_id):
     return found[0] if found else None
 
 
+def attempt_runtime_of(store, attempt_id):
+    """W55758: the durable runtime facts a RECOVERY may branch on.
+
+    A READ AND NOTHING ELSE, and it exists because a public recovery command
+    has to choose between two endings that are not interchangeable. An attempt
+    whose runtime ATTACHED is ended by `abandon_attempt`, which refuses one
+    that never did; an attempt interrupted after credential materialization
+    and before attachment has no attempt ending to reach at all, and inventing
+    a terminal one for it would be a second ending beside the ruled one.
+
+    WITHOUT THIS the deployment could only learn which it was by CALLING the
+    abandonment and reading the sentence in its refusal. A branch that turns
+    on the wording of a message is a branch that changes when the message is
+    improved, and this question is the manager's own durable state rather than
+    an accident of prose.
+
+    ABSENCE IS AN ANSWER. A well-formed id naming no attempt answers `None`,
+    exactly as `_attempt_row` does, and a malformed one is a refusal.
+    """
+    found = _attempt_row(store, attempt_id)
+    if found is None:
+        return None
+    return {"attempt_id": found["runtime_attempt_id"],
+            "runtime_id": found["runtime_id"],
+            "execution_runtime": found["execution_runtime"],
+            "cleanup": found["cleanup"]}
+
+
 def _require_attempt(store, attempt_id):
     attempt = _attempt_row(store, attempt_id)
     if attempt is None:

@@ -216,8 +216,38 @@
     W33936 accepts the complete Docker matrix for this slice; Podman is a
     longer-term portability certification owned by W32391 and no longer blocks
     this Work.
-24. [required documentation truth] Describe Docker as certified and Podman as
-    pending or experimental until W32391 closes. Retain the rootful/rootless
-    measurements as evidence without representing them as certification.
-25. [still gated] W36540 remains the separate provider of unconditional manager
-    custody. This engine-scope ruling does not alter that boundary.
+24. [changes requested; still stale in the guide] Describe Docker as certified
+    and Podman as pending or experimental until W32391 closes. Retain the
+    rootful/rootless measurements as evidence without representing them as
+    certification; remove the current direction to "use Docker or rootful
+    Podman."
+25. [done] W36540 and all five decomposed children closed satisfying. Update
+    the deployment guide's future-tense "until that lands" wording while
+    preserving the distinction between group-readable cooperation and the
+    separate custody mechanism.
+26. [done] Correct only those two deployment statements, rerun the focused
+    documentation/text and workspace/OCI gates, and return for closure review.
+    No workspace-group or custody source change is requested by this pass.
+
+## 2026-08-31 — closure round
+
+27. [done] `DEPLOYMENT.md` now names Docker as the only certified engine under
+    M38837, keeps both Podman measurements as retained experimental evidence
+    rather than as a supported choice, and points certification — including the
+    rootless `--gidmap`/`--userns` question — at **W32391**, verified open and
+    parked on the ledger.
+28. [done] The custody section preserves the group-versus-custody distinction
+    and then states the landed property: W36540 and its five children are
+    verified closed satisfying, and the guide names the mechanism the manager
+    actually composes into the ended-attempt path rather than only the Work id.
+    The future-tense "until that lands" warning is removed.
+29. [done] Focused gates rerun: `test_text_sweep` + `test_workspaces` +
+    `test_oci` 184 OK, and `test_custody` + `test_intake` +
+    `test_refused_session_cleanup` 234 OK. No source changed this round.
+30. [awaiting review] Independent closure review of the documentation
+    correction. W36540 no longer gates this parent; W32391 no longer gates it
+    either under M38837.
+31. [accepted] Independent closure review confirmed both documentation
+    corrections, reran the 184-case and 234-case focused gates, and found no
+    new issue. W33936 is ready to close satisfying; W32391 remains separate
+    parked portability work under M38837.

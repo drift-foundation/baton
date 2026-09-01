@@ -569,3 +569,30 @@ attempt:
 
 No W39364 credential/network grant carries into W51487, and no second provider
 turn is authorized by this record.
+
+## 2026-08-31 — terminal roll-up: the platform slice passed, the useful task did not
+
+**Confirmed from the authoritative ledger:** all four contained checkpoints are
+terminal. W39356, W39357 and W39358 closed satisfying, proving the reusable
+Docker worker-entry transport, real Claude adapter/image and supervised operator
+composition. W39364 closed non-satisfying after its authorized attempt produced
+no useful accepted candidate. The retention correction W51473 later closed
+satisfying, but the separately authorized retry W51487 closed non-satisfying at
+sequence 57527.
+
+W51487 did reach one substantive candidate in run4, but independent review
+rejected it because its nominated-engine case supplied and expected the same
+literal `"docker"`; it would not catch production hard-coding that value. Runs 5
+and 6 then failed at provider authentication without producing the correction.
+Runs 7 and 8 were orphaned by ACP delivery teardown and stopped by the operator
+without trusted terminal evidence; run8 remained live for approximately six
+hours. W55705 and W55758 retain those recovery defects and their evidence.
+
+**Disposition:** this record's acceptance boundary is not satisfied. No real
+Claude Docker worker result was independently accepted, and no candidate was
+applied to the canonical checkout. W38956 therefore closes `non-satisfying`.
+That outcome does not erase the three accepted platform checkpoints; it states
+only that the campaign finish line promised by this record was not reached.
+Any later provider attempt is new Work with fresh authorization after its
+then-current operational and recovery gates are revalidated, not a continuation
+under this terminal roll-up.

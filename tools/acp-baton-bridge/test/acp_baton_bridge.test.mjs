@@ -13,6 +13,8 @@ import { runBridge as productionRunBridge } from "../src/acp_baton_bridge.mjs";
 import { AcpAgentSession, DomainTeardownError }
 	from "../src/acp_agent_session.mjs";
 import { episodeStillLive, episodeVerdict, validateEnvelope } from "../src/baton_readiness.mjs";
+import { AcpSettlement, RECONCILE_MS } from "../src/acp_settlement.mjs";
+import { quarantineKey } from "../../codex-event-bridge/src/quarantine_store.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FAKE_AGENT = join(HERE, "fake_acp_agent.mjs");
@@ -100,8 +102,16 @@ test("ACP readiness accepts projection 11 and still refuses an unsupported futur
 // selection or the launcher contract must not fail because a fake agent
 // was slow — and overridden to a few milliseconds by the cases that are
 // about the deadline itself.
+// W55705 (approver ruling M58455): `runtime.actionOwner` is MANDATORY for a
+// managed ACP bridge, because the post-turn claim settlement owes one durable
+// incident and an ownerless incident is refused. The rig names one so every
+// case that is about something else still describes a startable deployment;
+// the cases that are about the refusal itself pass `runtime: null`.
+const ACTION_OWNER = "baton.slaw";
+
 function rig({ env = {}, participant = "baton.claude",
                role = "impl", sessionMode = "new", policyResources,
+               runtime = { actionOwner: ACTION_OWNER },
                turnTimeoutMs = 120000 } = {}) {
 	const home = mkdtempSync(join(tmpdir(), "acp-bridge-"));
 	const log = join(home, "agent-log.jsonl");
@@ -121,6 +131,7 @@ function rig({ env = {}, participant = "baton.claude",
 		stateDir: join(home, "state"),
 		retryMs: 25,
 		turnTimeoutMs,
+		...(runtime ? { runtime } : {}),
 	});
 	return { home, log, config };
 }
@@ -1783,10 +1794,15 @@ test("W101: the ACP launch configuration must name an explicit role", () => {
 // claim, and a runtime report never claims, answers or completes
 // anything.
 
-function runtimeSpy() {
+// W55705: `incident` is part of the publisher the settlement uses, so the spy
+// carries it. Additive: it answers true by default, records every row, and a
+// case that is about a refused or thrown publication supplies its own answer.
+function runtimeSpy({ incident = () => true } = {}) {
 	const published = [];
+	const incidents = [];
 	return {
 		published,
+		incidents,
 		runtime: {
 			incarnation: "run-1",
 			async start(options) { published.push(["start", options]); },
@@ -1797,6 +1813,10 @@ function runtimeSpy() {
 				published.push(["facts", { ...supplied, ...options }]);
 			},
 			async end(options) { published.push(["end", options]); },
+			async incident(row) {
+				incidents.push(row);
+				return await incident(row, incidents.length);
+			},
 		},
 	};
 }
@@ -2482,4 +2502,793 @@ test("W28681: a later failure never names the preceding action's episode",
 		assert.ok(spy.published.some(([state, options]) =>
 			state === "working" && options.work === "7ba67cb8-W163"));
 		assert.ok(spy.published.some(([state]) => state === "idle"));
+	});
+
+// -- W55705: the post-turn canonical claim settlement -------------------------
+//
+// `work/records/2026/08/finding-acp-turn-teardown-strands-live-worker/`.
+//
+// THE INCIDENT, twice. `baton.claude` claimed W51487, launched a retained
+// dogfood attempt, and the ACP delivery ended. The bridge proved its process
+// domain gone, published `idle`, and marked the offer presented — while
+// canonical state still recorded the Work `active` under that participant at
+// that episode and the delegated container was still running with no
+// supervising turn. Three published facts, none agreeing, and no incident.
+//
+// WHAT THESE ASSERT, and it is deliberately not "the runtime methods were
+// called": the canonical read DECIDES, and the three verdicts it produces —
+// released, recoverable, stranded — are each proved end to end through
+// `runBridge` and then in isolation at the state machine, including every way
+// the read, the marker and the incident publication can fail.
+
+const OTHER_UUID = "1c1c1c1c1c1c4d4d8e8e0f0f0f0f0f0f";
+
+/** The canonical `wait timeout=0` answer the settlement reads. */
+function slot(entries, { uuid = UUID } = {}) {
+	return { protocol_version: 11, projection_version: "12.0",
+	         participant: "baton.claude", authority_uuid: uuid,
+	         snapshot_seq: 43,
+	         result: { actionable: entries, timed_out: false } };
+}
+
+/** A settlement wired to a scripted sequence of canonical answers.
+ *
+ *  A step may be an envelope, a thunk, or an `Error` to throw; the last step
+ *  repeats, so a case names only the answers it cares about. `reads` is the
+ *  live array, so a case can append to it after construction.
+ */
+function settlementFor(config, { spy, reads, now, store }) {
+	let at = 0;
+	return new AcpSettlement(config, {
+		runtime: spy.runtime, logger: quiet, now, store,
+		readSlot: async () => {
+			const step = reads[Math.min(at, reads.length - 1)];
+			at += 1;
+			if (typeof step === "function") return await step();
+			if (step instanceof Error) throw step;
+			return step;
+		},
+	});
+}
+
+function focused({ reads = [], incident = () => true, store,
+                   config: supplied } = {}) {
+	const config = supplied ?? rig().config;
+	const spy = runtimeSpy({ incident });
+	const time = clock();
+	const settle = settlementFor(config, { spy, reads, now: time.now, store });
+	return { config, spy, settle, time, reads };
+}
+
+/** A store whose persistence can be made to fail, one call at a time. */
+function scriptedStore({ onSave = () => true, onClear = () => true,
+                         initial = { state: "absent" } } = {}) {
+	const saved = [];
+	let held = initial;
+	return {
+		saved,
+		current: () => held,
+		load() { return held; },
+		preserveDamaged() { return "/tmp/preserved.damaged"; },
+		save(_participant, _key, record) {
+			saved.push(record);
+			const ok = onSave(record, saved.length);
+			if (ok) held = { state: "present", record };
+			return ok;
+		},
+		clear() {
+			const ok = onClear();
+			if (ok) held = { state: "absent" };
+			return ok;
+		},
+	};
+}
+
+const CLAIM_SLOT_KEY = (participant) => quarantineKey(participant, "acp-claim");
+
+// -- the three verdicts, end to end through runBridge ------------------------
+
+test("W55705: a returned prompt with no surviving claim is idle and presented",
+	async () => {
+		// The ordinary turn, and it must stay ordinary: a canonical read that
+		// answers "no claim" is the ONLY thing that earns `idle`.
+		const { log, config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		const { signal, runWait } = script([envelope([action])]);
+		const settlement = settlementFor(config,
+			{ spy, reads: [slot([])], now: time.now });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement });
+		const states = spy.published.map(([state]) => state);
+		assert.ok(states.includes("idle"), JSON.stringify(spy.published));
+		assert.ok(!states.includes("failed"), JSON.stringify(spy.published));
+		assert.equal(spy.incidents.length, 0,
+			"an incident was filed for a slot nobody held");
+		assert.equal(
+			events(log).filter((e) => e.event === "prompt/start").length, 1);
+	});
+
+test("W55705: a returned prompt whose exact claim survives is failed, never idle",
+	async () => {
+		// THE OBSERVED DEFECT, as one case. The pre-turn read saw a free slot
+		// and the post-turn read sees the participant holding the delivered
+		// assignment — which is exactly run7 — and the bridge must publish
+		// `failed` with that Work named plus ONE durable incident, rather than
+		// advertising capacity it does not have.
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const action = workAction("7ba67cb8-W51487", { episode: 55530 });
+		const surviving = workAction("7ba67cb8-W51487",
+			{ episode: 55530, claimed: true });
+		const { signal, runWait } = script([envelope([action])]);
+		const settlement = settlementFor(config,
+			{ spy, reads: [slot([surviving])], now: time.now });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement });
+		const states = spy.published.map(([state]) => state);
+		assert.ok(!states.includes("idle"),
+			`idle was published beside a surviving claim: `
+			+ JSON.stringify(spy.published));
+		const failure = spy.published.find(([state]) => state === "failed");
+		assert.ok(failure, JSON.stringify(spy.published));
+		assert.equal(failure[1].cause, "internal");
+		assert.equal(failure[1].work, "7ba67cb8-W51487");
+		assert.equal(failure[1].episode, 55530);
+		assert.equal(spy.incidents.length, 1, "the operator got no notice");
+		assert.equal(spy.incidents[0].work, "7ba67cb8-W51487");
+		assert.equal(spy.incidents[0].episode, 55530);
+		assert.match(spy.incidents[0].detail, /still holds an active claim/);
+	});
+
+test("W55705: a failed prompt whose exact claim survives is delivered again",
+	async () => {
+		// THE W11910 SPLIT, pinned in the finding as the approved scheduling
+		// refinement. A recovery prompt that FAILED before returning left an
+		// UNSPENT wake: suppressing it would leave a live claim with no retry
+		// until somebody restarted the process, which is the exact
+		// restart-dependent stall W11910 removed. So it is re-offered — while
+		// still publishing `failed` and still owing the one incident.
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		let prompts = 0;
+		const { signal, runWait } = script([
+			envelope([action]),
+			() => { time.advance(config.retryMs * 4); return envelope([action]); },
+		]);
+		const settlement = settlementFor(config,
+			{ spy, reads: [slot([surviving])], now: time.now });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement,
+			sessionFactory: () => ({
+				alive: () => true,
+				sessionId: "sess-1",
+				async start() { return "sess-1"; },
+				async promptText() {
+					prompts += 1;
+					throw new Error("the turn died mid-attempt");
+				},
+				async stop() {},
+			}) });
+		assert.equal(prompts, 2,
+			"the unspent recovery wake was not re-delivered");
+		assert.ok(!spy.published.some(([state]) => state === "idle"),
+			JSON.stringify(spy.published));
+		// AND ONE INCIDENT ACROSS BOTH TURNS. W55705 review [P1]: the retry
+		// path used to clear the fence before the read, so the second turn
+		// filed the same failure again.
+		assert.equal(spy.incidents.length, 1,
+			`one stranded claim filed ${spy.incidents.length} incidents`);
+	});
+
+test("W55705: a secondary claim strands the lane and retains the offer",
+	async () => {
+		// The delivered assignment is gone and something ELSE occupies the
+		// participant's one slot. That offer cannot be claimed, so spending a
+		// turn on it would prove only that — it is retained, not presented.
+		const { log, config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		const other = workAction("7ba67cb8-W999",
+			{ episode: 77, claimed: true });
+		const { signal, runWait } = script([
+			envelope([action]),
+			() => { time.advance(config.retryMs * 4); return envelope([action]); },
+		]);
+		const settlement = settlementFor(config,
+			{ spy, reads: [slot([other])], now: time.now });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement });
+		assert.equal(
+			events(log).filter((e) => e.event === "prompt/start").length, 1,
+			"a turn was spent against a slot that could not be claimed");
+		assert.ok(!spy.published.some(([state]) => state === "idle"));
+		assert.equal(spy.incidents.length, 1);
+		assert.equal(spy.incidents[0].work, "7ba67cb8-W999",
+			"the incident named the offer rather than the occupant");
+	});
+
+test("W55705: a newly stranded slot stops the rest of the same envelope",
+	async () => {
+		// W55705 review (2026-09-01T03:41:20Z) [P1]. The outer fence check
+		// runs ONCE per envelope, so a `continue` after a stranded settlement
+		// let the next fresh action revalidate against its own successful read
+		// and start a turn — after the bridge had just failed to prove the
+		// claim slot safe. Fail-open for exactly the unreadable case.
+		//
+		// A POKE is the second action on purpose: it delivers beside Work
+		// rather than waiting behind the claim slot, so if the loop kept
+		// going it really would reach the agent.
+		const { log, config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const { signal, runWait } = script([
+			envelope([workAction("7ba67cb8-W163", { episode: 5 }),
+			          pokeAction(9)]),
+		]);
+		const settlement = settlementFor(config, {
+			spy, now: time.now,
+			// The settlement read fails; the poke's own pre-turn revalidation
+			// would have succeeded.
+			reads: [new Error("the authority did not answer")] });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement });
+		const prompts = events(log).filter((e) => e.event === "prompt/start");
+		assert.equal(prompts.length, 1,
+			"a turn started after the claim slot could not be proved safe");
+		assert.ok(!spy.published.some(([state]) => state === "idle"));
+	});
+
+test("W55705: a stranded lane retains readiness until a canonical release",
+	async () => {
+		// The whole recovery arc: strand, retain, and resume the moment a
+		// canonical read says the slot is free — without anybody restarting
+		// this process, which is the operator-facing point of the fence.
+		const { log, config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		const other = workAction("7ba67cb8-W999",
+			{ episode: 77, claimed: true });
+		const later = () => { time.advance(RECONCILE_MS + 1);
+			return envelope([action]); };
+		const { signal, runWait } = script([
+			envelope([action]), later, later,
+		]);
+		const settlement = settlementFor(config, {
+			spy, now: time.now,
+			reads: [slot([other]), slot([other]), slot([]), slot([])] });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement });
+		assert.equal(
+			events(log).filter((e) => e.event === "prompt/start").length, 2,
+			"the retained offer never resumed after the release");
+		assert.ok(spy.published.some(([state]) => state === "idle"),
+			"delivery resumed without ever advertising capacity again");
+	});
+
+// -- the state machine, in isolation -----------------------------------------
+
+test("W55705: a recoverable retry keeps its fence identity and files once",
+	async () => {
+		// W55705 review [P1]. The old retry saved only the boolean, set
+		// `this.fence = null`, and re-minted around a fresh read — so the
+		// acknowledgement, the `since` instant and the recorded authority all
+		// belonged to a fence that no longer existed.
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const f = focused({ reads: [slot([surviving])] });
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		assert.equal(await f.settle.settle(action), "recoverable");
+		const { since, authority } = f.settle.fence;
+		assert.equal(f.settle.fence.incidentFiled, true);
+		f.time.advance(5000);
+		assert.equal(await f.settle.settle(action), "recoverable");
+		assert.equal(f.spy.incidents.length, 1);
+		assert.equal(f.settle.fence.since, since,
+			"the same stranded fact was re-minted around a new instant");
+		assert.equal(f.settle.fence.authority, authority);
+		assert.equal(f.settle.fenced(), false,
+			"an exact claimed Work is recoverable, not stranded");
+	});
+
+test("W55705: a recoverable retry against another authority stays fenced",
+	async () => {
+		// The record's own fail-closed boundary: a different authority
+		// answering for this participant is not evidence that the old claim
+		// was released. The old code could not even see the difference,
+		// because it compared against a fence it had just cleared.
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const f = focused({ reads: [
+			slot([surviving]),
+			slot([surviving], { uuid: OTHER_UUID })] });
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		assert.equal(await f.settle.settle(action), "recoverable");
+		assert.equal(await f.settle.settle(action), "stranded");
+		assert.equal(f.settle.fenced(), true);
+		assert.equal(f.settle.fence.authority, UUID,
+			"the foreign authority was adopted into the fence");
+		assert.equal(f.settle.fence.drift, OTHER_UUID);
+		assert.equal(f.spy.incidents.length, 1);
+	});
+
+test("W55705: a canonical read that names no authority is drift, not a match",
+	async () => {
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const anonymous = slot([surviving]);
+		delete anonymous.authority_uuid;
+		const f = focused({ reads: [slot([surviving]), anonymous] });
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		assert.equal(await f.settle.settle(action), "recoverable");
+		assert.equal(await f.settle.settle(action), "stranded");
+		assert.equal(f.settle.fence.authority, UUID);
+	});
+
+test("W55705: an unreadable answer keeps the fence rather than minting a second",
+	async () => {
+		// "I could not ask" is not a new fact about the slot. Minting an
+		// `unreadable` fence here would give one stranded claim a second
+		// identity, a second incident, and no recorded authority.
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const f = focused({ reads: [
+			slot([surviving]), new Error("the authority did not answer")] });
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		assert.equal(await f.settle.settle(action), "recoverable");
+		assert.equal(await f.settle.settle(action), "stranded");
+		assert.equal(f.settle.fence.work, "7ba67cb8-W163");
+		assert.equal(f.settle.fence.correlation, "claimed");
+		assert.equal(f.settle.fence.authority, UUID);
+		assert.equal(f.spy.incidents.length, 1);
+	});
+
+test("W55705: a successor claim mints its own unfiled incident", async () => {
+	// W55705 review [P1]: a fence for W1/episode 11 followed by a canonical
+	// W2/episode 22 stayed filed against W1 and emitted nothing for W2 — so
+	// the second stranded claim had no operator notice at all.
+	const first = workAction("7ba67cb8-W163", { episode: 11, claimed: true });
+	const second = workAction("7ba67cb8-W999", { episode: 22, claimed: true });
+	const f = focused({ reads: [slot([first]), slot([second])] });
+	assert.equal(await f.settle.settle(
+		workAction("7ba67cb8-W163", { episode: 11 })), "recoverable");
+	assert.equal(f.spy.incidents.length, 1);
+	f.time.advance(RECONCILE_MS + 1);
+	await f.settle.reconcile();
+	assert.equal(f.settle.fence.work, "7ba67cb8-W999");
+	assert.equal(f.settle.fence.episode, 22);
+	assert.equal(f.spy.incidents.length, 2,
+		"the successor inherited its predecessor's acknowledgement");
+	assert.equal(f.spy.incidents[1].work, "7ba67cb8-W999");
+	assert.equal(f.settle.fence.incidentFiled, true);
+});
+
+test("W55705: the same Work under a newer episode is a successor, not a release",
+	async () => {
+		// A newer assignment episode of the SAME Work occupies the one slot.
+		// It is not the delivered episode and it is not nothing.
+		const old = workAction("7ba67cb8-W163", { episode: 11, claimed: true });
+		const fresher = workAction("7ba67cb8-W163",
+			{ episode: 99, claimed: true });
+		const f = focused({ reads: [slot([old]), slot([fresher])] });
+		await f.settle.settle(workAction("7ba67cb8-W163", { episode: 11 }));
+		f.time.advance(RECONCILE_MS + 1);
+		await f.settle.reconcile();
+		assert.equal(f.settle.settled(), true, "a newer episode read as release");
+		assert.equal(f.settle.fence.episode, 99);
+		assert.equal(f.settle.fence.correlation, "secondary");
+		assert.equal(f.spy.incidents.length, 2);
+	});
+
+test("W55705: a late acknowledgement is never transferred to a successor",
+	async () => {
+		// W55705 review [P1]: the old ordering copied a `true` acknowledgement
+		// onto whatever fence happened to be current when the publication
+		// landed, suppressing the retry for the wrong Work and episode.
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		let settle;
+		const f = focused({
+			reads: [slot([surviving])],
+			incident: async (_row, n) => {
+				if (n === 1) {
+					// The fence is superseded WHILE this publication is in
+					// flight.
+					settle.fence = { ...settle.fence, work: "7ba67cb8-W999",
+						episode: 77, incidentFiled: false };
+				}
+				return true;
+			} });
+		settle = f.settle;
+		await f.settle.settle(workAction("7ba67cb8-W163", { episode: 5 }));
+		assert.equal(f.settle.fence.work, "7ba67cb8-W999");
+		assert.equal(f.settle.fence.incidentFiled, false,
+			"the successor was marked filed by its predecessor's answer");
+	});
+
+test("W55705: the incident is retried when publication refuses or throws",
+	async () => {
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const f = focused({
+			reads: [slot([surviving])],
+			incident: async (_row, n) => {
+				if (n === 1) return false;
+				if (n === 2) throw new Error("the publication transport died");
+				return true;
+			} });
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		await f.settle.settle(action);
+		assert.equal(f.settle.fence.incidentFiled, false,
+			"a refused publication was recorded as filed");
+		f.time.advance(RECONCILE_MS + 1);
+		await f.settle.reconcile();
+		assert.equal(f.settle.fence.incidentFiled, false,
+			"a thrown publication was recorded as filed");
+		f.time.advance(RECONCILE_MS + 1);
+		await f.settle.reconcile();
+		assert.equal(f.settle.fence.incidentFiled, true);
+		assert.equal(f.spy.incidents.length, 3);
+	});
+
+test("W55705: two concurrent observations file one incident", async () => {
+	// `settle` and `reconcile` can both reach the publication, and two in
+	// flight for one fence is two incidents for one stranded claim.
+	const surviving = workAction("7ba67cb8-W163", { episode: 5, claimed: true });
+	let release;
+	const gate = new Promise((resolve) => { release = resolve; });
+	const f = focused({
+		reads: [slot([surviving])],
+		incident: async () => { await gate; return true; } });
+	const action = workAction("7ba67cb8-W163", { episode: 5 });
+	const first = f.settle.settle(action);
+	// A second observation arrives while the first publication is in flight.
+	await new Promise((resolve) => setImmediate(resolve));
+	const second = f.settle.fileIncident();
+	release();
+	await Promise.all([first, second]);
+	assert.equal(f.spy.incidents.length, 1,
+		`one stranded claim filed ${f.spy.incidents.length} incidents`);
+});
+
+// -- persistence, and the difference between a fence and a durable one --------
+
+test("W55705: an uncommitted marker strands the lane rather than looking durable",
+	async () => {
+		// W55705 review [P1]. `store.save` returns a boolean SO a caller can
+		// tell an in-process fence from a restart-durable one, and the old
+		// code assigned that boolean and then ignored it. An unwritable state
+		// directory therefore produced a bridge that looked fenced while a
+		// restart would have found nothing and delivered into the same
+		// occupied slot.
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const f = focused({ reads: [slot([surviving])],
+			store: scriptedStore({ onSave: () => false }) });
+		const verdict = await f.settle.settle(
+			workAction("7ba67cb8-W163", { episode: 5 }));
+		assert.equal(verdict, "stranded",
+			"an uncommitted fence was reported as an ordinary recoverable one");
+		assert.equal(f.settle.fenced(), true);
+		assert.equal(f.settle.fence.correlation, "claimed");
+		assert.equal(f.settle.fence.durable, false);
+	});
+
+test("W55705: an uncommitted acknowledgement is not reported durable",
+	async () => {
+		// The marker commits and the acknowledgement update does not. A
+		// restart would then file the same incident again, so the lane stays
+		// fenced rather than reporting a durability it does not have.
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const f = focused({ reads: [slot([surviving])],
+			store: scriptedStore({ onSave: (_record, n) => n === 1 }) });
+		await f.settle.settle(workAction("7ba67cb8-W163", { episode: 5 }));
+		assert.equal(f.settle.fence.incidentFiled, true,
+			"this process must not publish the same incident twice");
+		assert.equal(f.settle.fence.durable, false);
+		assert.equal(f.settle.fenced(), true,
+			"a fence whose acknowledgement is not on disk kept delivering");
+	});
+
+test("W55705: a clear nobody could confirm keeps the fence", async () => {
+	const other = workAction("7ba67cb8-W999", { episode: 77, claimed: true });
+	const f = focused({ reads: [slot([other]), slot([])],
+		store: scriptedStore({ onClear: () => false }) });
+	await f.settle.settle(workAction("7ba67cb8-W163", { episode: 5 }));
+	assert.equal(f.settle.fenced(), true);
+	f.time.advance(RECONCILE_MS + 1);
+	assert.equal(await f.settle.reconcile(), "fenced");
+	assert.equal(f.settle.settled(), true,
+		"a delete nobody could confirm became an in-memory clear");
+});
+
+// -- restart ------------------------------------------------------------------
+
+test("W55705: a restored recoverable marker is fenced until the authority matches",
+	async () => {
+		// W55705 review [P1]. `restore()` believes the file — correctly — but
+		// `fenced()` answered false for a `claimed` marker, so a dispatcher
+		// restarted against ANOTHER authority skipped reconciliation entirely
+		// and delivered on the strength of a fence taken somewhere else.
+		const { config } = rig();
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const first = focused({ config, reads: [slot([surviving])] });
+		await first.settle.settle(workAction("7ba67cb8-W163", { episode: 5 }));
+		assert.equal(first.settle.fenced(), false);
+
+		// A NEW PROCESS over the same state directory.
+		const restarted = focused({ config, reads: [slot([surviving])] });
+		assert.equal(restarted.settle.restore().state, "present");
+		assert.equal(restarted.settle.fenced(), true,
+			"a restored marker was deliverable before any canonical read");
+		restarted.time.advance(RECONCILE_MS + 1);
+		await restarted.settle.reconcile();
+		assert.equal(restarted.settle.fenced(), false,
+			"a matching authority did not re-admit the recovery delivery");
+		assert.equal(restarted.settle.fence.correlation, "claimed");
+
+		// AND THE DRIFTED RESTART, which must not.
+		const drifted = focused({ config,
+			reads: [slot([surviving], { uuid: OTHER_UUID })] });
+		assert.equal(drifted.settle.restore().state, "present");
+		drifted.time.advance(RECONCILE_MS + 1);
+		await drifted.settle.reconcile();
+		assert.equal(drifted.settle.fenced(), true,
+			"a restart pointed at another authority delivered anyway");
+		assert.equal(drifted.settle.fence.authority, UUID);
+	});
+
+test("W55705: a restarted bridge delivers nothing before the marker is checked",
+	async () => {
+		// The same rule where it matters: through `runBridge`, with the
+		// marker on disk and the configured authority changed under it.
+		const { log, config } = rig();
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const seeded = focused({ config, reads: [slot([surviving])] });
+		await seeded.settle.settle(workAction("7ba67cb8-W163", { episode: 5 }));
+
+		const spy = runtimeSpy();
+		const time = clock();
+		const settlement = settlementFor(config, { spy, now: time.now,
+			reads: [slot([surviving], { uuid: OTHER_UUID })] });
+		const { signal, runWait } = script([
+			envelope([workAction("7ba67cb8-W163", { episode: 5 })]),
+		]);
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement });
+		assert.equal(
+			events(log).filter((e) => e.event === "prompt/start").length, 0,
+			"a restart delivered before comparing the marker's authority");
+		assert.ok(!spy.published.some(([state]) => state === "idle"),
+			JSON.stringify(spy.published));
+	});
+
+test("W55705: a damaged marker stays fenced and its bytes are preserved",
+	async () => {
+		const { config } = rig();
+		mkdirSync(config.stateDir, { recursive: true });
+		const marker = join(config.stateDir,
+			`${CLAIM_SLOT_KEY(config.baton.participant)}.acp-settlement.json`);
+		writeFileSync(marker, "{ this is not a settlement record");
+		const f = focused({ config, reads: [slot([])] });
+		assert.equal(f.settle.restore().state, "damaged");
+		assert.equal(f.settle.fenced(), true,
+			"a damaged marker was read as an absent one");
+		assert.equal(f.settle.fence.correlation, "unreadable");
+		assert.equal(readFileSync(`${marker}.damaged`, "utf8"),
+			"{ this is not a settlement record",
+			"the corrupt bytes were not preserved for inspection");
+	});
+
+test("W55705: an exact canonical release clears a restored marker", async () => {
+	const { config } = rig();
+	const other = workAction("7ba67cb8-W999", { episode: 77, claimed: true });
+	const first = focused({ config, reads: [slot([other])] });
+	await first.settle.settle(workAction("7ba67cb8-W163", { episode: 5 }));
+	const restarted = focused({ config, reads: [slot([])] });
+	assert.equal(restarted.settle.restore().state, "present");
+	restarted.time.advance(RECONCILE_MS + 1);
+	assert.equal(await restarted.settle.reconcile(), "clear");
+	assert.equal(restarted.settle.settled(), false);
+	// AND THE MARKER IS GONE, so a third process starts clean.
+	const third = focused({ config, reads: [slot([])] });
+	assert.equal(third.settle.restore().state, "absent");
+});
+
+// -- the boundaries this Work does NOT cross ---------------------------------
+
+test("W55705: a delegated runtime locator is named only when supplied",
+	async () => {
+		// The ACP process domain does not contain a container the Docker
+		// daemon created — run7 is the direct evidence — and the bridge has no
+		// trusted structured source for its id. So it says the absence is
+		// UNPROVED rather than inventing a locator or implying cleanliness.
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		const silent = focused({ reads: [slot([surviving])] });
+		await silent.settle.settle(action);
+		assert.match(silent.spy.incidents[0].detail,
+			/any delegated runtime is not proved absent/);
+
+		const told = focused({ reads: [slot([surviving])] });
+		await told.settle.settle(action,
+			{ runtimeLocator: "container:afed4c76aebe" });
+		assert.match(told.spy.incidents[0].detail,
+			/delegated runtime was reported at container:afed4c76aebe/);
+	});
+
+test("W55705: settlement kills nothing, releases nothing and accepts nothing",
+	async () => {
+		// A property of the SOURCE, because it is the kind of thing a later
+		// edit adds helpfully. The module owns a fence and a notice; every
+		// remedy it knows is prose for an operator.
+		const source = readFileSync(
+			join(HERE, "..", "src", "acp_settlement.mjs"), "utf8");
+		for (const forbidden of ["child_process", "execFile", "spawn",
+		                         "docker", "process.kill"]) {
+			assert.ok(!source.includes(forbidden),
+				`the settlement reaches for ${forbidden}`);
+		}
+		// The remedy it publishes is an operator's `release`, and it says the
+		// runtime must be proved absent FIRST.
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const f = focused({ reads: [slot([surviving])] });
+		await f.settle.settle(workAction("7ba67cb8-W163", { episode: 5 }));
+		assert.match(f.settle.fence.remedy,
+			/release work=7ba67cb8-W163 expect=baton\.claude episode=5/);
+		assert.match(f.settle.fence.remedy, /Prove any delegated runtime absent/);
+	});
+
+test("W55705: a process-domain teardown failure is the stronger fence",
+	async () => {
+		// The two fences are independent and neither clears the other. A
+		// teardown that cannot be proved is FATAL and comes first, so no
+		// canonical settlement runs behind it and nothing publishes `idle`
+		// beside a domain that may still be alive.
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const settlement = settlementFor(config,
+			{ spy, now: time.now, reads: [slot([])] });
+		const { signal, runWait } = script([
+			envelope([workAction("7ba67cb8-W163", { episode: 5 })]),
+		]);
+		await assert.rejects(runBridge(config, {
+			signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement,
+			sessionFactory: () => ({
+				alive: () => true,
+				sessionId: "sess-1",
+				async start() { return "sess-1"; },
+				async promptText() {},
+				async stop() {
+					throw new DomainTeardownError("the domain would not die");
+				},
+			}) }), DomainTeardownError);
+		assert.ok(!spy.published.some(([state]) => state === "idle"));
+		assert.equal(spy.incidents.length, 0,
+			"a claim settlement ran behind an unprovable process domain");
+		assert.equal(settlement.settled(), false,
+			"the settlement fence was minted from a turn it never settled");
+	});
+
+// -- the incident needs an owner (approver ruling M58455) --------------------
+
+test("W55705: a managed bridge refuses to start without a configured owner",
+	async () => {
+		// The deployment that produced this Work's incident ran with
+		// `action_owner: null`, so the settlement would have fenced correctly
+		// and then retried a notice that could never be filed. An ownerless
+		// bridge is outside this contract rather than a degraded mode of it,
+		// and the refusal lands BEFORE the lease and before the first wait.
+		for (const runtime of [null, { provider: "claude" }]) {
+			const { config } = rig({ runtime });
+			const spy = runtimeSpy();
+			const { signal, runWait } = script([envelope([])]);
+			await assert.rejects(
+				runBridge(config, { signal, runWait, logger: quiet,
+					runtime: spy.runtime }),
+				/runtime\.actionOwner is required/);
+			assert.deepEqual(spy.published, [],
+				"the runtime lease was published before the refusal");
+		}
+	});
+
+test("W55705: a configured owner starts ordinarily", async () => {
+	const { config } = rig();
+	assert.equal(config.runtime.actionOwner, ACTION_OWNER);
+	const spy = runtimeSpy();
+	const { signal, runWait } = script([envelope([])]);
+	await runBridge(config, { signal, runWait, logger: quiet,
+		runtime: spy.runtime });
+	assert.equal(spy.published[0][0], "start");
+});
+
+test("W55705: a stranded FAILED turn stops the rest of the envelope too",
+	async () => {
+		// The same break on the other path, and it needs its own case: the
+		// failure branch has its own settlement call and its own verdict
+		// handling, so covering only the returned-prompt branch left half the
+		// correction unproved. Measured — this case fails against a `continue`
+		// here and passes against the `break`.
+		const { config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		let prompts = 0;
+		const { signal, runWait } = script([
+			envelope([workAction("7ba67cb8-W163", { episode: 5 }),
+			          pokeAction(9)]),
+		]);
+		const settlement = settlementFor(config, { spy, now: time.now,
+			reads: [new Error("the authority did not answer")] });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement,
+			sessionFactory: () => ({
+				alive: () => true,
+				sessionId: "sess-1",
+				async start() { return "sess-1"; },
+				async promptText() {
+					prompts += 1;
+					throw new Error("the turn died mid-attempt");
+				},
+				async stop() {},
+			}) });
+		assert.equal(prompts, 1,
+			"a turn started after a failed turn stranded the claim slot");
+		assert.ok(!spy.published.some(([state]) => state === "idle"));
+	});
+
+test("W55705: a settled release retires the marker a restart would find",
+	async () => {
+		// The in-memory clear and the durable one are different acts, and the
+		// second is the one a RESTART sees. A fence cleared only in memory
+		// leaves a marker that resurrects on the next start and fences a lane
+		// whose claim is long gone.
+		const { config } = rig();
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		const f = focused({ config, reads: [slot([surviving]), slot([])] });
+		assert.equal(await f.settle.settle(action), "recoverable");
+		assert.equal(focused({ config, reads: [slot([])] })
+			.settle.restore().state, "present",
+		"the fence was never durable in the first place");
+		assert.equal(await f.settle.settle(action), "released");
+		assert.equal(f.settle.settled(), false);
+		assert.equal(focused({ config, reads: [slot([])] })
+			.settle.restore().state, "absent",
+		"a restart would have found a marker for a released claim");
+	});
+
+test("W55705: a release whose delete failed stays fenced on the settle path",
+	async () => {
+		// The companion to the reconcile case above, and it needed its own:
+		// deleting the guard around `store.clear` still deletes the marker in
+		// the ordinary case, so only a FAILING delete can prove the fence
+		// survives one. A marker nobody could remove outlives this process,
+		// and a lane that resumed on the strength of it would be fenced again
+		// by its own restart.
+		const surviving = workAction("7ba67cb8-W163",
+			{ episode: 5, claimed: true });
+		const action = workAction("7ba67cb8-W163", { episode: 5 });
+		const f = focused({ reads: [slot([surviving]), slot([])],
+			store: scriptedStore({ onClear: () => false }) });
+		assert.equal(await f.settle.settle(action), "recoverable");
+		assert.equal(await f.settle.settle(action), "stranded",
+			"a canonically released claim resumed over an undeleted marker");
+		assert.equal(f.settle.settled(), true);
+		assert.equal(f.settle.fenced(), true);
 	});

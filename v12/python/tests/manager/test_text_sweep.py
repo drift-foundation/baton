@@ -309,6 +309,11 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
             "lane_reference": (({"runtime_attempt_id": "attempt-1",
                                  "assignment_principal": None},), {}, []),
             "runtime_lane": ((store, "attempt-1"), {}, [1]),
+            # W55758: the two reads a public recovery branches on. Both take
+            # one caller text -- the attempt id -- and answer off the row it
+            # names.
+            "attempt_runtime_of": ((store, "attempt-1"), {}, [1]),
+            "label_context": ((store, "attempt-1"), {}, [1]),
             "request_freeze": (
                 (store, port, _NoAdapter()),
                 dict(attempt_id="attempt-1", disposition="completed"),

@@ -1,0 +1,37 @@
+{
+  "assignment_credential_home": {
+    "lifecycle_record": true,
+    "lifecycle_state": "live",
+    "runtime_id_matches": true,
+    "volatile_root": false
+  },
+  "attach_operation": {
+    "kind": "attempt.attach",
+    "present": true,
+    "state": "committed"
+  },
+  "attempt_id": "attempt-w51487-run7",
+  "frozen_output": false,
+  "granted_credential_home": {
+    "lifecycle_record": false,
+    "volatile_root": false
+  },
+  "intake_receipt": false,
+  "manager_evidence": false,
+  "retention_count": 0,
+  "runtime_lane": {
+    "attempt_id": "attempt-w51487-run7",
+    "blocked_by": [],
+    "held_by_this_attempt": true,
+    "holder": "attempt-w51487-run7",
+    "lane": {
+      "authority_uuid": "2bdb4a5d4f614c398de50d6e10a4a7a1",
+      "effective_scope": "scope:deployment",
+      "lane_id": "lane:aacad6326ca596a8c08ed041b76bd10552ae1646171367483a474f356b15c4c8",
+      "principal": "principal:baton.claude",
+      "work_id": "2bdb4a5d-W51487"
+    },
+    "reason": "execution requested under runtime.start:d35e93cb054be8d24b4dbc4b91b1b203a8a2044b6a5a76a5937d43f287c515a9"
+  },
+  "worker_workspace_output": true
+}

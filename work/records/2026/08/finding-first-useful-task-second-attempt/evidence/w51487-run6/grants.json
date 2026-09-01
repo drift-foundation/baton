@@ -1,0 +1,65 @@
+{
+  "adapter_digest": "sha256:037e66064e95fe4fc2a328467f39bcd63b1d97821bcc7b1ce47f3abaebc7968b",
+  "adapter_name": "oci",
+  "assignment_contract": "v12-assignment-1",
+  "attempt_id": "attempt-w51487-run6",
+  "authority_store": "/tmp/w51487/run6/authority.sqlite3",
+  "control_store": "/tmp/w51487/run6/control.sqlite3",
+  "credential_home": "/tmp/w51487/run6/credential-home",
+  "credential_profile": {
+    "claude": {
+      "provider": "operator-file",
+      "reference": "w51487-run6"
+    }
+  },
+  "credential_slots": [
+    "claude"
+  ],
+  "engine": "docker",
+  "generation": 1,
+  "human_contract": {
+    "artifact_id": "w38956-first-task",
+    "bytes": 3291,
+    "content_digest": "sha256:e4dc000285728dea68a7bbac2f90118232a50d900f3e25b3ca0ecd212710f392",
+    "locator": "file:///home/sl/src/baton/work/records/2026/08/finding-v12-first-useful-dogfood-task/evidence/first-task.md",
+    "media_type": "text/markdown"
+  },
+  "image_digest": "sha256:b471399a7dcb8300795fe884c471b817ec1d61644130d66ec12fbd4fef76c003",
+  "incarnation": "w51487-run6",
+  "labels": {
+    "attempt": "attempt-w51487-run6"
+  },
+  "launch_home": "/tmp/w51487/run6/launch",
+  "network": "bridge",
+  "now": "2026-08-31T17:23:01.295Z",
+  "offer_id": "offer-w51487-run6",
+  "participant": "baton.claude",
+  "policies": {
+    "credential_policy_digest": "sha256:e1b79136cecd474ddcc22b37450ac11c372e516d076e10956946606cc9513be6",
+    "mount_policy_digest": "sha256:850cef242139942eb1620ffcd886a56bfc8fafc2b8f8005474f0da58d9f01f3e",
+    "network_policy_digest": "sha256:27bbe5ad07e4a4064265013467d18be3b107473cf6dc4f97d2c2b5477b1b3576",
+    "policy_digest": "sha256:738b102ba8bc8ef03991ea8654d022053eb842a5cbdf7020bf48139edf71e1bb",
+    "resource_policy_digest": "sha256:699a979adf66d67d9af7750372bfae8700fec1a83731fd4beee95a39adb8af95",
+    "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0",
+    "tool_policy_digest": "sha256:3ee4634d9e8577967256627f7ab526f404b160203c1de2ae9de25df470de4424"
+  },
+  "record_binding": {
+    "finding_digest": "sha256:870fd7f5b87bf8d2c4236e8fc5c89c061a22fb568fa4ae58116dc34595864387",
+    "path": "work/records/2026/08/finding-first-useful-task-second-attempt",
+    "plan_digest": "sha256:ab180e60142272b4375a360e908a8bf1761b3236e7c2073acdf544924c7c49c8",
+    "root": "baton"
+  },
+  "retention_disposition": "retain",
+  "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0",
+  "review_route": "rview",
+  "role_instructions_digest": "sha256:fa14ea86dc496b1eceaa966582ab26e3788da693d0c9fc5afa376b2bb265ad15",
+  "runtime_profile_digest": "sha256:45f80133d10d16351bc5e944b260dbd733dae0f87116ebd5a83defe8742ad7fc",
+  "source": "/tmp/w51487/run6/source",
+  "storage": "/tmp/w51487/run6/storage",
+  "task_path": "/tmp/w51487/run6/task.json",
+  "toolchain_digest": "sha256:455c172e45df3d95172a3b52aa69bf39b1806fa09627362b3817d9931dbb9285",
+  "work_ref": {
+    "authority_uuid": "21dce6fa603a4f1a942f9dec68e5bd03",
+    "work_id": "21dce6fa-W51487"
+  }
+}

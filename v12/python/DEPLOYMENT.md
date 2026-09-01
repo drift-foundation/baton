@@ -79,8 +79,9 @@ Setgid means what the worker creates lands in the configured group, so output
 the worker leaves group-readable is output the manager can read, archive and
 remove. That is the whole of it. The worker chooses its own modes, and a worker
 that writes mode `0600` content — or a directory it alone can enter — leaves
-material this manager cannot inspect, collect or clean up, because it is not
-the owner and the group bit is not set for it. This Work's own
+material that the group alone cannot make inspectable, collectable or
+removable, because the manager is not the owner and the group bit is not set
+for it. This Work's own
 `test_an_owner_only_output_fails_closed_rather_than_widening` drives exactly
 that case and requires the manager to fail closed rather than widen the mode.
 
@@ -89,14 +90,27 @@ taking custody the deployment never granted it, and a manager that reported
 such an attempt as cleaned up would be erasing material that is still on disk.
 
 **Unconditional manager custody — the property that holds regardless of
-worker-selected modes — is NOT provided here.** Approver ruling M36166 named
-the mechanism (a short-lived manager-controlled custody helper on the exact
-attempt directory; umask 002 is explicitly not it) and created **W36540** to
-provide it. Until that lands, a deployment should expect cleanup of a
-worker-created tree to fail closed with the ownership named, rather than to
-succeed.
+worker-selected modes — is NOT what the configured group buys.** Approver
+ruling M36166 named the mechanism (a short-lived manager-controlled custody
+helper on the exact attempt directory; umask 002 is explicitly not it) and
+created **W36540** to provide it.
 
-The manager then:
+**That provider has landed.** W36540 and its five children are closed
+satisfying, and the manager composes custody into the ended-attempt path:
+`custody.normalize_directory` runs on the exact attempt directory and nothing
+else, as the same uid the worker ran as. It therefore OWNS every object the
+worker created, and an owner may `chmod` its own objects whatever mode they
+currently carry — which is what makes the property unconditional rather than
+dependent on the worker having cooperated. The helper only normalizes; the
+MANAGER still performs the removal, under the containment rules that were
+always on this side.
+
+So the two boundaries stay distinct, and it is worth keeping them apart when
+reading a refusal: the configured group buys ordinary group-readable
+collection, and the custody helper buys reach that no mode a worker chooses
+can withhold.
+
+With the group configured, the manager:
 
 - creates the workspace at exactly `02770` in that group — setgid, so what the
   worker creates inherits the group;
@@ -134,18 +148,32 @@ a property of a deployment and not of any code here. A malformed value is
 refused rather than falling back, so a run that meant to prove a provisioned
 group cannot silently report a login-group run instead.
 
-`tests.manager.test_input_delivery` also carries the compatible-Podman half of
-the matrix. It skips where Podman is absent; a skip is a named operational
-limit and not a pass.
+`tests.manager.test_input_delivery` also carries the Podman half of the matrix.
+It skips where Podman is absent, and a skip is a named absence rather than a
+pass — but under M38837 it no longer gates this mechanism's acceptance. See
+the engine section below for what is certified and what is not.
 
-## Rootless Podman: the group does not reach the worker
+## Engines: Docker is certified, Podman is not
 
-**Measured, not predicted.** On Docker and on **rootful** Podman the mechanism
-holds exactly: `--user 65532:65532` is untouched, the configured group is
-applied as a supplementary group, and the worker writes its workspace.
+**Docker is the only engine this mechanism is certified on.** Approver ruling
+M38837 supersedes the earlier two-engine closure gate for this slice: the
+complete Docker matrix IS the certification, and Podman is a longer-term
+portability certification owned by **W32391**, which is still open. Deploy on
+Docker. Treat everything below as retained experimental evidence rather than
+as a supported choice, and do not run a deployment on either Podman mode until
+W32391 closes with compatible-engine evidence.
 
-Under **rootless** Podman it does not. The group is still applied — the worker
-really holds the gid — but the bind-mounted workspace arrives owned by
+The measurements are kept because they were measured rather than predicted,
+and because the two modes say different things.
+
+Under **rootful** Podman the mechanism behaved exactly as it does on Docker:
+`--user 65532:65532` untouched, the configured group applied as a supplementary
+group, and the worker writing its workspace. That is one environment's
+observation and not certification — the full case matrix behind the Docker
+acceptance was not run there.
+
+Under **rootless** Podman it does not hold. The group is still applied — the
+worker really holds the gid — but the bind-mounted workspace arrives owned by
 `nobody`:
 
     running as [65532, 65532]  groups [8291, 65532]   <- applied
@@ -161,8 +189,9 @@ A rootless-Podman deployment therefore needs the configured gid mapped into
 the container's user namespace (`--gidmap` / `--userns=keep-id:gid=…`). This
 manager does not compose those flags: the launch vector is pinned by approver
 rulings M34630 and M34916, and adding a namespace mapping to it is a change to
-the ruled vector rather than a deployment detail. **Until that is ruled on,
-use Docker or rootful Podman.**
+the ruled vector rather than a deployment detail. **W32391 owns that question
+along with the rest of Podman certification; until it closes, deploy on
+Docker.**
 
 Evidence for all three: `work/records/2026/08/finding-v12-worker-workspace-
 writable/evidence/w33936-podman-2026-08-29.txt`.

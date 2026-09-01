@@ -289,3 +289,106 @@ refuses rather than adopts an authority store that already exists.
 
 Awaiting independent terminal accept or reject for W38956. Passing back rather
 than closing.
+
+## 2026-08-31 — fifth implementer round (`baton.claude`, W51487 impl claim)
+
+**Plan item 8 could not be produced. Two fresh attempts, both REJECTED, and the
+round stops on a new material blocker that is not mine to fix.**
+
+Full record: `acceptance-2026-08-31T17-26Z.md`. Evidence:
+`evidence/w51487-run5/`, `evidence/w51487-run6/`.
+
+### The review was revalidated before anything was spent
+
+`review-2026-08-31T17-15-35Z.md` says run4's nominated-engine case cannot catch
+a production hard-code of `"docker"`. I measured it rather than believed it: on
+a writable copy of the retained candidate — never the custody tree, never the
+checkout — substituting `["docker", "run", ...]` for `[engine, "run", ...]`
+leaves the harness at exit 0 with nothing failing, while the other six
+mutations are each caught by the case that owns their fact. **The review is
+right and the required correction is the right one.**
+`evidence/w51487-run5/run4-engine-recheck.md`, reproducible with the
+`mutation_check.py` retained beside it.
+
+### Two attempts, and the second one is a control
+
+Both under the unchanged task-scoped grant with wholly fresh authority, Work,
+offer, attempt, runtime, incarnation, control, launch, storage, credential-home
+and source identities, and no reuse of any earlier result or conversation.
+
+    run5   17:20:42Z   image sha256:8af96742a894…   rebuilt from the current tree
+    run6   17:23:01Z   image sha256:b471399a7dcb…   run4's exact artefact
+
+Both: `provider-failed`, provider status 1, `changed_paths: []`, zero-byte
+patch, custody digest `sha256:e002024b…` — run2's and run3's digest, an
+untouched delivery.
+
+Run5 changed exactly one input relative to run4's success: the image, rebuilt
+because the standing handoff requires building from the current tree. So run6
+held that input at run4's own digest and changed nothing else. **It failed
+identically. The rebuilt image is not the cause**, and
+`evidence/w51487-run6/image-control.md` has the layer comparison: the four
+`COPY` layers carrying this repository's code are byte-identical across both
+artefacts, and only the two network-fetch layers move.
+
+### This is not run3's blocker, and W52800 is why I can say so
+
+`_prepared_home` now raises `TaskRefusal` for a slot this identity cannot open,
+and a refusal is a different disposition from `provider-failed`. What we got is
+only reachable after the provider process actually ran. The credential was
+delivered, was readable, and the provider then failed.
+
+Credential-free in the exact posture: the CLI works, DNS and TCP 443 work over
+`--network bridge`, and both "no credential" and "an invented invalid
+credential mounted as the adapter mounts it" give exit 1 `Not logged in`.
+Metadata only: `/run/baton/credentials/claude` is still a regular 509-byte
+`0400 sl:sl` file, mtime 09:06:32Z — **the same unchanged bytes that produced a
+real provider turn at 16:33Z.**
+
+### The inference, labelled, and the second explanation I cannot exclude
+
+The staged credential is a 09:06Z snapshot of a document the provider normally
+refreshes in place, delivered read-only into a container that cannot write a
+refresh back — so a snapshot with an expiry stops working while its bytes never
+change. That fits every measurement and explains the 47-minute difference.
+
+**It is not proven.** An account-level refusal such as a usage limit exits 1 in
+the same shape, and I cannot separate the two from outside because the
+provider's own diagnostic is deliberately unpublished. That is the run2 P1
+finding arriving a second time; it has now cost two rounds and it is still not
+this Work's file.
+
+### Two concerns put on the ledger rather than offered again
+
+The run2 round offered the provider-diagnosability defect as a P1 and left it
+off the ledger; it bit again this round and cost a second one. It is now
+**W55360**. The recipe-reproducibility limit run6 uncovered is **W55361**.
+Neither is this Work's file and neither blocks it; both are now findable by
+somebody other than the reader of this record.
+
+### What I did not do
+
+I did not retry a third time against a cause I have narrowed and cannot fix —
+the standing grant permits unchanged retries, and spending provider turns to
+reproduce a known answer is the same waste I stopped for in the run2 round. I
+did not read the credential, did not use it outside a supervised attempt, did
+not touch `claude_agent.py`, `credentials.py` or the frozen task, did not
+mutate run4's retained candidate, and applied nothing to the canonical
+checkout.
+
+### Verification
+
+    both attempts                           exit 0, resolved, retained
+    runtime absence, credential teardown    measured after each run
+    independent diff, four paths each       all identical to the delivery
+    the frozen command, rerun outside       26 tests, OK, in both trees
+    staged source and canonical checkout    all eight files at frozen digests;
+                                            porcelain of the spike tree empty
+    the review's finding, mutation-tested   confirmed
+
+Whitespace clean.
+
+### State
+
+Blocked on an operator act. Passing back with the blocker rather than closing,
+and rather than burning further attempts.

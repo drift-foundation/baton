@@ -693,3 +693,13 @@ whose prerequisites have closed are actionable.
     Defer transported custody-archive semantics until a demonstrated
     retention/export need defines them; archive work does not gate the first
     useful v12 path.
+33. [confirmed 2026-08-31; post-W38956 objective] When W38956 closes
+    satisfying, create a separately bound Work for a bounded v12 Job-migration
+    pilot. Use v11 as the authoritative message bus and lifecycle record;
+    preserve the selected Work identity and correlate it to one v12 Job and
+    attempt for isolated execution and result custody. Migrate strictly one
+    Work at a time, returning progress, result, failure, review and disposition
+    to that same v11 Work before admitting another. Prove one non-synthetic
+    leaf end to end before expanding beyond serialized migration. Do not start
+    this pilot from a provisional or non-satisfying W38956 outcome, and do not
+    treat it as the production cutover or a second Work authority.

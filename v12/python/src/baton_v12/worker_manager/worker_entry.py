@@ -347,6 +347,26 @@ def converse(channel_port, *, engine, runtime_id, program, session,
     if len(session) > MAX_IDENTITY:
         _refuse(f"a worker session identity is at most {MAX_IDENTITY} "
                 f"characters; this is {len(session)}")
+    # THE SHAPE BEFORE THE ITERATION, and W39666 is the second time this
+    # package has paid for the difference. `exec_vector` began `list(program)`
+    # until a review measured what `list("python3")` composes; these two began
+    # `list(operations)` and `list(operation_ids)`, so a caller passing `None`
+    # or `7` left through a raw `TypeError` -- past this manager's whole
+    # contract vocabulary, at a boundary the inventory was about to record an
+    # owner for. A claimed owner that a non-iterable escapes is not an owner.
+    #
+    # `str` IS THE ONE THAT MATTERS HERE, exactly as it does for a program.
+    # `operations="describe"` iterates eight characters, none of which is an
+    # operation this channel speaks, so today it refuses -- but it refuses by
+    # naming `'d'`, which describes neither what the caller passed nor what is
+    # wrong with it.
+    for named, value in (("operations", operations),
+                         ("operation_ids", operation_ids)):
+        if type(value) not in (list, tuple):
+            _refuse(f"a conversation's {named} is a list or tuple; this is "
+                    f"{name_value(value)}. A string iterates one CHARACTER at "
+                    f"a time, so accepting one would ask for a conversation "
+                    f"nobody composed")
     asked = list(operations)
     ids = list(operation_ids)
     if not asked:

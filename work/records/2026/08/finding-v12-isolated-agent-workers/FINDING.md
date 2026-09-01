@@ -2041,3 +2041,39 @@ adapter owner. Terminal `/status` screens are never scraped. The independent
 later M4 hardening and does not gate the current dogfood finish line. Its Job
 uses a descriptive title; generic label `v12` is the future campaign organizer
 rather than a title prefix.
+
+## Bounded Job migration follows accepted dogfood — confirmed 2026-08-31
+
+Closing W38956 satisfying is the trigger for the campaign's next objective:
+begin moving selected real Job execution onto v12. A provisional run, retained
+candidate, or non-satisfying dogfood outcome does not open this gate. The
+accepted dogfood result must first prove the complete isolated input,
+execution, result, review and disposition path.
+
+This objective is controlled early adoption, not a database migration or
+production cutover. V11 remains the canonical coordination, decision and
+recovery authority during the pilot; existing Work keeps its identity and
+history. “Migration” initially means that an explicitly selected Work leaf is
+offered to a v12 worker attempt and its isolated result returns through the
+v12 review and disposition path. It does not mean recreating every open Work,
+switching every route, or retiring v11.
+
+The first pilot uses v11 explicitly as the message bus. Assignment, discussion,
+operator decisions, handoffs, approval and terminal lifecycle remain on the
+one v11 Work. A bridge selects exactly one eligible v11 Work at a time, gives
+it one stable correlation to a v12 Job and attempt, and carries v12 progress,
+result and failure information back to that same Work. V12 owns isolated
+execution and result custody for the attempt; it does not become a second
+authority for the Work. The pilot admits no second migrated Work until the
+first has reached an explicit v11 disposition and its v12 runtime and custody
+are reconciled. Parallel migration is a later capability earned from this
+serialized evidence.
+
+At the trigger, create one separately bound Baton Work that owns the pilot,
+its eligible-Job criteria, fallback and evidence. Start with bounded,
+discardable proposals whose failure cannot mutate the canonical checkout.
+The first acceptance boundary is one real queued leaf—not a synthetic echo—
+completed through v12 offer, claim, execution, retained result, independent
+review and explicit acceptance or rejection. Expand the migrated tranche only
+from that evidence; later hardening continues in parallel unless an observed
+defect makes the pilot result false.

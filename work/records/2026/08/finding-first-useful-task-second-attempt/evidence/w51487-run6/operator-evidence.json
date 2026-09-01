@@ -1,0 +1,97 @@
+{
+  "abandoned": null,
+  "assignment_manifest_digest": "sha256:a885e2b872cbc596906e92c6e17e2d01eda868bfdb8eb6e0d09990ea619b845b",
+  "attempt_id": "attempt-w51487-run6",
+  "cleanup": {
+    "cleanup": "retained",
+    "state": "absent"
+  },
+  "conversation": {
+    "answered": [
+      "describe",
+      "work"
+    ],
+    "ending": "answered",
+    "why": null
+  },
+  "custody": [
+    {
+      "artifact_id": "attempt-w51487-run6:proposal",
+      "bytes": 86417,
+      "content_digest": "sha256:e002024b91fc1f643efeb954d1f7563c1838359fe6d24dc227846e4515f6c33c",
+      "custody_locator": "file:///tmp/w51487/run6/storage/attempt-w51487-run6/custody/attempt-w51487-run6/proposal"
+    }
+  ],
+  "generation": 1,
+  "independent": {
+    "changed_paths": [],
+    "members_present": [
+      "candidate",
+      "change.patch",
+      "result.json",
+      "verification.txt"
+    ],
+    "verification_argv": [
+      "python3",
+      "v12/spike/ping-pong/test_harness.py"
+    ],
+    "verification_status": 0
+  },
+  "input_manifest_digest": "sha256:303fac93e0d475c01503085cb582745f074cf8106b85cfe1ea8999668c957c11",
+  "intake_receipt": {
+    "receipt_digest": "sha256:3432f86edbeabf6610ecfc5bc8cf74ebbe17b2535febdbd017bc9c3a3601bc2d"
+  },
+  "network": "bridge",
+  "observed_after": {
+    "mounts": null,
+    "state": "absent",
+    "why": "the engine answered that this exact identity does not exist"
+  },
+  "offer_id": "offer-w51487-run6",
+  "output": {
+    "manifest_digest": "sha256:391a038be8a939dcfb24bf72369e6be9972cc684c78aa315554db4401fdf08cf",
+    "result_id": "result-attempt-w51487-run6"
+  },
+  "participant": "baton.claude",
+  "quiescence": {
+    "ordered": true,
+    "state": "quiescent",
+    "why": "the engine reports it not running"
+  },
+  "resolved": true,
+  "retention": {
+    "artifact_ids": [
+      "attempt-w51487-run6:proposal"
+    ],
+    "disposition": "retain",
+    "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0"
+  },
+  "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0",
+  "review_pass": {
+    "assignment": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "21dce6fa603a4f1a942f9dec68e5bd03",
+        "work_id": "21dce6fa-W51487"
+      }
+    },
+    "cause": "pass",
+    "fenced": false,
+    "gate": null,
+    "phase": "queued",
+    "route": "rview"
+  },
+  "review_route": "rview",
+  "runtime_id": "713f226003b37871bbe3b4837573d8246d5f02bc329c59b588a6b69bd7d20c97",
+  "schema": "baton.dogfood-evidence/1",
+  "source_tree_digest": "sha256:9e70c7337cf7150f3004dd74abf55d26e4a4fd5740dfc0a83cdc43d69df3dfd3",
+  "task_id": "w39364-observed-readable-coverage",
+  "unresolved": [],
+  "work_ref": {
+    "authority_uuid": "21dce6fa603a4f1a942f9dec68e5bd03",
+    "work_id": "21dce6fa-W51487"
+  },
+  "worker_disposition": "unable",
+  "worker_image_digest": "sha256:b471399a7dcb8300795fe884c471b817ec1d61644130d66ec12fbd4fef76c003"
+}

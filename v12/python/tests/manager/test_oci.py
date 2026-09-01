@@ -1686,3 +1686,129 @@ class TheManagersProvedRootsSurviveToTheUse(Configured):
         with self.assertRaises(ContractRefusal):
             oci._roots({"inputs": "relative/inputs",
                         "workspace": "relative/workspace"}, "execution")
+
+
+class ARecoveryEndingNeverClaimsNoCredentialWasDelivered(Adapting):
+    """W55758: the false `not-delivered`, and the typed thing that ends it.
+
+    `work/records/2026/08/finding-interrupted-dogfood-attempt-strands-runtime-
+    credential/`.
+
+    MEASURED, NOT SUPPOSED. A recovery process is exactly the shape in which
+    the in-memory `Delivery` died with the process that materialized it, so a
+    reconstructed adapter holds `credential_delivery is None` -- and the
+    ending then answered `not-delivered`, positively recording that no
+    credential was ever delivered for an attempt that left a readable bearer
+    on the host for hours. `_torn_down` chooses that word so a reader cannot
+    conclude a credential was torn down because a container was; unqualified
+    it made the opposite mistake, and nothing distinguished the record from a
+    genuine no-credential attempt.
+    """
+
+    def credential_home(self, name="granted"):
+        from baton_v12.worker_manager import credentials
+
+        place = os.path.join(self.home, name)
+        os.makedirs(place, exist_ok=True)
+        return credentials.CredentialHome(place)
+
+    def materialized(self, home, attempt="attempt-1"):
+        """One real delivery, whose owning object is then let go."""
+        from baton_v12.contracts import forget_secret
+        from baton_v12.worker_manager import credentials
+
+        delivery = home.materialize(
+            credentials.resolved_delivery(
+                ["api"], profile={"api": {"provider": "vault",
+                                          "reference": "kv/one"}}),
+            attempt_id=attempt, workspace_group=self.group,
+            credential_provider=lambda one, two: "c" * 48)
+        home.written_state(attempt, delivery.record(runtime_id="runtime-1"))
+        for value in delivery.bearers().values():
+            forget_secret(value)
+        return home
+
+    def orphan(self, *homes, attempt="attempt-1"):
+        from baton_v12.worker_manager import credentials
+
+        return credentials.OrphanTeardown(attempt, homes=list(homes))
+
+    def recovering(self, orphan, home=None):
+        return OciAdapter(
+            "docker", Engine([]), identity=self.IDENTITY,
+            assignment_roots=dict(self.live_roots), posture="execution",
+            workspace_group=self.group, launch_delivery=None,
+            credential_orphan=orphan, credential_home=home)
+
+    ABSENT = {"state": "absent", "why": "the exact runtime is absent"}
+
+    def test_without_an_orphan_the_old_word_is_still_the_true_one(self):
+        """An attempt that really delivered nothing says so, unchanged."""
+        adapter = self.recovering(None)
+        self.assertEqual(adapter._torn_down(self.ABSENT),
+                         {"lifecycle_state": "not-delivered"})
+
+    def test_a_recovered_orphan_ends_torn_down_after_positive_absence(self):
+        home = self.materialized(self.credential_home())
+        adapter = self.recovering(self.orphan(home), home=home)
+        answered = adapter._torn_down(self.ABSENT)
+        self.assertEqual(answered["lifecycle_state"], "torn-down")
+        self.assertNotEqual(answered["lifecycle_state"], "not-delivered")
+        self.assertFalse(os.path.lexists(home.volatile_root("attempt-1")))
+        self.assertFalse(os.path.exists(home.state_path("attempt-1")))
+
+    def test_a_runtime_not_proved_absent_stops_the_orphan_ending_too(self):
+        """The order is the approved one whichever object owns the ending.
+
+        A container this manager cannot say is gone may still be reading the
+        mount, and removing the file under it would be reporting an ending
+        that has not happened.
+        """
+        home = self.materialized(self.credential_home())
+        adapter = self.recovering(self.orphan(home), home=home)
+        answered = adapter._torn_down({"state": "uncertain",
+                                       "why": "the engine did not answer"})
+        self.assertEqual(answered["lifecycle_state"], "unresolved")
+        self.assertTrue(os.path.lexists(home.volatile_root("attempt-1")))
+
+    def test_an_attempt_has_one_credential_ending_and_not_two(self):
+        from baton_v12.worker_manager import credentials
+
+        home = self.materialized(self.credential_home())
+        delivery = home.adopt(home.read_state("attempt-1"),
+                              attempt_id="attempt-1", runtime_id="runtime-1",
+                              workspace_group=self.group)
+        try:
+            with self.assertRaises(ContractRefusal):
+                OciAdapter("docker", Engine([]), identity=self.IDENTITY,
+                           assignment_roots=dict(self.live_roots),
+                           posture="execution", workspace_group=self.group,
+                           credential_delivery=delivery,
+                           credential_orphan=self.orphan(home))
+        finally:
+            home.tear_down(delivery)
+        del credentials
+
+    def test_an_orphan_teardown_must_be_this_managers_own(self):
+        with self.assertRaises(ContractRefusal):
+            self.recovering("not a teardown")
+        with self.assertRaises(ContractRefusal):
+            self.recovering(None, home="/not/a/home/object")
+
+    def test_the_owned_home_is_the_home_this_adapter_uses(self):
+        """The one-owner correction, asked of the adapter directly.
+
+        Without it `_credential_home` derived a home from the assignment
+        workspace while the deployment materialized under the operator-granted
+        one -- two `CredentialHome` objects each assuming the root and the
+        record were siblings below themselves, which for a real attempt they
+        were not.
+        """
+        granted = self.credential_home("granted-owner")
+        adapter = self.recovering(None, home=granted)
+        self.assertIs(adapter._credential_home(), granted)
+        # AND AN ADAPTER GIVEN NONE STILL DERIVES ITS OWN, so every caller
+        # that never had the split is untouched.
+        self.assertEqual(self.recovering(None)._credential_home().place,
+                         os.path.dirname(
+                             self.live_roots["workspace"].rstrip("/")))

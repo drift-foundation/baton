@@ -51,6 +51,24 @@ without reading the bearer -- which the confirmed boundary forbids, and forbids
 for a good reason. So the bytes are not read at all. See the module-level
 comment above `_ran`.
 
+ONE STREAM IS NOW READ, AND ONLY TO CHOOSE ONE OF THIS FILE'S OWN WORDS.
+W55360, approver ruling event 55479, narrowly supersedes the rule above for
+PROVIDER STDOUT and nothing else: the adapter asks the CLI for a structured
+JSON record, drains that stream through a bounded anonymous pipe, matches one
+member against a closed map, and throws the bytes away. Provider stderr and
+both verification streams are untouched and remain on `subprocess.DEVNULL`.
+What crosses into `result.json` and the worker's recap is `api-error` or
+`unclassified` -- words spelled in THIS file, never the provider's spelling of
+them, never the document, never a parser's complaint about it.
+
+`api-error` IS DESCRIPTIVE AND IS NOT A CAUSE. It says the provider's own
+terminal record called the ending an API error. It is NOT evidence of an
+expired credential, a limited or suspended account, a missing scope, or a
+network fault, and no prose here, in the proposal, or in any operator
+documentation may present it as one. Two supervised rounds under W51487 wanted
+exactly that causal answer; this signal cannot give it, and saying otherwise
+would make a supervised pilot act on a diagnosis nobody made.
+
 WHY THE HOME IS PRIVATE AND THE CREDENTIAL IS A LINK. The runtime posture fixes
 `--read-only` with tmpfs only at `/tmp` and `/dev/shm`, and the manager mounts
 the bearer at `/run/baton/credentials/<slot>` rather than at the provider's own
@@ -64,10 +82,13 @@ container.
 import json
 import os
 import re
+import select
 import shutil
 import stat
 import subprocess
 import tempfile
+import threading
+import time
 
 __all__ = ["ClaudeAgent"]
 
@@ -120,8 +141,62 @@ PROVIDER_CREDENTIAL = ".credentials.json"
 # is this tuple and its vector case.
 #
 # `--print` is the non-interactive mode: one prompt, one answer, no terminal.
+# `--output-format json` is W55360's operand and is the whole of that Work's
+# departure from W39357. It asks the CLI for a STRUCTURED terminal record on
+# stdout instead of prose, which is what makes reading that one stream a
+# bounded, closed-vocabulary act rather than a diagnostic passthrough.
 PROVIDER_PROGRAM = "claude"
-PROVIDER_ARGUMENTS = ("--print", "--permission-mode", "acceptEdits")
+PROVIDER_ARGUMENTS = ("--print", "--permission-mode", "acceptEdits",
+                      "--output-format", "json")
+
+# HOW MUCH OF THE PROVIDER'S STRUCTURED STDOUT IS EVER HELD, and W39357's
+# deleted ceilings are NOT back: those bounded a window onto prose that was
+# then published, and this one bounds a document that is parsed and thrown
+# away. Nothing derived from these bytes leaves this module except one word
+# chosen from `PROVIDER_FAILURE_REASONS` below.
+#
+# The stream is drained to EOF whatever its size -- the ceiling bounds what is
+# RETAINED, never what is read -- so a verbose provider can neither block on a
+# full pipe nor make this process allocate without limit. Output past the
+# ceiling makes the record `unclassified` rather than being reassembled.
+MAX_PROVIDER_RECORD = 1 << 16
+
+# HOW LONG THE DRAIN MAY OUTLIVE THE PROVIDER PROCESS ITSELF, and this bound
+# is W55360 review (2026-09-01T03:35:56Z) [P1]. EOF on the read end arrives
+# when the LAST writer closes it, not when the provider exits -- and a child
+# the provider started inherits that descriptor. A provider that spawns a
+# long-lived descendant and exits therefore left a reader waiting on an EOF
+# nobody was going to send, which wedged the worker AFTER the turn was over
+# and made `PROVIDER_SECONDS` not a bound at all.
+#
+# So completion is bounded independently of EOF. Once the provider process is
+# gone, whatever it wrote is already in the pipe and readable at once; this is
+# the grace for reading it, not for waiting on anybody else's descriptor. When
+# it runs out the record is PARTIAL -- the stream was never proved finished --
+# and a partial record is `unclassified` exactly as an over-ceiling one is.
+PROVIDER_DRAIN_SECONDS = 2
+
+# The drain's wait slice. It only decides how promptly the reader notices that
+# the provider has ended; the reader is never idle-waiting on anything else.
+PROVIDER_DRAIN_SLICE = 0.05
+
+# THE CLOSED MAP, AND IT HAS ONE ENTRY ON PURPOSE. W55360's approver ruling:
+# `api_error` is the single value the evidence has actually observed, so it is
+# the single value that earns a word. Every other spelling -- unknown, absent,
+# duplicated, malformed, over-ceiling, not a string, not an object -- becomes
+# `UNCLASSIFIED`, and adding a second entry requires its own observed evidence
+# and its own case.
+#
+# SUBSTRING AND PATTERN MATCHING ARE FORBIDDEN HERE. The value is compared by
+# equality and nothing else: a regex over provider-authored text is the wider
+# classifier W55360 explicitly declined to become.
+PROVIDER_FAILURE_REASONS = {"api_error": "api-error"}
+
+# The words this adapter publishes when it did not get one from the map. Each
+# is THIS module's own vocabulary, not the provider's.
+UNCLASSIFIED = "unclassified"
+PROVIDER_TIMED_OUT = "timeout"
+PROVIDER_START_ERROR = "start-error"
 
 # How long one provider turn is given. A real turn is minutes; a bound that
 # cannot be reached turns ordinary work into a failure, and a bound that does
@@ -254,7 +329,13 @@ class ClaudeAgent:
                          "why": why,
                          "changed_paths": sorted(patch),
                          "source_entries": copied,
+                         # W55360: the mapped word, or null on a clean turn.
+                         # This is the ONLY member of this record derived from
+                         # anything a child wrote, and it is one of a closed
+                         # set this module spells.
                          "provider": {"status": provider["status"],
+                                      "failure_reason":
+                                          provider.get("failure_reason"),
                                       "seconds_bound": PROVIDER_SECONDS},
                          "verification": (
                              {"status": verification["status"],
@@ -296,28 +377,155 @@ class ClaudeAgent:
         home = self._prepared_home(scratch)
         argv = [PROVIDER_PROGRAM, *PROVIDER_ARGUMENTS, _prompt(task)]
         try:
-            status = self._ran(argv, cwd=candidate, seconds=PROVIDER_SECONDS,
-                               env={"HOME": home,
-                                    "PATH": "/usr/local/bin:/usr/bin:/bin"})
+            status, record, partial = self._ran_provider(
+                argv, cwd=candidate, seconds=PROVIDER_SECONDS,
+                env={"HOME": home,
+                     "PATH": "/usr/local/bin:/usr/bin:/bin"})
         except subprocess.TimeoutExpired:
             return {"ok": False, "status": None,
+                    "failure_reason": PROVIDER_TIMED_OUT,
                     "why": f"the provider did not finish within "
                            f"{PROVIDER_SECONDS}s"}
         except OSError as failed:
             return {"ok": False, "status": None,
+                    "failure_reason": PROVIDER_START_ERROR,
                     "why": f"the provider could not be started: "
                            f"{type(failed).__name__}"}
-        # THE DIAGNOSTIC IS THE STATUS AND NOTHING ELSE. This read
+        if status == 0:
+            # A CLEAN TURN PUBLISHES NO REASON. There is nothing to classify,
+            # and a `failure_reason` on a success would be a field readers
+            # learn to ignore.
+            return {"ok": True, "status": 0, "failure_reason": None,
+                    "why": None}
+        # THE DIAGNOSTIC IS STILL NOT THE PROVIDER'S PROSE. This read
         # `f"...{status}: {errors}"`, and `errors` was the provider's own
         # stderr -- the process that had just authenticated with the attempt's
         # bearer. It reached `result.json` through `why` AND the worker's
         # protocol `/output/output.json` through `recap`.
-        return {"ok": status == 0, "status": status,
-                "why": (None if status == 0
-                        else f"the provider exited {status}; its own "
-                             f"diagnostic is not published, because the "
-                             f"process that wrote it holds this attempt's "
-                             f"credential")}
+        #
+        # W55360 CHANGES EXACTLY ONE THING: the STRUCTURED stdout record is
+        # read, matched against a closed map, and discarded. What crosses the
+        # boundary below is one of this module's own words -- never the
+        # provider's spelling of it, never the document, never a parser
+        # complaint. Stderr is still on `DEVNULL` and was never opened.
+        reason = _failure_reason(record, partial=partial)
+        return {"ok": False, "status": status, "failure_reason": reason,
+                "why": f"the provider exited {status} ({reason}); its own "
+                       f"diagnostic is not published, because the process "
+                       f"that wrote it holds this attempt's credential"}
+
+    def _ran_provider(self, argv, *, cwd, seconds, env):
+        """The provider child, whose STDOUT ALONE is read, bounded and drained.
+
+        W55360's approver ruling narrowly supersedes W39357's no-read rule for
+        this one stream, because two supervised rounds established that `exit
+        1 and nothing else` costs more than it protects. Everything else about
+        that rule stands, and the shape here is what keeps it standing:
+
+        STDERR IS UNTOUCHED, on `DEVNULL`, exactly as before. The provider's
+        prose is where a bearer would appear and this module still has no
+        descriptor onto it. The verification command's two streams are
+        `_ran`'s and are not changed by this method's existence.
+
+        THE PIPE IS DRAINED CONTINUOUSLY AND THE RETENTION IS BOUNDED, and
+        those are two properties rather than one. A reader that stopped at the
+        ceiling would leave a chatty provider blocked on a full pipe forever;
+        a reader with no ceiling would let it decide this process's memory. So
+        every byte is read and at most `MAX_PROVIDER_RECORD` are kept, with
+        the rest dropped as they arrive.
+
+        THE DRAIN RUNS BESIDE THE CHILD, in a thread, because `self._run`
+        blocks until the child exits and the pipe would fill first otherwise.
+        The parent's write end is closed after the run returns, which is what
+        gives the reader its EOF; without that close the reader would wait on a
+        descriptor this process itself still holds.
+
+        AND THE DRAIN ENDS ON ITS OWN CLOCK, NOT ON EOF, which is W55360
+        review (2026-09-01T03:35:56Z) [P1] and the sharper half of the same
+        sentence. This process closing its write end is NOT enough to
+        guarantee EOF: any descendant the provider started inherited the
+        descriptor, so a leader that spawns something long-lived and exits
+        leaves the read end open with nobody left who intends to close it.
+        Waiting for that EOF wedged the worker after `self._run` had already
+        returned -- past `PROVIDER_SECONDS`, which was supposed to be the
+        bound on exactly this. So the reader carries `PROVIDER_DRAIN_SECONDS`
+        of grace from the moment the provider ends and then STOPS, whether or
+        not it saw EOF and whether or not bytes are still arriving, and a
+        stream that was never proved finished is PARTIAL.
+
+        THE READER OWNS THE READ END and closes it itself. Closing a
+        descriptor another thread may still be reading is a use-after-close
+        this module has no way to make safe, and the alternative -- leaking it
+        -- would be a descriptor left open for the life of the turn. Handing
+        the one thread that touches it the job of closing it is neither.
+
+        NO PATHNAME AND NO FILE. W39357's first two review rounds were both
+        about capture plumbing -- a path a child could replace, then a
+        descriptor read back too late -- so this creates neither. The pipe is
+        anonymous, lives in this process, and its contents never reach a host
+        filesystem.
+        """
+        read_fd, write_fd = os.pipe()
+        os.set_blocking(read_fd, False)
+        held = bytearray()
+        partial = [False]
+        ended = threading.Event()
+
+        def drain():
+            deadline = None
+            try:
+                while True:
+                    if deadline is None and ended.is_set():
+                        deadline = time.monotonic() + PROVIDER_DRAIN_SECONDS
+                    waiting = PROVIDER_DRAIN_SLICE
+                    if deadline is not None:
+                        waiting = min(waiting, deadline - time.monotonic())
+                        if waiting <= 0:
+                            # NOT FINISHED, JUST OVER. Somebody the provider
+                            # started still holds the write end, so what was
+                            # read is a prefix of a record rather than a
+                            # record, and it is treated as one.
+                            partial[0] = True
+                            return
+                    try:
+                        if not select.select([read_fd], (), (), waiting)[0]:
+                            continue
+                        piece = os.read(read_fd, 4096)
+                    except (BlockingIOError, InterruptedError):
+                        continue
+                    except OSError:
+                        partial[0] = True
+                        return
+                    if not piece:
+                        # EOF: every writer is gone and the record is whole.
+                        return
+                    room = MAX_PROVIDER_RECORD - len(held)
+                    if room > 0:
+                        held.extend(piece[:room])
+                    if len(piece) > max(room, 0):
+                        # READ AND DROPPED, which is the whole difference
+                        # between a bound on memory and a bound on the child.
+                        partial[0] = True
+            finally:
+                os.close(read_fd)
+
+        reader = threading.Thread(target=drain, daemon=True)
+        reader.start()
+        try:
+            return_code = self._run(argv, cwd=cwd, env=env, timeout=seconds,
+                                    stdout=write_fd,
+                                    stderr=subprocess.DEVNULL).returncode
+        finally:
+            # THE CLOSE AND THE SIGNAL ARE IN `finally`, in that order. A
+            # timeout or a missing executable still leaves this process
+            # holding the write end and still has to start the reader's
+            # clock: `subprocess.run` kills its DIRECT child on timeout and
+            # nothing else, so the descendant case above is reachable from
+            # the timeout path too.
+            os.close(write_fd)
+            ended.set()
+            reader.join()
+        return return_code, bytes(held), partial[0]
 
     def _ran(self, argv, *, cwd, seconds, env):
         """One child, bounded, WITH BOTH STREAMS ON `/dev/null`.
@@ -495,6 +703,78 @@ def _transcript(task, ending):
             f"Rerun the command yourself, from the collected candidate tree,\n"
             f"outside the worker. The acceptance already says that rerun and\n"
             f"not this file is what an operator trusts.\n")
+
+
+def _failure_reason(record, *, partial):
+    """One of THIS module's words for a nonzero provider turn.
+
+    EVERY PATH OUT OF HERE IS A CONSTANT. The parameter is provider-authored
+    bytes and nothing derived from them is returned, interpolated or reported:
+    not the document, not a member name, not an unmatched `terminal_reason`,
+    not the exception a parser raised, not a length and not an excerpt. The
+    answer is `PROVIDER_FAILURE_REASONS[value]` or `UNCLASSIFIED`, and both are
+    written in this file.
+
+    WHY THE FAILURES ARE NOT DISTINGUISHED. Malformed JSON, invalid UTF-8, a
+    non-object root, a missing reason, a duplicated reason, a non-string
+    reason, an unknown reason, a partial record and a document the parser
+    could not finish all answer the same word. Telling them apart in the
+    published record would be publishing a parser's reading of untrusted bytes
+    -- a channel with fewer values than the document but a channel all the
+    same -- and the operator's next act is identical for all of them.
+
+    DUPLICATES ARE REFUSED RATHER THAN RESOLVED. `json.loads` keeps the last
+    of two equal keys, so a document carrying `terminal_reason` twice would be
+    read as whichever the provider put second. That is a choice this module
+    has no basis to make, so `object_pairs_hook` catches it and the record is
+    unclassified.
+
+    AND THE PARSER IS MADE STRICT AND MADE TOTAL, which is W55360 review
+    (2026-09-01T03:35:56Z) [P1] and the reason the two guards below are not
+    decoration. `json.loads` is PERMISSIVE by default and it is not a total
+    function, so the approved rule -- every unusable document becomes
+    `unclassified` -- was not what the code did:
+
+      `NaN`, `Infinity` and `-Infinity` are not JSON, and Python accepts them
+      anyway. A record carrying one earned `api-error` from a document this
+      module had just called well-formed, so `parse_constant` refuses them and
+      the extension is not silently part of the accepted grammar.
+
+      A deeply nested record inside the 64 KiB ceiling raises `RecursionError`,
+      which is not a `ValueError` and escaped this function entirely -- so a
+      provider could fault the worker rather than be classified by it. It is
+      caught here and answers the same one word, still without the exception.
+    """
+    if partial or not record:
+        return UNCLASSIFIED
+
+    def paired(items):
+        seen = {}
+        for name, value in items:
+            if name in seen:
+                raise ValueError("a duplicated member")
+            seen[name] = value
+        return seen
+
+    def refused(literal):
+        raise ValueError("a non-standard constant")
+
+    try:
+        # STRICT UTF-8 AND A COMPLETE DOCUMENT. `json.loads` refuses trailing
+        # data of its own, which is the other half of "one document": a record
+        # with a second object after it is not a record this module read.
+        document = json.loads(record.decode("utf-8"), object_pairs_hook=paired,
+                              parse_constant=refused)
+    except (UnicodeDecodeError, ValueError, RecursionError):
+        return UNCLASSIFIED
+    if not isinstance(document, dict):
+        return UNCLASSIFIED
+    found = document.get("terminal_reason")
+    if not isinstance(found, str):
+        return UNCLASSIFIED
+    # EQUALITY, AND A MAP THIS FILE OWNS. Not a prefix, not a substring, not a
+    # pattern: an unknown spelling is unclassified rather than nearly matched.
+    return PROVIDER_FAILURE_REASONS.get(found, UNCLASSIFIED)
 
 
 def _disposition(provider, patch, verification):

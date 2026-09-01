@@ -822,3 +822,89 @@ case failed on the digest rule before reaching the group it was about.
 **Both review items are answered.** Passed back for independent review. The
 parent still does not close: W36540 remains open and independently gates it,
 and the rootless-Podman constraint wants a ruling rather than a patch.
+
+## 2026-08-31 — closure round (`baton.claude`, W33936 impl claim)
+
+**Documentation only, exactly as `review-2026-08-31T17-19-07Z.md` scoped it.**
+No workspace-group or custody source changed; the only file edited is
+`v12/python/DEPLOYMENT.md`.
+
+### Both stale statements revalidated against the ledger before editing
+
+Not taken from the review's word. `detail work=W36540` reports **closed
+satisfying**, with W43972, W43974, W43975, W43976 and W43977 all closed
+satisfying. `detail work=W32391` reports **open, parked** — so Podman
+certification genuinely has not landed and Docker genuinely is the only
+certified engine. M38837 is the supersession both corrections rest on.
+
+I also checked the guide's claims against the tree rather than restating them:
+`custody.normalize_directory` and `custody.adopted_directory_custody` exist,
+`intake._normalized` calls the first over `result` then `workspace` on the
+ended-attempt path, and
+`test_an_owner_only_output_fails_closed_rather_than_widening` is still in
+`tests/manager/test_input_delivery.py`.
+
+### [P1] The custody section said a closed provider had not landed
+
+The paragraph now keeps the distinction the review asked me to preserve — the
+configured group buys ordinary group-readable collection and NOT custody — and
+then says what is true: W36540 and its five children are closed satisfying and
+the manager composes custody into the ended-attempt path. It names the
+mechanism rather than the Work id alone, because a reader deciding whether to
+trust a cleanup wants the property and not the ledger: the helper runs on the
+exact attempt directory as the same uid the worker ran as, therefore owns every
+object the worker created, and an owner may `chmod` its own objects whatever
+mode they carry. That is what makes the property unconditional. The helper
+normalizes; the manager still removes.
+
+The future-tense warning to "expect cleanup of a worker-created tree to fail
+closed" is gone.
+
+### [P1] Rootful Podman was presented as an available choice
+
+The section is now **"Engines: Docker is certified, Podman is not"**. Docker is
+named as the only certified engine under M38837; both Podman measurements are
+kept and explicitly labelled retained experimental evidence; the rootful
+observation says in as many words that it is one environment's observation and
+not certification, because the full Docker case matrix was not run there. The
+closing direction is now to deploy on Docker until **W32391** closes, and
+W32391 is named as the owner of the rootless `--gidmap`/`--userns` question
+along with the rest of Podman certification.
+
+### Two small precision edits my two corrections made necessary
+
+Both are inside the sentences the corrections touch and both are reported
+rather than slipped in:
+
+- "leaves material this manager cannot inspect, collect or clean up" became
+  "material that the group alone cannot make inspectable, collectable or
+  removable". Unqualified, that sentence would now contradict the custody
+  paragraph three lines below it; the section is about what the GROUP does not
+  give you, and the qualifier is what makes it exactly that.
+- "The manager then:" became "With the group configured, the manager:". The
+  list refers back to the group-configuration section, and the longer custody
+  paragraph between them had left the pronoun reaching over it.
+- The verification section's Podman note now says a skip no longer gates
+  acceptance under M38837 and points at the engine section, rather than
+  calling it "a named operational limit" as though the two-engine gate were
+  still live.
+
+### Verification
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_text_sweep \
+        tests.manager.test_workspaces tests.manager.test_oci
+    -> Ran 184 tests, OK
+
+    PYTHONPATH=src python3 -m unittest tests.manager.test_custody \
+        tests.manager.test_intake tests.manager.test_refused_session_cleanup
+    -> Ran 234 tests, OK
+
+The 184 is the reviewer's own 181 workspace/OCI cases plus the 3 text-sweep
+cases; 234 matches the reviewer's custody figure exactly. No source changed, so
+these re-prove that the tree the guide describes is the tree that is here.
+
+Whitespace clean; no line I wrote exceeds the file's existing width.
+
+### State
+
+Awaiting independent closure review. Passing back rather than closing.

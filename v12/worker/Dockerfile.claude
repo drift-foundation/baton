@@ -14,6 +14,25 @@
 # THE BASE IS W17110's, and that is a reuse of measured installation facts
 # rather than of its protocol. A real agent runtime is a Node program, so the
 # reference image's `python:3.13-slim` cannot host it.
+#
+# THIS RECIPE IS NOT REPRODUCIBLE ACROSS DAYS, and W55361 measured it rather
+# than predicting it: two builds of an unchanged tree produced
+# `sha256:b471399a…` and `sha256:8af96742…`, identical in the base layers,
+# in the four `COPY` layers carrying this repository's own code and in
+# `useradd`,
+# and differing ONLY in the `npm install` and `apt-get install` layers below.
+# The three moving inputs are named where they occur: this `FROM` is a TAG
+# rather than a digest, `apt-get` takes whatever the mirror serves today, and
+# the pinned provider version runs a `postinstall` that fetches its own native
+# binary.
+#
+# SO THE ARTEFACT IS SELECTED, NOT REBUILT. Approver event 55641: the owning
+# Work's record selects a validated digest, a new attempt reuses the current
+# selection, and a build here is a CANDIDATE until a recorded upgrade, source,
+# security, platform or refresh event validates and explicitly selects it.
+# Locking these three inputs is a supply-chain design that was presented and
+# deliberately NOT selected for the MVP; it remains available and is not
+# authorized by this comment.
 FROM node:22-bookworm-slim
 
 # THE PROVIDER RUNTIME, BY EXACT VERSION. "Which agent answered" is a fact the

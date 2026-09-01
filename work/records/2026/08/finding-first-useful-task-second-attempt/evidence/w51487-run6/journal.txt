@@ -1,0 +1,20 @@
+# The manager's own journal for attempt-w51487-run6
+
+committed  profile.certify
+committed  workspace-group.configure
+committed  workspace-storage.configure
+committed  offer.issue
+committed  offer.accept
+committed  attempt.record
+committed  offer.settle
+committed  assignment.activate
+committed  runtime.start
+committed  attempt.attach
+committed  output.freeze
+committed  output.record
+committed  output.collect
+committed  intake.record
+committed  output.retain
+committed  directory-custody.normalize
+committed  directory-custody.normalize
+committed  runtime.destroy

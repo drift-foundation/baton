@@ -24,9 +24,11 @@ import json
 import os
 import pathlib
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 
 WORKER = (pathlib.Path(__file__).resolve().parents[3] / "worker")
@@ -235,8 +237,9 @@ class TheProviderArgvAndEnvironmentAreClosed(AdapterCase):
         is the last word."""
         argv, _options = self.spoken()
         self.assertEqual(argv[:-1], ["claude", "--print",
-                                     "--permission-mode", "acceptEdits"])
-        self.assertEqual(len(argv), 5)
+                                     "--permission-mode", "acceptEdits",
+                                     "--output-format", "json"])
+        self.assertEqual(len(argv), 7)
 
     def test_the_prompt_carries_the_task_and_names_nothing_protocol(self):
         argv, _options = self.spoken()
@@ -273,17 +276,58 @@ class TheProviderArgvAndEnvironmentAreClosed(AdapterCase):
         _argv, options = self.spoken()
         self.assertEqual(options["timeout"], claude_agent.PROVIDER_SECONDS)
 
-    def test_both_provider_streams_are_discarded_rather_than_captured(self):
-        """W39357 review 2026-08-30T04:01:29Z [P1]: BOTH, not only stdout.
+    def test_the_provider_stderr_is_discarded_rather_than_captured(self):
+        """W39357 review 2026-08-30T04:01:29Z [P1], and it is why the stderr
+        half of that finding is UNCHANGED by W55360.
 
-        Stdout was already discarded because nothing read it. Stderr was
-        captured and interpolated into `result.json` and, through `recap`, into
-        the worker's own `/output/output.json` — and the process writing it is
-        the one holding this attempt's credential.
+        Stderr was captured and interpolated into `result.json` and, through
+        `recap`, into the worker's own `/output/output.json` — and the
+        process writing it is the one holding this attempt's credential.
+        That is the stream where a bearer actually appeared, and this
+        adapter still has no descriptor onto it.
+
+        SUPERSEDED IN ONE HALF ONLY. This case used to require BOTH provider
+        streams on `DEVNULL`. W55360's approver ruling (event 55479) narrowly
+        allows the adapter to read provider STDOUT when it has selected the
+        CLI's structured JSON mode, so that half moved to
+        `test_the_provider_stdout_is_a_bounded_anonymous_pipe` below. Stderr
+        did not move, and neither did either verification stream.
         """
         _argv, options = self.spoken()
-        self.assertIs(options["stdout"], subprocess.DEVNULL)
         self.assertIs(options["stderr"], subprocess.DEVNULL)
+
+    def test_the_provider_stdout_is_a_bounded_anonymous_pipe(self):
+        """W55360: read, but never through a name a child could reach.
+
+        The first two W39357 review rounds were both about capture PLUMBING —
+        a pathname a child could replace, then a descriptor read back too
+        late — so the shape matters as much as the boundedness. What the
+        child is handed is an anonymous pipe descriptor this process
+        created: not `DEVNULL` any more, and not a file, a path, or
+        anything under the output root either.
+        """
+        seen = {}
+        handed = self.provider(edits={"harness.py": "print('now covered')\n"})
+
+        def run(argv, **options):
+            if argv[0] == claude_agent.PROVIDER_PROGRAM:
+                # FSTAT'ED WHILE THE CHILD WOULD HOLD IT. The adapter closes
+                # both ends when the run returns, which is the behaviour a
+                # later case asserts, so the descriptor has to be examined
+                # here rather than out of the recorded options.
+                found = os.fstat(options["stdout"])
+                seen.update(fifo=stat.S_ISFIFO(found.st_mode),
+                            fd=options["stdout"])
+            return handed(argv, **options)
+
+        ClaudeAgent(run=run, home=self.scratch).work(
+            {"contract": "t"}, list(DECLARED))
+        self.assertIsInstance(seen["fd"], int)
+        self.assertNotIn(seen["fd"], (subprocess.DEVNULL, subprocess.PIPE,
+                                      subprocess.STDOUT))
+        # AN ANONYMOUS PIPE AND NOT A FILE, asserted of the descriptor itself
+        # rather than of how it was made.
+        self.assertTrue(seen["fifo"], "the provider's stdout is not a pipe")
 
     def test_both_verification_streams_are_discarded_too(self):
         """The sharper of the two, because this child is provider-EDITED code
@@ -390,6 +434,470 @@ class NoChildStreamByteReachesTheProposal(AdapterCase):
         for gone in ("MAX_DIAGNOSTIC", "MAX_VERIFICATION", "_window",
                      "_capture"):
             self.assertFalse(hasattr(claude_agent, gone), gone)
+
+
+class TheStructuredRecordIsMappedAndNeverPublished(AdapterCase):
+    """W55360, as one property: a WORD comes out and no BYTE does.
+
+    THESE DRIVE A REAL CHILD, for the reason
+    `NoChildStreamByteReachesTheProposal` gives and one more of its own. A
+    fake handing back a prebuilt buffer would prove this file's arithmetic;
+    what is under test is fd plumbing — an anonymous pipe, a drain running
+    beside the child, a bounded retention and a close that lets the reader
+    see EOF — and only a real process writing into a real descriptor
+    exercises any of it.
+
+    THE MARKER STANDS IN FOR THE BEARER. It is placed in every part of the
+    document that is not the one matched value: other members, member NAMES,
+    nested values, the terminal reason itself when unknown, and the bytes after
+    the ceiling. None of them may appear in the proposal or the answer.
+    """
+
+    MARKER = "PROVIDER-BEARER-fbb1c0"
+
+    def speaking(self, *, says, status, chunks=1, also_stderr=True, verify=0):
+        """A real child that writes `says` to stdout in `chunks` pieces.
+
+        Written in pieces on purpose: one `write` per chunk with a flush
+        between, so the parent's drain performs several reads and a reader
+        that only ever read once would be visible.
+        """
+        # THE BODY TRAVELS IN A FILE, not in argv. A single argument is capped
+        # at 128 KiB on Linux, and the overflow cases here are deliberately
+        # larger than that -- an argv-carried body would have made those cases
+        # fail as "the provider could not be started", which is a different
+        # ending than the one under test.
+        carried = os.path.join(self.home, "provider-says.txt")
+        with open(carried, "w", encoding="utf-8") as handle:
+            handle.write(says)
+        program = (
+            "import sys, time\n"
+            "body = open(sys.argv[1], encoding='utf-8').read()\n"
+            "count = int(sys.argv[2])\n"
+            "size = max(1, (len(body) + count - 1) // count)\n"
+            "for at in range(0, len(body), size):\n"
+            "    sys.stdout.write(body[at:at + size])\n"
+            "    sys.stdout.flush()\n"
+            "    time.sleep(0.001)\n"
+            "if int(sys.argv[4]):\n"
+            "    sys.stderr.write(body)\n"
+            "raise SystemExit(int(sys.argv[3]))\n")
+
+        def run(argv, **options):
+            if argv[0] == claude_agent.PROVIDER_PROGRAM:
+                self.write(os.path.join(options["cwd"], "harness.py"),
+                           "print('now covered')\n")
+                argv = [sys.executable, "-c", program, carried, str(chunks),
+                        str(status), "1" if also_stderr else "0"]
+            else:
+                argv = [sys.executable, "-c", "raise SystemExit(%d)" % verify]
+            return subprocess.run(argv, **options)
+
+        return run
+
+    LINGERS = 20.0
+
+    def outliving(self, *, says, status, leader_sleeps=0.0):
+        """A real child that leaves a DESCENDANT holding stdout, then exits.
+
+        This is W55360 review (2026-09-01T03:35:56Z) [P1] as a fixture, and
+        the shape matters: the leader writes its record and starts a
+        `subprocess.Popen` it never waits for. The descendant INHERITS the
+        write end of the adapter's pipe, so EOF cannot arrive while it lives —
+        and it lives `LINGERS` seconds, an order longer than the adapter is
+        allowed to wait for it.
+
+        THE DESCENDANT WRITES THE MARKER, on purpose. Its bytes really are
+        retained by the drain, which is what makes this more than a timing
+        case: the record the adapter holds contains the marker, is PARTIAL,
+        and must still publish nothing but one of this module's own words.
+        """
+        carried = os.path.join(self.home, "provider-says.txt")
+        with open(carried, "w", encoding="utf-8") as handle:
+            handle.write(says)
+        descendant = os.path.join(self.home, "descendant.py")
+        self.write(descendant,
+                   "import sys, time\n"
+                   "sys.stdout.write(sys.argv[1])\n"
+                   "sys.stdout.flush()\n"
+                   "time.sleep(float(sys.argv[2]))\n")
+        program = (
+            "import subprocess, sys, time\n"
+            "sys.stdout.write(open(sys.argv[1], encoding='utf-8').read())\n"
+            "sys.stdout.flush()\n"
+            "subprocess.Popen([sys.executable, sys.argv[2], sys.argv[3],\n"
+            "                  sys.argv[4]])\n"
+            "time.sleep(float(sys.argv[5]))\n"
+            "raise SystemExit(int(sys.argv[6]))\n")
+
+        def run(argv, **options):
+            if argv[0] == claude_agent.PROVIDER_PROGRAM:
+                self.write(os.path.join(options["cwd"], "harness.py"),
+                           "print('now covered')\n")
+                argv = [sys.executable, "-c", program, carried, descendant,
+                        f"{self.MARKER}-from-a-descendant", str(self.LINGERS),
+                        str(leader_sleeps), str(status)]
+            else:
+                argv = [sys.executable, "-c", "raise SystemExit(0)"]
+            return subprocess.run(argv, **options)
+
+        return run
+
+    def turned(self, **operands):
+        agent = ClaudeAgent(run=self.speaking(**operands), home=self.scratch)
+        return agent.work({"contract": "t"}, list(DECLARED))
+
+    def published(self):
+        """Every byte this turn made host-visible, as one blob."""
+        found = []
+        for base, _directories, files in os.walk(self.proposal()):
+            for name in sorted(files):
+                with open(os.path.join(base, name), "rb") as handle:
+                    found.append(handle.read())
+        return b"".join(found)
+
+    def document(self, reason, **members):
+        """The structured record, with the marker in every other part."""
+        body = {"terminal_reason": reason,
+                "is_error": True,
+                "duration_api_ms": 0,
+                "result": self.MARKER,
+                f"{self.MARKER}-member": {"nested": self.MARKER}}
+        body.update(members)
+        return json.dumps(body)
+
+    def clean(self, answered):
+        """No marker anywhere host-visible or returned, ever."""
+        self.assertNotIn(self.MARKER.encode("ascii"), self.published())
+        self.assertNotIn(self.MARKER, answered["recap"])
+
+    # -- the one value the evidence earned -----------------------------------
+
+    def test_the_observed_api_error_becomes_the_adapter_word(self):
+        """The whole point of the Work, end to end through a real child."""
+        answered = self.turned(says=self.document("api_error"), status=1,
+                               chunks=4)
+        self.assertEqual(self.result()["provider"]["failure_reason"],
+                         "api-error")
+        self.assertEqual(self.result()["disposition"], "provider-failed")
+        self.assertEqual(answered["disposition"], "unable")
+        self.clean(answered)
+
+    def test_the_providers_own_spelling_never_reaches_a_sink(self):
+        """`api_error` earns `api-error`, and the underscore form is not what
+        gets written down. A published raw spelling would be a one-value
+        passthrough, which is the thing the closed map exists to not be."""
+        answered = self.turned(says=self.document("api_error"), status=1)
+        self.assertNotIn(b"api_error", self.published())
+        self.assertNotIn("api_error", answered["recap"])
+        self.assertIn("api-error", self.result()["why"])
+
+    def test_the_mapped_word_reaches_the_recap_and_the_status_survives(self):
+        answered = self.turned(says=self.document("api_error"), status=7)
+        self.assertIn("api-error", answered["recap"])
+        self.assertIn("the provider exited 7", self.result()["why"])
+        self.assertEqual(self.result()["provider"]["status"], 7)
+
+    # -- everything else is one word ----------------------------------------
+
+    def test_every_unusable_record_is_unclassified_and_says_nothing_more(self):
+        """One case per way the document can fail to earn a word.
+
+        Each carries the marker, and each must publish the SAME word: telling
+        these apart in the record would be publishing a parser's reading of
+        untrusted bytes.
+        """
+        marker = self.MARKER
+        cases = {
+            "an unknown reason": self.document(f"{marker}-unknown"),
+            "no reason at all": json.dumps({"result": marker}),
+            "a non-string reason": self.document(None),
+            "a reason that is a document": json.dumps(
+                {"terminal_reason": {"kind": marker}}),
+            "a non-object root": json.dumps([{"terminal_reason": "api_error"},
+                                             marker]),
+            "malformed json": '{"terminal_reason": "api_error", ' + marker,
+            "trailing data": ('{"terminal_reason": "api_error"} '
+                              '{"second": "%s"}' % marker),
+            # BOTH ORDERS, and the second is the one that makes the guard
+            # load-bearing: `json.loads` keeps the LAST of two equal keys, so
+            # a document whose duplicate resolves to the earned value would
+            # publish `api-error` if the check were dropped.
+            "a duplicated reason, marker last":
+                ('{"terminal_reason": "api_error", '
+                 '"terminal_reason": "%s"}' % marker),
+            "a duplicated reason, the earned value last":
+                ('{"terminal_reason": "%s", '
+                 '"terminal_reason": "api_error"}' % marker),
+            "nothing at all": "",
+            "not json at all": marker,
+            # PYTHON'S EXTENSIONS ARE NOT THE GRAMMAR. `json.loads` accepts
+            # `NaN` and the infinities; JSON does not, so neither does this.
+            "a non-standard constant":
+                '{"terminal_reason": "api_error", "%s": NaN}' % marker,
+            # AND A DOCUMENT INSIDE THE CEILING THE PARSER STILL CANNOT
+            # FINISH: bytes were bounded, recursion was not.
+            "nesting the parser cannot finish":
+                ('{"terminal_reason": "api_error", "%s": ' % marker
+                 + "[" * 30000 + "]" * 30000 + "}"),
+        }
+        for why, says in cases.items():
+            with self.subTest(record=why):
+                self.setUp()
+                answered = self.turned(says=says, status=1, chunks=3)
+                self.assertEqual(
+                    self.result()["provider"]["failure_reason"],
+                    "unclassified", why)
+                self.clean(answered)
+
+    def test_invalid_utf8_is_unclassified_rather_than_replaced(self):
+        """Decoded strictly, so an undecodable record cannot become a
+        different record by substitution."""
+        agent = ClaudeAgent(run=self.provider(status=1), home=self.scratch)
+        self.assertEqual(
+            claude_agent._failure_reason(
+                b'{"terminal_reason": "api_error", "x": "\xff\xfe"}',
+                partial=False),
+            "unclassified")
+        # AND THE VALID FORM OF THE SAME DOCUMENT STILL EARNS ITS WORD, so the
+        # case above is about the bytes rather than about the members.
+        self.assertEqual(
+            claude_agent._failure_reason(
+                b'{"terminal_reason": "api_error", "x": "ok"}',
+                partial=False),
+            "api-error")
+        del agent
+
+    def test_pythons_non_standard_constants_are_not_json(self):
+        """W55360 review (2026-09-01T03:35:56Z) [P1]: the parser was strict
+        about duplicates and permissive about the grammar.
+
+        `NaN`, `Infinity` and `-Infinity` are Python extensions and are not
+        JSON. A record carrying one used to earn `api-error` — the adapter
+        called a document well-formed that the approved rule says is
+        unusable, which makes the classification the provider's choice rather
+        than this module's.
+        """
+        for literal in ("NaN", "Infinity", "-Infinity", "[NaN]",
+                        '{"nested": Infinity}'):
+            with self.subTest(constant=literal):
+                record = ('{"terminal_reason": "api_error", "x": %s}'
+                          % literal).encode("utf-8")
+                self.assertEqual(
+                    claude_agent._failure_reason(record, partial=False),
+                    "unclassified")
+        # AND THE SAME DOCUMENT WITH A REAL NUMBER STILL EARNS ITS WORD, so
+        # the cases above are about the grammar rather than about the member.
+        self.assertEqual(
+            claude_agent._failure_reason(
+                b'{"terminal_reason": "api_error", "x": 0}', partial=False),
+            "api-error")
+
+    def test_a_record_the_parser_cannot_finish_is_unclassified(self):
+        """The same review's second half: `_failure_reason` was not TOTAL.
+
+        A record well inside the 64 KiB ceiling can still exhaust the decoder's
+        recursion, and `RecursionError` is not a `ValueError` — so a provider
+        could fault the worker from inside the function whose whole contract is
+        to answer one of two words. The bound on bytes was never a bound on
+        parser depth, and this is the shape that shows the difference.
+        """
+        depth = 30000
+        record = ('{"terminal_reason": "api_error", "x": '
+                  + "[" * depth + "]" * depth + "}").encode("utf-8")
+        self.assertLess(len(record), claude_agent.MAX_PROVIDER_RECORD)
+        self.assertEqual(
+            claude_agent._failure_reason(record, partial=False),
+            "unclassified")
+
+    # -- the boundedness, and that it is a bound on MEMORY not on the child --
+
+    def test_a_flood_is_drained_to_the_end_and_retained_bounded(self):
+        """The two properties together, against a real child.
+
+        A provider writing far more than the ceiling must neither wedge on a
+        full pipe nor make this process hold what it wrote. So the child emits
+        several times `MAX_PROVIDER_RECORD`, the turn still completes, and the
+        retained record is measured directly at the seam.
+        """
+        flood = self.MARKER * ((claude_agent.MAX_PROVIDER_RECORD * 3)
+                               // len(self.MARKER))
+        self.assertGreater(len(flood), claude_agent.MAX_PROVIDER_RECORD * 2)
+        agent = ClaudeAgent(run=self.speaking(says=flood, status=1, chunks=16),
+                            home=self.scratch)
+        status, record, partial = agent._ran_provider(
+            [claude_agent.PROVIDER_PROGRAM], cwd=self.scratch, seconds=60,
+            env={"HOME": self.scratch, "PATH": "/usr/bin:/bin"})
+        self.assertEqual(status, 1)
+        self.assertTrue(partial, "the overflow was not noticed")
+        self.assertLessEqual(len(record), claude_agent.MAX_PROVIDER_RECORD)
+        self.assertEqual(_failure := claude_agent._failure_reason(
+            record, partial=partial), "unclassified")
+        del _failure
+
+    def test_a_partial_record_is_unclassified_even_when_it_parses(self):
+        """The guard on its own, with the parser deliberately unable to help.
+
+        Every end-to-end flood case below also fails to PARSE, so none of them
+        can tell whether the partial check is doing anything. This hands
+        `_failure_reason` a perfectly good `api_error` document and the
+        partial flag, which is the only shape that isolates it: the stream was
+        not proved whole, so what survived is not known to be the whole
+        record, and a prefix that happens to parse is not a document the
+        provider sent.
+
+        BOTH WAYS OF BEING PARTIAL ARRIVE HERE AS THIS ONE FLAG -- bytes
+        dropped at the ceiling, and a stream whose EOF never came because a
+        provider descendant still held the write end.
+        """
+        earned = json.dumps({"terminal_reason": "api_error"}).encode("utf-8")
+        self.assertEqual(
+            claude_agent._failure_reason(earned, partial=False),
+            "api-error")
+        self.assertEqual(
+            claude_agent._failure_reason(earned, partial=True),
+            "unclassified")
+
+    def test_a_flood_beginning_with_a_good_record_is_unclassified(self):
+        """Overflow is not a reason to trust the prefix.
+
+        A provider that emitted a valid `api_error` document and then a
+        megabyte of anything else has not sent one document, and reassembling
+        the readable part would be this module deciding which bytes counted.
+        """
+        says = (self.document("api_error")
+                + self.MARKER * claude_agent.MAX_PROVIDER_RECORD)
+        answered = self.turned(says=says, status=1, chunks=32)
+        self.assertEqual(self.result()["provider"]["failure_reason"],
+                         "unclassified")
+        self.clean(answered)
+
+    def test_a_descendant_holding_stdout_cannot_outlive_the_bound(self):
+        """W55360 review (2026-09-01T03:35:56Z) [P1], at the seam.
+
+        EOF arrives when the LAST writer closes the descriptor, and the
+        provider's own children are writers it never told this adapter about.
+        The reader used to wait for that EOF with no deadline, so a leader
+        that spawned something long-lived and exited wedged the worker AFTER
+        `self._run` had returned — past the one bound, `PROVIDER_SECONDS`,
+        that was supposed to cover this.
+
+        So the assertion is a CLOCK as much as a word: the call returns while
+        the descendant is still alive and still holding the pipe.
+        """
+        self.assertGreater(self.LINGERS,
+                           claude_agent.PROVIDER_DRAIN_SECONDS + 5,
+                           "the fixture must outlive the bound under test")
+        agent = ClaudeAgent(
+            run=self.outliving(says=self.document("api_error"), status=1),
+            home=self.scratch)
+        began = time.monotonic()
+        status, record, partial = agent._ran_provider(
+            [claude_agent.PROVIDER_PROGRAM], cwd=self.scratch, seconds=600,
+            env={"HOME": self.scratch, "PATH": "/usr/bin:/bin"})
+        elapsed = time.monotonic() - began
+        self.assertEqual(status, 1)
+        self.assertLess(elapsed, claude_agent.PROVIDER_DRAIN_SECONDS + 5,
+                        "the reader waited on a descendant's descriptor")
+        self.assertTrue(partial, "an unfinished stream was called whole")
+        self.assertEqual(claude_agent._failure_reason(record, partial=partial),
+                         "unclassified")
+
+    def test_a_descendant_holding_stdout_publishes_only_the_fallback(self):
+        """End to end, and the retained bytes really do carry the marker.
+
+        The document the LEADER wrote parses and would have earned a word.
+        It does not get one, because a stream that never proved it finished is
+        a prefix of a record rather than a record — the same rule the ceiling
+        is under, arrived at the other way.
+        """
+        agent = ClaudeAgent(
+            run=self.outliving(says=self.document("api_error"), status=1),
+            home=self.scratch)
+        began = time.monotonic()
+        answered = agent.work({"contract": "t"}, list(DECLARED))
+        elapsed = time.monotonic() - began
+        self.assertLess(elapsed, claude_agent.PROVIDER_DRAIN_SECONDS + 5)
+        self.assertEqual(self.result()["provider"]["failure_reason"],
+                         "unclassified")
+        self.assertEqual(answered["disposition"], "unable")
+        self.clean(answered)
+
+    def test_a_timed_out_provider_with_a_descendant_still_ends(self):
+        """The same hazard, reached from the timeout path.
+
+        `subprocess.run` kills its DIRECT child and nothing else, so a
+        provider that timed out can leave exactly the same inherited writer
+        behind. The bound has to be in the `finally`, which is where the
+        reader's clock is started, or the failing turn hangs instead.
+        """
+        agent = ClaudeAgent(
+            run=self.outliving(says=self.document("api_error"), status=1,
+                               leader_sleeps=self.LINGERS),
+            home=self.scratch)
+        began = time.monotonic()
+        with self.assertRaises(subprocess.TimeoutExpired):
+            agent._ran_provider([claude_agent.PROVIDER_PROGRAM],
+                                cwd=self.scratch, seconds=1,
+                                env={"HOME": self.scratch,
+                                     "PATH": "/usr/bin:/bin"})
+        elapsed = time.monotonic() - began
+        self.assertLess(elapsed, claude_agent.PROVIDER_DRAIN_SECONDS + 6)
+
+    # -- the streams that did not move --------------------------------------
+
+    def test_a_success_publishes_no_reason_and_none_of_the_marker(self):
+        """A clean turn writes its structured record too, and none of it is
+        read into anything published -- the field is null rather than a word
+        readers learn to ignore."""
+        answered = self.turned(says=self.document("api_error"), status=0)
+        self.assertEqual(answered["disposition"], "completed")
+        self.assertIsNone(self.result()["provider"]["failure_reason"])
+        self.clean(answered)
+
+    def test_the_provider_stderr_is_still_never_read(self):
+        """The child above writes the marker to BOTH streams. Stdout is read,
+        bounded and discarded; stderr is not opened at all, and that half of
+        W39357 is untouched by this Work."""
+        answered = self.turned(says=self.document("api_error"), status=1,
+                               also_stderr=True)
+        self.clean(answered)
+        self.assertEqual(self.result()["provider"]["failure_reason"],
+                         "api-error")
+
+    def test_the_verification_streams_are_still_devnull(self):
+        """W55360 must not weaken the sharper half: verification is
+        provider-EDITED code with the same credential mount readable."""
+        agent = ClaudeAgent(run=self.speaking(says=self.document("api_error"),
+                                              status=0),
+                            home=self.scratch)
+        calls = []
+        held = agent._run
+
+        def watched(argv, **options):
+            calls.append((list(argv), dict(options)))
+            return held(argv, **options)
+
+        agent._run = watched
+        agent.work({"contract": "t"}, list(DECLARED))
+        _argv, options = next(
+            (argv, options) for argv, options in calls
+            if argv[0] != claude_agent.PROVIDER_PROGRAM)
+        self.assertIs(options["stdout"], subprocess.DEVNULL)
+        self.assertIs(options["stderr"], subprocess.DEVNULL)
+
+    def test_the_map_is_closed_and_matched_by_equality(self):
+        """No prefix, no substring, no pattern. A near miss is a miss."""
+        self.assertEqual(claude_agent.PROVIDER_FAILURE_REASONS,
+                         {"api_error": "api-error"})
+        for near in ("api_error ", " api_error", "api_errors", "API_ERROR",
+                     "an api_error occurred", "api-error"):
+            with self.subTest(reason=near):
+                self.assertEqual(
+                    claude_agent._failure_reason(
+                        json.dumps({"terminal_reason": near}).encode("utf-8"),
+                        partial=False),
+                    "unclassified")
 
 
 class TheCredentialIsLinkedAndNeverRead(AdapterCase):

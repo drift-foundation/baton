@@ -799,6 +799,43 @@ class TheOperandsAreOwnedBeforeAnythingIsSent(unittest.TestCase):
         with self.assertRaises(ContractRefusal):
             ChannelPort("not a capability")
 
+    def test_a_collection_that_is_not_one_refuses_as_a_violation(self):
+        """W39666. Both began `list(...)`, so a non-iterable left as a raw
+        `TypeError` -- outside this manager's whole vocabulary, at a boundary
+        the inventory was about to record a stated owner for. A rule a value
+        can escape as a Python exception is not a rule anybody owns."""
+        for named in ("operations", "operation_ids"):
+            for wrong in (None, 7, 1.5, True, object(), {"describe": 1}):
+                with self.subTest(operand=named, value=wrong):
+                    self.assertIn(f"{named} is a list or tuple",
+                                  str(self.refuses(**{named: wrong})))
+
+    def test_a_string_of_operations_is_not_eight_operations(self):
+        """The one a caller actually reaches for, and the reason the shape is
+        checked rather than iterated. `list("describe")` is eight characters;
+        each refuses today, but by naming `'d'` -- which describes neither what
+        was passed nor what is wrong with it."""
+        self.assertIn("operations is a list or tuple",
+                      str(self.refuses(operations="describe")))
+        self.assertIn("operation_ids is a list or tuple",
+                      str(self.refuses(operation_ids="op-1")))
+
+    def test_a_tuple_is_as_good_as_a_list_and_order_is_kept(self):
+        """The shape check admits both, so it cannot become a rule against
+        composing a conversation from an immutable sequence -- and the pairing
+        the conversation actually sends is still the caller's own order."""
+        channel = Composed([reply("op-1", DESCRIBE_ANSWER),
+                            reply("op-2", DESCRIBE_ANSWER)])
+        ended = spoken(self, channel, ("describe", "describe"),
+                       ("op-1", "op-2"))
+        self.assertEqual(ended["ending"], "answered")
+        sent = [json.loads(payload.split(b"\n", 1)[1])
+                for payload in channel.sent]
+        self.assertEqual([one["operation"] for one in sent],
+                         ["describe", "describe"])
+        self.assertEqual([one["operation_id"] for one in sent],
+                         ["op-1", "op-2"])
+
 
 if __name__ == "__main__":
     unittest.main()

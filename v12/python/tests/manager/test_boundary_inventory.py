@@ -300,18 +300,38 @@ POSITIONS = {"deadline": (1, 2)}
 # and the probe driver asked for them once per probe. That is how a 21-module
 # package reached 103,950 parses and 620 measured seconds in one test.
 #
-# EVERY CACHED ANSWER IS HANDED OUT IMMUTABLE -- a tuple, a `frozenset` or a
-# `MappingProxyType` -- because a shared mutable projection is a way for one
-# assertion to change what a later one is told. The cache is what makes the
-# result cheap; the immutability is what keeps it the same answer.
+# THE DERIVED PROJECTIONS ARE IMMUTABLE VALUES -- a `frozenset`, or a
+# `MappingProxyType` over `frozenset`s -- because a shared mutable projection is
+# a way for one assertion to change what a later one is told. Their members are
+# strings and tuples of strings, so handing the cached object out is safe.
+#
+# THE SOURCE SNAPSHOT IS NOT, AND SAYING OTHERWISE WAS WRONG. Review
+# 2026-08-31T16:16:32Z [P2]: `_sources()` returns an immutable TUPLE whose
+# members are `ast.Module` objects, and an AST node is mutable. Clearing one
+# module's `tree.body` and recomputing a projection really does lose crossings
+# the previous caller saw. What keeps the snapshot safe is therefore an
+# INVARIANT this file owns rather than a property of the value: every walker
+# here traverses with `ast.walk` and none of them assigns to a node.
+#
+# So the invariant is MEASURED instead of promised.
+# `test_the_shared_trees_are_never_mutated_by_a_projection` fingerprints every
+# tree, runs all five projections, and requires the fingerprints unchanged --
+# and proves the fingerprint can tell, by mutating one tree and requiring it to
+# notice. A comment asserting "nothing mutates these" is the kind of claim that
+# is true until somebody writes the line that makes it false.
 
 
 @functools.cache
 def _sources():
-    """The manager package, parsed ONCE per process, in one immutable snapshot.
+    """The manager package, parsed ONCE per process, in one shared snapshot.
 
-    The trees are read-only to every walker in this file: they are traversed
-    with `ast.walk` and never mutated, so one parse serves every projection.
+    THE TUPLE IS IMMUTABLE AND THE TREES IN IT ARE NOT. `ast` nodes are ordinary
+    mutable objects, so this is a shared cache held safe by a rule rather than
+    by a type: every walker in this file only READS -- `ast.walk`, attribute
+    reads, `isinstance` -- and none of them assigns to a node or replaces a
+    `body`. `test_the_shared_trees_are_never_mutated_by_a_projection` is what
+    holds that rule to being true, and it fails if a projection starts editing
+    what it was given.
     """
     return tuple(
         (source, ast.parse(source.read_text(encoding="utf-8"), str(source)))
@@ -1619,6 +1639,51 @@ STATED_OWNERS = {
     ("caller", "oci.py:OciAdapter.observe", "document.Running"):
         "compared with `is True` / `is False` and anything else answers "
         "`uncertain`; this read cannot refuse, because confusion is not death",
+    # -- W39666: the worker-entry transport's composite operands -------------
+    #
+    # EACH OF THESE IS A SEQUENCE WHOSE MEMBERS ARE LAYER-OWNED AND WHOSE
+    # SHAPE IS NOT. The per-member `boundaries.*` call sits inside a `for`, so
+    # the inventory attributes it to the loop variable rather than to the
+    # operand -- correctly, because the container rule is genuinely a second
+    # rule. Stating the owner is the honest description: the site owns the
+    # sequence shape, its cardinality and its members, and the label on any one
+    # member would not be the whole of it.
+    ("caller", "oci.py:exec_vector", "program"):
+        "a composite owner at the site: `list`/`tuple` and nothing "
+        "that merely iterates, non-empty, at most MAX_PROGRAM_WORDS, "
+        "and every word held "
+        "to `boundaries.text` under `an exec program word`",
+    ("caller", "worker_entry.py:converse", "operations"):
+        "a composite owner at the site: `list`/`tuple` and nothing "
+        "that merely iterates, non-empty, and every member in the "
+        "closed OPERATIONS "
+        "vocabulary",
+    ("caller", "worker_entry.py:converse", "operation_ids"):
+        "a composite owner at the site: `list`/`tuple` and nothing "
+        "that merely iterates, one per operation, each held to "
+        "`boundaries.identity` under "
+        "`a worker-entry operation identity` and to MAX_IDENTITY, and all "
+        "distinct because the worker consumes each once per session",
+    ("caller", "worker_entry.py:converse", "program"):
+        "forwarded to `oci.py:exec_vector`, whose own composite owner is "
+        "stated above; a delegation cannot name it because the rule there is "
+        "not a layer label either",
+    # A POSITIVE WHOLE NUMBER, owned at the port that hands it to the world,
+    # exactly as `oci.py:stop_vector`'s is. `ChannelPort.__call__` is where the
+    # bound becomes a real timeout, and a rule that lived here instead would be
+    # a second copy of it.
+    ("caller", "worker_entry.py:converse", "seconds"):
+        "owned by `worker_entry.py:ChannelPort.__call__`: an exact positive "
+        "whole number with `bool` excluded, checked where the bound is handed "
+        "to the channel rather than where it was passed through",
+    # ALREADY PROVED, ONE FRAME EARLIER. `_Reader` is private and only ever
+    # receives the channel `ChannelPort.__call__` just held to CHANNEL_MEMBERS,
+    # so a boundary call here would re-ask a question this package answered --
+    # and would answer it at a site no caller can reach.
+    ("caller", "worker_entry.py:_Reader.__init__", "channel"):
+        "an internal value already held to CHANNEL_MEMBERS by "
+        "`worker_entry.py:ChannelPort.__call__`; nothing outside this module "
+        "constructs a `_Reader`",
 }
 
 # Entries owned by a helper that owns them FOR their caller. The layer owns by
@@ -2009,7 +2074,30 @@ DELEGATED = {
     ("caller", "handshake.py:negotiate_acp", "profile_digest"):
         ("handshake.py:certified_agent_session_profile",
          "caller:profile_digest"),
-
+    # -- W39666: the worker-entry transport's forwards -----------------------
+    #
+    # W39356 recorded `oci.py:_network` as owing an entry, and it does own one
+    # -- just not its own. `_network` is private, so it is not a receiving site
+    # at all; what crosses is `run_vector`'s `network` operand, which is handed
+    # straight to it. Declaring the forward is what makes the historical debt
+    # true rather than approximately true, and it is why `_network` is NOT in
+    # `NOT_AN_ENTRY`: hiding the helper would leave the public operand unowned.
+    ("caller", "oci.py:run_vector", "network"):
+        ("oci.py:_network", "caller:network"),
+    # `converse` composes its argv through `exec_vector` rather than owning an
+    # engine name or a runtime identity of its own -- the same reason every
+    # other vector delegates to `_engine`. The runtime id stops at
+    # `exec_vector`, which owns it under the layer; the engine name travels one
+    # further, to the owner all six other vectors already share.
+    ("caller", "worker_entry.py:converse", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    ("caller", "worker_entry.py:converse", "runtime_id"):
+        ("oci.py:exec_vector", "caller:runtime_id"),
+    # THE PORT IS CONSTRUCTED FROM IT WHEN IT IS NOT ALREADY ONE, so a raw
+    # open operation reaches `ChannelPort.__init__`'s capability rule -- the
+    # same rule, at the site that has always owned it.
+    ("caller", "worker_entry.py:converse", "channel_port"):
+        ("worker_entry.py:ChannelPort.__init__", "caller:open_channel"),
 }
 
 
@@ -3702,6 +3790,9 @@ class BoundaryCase(unittest.TestCase):
                 ("state_path", lambda: home.state_path(7)),
                 ("read_state", lambda: home.read_state(7)),
                 ("discard_orphan", lambda: home.discard_orphan(7)),
+                # W55758: the two no-read orphan sites, owned like the rest.
+                ("orphan_evidence", lambda: home.orphan_evidence(7)),
+                ("tear_down_orphan", lambda: home.tear_down_orphan(7)),
                 ("written_state", lambda: home.written_state(7, record())),
                 ("materialize", lambda: home.materialize(
                     [{"slot": "api", "provider": "vault",
@@ -3723,6 +3814,12 @@ class BoundaryCase(unittest.TestCase):
         found[(at(f"{C}:CredentialHome.discard_orphans", "live"),
                "a live attempt id")] = (
             "a live attempt id", lambda: home.discard_orphans(live=[7]))
+        # W55758: the typed orphan ending owns its attempt at construction,
+        # exactly as every other credential door owns the same identity.
+        found[(at(f"{C}:OrphanTeardown.__init__", "attempt_id"),
+               "a credential attempt id")] = (
+            "a credential attempt id",
+            lambda: credentials.OrphanTeardown(7, homes=[home]))
         found[(at(f"{C}:CredentialHome.written_state", "body"),
                "a credential lifecycle record")] = (
             "a credential lifecycle record",
@@ -6151,6 +6248,58 @@ class EveryProbeProvesItArrived(BoundaryCase):
         }
         return found
 
+    def worker_entry_probes(self):
+        """W39666: the worker-entry transport's layer and delegated owners.
+
+        Six pairs, and every one of them is driven through a PUBLIC operation
+        of this slice rather than through the delegate. A delegation nobody
+        exercised at the site that has it is a rule that site does not
+        actually have -- the same reason the shared engine name is driven at
+        each of its six vectors above.
+        """
+        from baton_v12.worker_manager import worker_entry
+
+        W = "worker_entry.py"
+        program = ["python3", "/opt/baton/baton_worker.py"]
+
+        def opened(argv, *, seconds):
+            raise AssertionError("the channel was opened anyway")
+
+        def conversing(**spoiled):
+            operands = dict(engine="docker", runtime_id="8fce41c0d2b4",
+                            program=list(program), session="session-w39666",
+                            operations=["describe"], operation_ids=["op-1"],
+                            seconds=30)
+            port = spoiled.pop("channel_port", opened)
+            operands.update(spoiled)
+            return lambda: worker_entry.converse(port, **operands)
+
+        found = {}
+        # THE CAPABILITY, at the port that types it and at the operation that
+        # constructs one from a raw open operation.
+        for entry, drive in (
+                (("caller", f"{W}:ChannelPort.__init__", "open_channel"),
+                 lambda: worker_entry.ChannelPort(SURROGATE)),
+                (("caller", f"{W}:converse", "channel_port"),
+                 conversing(channel_port=SURROGATE))):
+            found[(entry, "the channel's open operation")] = (
+                "the channel's open operation", drive)
+        found[(("caller", f"{W}:converse", "session"),
+               "the launched worker session")] = (
+            "the launched worker session", conversing(session=SURROGATE))
+        # THE TWO THAT TRAVEL INTO THE EXEC VECTOR, each driven from
+        # `converse` so the forward itself is what is exercised.
+        found[(("caller", f"{W}:converse", "engine"), "an engine name")] = (
+            "an engine name", conversing(engine=SURROGATE))
+        found[(("caller", f"{W}:converse", "runtime_id"), "a runtime id")] = (
+            "a runtime id", conversing(runtime_id=SURROGATE))
+        # W39356's retained network obligation, owned by the private helper
+        # and driven at the public operand that forwards to it.
+        found[(("caller", "oci.py:run_vector", "network"),
+               "an engine network")] = (
+            "an engine network", self.running_vector(network=SURROGATE))
+        return found
+
     def all_probes(self):
         return {**self.probes(), **self.column_probes(),
                 **self.custody_probes(),
@@ -6158,7 +6307,8 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 **self.session_probes(), **self.output_probes(),
                 **self.interrogation_probes(), **self.oci_probes(),
                 **self.intake_probes(), **self.sealing_probes(),
-                **self.credential_probes(), **self.launch_probes()}
+                **self.credential_probes(), **self.launch_probes(),
+                **self.worker_entry_probes()}
 
     def expected(self):
         """(entry, label) for every entry the LAYER or a DELEGATE owns.
@@ -6646,6 +6796,19 @@ WITNESSES = {
         "test_a_retention_names_artifacts_and_owns_every_one_of_them",
     ("injected", "intake.py:decide_retention", "adapter.retain"):
         "test_what_the_retain_adapter_answers_decides_nothing",
+    # -- W39666: the worker-entry transport ----------------------------------
+    ("caller", "oci.py:exec_vector", "program"):
+        "test_an_exec_program_is_a_sequence_of_words_and_not_a_string",
+    ("caller", "worker_entry.py:converse", "program"):
+        "test_a_conversations_program_is_held_to_the_exec_program_rule",
+    ("caller", "worker_entry.py:converse", "operations"):
+        "test_a_conversation_asks_for_a_sequence_of_known_operations",
+    ("caller", "worker_entry.py:converse", "operation_ids"):
+        "test_operation_identities_are_a_sequence_one_per_operation",
+    ("caller", "worker_entry.py:converse", "seconds"):
+        "test_a_worker_entry_bound_is_a_positive_whole_number",
+    ("caller", "worker_entry.py:_Reader.__init__", "channel"):
+        "test_a_reader_only_ever_receives_a_channel_the_port_proved",
 }
 
 
@@ -8183,6 +8346,159 @@ class StatedRules(BoundaryCase):
             beside.close()
         self.assertEqual(names, ["somebody_elses"])
 
+    # -- W39666: the worker-entry transport's composite operands -------------
+
+    WORKER_ENTRY_RUNTIME = "8fce41c0d2b4"
+    WORKER_ENTRY_SESSION = "session-w39666"
+    WORKER_ENTRY_PROGRAM = ["python3", "/opt/baton/baton_worker.py"]
+
+    def conversing(self, **spoiled):
+        """One conversation whose channel RECORDS whether it was ever opened.
+
+        Every rule below is owned before anything is sent, so the recorder is
+        half the witness: a refusal that happened after the channel opened
+        would be a different rule than the one being claimed.
+        """
+        from baton_v12.worker_manager import worker_entry
+
+        self.opened = []
+
+        def open_channel(argv, *, seconds):
+            self.opened.append(argv)
+            raise AssertionError("the channel was opened anyway")
+
+        operands = dict(engine="docker",
+                        runtime_id=self.WORKER_ENTRY_RUNTIME,
+                        program=list(self.WORKER_ENTRY_PROGRAM),
+                        session=self.WORKER_ENTRY_SESSION,
+                        operations=["describe"], operation_ids=["op-1"],
+                        seconds=30)
+        operands.update(spoiled)
+        return lambda: worker_entry.converse(open_channel, **operands)
+
+    def test_an_exec_program_is_a_sequence_of_words_and_not_a_string(self):
+        """`exec_vector` owns the whole operand, not one word of it.
+
+        The string case is the one this rule exists for: `list("python3")` is
+        seven one-character words, so iterating would compose
+        `docker exec ... p y t h o n 3` -- a closed vector rather than a
+        refusal.
+        """
+        from baton_v12.worker_manager import oci
+
+        def ran(program):
+            return lambda: oci.exec_vector(
+                "docker", runtime_id=self.WORKER_ENTRY_RUNTIME,
+                program=program)
+
+        for wrong in ("python3", None, 7, {"python3": 1}):
+            with self.subTest(program=wrong):
+                self.refusing("list or tuple of words", ran(wrong))
+        self.refusing("names the program", ran([]))
+        self.refusing("at most", ran(["x"] * (oci.MAX_PROGRAM_WORDS + 1)))
+        # AND THE MEMBERS, which is the half a shape check does not cover.
+        self.refusing("an exec program word", ran(["python3", SURROGATE]))
+        self.assertEqual(
+            oci.exec_vector("docker", runtime_id=self.WORKER_ENTRY_RUNTIME,
+                            program=("python3", "-c", "pass")),
+            ["docker", "exec", "--interactive", self.WORKER_ENTRY_RUNTIME,
+             "python3", "-c", "pass"])
+
+    def test_a_conversations_program_is_held_to_the_exec_program_rule(self):
+        """The forward reaches that owner, from the public operation.
+
+        Stated rather than delegated because the rule at `exec_vector` is not
+        a layer label either -- so this witness drives `converse` itself and
+        requires the refusal that owner writes.
+        """
+        self.refusing("list or tuple of words",
+                      self.conversing(program="python3"))
+        self.refusing("an exec program word",
+                      self.conversing(program=["python3", SURROGATE]))
+        self.assertEqual(self.opened, [])
+
+    def test_a_conversation_asks_for_a_sequence_of_known_operations(self):
+        """Shape, emptiness and the closed vocabulary -- all three, one owner.
+
+        W39666 measured the first of them escaping: `list(operations)` let
+        `None` and `7` leave as a raw `TypeError`, which is not a refusal this
+        manager can be said to have made.
+        """
+        for wrong in (None, 7, True, "describe", {"describe": 1}):
+            with self.subTest(operations=wrong):
+                self.refusing("operations is a list or tuple",
+                              self.conversing(operations=wrong))
+        self.refusing("at least one operation",
+                      self.conversing(operations=[], operation_ids=[]))
+        self.refusing("is not an operation this channel speaks",
+                      self.conversing(operations=["negotiate"]))
+        self.assertEqual(self.opened, [])
+
+    def test_operation_identities_are_a_sequence_one_per_operation(self):
+        """Shape, cardinality, each identity, its ceiling, and distinctness."""
+        from baton_v12.worker_manager.worker_entry import MAX_IDENTITY
+
+        for wrong in (None, 7, True, "op-1", {"op-1": 1}):
+            with self.subTest(operation_ids=wrong):
+                self.refusing("operation_ids is a list or tuple",
+                              self.conversing(operation_ids=wrong))
+        self.refusing("one operation identity per operation",
+                      self.conversing(operations=["describe", "work"],
+                                      operation_ids=["op-1"]))
+        self.refusing("a worker-entry operation identity",
+                      self.conversing(operation_ids=[SURROGATE]))
+        self.refusing("at most",
+                      self.conversing(
+                          operation_ids=["o" * (MAX_IDENTITY + 1)]))
+        self.refusing("consumed once per worker session",
+                      self.conversing(operations=["describe", "work"],
+                                      operation_ids=["op-1", "op-1"]))
+        self.assertEqual(self.opened, [])
+
+    def test_a_worker_entry_bound_is_a_positive_whole_number(self):
+        """Owned at the port, where the bound is handed to the world.
+
+        `bool` is excluded for the reason `stop_vector`'s is: `True` is an
+        `int` and a one-second worker session is not what a caller passing it
+        meant.
+        """
+        for wrong in (0, -1, True, 1.5, "30", None):
+            with self.subTest(seconds=wrong):
+                self.refusing("whole number of seconds",
+                              self.conversing(seconds=wrong))
+        self.assertEqual(self.opened, [])
+
+    def test_a_reader_only_ever_receives_a_channel_the_port_proved(self):
+        """The stated rule is that nothing unproved reaches `_Reader`.
+
+        So the witness drives a channel the port must reject and requires that
+        the reader never saw it: `receive` is what a `_Reader` calls first, and
+        a channel that records being read would mean the refusal came later
+        than claimed.
+        """
+        from baton_v12.worker_manager import worker_entry
+
+        read = []
+
+        class Partial:
+            def send(self, payload):
+                return len(payload)
+
+            def receive(self, count):
+                read.append(count)
+                return b""
+
+        self.assertNotIn("_Reader", worker_entry.__all__)
+        self.refusing(
+            "is not the framed session",
+            lambda: worker_entry.converse(
+                lambda argv, *, seconds: Partial(),
+                engine="docker", runtime_id=self.WORKER_ENTRY_RUNTIME,
+                program=list(self.WORKER_ENTRY_PROGRAM),
+                session=self.WORKER_ENTRY_SESSION, operations=["describe"],
+                operation_ids=["op-1"], seconds=30))
+        self.assertEqual(read, [], "the reader was handed an unproved channel")
+
 
 class AnAdoptedRowIsAWholeRow(BoundaryCase):
     """The column SET is adopted as well as the column values.
@@ -8415,6 +8731,119 @@ class AnIdentityIsMoreThanAShape(BoundaryCase):
 PROBE_LABEL = "a witnessed boundary"
 
 
+class TheWorkerEntryTransportIsFullyInventoried(BoundaryCase):
+    """W39666's own completeness check, over W39666's own slice.
+
+    THE AGGREGATE CANNOT ANSWER THIS QUESTION YET.
+    `EveryReceivingEntryHasOneOwner` and `EveryProbeProvesItArrived` are
+    red on debt that belongs to W48697's
+    parked OCI rescan and to W54802's missing probes, so a slice finished today
+    would be invisible inside their failures -- and "it is still red, but less
+    so" is not something a reviewer can check.
+
+    So the slice states itself. Every `worker_entry.py` receiving entry, plus
+    the exactly two OCI entries W39356 retained as this Work's debt, and
+    nothing else. This does NOT weaken or replace the aggregate assertions: it
+    is a narrower claim that can be true before they are.
+    """
+
+    # THE TWO OCI ENTRIES THIS WORK OWNS, WRITTEN OUT. W39356 recorded its
+    # transport additions as `oci.py:_network` and `oci.py:exec_vector`; the
+    # first is private and is not a receiving site, so its real crossing is the
+    # public operand that forwards to it. Naming both here is what keeps the
+    # scope split with W48697 visible: `exec_vector.engine`,
+    # `run_vector.interactive` and the adapter's forwarded operands are that
+    # Work's and are deliberately absent.
+    OCI_ENTRIES = (("caller", "oci.py:run_vector", "network"),
+                   ("caller", "oci.py:exec_vector", "program"))
+
+    def slice_entries(self):
+        entries = receiving_entries()
+        found = {entry for entry in entries
+                 if entry[1].startswith("worker_entry.py:")}
+        for entry in self.OCI_ENTRIES:
+            self.assertIn(entry, entries,
+                          "a recorded W39666 entry left the inventory")
+            found.add(entry)
+        return sorted(found)
+
+    def test_the_slice_is_the_sites_this_work_was_given(self):
+        """A completeness claim over a set that quietly shrank is worthless."""
+        sites = sorted({entry[1] for entry in self.slice_entries()})
+        self.assertEqual(sites, ["oci.py:exec_vector", "oci.py:run_vector",
+                                 "worker_entry.py:ChannelPort.__init__",
+                                 "worker_entry.py:_Reader.__init__",
+                                 "worker_entry.py:converse"])
+        self.assertGreaterEqual(len(self.slice_entries()), 12)
+
+    def test_every_entry_in_the_slice_has_an_owning_validator(self):
+        owners = EveryReceivingEntryHasOneOwner(
+            "test_every_receiving_entry_has_an_owning_validator")
+        unowned = [entry for entry in self.slice_entries()
+                   if owners.owner_of(entry)[0] is None]
+        self.assertEqual(unowned, [], "W39666 entries with no owner")
+
+    def test_every_stated_owner_in_the_slice_has_a_witness(self):
+        owners = EveryReceivingEntryHasOneOwner(
+            "test_every_receiving_entry_has_an_owning_validator")
+        for entry in self.slice_entries():
+            if owners.owner_of(entry)[0] != "stated":
+                continue
+            with self.subTest(entry=entry):
+                name = WITNESSES.get(entry)
+                self.assertIsNotNone(name, "a stated owner with no witness")
+                self.assertTrue(callable(getattr(StatedRules, name, None)),
+                                f"{name} is not a method")
+
+    def test_every_probed_owner_in_the_slice_has_exactly_one_probe(self):
+        """Layer and delegated owners only: a stated rule is witnessed above.
+
+        The probe catalog is fixture-bound, so this borrows the driver's own
+        fixture and releases it rather than carrying one across.
+
+        BOTH DIRECTIONS, RESTRICTED TO THIS SLICE. Review
+        2026-08-31T17:55:24Z [P2]: this asserted only `wanted - declared`, so
+        an extra or stale probe for one of this Work's entries — including one
+        registered under the WRONG LABEL — passed. The global catalog check is
+        exact in both directions and would catch it, but it is deliberately red
+        on W48697's and W54802's parked debt, so it cannot be this Work's
+        independent acceptance signal. The declared set is therefore narrowed to
+        this slice's entries and compared for equality: a probe this slice does
+        not own is as much a defect as one it owns and lacks.
+        """
+        driver = EveryProbeProvesItArrived(
+            "test_every_declared_probe_reaches_its_named_boundary")
+        driver.setUp()
+        try:
+            catalog = set(driver.all_probes())
+        finally:
+            driver.doCleanups()
+        entries = set(self.slice_entries())
+        declared = {pair for pair in catalog if pair[0] in entries}
+        wanted = set()
+        for entry in sorted(entries):
+            if entry in NO_PROBE:
+                continue
+            for label in layer_labels(entry):
+                wanted.add((entry, label))
+            if entry in DELEGATED:
+                for label in delegated_labels(entry):
+                    wanted.add((entry, label))
+        self.assertGreaterEqual(len(wanted), 6)
+        self.assertEqual(sorted(wanted - declared), [],
+                         "owned in this slice, never probed")
+        self.assertEqual(sorted(declared - wanted), [],
+                         "probed in this slice, never owned under that label")
+
+    def test_no_entry_in_the_slice_is_exempted_from_probing(self):
+        """`NO_PROBE` is how an entry could be retired by declaring it, and
+        nothing in this slice needs it: every crossing here is reachable from a
+        public operation with one operand spoiled."""
+        for entry in self.slice_entries():
+            with self.subTest(entry=entry):
+                self.assertNotIn(entry, NO_PROBE)
+
+
 class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
     """W54182: the inventory's discovery is pure, so it is computed once.
 
@@ -8444,10 +8873,18 @@ class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
         self.assertGreater(len(modules), 15)
         for projection in MEMOISED:
             projection.cache_clear()
+        # THE SAME SOURCE OF TRUTH THE INVARIANT CASE USES, and for the same
+        # reason. Review 2026-08-31T17:47:05Z [P2]: this drove a hand-written
+        # list of five, so the next projection added to `MEMOISED` would not
+        # run under the parse counter unless somebody also remembered a SECOND
+        # list -- which is exactly the maintenance failure the shared-tree
+        # correction had just removed from its neighbour.
+        derived = tuple(projection for projection in MEMOISED
+                        if projection is not _sources)
+        self.assertGreater(len(derived), 5)
         parsed = self.counting()
         for _ in range(2):
-            for projection in (receiving_entries, owning_validators,
-                               propagated_owners, columns_read, _crossings):
+            for projection in derived:
                 projection()
         self.assertEqual(sorted(parsed), sorted(str(found) for found in modules),
                          "the package is walked and parsed more than once")
@@ -8457,14 +8894,22 @@ class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
             with self.subTest(projection=projection.__name__):
                 self.assertIs(projection(), projection())
 
-    def test_no_caller_can_poison_a_cached_projection(self):
+    def test_no_caller_can_poison_a_cached_derived_projection(self):
         """A shared projection is only safe if nobody can edit it.
 
         Every consumer takes a set difference, a membership test or a sorted
         list; none of them may reach the one cached answer the next assertion
         will be given.
+
+        THE DERIVED PROJECTIONS ONLY, and the name says so now. Review
+        2026-08-31T16:16:32Z [P2]: this case used to open with
+        `assertIsInstance(_sources(), tuple)` under a name that promised no
+        caller could poison ANY cached projection, and a tuple of mutable
+        `ast.Module` objects is exactly the projection a caller can poison. The
+        source snapshot's narrower invariant is measured by
+        `test_the_shared_trees_are_never_mutated_by_a_projection`; what belongs
+        here are the projections whose members really are immutable values.
         """
-        self.assertIsInstance(_sources(), tuple)
         for projection in (receiving_entries, columns_read, propagated_owners):
             with self.subTest(projection=projection.__name__):
                 self.assertIsInstance(projection(), frozenset)
@@ -8481,6 +8926,72 @@ class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
         taken = set(entries)
         taken.clear()
         self.assertEqual(len(receiving_entries()), len(entries))
+
+    def fingerprints(self):
+        """A structural reading of every cached tree, as text.
+
+        `ast.dump` renders the node graph rather than the object identity, so a
+        body that lost a statement, a call whose function was rebound and an
+        attribute assigned in place all change this and nothing else does.
+        """
+        return {str(source): ast.dump(tree) for source, tree in _sources()}
+
+    def test_the_shared_trees_are_never_mutated_by_a_projection(self):
+        """The narrower invariant the source snapshot actually has.
+
+        The tuple is immutable; the `ast.Module` objects inside it are not, so
+        the snapshot is shared safely only because every projection here READS.
+        That is a rule about this file's code, and the way to keep a rule true
+        is to measure it rather than to comment it.
+
+        EVERY DERIVED MEMBER, DERIVED FROM `MEMOISED` RATHER THAN LISTED.
+        Review 2026-08-31T17:23:04Z [P2]: this cleared and reran five
+        projections by name and omitted `_helper_returns`, which walks the
+        shared trees too. Measured, its miss count did not move across the two
+        fingerprints -- so a mutation written into that walker would have
+        happened while the earlier boundedness cases warmed it, before the
+        `before` reading, and this case could not have seen it. A hand-written
+        list is the same failure the `MEMOISED` tuple exists to prevent, so the
+        set is taken from there and a projection added later is covered without
+        anybody remembering to add it here.
+
+        `_sources` IS DELIBERATELY NOT CLEARED. Reparsing would hand the second
+        fingerprint a different node graph, and the question is whether a
+        projection edited THIS one.
+        """
+        before = self.fingerprints()
+        self.assertGreater(len(before), 15)
+        derived = tuple(projection for projection in MEMOISED
+                        if projection is not _sources)
+        self.assertGreater(len(derived), 5)
+        for projection in derived:
+            projection.cache_clear()
+        for projection in derived:
+            projection()
+        self.assertEqual(self.fingerprints(), before,
+                         "a projection edited the tree it was given")
+
+    def test_the_mutation_check_can_actually_notice(self):
+        """The guard above is only evidence if it can fail.
+
+        Review 2026-08-31T16:16:32Z [P2] reproduced the real hazard by clearing
+        one module's `tree.body` and recomputing a projection, which loses
+        crossings the previous caller saw. So this stages that mutation,
+        requires the fingerprint to notice it, and puts the statement back --
+        no projection runs while the tree is short, and the fingerprint is
+        required to return to what it was.
+        """
+        chosen = next(tree for source, tree in _sources()
+                      if source.name == "oci.py")
+        before = self.fingerprints()
+        removed = chosen.body.pop()
+        try:
+            self.assertNotEqual(self.fingerprints(), before,
+                                "the fingerprint cannot see a lost statement")
+        finally:
+            chosen.body.append(removed)
+        self.assertEqual(self.fingerprints(), before,
+                         "the staged mutation was not put back")
 
     def test_a_probe_catalog_costs_no_further_discovery(self):
         """The driver builds one catalog per probe, and that has to be cheap.
@@ -8755,7 +9266,5 @@ class ClosedShapesAreClosedBothWays(BoundaryCase):
         finally:
             beside.close()
         self.assertEqual(state, "accepted")
-
-
 if __name__ == "__main__":
     unittest.main()

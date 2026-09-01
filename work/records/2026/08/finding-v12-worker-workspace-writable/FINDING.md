@@ -572,3 +572,51 @@ certified engine and Podman as pending or experimental, never as equivalent.
 This supersession narrows engine portability only. It does not weaken the
 dedicated workspace-group authority, denial matrix, or W36540's separate
 unconditional-custody requirement.
+
+## 2026-08-31 — closure re-review: implementation accepted, deployment text stale
+
+**Confirmed current ledger state:** W36540 and each of its five decomposed
+children are closed satisfying. The custody provider no longer gates this
+record. The workspace-group implementation revalidates cleanly against the
+current tree: the deployment-owned capability, committed-operation/projection
+agreement, exact `02770` allocation, fixed primary identity and supplementary
+execution-only group remain present, and 181 workspace/OCI unit tests pass.
+
+**Observed [P1 documentation]:** `v12/python/DEPLOYMENT.md` still says that
+rootful Podman satisfies the mechanism and directs deployments to "use Docker
+or rootful Podman." That contradicts the approver supersession above, which
+accepts Docker for this slice and requires Podman to remain pending or
+experimental until W32391 certifies it. The retained rootful probe is evidence,
+not certification.
+
+**Observed [P1 documentation]:** the same guide still describes W36540 as a
+future provider and says deployments should expect owner-only cleanup to fail
+"until that lands." It has landed. Preserve the important distinction that the
+workspace group itself supplies cooperative access rather than custody, but
+state that the current manager's closed custody provider supplies the
+unconditional ended-attempt property.
+
+Closure therefore waits only on those documentation corrections and a focused
+re-review. The managed reviewer could not run the real-Docker composition gate
+because the daemon socket is denied and did not escalate; daemon-free custody,
+intake and refused-session suites ran 234 tests successfully. Review:
+`review-2026-08-31T17-19-07Z.md`.
+
+## 2026-08-31 — independent closure review: accepted
+
+**Confirmed corrected.** `v12/python/DEPLOYMENT.md` now names Docker as the
+only certified engine under M38837, retains both Podman observations as
+experimental evidence rather than deployment choices, and leaves future
+Podman certification plus the rootless gid-map question with open, parked
+W32391.
+
+**Confirmed corrected.** The guide preserves the distinction between the
+configured group's cooperative access and unconditional custody, while now
+stating that W36540 and all five children are closed satisfying and that its
+custody helper is composed into the ended-attempt path. The description agrees
+with the current source and no longer carries the stale future-tense warning.
+
+The independent focused gates passed 184 workspace/OCI/text cases and 234
+custody/intake/refused-session cases. No source changed in the closure round.
+W33936 is accepted for satisfying closure. Review:
+`review-2026-08-31T17-43-24Z.md`.

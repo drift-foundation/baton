@@ -44,6 +44,22 @@ the next high-priority implementation concern only after W38956 closes
 satisfying. Its Baton Work must be explicitly blocked on W38956 before any
 research or implementation begins.
 
+## Scheduling revalidation — 2026-08-31
+
+**Observed:** W38956 closed `non-satisfying` at ledger sequence 57541. That
+terminal transition cleared W52821's dependency edge and made it mechanically
+ready, because the edge records terminal dependency completion rather than a
+required terminal outcome. It did not satisfy this record's stricter scheduling
+decision.
+
+**Decision:** the readiness wake is not authorization to research or implement
+this defect. Park W52821 without changing its confirmed defect classification,
+technical direction or acceptance boundary. Resume only after an explicit
+superseding scheduling ruling names this Work independently, or after a later
+successful dogfood milestone is recorded as the replacement gate. W38956's
+non-satisfying outcome cannot be silently treated as the satisfying close this
+record required.
+
 ## Acceptance
 
 - No user manually copies or refreshes a provider credential into a shared

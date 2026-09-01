@@ -30,7 +30,33 @@ this module corrects had only found one of them:
 SO THE BUILD HAS AN OUTPUT STEP. The engine builds; this normalizes the
 volatile receipt metadata out of the result and loads it back, and the identity
 of THAT image is what the manager pins. Two independent executions of the
-recipe reach one digest.
+recipe reach one digest GIVEN THE SAME BASE IMAGE AND THE SAME FETCHED
+CONTENT.
+
+THAT CONDITION IS NOT A TECHNICALITY, and W55361 is what it cost to learn.
+This paragraph used to end at "one digest", full stop, and an operator read it
+as a promise that rebuilding was free. Two builds of an UNCHANGED `v12/worker`
+tree a day apart produced `sha256:b471399a…` and `sha256:8af96742…`. The
+comparison locates it exactly: the base layers are identical, the four `COPY`
+layers carrying this repository's own code are byte-identical, `useradd` is
+identical, and ONLY the `npm install` and `apt-get install` layers move —
+because the recipe's `FROM` names a TAG rather than a digest, `apt-get` takes
+whatever the mirror serves today, and the pinned provider version runs a
+`postinstall` that fetches its own native binary.
+
+WHAT THIS MODULE ACTUALLY REMOVES IS THE BUILD CLOCK AND THE BUILDER'S
+RECEIPT, and it does that correctly. It does not, cannot and must not
+normalize away DIFFERENT FETCHED BYTES: two images built from different
+upstream content are two different artefacts, and a normalizer that mapped
+them to one identity would be lying about what a manager pinned. The
+convergence claim is therefore conditional by construction, not by omission.
+
+THE OPERATIONAL CONSEQUENCE IS RULED ELSEWHERE, W55361 approver event 55641:
+the artefact is SELECTED by validated digest and a new attempt reuses the
+current selection. A build result is a CANDIDATE until a recorded
+upgrade/source/security/platform/refresh event validates and explicitly
+selects its digest. Rebuilding per attempt would mint a fresh, unvalidated
+artefact each time and change the thing under test for no evidential gain.
 
 WHAT IS NORMALIZED IS ONLY EVER THIS RECIPE'S OWN WORK, and the boundary is
 derived from the pinned base rather than counted:

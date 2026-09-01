@@ -2302,3 +2302,157 @@ class TheRegistrySpansTheOutputLeakChecks(CredentialCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheOrphanEndingStandsInForADeliveryNobodyHolds(CredentialCase):
+    """W55758: the ending for a credential whose OWNER PROCESS died.
+
+    `work/records/2026/08/finding-interrupted-dogfood-attempt-strands-runtime-
+    credential/`.
+
+    THE DEFECT, MEASURED. An interrupted supervised attempt left its runtime,
+    its bounded credential root and its lifecycle record on the host while the
+    in-memory `Delivery` died with the process. A recovery then reconstructed
+    the adapter with `credential_delivery is None`, and the ending answered
+    `not-delivered` -- a positive claim that no credential was ever delivered,
+    about an attempt that left a readable bearer on disk for hours.
+    """
+
+    def delivered(self, home=None, attempt="attempt-1"):
+        """One real materialized delivery, then FORGET the object.
+
+        Which is the whole shape under test: the files and the record survive
+        the process, and the thing that owned them does not.
+        """
+        place = home or self.home()
+        delivery = place.materialize(
+            credentials.resolved_delivery(
+                ["api"], profile={"api": {"provider": "vault",
+                                          "reference": "kv/one"}}),
+            attempt_id=attempt, workspace_group=self.group,
+            credential_provider=self.provider())
+        place.written_state(attempt, delivery.record(runtime_id="runtime-1"))
+        for value in delivery.bearers().values():
+            forget_secret(value)
+        return place
+
+    def test_the_evidence_reports_presence_and_opens_nothing(self):
+        home = self.delivered()
+        found = home.orphan_evidence("attempt-1")
+        self.assertEqual(found["home"], self.home_place)
+        self.assertTrue(found["volatile_root"])
+        self.assertTrue(found["lifecycle_record"])
+        # AND THE BEARER IS NOWHERE IN THE ANSWER, which is the point of
+        # answering presence rather than contents.
+        self.assertNotIn(BEARER, json.dumps(found))
+
+    def test_an_attempt_with_nothing_here_says_so(self):
+        found = self.home().orphan_evidence("attempt-9")
+        self.assertFalse(found["volatile_root"])
+        self.assertFalse(found["lifecycle_record"])
+
+    def test_the_teardown_removes_the_root_and_the_record_and_proves_it(self):
+        home = self.delivered()
+        answered = home.tear_down_orphan("attempt-1")
+        self.assertTrue(answered["held_root"])
+        self.assertTrue(answered["held_record"])
+        self.assertFalse(os.path.lexists(home.volatile_root("attempt-1")))
+        self.assertFalse(os.path.exists(home.state_path("attempt-1")))
+        self.assertNotIn(BEARER, json.dumps(answered))
+
+    def test_it_reads_no_byte_of_the_slot_it_removes(self):
+        """The canary: a slot this manager cannot READ is still torn down.
+
+        Unreadable to the owner as well, so a teardown that opened the file
+        would raise rather than quietly succeed -- which is what makes this
+        an assertion about reading and not about permissions.
+        """
+        home = self.delivered()
+        slot = os.path.join(home.volatile_root("attempt-1"), "api")
+        os.chmod(slot, 0o000)
+        home.tear_down_orphan("attempt-1")
+        self.assertFalse(os.path.lexists(slot))
+
+    def test_an_already_absent_attempt_is_torn_down_rather_than_refused(self):
+        """`torn-down` MEANS PROVED ABSENT.
+
+        A separately invoked emergency `discard_orphan` had already removed
+        run7's and run8's bearers, and the ending still has to be reachable
+        afterwards -- an ending that cannot be reached twice is not an ending.
+        """
+        home = self.home()
+        answered = home.tear_down_orphan("attempt-never")
+        self.assertFalse(answered["held_root"])
+        self.assertFalse(answered["held_record"])
+
+    def test_it_touches_exactly_one_attempt(self):
+        """A `CredentialHome` is ASSIGNMENT-scoped and holds siblings.
+
+        "This attempt is over" is not evidence about any other one, and a pass
+        that removed what it had not proved stale would be a second failure
+        caused by the first.
+        """
+        home = self.delivered()
+        self.delivered(home=home, attempt="attempt-2")
+        home.tear_down_orphan("attempt-1")
+        self.assertTrue(os.path.isdir(home.volatile_root("attempt-2")))
+        self.assertTrue(os.path.exists(home.state_path("attempt-2")))
+
+    # -- the typed capability -------------------------------------------------
+
+    def test_the_capability_refuses_anything_that_is_not_a_home(self):
+        with self.assertRaises(ContractRefusal):
+            credentials.OrphanTeardown("attempt-1",
+                                       homes=[self.home_place])
+        with self.assertRaises(ContractRefusal):
+            credentials.OrphanTeardown("attempt-1", homes=[])
+        with self.assertRaises(ContractRefusal):
+            credentials.OrphanTeardown("attempt-1", homes="not a list")
+
+    def test_two_names_for_one_home_are_one_home(self):
+        """The ordinary case from now on: the granted home and the
+        assignment-derived one agree, and one ending is one ending."""
+        orphan = credentials.OrphanTeardown(
+            "attempt-1", homes=[self.home(), self.home()])
+        self.assertEqual(len(orphan.homes), 1)
+
+    def test_it_ends_the_split_the_deployment_really_left(self):
+        """Run7's shape: the root under one home, the record under another.
+
+        The legacy split is handled by HOLDING both proved homes, never by
+        following the `credential_root` member of a record -- a raw path out
+        of a document is not authority for touching a filesystem.
+        """
+        second_place = os.path.join(self.home_place, "assignment")
+        os.makedirs(second_place, exist_ok=True)
+        second = credentials.CredentialHome(second_place)
+        granted = self.delivered()
+        # The record moves to the OTHER home, exactly as the deployment's own
+        # split put it there.
+        second.written_state("attempt-1",
+                             granted.read_state("attempt-1"))
+        os.remove(granted.state_path("attempt-1"))
+        orphan = credentials.OrphanTeardown("attempt-1",
+                                            homes=[granted, second])
+        answered = orphan.tear_down()
+        # THE CROSSING'S SHAPE, which is closed: `intake._provider_ending`
+        # refuses a member it does not name, so the per-home account lives on
+        # the capability rather than in the ending the manager reads.
+        self.assertEqual(sorted(answered),
+                         ["attempt_id", "lifecycle_state"])
+        self.assertEqual(answered["lifecycle_state"], "torn-down")
+        self.assertEqual(len(orphan.ending["homes"]), 2)
+        self.assertFalse(os.path.lexists(granted.volatile_root("attempt-1")))
+        self.assertFalse(os.path.exists(second.state_path("attempt-1")))
+        self.assertNotIn(BEARER, json.dumps(answered))
+        # AND THE CAPABILITY KEPT ITS OWN ACCOUNT, so a deployment can record
+        # what it did without repeating the act.
+        self.assertEqual(orphan.ending["lifecycle_state"], "torn-down")
+
+    def test_the_evidence_after_the_ending_is_empty(self):
+        granted = self.delivered()
+        orphan = credentials.OrphanTeardown("attempt-1", homes=[granted])
+        orphan.tear_down()
+        for found in orphan.evidence():
+            self.assertFalse(found["volatile_root"])
+            self.assertFalse(found["lifecycle_record"])

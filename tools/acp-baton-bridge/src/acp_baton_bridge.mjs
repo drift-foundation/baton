@@ -35,6 +35,7 @@ import {
 } from "../../codex-event-bridge/src/role_instructions.mjs";
 import { classifyFailure, makeRuntimePublisher }
 	from "../../codex-event-bridge/src/runtime_publisher.mjs";
+import { AcpSettlement } from "./acp_settlement.mjs";
 
 function usage() {
 	return `usage: acp-baton-bridge --config PATH [options]
@@ -96,7 +97,48 @@ export async function runBridge(config, {
 		model: config.runtime?.model,
 		actionOwner: config.runtime?.actionOwner,
 		logger, signal }),
+	// W55705: the claim settlement owner. Injectable so a focused case pins
+	// the canonical read and the durable marker, and defaulted so a
+	// deployment gets the fence without configuring anything.
+	//
+	// THE READ FOLLOWS `stillLive`'S ESTABLISHED COMPROMISE, and for the same
+	// stated reason. In production there is a real authority, so the
+	// settlement performs the canonical participant-relative `timeout=0` read
+	// the finding requires. A scripted `runWait` feed has no independent
+	// source to re-read, so it settles against that envelope — which is
+	// exactly what the pre-turn revalidation already does, and is why the
+	// focused W55705 cases inject `readSlot` explicitly rather than relying on
+	// this default. A pre-turn envelope is NOT settlement and must never be
+	// treated as one against a real authority.
+	settlement = null,
 } = {}) {
+	// W55705 (approver ruling M58455, pinned in the finding): A MANAGED ACP
+	// BRIDGE MUST NAME THE PARTICIPANT WHO OWES ITS INCIDENTS, and it refuses
+	// to start without one — before the runtime lease, before the first wait,
+	// before any process.
+	//
+	// This is not configuration hygiene. The post-turn claim settlement below
+	// owes ONE durable actionable incident whenever a claim survives the turn,
+	// `RuntimePublisher.incident()` deliberately refuses an ownerless one and
+	// answers false, and the deployment that produced this Work's incident ran
+	// with `action_owner: null` — so it fenced correctly and then retried a
+	// notice that could never be filed. A bridge that cannot deliver the
+	// escalation is outside this contract rather than a degraded mode of it.
+	//
+	// NEVER INFERRED. Not from the runner participant, the session, the Route
+	// or runtime telemetry: an owner derived from the runner would make the
+	// runner the addressee of its own incident, which is precisely the
+	// deadlock the fence exists to escalate out of.
+	const actionOwner = config.runtime?.actionOwner;
+	if (typeof actionOwner !== "string" || actionOwner.trim() === "") {
+		throw new Error(
+			"runtime.actionOwner is required for a managed ACP bridge: a "
+			+ "surviving claim owes one durable incident to an explicitly "
+			+ "configured recovery/operations participant, and an ownerless "
+			+ "incident is refused. Configure runtime.actionOwner as "
+			+ "team.member; it is never inferred from the runner participant, "
+			+ "session, Route or runtime telemetry.");
+	}
 	// W101: resolve the accepted role before session selection or process use.
 	// Missing and ambiguous configuration is a launch refusal, never a prompt
 	// an operator must remember to paste into an already-running agent.
@@ -133,6 +175,15 @@ export async function runBridge(config, {
 	// preflight below, a `new` run by its first create-only publication.
 	// Replacement agent processes RESUME it — see AcpAgentSession.setup.
 	const runSelection = { published: false, sessionId: null };
+	// The last envelope this loop read, so a scripted feed has something to
+	// settle against. Production never consults it: `readSlot` below asks the
+	// authority instead.
+	let lastEnvelope = null;
+	const settle = settlement ?? new AcpSettlement(config, {
+		runtime, logger, now,
+		readSlot: runWait
+			? async () => lastEnvelope
+			: async () => await waitOnce(config, { signal, timeout: 0 }) });
 
 	// W27: the session-selection preflight comes FIRST — before the
 	// Baton wait and before any agent is spawned. Both a bootstrap aimed
@@ -157,6 +208,13 @@ export async function runBridge(config, {
 		workdir: config.agent.cwd,
 		readiness: config.baton.config,
 	}, { source: "configured" });
+
+	// W55705: the post-turn canonical claim settlement, restored BEFORE the
+	// first `idle` and before the first delivery. A fence a previous process
+	// wrote is the only thing that knows this participant's claim slot is
+	// stranded, and a bridge that published `idle` first would have already
+	// advertised the capacity it does not have.
+	settle.restore();
 
 	// W11910: the readiness LEVEL, cleared by the canonical claim and by
 	// nothing this bridge does. A completed prompt is transport
@@ -239,6 +297,7 @@ export async function runBridge(config, {
 			// The shared projection-6 gate guards EVERY path into the
 			// agent — scripted test feeds included.
 			validateEnvelope(envelope, config.baton.participant);
+			lastEnvelope = envelope;
 		} catch (error) {
 			if (signal.aborted || error.name === "AbortError") break;
 			logger.warn(`v11 wait failed: ${error.message}; retrying in `
@@ -283,6 +342,26 @@ export async function runBridge(config, {
 		const fresh = memory.sync(envelope);
 		let deliveredNow = 0;
 		let failed = false;
+		// W55705: READINESS IS RETAINED WHILE THE CLAIM SLOT IS FENCED.
+		//
+		// Not withdrawn and not presented: a stranded claim is a reason the
+		// participant CANNOT take work, so later offers stay armed and
+		// visibly blocked on capacity rather than being spent against a lane
+		// that cannot claim them. The reconcile is bounded and clears the
+		// fence the moment a canonical read says the slot is free — an
+		// operator's `release` therefore resumes delivery without anybody
+		// restarting this process.
+		if (settle.fenced()) {
+			await settle.reconcile();
+			if (settle.fenced()) {
+				logger.warn(
+					`${config.baton.participant}'s claim slot is still `
+					+ `stranded; ${fresh.length} readiness action(s) are `
+					+ `retained and no turn is spent`);
+				await delay(config.retryMs, signal);
+				continue;
+			}
+		}
 		for (const action of fresh) {
 			// W28681: WHICH EPISODE THE CURRENT DOMAIN IS SERVING, reset per
 			// ACTION rather than per envelope.
@@ -358,6 +437,48 @@ export async function runBridge(config, {
 				// A prompt that returned says the model stopped talking;
 				// it says nothing about what its tools left running.
 				await settleDomain(`delivering ${action.action_key}`);
+				// W55705: A RETURNED PROMPT IS NOT A TERMINAL RESULT.
+				// ACP gives no semantic completion status, so the only
+				// thing this return proves is that the model stopped
+				// talking — equally consistent with a claim passed back,
+				// a claim still held, and a process killed mid-attempt.
+				// The canonical slot is read before anything advertises
+				// capacity, and a surviving claim fences the lane
+				// instead of publishing `idle` beside it.
+				const settlement = await settle.settle(action,
+					{ session: correlation.session });
+				if (settlement === "stranded") {
+					// The slot is occupied by something this offer cannot
+					// become. Retain it and spend no turn.
+					//
+					// W55705 review (2026-09-01T03:41:20Z) [P1]: BREAK, NOT
+					// CONTINUE. The outer fence check runs once per envelope,
+					// so a `continue` here let the NEXT fresh action
+					// revalidate against its own successful read and start a
+					// turn — after this bridge had just concluded that the
+					// participant's claim slot could not be proved safe. That
+					// is fail-open for exactly the unreadable and drifted
+					// cases the fence is for. Every remaining action is
+					// retained: no prompt, no `markPresented`, no
+					// `markWithdrawn`.
+					failed = true;
+					logger.warn(
+						`${config.baton.participant}'s claim slot is stranded `
+						+ `after ${action.action_key}; the rest of this `
+						+ `envelope is retained and no further turn is spent`);
+					break;
+				}
+				if (settlement === "recoverable") {
+					// W11910 owns this case and still does: the authority is
+					// re-offering the participant's own claimed Work, so the
+					// ordinary offer lifecycle continues. What W55705 changes
+					// is that the runner is NOT advertised idle beside it —
+					// `settle` published `failed` and filed the incident.
+					memory.markPresented(envelope, action);
+					deliveredNow += 1;
+					deliveredTotal += 1;
+					continue;
+				}
 				// The turn returned. `idle` is the honest state for a
 				// runner between turns; silence past the lease deadline
 				// is what becomes `unknown`, and only the authority
@@ -431,6 +552,33 @@ export async function runBridge(config, {
 				// `failed/cause=internal`; a new runtime state to rename
 				// a terminal timeout would be vocabulary rather than
 				// information, and the ruling said so.
+				// W55705: a failed turn strands a claim exactly as a
+				// returned one can, and the finding requires the same
+				// settlement on both. This runs BEFORE the delivery
+				// failure is published so a fenced lane reports the
+				// stranded claim rather than the transport symptom.
+				const settled = await settle.settle(action,
+					{ session: correlation.session });
+				if (settled === "stranded") {
+					// W55705 review [P1]: the same break for the same reason.
+					// A failed turn that stranded the slot must not let the
+					// next action in this envelope start a turn either.
+					failed = true;
+					logger.warn(`could not deliver ${action.action_key}: `
+						+ `${error.message}; the claim survived and the lane `
+						+ `is fenced; the rest of this envelope is retained`);
+					break;
+				}
+				if (settled === "recoverable") {
+					// The claim is the participant's own and is still offered,
+					// so the retry W11910 requires proceeds. The runner is
+					// already published `failed` with the surviving claim named.
+					failed = true;
+					logger.warn(`could not deliver ${action.action_key}: `
+						+ `${error.message}; the claim it holds is still `
+						+ `offered and will be re-delivered`);
+					continue;
+				}
 				await runtime.state("failed",
 					{ ...correlation, ...classifyDelivery(error) });
 				// The key stays undelivered; readiness is never

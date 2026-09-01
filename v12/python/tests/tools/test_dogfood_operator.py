@@ -3719,6 +3719,25 @@ class RetentionIsAnOperatorDecision(OperatorCase):
 
         self.assertIs(dogfood_operator._bound(record, grants), record)
 
+    def test_a_retry_cannot_quietly_select_a_different_worker_image(self):
+        """W55361: the digest is part of the retry binding, executably.
+
+        The approved correction says the artefact is SELECTED by validated
+        digest and that a new grants file is not a selection. `_bound` is the
+        place that sentence is enforceable rather than documentary — a retry
+        whose grants name another image is two attempts being spliced, exactly
+        as a redecided disposition is — and this drives it so the operational
+        boundary cannot be contradicted by an edit that leaves the prose alone.
+        """
+        record, grants = self.paired("retain")
+        grants["image_digest"] = "sha256:" + "9" * 64
+
+        with self.assertRaises(OperatorRefusal) as caught:
+            dogfood_operator._bound(record, grants)
+
+        self.assertIn("worker_image_digest", str(caught.exception))
+        self.assertIn("resumes ONE attempt", str(caught.exception))
+
     def paired(self, committed):
         """A record and grants that agree on everything but what a case varies.
 
@@ -4031,3 +4050,372 @@ class ThePublicRetryRunsFromRealDurableState(intake_fixture.IntakeCase):
         spoke.assert_not_called()
         staged.assert_not_called()
         derived.assert_not_called()
+
+
+class ThePublicRecoveryEndsAnInterruptedAttempt(
+        ThePublicRetryRunsFromRealDurableState):
+    """W55758: the documented `--abandon`, over real durable state.
+
+    `work/records/2026/08/finding-interrupted-dogfood-attempt-strands-runtime-
+    credential/`.
+
+    THE INCIDENT. A managed turn was torn down while `attempt-w51487-run7` was
+    executing. The control arc stopped at `attempt.attach`, so the container,
+    the attempt's volatile credential root with a readable bearer in it, and a
+    complete-looking workspace proposal nothing had frozen all outlived the
+    process that owned them. `evidence.json` is composed in memory and written
+    at the END, so the record naming any of them was never written, and
+    `--retry-handoff` refuses -- correctly, because there is no trusted result
+    to hand on. The manager had its fourth ending and the deployment had no
+    way to invoke it.
+
+    THE FIXTURE INHERITS the real-durable-state rig above and changes ONE
+    thing: `credential_slots` names a real slot. The reviewer's research says
+    in as many words that the existing case cannot catch this integration
+    defect because it configures none -- so an attempt with no credential is
+    exactly the shape in which the false `not-delivered` is true.
+    """
+
+    CANARY = "not-a-real-credential-" + "z" * 24
+
+    def grants(self, task_path):
+        given = super().grants(task_path)
+        # A REAL SLOT, and the profile that maps it. Non-secret on purpose:
+        # what is under test is that the bytes are never opened, and a real
+        # secret in a repository would prove that worse rather than better.
+        given["credential_slots"] = ["api"]
+        given["credential_profile"] = {"api": {"provider": "fixture",
+                                               "reference": "kv/dogfood"}}
+        return given
+
+    def written_grants(self):
+        task_path = os.path.join(self._root.name, "task.json")
+        with open(task_path, "w", encoding="utf-8") as writing:
+            json.dump(dict(TASK), writing)
+        given = self.grants(task_path)
+        grants_path = os.path.join(self._root.name, "grants.json")
+        with open(grants_path, "wb") as writing:
+            writing.write(json.dumps(given).encode("utf-8"))
+        return given, grants_path
+
+    def credential_file(self):
+        place = os.path.join(self._root.name, "canary")
+        with open(place, "w", encoding="utf-8") as writing:
+            writing.write(self.CANARY + "\n")
+        return place
+
+    def recovery_capabilities(self, given):
+        """The real abandonment builder, with the ENGINE supplied.
+
+        Everything about the recovery is the production path -- the stores,
+        the session, the proved roots, the credential owner, the typed orphan
+        teardown and the adapter -- and only the process that would speak to
+        Docker is this fixture's.
+        """
+        def run(argv, *, seconds=None):
+            del seconds
+            if "rm" in argv:
+                return {"stdout": "", "stderr": "", "status": 0}
+            if "inspect" in argv:
+                return {"stdout": "", "stderr": "no such object", "status": 1}
+            return {"stdout": "", "stderr": "", "status": 0}
+
+        return dogfood_operator._for_abandonment(given, run=run)
+
+    def interrupted(self):
+        """One attempt interrupted exactly where run7 was: after attach.
+
+        The credential is materialized through the manager's own home and the
+        attempt is recorded and attached through the manager's own operations,
+        and then nothing else happens -- which is what an interrupted process
+        leaves behind.
+        """
+        from baton_v12.worker_manager import (credentials, launch,
+                                              record_attempt,
+                                              activate_assignment)
+        from baton_v12.worker_manager import attempts as attempts_module
+        from tests.manager.input_roots import configured_group
+
+        given, grants_path = self.written_grants()
+        home = credentials.CredentialHome(given["credential_home"])
+        with open(self.credential_file(), encoding="utf-8") as reading:
+            bearer = reading.read().strip()
+        delivery = home.materialize(
+            credentials.resolved_delivery(
+                given["credential_slots"],
+                profile=given["credential_profile"]),
+            attempt_id=given["attempt_id"],
+            workspace_group=configured_group(self.store),
+            credential_provider=lambda one, two: bearer)
+        home.written_state(given["attempt_id"],
+                           delivery.record(runtime_id="runtime-run7"))
+        for value in delivery.bearers().values():
+            from baton_v12.contracts import forget_secret
+            forget_secret(value)
+        launch.materialize(given["launch_home"],
+                           **dogfood_operator._launch_operands(
+                               given["attempt_id"],
+                               dogfood_operator.frozen_task(
+                                   given["task_path"])))
+        del record_attempt, activate_assignment, attempts_module
+        return given, grants_path, home
+
+    # -- the refusals, before anything is opened ----------------------------
+
+    def test_the_declaration_is_required_and_is_the_operators_own(self):
+        _given, grants_path = self.written_grants()
+        out = os.path.join(self._root.name, "recovery.json")
+        for reason in (None, "", "   "):
+            argv = ["--grants", grants_path, "--evidence", out, "--abandon"]
+            if reason is not None:
+                argv += ["--abandon-reason", reason]
+            with self.subTest(reason=reason):
+                with self.assertRaises(dogfood_operator.OperatorRefusal):
+                    dogfood_operator.main(
+                        argv, capabilities=lambda _g: self.fail("built"),
+                        abandon_capabilities=lambda _g: self.fail("built"))
+        self.assertFalse(os.path.exists(out))
+
+    def test_a_recovery_asks_for_no_credential(self):
+        """A recovery delivers nothing, and asking for a bearer in order to
+        delete one would be the exact read this ending exists to avoid."""
+        _given, grants_path = self.written_grants()
+        out = os.path.join(self._root.name, "recovery.json")
+        with self.assertRaises(dogfood_operator.OperatorRefusal):
+            dogfood_operator.main(
+                ["--grants", grants_path, "--evidence", out, "--abandon",
+                 "--abandon-reason", "the supervising turn was torn down",
+                 "--credential-file", self.credential_file()],
+                capabilities=lambda _g: self.fail("built"),
+                abandon_capabilities=lambda _g: self.fail("built"))
+
+    def test_ending_an_attempt_and_finishing_one_are_not_one_command(self):
+        _given, grants_path = self.written_grants()
+        out = os.path.join(self._root.name, "recovery.json")
+        with self.assertRaises(dogfood_operator.OperatorRefusal):
+            dogfood_operator.main(
+                ["--grants", grants_path, "--evidence", out, "--abandon",
+                 "--abandon-reason", "x", "--retry-handoff"],
+                capabilities=lambda _g: self.fail("built"),
+                retry_capabilities=lambda *_a: self.fail("built"),
+                abandon_capabilities=lambda _g: self.fail("built"))
+
+    def test_a_launcher_with_no_abandonment_path_says_so(self):
+        _given, grants_path = self.written_grants()
+        out = os.path.join(self._root.name, "recovery.json")
+        with self.assertRaises(dogfood_operator.OperatorRefusal):
+            dogfood_operator.main(
+                ["--grants", grants_path, "--evidence", out, "--abandon",
+                 "--abandon-reason", "the supervising turn was torn down"],
+                capabilities=lambda _g: self.fail("the ordinary builder ran"))
+
+    # -- the pre-attach branch ----------------------------------------------
+
+    def test_an_interruption_before_attach_invents_no_terminal_attempt(self):
+        """Review 2026-09-01T03:45:20Z: `_launched` materializes the credential
+        BEFORE the attempt is recorded and started, so a process that died in
+        between left a bearer with no attempt for `abandon_attempt` to end.
+
+        The attempt here was never activated, so no runtime selector can be
+        composed for it -- and the honest answer is a NON-TERMINAL record that
+        names exactly what could not be proved, never a removal on an
+        unproved account.
+        """
+        _given, grants_path, home = self.interrupted()
+        out = os.path.join(self._root.name, "recovery.json")
+        status = dogfood_operator.main(
+            ["--grants", grants_path, "--evidence", out, "--abandon",
+             "--abandon-reason", "the supervising turn was torn down"],
+            capabilities=lambda _g: self.fail("the ordinary builder ran"),
+            abandon_capabilities=self.recovery_capabilities)
+        self.assertEqual(status, 1, "an unproved ending reported success")
+        with open(out, "rb") as reading:
+            written = json.loads(reading.read())
+        self.assertEqual(written["schema"], dogfood_operator.RECOVERY_SCHEMA)
+        self.assertEqual(written["branch"], "pre-attach")
+        self.assertFalse(written["resolved"])
+        self.assertTrue(written["unresolved"])
+        # AND NOTHING WAS REMOVED ON THAT ACCOUNT.
+        self.assertTrue(os.path.isdir(
+            home.volatile_root(intake_fixture.ATTEMPT)))
+        # NOR DID ANY BYTE OF THE CANARY REACH THE RECORD.
+        self.assertNotIn(self.CANARY, json.dumps(written))
+
+
+class TheAttachedRecoveryEndsThroughTheRuledAbandonment(unittest.TestCase):
+    """W55758: `recover_abandoned`'s attached branch, over a real ending.
+
+    THE MEASURED SHAPE, which is run7's: the runtime attached and nothing
+    after it did. The manager's own W44716 ending is what runs -- declaration,
+    authority fence, exact force-removal, positive absence, both provider
+    endings, cleanup `retained`, lane released -- and this composition adds
+    the credential owner that ending was missing, plus the record an operator
+    reads afterwards.
+    """
+
+    def setUp(self):
+        from tests.manager import test_attempts as A
+
+        self.rig = A.ExplicitAbandonmentFencesBeforeItRemoves(
+            "test_the_public_ending_fences_then_removes_and_retains")
+        self.rig.setUp()
+        self.addCleanup(self.rig.doCleanups)
+        self.A = A
+        self._home = tempfile.TemporaryDirectory(prefix="v12-w55758-")
+        self.addCleanup(self._home.cleanup)
+
+    CANARY = "not-a-real-credential-" + "q" * 24
+
+    def credential_home(self, name="granted"):
+        from baton_v12.worker_manager import credentials
+
+        place = os.path.join(self._home.name, name)
+        os.makedirs(place, exist_ok=True)
+        return credentials.CredentialHome(place)
+
+    def materialized(self, home):
+        """A real delivery whose owning object is then let go -- the shape an
+        interrupted process leaves behind."""
+        from baton_v12.contracts import forget_secret
+        from baton_v12.worker_manager import credentials
+        from tests.manager.input_roots import configured_group
+
+        delivery = home.materialize(
+            credentials.resolved_delivery(
+                ["api"], profile={"api": {"provider": "fixture",
+                                          "reference": "kv/one"}}),
+            attempt_id=self.A.ATTEMPT,
+            workspace_group=configured_group(self.rig.store),
+            credential_provider=lambda one, two: self.CANARY)
+        home.written_state(self.A.ATTEMPT,
+                           delivery.record(runtime_id="runtime-1"))
+        for value in delivery.bearers().values():
+            forget_secret(value)
+        return home
+
+    def attached(self, orphan=None):
+        """A real attached attempt, whose destroy runs the REAL credential
+        ending rather than a fixture's opinion of one.
+
+        The rig's custodian answers a fixed `not-delivered`, which is exactly
+        the word under test -- so this one delegates to the orphan capability
+        the way `OciAdapter._torn_down` does, on the same precondition:
+        positive absence first.
+        """
+        from baton_v12.worker_manager import (activate_assignment,
+                                              request_runtime_start)
+
+        class Ending(self.rig.Custodian):
+
+            def destroy_abandoned(self, command):
+                answer = super().destroy_abandoned(command)
+                if orphan is not None and answer["state"] == "absent":
+                    answer["credentials"] = orphan.tear_down()
+                return answer
+
+        self.rig.claimed()
+        activate_assignment(self.rig.store, self.rig.port,
+                            attempt_id=self.A.ATTEMPT,
+                            expect=self.rig.expect())
+        adapter = Ending([])
+        request_runtime_start(self.rig.store, adapter,
+                              attempt_id=self.A.ATTEMPT)
+        return adapter
+
+    def given(self):
+        return {"attempt_id": self.A.ATTEMPT,
+                "work_ref": {"authority_uuid": self.A.AUTHORITY,
+                             "work_id": self.A.JOB}
+                if hasattr(self.A, "AUTHORITY") else {"work_id": "w"},
+                "participant": "baton.claude", "generation": 1,
+                "retention_policy_digest": "sha256:" + "7" * 64,
+                "task_path": None, "launch_home": None}
+
+    def recovered(self, adapter, orphan, reason="the supervising turn died"):
+        return dogfood_operator.recover_abandoned(
+            self.rig.store, self.rig.port, adapter, self.given(),
+            reason=reason, orphan=orphan)
+
+    # -- the acceptance ------------------------------------------------------
+
+    def test_the_public_read_is_what_the_branch_turns_on(self):
+        """`attempt_runtime_of`, and a branch that does not read prose."""
+        from baton_v12.worker_manager import attempt_runtime_of
+
+        self.assertIsNone(attempt_runtime_of(self.rig.store, "attempt-none"))
+        self.attached()
+        found = attempt_runtime_of(self.rig.store, self.A.ATTEMPT)
+        self.assertEqual(found["runtime_id"], "runtime-1")
+        self.assertEqual(found["cleanup"], "pending")
+
+    def test_an_attached_attempt_ends_and_its_credential_is_torn_down(self):
+        """THE WHOLE POINT: `torn-down`, never `not-delivered`."""
+        home = self.materialized(self.credential_home())
+        orphan = self.orphan(home)
+        adapter = self.attached(orphan)
+        record = self.recovered(adapter, orphan)
+
+        self.assertEqual(record["branch"], "abandonment")
+        self.assertTrue(record["authority_fence"]["fenced"])
+        self.assertEqual(record["cleanup"], "retained")
+        self.assertEqual(record["runtime"]["state"], "absent")
+        self.assertEqual(record["credentials"]["lifecycle_state"], "torn-down")
+        self.assertNotEqual(record["credentials"]["lifecycle_state"],
+                            "not-delivered")
+        self.assertTrue(record["resolved"], record["unresolved"])
+        # THE HOST IS CLEAN, asked of the filesystem rather than of the word.
+        self.assertFalse(os.path.lexists(home.volatile_root(self.A.ATTEMPT)))
+        self.assertFalse(os.path.exists(home.state_path(self.A.ATTEMPT)))
+        # AND NOTHING THE WORKER WROTE WAS PROMOTED.
+        row = self.rig.row()
+        self.assertEqual(row["output"], "open")
+        self.assertEqual(row["worker_disposition"], "none")
+        self.assertEqual(row["cleanup"], "retained")
+
+    def orphan(self, *homes):
+        from baton_v12.worker_manager import credentials
+
+        return credentials.OrphanTeardown(self.A.ATTEMPT, homes=list(homes))
+
+    def test_an_attempt_that_delivered_nothing_still_says_not_delivered(self):
+        """The old word is true exactly when nothing was ever delivered."""
+        adapter = self.attached()
+        record = self.recovered(adapter, None)
+        self.assertEqual(record["credentials"],
+                         {"lifecycle_state": "not-delivered"})
+        self.assertTrue(record["resolved"], record["unresolved"])
+
+    def test_a_record_written_by_this_recovery_carries_no_bearer(self):
+        home = self.materialized(self.credential_home())
+        orphan = self.orphan(home)
+        adapter = self.attached(orphan)
+        record = self.recovered(adapter, orphan)
+        place = os.path.join(self._home.name, "recovery.json")
+        dogfood_operator.write_recovery(record, place)
+        with open(place, encoding="utf-8") as reading:
+            body = reading.read()
+        self.assertNotIn(self.CANARY, body)
+        self.assertIn('"lifecycle_state": "torn-down"', body)
+
+    def test_an_ending_reporting_no_credential_teardown_is_unresolved(self):
+        """The gap said out loud rather than papered over: this recovery holds
+        credential material and the ending did not settle it."""
+        adapter = self.attached()          # no orphan reaches the destroy
+        home = self.materialized(self.credential_home())
+        record = self.recovered(adapter, self.orphan(home))
+        self.assertEqual(record["credentials"]["lifecycle_state"],
+                         "unresolved")
+        self.assertFalse(record["resolved"])
+
+    def test_a_refused_ending_is_recorded_rather_than_raised(self):
+        """An attempt whose worker answered cannot be abandoned, and the
+        recovery says so instead of failing the command."""
+        from baton_v12.worker_manager import observe
+
+        adapter = self.attached()
+        observe(self.rig.store, attempt_id=self.A.ATTEMPT,
+                axis="worker_disposition", value="completed")
+        record = self.recovered(adapter, None)
+        self.assertFalse(record["resolved"])
+        self.assertTrue(any("declined to abandon" in one
+                            for one in record["unresolved"]))

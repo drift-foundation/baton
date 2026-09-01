@@ -28,6 +28,18 @@ reasonably have crossed:
   roots, the configured workspace group, the credential source and the network
   name. There is no home credential, no mutable image tag and no open-network
   default anywhere in this file, because a default is a grant nobody made.
+  NOT THE PLACE THE IMAGE IS SELECTED, and W55361 approver event 55641 is why
+  that sentence is here rather than assumed. The worker artefact is SELECTED
+  BY VALIDATED DIGEST in the owning Work's record, chronologically, and this
+  command CONSUMES that exact digest and reports what it launched. A new
+  attempt reuses the current selection: an attempt is not a rebuild trigger.
+  A build result is a CANDIDATE until a recorded upgrade, source, security,
+  platform or refresh event validates it and explicitly selects its digest --
+  so writing a fresh digest into a new grants file is not a selection, it is
+  an operator claiming an authorization no record made. The measured reason is
+  in `tools/worker_image.py`: two builds of an unchanged tree a day apart
+  differ in the `npm` and `apt` layers alone, so rebuilding per attempt
+  silently changes the artefact under test.
 
 THE ORDER, and it is the accepted arc rather than this module's invention:
 
@@ -130,6 +142,8 @@ from baton_v12.worker_manager.oci import _network as _engine_network
 from baton_v12.worker_manager.authority_port import SESSION_OPERATIONS
 
 __all__ = ["DeploymentSession", "MAX_SOURCE_ENTRIES", "MAX_SOURCE_BYTES",
+           "RECOVERY_MEMBERS", "RECOVERY_SCHEMA", "recover_abandoned",
+           "write_recovery",
            "PROPOSAL_TARGET", "POLICY_DIGESTS", "SOURCE_TARGET",
            "OperatorRefusal", "assignment_manifest", "frozen_task",
            "held_task", "input_manifest", "preflight", "stage_source"]
@@ -916,6 +930,30 @@ EVIDENCE_MEMBERS = (
     "quiescence", "intake_receipt", "custody", "review_pass", "abandoned",
     "observed_after")
 
+# W55758: THE RECOVERY RECORD, and it is a DIFFERENT DOCUMENT from the
+# evidence above rather than more members on it.
+#
+# The two answer different questions and are written by different processes.
+# An evidence record is one supervised attempt's own account, composed as the
+# arc runs; a recovery record is what a LATER operator did about an attempt
+# whose supervising process died before it could write one. Folding the second
+# into the first would mean either loosening the closed member set that keeps
+# the worker's account out of a durable file, or writing a record that claims
+# to be an attempt's evidence while most of it was never observed.
+#
+# WHAT IT SEPARATES, because the contract asks for each fact on its own: the
+# authority fence, the runtime removal, the credential ending, the launch
+# ending, the directory custody and the terminal manager state. Nothing here
+# is a credential byte or a digest of one, and nothing here calls the
+# worker-authored workspace output trusted -- it is not read at all.
+RECOVERY_SCHEMA = "baton.dogfood-recovery/1"
+
+RECOVERY_MEMBERS = (
+    "schema", "attempt_id", "work_ref", "participant", "generation",
+    "reason", "branch", "attempt_state", "authority_fence", "runtime",
+    "credentials", "launch", "custody", "cleanup", "observed_after",
+    "resolved", "unresolved")
+
 # A CEILING ON WHAT IS WRITTEN, not a truncation of what happened. Prose in
 # this document is manager refusal text and this deployment's own sentences;
 # an unbounded one would be an unbounded durable write driven by an untrusted
@@ -947,29 +985,47 @@ def write_evidence(evidence, place):
     crash mid-write leaves the previous one intact; the directory is synced
     because the rename is the act that has to survive.
     """
+    return _written_document(evidence, place, EVIDENCE_MEMBERS,
+                             "a dogfood evidence record", "an evidence record")
+
+
+def write_recovery(record, place):
+    """W55758: the recovery record, under the SAME three holds.
+
+    One writer for both documents rather than two, because the holds are the
+    security property and a second copy of them is a second place for one of
+    them to be quietly dropped. What differs is the closed member set and the
+    noun in the refusal -- both operands.
+    """
+    return _written_document(record, place, RECOVERY_MEMBERS,
+                             "a dogfood recovery record", "a recovery record")
+
+
+def _written_document(document, place, members, what, noun):
     import tempfile
 
     from baton_v12.contracts import check_no_durable_secret
 
-    if type(evidence) is not dict:
+    if type(document) is not dict:
         raise OperatorRefusal(
             f"the evidence written for an operator is one document; this is a "
-            f"{type(evidence).__name__}")
+            f"{type(document).__name__}")
     try:
-        check_no_durable_secret(evidence, "a dogfood evidence record")
+        check_no_durable_secret(document, what)
     except ContractRefusal as refused:
         # THE OPERATOR'S OWN VOCABULARY at the operator's own boundary, and
         # the manager's sentence kept inside it rather than replaced.
         raise OperatorRefusal(
             f"this evidence record will not be written: {refused.message}")
-    missing = sorted(one for one in EVIDENCE_MEMBERS if one not in evidence)
-    extra = sorted(one for one in evidence if one not in EVIDENCE_MEMBERS)
+    evidence = document
+    missing = sorted(one for one in members if one not in evidence)
+    extra = sorted(one for one in evidence if one not in members)
     if missing or extra:
         raise OperatorRefusal(
-            "an evidence record is exactly the members this operator composes"
+            f"{noun} is exactly the members this operator composes"
             + (f"; missing {', '.join(missing)}" if missing else "")
             + (f"; unexpected {', '.join(extra)}" if extra else ""))
-    body = json.dumps({one: evidence[one] for one in EVIDENCE_MEMBERS},
+    body = json.dumps({one: evidence[one] for one in members},
                       indent=2, sort_keys=True).encode("utf-8")
     if len(body) > MAX_EVIDENCE_BYTES:
         raise OperatorRefusal(
@@ -2169,6 +2225,232 @@ def _ended_however(store, port, adapter, evidence, *, attempt_id, runtime_id,
     evidence["observed_after"] = _observed_after(adapter, runtime_id)
 
 
+def recover_abandoned(store, port, adapter, given, *, reason, orphan,
+                      launch_home=None):
+    """W55758: end an attempt whose SUPERVISING PROCESS died, from the grants.
+
+    THE OBSERVED DEFECT. A managed turn was torn down while `attempt-w51487-
+    run7` was executing. The v12 control arc stopped at `attempt.attach`, so
+    three external facts outlived the process that owned them: the container,
+    the attempt's volatile credential root with a readable bearer in it, and a
+    complete-looking workspace proposal nothing had frozen. `evidence.json` is
+    composed in memory and written at the END, so the record that would have
+    named any of them was never written -- and `--retry-handoff` refuses,
+    correctly, because there is no trusted result to hand on. The deployment
+    therefore had the manager's fourth ending, `abandon_attempt`, and no way
+    to invoke it.
+
+    IT NEEDS NO LOST EVIDENCE AND NO CREDENTIAL. What it takes is the grants
+    the attempt already ran under, the operator's own reason, and a path for a
+    NEW record. There is no `--credential-file`: a recovery delivers nothing,
+    and asking for a bearer in order to delete one would be the exact read
+    this ending exists to avoid.
+
+    TWO BRANCHES, ON DURABLE MANAGER STATE, and review 2026-09-01T03:45:20Z
+    pinned the distinction. `abandon_attempt` refuses an attempt with no
+    attached runtime -- deliberately, because there is nothing to end -- while
+    the interruption matrix includes attempts interrupted after the credential
+    was materialized and before the runtime attached. So the branch is taken
+    from `attempt_runtime_of`, which is the manager's own record of whether a
+    runtime is attached, rather than from the wording of a refusal.
+
+      attached      the ruled W44716 ending: declaration, authority fence,
+                    exact force-removal, positive absence, both provider
+                    endings, directory custody, cleanup `retained`, lane
+                    released. Nothing here duplicates any of it.
+      pre-attach    exact, bounded, no-read cleanup, and only after a public
+                    surface has proved this attempt's material belongs to no
+                    live runtime. NO terminal attempt is invented: an attempt
+                    that never attached one has no runtime ending to record.
+
+    AND NOTHING ELSE HAPPENS. No restage, no offer, no claim, no provider
+    turn, no worker conversation, no freeze, no intake, no retention decision,
+    no pass, and not one byte of the workspace proposal is read or promoted.
+    The complete-looking output stays exactly where the worker left it, open
+    and untrusted, which is the rule M33800 set for every recordless ending.
+    """
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import abandon_attempt, attempt_runtime_of
+
+    record = {"schema": RECOVERY_SCHEMA,
+              "attempt_id": given["attempt_id"],
+              "work_ref": dict(given["work_ref"]),
+              "participant": given["participant"],
+              "generation": given["generation"],
+              "reason": reason, "branch": None, "attempt_state": None,
+              "authority_fence": None, "runtime": None, "credentials": None,
+              "launch": None, "custody": None, "cleanup": None,
+              "observed_after": None, "resolved": False, "unresolved": []}
+    state = attempt_runtime_of(store, given["attempt_id"])
+    record["attempt_state"] = state
+    if state is None or state["runtime_id"] is None:
+        record["branch"] = "pre-attach"
+        return _pre_attach_recovered(record, store, adapter, given,
+                                     orphan=orphan, launch_home=launch_home)
+    record["branch"] = "abandonment"
+    try:
+        ended = abandon_attempt(
+            store, port, adapter, attempt_id=given["attempt_id"],
+            reason=reason,
+            retention_policy_digest=given["retention_policy_digest"])
+    except _Refusal as refused:
+        return _unresolved(record, f"the manager declined to abandon the "
+                                   f"attempt: {refused.message}")
+    settled = ended["cleanup"]
+    record["authority_fence"] = {
+        "fenced": bool(ended["fenced"].get("fenced")),
+        "generation": ended["fenced"].get("generation")}
+    record["runtime"] = {"runtime_id": state["runtime_id"],
+                         "state": settled.get("state"),
+                         "why": settled.get("why")}
+    record["cleanup"] = settled.get("cleanup")
+    record["custody"] = settled.get("directory_custody")
+    # THE CREDENTIAL ENDING IS THE CAPABILITY'S OWN ACCOUNT, kept by the
+    # object that performed it rather than inferred from the settlement. The
+    # abandonment document reports the runtime and the cleanup; what the
+    # credential owner did is its own answer, and reading it here is how this
+    # record can say `torn-down` without asserting anything itself.
+    if orphan is None:
+        record["credentials"] = {"lifecycle_state": "not-delivered"}
+    elif orphan.ending is None:
+        # THE ENDING RAN AND THE CREDENTIAL OWNER WAS NOT ASKED. That is not
+        # an ending for the credential, and it is not `not-delivered` either
+        # -- this deployment built the teardown precisely because durable
+        # facts say a credential WAS delivered. Unresolved, and named.
+        record["credentials"] = {
+            "lifecycle_state": "unresolved",
+            "why": "the attempt ending reported no credential teardown for "
+                   "an attempt this recovery holds credential material for"}
+    else:
+        record["credentials"] = orphan.ending
+    record["launch"] = _launch_after(given, launch_home)
+    record["observed_after"] = _observed_after(adapter, state["runtime_id"])
+    if settled.get("cleanup") != "retained" \
+            or settled.get("state") != "absent":
+        _unresolved(record,
+                    f"the abandonment ended {settled.get('cleanup')!r} with "
+                    f"the runtime {settled.get('state')!r}")
+    if record["credentials"].get("lifecycle_state") not in (
+            "torn-down", "not-delivered"):
+        _unresolved(record,
+                    f"the credential ending is "
+                    f"{record['credentials'].get('lifecycle_state')!r}")
+    _held_orphan_absent(record, orphan)
+    if not record["unresolved"]:
+        record["resolved"] = True
+    return record
+
+
+def _pre_attach_recovered(record, store, adapter, given, *, orphan,
+                          launch_home):
+    """The interruption that never reached a runtime, ended exactly.
+
+    Review 2026-09-01T03:45:20Z: `_launched` materializes the credential
+    BEFORE `run_dogfood_task` records and starts the attempt, so a process
+    that died in between left a bearer on the host and no attempt for
+    `abandon_attempt` to end. Forcing that through the W44716 ending would be
+    inventing a terminal attempt; leaving it alone would be leaving the exact
+    material this Work exists to remove.
+
+    THE PROOF COMES FIRST AND IT IS THE MANAGER'S. `recover_credentials` is
+    the public surface that asks the engine whether any runtime carries this
+    attempt's whole label set, stops what it finds, and performs bounded
+    orphan cleanup only when that stop is PROVED -- removing a mount source
+    out from under a container this manager cannot say is gone is the one act
+    worse than leaving it. This composes nothing of its own on top.
+    """
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import label_context
+
+    try:
+        context = label_context(store, given["attempt_id"])
+    except _Refusal as refused:
+        return _unresolved(
+            record,
+            f"this attempt is not activated, so no runtime selector can be "
+            f"composed for it and its material cannot be proved unheld: "
+            f"{refused.message}")
+    try:
+        answered = adapter.recover_credentials({
+            "attempt_id": given["attempt_id"],
+            "assignment": {"work_ref": dict(given["work_ref"]),
+                           "participant": given["participant"],
+                           "generation": given["generation"]},
+            "context": context})
+    except _Refusal as refused:
+        return _unresolved(
+            record,
+            f"this attempt's credential material could not be proved unheld: "
+            f"{refused.message}")
+    if answered.get("lifecycle_state") != "absent":
+        # A LIVE RUNTIME ADOPTED IT, and the manager's own row said no runtime
+        # is attached. Two accounts that disagree are not an ending.
+        return _unresolved(
+            record,
+            f"the manager records no attached runtime and a live one "
+            f"answered {answered.get('lifecycle_state')!r} for this "
+            f"attempt's credential; nothing is removed on two accounts that "
+            f"disagree")
+    # PROVED UNHELD, so the rest of this attempt's material may end. The
+    # orphan capability covers the OTHER home the legacy split put a record
+    # under; `recover_credentials` acted only through the adapter's own.
+    record["credentials"] = (orphan.tear_down() if orphan is not None
+                             else {"lifecycle_state": "not-delivered"})
+    record["runtime"] = {"runtime_id": None, "state": "absent",
+                         "why": "no runtime was ever attached to this attempt"}
+    record["launch"] = _launch_after(given, launch_home, discard=True)
+    _held_orphan_absent(record, orphan)
+    if not record["unresolved"]:
+        record["resolved"] = True
+    return record
+
+
+def _held_orphan_absent(record, orphan):
+    """Every held home proved empty AFTER the ending, or named as unresolved.
+
+    The deployment's own half of the credential proof, and it is asked of the
+    filesystem rather than inferred from a word. `CredentialHome` proves each
+    removal as it makes it; this proves the whole set once more at the end,
+    because a recovery that reported an ending while a bearer was still on the
+    host is precisely the failure this Work exists to remove.
+    """
+    if orphan is None:
+        return record
+    for found in orphan.evidence():
+        if found["volatile_root"] or found["lifecycle_record"]:
+            _unresolved(record,
+                        f"credential material for this attempt is still "
+                        f"present under {found['home']}")
+    return record
+
+
+def _launch_after(given, launch_home, *, discard=False):
+    """What became of the launch root, read through the manager's own adopt.
+
+    A READ, and the abandonment's own `destroy_abandoned` has already settled
+    it on the attached branch -- so this reports rather than repeats. On the
+    pre-attach branch nothing has settled it, and `launch.discard` is the
+    manager's own removal for exactly that root.
+    """
+    from baton_v12.worker_manager import launch
+
+    if launch_home is None:
+        return {"lifecycle_state": "not-delivered"}
+    adopted = launch.adopt(
+        launch_home,
+        **_launch_operands(given["attempt_id"],
+                           frozen_task(given["task_path"])))
+    if adopted is None:
+        return {"lifecycle_state": "torn-down"}
+    if not discard:
+        return {"lifecycle_state": "unresolved",
+                "why": "the launch root is still present after the ending"}
+    if launch.discard(adopted.root):
+        return {"lifecycle_state": "torn-down"}
+    return {"lifecycle_state": "unresolved",
+            "why": "the launch root is still present after removal"}
+
+
 def _abandonment_reason(evidence):
     """Why THIS deployment is declaring the attempt over, in its own words.
 
@@ -2476,7 +2758,27 @@ def _held_grants(given):
               human_contract=given["human_contract"])
 
 
-def main(argv, *, capabilities, retry_capabilities=None):
+def _abandoned(given, reason, capabilities, place):
+    """The public recovery, over freshly built ending-only capabilities."""
+    from baton_v12.worker_manager import AuthorityPort
+    from baton_v12.authority import claim_signature
+
+    built = capabilities(given)
+    try:
+        answered = recover_abandoned(
+            built["store"],
+            AuthorityPort(built["session"], claim_signature),
+            built["adapter"], given, reason=reason, orphan=built["orphan"],
+            launch_home=built["launch_home"])
+    finally:
+        for closing in built.get("closing", ()):
+            closing()
+    write_recovery(answered, place)
+    return 0 if answered["resolved"] else 1
+
+
+def main(argv, *, capabilities, retry_capabilities=None,
+         abandon_capabilities=None):
     """The documented command, and it answers a process exit status.
 
     ONE INJECTED THING, and it is a FUNCTION OF THE GRANTS. The seven
@@ -2516,6 +2818,18 @@ def main(argv, *, capabilities, retry_capabilities=None):
                              "delivers; read once into memory, never written "
                              "back, and never a grants member because a "
                              "grants file is a durable surface")
+    parser.add_argument("--abandon", action="store_true",
+                        help="end an attempt whose supervising process died "
+                             "before it could freeze output or destroy its "
+                             "runtime; requires --abandon-reason, needs no "
+                             "retained evidence and no credential, delivers "
+                             "nothing, accepts no output and writes a "
+                             "recovery record to --evidence")
+    parser.add_argument("--abandon-reason",
+                        help="the operator's own account of why this attempt "
+                             "is being declared over; calling the command IS "
+                             "the declaration, so no timer and no clock "
+                             "decides it")
     parser.add_argument("--retry-handoff", action="store_true",
                         help="retry ONLY the pass and settlement of an "
                              "attempt whose completed, independently verified "
@@ -2523,7 +2837,34 @@ def main(argv, *, capabilities, retry_capabilities=None):
                              "no worker, starts no runtime and restages "
                              "nothing")
     options = parser.parse_args(argv)
+    if options.abandon and options.retry_handoff:
+        raise OperatorRefusal(
+            "--abandon ends an attempt and --retry-handoff finishes one; a "
+            "command that was asked for both was asked to do two different "
+            "things to one attempt")
     given = read_grants(options.grants)
+    if options.abandon:
+        # W55758. THE REASON IS REQUIRED AND IS THE DECLARATION. `abandon_
+        # attempt` refuses a blank one because calling it IS the operator's
+        # act, and this refuses before a store is opened for the same reason
+        # the retry does: building a capability is already an outward act.
+        if abandon_capabilities is None:
+            raise OperatorRefusal(
+                "this launcher supplies no abandonment capability path; a "
+                "recovery constructs an ending and allocates nothing, so it "
+                "is not the ordinary builder with a flag")
+        if not (options.abandon_reason or "").strip():
+            raise OperatorRefusal(
+                "--abandon carries the operator's own --abandon-reason; "
+                "calling this command IS the declaration that the attempt is "
+                "over, so a blank one is a declaration nobody made")
+        if options.credential_file:
+            raise OperatorRefusal(
+                "--abandon delivers no credential and reads no bearer; a "
+                "recovery that asked for one would be opening the exact "
+                "material its own ending exists to remove")
+        return _abandoned(given, options.abandon_reason.strip(),
+                          abandon_capabilities, options.evidence)
     if options.retry_handoff:
         # APPROVER RULING M46985, REACHABLE. Review [P0]: the narrow retry
         # existed as a function nobody could call -- an operator whose pass
@@ -2943,6 +3284,86 @@ def _for_retry(evidence, given, *, provider=None):
                     # is, rather than in a component that cannot know it.
                     launch_delivery=_adopted_launch(evidence, given),
                     credential_delivery=delivery,
+                    # W55758: THE SAME HOME THIS BUILDER ADOPTED THROUGH.
+                    # Without it the adapter derived its own from the
+                    # assignment workspace while this read the operator's
+                    # granted one, so materialization, publication, adoption
+                    # and teardown had two owners that agreed only when the
+                    # two paths happened to coincide -- and for a real attempt
+                    # they did not.
+                    credential_home=home,
+                    network=given["network"], interactive=True)}
+    except BaseException:                                # noqa: BLE001
+        _unwinding(opened)
+        raise
+
+
+def _for_abandonment(given, *, run=None):
+    """Only what an ENDING needs, and nothing that delivers or allocates.
+
+    W55758. No engine channel, no provider callback, no credential
+    materialization and no workspace allocation: a recovery runs no container,
+    opens no conversation and delivers nothing. What it constructs is the
+    store, the session, the roots the manager already proved, and an adapter
+    carrying the two credential capabilities this ending turns on.
+
+    THE ORPHAN TEARDOWN IS BUILT FROM DURABLE FACTS, never from the absence of
+    an in-memory delivery. `credential_slots` is the operator's own grant and
+    says whether this attempt was ever to carry a credential; an attempt
+    granted none has nothing to end and honestly reports `not-delivered`. An
+    attempt granted one gets the teardown even when its material is already
+    gone, because "proved absent" is the ending and "never delivered" is a
+    different and false claim.
+
+    BOTH HOMES, because one legacy attempt really has two. The granted home is
+    the one-owner correction going forward; the assignment-derived home is
+    where this deployment's own split published run7's and run8's lifecycle
+    records. Each is a proved `CredentialHome` asked only about its own two
+    locations -- the record's `credential_root` member is never read and never
+    followed.
+    """
+    from baton_v12.authority import Authority
+    from baton_v12.worker_manager import ControlStore, credentials, launch
+    from baton_v12.worker_manager.oci import EnginePort, OciAdapter
+
+    authority = Authority.open(given["authority_store"])
+    opened = [authority.dispose]
+    try:
+        session = DeploymentSession(authority.session(given["participant"]))
+        store = ControlStore.open(given["control_store"],
+                                  incarnation=given["incarnation"],
+                                  clock=_now)
+        opened.append(store.close)
+        roots = _proved_roots(given)
+        granted = credentials.CredentialHome(given["credential_home"])
+        assignment = credentials.CredentialHome(
+            os.path.dirname(roots["workspace"].rstrip("/")))
+        orphan = (credentials.OrphanTeardown(given["attempt_id"],
+                                             homes=[granted, assignment])
+                  if given["credential_slots"] else None)
+        adopted = launch.adopt(
+            given["launch_home"],
+            **_launch_operands(given["attempt_id"],
+                               frozen_task(given["task_path"])))
+        return {"store": store, "session": session, "orphan": orphan,
+                "launch_home": given["launch_home"],
+                "closing": (store.close, authority.dispose),
+                "adapter": OciAdapter(
+                    given["engine"], EnginePort(run or _engine_run),
+                    identity={"image_digest": given["image_digest"],
+                              "profile_digest": given["runtime_profile_digest"],
+                              "policy_digest": given["policies"]["policy_digest"],
+                              "adapter_digest": given["adapter_digest"]},
+                    assignment_roots=roots, posture="execution",
+                    mounts=[], workspace_group=_configured_group(store),
+                    launch_delivery=adopted,
+                    # NO `credential_delivery`. The object that owned it died
+                    # with the process this recovery is standing in for, and
+                    # rebuilding one -- which means READING the bearer back --
+                    # merely to delete it is the one act this ending must not
+                    # perform.
+                    credential_orphan=orphan,
+                    credential_home=granted,
                     network=given["network"], interactive=True)}
     except BaseException:                                # noqa: BLE001
         _unwinding(opened)
@@ -3119,6 +3540,11 @@ def _launched(given, *, credential_provider):
                 workspace_group=group,
                 launch_delivery=launch,
                 credential_delivery=credential_delivery,
+                # W55758: ONE OWNER, from the first act of the attempt. The
+                # home that materialized the delivery is the home that
+                # publishes its lifecycle record, so a later restart finds the
+                # root and the record under one place.
+                credential_home=home,
                 network=network,
                 # INTERACTIVE, so idle PID 1 outlives the exec'd worker program
                 # and the transport has something to `exec` into.
@@ -3181,4 +3607,5 @@ if __name__ == "__main__":
     _sys.exit(main(_sys.argv[1:],
                    capabilities=lambda given: _launched(
                        given, credential_provider=_provider),
-                   retry_capabilities=_for_retry))
+                   retry_capabilities=_for_retry,
+                   abandon_capabilities=_for_abandonment))
