@@ -11,20 +11,23 @@
    integration, changed-path reporting and review sign-off. Preserve the
    measured W52821 lineage and seven-path closure in
    `evidence/research-2026-09-01/README.md`.
-4. [pending approver ruling] Approve or replace the proposed separate import
-   contract: immutable retained base artifact, ordered digest-linked inherited
-   proposal lineage, and directly derived explicit path-state closure bound to
-   the signed final candidate.
-5. [pending approver ruling] Choose the repository-integrator exclusive
-   write/fence boundary; require all-path three-way preflight, whole-import
-   overlap refusal, no automatic merge and no integration receipt after a
-   partial write.
-6. [pending explicit scheduling] Implement the approved contract and exact
-   conflict refusal in a fresh isolated v12 attempt. Preserve W61981 task/2 as
-   the distinct verification-context owner.
-7. [pending verification] Independently verify single-run, inherited-candidate,
-   reversion, addition/deletion, disjoint current-work, idempotent and
-   overlapping-conflict cases before import.
-8. [pending independent gate] Inspect and rerun the isolated retained proposal,
-   sign the base, closure and final-candidate digests, and only then permit the
-   repository integrator to act.
+4. [done, superseding ruling 2026-09-01] Reject the proposed custom retained-
+   base, inherited-proposal-lineage and byte-closure importer for Git-backed
+   Work. Preserve the reproduction as evidence that uncommitted candidate-tree
+   overlays are not valid assignment bases.
+5. [pending explicit scheduling] Make the dogfood Git path name one exact base
+   commit, give the private worker durable access to its objects, and require
+   the declared output to retain an immutable proposal head plus the objects
+   needed to inspect it.
+6. [pending explicit scheduling] Make correction revisions use additional
+   immutable commits on the same private history. Make a dependent Job name
+   the accepted predecessor commit as its base and record the Work dependency;
+   never stage an uncommitted retained candidate as an implicit source.
+7. [pending verification] From a clean context, prove independent forks from
+   one base, a review correction revision, an explicit dependent Job and
+   refusal of an uncommitted candidate-tree source. Review the exact declared
+   base-to-head commit range.
+8. [pending integration gate] Hand an accepted immutable proposal to the
+   existing distinct Git-aware integration stage. Keep the Worker Manager
+   artifact-neutral and use normal Git conflict/refusal behavior rather than a
+   custom byte importer.

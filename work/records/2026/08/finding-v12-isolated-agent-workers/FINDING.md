@@ -2134,3 +2134,22 @@ or habit does not. W61599's mistaken direct `baton.impl` handoff clarified this
 boundary: release it for v12 if implementation has not materially started; if
 it has, finish it as the explicit final legacy exception rather than discard
 useful work.
+
+## Git-backed Jobs use ordinary commit ancestry — confirmed 2026-09-01
+
+The local proposal and integration workflow above is also the coordination
+model between Jobs. Every Git-backed implementation Job forks one exact commit
+in a private clone and returns commits. Independent Jobs may share a base. A
+dependent Job receives the predecessor's published commit as its explicit base
+and carries a Baton dependency on that Work. Review corrections create new
+immutable proposal revisions in the same private Git history. A distinct
+integration Job or trusted integrator merges accepted commits in dependency
+order.
+
+An uncommitted retained candidate directory is never an implicit base for a
+later Job. Baton does not invent proposal-stack lineage, path unions or a
+second merge algorithm: Git owns commit ancestry and merge semantics, Baton
+owns Work dependencies, offers, claims, review and approval. The artifact-
+neutral Worker Manager merely retains generic inputs and outputs; Git-aware
+drivers and stages interpret the durable repository/object transport named by
+those envelopes.

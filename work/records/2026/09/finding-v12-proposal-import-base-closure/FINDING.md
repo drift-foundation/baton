@@ -115,3 +115,57 @@ implicitly an import base.
 4. Choose the exact repository-integrator write/fence mechanism. The current
    dogfood operator has no filesystem importer and v12 authority integration
    advances only the canonical target digest.
+
+## Superseding ruling — 2026-09-01
+
+**The proposed retained-base, inherited-proposal-lineage and byte-closure
+import contract above is rejected for Git-backed Work.** It overfit the W52821
+manual dogfood correction sequence into a new ancestry mechanism even though
+the confirmed v12 architecture already assigns that responsibility to Git.
+The observations and reproduction remain valid evidence of why an
+uncommitted candidate tree must not become an implicit source for another
+Job; the proposed correction is superseded.
+
+Git-backed v12 Work follows the established large-project development model:
+
+- every implementation assignment names one exact immutable base commit and
+  has durable access to the corresponding Git objects;
+- the worker uses a private clone, creates ordinary commits, and returns an
+  immutable proposal head plus self-contained or otherwise durable Git object
+  transport in its declared output;
+- independent Jobs may fork from the same base commit;
+- a Job that depends on another Job's result names the predecessor's published
+  commit as its own base and records the Work dependency explicitly;
+- review evaluates the exact base-to-proposal commit range and binds its
+  verdict to the immutable proposal revision;
+- a distinct integration Job or trusted integrator merges an accepted
+  proposal into the current target under the already confirmed Git workflow;
+  conflicts stop for a newly planned assignment rather than invoking a Baton-
+  specific automatic merge; and
+- only an accepted commit, never an uncommitted retained candidate directory,
+  becomes input to later Git-backed Work.
+
+A correction requested during review is another immutable proposal revision
+on the same private Git history, not an overlay of copied candidate trees.
+Git ancestry is the lineage; Baton records Work dependencies and lifecycle,
+but does not duplicate commit ancestry with custom path-state records.
+
+The Worker Manager remains artifact-neutral. It stages and freezes generic
+input/output directories and records their digests. The Git-capable source
+stager, worker, verifier and integrator interpret base/head/object transport;
+the manager does not run Git. Non-Git Work continues to use immutable generic
+input and output artifacts under its own format contract.
+
+### Revised acceptance
+
+- A Git-backed assignment refuses to use an uncommitted retained candidate
+  directory as an implicit base.
+- Its input identifies one exact base commit with durable object availability.
+- Its output identifies an immutable proposal head and retains the Git objects
+  needed to inspect that head from the declared base.
+- A follow-up proposal revision and a dependent Job both use explicit commits;
+  the dependent Job also carries an explicit Work dependency.
+- Independent review proves the declared base/head relationship and reviews
+  that commit range from a clean context.
+- Integration is a separate Git-aware stage; the Worker Manager stays format-
+  neutral and no custom inherited-proposal lineage or byte importer is added.
