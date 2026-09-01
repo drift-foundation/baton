@@ -877,6 +877,15 @@ COVERED_ELSEWHERE = {
         "bearer live",
     ("offers.py", "accept_offer", "offers"):
         "the same, for the acceptance act",
+    # W61599: the liveness projection. Two values are written and neither is
+    # anything a caller composed: the count is a whole number this manager
+    # proved, and the instant is `store._now()` -- the same clock the journal
+    # stamps its own rows from. No worker byte, no provider text and no path
+    # reaches either column, which is the whole reason the projection is a
+    # length rather than a sample of what was read.
+    ("attempts.py", "observe_activity", "attempts"):
+        "a proved non-negative count and this manager's own instant; no "
+        "caller text and no observed content reaches either column",
     ("attempts.py", "record_attempt", "attempts"):
         "written inside the journalled record act",
     ("attempts.py", "activate_assignment", "attempts"):
@@ -1080,6 +1089,13 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
     "lane_reference": "projects four authority-owned identity parts off the "
                       "attempt row; there is no operand to construct from",
     "runtime_lane": "the same, plus who holds the lane and what blocks it",
+    "attempt_activity_of": "projects the two liveness numbers off the attempt "
+                           "row; there is no operand to construct from and no "
+                           "observed content is reachable from either value",
+    "observe_activity": "answers that same projection after writing a count "
+                        "it proved and an instant it took from the store's "
+                        "own clock; nothing the observed child produced is "
+                        "carried, held or returned",
     "attempt_runtime_of": "projects four runtime axes off the attempt row "
                           "plus the assignment document activation fixed, so "
                           "a recovery can branch on durable manager state and "

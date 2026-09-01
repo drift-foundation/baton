@@ -313,6 +313,13 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
             # one caller text -- the attempt id -- and answer off the row it
             # names.
             "attempt_runtime_of": ((store, "attempt-1"), {}, [1]),
+            # W61599: the liveness projection's read and its writer. The read
+            # takes one caller text; the writer takes that same text beside a
+            # count, which is not text and is proved on its own.
+            "attempt_activity_of": ((store, "attempt-1"), {}, [1]),
+            "observe_activity": (
+                (store,), dict(attempt_id="attempt-1", bytes_observed=0),
+                ["attempt_id"]),
             "label_context": ((store, "attempt-1"), {}, [1]),
             "request_freeze": (
                 (store, port, _NoAdapter()),

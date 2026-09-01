@@ -47,6 +47,7 @@ from .store import manager_signature
 __all__ = ["TRANSITIONS", "AXES", "CONTEXT_COLUMNS",
            "start_failure_operation_id", "record_attempt",
            "observe", "activate_assignment", "label_context",
+           "attempt_activity_of", "observe_activity",
            "request_runtime_start",
            "reconcile_runtime", "request_cancellation"]
 
@@ -225,6 +226,106 @@ def attempt_runtime_of(store, attempt_id):
             # refusal at the caller: an attempt with no fixed assignment is
             # not one a grants file can be held against.
             "assignment": _fixed_assignment(found)}
+
+
+def attempt_activity_of(store, attempt_id):
+    """W61599: the DEFAULT LIVENESS PROJECTION, and nothing about content.
+
+    Two numbers answer the question an operator actually asks of a running
+    worker -- "is this thing moving?" -- without opening its container, naming
+    a provider-private path or reading one byte the child produced: how much
+    of its native session stream this manager has OBSERVED, and when the
+    manager last received some of it.
+
+    APPROVER RULING M61707 BOUNDS WHAT THIS IS. It is an observation and not
+    proof of useful progress: repeated noise grows the count, a long quiet
+    model call leaves it unchanged, and a provider may expose no measurable
+    stream at all. It never renews a claim, clears a gate, extends a deadline
+    or authorizes recovery, so nothing in this manager branches on it.
+
+    ABSENCE IS TWO DIFFERENT ANSWERS, and they are not interchangeable. A
+    well-formed id naming no attempt is `None` -- there is nothing to be live.
+    A recorded attempt nobody has observed yet answers a projection whose
+    members are `None`: it exists and has shown nothing, which is exactly what
+    an operator watching a start needs to be told rather than a zero that
+    would read as "observed, and empty".
+    """
+    found = _attempt_row(store, attempt_id)
+    if found is None:
+        return None
+    return {"attempt_id": found["runtime_attempt_id"],
+            "bytes_observed": found["activity_bytes"],
+            "observed_at": found["activity_at"]}
+
+
+def observe_activity(store, *, attempt_id, bytes_observed):
+    """One liveness observation: MONOTONIC, manager-stamped, content-free.
+
+    The operand is a CUMULATIVE TOTAL rather than a delta, and that is what
+    makes a lost, duplicated or reordered report harmless: two observers
+    reporting the same stream cannot double-count it, and a report that
+    arrives late is simply behind. A delta would make this counter the sum of
+    everything that happened to reach it.
+
+    MONOTONIC IS DECIDED INSIDE THE WRITE, against the exact value the update
+    compares, for the reason `observe` decides its transition there: a
+    host-language check around an unconditional write is two moments, and the
+    second one overwrites whatever landed in between.
+
+    A REPEAT OF THE SAME TOTAL IS NOT ACTIVITY. It is accepted -- an observer
+    that polls a quiet stream is behaving correctly -- and it deliberately
+    does NOT move the instant, because the instant is the age of the latest
+    OBSERVED ACTIVITY and advancing it would make a wedged worker look freshly
+    alive. That is the exact misreading this projection exists to prevent, so
+    the no-op is the whole point rather than an optimization.
+
+    A DECREASE REFUSES. A total that went backwards is not this stream, and
+    quietly accepting it would let a stale or confused observer make a
+    progressing worker look stalled.
+
+    THE INSTANT IS THE MANAGER'S. `store._now()` is the same clock the journal
+    stamps rows from; a provider timestamp would be the observed child's own
+    account of its liveness, which is the thing being questioned.
+    """
+    _require_attempt(store, attempt_id)
+    if type(bytes_observed) is not int or bytes_observed < 0:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"an observed activity total is a whole number of bytes this "
+            f"manager has seen, which cannot be negative; this is "
+            f"{name_value(bytes_observed)}")
+    # A SAVEPOINT for the same reason `observe` takes one: the conditional
+    # write and the read that explains its outcome are one answer at one
+    # moment, and a caller must never be told "you went backwards" about a
+    # value some other writer moved between the two statements.
+    mark = f"activity_{abs(hash(attempt_id)) % 10 ** 12}"
+    connection = store._connection
+    connection.execute(f"SAVEPOINT {mark}")
+    try:
+        connection.execute(
+            "UPDATE attempts SET activity_bytes = ?, activity_at = ? "
+            "WHERE runtime_attempt_id = ? "
+            "AND (activity_bytes IS NULL OR activity_bytes < ?)",
+            (bytes_observed, store._now(), attempt_id, bytes_observed))
+        held = _require_attempt(store, attempt_id)["activity_bytes"]
+        if held is not None and held > bytes_observed:
+            raise ContractRefusal(
+                "runtime-observation", "state-regression",
+                f"this manager has already observed {held} byte(s) of "
+                f"{name_value(attempt_id)}'s session stream and this reports "
+                f"{bytes_observed}; an observed total never goes backwards")
+    except BaseException:
+        try:
+            connection.execute(f"ROLLBACK TO {mark}")
+        except Exception:
+            pass
+        try:
+            connection.execute(f"RELEASE {mark}")
+        except Exception:
+            pass
+        raise
+    connection.execute(f"RELEASE {mark}")
+    return attempt_activity_of(store, attempt_id)
 
 
 def _require_attempt(store, attempt_id):

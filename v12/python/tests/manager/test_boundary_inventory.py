@@ -4073,7 +4073,11 @@ class BoundaryCase(unittest.TestCase):
                "assignment_grant": "direct",
                "assignment_policy_generation": 1,
                "runtime_id": "runtime-1", "observation_seq": 0,
-               "observed_at": None}
+               "observed_at": None,
+               # W61599: the liveness projection travels with the row like
+               # every other column; a document missing it is not a persisted
+               # attempt.
+               "activity_bytes": None, "activity_at": None}
         for axis in schema.ATTEMPT_AXES:
             row[axis] = next(iter(schema.ATTEMPT_COLUMNS[axis].allowed))
 
@@ -4425,7 +4429,8 @@ class BoundaryCase(unittest.TestCase):
                "assignment_scope": SCOPE, "assignment_role": ROUTE,
                "assignment_grant": "direct",
                "assignment_policy_generation": 1,
-               "runtime_id": None, "observation_seq": 0, "observed_at": None}
+               "runtime_id": None, "observation_seq": 0, "observed_at": None,
+               "activity_bytes": None, "activity_at": None}
         for axis in schema.ATTEMPT_AXES:
             row[axis] = next(iter(schema.ATTEMPT_COLUMNS[axis].allowed))
 

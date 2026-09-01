@@ -2109,3 +2109,28 @@ this phase, commands continue through the human-attached context and the v11
 bus. Add mutation commands to the v12 TUI only after scheduler behavior and
 the viewer's projections have proved stable; that interactive command surface
 is the low-priority final layer.
+
+## V12 execution is the default code-change lane — confirmed 2026-09-01
+
+The successful W52821 isolated attempt changes the migration default. From
+this point, Work that changes code executes through an isolated v12 worker
+attempt unless an explicit recorded reason makes that path unavailable or
+inapplicable. V11 remains the authoritative Work ledger and message bus during
+the manual transition; it carries the frozen task, progress, review and final
+disposition, but its native implementation runner is no longer the ordinary
+place where code is edited.
+
+The operator holds the v11 Work while the correlated v12 attempt runs, then
+passes the retained proposal to independent review and imports it only after
+approval. Research, planning, review and approval may continue through their
+existing v11 contexts because this ruling is about filesystem-changing
+execution, not discussion or coordination.
+
+There is no silent fallback. If v12 cannot launch or cannot safely perform a
+particular change, stop before editing, record the exact exception on the Work,
+and obtain an explicit routing decision. A repair to the v12 execution path
+itself may justify a bounded v11 implementation, but convenience, queue delay,
+or habit does not. W61599's mistaken direct `baton.impl` handoff clarified this
+boundary: release it for v12 if implementation has not materially started; if
+it has, finish it as the explicit final legacy exception rather than discard
+useful work.

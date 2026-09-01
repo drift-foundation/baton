@@ -33,6 +33,11 @@ from baton_v12.contracts import (ContractRefusal, digest,     # noqa: E402
                                  live_secret)
 
 from tools import dogfood_operator                            # noqa: E402
+# THE OPERAND'S OWN OWNER. W52821 declares `--credential-sources` in exactly
+# one place, and the cases below name it through that declaration rather than
+# through a second spelling -- a literal here is how this file came to be
+# asserting `--credential-file` long after the command stopped offering it.
+from tools import user_credentials                            # noqa: E402
 from tests.manager import test_intake as intake_fixture       # noqa: E402
 from tests.manager import test_output as output_fixture       # noqa: E402
 from tools.dogfood_operator import (DeploymentSession, OperatorRefusal,
@@ -934,17 +939,31 @@ class TheDocumentedCommandIsOneGrantsFile(OperatorCase):
         """An explicit input hidden from both the command and its help is
         still an ambient convention, not an operator grant.
 
-        The real launcher consumes ``--credential-file`` before ``main``
-        parses the remaining arguments.  The reusable command must expose
-        that input to the operator rather than accepting it through an
-        undocumented preliminary parser.
+        The real launcher reads the credential source operand out of ``argv``
+        before ``main`` parses the remaining arguments, so the reusable command
+        must expose that input to the operator rather than accepting it through
+        an undocumented preliminary parser.
+
+        W52821 CHANGED WHICH OPERAND THAT IS, and this case was left asserting
+        the old one. `--credential-file` named ONE file whose bytes were
+        returned for every provider and every reference, which is the bypass
+        the slice replaced; `--credential-sources` names the user's own private
+        `baton.user-credential-sources/1` registry and selects on the exact
+        pair. Asserting the retired spelling made the help claim vacuous --
+        a command that still offered the bypass would have satisfied it, and
+        the command that no longer does could not.
+
+        SO BOTH DIRECTIONS ARE ASSERTED. The operand the launcher really reads
+        is named, and the one it replaced is named nowhere at all.
         """
         completed = subprocess.run(
             [sys.executable, dogfood_operator.__file__, "--help"],
             capture_output=True, timeout=30)
 
         self.assertEqual(completed.returncode, 0)
-        self.assertIn(b"--credential-file", completed.stdout)
+        self.assertIn(user_credentials.OPERAND.encode("utf-8"),
+                      completed.stdout)
+        self.assertNotIn(b"--credential-file", completed.stdout)
 
     def test_a_member_this_build_does_not_read_is_refused(self):
         """A member sitting in a file looking like it was honoured is worse
@@ -4107,8 +4126,12 @@ class ThePublicRecoveryEndsAnInterruptedAttempt(
         # what is under test is that the bytes are never opened, and a real
         # secret in a repository would prove that worse rather than better.
         given["credential_slots"] = ["api"]
-        given["credential_profile"] = {"api": {"provider": "fixture",
-                                               "reference": "kv/dogfood"}}
+        # ONE SPELLING OF THE PAIR, shared with `credential_registry` below,
+        # so a profile changed here cannot leave a registry naming something
+        # the trusted profile no longer resolves.
+        given["credential_profile"] = {
+            "api": {"provider": self.SOURCE_PROVIDER,
+                    "reference": self.SOURCE_REFERENCE}}
         return given
 
     def written_grants(self):
@@ -4121,10 +4144,61 @@ class ThePublicRecoveryEndsAnInterruptedAttempt(
             writing.write(json.dumps(given).encode("utf-8"))
         return given, grants_path
 
+    # W52821: THE OPERAND THE DOCUMENTED COMMAND ACTUALLY TAKES.
+    #
+    # The exact pair this fixture's own `credential_profile` maps `api` to, so
+    # the registry below is one the reader would really select out of rather
+    # than a document shaped like one. It is never READ by the cases here --
+    # the abandonment refuses the operand before any builder acts, and the two
+    # ordinary-arc cases inject their own `credential_provider` -- but a
+    # fixture that supplied an operand the command no longer parses is a
+    # fixture that proved whatever `argparse` did with it, which is how these
+    # three came to be passing `--credential-file` at a command that had
+    # stopped offering one.
+    SOURCE_PROVIDER = "fixture"
+    SOURCE_REFERENCE = "kv/dogfood"
+
+    def private_at(self, place, body):
+        """This user's own file, at exactly 0600 and created without
+        following.
+
+        The reader proves both at the descriptor, so a fixture that wrote
+        through the umask would be handing the command material it must
+        refuse -- and the refusal an operator then read would be about the
+        mode rather than about whatever the case is for.
+        """
+        handle = os.open(place, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        try:
+            raw = body.encode("utf-8")
+            written = 0
+            while written < len(raw):
+                written += os.write(handle, raw[written:])
+        finally:
+            os.close(handle)
+        os.chmod(place, 0o600)
+        return place
+
     def credential_file(self):
         place = os.path.join(self._root.name, "canary")
-        with open(place, "w", encoding="utf-8") as writing:
-            writing.write(self.CANARY + "\n")
+        if not os.path.exists(place):
+            self.private_at(place, self.CANARY + "\n")
+        return place
+
+    def credential_registry(self):
+        """The user's own private `baton.user-credential-sources/1` registry.
+
+        ONE ENTRY, naming the EXACT provider and opaque reference the grants
+        file's `credential_profile` maps this attempt's one slot to, and the
+        private file that backs it. There is no fallback entry and no default
+        source, because the reader has neither.
+        """
+        place = os.path.join(self._root.name, "credential-sources.json")
+        if not os.path.exists(place):
+            self.private_at(place, json.dumps(
+                {"schema": user_credentials.SCHEMA,
+                 "sources": [{"provider": self.SOURCE_PROVIDER,
+                              "reference": self.SOURCE_REFERENCE,
+                              "path": self.credential_file()}]}))
         return place
 
     def recovery_capabilities(self, given):
@@ -4366,16 +4440,55 @@ class ThePublicRecoveryEndsAnInterruptedAttempt(
 
     def test_a_recovery_asks_for_no_credential(self):
         """A recovery delivers nothing, and asking for a bearer in order to
-        delete one would be the exact read this ending exists to avoid."""
+        delete one would be the exact read this ending exists to avoid.
+
+        W52821: THE OPERAND IS THE ONE THE COMMAND TAKES. This drove
+        `--credential-file`, which the command stopped declaring when the
+        registry replaced it -- so what the case measured was `argparse`
+        rejecting an unknown word, which is true of every unknown word and
+        says nothing about the ending. The registry named here is a real,
+        private, selectable one, and the refusal is still the contradiction.
+
+        AND IT IS REFUSED BEFORE ANY BUILDER ACTS. Both builders fail this
+        case if they are reached, no evidence record is written, and the
+        refusal names the mode and the operand and NOT the registry path.
+        """
         _given, grants_path = self.written_grants()
         out = os.path.join(self._root.name, "recovery.json")
-        with self.assertRaises(dogfood_operator.OperatorRefusal):
+        place = self.credential_registry()
+        with self.assertRaises(dogfood_operator.OperatorRefusal) as caught:
             dogfood_operator.main(
                 ["--grants", grants_path, "--evidence", out, "--abandon",
                  "--abandon-reason", "the supervising turn was torn down",
-                 "--credential-file", self.credential_file()],
+                 user_credentials.OPERAND, place],
                 capabilities=lambda _g: self.fail("built"),
-                abandon_capabilities=lambda _g: self.fail("built"))
+                abandon_capabilities=lambda _g: self.fail("built"),
+                retry_capabilities=lambda *_a: self.fail("built"))
+        self.assertIn("--abandon", str(caught.exception))
+        self.assertIn(user_credentials.OPERAND, str(caught.exception))
+        self.assertNotIn(place, str(caught.exception))
+        self.assertFalse(os.path.exists(out))
+
+    def test_the_same_recovery_without_the_operand_reaches_its_builder(self):
+        """NOT VACUOUS. Without the operand the abandonment goes on to build
+        its ending-only capabilities, so the refusal above is about the
+        contradiction rather than about the mode or the grants."""
+        _given, grants_path = self.written_grants()
+        out = os.path.join(self._root.name, "recovery-reached.json")
+        reached = []
+
+        def sentinel(_given):
+            reached.append("abandon")
+            raise RuntimeError("the abandonment builder acted")
+
+        with self.assertRaisesRegex(RuntimeError,
+                                    "the abandonment builder acted"):
+            dogfood_operator.main(
+                ["--grants", grants_path, "--evidence", out, "--abandon",
+                 "--abandon-reason", "the supervising turn was torn down"],
+                capabilities=lambda _g: self.fail("the ordinary builder ran"),
+                abandon_capabilities=sentinel)
+        self.assertEqual(reached, ["abandon"])
 
     def test_ending_an_attempt_and_finishing_one_are_not_one_command(self):
         _given, grants_path = self.written_grants()
@@ -4975,8 +5088,15 @@ class TheArcMaterializesBetweenActivationAndRuntimeCreation(
                 worker_manager, "request_runtime_start", start))
             with self.assertRaises(ContractRefusal):
                 dogfood_operator.main(
+                    # W52821: THE OPERAND THE COMMAND DECLARES. This drove
+                    # `--credential-file`, which the registry replaced, so the
+                    # command exited on an unknown word and this whole case
+                    # measured `argparse`. The registry named here is the
+                    # user's own private one; the provider this arc actually
+                    # calls is still the injected one below, because what is
+                    # under test is WHEN the factory runs.
                     ["--grants", grants_path, "--evidence", evidence_path,
-                     "--credential-file", self.credential_file()],
+                     user_credentials.OPERAND, self.credential_registry()],
                     capabilities=capabilities)
 
         # THE DELIVERY THIS CASE REALLY MADE IS REALLY ENDED, and through its
@@ -5182,9 +5302,18 @@ class TheDocumentedRecoveryEndsRealAttachedState(
             patches.enter_context(mock.patch.object(
                 dogfood_operator, "_ended_however", lambda *a, **k: None))
             try:
+                # W52821: THE OPERAND THE COMMAND DECLARES, and here the
+                # correction mattered most. The retired `--credential-file`
+                # made `main` exit on an unknown word INSIDE a `try` that
+                # swallows every ending, so this fixture built no attempt at
+                # all and every case over it asserted against durable state
+                # that was never written. The registry is the user's own
+                # private one; the provider this arc calls is the injected one
+                # in `capabilities`, because the interruption is what is
+                # being modelled.
                 dogfood_operator.main(
                     ["--grants", grants_path, "--evidence", evidence_path,
-                     "--credential-file", self.credential_file()],
+                     user_credentials.OPERAND, self.credential_registry()],
                     capabilities=capabilities)
             except BaseException:                          # noqa: BLE001
                 pass
@@ -5432,6 +5561,70 @@ class TheDocumentedRecoveryEndsRealAttachedState(
         self.assertTrue(os.path.lexists(
             home.volatile_root(given["attempt_id"])))
         self.assertTrue(os.path.exists(home.state_path(given["attempt_id"])))
+
+    def test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer(self):
+        """The engine ANSWERS, and what it answers is about something else.
+
+        THE ROW THIS FIXTURE OWES. `abandon_attempt`'s own suite proves the
+        uncertain-runtime refusal, and the composition suite proves it over
+        the `test_attempts` rig -- neither says what the DOCUMENTED COMMAND
+        makes of it over durable state the operator's own arc produced, which
+        is the state `interrupted_attached` exists to build.
+
+        AND IT IS A DIFFERENT SHAPE FROM AN UNREACHABLE ENGINE. There the
+        inspection fails; here it succeeds and names a runtime that is not
+        this attempt's, which is not evidence about this attempt's. A
+        container this manager cannot say is gone may still be reading the
+        mount, so the credential stays exactly where it is -- and a recovery
+        that removed a bearer on this answer would be the false credential
+        ending this Work already found once.
+        """
+        given, grants_path, _made = self.interrupted_attached()
+        out = os.path.join(self._root.name, "recovery.json")
+
+        def uncertain(operands):
+            def run(argv, *, seconds=None):
+                del seconds
+                if "inspect" in argv:
+                    return {"status": 0, "stderr": "", "stdout": json.dumps(
+                        [{"Id": "some-other-runtime",
+                          "State": {"Running": False}, "Mounts": []}])}
+                return {"stdout": "", "stderr": "", "status": 0}
+
+            built = dogfood_operator._for_abandonment(operands, run=run)
+            if built.get("disagreement"):
+                return built
+            from baton_v12.worker_manager import custody
+
+            built["adapter"].normalize_directory = (
+                lambda store, *, assignment_id, which: custody._answered(
+                    "normalize", 0,
+                    {"custody": "normalize", "entries": 0, "not_ours": 0,
+                     "running_as": [0, 0]}, None))
+            return built
+
+        status = dogfood_operator.main(
+            ["--grants", grants_path, "--evidence", out, "--abandon",
+             "--abandon-reason", "the supervising turn was torn down"],
+            capabilities=lambda _g: self.fail("the ordinary builder ran"),
+            abandon_capabilities=uncertain)
+
+        self.assertEqual(status, 1)
+        with open(out, encoding="utf-8") as reading:
+            written = json.load(reading)
+        self.assertFalse(written["resolved"])
+        self.assertEqual(written["runtime"]["state"], "uncertain")
+        self.assertNotEqual(written["cleanup"], "retained")
+        self.assertNotEqual(written["credentials"]["lifecycle_state"],
+                            "torn-down")
+        # THE MATERIAL IS UNTOUCHED, which is the whole point of the refusal.
+        home = self.home(given)
+        self.assertTrue(os.path.lexists(
+            home.volatile_root(given["attempt_id"])),
+            "a bearer was removed under a runtime nothing could identify")
+        self.assertTrue(os.path.exists(home.state_path(given["attempt_id"])))
+        # AND NOT ONE BYTE OF THE CANARY REACHED THE RECORD.
+        self.assertNotIn(self.CANARY, json.dumps(written))
 
     def test_a_runtime_created_before_its_record_is_still_ended(self):
         """The matrix row between runtime creation and lifecycle publication.
@@ -6378,3 +6571,174 @@ class TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime(
         home = self.home(given)
         self.assertTrue(os.path.lexists(
             home.volatile_root(given["attempt_id"])))
+
+
+class TheChannelReportsHowMuchItSawAndNeverWhatItSaw(unittest.TestCase):
+    """W61599, approver ruling M61707.
+
+    The deployment's `_Channel` already drains the exec process's stderr so a
+    full pipe cannot wedge the session. That loop is the one place in this
+    manager that sees a live worker producing anything, and it was throwing
+    the fact away along with the bytes -- which is why an operator watching
+    W52821 could not tell a thinking worker from a stopped one.
+
+    WHAT CROSSES IS A LENGTH. The disposal W39357 gave these bytes is
+    unchanged; a count cannot carry a credential, and these cases hold the
+    channel to reporting only that.
+    """
+
+    def channel(self, program, observe=None):
+        channel = dogfood_operator._Channel(
+            [sys.executable, "-c", program], seconds=30, observe=observe)
+        self.addCleanup(lambda: channel._process.poll() is None
+                        and channel._process.kill())
+        return channel
+
+    def test_every_byte_is_counted_including_the_ones_discarded(self):
+        """The bounded window keeps eight chunks; the COUNT is over the whole
+        stream. A total that stopped where the window does would fall silent
+        exactly when a worker got busy."""
+        seen = []
+        channel = self.channel(
+            "import sys; sys.stderr.write('x' * 200000); sys.stderr.flush()",
+            observe=seen.append)
+        ended = channel.finish()
+
+        self.assertEqual(ended["status"], 0)
+        self.assertEqual(seen[-1], 200000,
+                         "the reported total stopped short of the stream")
+        # AND THE BOUNDED WINDOW IS STILL BOUNDED: counting everything did not
+        # start retaining everything.
+        self.assertLessEqual(len(ended["stderr"]),
+                             dogfood_operator._Channel._KEEP * 4096)
+        # THE OBSERVER SAW NUMBERS AND NOTHING ELSE.
+        self.assertEqual([one for one in seen if type(one) is not int], [])
+        # MONOTONIC on the way out, which is what makes a lost report harmless
+        # at the durable end: each one is a cumulative total, never a delta.
+        self.assertEqual(seen, sorted(seen))
+
+    def test_the_end_of_the_stream_is_always_published(self):
+        """The cadence suppresses reports inside its quiet window, and the
+        last chunk of a fast session lands inside it. A durable total short of
+        what was actually seen is one an operator cannot compare against the
+        next observation."""
+        seen = []
+        channel = self.channel(
+            "import sys; sys.stderr.write('x' * 200000); sys.stderr.flush()",
+            observe=seen.append)
+        channel.finish()
+
+        self.assertGreater(len(seen), 1, "nothing was published at all")
+        self.assertLess(len(seen), 40,
+                        "every chunk was published; the cadence did nothing")
+        self.assertEqual(seen[-1], 200000)
+
+    def test_an_observer_that_raises_never_wedges_the_session(self):
+        """The drain exists to stop a full pipe from hanging the session. A
+        diagnostic projection that could raise out of it would wedge the very
+        thing it was added to observe, so a busy store or a faulting observer
+        is dropped and the conversation still ends."""
+        def refusing(_total):
+            raise RuntimeError("the store is busy")
+
+        channel = self.channel(
+            "import sys; sys.stderr.write('x' * 200000); sys.stderr.flush()",
+            observe=refusing)
+        ended = channel.finish()
+
+        self.assertEqual(ended["status"], 0)
+        self.assertLessEqual(len(ended["stderr"]),
+                             dogfood_operator._Channel._KEEP * 4096)
+
+    def test_a_channel_with_no_observer_behaves_exactly_as_before(self):
+        channel = self.channel(
+            "import sys; sys.stderr.write('diagnostic')")
+        ended = channel.finish()
+
+        self.assertEqual(ended["status"], 0)
+        self.assertEqual(ended["stderr"], "diagnostic")
+
+    def test_a_silent_worker_is_observed_as_silent_and_not_as_unobserved(self):
+        """Zero is a fact: this manager watched the stream and it produced
+        nothing. That is a different answer from an attempt nobody has
+        observed, and the operator reading a start needs both."""
+        seen = []
+        channel = self.channel("import sys", observe=seen.append)
+        channel.finish()
+
+        self.assertEqual(seen, [0])
+
+
+class TheDeploymentPublishesTheCountAndClosesWhatItOpened(unittest.TestCase):
+    """W61599: the other half of the wiring, proved without a daemon.
+
+    `_Channel` drains from a thread of its own and a `sqlite3` connection
+    belongs to the thread that opened it, so the live manager handle this
+    command already holds cannot be the one that records this. The observer
+    therefore opens, writes and closes -- and a handle it forgot to close
+    would be a lock the next manager incarnation waits on, which is a defect
+    this deployment has already had once.
+    """
+
+    def setUp(self):
+        from baton_v12.worker_manager import (ControlStore, certify_profile,
+                                              record_attempt)
+
+        self._root = tempfile.TemporaryDirectory(prefix="v12-liveness-")
+        self.addCleanup(self._root.cleanup)
+        self.path = os.path.join(self._root.name, "control.sqlite3")
+        store = ControlStore.open(self.path, incarnation="manager-1",
+                                  clock=dogfood_operator._now)
+        try:
+            certify_profile(store, "runtime", "reference",
+                            "sha256:" + "3" * 64)
+            record_attempt(store, attempt_id="attempt-1", adapter_name="acp",
+                           adapter_digest="sha256:" + "a" * 64,
+                           profile_digest="sha256:" + "3" * 64)
+        finally:
+            store.close()
+        self.given = {"control_store": self.path, "incarnation": "manager-1",
+                      "attempt_id": "attempt-1"}
+
+    def activity(self):
+        from baton_v12.worker_manager import ControlStore, attempt_activity_of
+
+        store = ControlStore.open(self.path, incarnation="reader",
+                                  clock=dogfood_operator._now)
+        try:
+            return attempt_activity_of(store, "attempt-1")
+        finally:
+            store.close()
+
+    def test_the_observed_total_reaches_the_managers_own_record(self):
+        observe = dogfood_operator._activity_observer(self.given)
+
+        observe(4096)
+
+        found = self.activity()
+        self.assertEqual(found["bytes_observed"], 4096)
+        self.assertIsNotNone(found["observed_at"])
+
+    def test_each_publication_closes_its_handle(self):
+        """A left-open handle is a lock, and this one is opened from a daemon
+        thread nobody joins on the error path."""
+        opened = []
+        from baton_v12.worker_manager import ControlStore
+
+        original = ControlStore.open
+
+        def watching(*args, **named):
+            store = original(*args, **named)
+            opened.append(store)
+            return store
+
+        with mock.patch.object(ControlStore, "open", watching):
+            observe = dogfood_operator._activity_observer(self.given)
+            observe(10)
+            observe(20)
+
+        self.assertEqual(len(opened), 2)
+        for store in opened:
+            with self.assertRaises(Exception):
+                store._connection.execute("SELECT 1")
+        self.assertEqual(self.activity()["bytes_observed"], 20)

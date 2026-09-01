@@ -121,6 +121,129 @@ With the group configured, the manager:
   `--user 65532:65532` untouched. A consent runtime receives no supplementary
   group.
 
+## Credential sources are per-user and private (W52821)
+
+The supervised operator command reads the provider credential it delivers from
+**the invoking user's own files**, named by a registry that user owns:
+
+    python3 tools/dogfood_operator.py \
+        --grants GRANTS.json --evidence OUT.json \
+        --credential-sources /home/<user>/.baton/credential-sources.json
+
+`--credential-sources` replaces the old `--credential-file`. That operand named
+one file whose bytes were returned for **every** provider and **every**
+reference, so the trusted profile decided what a credential was and the command
+then ignored the decision. The registry selects on the exact pair instead.
+
+### Setting one up, per user
+
+The registry and every file it names are that user's own private material.
+Nothing here is provisioned by the deployment, nothing is shared, and nothing
+belongs to the workspace group:
+
+    install -d -m 0700 ~/.baton
+    install -m 0600 /dev/null ~/.baton/anthropic.token
+    # ...write the credential into it with an editor that makes no backup copy
+
+    cat > ~/.baton/credential-sources.json <<'JSON'
+    {
+      "schema": "baton.user-credential-sources/1",
+      "sources": [
+        {"provider": "anthropic",
+         "reference": "op://baton/dogfood-worker",
+         "path": "/home/<user>/.baton/anthropic.token"}
+      ]
+    }
+    JSON
+    chmod 0600 ~/.baton/credential-sources.json
+
+The `provider` and `reference` of each entry are **exactly** the ones the
+grants file's `credential_profile` maps the attempt's slots to. The reference
+is opaque — nothing reads a meaning out of it at either end — and it is matched
+whole. The reader holds both to the same shape the manager holds them to when
+it reads the profile — non-empty encodable text, with no character class and
+no width of its own — so a provider like `vault/team`, or a reference longer
+than a few hundred characters, is whatever the profile says it is at both
+ends. Verify the two properties the reader will insist on:
+
+    stat -c '%U %a %F' ~/.baton/credential-sources.json ~/.baton/anthropic.token
+    # <user> 600 regular file   (twice)
+
+### What the reader refuses, and why you may see it
+
+| Situation | Outcome |
+|---|---|
+| No entry for the exact provider **and** reference | refused — an unknown selection has no fallback: not the only entry, not a provider-only match, not a default source |
+| Two entries for one provider/reference pair | refused — a pair with two sources does not say which file backs it, and the whole registry is refused whether or not that pair is the one selected |
+| A final symbolic link at the registry or a source | refused — `O_NOFOLLOW`, so a link is refused as itself rather than resolved into whatever it points at |
+| Not an ordinary file (directory, fifo, device) | refused at the descriptor, after the open and before any read |
+| Owned by another uid | refused — a source this user does not own is one somebody else may replace |
+| Any group or other permission bit | refused — mode `0600`, because this material is read by this user and delivered to nobody |
+| Unreadable, absent, or wider than the manager's bearer bound | refused — a value this command cannot hold whole is not one it delivers a prefix of |
+| An I/O error interrogating or reading the opened descriptor | refused — the failure's kind is named and nothing else, because an `OSError`'s own text carries the filename |
+| `--credential-sources` given to `--abandon` or `--retry-handoff` | refused — both endings read no registry and open no source, so the operand is a contradiction rather than a spare word |
+
+Each of these that is *about a selection* names it the same bounded way,
+described next: one fixed label and the two values' encoded-byte widths. (The
+last row is not — it is refused before either value exists, so it names the
+mode and the operand and nothing else.)
+
+### What a refusal from the reader says about your two values
+
+No refusal from the reader names a host path, because a refusal is prose and
+prose travels. **For the same reason it names neither the provider nor the
+reference** — not the whole of either, and not a leading part of either.
+
+What you get instead is one fixed label and two byte counts — here, for the
+`anthropic` / `op://baton/dogfood-worker` entry set up above:
+
+    ... a provider identity and opaque reference of 9 and 25 encoded bytes ...
+
+That is deliberate rather than terse. Holding both values to the manager's own
+shape means they carry no width of their own, so a deployment whose profile
+legitimately maps a slot to a multi-kilobyte opaque reference would otherwise
+have put that reference into a sentence your terminal, your ticket and your
+paste buffer all keep. A leading part is no safer: the reference is opaque
+precisely because nothing at either end reads a meaning out of it, so nothing
+at either end can say which of its bytes are the harmless ones.
+
+**So when you see one, compare rather than read.** The two counts are the
+encoded-byte widths of exactly the pair the trusted profile resolved, in the
+same unit as the registry's own 64 KiB bound. A count that does not match the
+`provider` or `reference` you wrote into `credential-sources.json` is the
+column to fix; two counts that both match mean the values differ somewhere
+inside, and `credential_profile` in the grants file is the authority for what
+they should be.
+
+### Removing the shared `/run/baton/credentials` staging
+
+**A deployment no longer stages credential material into a shared host
+directory, and any surviving `/run/baton/credentials` staging on a host is to
+be removed.** It was a place where one file, readable by whoever the directory's
+mode admitted, stood in for every attempt's credential — which is the same
+bypass `--credential-file` was on the command line.
+
+On each host that ever ran the earlier arrangement:
+
+    systemctl stop baton-manager                 # or however this host runs it
+    find /run/baton/credentials -mindepth 1 -maxdepth 1 -print   # look first
+    rm -rf /run/baton/credentials                # host side only
+    # nothing is recreated: the manager makes its own attempt-private roots
+
+Three things that path **still** means, and none of them is host staging:
+
+- `/run/baton/credentials` remains the fixed **container-side** mount root,
+  `credentials.CREDENTIAL_ROOT`. It is a constant of the manager's contract and
+  not an operand, and each authorized slot is mounted at one entry of it.
+- The host side of each mount is the manager's own **attempt-private** volatile
+  root: mode `0700`, owned by the manager, one per attempt, holding one `0640`
+  slot per authorized slot in the configured workspace group. It is created
+  after the attempt is activated and removed, proved absent, at every ending.
+- The user's own source files are read once, at materialization, and are never
+  copied, staged, mounted or named anywhere the worker can see. Neither a
+  bearer nor a host source path reaches a grants file, an evidence record, a
+  lifecycle record or any worker-visible document.
+
 ## What it refuses, and why you may see it
 
 | Situation | Outcome |

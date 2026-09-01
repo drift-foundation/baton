@@ -255,11 +255,28 @@ def resolved_delivery(slots, *, profile):
         mapped = boundaries.document(profile[name],
                                      "a credential slot's provider mapping",
                                      required=_MAPPING_MEMBERS)
+        # THE SHAPE THE OTHER END HOLDS TOO, and the agreement is deliberate
+        # rather than coincidental. `tools/user_credentials.py` receives
+        # exactly these two values as the selection it matches a user's own
+        # registry on, and W52821's review 2026-09-01T13-04-03Z [P1] found it
+        # inventing a NARROWER grammar for them -- so a pair this deployment
+        # legitimately granted was refused at the reader for a rule nobody
+        # wrote. Non-empty encodable text is the whole hold at both ends: no
+        # character class, and no width beyond the bound the DOCUMENT each
+        # value arrives in already carries.
         provider = boundaries.identity(mapped["provider"],
                                        "a credential provider identity")
         # OPAQUE, AND PROVED ONLY AS TEXT. This module never reads a meaning
         # out of a reference: the moment it did, the profile would be a second
         # place that decides what a credential is.
+        #
+        # AND OPACITY IS A PROPERTY OF THE PROSE AS WELL AS OF THE LOGIC.
+        # Review 2026-09-01T13-57-01Z [P1]: neither value is copied into a
+        # refusal here -- `boundaries.text` names the LABEL above and the
+        # rejected value's kind, never an accepted value's content -- which is
+        # the same rule `user_credentials._selection` states at the other end,
+        # for the same reason. An opaque value nobody may interpret is one
+        # nobody can say which bytes of are safe to quote.
         reference = boundaries.text(mapped["reference"],
                                     "a credential provider reference")
         resolution.append({"slot": name, "provider": provider,

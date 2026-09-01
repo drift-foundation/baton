@@ -724,3 +724,38 @@ whose prerequisites have closed are actionable.
      and results. Keep all commands in the human-attached context over the v11
      bus during this phase. A command-capable v12 TUI remains last and does not
      gate scheduler dogfooding or the first read-only monitoring surface.
+34. [confirmed 2026-09-01; W61599] Make live worker progress observable
+    through manager-owned attempt logs. Capture native JSONL or plain text
+    incrementally under `result/logs/`; first provide an unbuffered CLI follow
+    view, then let the v12 TUI render the same records with jq-style indentation
+    and syntax coloring. Native unfiltered logs are a restricted
+    operator/reviewer surface. A normalized sanitized event vocabulary and
+    retention/search hardening do not gate the vertical slice. The top-level
+    `work/records/2026/09/finding-live-worker-log-observability/` record owns
+    this follow-up to closed W43972.
+34a. [supersedes item 34's raw-log boundary 2026-09-01; W61599 approver ruling]
+     Preserve the credential-free durable-log rules from W43972, W39357 and
+     section 13. Persist and follow only a closed provider-safe progress stream
+     containing lifecycle, heartbeat, bounded tool/test status, completion or
+     failure class, correlation, and observation time—not prompts, reasoning,
+     source, tool arguments/results, command bodies, native stdout/stderr or
+     arbitrary provider prose. Raw native transcripts remain container-private
+     live diagnostics and are not result artifacts until separately approved
+     credential isolation or enforceable sanitization exists. CLI/TUI JSON
+     presentation remains unchanged.
+34b. [confirmed 2026-09-01; W61599 default liveness UX] Show a monotonic count
+     of native-session bytes observed and the manager receipt age of the latest
+     activity as the cheap default answer to "is it moving?" Do not persist or
+     display native content to compute it. Treat growth and freshness as
+     diagnostics only: they never renew claims, clear gates, extend deadlines,
+     prove useful progress or trigger automatic termination. The closed safe
+     progress stream remains the drill-down surface.
+35. [confirmed 2026-09-01; post-W52821 adoption default] Execute code-changing
+    Work through isolated v12 worker attempts by default while v11 remains the
+    authoritative ledger/message bus. The operator holds and correlates the
+    v11 Work, reviews the retained v12 proposal, and imports only after
+    approval. V11-native implementation requires an explicit recorded reason
+    that v12 is unavailable or inapplicable; never fall back silently because
+    of convenience, delay or habit. Release W61599 for v12 if its mistaken
+    direct implementation has not materially started; otherwise finish it as
+    the explicit final legacy exception rather than discard useful work.

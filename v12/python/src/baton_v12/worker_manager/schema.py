@@ -73,7 +73,16 @@ STORE_KIND = "baton.v12.python.worker-manager"
 # at all, so a manager reading one would believe every lane free -- and the
 # state this exists to prevent is precisely two executions over one
 # assignment's material.
-SCHEMA_VERSION = 13
+# FOURTEEN, because W61599 adds the DEFAULT LIVENESS PROJECTION: how many bytes
+# of a worker's native session stream this manager has OBSERVED, and the
+# manager's own receipt instant for the latest of them. A schema-13 store has
+# nowhere to put either, so a manager reading one could only answer "unknown"
+# for every attempt -- and the whole point of the projection is that an
+# operator can tell a wedged worker from a working one without opening its
+# container. The two columns are diagnostic and carry no content: M61707 keeps
+# them out of every decision, so nothing that was authorized under schema 13 is
+# authorized differently under 14.
+SCHEMA_VERSION = 14
 
 TABLES = ("meta", "operations", "offers", "attempts", "observations",
           "profiles", "agent_sessions", "posture_slots", "manifests",
@@ -390,6 +399,20 @@ CREATE TABLE attempts (
     runtime_id             TEXT,
     observation_seq        INTEGER NOT NULL DEFAULT 0,
     observed_at            TEXT,
+    -- W61599, approver ruling M61707: THE DEFAULT LIVENESS PROJECTION, and it
+    -- is deliberately two numbers and no content. `activity_bytes` counts the
+    -- bytes of the worker's native session stream this manager has OBSERVED;
+    -- `activity_at` is the MANAGER's receipt instant for the latest of them,
+    -- because a provider timestamp would be the child's account of its own
+    -- liveness. Neither renews a claim, clears a gate, extends a deadline or
+    -- authorizes recovery -- they are a cue to look, and the axes above remain
+    -- the only thing anything decides on.
+    --
+    -- TOGETHER OR NOT AT ALL, for the reason the assignment columns are: a
+    -- count with no instant is an unreadable age and an instant with no count
+    -- is freshness about nothing.
+    activity_bytes         INTEGER,
+    activity_at            TEXT,
     consent_runtime        TEXT NOT NULL DEFAULT 'not-started' CHECK (
         consent_runtime IN ('not-started', 'running', 'quiescent',
                             'uncertain', 'destroyed')),
@@ -417,6 +440,12 @@ CREATE TABLE attempts (
     cleanup                TEXT NOT NULL DEFAULT 'pending' CHECK (
         cleanup IN ('pending', 'blocked-on-intake', 'complete', 'retained',
                     'failed')),
+    -- MONOTONIC AND NON-NEGATIVE IS THE WRITER'S RULE; that a count and an
+    -- instant travel together is the TABLE's, because no writer can be trusted
+    -- to keep two columns' relationship on its own.
+    CHECK ((activity_bytes IS NULL AND activity_at IS NULL)
+        OR (activity_bytes IS NOT NULL AND activity_bytes >= 0
+            AND activity_at IS NOT NULL)),
     CHECK (
         (work_id IS NULL AND authority_uuid IS NULL
          AND assignment_participant IS NULL AND assignment_generation IS NULL
@@ -929,6 +958,9 @@ ATTEMPT_COLUMNS = {
     "runtime_id": Column("text", nullable=True),
     "observation_seq": Column("count"),
     "observed_at": Column("instant", nullable=True),
+    # W61599: the liveness projection, absent until something is observed.
+    "activity_bytes": Column("count", nullable=True),
+    "activity_at": Column("instant", nullable=True),
 }
 
 # The axis columns, added by the same vocabulary the DDL constrains. Written

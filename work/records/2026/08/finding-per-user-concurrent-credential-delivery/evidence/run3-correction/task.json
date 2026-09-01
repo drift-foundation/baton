@@ -1,0 +1,12 @@
+{
+  "schema": "baton.dogfood-task/1",
+  "task_id": "w52821-run3-correct-retained-proposal",
+  "source_root": "source",
+  "verification": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_user_credentials"
+  ],
+  "instructions": "Correct only the three P1 findings in W52821 review-2026-09-01T13-04-03Z, starting from the retained run2 candidate. First, remove the registry reader's invented provider/reference grammar: use the manager's authoritative exact non-empty encodable text shape, preserving provider and opaque reference without additional character or length semantics; add compatibility cases driven from credentials.resolved_delivery, including provider vault/team and a reference wider than 512 characters. Second, translate os.fstat and descriptor-read OSError failures into bounded path-free SourceRefusal outcomes without hiding the existing type, owner, mode or open refusals; add injected fstat and read failure tests. Third, make the focused suite import and exercise the actual tools.dogfood_operator command and real manager seam: prove real public help, ordinary resolver injection, both ending-mode contradictions before builders act, resolver failure through real CredentialHome.materialize with exact-root unwind, and two independent invocation contexts that actually consume distinct generations, attempt ids, homes, provider/reference selections and harmless canaries. Keep the small reader unit tests but remove assertions that encode the rejected narrower grammar and replace stand-in-only evidence with production seam coverage. Preserve the approved current-uid ordinary non-symlink private-file boundary, lazy post-activation read, path-free durable surfaces, one-live-worker limit, existing five changed paths, and byte-identical read-only context. Do not import to the host repository, use a real credential in tests, start a provider/engine/network/second worker, or broaden into unrelated cleanup."
+}

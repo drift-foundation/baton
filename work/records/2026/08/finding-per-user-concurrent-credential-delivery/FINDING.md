@@ -238,3 +238,85 @@ This first supervised v12 implementation uses one live worker. Future
 concurrency remains a required supported mode, established in this slice by
 isolated contexts and focused tests rather than by starting a second live
 worker.
+
+## Run4 review ruling — 2026-09-01
+
+Slawomir accepted all three P1 findings in
+`review-2026-09-01T13-57-01Z.md`. Run4 remains preserved and prohibited from
+repository import. One fresh isolated v12 run starts from that retained
+candidate and corrects only the reviewed boundary.
+
+The next worker receives complete read-only v12 manager/operator context so
+production-seam imports are requirements, never skips. An import failure is a
+failed verification. The writable task boundary includes the existing
+`tests/tools/test_dogfood_operator.py` cases affected by removing
+`--credential-file`; their help and ordinary-command fixtures move to private
+registry inputs and run beside the new credential module and focused manager
+cases. This is a bounded correction, not permission for another aggregate or
+unrelated cleanup.
+
+Provider and reference remain exact opaque non-empty encodable text with no
+new character or width grammar. Diagnostic rendering never copies those
+values or a prefix into refusal prose. It uses a fixed semantic label and, when
+useful, a safe character/byte length only. Large opaque identities must still
+select exactly on the success path, while duplicate, missing and mismatch
+refusals remain typed, path-free and bounded.
+
+W52821 stays held by the v11 operator as the authoritative ledger entry while
+the correction runs through one correlated isolated v12 attempt. It is not
+routed to the legacy v11 implementer. The retained result returns to a fresh
+independent review before any import.
+
+## Run5b outcome and separated platform defects — confirmed 2026-09-01
+
+Run5b retained a six-path candidate at
+`file:///tmp/w52821/run5/storage/attempt-w52821-run5b/custody/attempt-w52821-run5b/proposal`
+with digest
+`sha256:416d79a230fe090bf95d9d71e716ff09d67c4efdf2bb3373d618c19937a838aa`.
+No candidate is imported, merged or committed from this attempt yet.
+
+The worker's verification command failed because its task context did not make
+the staged `src/` package importable. An independent rerun with the import root
+declared executed 102 tests: 99 passed and three errored because existing tests
+required a durable repository evidence fixture outside the retained candidate
+subtree. That is not a valid pass or a demonstrated candidate-code failure.
+W61981 owns the separately scheduled verification/review-context defect.
+
+The runtime became quiescent and no v12 container remains, but run5b evidence
+records `baton.claude` generation 1 as still logically live and cleanup as
+refused. W61984 owns the separately scheduled public assignment-finalization
+defect. Neither platform correction is folded into W52821; each will run later
+in its own isolated v12 container.
+
+W52821's next action is a fresh independent review of a complete materialized
+review copy. That review must distinguish candidate findings from environment
+findings and may sign off only after the bounded gate has a valid verdict. The
+retained candidate is not ready for repository import or commit before then.
+
+## Run5b independent review outcome — 2026-09-01
+
+The complete read-only review gate is valid and passing: the exact frozen
+selection ran 102 tests with zero skips, errors or failures. Inspection found
+the six-path patch correctly and narrowly addresses all three accepted run4
+findings. `review-2026-09-01T14-56-49Z.md` signs off the exact retained run5b
+digest for operator import; no candidate finding remains.
+
+This does not resolve or waive the two platform defects. W61981 still owns
+complete explicit verification context, and W61984 still owns quiescent
+assignment finalization. The operator import must remain the exact signed-off
+candidate and must not absorb either correction.
+
+## Repository import revalidation — 2026-09-01
+
+The first bounded repository import exposed an incomplete import closure.
+Run5b's six reported paths were relative to its run4-overlaid immediate source,
+not to the canonical repository base. Importing only those paths omitted the
+inherited `tools/dogfood_operator.py` credential-source change; the real-tree
+gate failed before commit. Replacing that file or the whole candidate would in
+turn overwrite concurrent W61599 activity-observation work.
+
+The candidate remains signed and retained; no commit or Baton completion has
+occurred. W62098 owns the separately bound import-lineage defect.
+For W52821 only, a recorded bounded manual integration preserves both reviewed
+changes in the overlapping operator file and then reruns the exact gate. A
+failure stops the import and returns to review.

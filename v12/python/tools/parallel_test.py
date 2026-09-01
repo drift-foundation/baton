@@ -154,6 +154,38 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     # calls `compose_input_root` over that same private root.
                     # No daemon, no image, no credential and no shared name.
                     "tests.tools.test_dogfood_operator",
+                    # W52821's user-scoped credential source. PARALLEL: no
+                    # authority, no engine, no image, no network, no provider,
+                    # no worker and no real credential. Every case owns a
+                    # disposable private tree, its own registry, its own
+                    # reader, its own credential home and its own attempt ids;
+                    # the one concurrent case runs TWO complete contexts
+                    # through a barrier inside its own two temporary homes,
+                    # which is exactly the shape a global lock, cache or
+                    # singleton in the reader would break.
+                    #
+                    # IT DOES REACH THE MANAGER PACKAGE, and that is the
+                    # correction rather than a widening: review
+                    # 2026-09-01T13-04-03Z [P1] found the suite asserting the
+                    # reader's place in the deployment against stand-ins it
+                    # defined itself, so the seam cases now drive the real
+                    # command and the real `CredentialHome`. What they touch
+                    # is `credentials.resolved_delivery`, one materialization
+                    # per case under this case's own temporary home, and the
+                    # process-wide live-secret registry -- which every case
+                    # releases before it ends, and which is per-process and
+                    # therefore still not shared with anything running beside
+                    # this module.
+                    #
+                    # AND IT REACHES IT UNCONDITIONALLY. Review
+                    # 2026-09-01T13-57-01Z [P1]: the seam imports sat behind
+                    # `except Exception` and became a module-wide skip, so the
+                    # shard could report this module green in a tree where the
+                    # manager or the command did not import at all. Both are
+                    # module-scope imports now, exactly as every other entry
+                    # in this phase takes its own -- a shard that cannot
+                    # import them FAILS rather than passing quietly.
+                    "tests.tools.test_user_credentials",
                     "tests.tools.test_parallel_runner",
                     "tests.tools.test_worker_image_build")
 

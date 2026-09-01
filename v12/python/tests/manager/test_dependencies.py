@@ -461,6 +461,11 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # cut D: the runtime attempt
         "attempt_id", "adapter_name", "adapter_digest", "image_digest",
         "toolchain_digest", "expect", "axis", "source",
+        # W61599: the liveness projection's one value. `bytes_observed` is a
+        # CUMULATIVE TOTAL the caller observed, not a cursor this manager
+        # handed out and asked back -- which is the distinction this gate is
+        # about: an observer that lost a report is behind, never wrong.
+        "bytes_observed",
         # the injected runtime adapter and provider agent, and what a call
         # says it started
         "adapter", "agent", "minted", "minted_labels",

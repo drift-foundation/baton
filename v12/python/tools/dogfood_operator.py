@@ -55,12 +55,25 @@ THE COMMAND, and it is one because the acceptance asks for one that is
 REUSABLE for another bounded task:
 
     python3 tools/dogfood_operator.py --grants GRANTS.json \
-        --evidence OUT.json [--credential-file PATH] [--retry-handoff]
+        --evidence OUT.json [--credential-sources PATH] [--retry-handoff]
 
-`--credential-file` names the provider credential this attempt delivers. It is
-read once into memory and never written back, and it is deliberately NOT a
-grants member: a grants file is a durable surface and §13 keeps the one
-deliberate secret off every one of them. The path is not the secret.
+`--credential-sources` names the USER'S OWN private `baton.user-credential-
+sources/1` registry, which says which of that user's files backs each exact
+provider and opaque reference the trusted profile resolves. It is read once,
+when the delivery is materialized, and never written back; it is deliberately
+NOT a grants member, because a grants file is a durable surface and §13 keeps
+the one deliberate secret off every one of them.
+
+W52821 REPLACED `--credential-file`, AND THE THING IT REPLACED WAS A BYPASS.
+That operand named one file whose bytes were returned for every provider and
+every reference: `CredentialHome.materialize` asks its injected provider with
+the two operands `credentials.resolved_delivery` read out of the trusted
+profile, and the old seam discarded both. So the profile decided what a
+credential is and the command then ignored the decision, and an attempt
+authorized for two slots delivered one file twice. `tools/user_credentials.py`
+is the owner that selects on the exact pair instead, with no fallback of any
+shape, and it proves the registry and the selected source are ordinary files
+this user owns privately before it reads either.
 
 `retention_disposition` is one of the manager's frozen three -- `retain`,
 `quarantine` or `discard-after-intake` -- and it decides whether this attempt
@@ -140,6 +153,16 @@ from baton_v12.contracts import validate_fragment as _validate_fragment
 from baton_v12.worker_manager import workspaces
 from baton_v12.worker_manager.oci import _network as _engine_network
 from baton_v12.worker_manager.authority_port import SESSION_OPERATIONS
+
+# THE USER-SCOPED CREDENTIAL SOURCE OWNER, imported both ways because this file
+# is both a module and a program. `python3 tools/dogfood_operator.py` runs it as
+# a script, where `tools/` is `sys.path[0]` and there is no package to be
+# relative to; the suite imports it as `tools.dogfood_operator`, where there is.
+# One module either way -- what varies is how the interpreter was started.
+try:
+    from . import user_credentials
+except ImportError:                                        # run as a script
+    import user_credentials
 
 __all__ = ["DeploymentSession", "MAX_SOURCE_ENTRIES", "MAX_SOURCE_BYTES",
            "RECOVERY_MEMBERS", "RECOVERY_SCHEMA", "recover_abandoned",
@@ -2254,9 +2277,9 @@ def recover_abandoned(store, port, adapter, given, *, reason, orphan,
 
     IT NEEDS NO LOST EVIDENCE AND NO CREDENTIAL. What it takes is the grants
     the attempt already ran under, the operator's own reason, and a path for a
-    NEW record. There is no `--credential-file`: a recovery delivers nothing,
-    and asking for a bearer in order to delete one would be the exact read
-    this ending exists to avoid.
+    NEW record. There is no `--credential-sources`: a recovery delivers
+    nothing, reads no registry and opens no source, and asking for a bearer in
+    order to delete one would be the exact read this ending exists to avoid.
 
     TWO BRANCHES, ON DURABLE MANAGER STATE, and review 2026-09-01T03:45:20Z
     pinned the distinction. `abandon_attempt` refuses an attempt with no
@@ -3248,6 +3271,58 @@ def _abandoned(given, reason, capabilities, place):
     return 0 if answered["resolved"] else 1
 
 
+def _no_credential_sources(options, mode):
+    """The ending modes' contradiction, in this command's own vocabulary.
+
+    W52821. The RULE belongs to `tools/user_credentials.py`, which is the one
+    place that knows what the operand means and which modes must not carry it;
+    what belongs here is the TYPE. `OperatorRefusal` is a deployment saying it
+    was asked for something it does not do, and a `SourceRefusal` escaping the
+    command would tell an operator to read a reader's rules when what they did
+    was ask one command to do two things.
+    """
+    try:
+        user_credentials.refused_in_ending(options.credential_sources,
+                                           mode=mode)
+    except user_credentials.SourceRefusal as refused:
+        raise OperatorRefusal(str(refused)) from None
+
+
+def _credential_resolver(place):
+    """ONE ordinary command's credential source resolver.
+
+    W52821, and the two halves of the ruling are both here.
+
+    PER COMMAND. It is constructed for this invocation, from this invocation's
+    operand, and it is neither a module-level object, a cache nor a lock. Two
+    supervised attempts running as one user are two resolvers over two
+    registries that share nothing.
+
+    AND THE BOUND IS THE MANAGER'S. `credentials.MAX_BEARER` is passed in
+    rather than respelled in the reader, because the value that governs the
+    read must be the value the manager will hold the bearer to -- a second
+    constant is a second bound with nothing comparing the two.
+
+    IT OPENS NOTHING HERE. The lazy window approver ruling APPROVE-LAZY
+    (M59057) established is unchanged: this construction reads no registry and
+    no source, so a command that refuses at its preflight, or dies before
+    `activate_assignment`, has opened neither.
+    """
+    from baton_v12.worker_manager import credentials
+
+    try:
+        return user_credentials.UserCredentialSources(
+            place, max_bearer=credentials.MAX_BEARER)
+    except user_credentials.SourceRefusal as refused:
+        # THE OPERAND IS THIS COMMAND'S BOUNDARY, so its refusal is this
+        # command's type -- the same translation `_no_credential_sources`
+        # performs. What happens LATER, when a slot is resolved, stays a
+        # `SourceRefusal`: that one is the reader judging the user's own
+        # registry and source, and relabelling it would send an operator to
+        # edit an operand that is fine.
+        raise OperatorRefusal(str(refused)) from None
+
+
 def main(argv, *, capabilities, retry_capabilities=None,
          abandon_capabilities=None):
     """The documented command, and it answers a process exit status.
@@ -3284,11 +3359,12 @@ def main(argv, *, capabilities, retry_capabilities=None,
     # `--help` listed two operands while the launcher refused without a
     # third. An operand a command requires and does not name is an operand an
     # operator discovers by failing.
-    parser.add_argument("--credential-file",
-                        help="path to the provider credential this attempt "
-                             "delivers; read once into memory, never written "
-                             "back, and never a grants member because a "
-                             "grants file is a durable surface")
+    #
+    # W52821: THE DECLARATION IS THE SOURCE OWNER'S. The launcher below reads
+    # the same operand out of `sys.argv` to build the resolver it injects, and
+    # it does so through THIS declaration rather than a second spelling -- so
+    # `--help` and the launcher cannot disagree about the operand's name.
+    user_credentials.add_operand(parser)
     parser.add_argument("--abandon", action="store_true",
                         help="end an attempt whose supervising process died "
                              "before it could freeze output or destroy its "
@@ -3329,11 +3405,11 @@ def main(argv, *, capabilities, retry_capabilities=None,
                 "--abandon carries the operator's own --abandon-reason; "
                 "calling this command IS the declaration that the attempt is "
                 "over, so a blank one is a declaration nobody made")
-        if options.credential_file:
-            raise OperatorRefusal(
-                "--abandon delivers no credential and reads no bearer; a "
-                "recovery that asked for one would be opening the exact "
-                "material its own ending exists to remove")
+        # AND IT READS NO REGISTRY AND OPENS NO SOURCE. W52821: a recovery
+        # that asked for one would be opening the exact material its own
+        # ending exists to remove. The rule is the source owner's, applied
+        # here, so both endings refuse the same operand the same way.
+        _no_credential_sources(options, "--abandon")
         return _abandoned(given, options.abandon_reason.strip(),
                           abandon_capabilities, options.evidence)
     if options.retry_handoff:
@@ -3354,6 +3430,14 @@ def main(argv, *, capabilities, retry_capabilities=None,
                 "this launcher supplies no retry capability path; a retry "
                 "adopts an existing delivery and allocates nothing, so it is "
                 "not the ordinary builder with a flag")
+        # AND IT READS NO REGISTRY AND OPENS NO SOURCE EITHER. W52821: the
+        # retry ADOPTS the delivery the ordinary attempt already materialized
+        # -- `_for_retry` builds no provider callback at all -- so an operand
+        # naming a source asks a mode that opens nothing to open something.
+        # Refused rather than ignored, because ignoring it would let an
+        # operator believe a credential was delivered by a command that
+        # delivers none.
+        _no_credential_sources(options, "--retry-handoff")
         return _retried(read_evidence(options.evidence), given,
                         retry_capabilities, options.evidence)
     # HELD BEFORE A CAPABILITY IS BUILT, because building one is already an
@@ -3580,7 +3664,7 @@ class _Channel:
     rule about what an answer means belong to `worker_entry`; this owns a pipe.
     """
 
-    def __init__(self, argv, *, seconds):
+    def __init__(self, argv, *, seconds, observe=None):
         import subprocess
         import threading
 
@@ -3589,6 +3673,12 @@ class _Channel:
                                          stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE)
         self._errors = []
+        # W61599: HOW MUCH HAS BEEN SEEN, which is not the same question as
+        # what was said. The count is the whole of what this reports; the
+        # bytes themselves keep the disposal W39357 gave them.
+        self._seen = 0
+        self._observe = observe
+        self._reported = None
         # DRAINED AND DISCARDED. Review W39357 [P1]: provider diagnostics that
         # reach a durable surface are a credential disclosure, and the only
         # reason to hold these bytes at all is to keep the pipe from filling.
@@ -3604,6 +3694,52 @@ class _Channel:
         for chunk in iter(lambda: self._process.stderr.read(4096), b""):
             if len(self._errors) < self._KEEP:
                 self._errors.append(chunk)
+            # W61599, approver ruling M61707: THE COUNT IS AN OBSERVATION THIS
+            # LOOP CAN MAKE AND THE CONTENT IS NOT. Every byte is counted --
+            # including the ones past `_KEEP` that this deliberately forgets --
+            # because how much a worker has produced is exactly the fact an
+            # operator has today no way to see, and it is content-free by
+            # construction: a length cannot carry a credential.
+            self._seen += len(chunk)
+            self._report()
+        # THE END OF THE STREAM IS ALWAYS PUBLISHED, past the cadence below.
+        # A session whose last chunk landed inside the quiet window would
+        # otherwise leave a durable total short of what this actually saw, and
+        # a count that stops one chunk early is a count an operator cannot
+        # compare against the next observation.
+        self._report(final=True)
+
+    # ONE PUBLICATION A SECOND, which is the resolution of an operator reading
+    # "updated 4s ago" rather than the resolution of the stream. A container
+    # can produce thousands of chunks a second and each publication is a
+    # durable write; the cadence is this loop's own resource decision, not an
+    # interpretation of anything it read.
+    _ACTIVITY_SECONDS = 1.0
+
+    def _report(self, *, final=False):
+        """Publish the running total, and NEVER let publishing stop the drain.
+
+        This loop exists to keep the container's stderr pipe from filling; a
+        blocked drain is a hang indistinguishable from a worker that stopped
+        answering. A diagnostic projection that could raise out of here would
+        wedge the very session it was added to observe, so a busy store, a
+        refused observation or an observer fault is dropped: the count is a
+        cue to look, and an operator who does not get it is exactly as
+        informed as one running yesterday's build.
+        """
+        if self._observe is None:
+            return
+        import time
+
+        now = time.monotonic()
+        if not final and self._reported is not None \
+                and now - self._reported < self._ACTIVITY_SECONDS:
+            return
+        self._reported = now
+        try:
+            self._observe(self._seen)
+        except BaseException:                              # noqa: BLE001
+            pass
 
     def send(self, payload):
         self._process.stdin.write(payload)
@@ -3637,6 +3773,37 @@ class _Channel:
         self._process.stderr.close()
         return {"status": status,
                 "stderr": b"".join(self._errors).decode("utf-8", "replace")}
+
+
+def _activity_observer(given):
+    """This deployment's publisher for W61599's liveness projection.
+
+    ITS OWN HANDLE, BECAUSE IT RUNS ON ITS OWN THREAD. `_Channel` drains the
+    exec process's stderr from a thread of its own, and a `sqlite3` connection
+    belongs to the thread that opened it -- so the live manager handle this
+    command already holds cannot be the one that records this. Each
+    publication opens, writes and closes: at one write a second that is cheap,
+    and it leaves no handle for a drain thread to own or for an ending to have
+    to remember to close.
+
+    AND IT PUBLISHES A NUMBER. The count crosses; nothing the worker wrote
+    does, which is what keeps M61707's credential-free durable surface true by
+    construction rather than by a redactor nobody can enforce.
+    """
+    from baton_v12.worker_manager import ControlStore, attempts
+
+    def observe(total):
+        store = ControlStore.open(given["control_store"],
+                                  incarnation=given["incarnation"],
+                                  clock=_now)
+        try:
+            attempts.observe_activity(store,
+                                      attempt_id=given["attempt_id"],
+                                      bytes_observed=total)
+        finally:
+            store.close()
+
+    return observe
 
 
 def _engine_run(argv, *, seconds=None):
@@ -4109,7 +4276,8 @@ def _launched(given, *, credential_provider):
                 "open_store": lambda _place: store,
                 "adapter_of": adapter_of, "run": _engine_run,
                 "open_channel": lambda argv, *, seconds: _Channel(
-                    argv, seconds=seconds)}
+                    argv, seconds=seconds,
+                    observe=_activity_observer(given))}
 
 
 
@@ -4120,39 +4288,30 @@ def _launched(given, *, credential_provider):
 if __name__ == "__main__":
     # THE DOCUMENTED COMMAND, and it runs.
     #
-    # The credential material is named by PATH on the command line and read
-    # once into memory. It is not a grants member and not an environment
-    # variable, because both are durable surfaces and §13 keeps the one
-    # deliberate secret off every one of them; the path is not the secret.
+    # The user's own credential SOURCES are named by PATH on the command line.
+    # The registry is not a grants member and not an environment variable,
+    # because both are durable surfaces and §13 keeps the one deliberate
+    # secret off every one of them; and the registry's own entries -- the
+    # paths of that user's files -- reach no durable document either, because
+    # the only thing that leaves the reader is the bearer the manager
+    # registers live.
+    #
     # Live provider authorization remains W39364's operator gate -- what this
     # does is hand whatever the operator authorized to the manager's own
     # credential home, which registers it live before a byte of it lands.
+    #
+    # THE RESOLVER IS BUILT ONLY FOR THE ORDINARY COMMAND. It is constructed
+    # inside the `capabilities` lambda, which `main` calls on the ordinary
+    # branch alone -- an abandonment and a handoff retry go to their own
+    # builders, neither of which is handed a provider at all, and both refuse
+    # the operand outright before any capability exists.
     import sys as _sys
 
-    _credential = None
-    for _index, _value in enumerate(_sys.argv):
-        if _value == "--credential-file" and _index + 1 < len(_sys.argv):
-            _credential = _sys.argv[_index + 1]
-
-    def _provider(provider, reference):
-        # TWO OPERANDS, because `CredentialHome.materialize` asks a provider
-        # for a REFERENCE it resolved from the trusted profile. Found by the
-        # positive launcher case; the one-operand version could never have
-        # delivered a credential.
-        del provider, reference
-        if _credential is None:
-            raise OperatorRefusal(
-                "this attempt delivers a credential and no --credential-file "
-                "was named; a provider secret is granted explicitly or not at "
-                "all")
-        # TEXT, because a materialized credential is durable text and the
-        # manager holds it to that. Read whole and stripped of the trailing
-        # newline an operator's editor adds, which is not part of the secret.
-        with open(_credential, "r", encoding="utf-8") as _reading:
-            return _reading.read().strip()
+    _sources = user_credentials.named_operand(_sys.argv[1:])
 
     _sys.exit(main(_sys.argv[1:],
                    capabilities=lambda given: _launched(
-                       given, credential_provider=_provider),
+                       given,
+                       credential_provider=_credential_resolver(_sources)),
                    retry_capabilities=_for_retry,
                    abandon_capabilities=_for_abandonment))

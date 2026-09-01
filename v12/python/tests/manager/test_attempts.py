@@ -2415,6 +2415,126 @@ class TheAbandonmentEndingSurvivesInterruptionAndDrift(AttemptCase):
                          "a tampered record removes nothing further")
 
 
+class TheLivenessProjectionSaysOnlyWhatWasSeen(AttemptCase):
+    """W61599, approver ruling M61707.
+
+    An operator watching a live worker has today no way to tell a wedged one
+    from a working one without entering its container. The projection answers
+    that with two numbers and no content: how many bytes of the worker's
+    native session stream this manager has OBSERVED, and the manager's own
+    receipt instant for the latest of them.
+
+    Every case here is about the projection telling the truth, because a
+    liveness display that can lie is worse than none: an operator who trusts
+    it stops looking.
+    """
+
+    def setUp(self):
+        super().setUp()
+        # A MOVABLE CLOCK, because half of these cases are about WHEN the
+        # instant moves. `AttemptCase`'s store is pinned to one instant, which
+        # cannot tell "the manager stamped it again" from "it never moved".
+        self.instant = NOW
+        self.ticking = ControlStore.open(self.path, incarnation="manager-1",
+                                         clock=lambda: self.instant)
+        self.addCleanup(self.ticking.close)
+
+    def observed(self, total, store=None):
+        return attempts_module.observe_activity(
+            store or self.ticking, attempt_id=ATTEMPT, bytes_observed=total)
+
+    def test_an_unobserved_attempt_is_not_an_empty_one(self):
+        """Absence is two answers and they are not interchangeable: an id
+        naming no attempt has nothing to be live, and a recorded attempt
+        nobody has observed has shown nothing YET. A zero for the second
+        would read as `observed, and empty`."""
+        self.recorded()
+        self.assertIsNone(
+            attempts_module.attempt_activity_of(self.store, "attempt-nobody"),
+            "an id naming no attempt answered a projection")
+        found = attempts_module.attempt_activity_of(self.store, ATTEMPT)
+        self.assertEqual(found, {"attempt_id": ATTEMPT,
+                                 "bytes_observed": None,
+                                 "observed_at": None})
+
+    def test_the_first_observation_publishes_the_count_and_the_instant(self):
+        self.recorded()
+        self.assertEqual(self.observed(4096),
+                         {"attempt_id": ATTEMPT, "bytes_observed": 4096,
+                          "observed_at": NOW})
+        # AND IT IS DURABLE, read back through a handle that did not write it.
+        self.assertEqual(
+            attempts_module.attempt_activity_of(self.store, ATTEMPT),
+            {"attempt_id": ATTEMPT, "bytes_observed": 4096,
+             "observed_at": NOW})
+
+    def test_a_growing_total_moves_both_numbers(self):
+        self.recorded()
+        self.observed(10)
+        self.instant = "2026-08-24T00:00:05.000Z"
+        found = self.observed(4106)
+        self.assertEqual(found["bytes_observed"], 4106)
+        self.assertEqual(found["observed_at"], "2026-08-24T00:00:05.000Z")
+
+    def test_a_repeated_total_never_freshens_a_quiet_worker(self):
+        """THE CASE THIS PROJECTION EXISTS FOR. An observer polling a stream
+        that has produced nothing is behaving correctly, and the report is
+        accepted -- but the instant is the age of the latest observed
+        ACTIVITY, and moving it would make a wedged worker read as freshly
+        alive to the one operator relying on this to notice."""
+        self.recorded()
+        self.observed(4096)
+        self.instant = "2026-08-24T00:10:00.000Z"
+        found = self.observed(4096)
+        self.assertEqual(found["bytes_observed"], 4096)
+        self.assertEqual(found["observed_at"], NOW,
+                         "a repeated total moved the activity instant, so a "
+                         "stalled worker looks freshly alive")
+
+    def test_a_total_that_went_backwards_refuses(self):
+        """A stale or confused observer must not be able to make a
+        progressing worker look stalled."""
+        self.recorded()
+        self.observed(4096)
+        self.instant = "2026-08-24T00:10:00.000Z"
+        with self.assertRaises(ContractRefusal) as refused:
+            self.observed(4095)
+        self.assertIn("never goes backwards", refused.exception.message)
+        # AND NOTHING MOVED, which is the half a refusal is worth having for.
+        self.assertEqual(
+            attempts_module.attempt_activity_of(self.store, ATTEMPT),
+            {"attempt_id": ATTEMPT, "bytes_observed": 4096,
+             "observed_at": NOW})
+
+    def test_a_negative_total_is_not_an_observation(self):
+        self.recorded()
+        with self.assertRaises(ContractRefusal):
+            self.observed(-1)
+        self.assertIsNone(
+            attempts_module.attempt_activity_of(self.store,
+                                                ATTEMPT)["bytes_observed"])
+
+    def test_an_observation_about_no_attempt_refuses(self):
+        with self.assertRaises(ContractRefusal) as refused:
+            attempts_module.observe_activity(self.ticking,
+                                             attempt_id="attempt-nobody",
+                                             bytes_observed=1)
+        self.assertIn("no runtime attempt", refused.exception.message)
+
+    def test_the_projection_decides_nothing(self):
+        """M61707: it never renews a claim, clears a gate, extends a deadline
+        or authorizes recovery. The proof is structural -- every other column
+        of the row is unchanged by an observation, so nothing downstream can
+        branch differently because of one."""
+        self.recorded()
+        before = self.row()
+        self.observed(8192)
+        after = self.row()
+        moved = sorted(name for name in after
+                       if before[name] != after[name])
+        self.assertEqual(moved, ["activity_at", "activity_bytes"])
+
+
 class TheAxesAgreeWithTheStore(AttemptCase):
     """The vocabulary is written in two languages, and they have to agree."""
 
