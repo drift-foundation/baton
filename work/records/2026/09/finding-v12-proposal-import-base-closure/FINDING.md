@@ -192,3 +192,51 @@ non-Git Work may still declare immutable file or directory artifacts and use a
 format-appropriate snapshot mechanism. The current dogfood operator's copied,
 per-file-hashed source tree remains a temporary bootstrap exception only; it
 must not become the production Git profile.
+
+## Confirmed review-cycle clarification — 2026-09-02
+
+An implementation turn does not end the Work's private development line. The
+Git-backed profile keeps one manager-custodied private repository, branch and
+worktree for the Work across its serial implementation and review turns.
+Workers are disposable; that development line is not. Exactly one assignment
+may write it at a time.
+
+That workspace is reused for the whole correction cycle, whether review signs
+off after one pass or after ten or more. Starting another implementation or
+review container does not ordinarily clone, copy, restage or reconstruct the
+candidate. The manager attaches the existing Work workspace to the fresh
+runtime with permissions appropriate to the assignment: writable for the
+current implementer and read-only for review. Initial materialization happens
+once. A later clone, reset, rebase or replacement is an explicit recovery or
+lineage decision with recorded rationale, never an incidental consequence of
+handoff.
+
+A handoff to review captures an immutable checkpoint of the current candidate
+so the reviewer and later audit can identify the exact bytes examined. That
+checkpoint is review evidence, not a proposal accepted for integration and not
+a commit to the canonical repository. The reviewer receives it read-only and
+publishes findings separately; review never edits the candidate in place.
+
+When review requests changes, the manager returns the same private development
+line to implementation at the reviewed checkpoint. The implementer corrects
+that line and produces another review checkpoint. It does not restage the Work
+from the canonical base, overlay a copied candidate into the host checkout, or
+require Slawomir to commit a known-broken state merely to continue the cycle.
+Intermediate private Git commits or content-addressed checkpoints may be
+retained as audit history, but they do not enter the canonical branch.
+
+The mutable workspace and immutable review checkpoint are different objects,
+even when Git lets them share the same object store without copying file trees.
+The branch may advance after changes are requested; the reviewed commit or
+checkpoint remains resolvable for evidence. Logs and review findings bind the
+checkpoint they examined. Workspace cleanup waits for terminal acceptance,
+explicit abandonment or an authorized recovery decision; an ordinary review
+round never triggers it.
+
+Only a checkpoint that independent review signs off becomes the immutable
+proposal handed to the dedicated integrator. The integrator then checks its
+declared base, head, objects and current target as already ruled. Slawomir's
+canonical Git commit remains after integration and approval. Non-Git profiles
+follow the same lifecycle with their own manager-custodied workspace and
+format-appropriate immutable review checkpoints; this clarification does not
+make the Worker Manager interpret Git.

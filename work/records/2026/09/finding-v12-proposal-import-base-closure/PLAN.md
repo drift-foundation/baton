@@ -21,16 +21,25 @@
    commit; the manager does not recursively copy or hash the repository tree.
    Require the declared output to retain an immutable proposal head plus
    durable access to the objects needed to inspect it.
-6. [pending explicit scheduling] Make correction revisions use additional
-   immutable commits on the same private history. Make a dependent Job name
-   the accepted predecessor commit as its base and record the Work dependency;
-   never stage an uncommitted retained candidate as an implicit source.
-7. [pending verification] From a clean context, prove independent forks from
-   one base, a review correction revision, an explicit dependent Job and
-   refusal of an uncommitted candidate-tree source. Review the exact declared
-   base-to-head commit range.
-8. [pending integration gate] Hand an accepted immutable proposal to the
-   existing distinct Git-aware integration stage. Keep the Worker Manager
+6. [pending explicit scheduling; clarified 2026-09-02] Keep one private,
+   manager-custodied development line across serial implementation and review
+   assignments. Freeze an immutable read-only checkpoint for each review; on
+   changes requested, return the same line at that checkpoint to implementation
+   rather than restaging from the canonical repository. Fresh runtimes attach
+   the existing workspace instead of cloning or copying it per iteration;
+   replacement is an explicit recovery act. Make a dependent Job name the
+   accepted predecessor commit as its base and record the Work dependency;
+   never use another Work's uncommitted candidate as an implicit source.
+7. [pending verification] From clean disposable worker contexts, prove one
+   private line surviving implementation -> review -> correction -> review,
+   including ten or more synthetic correction rounds without another clone or
+   candidate-tree copy, with one writer at a time and every reviewed checkpoint
+   retained. Also prove independent forks from one base, an explicit dependent
+   Job and refusal of another Work's uncommitted candidate-tree source. Review
+   the exact declared checkpoint each time.
+8. [pending integration gate] Hand only the independently accepted checkpoint
+   to the existing distinct Git-aware integration stage. Keep intermediate
+   checkpoints out of the canonical repository, keep the Worker Manager
    artifact-neutral and use normal Git conflict/refusal behavior rather than a
    custom byte importer.
 9. [pending bootstrap retirement] Remove the copied per-file-hashed source-tree
