@@ -91,6 +91,34 @@
         "/absolute/path/to/mailbox/baton.json"
       ],
       "timeoutSeconds": 180
+    },
+    {
+      "name": "integrator",
+      "participant": "baton.merge",
+      "after": [
+        "codex-app-server"
+      ],
+      "command": [
+        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4500",
+        "--cwd",
+        "/absolute/path/to/workspace",
+        "--baton",
+        "/absolute/path/to/v11-release/bin/baton",
+        "--baton-config",
+        "/absolute/path/to/mailbox/baton.json",
+        "--participant",
+        "baton.merge",
+        "--role",
+        "integ"
+      ],
+      "requires": [
+        "/absolute/path/to/v11-release/bin/baton",
+        "/absolute/path/to/mailbox/baton.json"
+      ],
+      "timeoutSeconds": 180
     }
   ],
   "services": [
@@ -195,6 +223,34 @@
       }
     },
     {
+      "name": "codex-integrator-readiness",
+      "participant": "baton.merge",
+      "command": [
+        "/absolute/path/to/baton/source/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "--baton",
+        "/absolute/path/to/v11-release/bin/baton",
+        "--config",
+        "/absolute/path/to/mailbox/baton.json",
+        "--participant",
+        "baton.merge",
+        "--target",
+        "baton-integrator",
+        "--socket",
+        "/absolute/path/to/runtime/codex-events.sock"
+      ],
+      "after": [
+        "codex-dispatcher"
+      ],
+      "requires": [
+        "/absolute/path/to/v11-release/bin/baton",
+        "/absolute/path/to/mailbox/baton.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      }
+    },
+    {
       "name": "claude-acp",
       "participant": "baton.claude",
       "command": [
@@ -204,7 +260,8 @@
       ],
       "after": [
         "codex-readiness",
-        "codex-tuner-readiness"
+        "codex-tuner-readiness",
+        "codex-integrator-readiness"
       ],
       "requires": [
         "/absolute/path/to/acp-claude.template.json"
@@ -230,7 +287,8 @@
       ],
       "after": [
         "codex-readiness",
-        "codex-tuner-readiness"
+        "codex-tuner-readiness",
+        "codex-integrator-readiness"
       ],
       "requires": [
         "/absolute/path/to/acp-gemini.template.json"

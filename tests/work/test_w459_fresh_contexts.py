@@ -590,15 +590,17 @@ def test_the_example_manifest_mints_a_context_per_codex_participant():
 	                                       "infra.example.json"),
 	                          encoding="utf-8").read())
 	contexts = {entry["name"]: entry for entry in example["contexts"]}
-	assert set(contexts) == {"prompt", "reviewer", "tuner"}, sorted(contexts)
+	assert set(contexts) == {"prompt", "reviewer", "tuner", "integrator"}, \
+		sorted(contexts)
 	assert {entry["participant"] for entry in contexts.values()} == \
-		{"baton.prompt", "baton.codex", "baton.tuner"}
+		{"baton.prompt", "baton.codex", "baton.tuner", "baton.merge"}
 	for entry in contexts.values():
 		assert "--start-thread" in entry["command"], entry["name"]
 		assert entry["after"] == ["codex-app-server"], entry["name"]
 		# the role is named, never inferred
 		assert "--role" in entry["command"], entry["name"]
 	assert contexts["prompt"]["command"][-1] == "prompt"
+	assert contexts["integrator"]["command"][-1] == "integ"
 
 
 def test_the_example_dispatcher_reads_a_rendered_config():
@@ -618,11 +620,13 @@ def test_the_shipped_template_carries_placeholders_not_locators():
 	            encoding="utf-8").read()
 	document = json.loads(body.replace("{{context.prompt.threadId}}", "p")
 	                      .replace("{{context.reviewer.threadId}}", "a")
-	                      .replace("{{context.tuner.threadId}}", "b"))
+	                      .replace("{{context.tuner.threadId}}", "b")
+	                      .replace("{{context.integrator.threadId}}", "i"))
 	targets = document["targets"]
 	assert targets["baton-prompt"]["threadId"] == "p"
 	assert targets["baton-reviewer"]["threadId"] == "a"
 	assert targets["baton-tuner"]["threadId"] == "b"
+	assert targets["baton-integrator"]["threadId"] == "i"
 	assert targets["baton-prompt"]["identity"] == {
 		"participant": "baton.prompt",
 		"role": "prompt",
@@ -632,6 +636,11 @@ def test_the_shipped_template_carries_placeholders_not_locators():
 		"baton.codex"
 	assert targets["baton-tuner"]["identity"]["participant"] == \
 		"baton.tuner"
+	assert targets["baton-integrator"]["identity"] == {
+		"participant": "baton.merge",
+		"role": "integ",
+		"actionOwner": "baton.slaw",
+	}
 	# and nothing that looks like a durable locator survives in it
 	assert "019c0000" not in body, \
 		"the template still carries a hard-coded Thread id"
@@ -662,7 +671,8 @@ def test_prompt_is_a_dispatcher_target_without_a_readiness_producer():
 	            encoding="utf-8").read()
 	document = json.loads(body.replace("{{context.prompt.threadId}}", "p")
 	                      .replace("{{context.reviewer.threadId}}", "a")
-	                      .replace("{{context.tuner.threadId}}", "b"))
+	                      .replace("{{context.tuner.threadId}}", "b")
+	                      .replace("{{context.integrator.threadId}}", "i"))
 	assert document["targets"]["baton-prompt"]["identity"]["participant"] == \
 		"baton.prompt"
 	producers = [service for service in example["services"]
@@ -673,6 +683,8 @@ def test_prompt_is_a_dispatcher_target_without_a_readiness_producer():
 		"baton.codex") == 1
 	assert [service["participant"] for service in producers].count(
 		"baton.tuner") == 1
+	assert [service["participant"] for service in producers].count(
+		"baton.merge") == 1
 	assert [service["participant"] for service in producers].count(
 		"baton.claude") == 1
 	assert [service["participant"] for service in producers].count(

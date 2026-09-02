@@ -3,12 +3,12 @@
 1. [done] Reproduce the fresh-store ordering through the real dogfood arc and
    manager store. Preserve the retained run and focused reproduction in
    `evidence/research-2026-09-01/`.
-2. [pending] Approve the boundary: one shared deployment-readiness owner must
+2. [done, approved 2026-09-02] One shared deployment-readiness owner must
    run before `assignment_workspace`, return the configured group/storage and
    resolved credential mapping, and require the named profile/digest through
    a generic public Worker Manager operation. `issue_offer` keeps its
    authoritative certification recheck.
-3. [pending] Implement the approved preflight without weakening source
+3. [pending isolated v12 scheduling] Implement the approved preflight without weakening source
    stage-once or moving mutable Work/capacity/CAS authority out of
    `issue_offer`.
 4. [pending] Add negative arc regressions for uncertified/mismatched profile,

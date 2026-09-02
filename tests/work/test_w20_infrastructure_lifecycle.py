@@ -609,7 +609,8 @@ def test_checked_in_example_manifest_matches_the_controller_schema(tmp_path):
 	assert payload["healthy"] is False
 	assert [row["name"] for row in payload["services"]] == [
 		"codex-app-server", "codex-dispatcher", "codex-readiness",
-		"codex-tuner-readiness", "claude-acp", "gemini-acp"]
+		"codex-tuner-readiness", "codex-integrator-readiness",
+		"claude-acp", "gemini-acp"]
 
 
 def test_example_owns_one_isolated_readiness_path_per_codex_participant(
@@ -618,6 +619,7 @@ def test_example_owns_one_isolated_readiness_path_per_codex_participant(
 	services = {service["name"]: service for service in document["services"]}
 	reviewer = services["codex-readiness"]
 	tuner = services["codex-tuner-readiness"]
+	integrator = services["codex-integrator-readiness"]
 
 	def argument(service, option):
 		index = service["command"].index(option)
@@ -627,10 +629,15 @@ def test_example_owns_one_isolated_readiness_path_per_codex_participant(
 		== "baton.codex"
 	assert tuner["participant"] == argument(tuner, "--participant") \
 		== "baton.tuner"
+	assert integrator["participant"] == argument(integrator, "--participant") \
+		== "baton.merge"
 	assert argument(reviewer, "--target") == "baton-reviewer"
 	assert argument(tuner, "--target") == "baton-tuner"
-	assert argument(reviewer, "--socket") == argument(tuner, "--socket")
-	assert reviewer["after"] == tuner["after"] == ["codex-dispatcher"]
+	assert argument(integrator, "--target") == "baton-integrator"
+	assert argument(reviewer, "--socket") == argument(tuner, "--socket") \
+		== argument(integrator, "--socket")
+	assert reviewer["after"] == tuner["after"] == integrator["after"] \
+		== ["codex-dispatcher"]
 
 	mailbox = tmp_path / "mailbox"
 	mailbox.mkdir(mode=0o700)

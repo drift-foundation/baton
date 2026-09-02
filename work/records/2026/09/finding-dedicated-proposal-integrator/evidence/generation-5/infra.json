@@ -1,0 +1,447 @@
+{
+  "version": 2,
+  "startTimeoutSeconds": 15,
+  "stopTimeoutSeconds": 10,
+  "contexts": [
+    {
+      "name": "prompt",
+      "participant": "baton.prompt",
+      "after": [
+        "codex-app-server"
+      ],
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4500",
+        "--cwd",
+        "/home/sl/src/baton",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--baton-config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "baton.prompt",
+        "--role",
+        "prompt"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "timeoutSeconds": 180
+    },
+    {
+      "name": "reviewer",
+      "participant": "baton.codex",
+      "after": [
+        "codex-app-server"
+      ],
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4500",
+        "--cwd",
+        "/home/sl/src/baton",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--baton-config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "baton.codex",
+        "--role",
+        "rview"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "timeoutSeconds": 180
+    },
+    {
+      "name": "tuner",
+      "participant": "baton.tuner",
+      "after": [
+        "codex-app-server"
+      ],
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4500",
+        "--cwd",
+        "/home/sl/src/baton",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--baton-config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "baton.tuner",
+        "--role",
+        "tuner"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "timeoutSeconds": 180
+    },
+    {
+      "name": "integrator",
+      "participant": "baton.merge",
+      "after": [
+        "codex-app-server"
+      ],
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4500",
+        "--cwd",
+        "/home/sl/src/baton",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--baton-config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "baton.merge",
+        "--role",
+        "integ"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "timeoutSeconds": 180
+    },
+    {
+      "name": "pc-prompt",
+      "participant": "pc.prompt",
+      "after": [
+        "codex-app-server"
+      ],
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4500",
+        "--cwd",
+        "/home/sl/src/pushcoin",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--baton-config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "pc.prompt",
+        "--role",
+        "prompt"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "timeoutSeconds": 180
+    },
+    {
+      "name": "pc-plan",
+      "participant": "pc.plan",
+      "after": [
+        "codex-app-server"
+      ],
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4500",
+        "--cwd",
+        "/home/sl/src/pushcoin",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--baton-config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "pc.plan",
+        "--role",
+        "rview"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "timeoutSeconds": 180
+    },
+    {
+      "name": "pc-tuner",
+      "participant": "pc.tuner",
+      "after": [
+        "codex-app-server"
+      ],
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4500",
+        "--cwd",
+        "/home/sl/src/pushcoin",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--baton-config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "pc.tuner",
+        "--role",
+        "tuner"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "timeoutSeconds": 180
+    }
+  ],
+  "services": [
+    {
+      "name": "codex-app-server",
+      "command": [
+        "/home/sl/.nvm/versions/node/v24.14.0/bin/codex",
+        "app-server",
+        "--listen",
+        "ws://127.0.0.1:4500"
+      ],
+      "readiness": {
+        "type": "http",
+        "url": "http://127.0.0.1:4500/readyz",
+        "expectedStatus": 200
+      }
+    },
+    {
+      "name": "codex-dispatcher",
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--config",
+        "{{render.dispatcher}}"
+      ],
+      "after": [
+        "codex-app-server"
+      ],
+      "requires": [
+        "/home/sl/baton-v11.14aecfb/codex-event-bridge.template.json"
+      ],
+      "readiness": {
+        "type": "unix_socket",
+        "path": "/home/sl/baton-v11.14aecfb/run/codex-events.sock",
+        "request": {
+          "control": "status"
+        },
+        "expect": {
+          "ready": true
+        }
+      },
+      "renders": [
+        {
+          "name": "dispatcher",
+          "template": "/home/sl/baton-v11.14aecfb/codex-event-bridge.template.json"
+        }
+      ]
+    },
+    {
+      "name": "codex-readiness",
+      "participant": "baton.codex",
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "baton.codex",
+        "--target",
+        "baton-reviewer",
+        "--socket",
+        "/home/sl/baton-v11.14aecfb/run/codex-events.sock"
+      ],
+      "after": [
+        "codex-dispatcher"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      }
+    },
+    {
+      "name": "codex-tuner-readiness",
+      "participant": "baton.tuner",
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "baton.tuner",
+        "--target",
+        "baton-tuner",
+        "--socket",
+        "/home/sl/baton-v11.14aecfb/run/codex-events.sock"
+      ],
+      "after": [
+        "codex-dispatcher"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      }
+    },
+    {
+      "name": "codex-integrator-readiness",
+      "participant": "baton.merge",
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "baton.merge",
+        "--target",
+        "baton-integrator",
+        "--socket",
+        "/home/sl/baton-v11.14aecfb/run/codex-events.sock"
+      ],
+      "after": [
+        "codex-dispatcher"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      }
+    },
+    {
+      "name": "pc-plan-readiness",
+      "participant": "pc.plan",
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "pc.plan",
+        "--target",
+        "pc-plan",
+        "--socket",
+        "/home/sl/baton-v11.14aecfb/run/codex-events.sock"
+      ],
+      "after": [
+        "codex-dispatcher"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      }
+    },
+    {
+      "name": "pc-tuner-readiness",
+      "participant": "pc.tuner",
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "--baton",
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "--config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "pc.tuner",
+        "--target",
+        "pc-tuner",
+        "--socket",
+        "/home/sl/baton-v11.14aecfb/run/codex-events.sock"
+      ],
+      "after": [
+        "codex-dispatcher"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/8af006f/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      }
+    },
+    {
+      "name": "claude-acp",
+      "participant": "baton.claude",
+      "command": [
+        "/home/sl/opt/baton/v11/8af006f/bin/acp-baton-bridge",
+        "--config",
+        "{{render.claude-acp}}"
+      ],
+      "after": [
+        "codex-readiness",
+        "codex-tuner-readiness",
+        "codex-integrator-readiness"
+      ],
+      "requires": [
+        "/home/sl/baton-v11.14aecfb/acp-claude.template.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      },
+      "renders": [
+        {
+          "name": "claude-acp",
+          "template": "/home/sl/baton-v11.14aecfb/acp-claude.template.json"
+        }
+      ]
+    },
+    {
+      "name": "pc-code-acp",
+      "participant": "pc.code",
+      "command": [
+        "/home/sl/opt/baton/v11/8af006f/bin/acp-baton-bridge",
+        "--config",
+        "{{render.pc-code-acp}}"
+      ],
+      "after": [
+        "pc-plan-readiness",
+        "pc-tuner-readiness"
+      ],
+      "requires": [
+        "/home/sl/baton-v11.14aecfb/acp-pc-code.template.json"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      },
+      "renders": [
+        {
+          "name": "pc-code-acp",
+          "template": "/home/sl/baton-v11.14aecfb/acp-pc-code.template.json"
+        }
+      ]
+    }
+  ],
+  "control": {
+    "binary": "/home/sl/opt/baton/v11/8af006f/bin/baton",
+    "config": "/home/sl/baton-v11.14aecfb/baton.json",
+    "participant": "baton.slaw"
+  }
+}

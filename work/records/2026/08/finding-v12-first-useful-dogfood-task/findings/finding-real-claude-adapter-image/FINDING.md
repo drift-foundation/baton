@@ -445,3 +445,20 @@ unknown, duplicate, trailing, invalid-UTF8 or overflowing answer maps to
 `api-error` is not a credential, account, scope or network diagnosis. W55360
 must preserve that limitation in code, tests and documentation. Any future raw
 diagnostic classification remains a different security decision and Work.
+
+## 2026-09-01 — `acceptEdits` superseded by W64268
+
+**Superseded:** the 2026-08-29 provider-argv decision above that selected
+`claude --print --permission-mode acceptEdits`. Live isolated W61984 dogfood
+proved that `acceptEdits` permits candidate edits but still subjects ordinary
+shell verification to an inner approval gate. The command was later run by the
+worker wrapper in the same container, so the refusal protected no host
+boundary and obstructed the task the container existed to perform.
+
+W64268, bound to
+`work/records/2026/09/finding-v12-container-is-the-agent-security-boundary`,
+now owns the replacement. The unprivileged disposable container is the agent
+security boundary; Claude may run arbitrary tools available inside it without
+per-command approval. Read-only inputs and credentials, private writable
+workspace/output, no Docker socket or host namespaces/devices, no privileged
+container, and manager-owned lifecycle remain live external boundaries.

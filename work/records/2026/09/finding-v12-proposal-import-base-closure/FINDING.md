@@ -169,3 +169,26 @@ input and output artifacts under its own format contract.
   that commit range from a clean context.
 - Integration is a separate Git-aware stage; the Worker Manager stays format-
   neutral and no custom inherited-proposal lineage or byte importer is added.
+
+## Superseding Git input-delivery ruling — 2026-09-01
+
+For Git-backed Work, an exact repository locator plus an exact immutable base
+commit is the input identity. The Worker Manager does not recursively copy the
+repository working tree, enumerate every path, hash every file, or create a
+second tree digest on every assignment. The Git-aware worker resolves the
+declared locator, clones or fetches into its private workspace, and verifies
+that it checked out the exact declared commit before writable execution.
+
+For a local source, the runtime may receive a read-only repository endpoint or
+mount; for a remote source, the locator may use the deployment's supported
+transport. A portable bundle or content-addressed cache is an optional input-
+provider optimization, not mandatory protocol vocabulary and not a correctness
+requirement imposed by the Worker Manager. Baton records the Work identity and
+dependencies; Git supplies object integrity and ancestry.
+
+This supersedes the earlier wording that the generic manager stages and
+digests a complete input directory for every Git-backed assignment. Generic
+non-Git Work may still declare immutable file or directory artifacts and use a
+format-appropriate snapshot mechanism. The current dogfood operator's copied,
+per-file-hashed source tree remains a temporary bootstrap exception only; it
+must not become the production Git profile.

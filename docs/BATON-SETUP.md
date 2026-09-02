@@ -177,7 +177,10 @@ only the managed context publishes `Run`. Give the interactive context its
 own participant, role, lifecycle context and dispatcher target. The dispatcher
 then publishes runtime for that exact target, while omission of a readiness
 service keeps routed Work away from it. `conf/infra.example.json` demonstrates
-this with `baton.prompt` beside the managed `baton.codex` reviewer.
+this with `baton.prompt` beside the managed `baton.codex` reviewer,
+`baton.tuner` final-polish context, and `baton.merge` proposal integrator. The
+integrator's narrower read/import/refusal/Git contract is recorded in
+[PROPOSAL-INTEGRATOR.md](PROPOSAL-INTEGRATOR.md).
 
 So the manifest declares CONTEXTS beside its services:
 

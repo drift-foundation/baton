@@ -15,10 +15,12 @@
    base, inherited-proposal-lineage and byte-closure importer for Git-backed
    Work. Preserve the reproduction as evidence that uncommitted candidate-tree
    overlays are not valid assignment bases.
-5. [pending explicit scheduling] Make the dogfood Git path name one exact base
-   commit, give the private worker durable access to its objects, and require
-   the declared output to retain an immutable proposal head plus the objects
-   needed to inspect it.
+5. [pending explicit scheduling; clarified 2026-09-01] Make the Git input
+   profile carry an exact repository locator and immutable base commit. The
+   worker clones or fetches into its private workspace and verifies that
+   commit; the manager does not recursively copy or hash the repository tree.
+   Require the declared output to retain an immutable proposal head plus
+   durable access to the objects needed to inspect it.
 6. [pending explicit scheduling] Make correction revisions use additional
    immutable commits on the same private history. Make a dependent Job name
    the accepted predecessor commit as its base and record the Work dependency;
@@ -31,3 +33,7 @@
    existing distinct Git-aware integration stage. Keep the Worker Manager
    artifact-neutral and use normal Git conflict/refusal behavior rather than a
    custom byte importer.
+9. [pending bootstrap retirement] Remove the copied per-file-hashed source-tree
+   path from Git-backed dogfood once the locator-and-commit profile can launch
+   the same useful assignment. Keep it only for explicitly generic file-tree
+   inputs whose own format contract requires a snapshot.

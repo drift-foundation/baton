@@ -26,8 +26,9 @@
 - This project's coordination identities are `baton.prompt` for Slawomir's
   human-attached interactive copilot (`prompt`), `baton.codex` for the managed
   background reviewer (`rview`), `baton.claude` for the implementer (`impl`),
-  `baton.slaw` for the approver (`approv`), and `baton.tuner` for final polish
-  (`tuner`). Resolve role-only instructions to those identities; never
+  `baton.merge` for proposal integration (`integ`), `baton.slaw` for the
+  approver (`approv`), and `baton.tuner` for final polish (`tuner`). Resolve
+  role-only instructions to those identities; never
   substitute a participant from another domain. Every agent launch names both
   its participant and one explicit role it holds.
 - `baton.prompt` reads, discusses, creates and coordinates Work from the one
@@ -37,6 +38,14 @@
   either address or use one participant for both foreground and background
   execution. Each runtime publisher reports only the exact context mapped to
   its participant; runtime visibility does not imply a readiness consumer.
+- `baton.merge` is a distinct managed context, not an alias for implementation,
+  review, tuning, or approval. It imports only an independently approved,
+  digest-bound proposal into the current working tree after checking its base,
+  path set, and target for drift or overlap. It refuses missing provenance,
+  digest mismatch, divergence, overlap, or conflict rather than redesigning or
+  correcting the proposal. It never stages files or mutates Git history; after
+  bounded integration verification it passes the prepared diff to
+  `baton.slaw` for approval and Git ownership.
 - Run exactly one active readiness path per participant — never two concurrent
   `wait`s for the same address. Two consumers need two participant addresses,
   not one shared identity. Act on every wake immediately: `claim` the Work

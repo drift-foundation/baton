@@ -82,3 +82,16 @@ retry. This Work needs no configuration generation or reservation.
 Retain run1 as evidence and start W62098 run2 with a new attempt identity only
 after the fresh store is fully configured. Do not reuse or replace run1's
 staged source.
+
+## Approved direction — 2026-09-02
+
+Approve the shared deployment-readiness owner described above. Before
+`assignment_workspace` allocates or stages anything, it must require the exact
+immutable runtime profile name/digest through a generic public Worker Manager
+read/require operation, prove the configured workspace group and exact storage,
+and resolve the credential slot/profile mapping without reading bearer bytes.
+`issue_offer` keeps the authoritative mutable Work, capacity and certification
+rechecks. No configuration generation or reservation mechanism is added.
+
+Implementation remains an isolated v12 assignment; this approval does not
+route the Work to the legacy v11 implementer.
