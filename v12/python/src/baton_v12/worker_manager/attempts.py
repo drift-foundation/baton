@@ -49,7 +49,8 @@ __all__ = ["TRANSITIONS", "AXES", "CONTEXT_COLUMNS",
            "observe", "activate_assignment", "label_context",
            "attempt_activity_of", "observe_activity",
            "request_runtime_start",
-           "reconcile_runtime", "request_cancellation"]
+           "reconcile_runtime", "request_cancellation",
+           "finalize_quiescent_assignment"]
 
 
 def _frozen(moves):
@@ -2064,3 +2065,284 @@ def _order_quiescence(store, agent, adapter, attempt_id, assignment,
         ordered=True, runtime_id=attempt["runtime_id"],
         agent_settlement=agent_settlement,
         runtime_settlement=runtime_settlement)
+
+
+# -- step 4: finalizing an assignment that is ALREADY QUIESCENT ---------------
+#
+# W61984. THE INTERVAL NOTHING OWNED. A worker answers one of the four terminal
+# dispositions, the exact execution runtime is positively observed `quiescent`,
+# and the assignment is still LIVE at the authority -- so it holds the
+# participant's global claim slot, and `intake.authorize_cleanup` correctly
+# refuses to end a runtime whose assignment the authority still believes is
+# executing. W52821 run5b sat in exactly that state.
+#
+# WHY `request_cancellation` IS NOT THAT OPERATION, and why it is unchanged.
+# Its order -- fence, ask the agent, stop the runtime -- is right for a
+# cancellation that INITIATES quiescence, and `test_attempts` pins it. Reused
+# after the worker conversation has ended it would add two fallible external
+# acts restating a fact this manager already holds durably, and either of them
+# can fault AFTER the authority has fenced.
+#
+# WHAT THIS DOES, AND EXACTLY THIS. It journals one operator decision, derives
+# the fixed assignment, the runtime identity and the recorded disposition from
+# this manager's own row, and calls the SAME exact authority fence. It makes no
+# agent call and no runtime call -- it takes neither capability, so it cannot
+# -- and it decides nothing about output, intake, retention, verification,
+# review, approval, integration or cleanup. Freeing the claim slot is not
+# accepting the proposal, and the Work stays behind
+# `runtime-quiescence:<generation>` until POSITIVE absence, which quiescence
+# never is.
+
+# How far an operator's own sentence travels onto a durable surface. Prose in a
+# journalled signature is durable, and an unbounded operand is an unbounded
+# durable write.
+MAX_FINALIZATION_REASON = 2000
+
+
+def _finalize_operation_id(attempt):
+    """The ONE finalization identity for an attempt's exact generation.
+
+    Derived from the attempt and its assignment -- and deliberately not from
+    the reason, the runtime or the disposition. Those ride the SIGNATURE, so a
+    second decision naming a different reason COLLIDES against this identity
+    instead of committing a second finalization of one attempt.
+    """
+    return "attempt.finalize-quiescent:" + digest({
+        "attempt_id": attempt["runtime_attempt_id"],
+        "assignment": _fixed_assignment(attempt),
+    })[len("sha256:"):]
+
+
+def _authority_finalize_operation_id(attempt):
+    """The AUTHORITY's own effectively-once identity for this fence.
+
+    DISTINCT FROM ALL THREE of the decision above, `attempt.cancel:*` and
+    `authority.abandon-fence:*`. §4.2: success at one boundary does not imply
+    success at the other, and a finalization must not be able to replay a
+    cancellation's or an abandonment's authority act -- four identities because
+    they are four acts.
+    """
+    return "authority.finalize-quiescent:" + digest({
+        "attempt_id": attempt["runtime_attempt_id"],
+        "assignment": _fixed_assignment(attempt),
+    })[len("sha256:"):]
+
+
+def finalize_quiescent_assignment(store, port, *, attempt_id, reason):
+    """End the exact live assignment of an already-quiescent attempt.
+
+    CALLING THIS IS THE OPERATOR'S DECISION. There is no deadline, no timer and
+    no clock: a terminal worker disposition is not by itself a decision to end
+    the assignment, and the specification keeps an `unable` result waiting for
+    an explicit pass, release or close. Nothing in this manager calls this on a
+    worker's behalf.
+
+    EVERY OPERAND BUT THE ATTEMPT AND THE REASON IS DERIVED. The four-part
+    assignment, the exact runtime identity and the recorded terminal
+    disposition come off this manager's own row, so a caller cannot name an
+    assignment, a generation or a runtime the manager did not fix.
+
+    THE ORDER, and each step is the next one's precondition:
+
+      1. own the two operands and the participant binding, and refuse an
+         attempt with no fixed assignment or no attached runtime -- before any
+         durable write and long before the authority is asked;
+      2. commit or replay the decision, with the two MUTABLE facts -- a
+         terminal disposition and a positively quiescent exact runtime --
+         decided INSIDE that write, because "check then commit" is two acts;
+      3. read the committed record back as the authorization and fence the
+         exact generation with ITS values, so a resumed call reissues the same
+         authority act rather than a freshly recomposed one.
+
+    AND NOTHING FOLLOWS. `request_cancellation` continues past its fence to the
+    agent and the runtime; this returns. The retained output stays frozen and
+    in custody, pending an explicit retention decision, and the runtime stays
+    where it is for the existing exact cleanup to prove absent.
+    """
+    boundaries.identity(attempt_id, "a runtime attempt id")
+    reason = boundaries.text(reason, "a finalization reason")
+    # A BLANK SENTENCE IS A DECISION NOBODY MADE, on the rule `abandon_attempt`
+    # states: calling this operation IS the operator's declaration, so the
+    # account of it is not optional the way a cancellation's is.
+    if not reason.strip():
+        raise ContractRefusal(
+            "integrity", "schema",
+            "a finalization carries the operator's own reason; calling this "
+            "operation IS the decision, so a blank one is a decision nobody "
+            "made")
+    if len(reason) > MAX_FINALIZATION_REASON:
+        raise ContractRefusal(
+            "integrity", "limit",
+            f"a finalization reason is at most {MAX_FINALIZATION_REASON} "
+            f"characters and this one is {len(reason)}; the sentence is "
+            f"journalled, and an unbounded operand is an unbounded durable "
+            f"write")
+    attempt = _require_attempt(store, attempt_id)
+    expected = _fixed_assignment(attempt)
+    if expected is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} has no fixed assignment; "
+            f"finalization ends an exact generation and there is none to end")
+    # The session is the BINDING, exactly as it is for a cancellation. A
+    # session for somebody else could otherwise end this participant's
+    # assignment through this manager.
+    if expected["participant"] != port.participant:
+        raise ContractRefusal(
+            "refused", "capability",
+            f"this session acts for {name_value(port.participant)} and "
+            f"attempt {name_value(attempt_id)} is assigned to "
+            f"{name_value(expected['participant'])}")
+    # THE RECORD NAMES THE RUNTIME WHOSE QUIESCENCE WAS ACTED ON, so an attempt
+    # that never attached one has nothing for it to name. Such an attempt is
+    # also one no runtime ever executed for, which is a different situation and
+    # not this operation's.
+    if attempt["runtime_id"] is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} has no attached runtime; this "
+            f"operation finalizes an assignment whose exact runtime was "
+            f"observed quiescent, and there is none to name")
+    authority_operation_id = _authority_finalize_operation_id(attempt)
+    record = _finalization_record(store, attempt, attempt_id, expected, reason,
+                                  authority_operation_id)
+    # FENCED WITH THE ADOPTED RECORD'S OWN VALUES, on the rule the abandonment
+    # follows: a resumed call must reissue the SAME authority operation with
+    # the SAME reason, and reading them off the committed decision is what
+    # makes that true across a restart.
+    #
+    # NO LIVENESS PRE-CHECK. Whether this assignment is still the live one is
+    # the AUTHORITY's decision, made inside its own transaction against its own
+    # state; asking first and acting on the answer would be a read-then-write
+    # race wearing a guard's clothes.
+    fenced = port.cancel(dict(expected),
+                         record["authority_operation_id"], record["reason"],
+                         expected["work_ref"]["work_id"],
+                         expected["work_ref"]["authority_uuid"])
+    return documents.attempt_finalized(intent=dict(record),
+                                       fenced=dict(fenced))
+
+
+def _finalization_record(store, attempt, attempt_id, expect, reason,
+                         authority_operation_id):
+    """Commit or replay the decision, then adopt it as the authorization.
+
+    COMMITTED BEFORE THE AUTHORITY IS ASKED, which is what makes the fence
+    resumable: a crash between the two boundaries leaves a record that already
+    names the one authority act to reissue, rather than an intent somebody
+    remembers having formed.
+    """
+    operation_id = _finalize_operation_id(attempt)
+    signature = manager_signature(
+        "attempt.finalize-quiescent",
+        {"attempt_id": attempt_id, "expect": expect,
+         "runtime_id": attempt["runtime_id"],
+         "worker_disposition": attempt["worker_disposition"],
+         "authority_operation_id": authority_operation_id,
+         "reason": reason})
+    document = documents.finalize_intent(
+        attempt_id=attempt_id, assignment=dict(expect),
+        runtime_id=attempt["runtime_id"], decision="finalized",
+        worker_disposition=attempt["worker_disposition"],
+        authority_operation_id=authority_operation_id, reason=reason)
+    # ONE CALL, NOT A PEEK AND A CALL. `transact` replays inside its own lock
+    # and does not run the action when it does, so the fresh eligibility below
+    # is decided exactly once -- on the call that actually commits -- and a
+    # resumed call is not re-judged against axes that moved because this
+    # decision already ran.
+    committed = store.transact(
+        operation_id, "attempt.finalize-quiescent", signature,
+        lambda connection: _quiescent(store, attempt_id, document))
+    held = adopt_finalization_record(committed)
+    # EVERY MEMBER, not the ones that name the world. The RECORD is the
+    # authorization, so a record written about another attempt, another
+    # generation, another runtime, another disposition, another authority act
+    # or another sentence does not authorize this fence.
+    for member, mine in (("attempt_id", attempt_id),
+                         ("assignment", expect),
+                         ("runtime_id", attempt["runtime_id"]),
+                         ("decision", "finalized"),
+                         ("worker_disposition", attempt["worker_disposition"]),
+                         ("authority_operation_id", authority_operation_id),
+                         ("reason", reason)):
+        if held[member] != mine:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the recorded finalization names {member} "
+                f"{name_value(held[member])} and this ending is for "
+                f"{name_value(mine)}; the record and the act it authorizes "
+                f"must describe one attempt, one runtime and one decision")
+    return held
+
+
+def adopt_finalization_record(record):
+    """THE ONE PLACE a committed finalization decision crosses back IN.
+
+    PLAN 4bz names the store a RECEIVING trust domain, and this is the entry.
+    On the call that commits, `transact` hands back this build's own document;
+    on a replay after a retry, a crash or a restart it hands back whatever
+    bytes SQLite kept under that operation identity. The caller cannot tell the
+    two apart, so BOTH are proved here -- once, as the value enters -- against
+    the closed `attempt.finalize-intent` contract. Nothing revalidates it
+    afterwards: the member comparison above is a rule over an already-owned
+    document rather than a second crossing.
+
+    NAMED AND PUBLIC BECAUSE IT IS A CROSSING. A private helper's operands are
+    internal values of whatever called it; this one's operand is the durable
+    store's answer, and hiding a receiving entry behind a naming convention is
+    how one ends up with no owner and no probe.
+
+    Handed back as this call's own mapping, so the authorization the fence is
+    issued from is a value this operation holds rather than an alias of what
+    the journal returned.
+    """
+    held = boundaries.document(record, "a committed finalization record",
+                               required=documents.FINALIZE_INTENT)
+    return dict(held)
+
+
+def _quiescent(store, attempt_id, document):
+    """The two MUTABLE facts, read inside the write that records the decision.
+
+    INSIDE THE TRANSACTION, because "check then commit" is two acts and an
+    axis can move between them. Both refusals are ordinary and undurable, so
+    the whole transaction goes back: nothing is journalled, the authority is
+    never asked, and no output, custody, retention or cleanup axis is touched.
+    """
+    attempt = _require_attempt(store, attempt_id)
+    # EVERY RECORDED TERMINAL ANSWER, and `none` is the only one refused.
+    # Approver ruling 2026-09-01 item 3: a `completed` worker whose independent
+    # verification failed reaches the same lifecycle state as an `unable` one,
+    # and finalization is about the ASSIGNMENT rather than about which terminal
+    # answer the worker gave. A worker that has not answered at all has an
+    # ending of its own and is not this operation's.
+    if attempt["worker_disposition"] not in schema.DISPOSITIONS:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} worker disposition is "
+            f"{name_value(attempt['worker_disposition'])}; finalization ends "
+            f"the assignment of a worker that has ALREADY answered, and this "
+            f"one has not")
+    # `quiescent` AND NOTHING ELSE. `running` and `start-requested` say a
+    # worker may still be executing; `uncertain` says this manager could not
+    # see; `destroyed` and `stopping` are other endings' business. Only a
+    # positive observation of the exact runtime says the thing this operation
+    # is named for, and it is deliberately not upgraded to absence -- a
+    # quiescent runtime still exists and satisfies no authority gate.
+    if attempt["execution_runtime"] != "quiescent":
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} execution runtime is "
+            f"{name_value(attempt['execution_runtime'])}; this operation "
+            f"finalizes an ALREADY-QUIESCENT assignment and makes no runtime "
+            f"call, so only a positively quiescent exact runtime reaches it")
+    # AND IT IS STILL THE CONTAINER THE DECISION NAMES.
+    if attempt["runtime_id"] != document["runtime_id"]:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"this finalization names runtime_id "
+            f"{name_value(document['runtime_id'])} and attempt "
+            f"{name_value(attempt_id)} is now attached to "
+            f"{name_value(attempt['runtime_id'])}; the record and the state "
+            f"it was decided on must describe one runtime")
+    return document

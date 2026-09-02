@@ -2153,3 +2153,24 @@ owns Work dependencies, offers, claims, review and approval. The artifact-
 neutral Worker Manager merely retains generic inputs and outputs; Git-aware
 drivers and stages interpret the durable repository/object transport named by
 those envelopes.
+
+## Worker commits identify the producing model — confirmed 2026-09-01
+
+Git-backed worker output attributes its commits to the actual provider and
+model that produced the change. The Worker Manager injects this identity into
+the isolated runtime; the worker does not choose or self-report its Git
+identity. The author display name is a readable model identity such as
+`Claude Opus 4.6` or `OpenAI Codex GPT-5.6`, and its deterministic synthetic
+email uses the reserved `.invalid` domain, for example
+`claude-opus-4-6@agents.baton.invalid`. No real mailbox, credential, session
+locator, or other secret appears in Git identity fields.
+
+Authorship and integration remain distinct. The producing model is the Git
+author. The human or authorized integration mechanism that imports the change
+into target history is the Git committer. Human-readable commit trailers carry
+the exact Baton participant, Work, attempt, provider, and model, but neither
+trailers nor Git name/email fields are security authority. The manager-owned
+`result.json` is the authoritative binding between the attempt, its observed
+runtime identity, and the returned commit object. Integration verifies that
+binding and preserves author attribution rather than trusting metadata chosen
+inside the worker.

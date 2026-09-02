@@ -186,6 +186,16 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
             "request_cancellation": ((store, port, _NoAgent(), _NoAdapter()),
                                      dict(attempt_id="attempt-1"),
                                      ["attempt_id"]),
+            # W61984: the already-quiescent finalization. It takes NO agent and
+            # NO adapter -- that is the operation, not an omission here -- and
+            # both of its operands are durable text: the attempt it ends and
+            # the operator's own sentence, which is journalled.
+            "finalize_quiescent_assignment": (
+                (store, port),
+                dict(attempt_id="attempt-1",
+                     reason="the operator ended an already-quiescent "
+                            "assignment"),
+                ["attempt_id", "reason"]),
             # -- W6627: the agent session ----------------------------------
             #
             # Every row drives the REAL exported operation. None of them has a

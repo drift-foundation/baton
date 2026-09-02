@@ -1135,6 +1135,17 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
     "reconcile_runtime": "the same",
     "request_cancellation": "the same; the adapter settlements ride back "
                             "uninterpreted and reach no durable surface here",
+    # W61984. The already-quiescent finalization answers this manager's own
+    # committed decision -- every member of it derived from the attempt row --
+    # beside the authority's own closed fence answer. The operator's `reason`
+    # is durable text this manager was handed and stores; it is walked for §13
+    # at `manager_signature` when the decision is committed, exactly as every
+    # other operand-bearing signature is. Nothing the worker produced is read,
+    # carried or returned, because this operation makes no engine call at all.
+    "finalize_quiescent_assignment":
+        "answers this manager's committed finalization record beside the "
+        "authority's own closed fence answer, over values derived from the "
+        "attempt row",
     "open_agent_session": "closed documents over owned values",
     "adopt_provider_session": "the same",
     "observe_session_state": "the same",

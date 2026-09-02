@@ -1065,9 +1065,13 @@ class TheOperandIsDeclaredOnceAndReadThroughThatDeclaration(_Fixture):
             with self.refusing():
                 user_credentials.refused_in_ending(None, mode=mode)
 
-    def test_the_two_ending_modes_are_the_documented_two(self):
+    def test_the_ending_modes_are_the_documented_ones(self):
+        # W61984 adds the third. It is an ending mode for the same reason the
+        # other two are: it opens no registry and no source, so an operand
+        # naming material to deliver is a contradiction in it.
         self.assertEqual(user_credentials.ENDING_MODES,
-                         ("--abandon", "--retry-handoff"))
+                         ("--abandon", "--retry-handoff",
+                          "--finalize-quiescent"))
 
 
 # == THE PRODUCTION SEAM ============================================================

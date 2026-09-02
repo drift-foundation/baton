@@ -56,6 +56,8 @@ REUSABLE for another bounded task:
 
     python3 tools/dogfood_operator.py --grants GRANTS.json \
         --evidence OUT.json [--credential-sources PATH] [--retry-handoff]
+        [--abandon --abandon-reason WHY]
+        [--finalize-quiescent --finalize-reason WHY]
 
 `--credential-sources` names the USER'S OWN private `baton.user-credential-
 sources/1` registry, which says which of that user's files backs each exact
@@ -92,6 +94,17 @@ pass or settlement then failed. It runs no worker, starts no runtime, opens no
 provider turn and restages nothing -- it redoes the pass and the ending, both
 under the original identities, so the authority and the manager replay rather
 than repeat.
+
+`--finalize-quiescent` is W61984's EXPLICIT operator decision, and the one
+mode that touches the authority and nothing else. It ends the live assignment
+of an attempt whose worker already answered one of the four terminal
+dispositions and whose exact runtime this manager recorded `quiescent`, so the
+participant's claim slot is freed and the exact generation is fenced. It
+contacts no agent, stops no runtime, decides nothing about whether the retained
+output is accepted, trustworthy or disposable, and performs no cleanup: the
+Work stays behind `runtime-quiescence:<generation>` until positive absence, and
+the custody stays pending for the operator's own retention decision. It is
+never reached by an ordinary run, however that run ended.
 
 `GRANTS.json` is the whole of what an operator decides. Nothing in it has a
 default and nothing is read from the environment, because a grant nobody made
@@ -166,7 +179,7 @@ except ImportError:                                        # run as a script
 
 __all__ = ["DeploymentSession", "MAX_SOURCE_ENTRIES", "MAX_SOURCE_BYTES",
            "RECOVERY_MEMBERS", "RECOVERY_SCHEMA", "recover_abandoned",
-           "write_recovery",
+           "finalize_quiescent", "write_recovery",
            "PROPOSAL_TARGET", "POLICY_DIGESTS", "SOURCE_TARGET",
            "OperatorRefusal", "assignment_manifest", "frozen_task",
            "held_task", "input_manifest", "preflight", "stage_source"]
@@ -2525,6 +2538,106 @@ def _assignment_disagrees(state, given):
     return None
 
 
+def finalize_quiescent(store, port, given, *, reason):
+    """W61984: end the LIVE ASSIGNMENT of an already-quiescent attempt.
+
+    THE OBSERVED DEFECT. W52821 run5b's worker answered `unable`, the exact
+    execution runtime was positively observed `quiescent`, its output was
+    frozen and intake held the proposal in custody -- and the independent
+    verification failed, so this deployment made no retention decision and no
+    review pass. `_ended_however` then went straight to `authorize_cleanup`,
+    which refused because `attempt-w52821-run5b` was still the live assignment
+    for `baton.claude` generation 1. Nothing between those two acts could end
+    the assignment, so the claim slot stayed held for an execution that had
+    already stopped.
+
+    IT IS AN EXPLICIT MODE AND NEVER AN AUTOMATIC CONSEQUENCE. Approver ruling
+    2026-09-01 item 2: an `unable` result waits for an explicit pass, release
+    or close decision, and turning a failed verification into an automatic
+    cancellation would be a policy change rather than an implementation detail.
+    So the ordinary arc is untouched -- `_custody` still raises on a failed
+    verification and `_ended_however` still ends what its receipt authorizes --
+    and this is reached only when an operator asks for it by name.
+
+    AND IT TAKES NO ADAPTER, WHICH IS THE PROOF RATHER THAN THE PROMISE. There
+    is no engine port, no agent, no credential owner and no launch delivery
+    here, so no runtime can be stopped, no conversation reopened and no
+    material read: what this command can do is bounded by what it was handed.
+    It makes no retention decision, no review pass, no cleanup call and reads
+    not one byte of the retained proposal. Custody stays pending for the
+    operator's own later decision, and the existing exact cleanup is still the
+    only thing that proves absence.
+    """
+    from baton_v12.worker_manager import attempt_runtime_of
+
+    return _finalization_of(attempt_runtime_of(store, given["attempt_id"]),
+                            store, port, given, reason=reason)
+
+
+def _finalization_of(state, store, port, given, *, reason):
+    """The finalization over ONE manager projection, held and then acted on.
+
+    THE SAME PRIVATE SEAM `_recovery_of` IS, and for the same M60437 reason:
+    the fixed-assignment hold has to happen before any capability exists, so
+    the builder takes the projection itself and the exported operation reaches
+    this only by performing that read. Nothing a caller composed can arrive
+    here as the manager's own answer.
+    """
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import finalize_quiescent_assignment
+
+    record = _recovery_record(given, reason)
+    record["branch"] = "quiescent-finalization"
+    record["attempt_state"] = state
+    # THE EDITABLE GRANTS ARE HELD AGAINST WHAT ACTIVATION FIXED, before the
+    # authority is asked. `finalize_quiescent_assignment` derives its own
+    # assignment from the attempt row, so without this a grants file naming
+    # another generation would end the real one and then write its own
+    # generation into the record as the identity the ending used.
+    disagreed = _assignment_disagrees(state, given)
+    if disagreed is not None:
+        return _unresolved(record, disagreed)
+    fixed = state["assignment"]
+    record["work_ref"] = dict(fixed["work_ref"])
+    record["participant"] = fixed["participant"]
+    record["generation"] = fixed["generation"]
+    try:
+        finalized = finalize_quiescent_assignment(
+            store, port, attempt_id=given["attempt_id"], reason=reason)
+    except _Refusal as refused:
+        # NOTHING PARTIAL TO ACCOUNT FOR. The manager commits its decision
+        # before the fence and refuses everything else beforehand, and this
+        # command performs no external act of its own -- so a refusal here
+        # leaves the world exactly as it was and the account is the sentence.
+        return _unresolved(record, f"the manager declined to finalize the "
+                                   f"assignment: {refused.message}")
+    fenced = finalized["fenced"]
+    record["authority_fence"] = {
+        "fenced": bool(fenced.get("fenced")),
+        "cause": fenced.get("cause"),
+        "phase": fenced.get("phase"),
+        # THE GATE IS THE POINT, so it is recorded rather than summarized.
+        # Freeing the claim slot is not clearing the Work: it stays behind
+        # `runtime-quiescence:<generation>` until positive absence, and an
+        # operator reading this record has to be able to see that.
+        "gate": fenced.get("gate"),
+        "worker_disposition": finalized["intent"]["worker_disposition"],
+        "runtime_id": finalized["intent"]["runtime_id"],
+        "authority_operation_id": finalized["intent"][
+            "authority_operation_id"]}
+    # WHAT IS DELIBERATELY STILL NULL: `runtime`, `cleanup`, `custody`,
+    # `credentials`, `launch`, `observed_after` and `zombies`. This command
+    # made no engine call, so it has nothing observed to say about any of
+    # them, and a record that filled one in from an inference would be the
+    # assumed state this Work exists to remove.
+    # RESOLVED IS READ OFF THE RECORD, not asserted beside it. `AuthorityPort.
+    # cancel` already refuses an answer that did not fence -- so there is no
+    # second check here, and what an operator reads as resolved is the same
+    # member they can read as the fence.
+    record["resolved"] = record["authority_fence"]["fenced"]
+    return record
+
+
 def _partial_account(record, store, adapter, given, state, *, orphan,
                      launch_home, session):
     """What the refused ending had ALREADY DONE, re-observed rather than
@@ -3271,6 +3384,43 @@ def _abandoned(given, reason, capabilities, place):
     return 0 if answered["resolved"] else 1
 
 
+def _finalized(given, reason, capabilities, place):
+    """The public finalization, over freshly built fence-only capabilities.
+
+    THE SHAPE IS `_abandoned`'S, and the difference is what is missing from it.
+    There is no adapter to unwind, no orphan teardown and no launch home,
+    because a finalization performs no engine act at all -- so the only fault
+    this can propagate with is one raised between opening a store and reading
+    the manager's own row, and the record still rides out with it.
+    """
+    from baton_v12.authority import claim_signature
+    from baton_v12.worker_manager import AuthorityPort
+
+    built = capabilities(given)
+    if built.get("disagreement"):
+        # NOTHING ELSE WAS BUILT. The hold refused before an authority session
+        # existed, so there is nothing that could have acted and nothing but
+        # the store to release.
+        record = _recovery_record(given, reason)
+        record["branch"] = "quiescent-finalization"
+        record["attempt_state"] = built.get("state")
+        _unresolved(record, built["disagreement"])
+        for closing in built.get("closing", ()):
+            closing()
+        write_recovery(record, place)
+        return 1
+    try:
+        answered = _finalization_of(
+            built["state"], built["store"],
+            AuthorityPort(built["session"], claim_signature), given,
+            reason=reason)
+    finally:
+        for closing in built.get("closing", ()):
+            closing()
+    write_recovery(answered, place)
+    return 0 if answered["resolved"] else 1
+
+
 def _no_credential_sources(options, mode):
     """The ending modes' contradiction, in this command's own vocabulary.
 
@@ -3324,7 +3474,7 @@ def _credential_resolver(place):
 
 
 def main(argv, *, capabilities, retry_capabilities=None,
-         abandon_capabilities=None):
+         abandon_capabilities=None, finalize_capabilities=None):
     """The documented command, and it answers a process exit status.
 
     ONE INJECTED THING, and it is a FUNCTION OF THE GRANTS. The seven
@@ -3383,13 +3533,59 @@ def main(argv, *, capabilities, retry_capabilities=None,
                              "result is already recorded in --evidence; runs "
                              "no worker, starts no runtime and restages "
                              "nothing")
+    # W61984: THE EXPLICIT FINALIZATION MODE. It is a separate operand rather
+    # than a consequence of any other flag, because the ruling is that an
+    # operator decides this and nothing infers it -- see `finalize_quiescent`.
+    parser.add_argument("--finalize-quiescent", action="store_true",
+                        help="end the LIVE ASSIGNMENT of an attempt whose "
+                             "worker already answered and whose exact runtime "
+                             "is recorded quiescent; requires "
+                             "--finalize-reason, contacts no agent, stops no "
+                             "runtime, decides nothing about the retained "
+                             "output and performs no cleanup")
+    parser.add_argument("--finalize-reason",
+                        help="the operator's own account of why this "
+                             "already-quiescent assignment is being ended; "
+                             "calling the command IS the decision, so no "
+                             "timer and no worker result decides it")
     options = parser.parse_args(argv)
-    if options.abandon and options.retry_handoff:
+    # ONE MODE PER INVOCATION, counted rather than compared pairwise. Three
+    # flags make three pairs and a fourth would make six, and a command asked
+    # for two endings was asked to do two different things to one attempt.
+    asked = [name for name, chosen in
+             (("--abandon", options.abandon),
+              ("--retry-handoff", options.retry_handoff),
+              ("--finalize-quiescent", options.finalize_quiescent))
+             if chosen]
+    if len(asked) > 1:
         raise OperatorRefusal(
-            "--abandon ends an attempt and --retry-handoff finishes one; a "
-            "command that was asked for both was asked to do two different "
-            "things to one attempt")
+            f"{' and '.join(asked)} are different acts on one attempt; a "
+            f"command that was asked for more than one of them was asked to "
+            f"do two different things to it")
     given = read_grants(options.grants)
+    if options.finalize_quiescent:
+        # W61984. THE REASON IS REQUIRED AND IS THE DECISION, on the rule
+        # `--abandon` states, and it is held before a store is opened because
+        # building a capability is already an outward act.
+        if finalize_capabilities is None:
+            raise OperatorRefusal(
+                "this launcher supplies no finalization capability path; an "
+                "already-quiescent finalization opens a control store and an "
+                "authority session and nothing else, so it is not the "
+                "ordinary builder with a flag")
+        if not (options.finalize_reason or "").strip():
+            raise OperatorRefusal(
+                "--finalize-quiescent carries the operator's own "
+                "--finalize-reason; calling this command IS the decision that "
+                "this assignment is over, so a blank one is a decision nobody "
+                "made")
+        # AND IT READS NO REGISTRY AND OPENS NO SOURCE. The rule is the source
+        # owner's, applied here for the reason both other ending modes apply
+        # it: a mode that delivers nothing must not accept an operand naming
+        # material to deliver.
+        _no_credential_sources(options, "--finalize-quiescent")
+        return _finalized(given, options.finalize_reason.strip(),
+                          finalize_capabilities, options.evidence)
     if options.abandon:
         # W55758. THE REASON IS REQUIRED AND IS THE DECLARATION. `abandon_
         # attempt` refuses a blank one because calling it IS the operator's
@@ -4037,6 +4233,43 @@ def _for_abandonment(given, *, run=None):
         raise
 
 
+def _for_finalization(given):
+    """Only what a FENCE needs, and nothing that observes, delivers or removes.
+
+    W61984. The control store, the manager's own atomic projection of the
+    attempt, and one participant-bound authority session. NO engine port, NO
+    adapter, NO credential home, NO orphan teardown, NO launch adoption and NO
+    workspace roots -- this mode makes no engine call, so it is handed nothing
+    that could make one.
+
+    THE HOLD COMES FIRST, on the rule `_for_abandonment` states: the control
+    store is opened first and alone because the projection is the question and
+    there is no way to ask it without one, and nothing else is constructed
+    until the editable grants have been held against what activation fixed.
+    """
+    from baton_v12.authority import Authority
+    from baton_v12.worker_manager import ControlStore, attempt_runtime_of
+
+    store = ControlStore.open(given["control_store"],
+                              incarnation=given["incarnation"], clock=_now)
+    opened = [store.close]
+    try:
+        state = attempt_runtime_of(store, given["attempt_id"])
+        disagreement = _assignment_disagrees(state, given)
+        if disagreement is not None:
+            return {"store": store, "state": state,
+                    "disagreement": disagreement, "closing": (store.close,)}
+        authority = Authority.open(given["authority_store"])
+        opened.append(authority.dispose)
+        return {"store": store, "state": state, "disagreement": None,
+                "session": DeploymentSession(
+                    authority.session(given["participant"])),
+                "closing": (store.close, authority.dispose)}
+    except BaseException:                                # noqa: BLE001
+        _unwinding(opened)
+        raise
+
+
 def _adopted_launch(evidence, given):
     """The delivery the ordinary attempt made, and never `None` here."""
     from baton_v12.worker_manager import launch
@@ -4314,4 +4547,5 @@ if __name__ == "__main__":
                        given,
                        credential_provider=_credential_resolver(_sources)),
                    retry_capabilities=_for_retry,
-                   abandon_capabilities=_for_abandonment))
+                   abandon_capabilities=_for_abandonment,
+                   finalize_capabilities=_for_finalization))

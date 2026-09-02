@@ -56,7 +56,8 @@ fact and IS provable now; it recovers a posture and satisfies no runtime gate.
 from .authority_port import (AuthorityPort, SESSION_MEMBERS,
                              SESSION_OPERATIONS)
 from .attempts import (AXES, TRANSITIONS, activate_assignment,
-                       attempt_activity_of, attempt_runtime_of, label_context,
+                       attempt_activity_of, attempt_runtime_of,
+                       finalize_quiescent_assignment, label_context,
                        observe, observe_activity,
                        reconcile_runtime, record_attempt, request_cancellation,
                        request_runtime_start)
@@ -176,6 +177,11 @@ __all__ = ["CUSTODY", "KEEPS_MATERIAL", "LANE_PARTS", "abandon_attempt",
            "attempt_runtime_of", "observe_activity",
            "certify_profile", "label_context",
            "claim_operation_id", "claimed_offers_for", "expire_overdue",
+           # W61984: the ONE already-quiescent assignment finalization. It is
+           # exported and the two identity derivations beside it are not, for
+           # the reason W44716's are not: an ending authorized by a record a
+           # caller could compose is not authorized by anything.
+           "finalize_quiescent_assignment",
            "issue_offer", "manager_signature", "observe",
            "reconcile_runtime", "record_attempt", "recover_on_restart",
            "request_cancellation", "request_runtime_start", "revive_refusal",

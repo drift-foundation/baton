@@ -40,7 +40,9 @@ __all__ = ["CONTRACTS", "ASSIGNMENT", "profile_certified",
            "runtime_labels", "runtime_start_requested", "runtime_attached",
            "runtime_uncertain", "runtime_cancel", "cancel_intent",
            "quiescence_ordered", "quiescence_not_ordered",
-           "attempt_cancelled", "SESSION_REF", "session_ref", "posture_slot",
+           "attempt_cancelled", "FINALIZE_INTENT", "finalize_intent",
+           "attempt_finalized",
+           "SESSION_REF", "session_ref", "posture_slot",
            "slot_moved", "session_opened", "provider_session_adopted",
            "session_observed", "session_closed", "transport_lost",
            "session_reconciled", "session_quiescence_requested",
@@ -209,6 +211,28 @@ CONTRACTS = {
     # announcement was the one a reader had to infer from its absence.
     "attempt.cancelled": (("intent", "fenced", "session_quiescence",
                            "quiescence"), ()),
+    # -- W61984: finalizing an ALREADY-QUIESCENT assignment ------------------
+    #
+    # THE DECLARATION, and every operand of it is DERIVED rather than accepted.
+    # `assignment`, `runtime_id` and `worker_disposition` come off the attempt
+    # row this manager already fixed; `reason` is the operator's own sentence
+    # and `authority_operation_id` is the one authority act the record
+    # authorizes. `decision` is the constant `"finalized"` for the reason
+    # `attempt.abandon-intent`'s is a constant: this record has exactly one
+    # thing to say, and a member that could say something else would invite a
+    # second meaning into it.
+    #
+    # THE QUIESCENCE IS A PRECONDITION AND NOT A MEMBER. It is decided inside
+    # the write that commits this record and is not part of what the record
+    # AUTHORIZES -- binding a mutable axis into a durable identity would make
+    # an ordinary later cleanup turn an exact retry into a collision.
+    "attempt.finalize-intent": (("attempt_id", "assignment", "runtime_id",
+                                 "decision", "worker_disposition",
+                                 "authority_operation_id", "reason"), ()),
+    # TWO MEMBERS, AND DELIBERATELY NOT A THIRD. There is no agent settlement
+    # and no runtime settlement here, because this operation makes neither
+    # call: what it did is record a decision and fence a generation.
+    "attempt.finalized": (("intent", "fenced"), ()),
     # -- W6592 cut A: composition ---------------------------------------------
     #
     # Certification answers with the profile's own id AND the seal it was
@@ -477,6 +501,10 @@ REFUSED_SESSION_DESTROY_COMMAND = CONTRACTS[
 # the two other recordless commands are.
 ABANDONED_DESTROY_COMMAND = CONTRACTS["destroy.abandoned-command"][0]
 ABANDON_INTENT = CONTRACTS["attempt.abandon-intent"][0]
+# W61984: read back by the already-quiescent finalization, for the reason the
+# abandonment declaration is -- a record adopted from the journal is data this
+# process did not write on this run, and the fence below is authorized by it.
+FINALIZE_INTENT = CONTRACTS["attempt.finalize-intent"][0]
 
 
 def _emit(name, members):
@@ -825,3 +853,11 @@ def quiescence_not_ordered(**members):
 
 def attempt_cancelled(**members):
     return _emit("attempt.cancelled", members)
+
+
+def finalize_intent(**members):
+    return _emit("attempt.finalize-intent", members)
+
+
+def attempt_finalized(**members):
+    return _emit("attempt.finalized", members)

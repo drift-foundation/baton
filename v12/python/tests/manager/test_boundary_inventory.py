@@ -54,7 +54,7 @@ from baton_v12.contracts import digest as _contracts_digest
 from baton_v12.worker_manager import (AuthorityPort, ControlStore, boundaries,
                                       certify_profile, documents, schema)
 
-from baton_v12.worker_manager import lanes, workspaces
+from baton_v12.worker_manager import attempts, lanes, workspaces
 
 from .test_handshake import acp_profile
 from .test_output import (AUTHORITY, COMPLETION, JOB, POLICY, OutputCase)
@@ -1447,6 +1447,9 @@ STATED_OWNERS = {
     ("caller", "documents.py:quiescence_ordered", "members"): "the same",
     ("caller", "documents.py:quiescence_not_ordered", "members"): "the same",
     ("caller", "documents.py:attempt_cancelled", "members"): "the same",
+    # W61984: the already-quiescent finalization's two documents.
+    ("caller", "documents.py:finalize_intent", "members"): "the same",
+    ("caller", "documents.py:attempt_finalized", "members"): "the same",
     ("caller", "attempts.py:observe", "value"):
         "a closed set: the axis's own frozen vocabulary, refused otherwise",
     ("caller", "attempts.py:observe", "source.seq"):
@@ -5589,6 +5592,36 @@ class BoundaryCase(unittest.TestCase):
                           worker_manager.request_cancellation(
                               store, port, FakeAgent(), FakeAdapter(self),
                               attempt_id="attempt-1", reason=SURROGATE))),
+            # W61984: the already-quiescent finalization's two caller operands.
+            # Unlike a cancellation's, its reason is REQUIRED -- calling the
+            # operation is the operator's decision -- so its label carries no
+            # "when it is given" and it is owned by `boundaries.text` directly.
+            (at("attempts.py:finalize_quiescent_assignment", "attempt_id"),
+             "a runtime attempt id"): ("a runtime attempt id",
+                lambda: worker_manager.finalize_quiescent_assignment(
+                    store, port, attempt_id=SURROGATE,
+                    reason="the operator ended it")),
+            (at("attempts.py:finalize_quiescent_assignment", "reason"),
+             "a finalization reason"): ("a finalization reason",
+                lambda: (self.attached(),
+                         worker_manager.finalize_quiescent_assignment(
+                             store, port, attempt_id="attempt-1",
+                             reason=SURROGATE))),
+            # W61984 review [P1]: AND THE JOURNAL'S OWN ANSWER, which is the
+            # crossing the first round left unmodelled. `transact` hands back
+            # this build's document on the call that commits and whatever bytes
+            # SQLite kept on every replay, so the decision the fence is issued
+            # from re-enters this manager through `adopt_finalization_record`
+            # and is owned there. Driven directly, because the operand IS the
+            # store's answer and this probe is about the rule rather than about
+            # which of the two doors produced it;
+            # `tests/tools/test_quiescent_assignment_finalization.py` drives
+            # the substituted and corrupted replays through the real journal
+            # and pins that neither reaches `port.cancel`.
+            (at("attempts.py:adopt_finalization_record", "record"),
+             "a committed finalization record"):
+                ("a committed finalization record",
+                 lambda: attempts.adopt_finalization_record(7)),
             (at("attempts.py:request_runtime_start", "adapter.start",
                 "injected"), "the adapter's start answer"):
                 ("the adapter's start answer", self.starting(7)),
@@ -6659,6 +6692,10 @@ WITNESSES = {
     ("caller", "documents.py:quiescence_not_ordered", "members"):
         "test_every_outbound_constructor_holds_its_contract",
     ("caller", "documents.py:attempt_cancelled", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:finalize_intent", "members"):
+        "test_every_outbound_constructor_holds_its_contract",
+    ("caller", "documents.py:attempt_finalized", "members"):
         "test_every_outbound_constructor_holds_its_contract",
     ("caller", "attempts.py:observe", "value"):
         "test_an_observation_names_a_frozen_axis_and_one_of_its_values",

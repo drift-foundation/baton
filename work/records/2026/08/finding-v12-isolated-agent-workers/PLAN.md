@@ -759,3 +759,11 @@ whose prerequisites have closed are actionable.
     of convenience, delay or habit. Release W61599 for v12 if its mistaken
     direct implementation has not materially started; otherwise finish it as
     the explicit final legacy exception rather than discard useful work.
+36. [confirmed 2026-09-01; v12 Git provenance] Have the Worker Manager inject
+    the producing provider/model as Git author using a readable display name
+    and deterministic `@agents.baton.invalid` address. Preserve the human or
+    authorized integration mechanism as committer. Emit derived
+    `Baton-Participant`, `Baton-Work`, `Baton-Attempt`, `Baton-Provider`, and
+    `Baton-Model` trailers for readable history, while making `result.json` the
+    authoritative attempt-to-runtime-to-commit binding that integration must
+    verify. Do not expose real email addresses, credentials or session ids.

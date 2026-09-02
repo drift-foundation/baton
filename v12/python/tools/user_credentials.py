@@ -86,10 +86,12 @@ SCHEMA = "baton.user-credential-sources/1"
 OPERAND = "--credential-sources"
 
 # THE MODES THAT MUST NOT CARRY ONE. An abandonment ends an attempt whose
-# material is proved gone and a handoff retry finishes one whose delivery is
-# ADOPTED; neither reads a registry, neither opens a source, and an operand
-# that asks either of them to is a contradiction rather than a spare word.
-ENDING_MODES = ("--abandon", "--retry-handoff")
+# material is proved gone, a handoff retry finishes one whose delivery is
+# ADOPTED, and W61984's already-quiescent finalization touches the authority
+# and nothing else -- it opens no engine, no home and no source at all. None of
+# the three reads a registry, and an operand that asks one of them to is a
+# contradiction rather than a spare word.
+ENDING_MODES = ("--abandon", "--retry-handoff", "--finalize-quiescent")
 
 # HOW MANY SOURCES ONE REGISTRY MAY NAME. The same bound the manager puts on
 # one assignment's slots, for the same reason: a registry is read once per
@@ -233,12 +235,13 @@ def named_operand(argv):
 def refused_in_ending(value, *, mode):
     """An ending mode carrying this operand is a CONTRADICTION, not a spare word.
 
-    Both endings run without a registry by construction: an abandonment proves
-    material gone without ever opening it, and a handoff retry ADOPTS the
-    delivery the ordinary attempt already materialized. An operand naming a
-    source is therefore asking a mode that opens nothing to open something, and
-    ignoring it would let an operator believe a credential was delivered by a
-    command that delivers none.
+    Every ending mode runs without a registry by construction: an abandonment
+    proves material gone without ever opening it, a handoff retry ADOPTS the
+    delivery the ordinary attempt already materialized, and a quiescent
+    finalization performs no engine, home or source act of any kind. An operand
+    naming a source is therefore asking a mode that opens nothing to open
+    something, and ignoring it would let an operator believe a credential was
+    delivered by a command that delivers none.
     """
     if mode not in ENDING_MODES:
         _refuse(f"a credential source operand is held for exactly "
