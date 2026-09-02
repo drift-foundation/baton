@@ -13,7 +13,9 @@
    drafts and provider extensions.
 4. [pending; blocked on item 3] Define one bounded normalized telemetry
    document with per-field provenance, observation time, freshness/staleness,
-   explicit unknowns, and secret rejection.
+   explicit unknowns, secret rejection, and coarse CPU/network/agent-log-growth
+   samples. Preserve sample intervals and counter-reset semantics; do not infer
+   a wedge or expose log content.
 5. [pending; blocked on item 4] Implement the ACP mapping for stable usage and
    advertised-command updates; keep provider `/status` behind correlated
    `inquire` and out of authoritative structured state.
@@ -28,5 +30,6 @@
    free-form-error redaction, schema-drift, auth-loss, quota-limit,
    provider-loss, and probe-versus-inquire conformance.
 9. [pending; later UX cut] Expose the normalized snapshot on the v12 Teams and
-   worker-detail surfaces with last-observed time and an explicit refresh
-   action. Do not turn telemetry into implicit scheduling authority.
+   worker-detail surfaces with last-observed time, CPU/network activity,
+   agent-log size/growth, and an explicit refresh action. Do not turn telemetry
+   into implicit scheduling authority.

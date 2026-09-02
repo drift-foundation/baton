@@ -151,6 +151,33 @@ projection must not collapse user-input wait into approval wait or report
 `systemError` as merely offline. Unknown remains the answer when a certified
 version lacks one of these variants.
 
+## Confirmed coarse liveness telemetry — 2026-09-02
+
+The normalized projection also carries privacy-preserving evidence that a
+running worker is still making progress. Where the runtime adapter can observe
+it, one bounded sample reports:
+
+- CPU use over a named sample interval;
+- cumulative and interval network receive/send byte counts; and
+- agent-log byte size, byte growth since the prior sample, and last-change
+  time.
+
+Each value carries the same source, observation time and unknown/stale
+semantics as the other telemetry. An adapter that cannot observe one of these
+facts reports it as unknown; it does not infer zero. Counters and deltas are
+bounded non-negative quantities, and a restart or counter reset begins a new
+sample series rather than manufacturing a negative delta.
+
+This is deliberately metadata, not log disclosure. The status projection
+does not include log content, credential content, environment values, command
+arguments, authentication identity, or an implicit credential/log locator.
+An operator can use changing CPU, network counters or log size as evidence
+that a quiet worker remains alive without opening its private transcript.
+Conversely, one quiet sample is not proof of a wedge and never authorizes an
+automatic kill, release, reassignment or acceptance. A later automated
+"likely wedged" policy, if added, must name its sampling window and thresholds
+explicitly; these measurements remain non-authoritative observations.
+
 ## Acceptance boundary
 
 - One provider-neutral, bounded, provenance-bearing status projection.
@@ -162,6 +189,9 @@ version lacks one of these variants.
   correlated; neither changes workflow state by implication.
 - Unknown, stale, unsupported, unauthenticated, limited, failed, and offline
   remain distinguishable.
+- CPU, network traffic and agent-log growth are available as bounded,
+  provenance-bearing metadata where supported, without exposing log or
+  credential content and without becoming an automatic wedge verdict.
 - No terminal-screen scraping, credential persistence, secret-bearing durable
   diagnostics, or provider-specific fields leaked into the outer contract.
 - Focused conformance covers replay, restart, stale updates, unsupported
