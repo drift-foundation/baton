@@ -13,8 +13,11 @@
 4. [ready; isolated v12 execution required] Rebuild the worker image and run a
    bounded live command that edits the private candidate and executes its exact
    Python verification.
-5. [queued] Independently review the candidate and external OCI posture before
-   import.
+5. [done, reviewer 2026-09-02] Independently reviewed retained run2 proposal
+   `sha256:4e65e3316e02101953b3e06bc27e38350d7aae7cf382ea7ecab12206d1963014`
+   and the unchanged external OCI boundary. Signed off for import in
+   `review-2026-09-02T04-30-11Z.md`; rebuilt-image and live no-approval proofs
+   remain step 4 gates before Work closure.
 
 Scheduling: W61984 closed satisfying on 2026-09-02. This Work is now ready for
 an isolated v12 attempt and must not be implemented through the v11 host
