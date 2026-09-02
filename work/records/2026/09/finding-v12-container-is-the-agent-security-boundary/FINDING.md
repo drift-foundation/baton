@@ -160,3 +160,64 @@ W61984 closed satisfying after its independently reviewed proposal was
 integrated. The dependency described above is satisfied. W64268 is ready for a
 separate isolated v12 attempt; it remains forbidden to fold this correction
 into W61984 or implement it through the v11 host runner.
+
+## Post-commit rebuilt-image selection — 2026-09-02
+
+**Confirmed.** Slawomir committed the independently reviewed three-path
+integration as `bbc5c09` (`fix(v12): make container the agent permission
+boundary`) with a clean working tree, then claimed W64268 as `baton.slaw` for
+the remaining operator gates.
+
+The canonical reproducible builder ran from that commit over
+`v12/worker/Dockerfile.claude` for Docker's `linux/amd64` platform. It produced
+the immutable image digest
+`sha256:896884b237a14d2397a9851dc1692cb34bedb46a367c2544de9e7499fd9bc124`.
+The local tag `baton-v12-claude:w64268-bbc5c09` is only a build locator and is
+not authority. This digest is the one selected for W64268's live provider
+proof; substituting another build requires another explicit selection here.
+
+Two no-credential, `--network none`, read-only probes of that exact rebuilt
+artifact establish the image half of the acceptance:
+
+- `claude --version` reports `2.1.247 (Claude Code)`, matching the Dockerfile
+  pin; and
+- `claude --help` names `--dangerously-skip-permissions` as the flag that
+  bypasses all permission checks, separately from the allow-only flag and the
+  `--permission-mode` alternative.
+
+The unchanged external boundary was then re-executed against Docker 29.1.3:
+`PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest -v
+tests.manager.test_oci tests.manager.test_input_delivery` passed 167 tests in
+3.924 seconds. Both real Docker input-delivery classes ran. The two Podman
+mirror classes skipped because Podman is not installed; no Docker case skipped.
+
+The provider-owned live verification remains outstanding. The reboot removed
+the former ephemeral `/run/baton/credentials/claude` source, and no replacement
+user credential registry exists yet. No credential was read or reconstructed;
+the attempt must wait for Slawomir to provision a private source and registry.
+
+## Live provider proof — 2026-09-02
+
+**Confirmed.** Slawomir provisioned a private mode-0600 registry selecting the
+existing private Claude credential by exact provider/reference pair, without
+copying or displaying its bytes. Fresh attempt `attempt-w64268-run2` used the
+selected rebuilt image digest above and the two-file harmless source fixture at
+`evidence/live-proof-source/`.
+
+The provider edited exactly `probe.py` in its private candidate and executed
+`python3 -B -m unittest -v test_probe.py` itself. Provider status, worker
+verification status and the outer operator's independent rerun were all zero;
+the outer rerun ran one test and passed. No approval interaction occurred, no
+host permission policy changed, and the canonical product source was not a
+mountable or writable target.
+
+The operator then established quiescence and positive absence of the exact
+runtime. Public evidence is durable under `evidence/w64268-run2/`; its
+`operator-evidence.json` reports `resolved: true`, an empty `unresolved` list,
+one changed path, selected image identity, retained output identity and the
+independent frozen-command result. Run1 also completed successfully but is not
+the acceptance proof because Python cache files muddied its changed-path set;
+`evidence/w64268-run2/live-proof.md` records that correction explicitly.
+
+Together with the 2.1.247 help probe, the 87 focused adapter cases and the 167
+OCI/input-delivery cases above, every W64268 acceptance gate is now satisfied.

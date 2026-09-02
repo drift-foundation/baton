@@ -1,0 +1,14 @@
+{
+  "schema": "baton.dogfood-task/1",
+  "task_id": "w64268-container-permission-boundary-live-proof",
+  "source_root": "source",
+  "verification": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_probe.py"
+  ],
+  "instructions": "Implement permission_boundary_marker() in probe.py so it returns the exact string worker-container. Change only probe.py. Do not change test_probe.py, add dependencies, or touch anything outside the delivered private candidate. Run the exact verification command python3 -B -m unittest -v test_probe.py yourself after editing."
+}

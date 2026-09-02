@@ -1,0 +1,10 @@
+--- a/probe.py
++++ b/probe.py
+@@ -3,3 +3,7 @@
+ 
+ def boundary():
+     return "container"
++
++
++def permission_boundary_marker():
++    return "worker-container"

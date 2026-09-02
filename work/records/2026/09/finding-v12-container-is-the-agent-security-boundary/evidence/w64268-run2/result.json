@@ -1,0 +1,26 @@
+{
+  "changed_paths": [
+    "probe.py"
+  ],
+  "disposition": "candidate",
+  "provider": {
+    "failure_reason": null,
+    "seconds_bound": 3600,
+    "status": 0
+  },
+  "schema": "baton.dogfood-proposal/1",
+  "source_entries": 2,
+  "task_id": "w64268-container-permission-boundary-live-proof",
+  "verification": {
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "-v",
+      "test_probe.py"
+    ],
+    "status": 0
+  },
+  "why": "the candidate changed the source and its own verification passed"
+}

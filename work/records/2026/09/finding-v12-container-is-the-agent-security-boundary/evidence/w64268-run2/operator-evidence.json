@@ -1,0 +1,104 @@
+{
+  "abandoned": null,
+  "assignment_manifest_digest": "sha256:169ffc37cbf459d39a1c9d07c075a61bf97ecb9196327e6d4ca549ea13508c17",
+  "attempt_id": "attempt-w64268-run2",
+  "cleanup": {
+    "cleanup": "retained",
+    "state": "absent"
+  },
+  "conversation": {
+    "answered": [
+      "describe",
+      "work"
+    ],
+    "ending": "answered",
+    "why": null
+  },
+  "custody": [
+    {
+      "artifact_id": "attempt-w64268-run2:proposal",
+      "bytes": 1696,
+      "content_digest": "sha256:d81ef4385b14e40ce971c765e5c292f31db2a6e3df1fdad5bc073930c087670b",
+      "custody_locator": "file:///tmp/w64268/run2/storage/attempt-w64268-run2/custody/attempt-w64268-run2/proposal"
+    }
+  ],
+  "generation": 1,
+  "independent": {
+    "changed_paths": [
+      "probe.py"
+    ],
+    "members_present": [
+      "candidate",
+      "change.patch",
+      "result.json",
+      "verification.txt"
+    ],
+    "verification_argv": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "-v",
+      "test_probe.py"
+    ],
+    "verification_status": 0
+  },
+  "input_manifest_digest": "sha256:c7b73207df934bd635ab832c8be1880663c10519da87242580a6322fc1e1e5e2",
+  "intake_receipt": {
+    "receipt_digest": "sha256:7b6f9d4d9140770580796b30e27c069105fb92271906f08fe677deb777cb7d66"
+  },
+  "network": "bridge",
+  "observed_after": {
+    "candidates": [],
+    "mounts": null,
+    "state": "absent",
+    "why": "the engine answered that this exact identity does not exist"
+  },
+  "offer_id": "offer-w64268-run2",
+  "output": {
+    "manifest_digest": "sha256:f51ab99b0f96dd42facd42b4b522bb6430021301e04871cfbf981d5ca89b53a3",
+    "result_id": "result-attempt-w64268-run2"
+  },
+  "participant": "baton.claude",
+  "quiescence": {
+    "ordered": true,
+    "state": "quiescent",
+    "why": "the engine reports it not running"
+  },
+  "resolved": true,
+  "retention": {
+    "artifact_ids": [
+      "attempt-w64268-run2:proposal"
+    ],
+    "disposition": "retain",
+    "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0"
+  },
+  "retention_policy_digest": "sha256:1dfee333b8c4a044f2abb5d5ddffe92e7f87faf600754bc1034340a9bc74adc0",
+  "review_pass": {
+    "assignment": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "d1780bd596fe4c0087eee7328f6c0c39",
+        "work_id": "d1780bd5-W64268"
+      }
+    },
+    "cause": "pass",
+    "fenced": false,
+    "gate": null,
+    "phase": "queued",
+    "route": "rview"
+  },
+  "review_route": "rview",
+  "runtime_id": "f19f75b4f021e81fd3adcf6cdb78bf3c2cfda3d503c4d02bf3bb4e934ecdf745",
+  "schema": "baton.dogfood-evidence/1",
+  "source_tree_digest": "sha256:281b727cac7d67e9080cb3f47ff77da43ebf6aed5f3027258281acc65feffa62",
+  "task_id": "w64268-container-permission-boundary-live-proof",
+  "unresolved": [],
+  "work_ref": {
+    "authority_uuid": "d1780bd596fe4c0087eee7328f6c0c39",
+    "work_id": "d1780bd5-W64268"
+  },
+  "worker_disposition": "completed",
+  "worker_image_digest": "sha256:896884b237a14d2397a9851dc1692cb34bedb46a367c2544de9e7499fd9bc124"
+}
