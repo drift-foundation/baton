@@ -15,12 +15,14 @@
    base, inherited-proposal-lineage and byte-closure importer for Git-backed
    Work. Preserve the reproduction as evidence that uncommitted candidate-tree
    overlays are not valid assignment bases.
-5. [pending explicit scheduling; clarified 2026-09-01] Make the Git input
-   profile carry an exact repository locator and immutable base commit. The
-   worker clones or fetches into its private workspace and verifies that
-   commit; the manager does not recursively copy or hash the repository tree.
-   Require the declared output to retain an immutable proposal head plus
-   durable access to the objects needed to inspect it.
+5. [pending explicit scheduling; clarified 2026-09-02] Make the generic manager
+   directly bind-mount the nominated local source directory read-only beside a
+   separate writable workspace, with no mandatory copy, snapshot, enumeration
+   or hash prelude and no interpretation of source format. A Git profile names
+   an exact base/ref in input metadata and tells the worker to clone from that
+   mount into the workspace with copy-safe/no-hardlink semantics; Baton and the
+   generic manager perform no Git operation. Remote/cache/snapshot preparation
+   remains an explicit provider option rather than the local default.
 6. [pending explicit scheduling; clarified 2026-09-02] Keep one private,
    manager-custodied development line across serial implementation and review
    assignments. Freeze an immutable read-only checkpoint for each review; on
@@ -46,3 +48,13 @@
    path from Git-backed dogfood once the locator-and-commit profile can launch
    the same useful assignment. Keep it only for explicitly generic file-tree
    inputs whose own format contract requires a snapshot.
+10. [pending with items 5-7; confirmed 2026-09-02] Mount the manager-custodied
+    private workspace directly from disk-backed storage with a workload-
+    appropriate explicit quota. Keep tmpfs bounded to ephemeral scratch and
+    prove that checkout, builds, caches, test artifacts, output and logs do not
+    depend on the current dogfood harness's 64 MiB `/tmp`.
+11. [pending verification; confirmed 2026-09-02] Prove the zero-prelude direct
+    read-only host-source mount plus writable-workspace contract with one Git-
+    aware task that clones copy-safely into the workspace and one non-Git file
+    transformation. The manager must perform no Git operation, source-tree
+    copy or format inference, and neither worker may mutate the mounted source.

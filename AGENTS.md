@@ -18,7 +18,10 @@
 - Agents may always add tests without case-specific confirmation. This includes
   new test files/functions and additive cases or members in existing exhaustive
   test registries. Editing or weakening an existing test's assertions or
-  expected behavior still requires clear, case-specific confirmation.
+  expected behavior still requires clear, case-specific confirmation. An
+  accepted Work description or plan that explicitly schedules adding, editing,
+  or removing tests within a bounded scope is that confirmation; it is not
+  blanket authority for a test mutation outside the scheduled scope.
 
 ## Coordination identities
 
@@ -46,6 +49,30 @@
   correcting the proposal. It never stages files or mutates Git history; after
   bounded integration verification it passes the prepared diff to
   `baton.slaw` for approval and Git ownership.
+- Before changing any working-tree path, `baton.merge` completes the authority
+  preflight for the whole proposed path set. An accepted Work description or
+  plan that explicitly schedules adding, editing, or removing tests within a
+  bounded scope grants the case-specific test-change authority; the newest
+  independent review still binds the immutable proposal digest, enumerates
+  every existing test path actually changed, and evaluates any assertion or
+  expected-behaviour changes. Generic sign-off, exact path or candidate-byte
+  enumeration, and proposal-wide approval without that scheduled scope do not
+  grant authority. Refuse before changing any path when scope or review is
+  missing, ambiguous, stale, digest-mismatched, or incomplete: the integrator
+  returns the Work for clarification and will never request interactive
+  approval from a managed turn. Approval is limited to the reviewed candidate
+  bytes at the named paths and does not authorize another test change,
+  weakening, redesign, conflict correction, or opportunistic edits.
+- Custody file modes protect immutable evidence and are never checkout mode
+  instructions. Before any import, `baton.merge` requires every existing target
+  to be a non-symlink regular file matching the reviewed base bytes and already
+  owner-writable. A failed type, byte, or owner-write check refuses the whole
+  import before content or mode mutation and returns it to `baton.ops` for exact
+  repair. The integrator imports reviewed content without preserving custody
+  modes and must verify final bytes and modes. It must never work around a
+  read-only target with `install`, `chmod`, or another privileged replacement. An
+  explicitly planned new regular file uses ordinary non-executable repository
+  mode; executable mode requires explicit accepted scope.
 - Run exactly one active readiness path per participant — never two concurrent
   `wait`s for the same address. Two consumers need two participant addresses,
   not one shared identity. Act on every wake immediately: `claim` the Work

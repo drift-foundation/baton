@@ -21,3 +21,10 @@
 6. [pending] Independently review the patch, run the focused operator/offer/
    workspace/credential suites, and rerun the failed-preflight plus one
    ordinary dogfood attempt before staging v12 source again.
+7. [pending; added 2026-09-02] Before staging, prove the selected provider and
+   verification environments satisfy the exact declared toolchain/profile.
+   Cover the W33937 case where the certified image can run Claude but has
+   Python 3.11.2 and no locked `jsonschema`, so its declared verification
+   cannot run. Decide one combined image versus separately declared provider
+   and trusted-verifier environments without treating a stored digest as the
+   executable proof.

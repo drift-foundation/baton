@@ -240,3 +240,72 @@ canonical Git commit remains after integration and approval. Non-Git profiles
 follow the same lifecycle with their own manager-custodied workspace and
 format-appropriate immutable review checkpoints; this clarification does not
 make the Worker Manager interpret Git.
+
+## Confirmed workspace-storage ruling — 2026-09-02
+
+A container tmpfs is bounded ephemeral scratch only. It is never the primary
+checkout, development worktree, build tree, compiler or package cache, test-
+artifact store, proposal output, or log store. Compilation and other ordinary
+development jobs may legitimately consume hundreds of megabytes or gigabytes;
+their correctness cannot depend on fitting inside a small RAM-backed mount.
+
+The manager-custodied Work workspace is a directly mounted, disk-backed
+filesystem with an explicit deployment/runtime-profile quota appropriate to
+the workload. The writable implementer attaches that workspace directly and a
+reviewer receives the immutable checkpoint read-only. Output and logs remain
+separate manager-owned durable areas. A profile may also give `/tmp` its own
+smaller memory/size bound for transient files, but exhausting scratch is a
+typed resource failure and never a substitute for sizing the Work workspace.
+
+The current dogfood adapter's copy of the source into a 64 MiB `/tmp` is a
+bootstrap limitation, not the production workspace model. It is unsuitable
+for compile jobs and is retired with the copied Git-source path. No product
+contract may infer a 64 MiB job/workspace limit from that temporary harness.
+
+## Confirmed generic source/workspace boundary — 2026-09-02
+
+The long-term worker contract exposes two separate mounts: an immutable read-
+only source directory and a writable manager-custodied workspace directory.
+The worker decides how to consume the source and may clone, copy, transform,
+branch, compile, cache and otherwise work freely inside its workspace. The
+manager protects the source from mutation and owns workspace lifecycle; it
+does not infer a tool or format from either directory.
+
+This clarifies and narrows the earlier Git input-delivery ruling. Git is one
+profile above the generic mount boundary, not Worker Manager vocabulary. A
+Git-aware input provider may prepare a repository or mirror in the read-only
+source directory and describe the required base/ref in immutable input
+metadata; the Git-aware worker may then clone or otherwise materialize it into
+the writable workspace. For non-Git Work, the same source directory may hold
+any declared collection of files and the worker follows that format's input
+instructions. Baton and the generic manager never perform or promise a Git
+clone, checkout, fetch, branch or commit.
+
+Preparing the source directory is the input provider's responsibility and may
+use a local path, remote transport, cache, snapshot or other deployment-
+specific mechanism. Container launch mounts the already prepared directory;
+it does not recursively copy it into tmpfs or manufacture a second working
+tree. The source remains stable for the assignment, while all mutable work and
+build growth belongs in the separate disk-backed workspace.
+
+### Superseding local-source clarification — 2026-09-02
+
+For the common local case, “prepare” means nominate the existing source
+directory and bind-mount that exact directory read-only. It does not mean copy,
+snapshot, enumerate, hash or otherwise stage its contents. For Baton's own
+development this may directly expose `/home/sl/src/baton` as `/source:ro` and
+mount a separate manager-owned directory as `/workspace:rw`. There is no
+prelude tree copy.
+
+Read-only protects the source from the worker; the operator/input profile is
+responsible for keeping the nominated host directory suitable for the
+assignment. A Git-aware profile names the immutable base in input metadata and
+the worker verifies it after cloning into `/workspace`. Its local clone must
+use copy-safe transport (for example `--no-hardlinks` or `file://`) so a clone
+cannot create writable aliases to source objects. That is an instruction of
+the Git-aware profile, never behavior implemented by the generic manager.
+
+A deployment may still choose a snapshot, remote fetch or cache when the
+source is not locally available or needs stronger isolation, but those are
+explicit input-provider choices. They are not mandatory launch steps and the
+zero-copy direct read-only bind is the default local path.

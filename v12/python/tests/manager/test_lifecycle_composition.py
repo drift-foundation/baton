@@ -1136,8 +1136,11 @@ class Composition(Lifecycle):
                     input_digest=given["manifest_digest"],
                     policy_digest=POLICY, profile_digest=PROFILE,
                     profile_name="reference", mint_bearer=lambda: "bearer-1")
+        # W33937: a decline carries no bearer. The offer is ended by the exact
+        # binding it names, and nothing downstream of it is composable either
+        # way -- which is what this case is about.
         accept_offer(self.store, self.port, offer_id=offer,
-                     decision="decline", bearer="bearer-1", now=NOW,
+                     decision="decline", now=NOW,
                      runtime_attempt_id=self.attempt,
                      work_ref=dict(WORK_REF))
         with self.assertRaises(ContractRefusal):

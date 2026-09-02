@@ -21,6 +21,21 @@ fact rather than an inference:
 NO ADAPTER WRITE OCCURS WHILE THE CLAIM OUTCOME IS AMBIGUOUS. That is item 4bd's
 own sentence and it is why step 5 answers `live` and writes nothing: a control
 row written there would claim knowledge this manager does not have.
+
+A DECLINE IS NOT STEP 3 WITH A DIFFERENT WORD (W33937, ruled 2026-08-28 and
+reaffirmed 2026-09-02). It carries NO bearer, consumes the verifier in one
+transaction so the offer is terminal for that secret, and mints no claim. The
+two decisions prove themselves differently on purpose: an acceptance proves
+POSSESSION because it is about to take authority, and a decline proves the
+exact IDENTITY of the offer it is ending, which is all a terminal act on an
+offer needs.
+
+BEARER-FREE IS NOT ANONYMOUS, and step 3 proves the caller before it proves
+anything else about the message: BOTH decisions compare the live session's
+participant binding against the participant this offer froze at issue. An
+offer's binding is public coordination data, so without that comparison the
+decline path -- which carries no secret by ruling -- would have no
+caller-specific proof at all.
 """
 
 import hmac
@@ -43,6 +58,31 @@ OFFER_TTL_SECONDS = 120
 SETTLE_SECONDS = 60
 
 _LIVE = ("issued", "accepted")
+
+
+class _NoBearer:
+    """A decline's ABSENT bearer, which is not a bearer that is `None`.
+
+    JSON has one hole and callers have two, and the authority carries the same
+    distinction with its own `ABSENT`. Here the two intentions are "I am
+    declining, and a decline carries no claim token" and "I sent you a claim
+    token whose value is null" -- and they must not share a spelling, because
+    a decline is refused for carrying ANY bearer value, the empty string and
+    `None` included. An absence that a caller can also produce by accident is
+    not an absence this boundary can prove.
+
+    Module-private, and the operand simply DEFAULTS to it: a decline is
+    written by omitting the bearer, so there is no second way to spell the
+    absence and nothing new on the package's public surface.
+    """
+
+    __slots__ = ()
+
+    def __repr__(self):
+        return "NO_BEARER"
+
+
+_NO_BEARER = _NoBearer()
 
 
 def claim_operation_id(offer_id, intent_digest):
@@ -198,6 +238,12 @@ def _settle_terminal(store, issued, state, reason, at):
 
     Each of these CASes only from `issued`, and losing reports the winner's
     state without rewriting it.
+
+    W33937: the decline REPLAY reaches this with an already-`declined` row on
+    purpose. The journal answers first -- an exact repeat returns the recorded
+    result and a reworded one is an operation collision -- so the act below is
+    not reached, and if it ever were, its CAS is what still refuses to rewrite
+    the committed settlement.
     """
     offer_id = issued["offer_id"]
     signature = manager_signature(f"offer.{state}",
@@ -454,12 +500,15 @@ def issue_offer(store, port, *, offer_id, work_id, runtime_attempt_id,
 # -- step 3: acceptance ------------------------------------------------------
 
 
-def accept_offer(store, port, *, offer_id, decision, bearer, now,
+def accept_offer(store, port, *, offer_id, decision, bearer=_NO_BEARER, now,
                  runtime_attempt_id, work_ref, reason=None):
     """Accept or decline one decision, in ONE transaction.
 
-    What this owns is the BINDING: the decision must name this exact offer,
-    attempt and Work, and carry possession of this exact bearer.
+    What this owns is the BINDING: the caller's session must be bound to the
+    participant this offer authorizes, and the decision must name this exact
+    offer, attempt and Work. An ACCEPTANCE additionally carries possession of
+    this exact bearer; a DECLINE carries no bearer at all and is refused if it
+    carries one (W33937).
     """
     # `_offer_row` owns the identity as it crosses into SQL, so owning it here
     # too was the same value validated twice -- 4bz's blanket revalidation, and
@@ -473,6 +522,63 @@ def accept_offer(store, port, *, offer_id, decision, bearer, now,
         raise ContractRefusal(
             "refused", "precondition",
             f"a decision is accept or decline; this is {name_value(decision)}")
+
+    # THE BEARER IS ACCEPTANCE'S CAPABILITY, NOT THE OFFER'S PASSWORD. W33937,
+    # ruled 2026-08-28 and reaffirmed 2026-09-02: an acceptance presents the one
+    # deliberate secret because it is about to TAKE authority, and a decline is
+    # authorized by the exact integrity-protected binding it names. Putting the
+    # secret on the wire in order to REFUSE authority would widen that one
+    # exposure and buy nothing.
+    #
+    # This boundary used to prove possession before it branched, so a decline
+    # carrying the bearer settled the offer -- against the frozen worker-control
+    # shape (`claim_token` is null for a decline), its portable case, and the
+    # assignment state machine. That is the stale implementation the ruling
+    # names, and this is the correction.
+    #
+    # THE SHAPE FIRST, ahead of the binding comparison below: whether a claim
+    # token is present at all is what schema decides, and which offer the
+    # decision names is what this manager decides afterwards. Nothing has been
+    # compared or written when a carrying decline is refused here, so the offer
+    # and the journal are exactly as they were.
+    if decision == "decline" and bearer is not _NO_BEARER:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the decline for offer {name_value(offer_id)} carries a claim "
+            f"token; a decline carries none and is authorized by the exact "
+            f"binding it names")
+
+    # AND THE CALLER'S OWN PARTICIPANT AUTHORITY, before either decision
+    # settles OR replays.
+    #
+    # Review [P1] of 2026-09-02: the comparisons below prove which offer a
+    # decision NAMES, and the verifier proves possession for an ACCEPTANCE --
+    # so once the ruling took the bearer off the decline path, nothing left on
+    # it was caller-specific at all. An offer's binding is not a secret: the
+    # attempt id and the Work ref are ordinary coordination values, and any
+    # differently bound session that knew them could terminate somebody else's
+    # offer and consume its verifier. The ruling says a bearer-free decline is
+    # authorized by the caller's participant authority AND the exact binding;
+    # this is the first half, and it had no implementation.
+    #
+    # THE SESSION'S BINDING AGAINST THE OFFER'S FROZEN PARTICIPANT. Both sides
+    # are already owned -- the port proves its binding when the session enters
+    # this manager, and the row's column contract proves what was frozen at
+    # issue -- so this is the relation rather than a second crossing.
+    #
+    # BEFORE THE REPLAYS below, not merely before the settlements: a committed
+    # acceptance's answer carries the frozen claim identity and a committed
+    # decline's carries the recorded settlement, and handing either to a
+    # session that does not hold the authorization would answer a question it
+    # was never entitled to ask.
+    if port.participant != issued["participant"]:
+        raise ContractRefusal(
+            "refused", "capability",
+            f"offer {name_value(offer_id)} authorizes "
+            f"{name_value(issued['participant'])} and this session acts for "
+            f"{name_value(port.participant)}; a decision on an offer is the "
+            f"bound participant's, and no binding it names makes it anyone "
+            f"else's")
 
     # THE BINDING BEFORE THE SECRET. A decision that names another attempt or
     # another Work is not this offer's decision whatever it possesses, and
@@ -492,15 +598,57 @@ def accept_offer(store, port, *, offer_id, decision, bearer, now,
             f"the decision names another Work; an authorization is bound to "
             f"the Work it was issued against")
 
-    # POSSESSION, IN CONSTANT TIME. `compare_digest` is used rather than `!=`
-    # because a verifier comparison that returns early tells the holder of a
-    # wrong bearer how much of it was right.
-    if type(bearer) is not str or not hmac.compare_digest(
-            digest(bearer), issued["verifier"]):
+    # POSSESSION, IN CONSTANT TIME, AND ONLY FOR THE DECISION THAT TAKES
+    # AUTHORITY. `compare_digest` is used rather than `!=` because a verifier
+    # comparison that returns early tells the holder of a wrong bearer how much
+    # of it was right.
+    #
+    # THE VERIFIER OUTLIVES ITS SPENDING, deliberately: `verifier_spent` records
+    # that it was consumed and the digest stays, because an exact retry can only
+    # be recognized AS exact if the bearer it carries can still be compared.
+    if decision == "accept" and (type(bearer) is not str
+                                 or not hmac.compare_digest(
+                                     digest(bearer), issued["verifier"])):
         raise ContractRefusal(
             "refused", "capability",
             f"the decision for offer {name_value(offer_id)} does not carry the "
             f"bearer this offer was issued with")
+
+    # AN EXACT REPEAT OF A COMMITTED DECISION REPLAYS IT (§10.2), and that is
+    # decided BEFORE the single-use and terminal-state refusals below. What
+    # reaches here has already named this exact offer, attempt and Work, and an
+    # acceptance has already proved possession -- so it is this offer's own
+    # decision arriving a second time, which is what a lost reply looks like.
+    # Answering "the bearer is already spent" would fail a retry for doing
+    # exactly what a retry is for. Consumption is what stops a SECOND, DIFFERENT
+    # outcome; it is not a reason to lose the first one.
+    if decision == "accept" and issued["accepted_at"] is not None:
+        # THE FROZEN COLUMNS, which acceptance wrote once inside its own
+        # transaction and which nothing rewrites -- the terminal transitions
+        # compare-and-swap from `issued` precisely so they cannot. So this is
+        # the committed answer rather than a newly decided one, member for
+        # member, in the contract's own order.
+        #
+        # KEYED ON THE FREEZE RATHER THAN ON `state`, because submitting the
+        # claim moves the state and does not unmake the acceptance this
+        # operation committed. An acceptance is the only writer of these
+        # columns, so their presence IS "this offer was accepted".
+        return documents.offer_accepted(
+            offer_id=offer_id, state="accepted",
+            intent_digest=issued["intent_digest"],
+            claim_operation_id=issued["claim_operation_id"],
+            claim_signature=issued["claim_signature"],
+            accepted_at=issued["accepted_at"], settle_by=issued["settle_by"])
+    if decision == "decline" and issued["state"] == "declined":
+        # THROUGH THE JOURNAL, not around it. Replaying a committed decline and
+        # refusing a colliding one are the same question, and the store already
+        # answers it: the settlement's operation identity is this offer's, and
+        # its signature carries the reason. An exact repeat returns the recorded
+        # bytes without running the act; a repeat that changes the reason is
+        # `refused/operation-collision` and rewrites nothing.
+        return _settle_terminal(store, issued, "declined",
+                                reason or "declined by the worker", now)
+
     if issued["verifier_spent"] != 0:
         raise ContractRefusal(
             "refused", "already-terminal",
@@ -525,27 +673,50 @@ def accept_offer(store, port, *, offer_id, decision, bearer, now,
 
     if decision == "decline":
         # A decline terminates without spending anything else. The verifier is
-        # still consumed -- single-use across every outcome -- so a decline
-        # cannot be replayed into an acceptance.
+        # still consumed, atomically and in the same CAS -- single-use across
+        # every outcome -- so no bearer validates against this offer afterwards
+        # and a completed decline can never become an acceptance. No claim is
+        # minted, no participant capacity is taken and nothing writable exists.
         #
-        # §13: `reason` is caller prose that reaches a durable column and rides
-        # the settlement's signature. A decline that explained itself by
-        # quoting the bearer is the containment case exactly, so the bearer is
-        # live while this settles.
-        with held_secret(bearer):
-            return _settle_terminal(store, issued, "declined",
-                                    reason or "declined by the worker", now)
+        # §13 OPENS NO SCOPE HERE, and its absence is the correction rather
+        # than a gap in it: this manager was never handed the secret on this
+        # path, so there is nothing to register live while the settlement's
+        # signature and durable reason are walked. A decline that carried the
+        # bearer -- to quote it in a reason or for any other purpose -- is
+        # refused above as the carrying decline it is.
+        return _settle_terminal(store, issued, "declined",
+                                reason or "declined by the worker", now)
 
     # The INTENT is frozen here and never rewritten: it is what the claim
     # operation id derives from, so a later incarnation deriving the same id
     # must be looking at the same intent.
+    #
+    # AND THE OBSERVATION CLOCK IS NOT ONE OF ITS OPERANDS. Review [P1] of
+    # 2026-09-02: `accepted_at` was a member, so the digest -- and with it the
+    # derived claim operation id and this act's operation SIGNATURE -- differed
+    # between two exact retries that merely read the clock at different
+    # instants. The sequential replay above hides that, because a retry which
+    # reads an already-accepted row never reaches here; two CONCURRENT retries
+    # both read the offer `issued`, and the one that then lost the write lock
+    # met the winner's journal row under a signature of its own and was refused
+    # `refused/operation-collision` -- failing a retry for being a retry, one
+    # step along from the defect this Work already corrected.
+    #
+    # Every remaining member is frozen at ISSUE, so the intent is a fact about
+    # the offer rather than about the moment somebody looked at it, and every
+    # exact acceptance of one offer derives one identity however its caller
+    # reads the clock. WHEN the offer was accepted is not lost: `accepted_at`
+    # is a committed column and a member of the answer, and the loser replays
+    # the winner's recorded bytes -- so both callers receive the FIRST accepted
+    # instant beside the one fixed claim identity, which is what the retry was
+    # asking for.
     intent_digest = digest({
         "offer_id": offer_id, "work_id": issued["work_id"],
         "participant": issued["participant"],
         "runtime_attempt_id": issued["runtime_attempt_id"],
         "input_digest": issued["input_digest"],
         "policy_digest": issued["policy_digest"],
-        "profile_digest": issued["profile_digest"], "accepted_at": now})
+        "profile_digest": issued["profile_digest"]})
     operation_id = claim_operation_id(offer_id, intent_digest)
     # THE AUTHORITY'S OWN FIXED SIGNATURE, frozen with the intent. The frozen
     # host stored NULL here, so settlement passed nothing -- an operation

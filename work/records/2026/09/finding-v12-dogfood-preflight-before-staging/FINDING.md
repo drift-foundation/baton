@@ -95,3 +95,35 @@ rechecks. No configuration generation or reservation mechanism is added.
 
 Implementation remains an isolated v12 assignment; this approval does not
 route the Work to the legacy v11 implementer.
+
+## Observed second preflight failure — 2026-09-02
+
+W33937 attempt `attempt-w33937-run2c` used the certified `dogfood` runtime
+profile digest and pinned worker image
+`sha256:896884b237a14d2397a9851dc1692cb34bedb46a367c2544de9e7499fd9bc124`.
+The provider completed successfully and returned exactly the three authorized
+text paths, but the operator's post-turn verification failed before running a
+test: that image has Python 3.11.2 and no `jsonschema`, while the v12 Python
+distribution requires Python >=3.13 and `jsonschema==4.26.0`.
+
+The same exact retained candidate then ran 156 tests successfully in the
+configured host v12 environment, including both independent W33937 review
+probes. The candidate is not the cause. The certified profile/digest currently
+asserts an intended environment without proving the selected image supplies
+it. Preflight therefore admitted a runtime that could execute the model but
+could not execute the assignment's declared verification vector.
+
+The pre-staging readiness boundary must also prove that the selected runtime
+and verification environment satisfy the exact declared toolchain/profile. A
+Claude provider may need Node while the assignment verifier needs Python 3.13
+and the locked Python closure; those may coexist in one image or be split into
+separately declared provider and trusted-verifier environments, but an opaque
+certified digest may not stand in for the executable fact. This decision does
+not choose that packaging design.
+
+Bounded stopgap: retain the clean failed-verification proposal, record the
+image mismatch, and let independent review rerun the exact vector in the
+configured host v12 environment. The external green run is evidence for
+review, not a rewrite of the immutable proposal's `verification-failed`
+disposition. Do not rebuild or mutate the retained artifact to make its status
+look green.

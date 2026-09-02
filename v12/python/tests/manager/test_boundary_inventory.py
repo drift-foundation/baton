@@ -1132,7 +1132,11 @@ STATED_OWNERS = {
     ("caller", "offers.py:accept_offer", "decision"):
         "a closed set: accept or decline, refused/precondition otherwise",
     ("caller", "offers.py:accept_offer", "bearer"):
-        "possession, by constant-time comparison against the stored verifier",
+        "W33937: the rule depends on the decision the operand arrives with. An "
+        "ACCEPTANCE proves possession, by constant-time comparison against the "
+        "stored verifier; a DECLINE carries no bearer at all, so any carried "
+        "value -- including the empty string and `None` -- is integrity/schema "
+        "and the absence is a module-private sentinel the operand defaults to",
     ("caller", "offers.py:accept_offer", "work_ref"):
         "compared against the offer's own Work and authority",
     ("caller", "offers.py:accept_offer", "work_ref.work_id"):
@@ -6586,7 +6590,7 @@ WITNESSES = {
     ("caller", "offers.py:accept_offer", "decision"):
         "test_a_decision_is_accept_or_decline",
     ("caller", "offers.py:accept_offer", "bearer"):
-        "test_a_decision_carries_the_bearer_the_offer_was_issued_with",
+        "test_the_bearer_is_acceptances_capability_and_no_declines",
     ("caller", "offers.py:accept_offer", "work_ref"):
         "test_a_decision_names_this_offers_own_attempt_and_work",
     ("caller", "offers.py:accept_offer", "work_ref.work_id"):
@@ -7926,19 +7930,60 @@ class StatedRules(BoundaryCase):
                          ("refused", "precondition"))
         self.assertIn("accept or decline", caught.exception.message)
 
-    def test_a_decision_carries_the_bearer_the_offer_was_issued_with(self):
-        for what, bearer in [("another secret", "bearer-2"),
-                             ("no secret at all", None)]:
+    def test_the_bearer_is_acceptances_capability_and_no_declines(self):
+        """W33937: ONE OPERAND, TWO RULES, chosen by the decision it rides.
+
+        An acceptance is about to TAKE authority and proves possession of the
+        exact bearer. A decline is authorized by its binding and carries none,
+        so a carried value is refused as the schema fault it is -- and the
+        absence it requires is a sentinel rather than a value, which is why
+        `None` and the empty string are refusals here and not spellings of it.
+        """
+        for what, operands, pair in [
+                ("an acceptance with another secret",
+                 {"decision": "accept", "bearer": "bearer-2"},
+                 ("refused", "capability")),
+                ("an acceptance with no secret at all",
+                 {"decision": "accept", "bearer": None},
+                 ("refused", "capability")),
+                ("an acceptance carrying nothing at all",
+                 {"decision": "accept"}, ("refused", "capability")),
+                ("a decline carrying this offer's own bearer",
+                 {"decision": "decline", "bearer": "bearer-1"},
+                 ("integrity", "schema")),
+                ("a decline carrying the empty string",
+                 {"decision": "decline", "bearer": ""},
+                 ("integrity", "schema")),
+                ("a decline carrying a null claim token",
+                 {"decision": "decline", "bearer": None},
+                 ("integrity", "schema"))]:
             with self.subTest(what=what):
                 self.setUp()
                 self.issued("offer-b")
+                call = dict(offer_id="offer-b", now=NOW,
+                            runtime_attempt_id="attempt-1",
+                            work_ref={"authority_uuid": UUID, "work_id": WORK})
+                call.update(operands)
                 with self.assertRaises(ContractRefusal) as caught:
-                    worker_manager.accept_offer(
-                        self.store, self.port, offer_id="offer-b",
-                        decision="accept", bearer=bearer, now=NOW,
-                        runtime_attempt_id="attempt-1",
-                        work_ref={"authority_uuid": UUID, "work_id": WORK})
-                self.assertEqual(caught.exception.code, "capability")
+                    worker_manager.accept_offer(self.store, self.port, **call)
+                self.assertEqual((caught.exception.category,
+                                  caught.exception.code), pair)
+                self.assertEqual(
+                    self.store._connection.execute(
+                        "SELECT state FROM offers WHERE offer_id = ?",
+                        ("offer-b",)).fetchone()["state"],
+                    "issued")
+        # AND THE ABSENCE IS WHAT A DECLINE IS SPELLED WITH: the same call
+        # without the operand settles the offer, so the rule above refuses a
+        # carried value rather than the decision.
+        self.setUp()
+        self.issued("offer-b")
+        self.assertEqual(
+            worker_manager.accept_offer(
+                self.store, self.port, offer_id="offer-b", decision="decline",
+                now=NOW, runtime_attempt_id="attempt-1",
+                work_ref={"authority_uuid": UUID, "work_id": WORK})["state"],
+            "declined")
 
     def test_a_decision_names_this_offers_own_attempt_and_work(self):
         for what, operands in [
@@ -7972,7 +8017,7 @@ class StatedRules(BoundaryCase):
         with self.assertRaises(ContractRefusal) as caught:
             worker_manager.accept_offer(
                 self.store, self.port, offer_id="offer-r", decision="decline",
-                bearer="bearer-1", now=NOW, runtime_attempt_id="attempt-1",
+                now=NOW, runtime_attempt_id="attempt-1",
                 work_ref={"authority_uuid": UUID, "work_id": WORK},
                 reason="declined " + SURROGATE)
         self.assertEqual(caught.exception.category, "integrity")

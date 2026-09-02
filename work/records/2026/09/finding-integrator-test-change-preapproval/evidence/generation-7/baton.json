@@ -1,0 +1,1116 @@
+{
+  "config_version": 1,
+  "generation": 7,
+  "instance": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "database": "work.sqlite3",
+    "name": "baton-v11-schema-28"
+  },
+  "protocol_version": 11,
+  "roots": {
+    "baton": {
+      "base": "/home/sl/src/baton",
+      "display": "Baton repository"
+    },
+    "orch": {
+      "base": "/home/sl/src/build-orchestrator",
+      "display": "Build Orchestrator repository"
+    },
+    "lang": {
+      "base": "/home/sl/src/drift-lang",
+      "display": "Drift Lang repository"
+    },
+    "maria": {
+      "base": "/home/sl/src/drift-mariadb-client",
+      "display": "Drift MariaDB Client repository"
+    },
+    "tls": {
+      "base": "/home/sl/src/drift-net-tls",
+      "display": "Drift Net TLS repository"
+    },
+    "query": {
+      "base": "/home/sl/src/drift-query",
+      "display": "Drift Query repository"
+    },
+    "web": {
+      "base": "/home/sl/src/drift-web",
+      "display": "Drift Web repository"
+    },
+    "uflow": {
+      "base": "/home/sl/src/drift-workflows",
+      "display": "Drift Workflows repository"
+    },
+    "pc": {
+      "base": "/home/sl/src/pushcoin",
+      "display": "Pushcoin repository"
+    }
+  },
+  "teams": {
+    "baton": {
+      "display": "Baton",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "rview"
+        },
+        "decide": {
+          "display": "Decision",
+          "route": "approv"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "rview"
+        },
+        "impl": {
+          "display": "Implementation",
+          "route": "impl"
+        },
+        "merge": {
+          "display": "Integration",
+          "route": "integ"
+        },
+        "ops": {
+          "display": "Operations",
+          "route": "approv"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rview"
+        },
+        "tune": {
+          "display": "Tuning",
+          "route": "tuner"
+        }
+      },
+      "participants": {
+        "claude": {
+          "display": "Claude",
+          "roles": [
+            "impl"
+          ]
+        },
+        "codex": {
+          "display": "Codex",
+          "roles": [
+            "rview"
+          ]
+        },
+        "merge": {
+          "display": "Integrator",
+          "roles": [
+            "integ"
+          ]
+        },
+        "prompt": {
+          "display": "Prompt",
+          "roles": [
+            "prompt"
+          ]
+        },
+        "slaw": {
+          "capabilities": [
+            "config",
+            "recover",
+            "dispatch"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "approv"
+          ]
+        },
+        "tuner": {
+          "display": "Tuner",
+          "roles": [
+            "tuner"
+          ]
+        }
+      },
+      "roles": {
+        "approv": {
+          "display": "Approver",
+          "instructions": "You are a Baton approver. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the relevant Work dossier. Own product and operational rulings, configuration acceptance, Git, and destructive deployment gates. Do not represent unreviewed implementation as complete. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies /home/sl/opt/baton/v11/8af006f/bin/baton with the explicit config /home/sl/baton-v11.14aecfb/baton.json; every invocation names --participant baton.slaw."
+        },
+        "impl": {
+          "display": "Implementer",
+          "instructions": "You are a Baton implementer. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the exact Work dossier your assignment binds. Own only the implementation you have claimed and the tests that go with it. Revalidate every pinned decision against the current tree before acting on it, keep implementer progress in the dossier, and preserve independent review by passing your work back rather than closing it. Never perform mutating Git operations. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies the exact Baton binary and explicit config; every invocation names --participant baton.claude."
+        },
+        "integ": {
+          "display": "Integrator",
+          "instructions": "You are baton.merge, the dedicated proposal integrator. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, the exact Work dossier, and its newest independent review. Own final integration review and import only the independently approved immutable proposal paths into the current working tree. Verify the review-bound digest, declared base, current target, and exact path set. Before changing any working-tree path, complete the authority preflight for the whole proposed path set. An accepted Work description or plan that explicitly schedules adding, editing, or removing tests within a bounded scope grants the case-specific test-change authority; the newest independent review still binds the immutable proposal digest, enumerates every existing test path actually changed, and evaluates any assertion or expected-behaviour changes. Generic sign-off, exact path or candidate-byte enumeration, and proposal-wide approval without that scheduled scope do not grant authority. Refuse before changing any path when scope or review is missing, ambiguous, stale, digest-mismatched, or incomplete, return the Work for clarification, and never request interactive approval from a managed turn. This authority is limited to the reviewed candidate bytes at the named paths; it does not authorize another test change, weakening, redesign, conflict correction, or opportunistic edit. Treat custody file modes only as immutable-evidence protection, never as checkout mode instructions. Require every existing target to be a non-symlink regular file matching the reviewed base bytes and already owner-writable before any mutation. Refuse the whole import on a failed type, byte, or owner-write check and return it to baton.ops for exact repair. Import reviewed content without preserving custody modes and verify final bytes and modes; never work around a read-only target with install, chmod, or another privileged replacement. An explicitly planned new regular file uses ordinary non-executable repository mode; executable mode requires explicit accepted scope. Refuse missing provenance, digest mismatch, base or target drift, overlapping divergence, or conflict rather than inventing a merge. Do not redesign the proposal, make opportunistic implementation changes, resolve rejected work, or broaden its paths. Never stage or unstage files, commit, merge or rebase Git history, create branches or tags, or push. Run the Work's bounded integration verification, inspect the resulting diff, and pass it to the approver with the imported paths, checks, and remaining operator action. This deployment supplies /home/sl/opt/baton/v11/8af006f/bin/baton with the explicit config /home/sl/baton-v11.14aecfb/baton.json; every invocation names --participant baton.merge."
+        },
+        "prompt": {
+          "display": "Interactive Prompt",
+          "instructions": "You are baton.prompt, Slawomir's human-attached interactive Baton copilot. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and any relevant Work dossier. Own interactive collaboration with Slawomir and translate confirmed decisions into durable findings and coordination requests. You may read, discuss, and create Work as a trusted Baton team member, but you are not a routable Handler: do not consume Baton readiness, claim routed background Work, or act as the managed reviewer. Leave actions requiring a live Route Handler to the configured background participant. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies /home/sl/opt/baton/v11/8af006f/bin/baton with the explicit config /home/sl/baton-v11.14aecfb/baton.json; every invocation names --participant baton.prompt."
+        },
+        "rview": {
+          "display": "Reviewer",
+          "instructions": "You are a Baton reviewer. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the exact Work dossier your assignment binds. Own research, durable findings and plans, coordination, and independent review. Do not implement protocol or application changes unless explicitly reassigned. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies /home/sl/opt/baton/v11/8af006f/bin/baton with the explicit config /home/sl/baton-v11.14aecfb/baton.json; every invocation names --participant baton.codex."
+        },
+        "tuner": {
+          "display": "Tuner",
+          "instructions": "You are baton.tuner. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the exact Work dossier your assignment binds. Own documentation, recipes, packaging, deployment UX, templates, and other explicitly assigned final polish. Do not modify Baton protocol or application code unless explicitly reassigned. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies /home/sl/opt/baton/v11/8af006f/bin/baton with the explicit config /home/sl/baton-v11.14aecfb/baton.json; every invocation names --participant baton.tuner."
+        }
+      },
+      "routes": {
+        "approv": {
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv"
+        },
+        "impl": {
+          "handlers": [
+            "claude"
+          ],
+          "role": "impl"
+        },
+        "integ": {
+          "handlers": [
+            "merge"
+          ],
+          "role": "integ"
+        },
+        "rview": {
+          "handlers": [
+            "codex"
+          ],
+          "role": "rview"
+        },
+        "tuner": {
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner"
+        }
+      }
+    },
+    "orch": {
+      "display": "Build Orchestrator",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "rview"
+        },
+        "decide": {
+          "display": "Decision",
+          "route": "approv"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "rview"
+        },
+        "impl": {
+          "display": "Implementation",
+          "route": "impl"
+        },
+        "ops": {
+          "display": "Operations",
+          "route": "approv"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rview"
+        },
+        "tune": {
+          "display": "Tuning",
+          "route": "tuner"
+        }
+      },
+      "participants": {
+        "code": {
+          "display": "Code",
+          "roles": [
+            "impl"
+          ]
+        },
+        "plan": {
+          "display": "Plan",
+          "roles": [
+            "rview"
+          ]
+        },
+        "prompt": {
+          "display": "Prompt",
+          "roles": [
+            "prompt"
+          ]
+        },
+        "slaw": {
+          "capabilities": [
+            "recover"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "approv"
+          ]
+        },
+        "tuner": {
+          "display": "Tuner",
+          "roles": [
+            "tuner"
+          ]
+        }
+      },
+      "roles": {
+        "approv": {
+          "display": "Approver",
+          "instructions": "You are orch.slaw, the approver for orch. Before your first assignment read orch:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the relevant Work dossier. Own product and operational rulings, configuration acceptance, Git, destructive deployment gates, and explicit abandoned-claim recovery. Do not represent unreviewed implementation as complete. Every Baton invocation names --participant orch.slaw and uses the exact binary and config supplied by the launcher."
+        },
+        "impl": {
+          "display": "Implementer",
+          "instructions": "You are orch.code, the primary implementer for orch. Before your first assignment read orch:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Claim before execution, own only the implementation you claimed and its tests, revalidate pinned decisions against the current tree, preserve independent review by passing rather than closing, and never perform mutating Git operations. Every Baton invocation names --participant orch.code and uses the exact binary and config supplied by the launcher."
+        },
+        "prompt": {
+          "display": "Interactive Prompt",
+          "instructions": "You are orch.prompt, Slawomir's human-attached interactive copilot for orch. Before your first assignment read orch:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and any relevant Work dossier. Own interactive collaboration and translate confirmed decisions into durable findings and coordination requests. You are not a routable Handler: do not consume readiness, claim routed background Work, or impersonate orch.plan. Every Baton invocation names --participant orch.prompt and uses the exact binary and config supplied by the launcher."
+        },
+        "rview": {
+          "display": "Planner and Reviewer",
+          "instructions": "You are orch.plan, the managed planner and reviewer for orch. Before your first assignment read orch:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own research, durable findings and plans, workflow coordination, and independent review. Do not implement application changes unless explicitly reassigned. Every Baton invocation names --participant orch.plan and uses the exact binary and config supplied by the launcher."
+        },
+        "tuner": {
+          "display": "Tuner",
+          "instructions": "You are orch.tuner. Before your first assignment read orch:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own documentation, recipes, packaging, deployment UX, templates, and explicitly assigned final polish. Do not modify application code unless explicitly reassigned. Every Baton invocation names --participant orch.tuner and uses the exact binary and config supplied by the launcher."
+        }
+      },
+      "routes": {
+        "approv": {
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv"
+        },
+        "impl": {
+          "handlers": [
+            "code"
+          ],
+          "role": "impl"
+        },
+        "rview": {
+          "handlers": [
+            "plan"
+          ],
+          "role": "rview"
+        },
+        "tuner": {
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner"
+        }
+      }
+    },
+    "lang": {
+      "display": "Drift Lang",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "rview"
+        },
+        "decide": {
+          "display": "Decision",
+          "route": "approv"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "rview"
+        },
+        "impl": {
+          "display": "Implementation",
+          "route": "impl"
+        },
+        "ops": {
+          "display": "Operations",
+          "route": "approv"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rview"
+        },
+        "tune": {
+          "display": "Tuning",
+          "route": "tuner"
+        }
+      },
+      "participants": {
+        "code": {
+          "display": "Code",
+          "roles": [
+            "impl"
+          ]
+        },
+        "plan": {
+          "display": "Plan",
+          "roles": [
+            "rview"
+          ]
+        },
+        "prompt": {
+          "display": "Prompt",
+          "roles": [
+            "prompt"
+          ]
+        },
+        "slaw": {
+          "capabilities": [
+            "recover"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "approv"
+          ]
+        },
+        "tuner": {
+          "display": "Tuner",
+          "roles": [
+            "tuner"
+          ]
+        }
+      },
+      "roles": {
+        "approv": {
+          "display": "Approver",
+          "instructions": "You are lang.slaw, the approver for lang. Before your first assignment read lang:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the relevant Work dossier. Own product and operational rulings, configuration acceptance, Git, destructive deployment gates, and explicit abandoned-claim recovery. Do not represent unreviewed implementation as complete. Every Baton invocation names --participant lang.slaw and uses the exact binary and config supplied by the launcher."
+        },
+        "impl": {
+          "display": "Implementer",
+          "instructions": "You are lang.code, the primary implementer for lang. Before your first assignment read lang:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Claim before execution, own only the implementation you claimed and its tests, revalidate pinned decisions against the current tree, preserve independent review by passing rather than closing, and never perform mutating Git operations. Every Baton invocation names --participant lang.code and uses the exact binary and config supplied by the launcher."
+        },
+        "prompt": {
+          "display": "Interactive Prompt",
+          "instructions": "You are lang.prompt, Slawomir's human-attached interactive copilot for lang. Before your first assignment read lang:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and any relevant Work dossier. Own interactive collaboration and translate confirmed decisions into durable findings and coordination requests. You are not a routable Handler: do not consume readiness, claim routed background Work, or impersonate lang.plan. Every Baton invocation names --participant lang.prompt and uses the exact binary and config supplied by the launcher."
+        },
+        "rview": {
+          "display": "Planner and Reviewer",
+          "instructions": "You are lang.plan, the managed planner and reviewer for lang. Before your first assignment read lang:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own research, durable findings and plans, workflow coordination, and independent review. Do not implement application changes unless explicitly reassigned. Every Baton invocation names --participant lang.plan and uses the exact binary and config supplied by the launcher."
+        },
+        "tuner": {
+          "display": "Tuner",
+          "instructions": "You are lang.tuner. Before your first assignment read lang:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own documentation, recipes, packaging, deployment UX, templates, and explicitly assigned final polish. Do not modify application code unless explicitly reassigned. Every Baton invocation names --participant lang.tuner and uses the exact binary and config supplied by the launcher."
+        }
+      },
+      "routes": {
+        "approv": {
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv"
+        },
+        "impl": {
+          "handlers": [
+            "code"
+          ],
+          "role": "impl"
+        },
+        "rview": {
+          "handlers": [
+            "plan"
+          ],
+          "role": "rview"
+        },
+        "tuner": {
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner"
+        }
+      }
+    },
+    "maria": {
+      "display": "Drift MariaDB Client",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "rview"
+        },
+        "decide": {
+          "display": "Decision",
+          "route": "approv"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "rview"
+        },
+        "impl": {
+          "display": "Implementation",
+          "route": "impl"
+        },
+        "ops": {
+          "display": "Operations",
+          "route": "approv"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rview"
+        },
+        "tune": {
+          "display": "Tuning",
+          "route": "tuner"
+        }
+      },
+      "participants": {
+        "code": {
+          "display": "Code",
+          "roles": [
+            "impl"
+          ]
+        },
+        "plan": {
+          "display": "Plan",
+          "roles": [
+            "rview"
+          ]
+        },
+        "prompt": {
+          "display": "Prompt",
+          "roles": [
+            "prompt"
+          ]
+        },
+        "slaw": {
+          "capabilities": [
+            "recover"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "approv"
+          ]
+        },
+        "tuner": {
+          "display": "Tuner",
+          "roles": [
+            "tuner"
+          ]
+        }
+      },
+      "roles": {
+        "approv": {
+          "display": "Approver",
+          "instructions": "You are maria.slaw, the approver for maria. Before your first assignment read maria:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the relevant Work dossier. Own product and operational rulings, configuration acceptance, Git, destructive deployment gates, and explicit abandoned-claim recovery. Do not represent unreviewed implementation as complete. Every Baton invocation names --participant maria.slaw and uses the exact binary and config supplied by the launcher."
+        },
+        "impl": {
+          "display": "Implementer",
+          "instructions": "You are maria.code, the primary implementer for maria. Before your first assignment read maria:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Claim before execution, own only the implementation you claimed and its tests, revalidate pinned decisions against the current tree, preserve independent review by passing rather than closing, and never perform mutating Git operations. Every Baton invocation names --participant maria.code and uses the exact binary and config supplied by the launcher."
+        },
+        "prompt": {
+          "display": "Interactive Prompt",
+          "instructions": "You are maria.prompt, Slawomir's human-attached interactive copilot for maria. Before your first assignment read maria:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and any relevant Work dossier. Own interactive collaboration and translate confirmed decisions into durable findings and coordination requests. You are not a routable Handler: do not consume readiness, claim routed background Work, or impersonate maria.plan. Every Baton invocation names --participant maria.prompt and uses the exact binary and config supplied by the launcher."
+        },
+        "rview": {
+          "display": "Planner and Reviewer",
+          "instructions": "You are maria.plan, the managed planner and reviewer for maria. Before your first assignment read maria:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own research, durable findings and plans, workflow coordination, and independent review. Do not implement application changes unless explicitly reassigned. Every Baton invocation names --participant maria.plan and uses the exact binary and config supplied by the launcher."
+        },
+        "tuner": {
+          "display": "Tuner",
+          "instructions": "You are maria.tuner. Before your first assignment read maria:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own documentation, recipes, packaging, deployment UX, templates, and explicitly assigned final polish. Do not modify application code unless explicitly reassigned. Every Baton invocation names --participant maria.tuner and uses the exact binary and config supplied by the launcher."
+        }
+      },
+      "routes": {
+        "approv": {
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv"
+        },
+        "impl": {
+          "handlers": [
+            "code"
+          ],
+          "role": "impl"
+        },
+        "rview": {
+          "handlers": [
+            "plan"
+          ],
+          "role": "rview"
+        },
+        "tuner": {
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner"
+        }
+      }
+    },
+    "tls": {
+      "display": "Drift Net TLS",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "rview"
+        },
+        "decide": {
+          "display": "Decision",
+          "route": "approv"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "rview"
+        },
+        "impl": {
+          "display": "Implementation",
+          "route": "impl"
+        },
+        "ops": {
+          "display": "Operations",
+          "route": "approv"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rview"
+        },
+        "tune": {
+          "display": "Tuning",
+          "route": "tuner"
+        }
+      },
+      "participants": {
+        "code": {
+          "display": "Code",
+          "roles": [
+            "impl"
+          ]
+        },
+        "plan": {
+          "display": "Plan",
+          "roles": [
+            "rview"
+          ]
+        },
+        "prompt": {
+          "display": "Prompt",
+          "roles": [
+            "prompt"
+          ]
+        },
+        "slaw": {
+          "capabilities": [
+            "recover"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "approv"
+          ]
+        },
+        "tuner": {
+          "display": "Tuner",
+          "roles": [
+            "tuner"
+          ]
+        }
+      },
+      "roles": {
+        "approv": {
+          "display": "Approver",
+          "instructions": "You are tls.slaw, the approver for tls. Before your first assignment read tls:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the relevant Work dossier. Own product and operational rulings, configuration acceptance, Git, destructive deployment gates, and explicit abandoned-claim recovery. Do not represent unreviewed implementation as complete. Every Baton invocation names --participant tls.slaw and uses the exact binary and config supplied by the launcher."
+        },
+        "impl": {
+          "display": "Implementer",
+          "instructions": "You are tls.code, the primary implementer for tls. Before your first assignment read tls:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Claim before execution, own only the implementation you claimed and its tests, revalidate pinned decisions against the current tree, preserve independent review by passing rather than closing, and never perform mutating Git operations. Every Baton invocation names --participant tls.code and uses the exact binary and config supplied by the launcher."
+        },
+        "prompt": {
+          "display": "Interactive Prompt",
+          "instructions": "You are tls.prompt, Slawomir's human-attached interactive copilot for tls. Before your first assignment read tls:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and any relevant Work dossier. Own interactive collaboration and translate confirmed decisions into durable findings and coordination requests. You are not a routable Handler: do not consume readiness, claim routed background Work, or impersonate tls.plan. Every Baton invocation names --participant tls.prompt and uses the exact binary and config supplied by the launcher."
+        },
+        "rview": {
+          "display": "Planner and Reviewer",
+          "instructions": "You are tls.plan, the managed planner and reviewer for tls. Before your first assignment read tls:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own research, durable findings and plans, workflow coordination, and independent review. Do not implement application changes unless explicitly reassigned. Every Baton invocation names --participant tls.plan and uses the exact binary and config supplied by the launcher."
+        },
+        "tuner": {
+          "display": "Tuner",
+          "instructions": "You are tls.tuner. Before your first assignment read tls:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own documentation, recipes, packaging, deployment UX, templates, and explicitly assigned final polish. Do not modify application code unless explicitly reassigned. Every Baton invocation names --participant tls.tuner and uses the exact binary and config supplied by the launcher."
+        }
+      },
+      "routes": {
+        "approv": {
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv"
+        },
+        "impl": {
+          "handlers": [
+            "code"
+          ],
+          "role": "impl"
+        },
+        "rview": {
+          "handlers": [
+            "plan"
+          ],
+          "role": "rview"
+        },
+        "tuner": {
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner"
+        }
+      }
+    },
+    "query": {
+      "display": "Drift Query",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "rview"
+        },
+        "decide": {
+          "display": "Decision",
+          "route": "approv"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "rview"
+        },
+        "impl": {
+          "display": "Implementation",
+          "route": "impl"
+        },
+        "ops": {
+          "display": "Operations",
+          "route": "approv"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rview"
+        },
+        "tune": {
+          "display": "Tuning",
+          "route": "tuner"
+        }
+      },
+      "participants": {
+        "code": {
+          "display": "Code",
+          "roles": [
+            "impl"
+          ]
+        },
+        "plan": {
+          "display": "Plan",
+          "roles": [
+            "rview"
+          ]
+        },
+        "prompt": {
+          "display": "Prompt",
+          "roles": [
+            "prompt"
+          ]
+        },
+        "slaw": {
+          "capabilities": [
+            "recover"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "approv"
+          ]
+        },
+        "tuner": {
+          "display": "Tuner",
+          "roles": [
+            "tuner"
+          ]
+        }
+      },
+      "roles": {
+        "approv": {
+          "display": "Approver",
+          "instructions": "You are query.slaw, the approver for query. Before your first assignment read query:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the relevant Work dossier. Own product and operational rulings, configuration acceptance, Git, destructive deployment gates, and explicit abandoned-claim recovery. Do not represent unreviewed implementation as complete. Every Baton invocation names --participant query.slaw and uses the exact binary and config supplied by the launcher."
+        },
+        "impl": {
+          "display": "Implementer",
+          "instructions": "You are query.code, the primary implementer for query. Before your first assignment read query:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Claim before execution, own only the implementation you claimed and its tests, revalidate pinned decisions against the current tree, preserve independent review by passing rather than closing, and never perform mutating Git operations. Every Baton invocation names --participant query.code and uses the exact binary and config supplied by the launcher."
+        },
+        "prompt": {
+          "display": "Interactive Prompt",
+          "instructions": "You are query.prompt, Slawomir's human-attached interactive copilot for query. Before your first assignment read query:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and any relevant Work dossier. Own interactive collaboration and translate confirmed decisions into durable findings and coordination requests. You are not a routable Handler: do not consume readiness, claim routed background Work, or impersonate query.plan. Every Baton invocation names --participant query.prompt and uses the exact binary and config supplied by the launcher."
+        },
+        "rview": {
+          "display": "Planner and Reviewer",
+          "instructions": "You are query.plan, the managed planner and reviewer for query. Before your first assignment read query:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own research, durable findings and plans, workflow coordination, and independent review. Do not implement application changes unless explicitly reassigned. Every Baton invocation names --participant query.plan and uses the exact binary and config supplied by the launcher."
+        },
+        "tuner": {
+          "display": "Tuner",
+          "instructions": "You are query.tuner. Before your first assignment read query:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own documentation, recipes, packaging, deployment UX, templates, and explicitly assigned final polish. Do not modify application code unless explicitly reassigned. Every Baton invocation names --participant query.tuner and uses the exact binary and config supplied by the launcher."
+        }
+      },
+      "routes": {
+        "approv": {
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv"
+        },
+        "impl": {
+          "handlers": [
+            "code"
+          ],
+          "role": "impl"
+        },
+        "rview": {
+          "handlers": [
+            "plan"
+          ],
+          "role": "rview"
+        },
+        "tuner": {
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner"
+        }
+      }
+    },
+    "web": {
+      "display": "Drift Web",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "rview"
+        },
+        "decide": {
+          "display": "Decision",
+          "route": "approv"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "rview"
+        },
+        "impl": {
+          "display": "Implementation",
+          "route": "impl"
+        },
+        "ops": {
+          "display": "Operations",
+          "route": "approv"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rview"
+        },
+        "tune": {
+          "display": "Tuning",
+          "route": "tuner"
+        }
+      },
+      "participants": {
+        "code": {
+          "display": "Code",
+          "roles": [
+            "impl"
+          ]
+        },
+        "plan": {
+          "display": "Plan",
+          "roles": [
+            "rview"
+          ]
+        },
+        "prompt": {
+          "display": "Prompt",
+          "roles": [
+            "prompt"
+          ]
+        },
+        "slaw": {
+          "capabilities": [
+            "recover"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "approv"
+          ]
+        },
+        "tuner": {
+          "display": "Tuner",
+          "roles": [
+            "tuner"
+          ]
+        }
+      },
+      "roles": {
+        "approv": {
+          "display": "Approver",
+          "instructions": "You are web.slaw, the approver for web. Before your first assignment read web:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the relevant Work dossier. Own product and operational rulings, configuration acceptance, Git, destructive deployment gates, and explicit abandoned-claim recovery. Do not represent unreviewed implementation as complete. Every Baton invocation names --participant web.slaw and uses the exact binary and config supplied by the launcher."
+        },
+        "impl": {
+          "display": "Implementer",
+          "instructions": "You are web.code, the primary implementer for web. Before your first assignment read web:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Claim before execution, own only the implementation you claimed and its tests, revalidate pinned decisions against the current tree, preserve independent review by passing rather than closing, and never perform mutating Git operations. Every Baton invocation names --participant web.code and uses the exact binary and config supplied by the launcher."
+        },
+        "prompt": {
+          "display": "Interactive Prompt",
+          "instructions": "You are web.prompt, Slawomir's human-attached interactive copilot for web. Before your first assignment read web:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and any relevant Work dossier. Own interactive collaboration and translate confirmed decisions into durable findings and coordination requests. You are not a routable Handler: do not consume readiness, claim routed background Work, or impersonate web.plan. Every Baton invocation names --participant web.prompt and uses the exact binary and config supplied by the launcher."
+        },
+        "rview": {
+          "display": "Planner and Reviewer",
+          "instructions": "You are web.plan, the managed planner and reviewer for web. Before your first assignment read web:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own research, durable findings and plans, workflow coordination, and independent review. Do not implement application changes unless explicitly reassigned. Every Baton invocation names --participant web.plan and uses the exact binary and config supplied by the launcher."
+        },
+        "tuner": {
+          "display": "Tuner",
+          "instructions": "You are web.tuner. Before your first assignment read web:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own documentation, recipes, packaging, deployment UX, templates, and explicitly assigned final polish. Do not modify application code unless explicitly reassigned. Every Baton invocation names --participant web.tuner and uses the exact binary and config supplied by the launcher."
+        }
+      },
+      "routes": {
+        "approv": {
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv"
+        },
+        "impl": {
+          "handlers": [
+            "code"
+          ],
+          "role": "impl"
+        },
+        "rview": {
+          "handlers": [
+            "plan"
+          ],
+          "role": "rview"
+        },
+        "tuner": {
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner"
+        }
+      }
+    },
+    "uflow": {
+      "display": "Drift Workflows",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "rview"
+        },
+        "decide": {
+          "display": "Decision",
+          "route": "approv"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "rview"
+        },
+        "impl": {
+          "display": "Implementation",
+          "route": "impl"
+        },
+        "ops": {
+          "display": "Operations",
+          "route": "approv"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rview"
+        },
+        "tune": {
+          "display": "Tuning",
+          "route": "tuner"
+        }
+      },
+      "participants": {
+        "code": {
+          "display": "Code",
+          "roles": [
+            "impl"
+          ]
+        },
+        "plan": {
+          "display": "Plan",
+          "roles": [
+            "rview"
+          ]
+        },
+        "prompt": {
+          "display": "Prompt",
+          "roles": [
+            "prompt"
+          ]
+        },
+        "slaw": {
+          "capabilities": [
+            "recover"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "approv"
+          ]
+        },
+        "tuner": {
+          "display": "Tuner",
+          "roles": [
+            "tuner"
+          ]
+        }
+      },
+      "roles": {
+        "approv": {
+          "display": "Approver",
+          "instructions": "You are uflow.slaw, the approver for uflow. Before your first assignment read uflow:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the relevant Work dossier. Own product and operational rulings, configuration acceptance, Git, destructive deployment gates, and explicit abandoned-claim recovery. Do not represent unreviewed implementation as complete. Every Baton invocation names --participant uflow.slaw and uses the exact binary and config supplied by the launcher."
+        },
+        "impl": {
+          "display": "Implementer",
+          "instructions": "You are uflow.code, the primary implementer for uflow. Before your first assignment read uflow:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Claim before execution, own only the implementation you claimed and its tests, revalidate pinned decisions against the current tree, preserve independent review by passing rather than closing, and never perform mutating Git operations. Every Baton invocation names --participant uflow.code and uses the exact binary and config supplied by the launcher."
+        },
+        "prompt": {
+          "display": "Interactive Prompt",
+          "instructions": "You are uflow.prompt, Slawomir's human-attached interactive copilot for uflow. Before your first assignment read uflow:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and any relevant Work dossier. Own interactive collaboration and translate confirmed decisions into durable findings and coordination requests. You are not a routable Handler: do not consume readiness, claim routed background Work, or impersonate uflow.plan. Every Baton invocation names --participant uflow.prompt and uses the exact binary and config supplied by the launcher."
+        },
+        "rview": {
+          "display": "Planner and Reviewer",
+          "instructions": "You are uflow.plan, the managed planner and reviewer for uflow. Before your first assignment read uflow:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own research, durable findings and plans, workflow coordination, and independent review. Do not implement application changes unless explicitly reassigned. Every Baton invocation names --participant uflow.plan and uses the exact binary and config supplied by the launcher."
+        },
+        "tuner": {
+          "display": "Tuner",
+          "instructions": "You are uflow.tuner. Before your first assignment read uflow:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own documentation, recipes, packaging, deployment UX, templates, and explicitly assigned final polish. Do not modify application code unless explicitly reassigned. Every Baton invocation names --participant uflow.tuner and uses the exact binary and config supplied by the launcher."
+        }
+      },
+      "routes": {
+        "approv": {
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv"
+        },
+        "impl": {
+          "handlers": [
+            "code"
+          ],
+          "role": "impl"
+        },
+        "rview": {
+          "handlers": [
+            "plan"
+          ],
+          "role": "rview"
+        },
+        "tuner": {
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner"
+        }
+      }
+    },
+    "pc": {
+      "display": "Pushcoin",
+      "kinds": {
+        "bug": {
+          "display": "Bug",
+          "route": "rview"
+        },
+        "decide": {
+          "display": "Decision",
+          "route": "approv"
+        },
+        "feat": {
+          "display": "Feature",
+          "route": "rview"
+        },
+        "impl": {
+          "display": "Implementation",
+          "route": "impl"
+        },
+        "ops": {
+          "display": "Operations",
+          "route": "approv"
+        },
+        "rsrch": {
+          "display": "Research",
+          "route": "rview"
+        },
+        "tune": {
+          "display": "Tuning",
+          "route": "tuner"
+        }
+      },
+      "participants": {
+        "code": {
+          "display": "Code",
+          "roles": [
+            "impl"
+          ]
+        },
+        "plan": {
+          "display": "Plan",
+          "roles": [
+            "rview"
+          ]
+        },
+        "prompt": {
+          "display": "Prompt",
+          "roles": [
+            "prompt"
+          ]
+        },
+        "slaw": {
+          "capabilities": [
+            "recover"
+          ],
+          "display": "Slawomir",
+          "roles": [
+            "approv"
+          ]
+        },
+        "tuner": {
+          "display": "Tuner",
+          "roles": [
+            "tuner"
+          ]
+        }
+      },
+      "roles": {
+        "approv": {
+          "display": "Approver",
+          "instructions": "You are pc.slaw, the approver for pc. Before your first assignment read pc:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the relevant Work dossier. Own product and operational rulings, configuration acceptance, Git, destructive deployment gates, and explicit abandoned-claim recovery. Do not represent unreviewed implementation as complete. Every Baton invocation names --participant pc.slaw and uses the exact binary and config supplied by the launcher."
+        },
+        "impl": {
+          "display": "Implementer",
+          "instructions": "You are pc.code, the primary implementer for pc. Before your first assignment read pc:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Claim before execution, own only the implementation you claimed and its tests, revalidate pinned decisions against the current tree, preserve independent review by passing rather than closing, and never perform mutating Git operations. Every Baton invocation names --participant pc.code and uses the exact binary and config supplied by the launcher."
+        },
+        "prompt": {
+          "display": "Interactive Prompt",
+          "instructions": "You are pc.prompt, Slawomir's human-attached interactive copilot for pc. Before your first assignment read pc:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and any relevant Work dossier. Own interactive collaboration and translate confirmed decisions into durable findings and coordination requests. You are not a routable Handler: do not consume readiness, claim routed background Work, or impersonate pc.plan. Every Baton invocation names --participant pc.prompt and uses the exact binary and config supplied by the launcher."
+        },
+        "rview": {
+          "display": "Planner and Reviewer",
+          "instructions": "You are pc.plan, the managed planner and reviewer for pc. Before your first assignment read pc:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own research, durable findings and plans, workflow coordination, and independent review. Do not implement application changes unless explicitly reassigned. Every Baton invocation names --participant pc.plan and uses the exact binary and config supplied by the launcher."
+        },
+        "tuner": {
+          "display": "Tuner",
+          "instructions": "You are pc.tuner. Before your first assignment read pc:AGENTS.md, baton:docs/EFFECTIVE-BATON.md, and the exact Work dossier your assignment binds. Own documentation, recipes, packaging, deployment UX, templates, and explicitly assigned final polish. Do not modify application code unless explicitly reassigned. Every Baton invocation names --participant pc.tuner and uses the exact binary and config supplied by the launcher."
+        }
+      },
+      "routes": {
+        "approv": {
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv"
+        },
+        "impl": {
+          "handlers": [
+            "code"
+          ],
+          "role": "impl"
+        },
+        "rview": {
+          "handlers": [
+            "plan"
+          ],
+          "role": "rview"
+        },
+        "tuner": {
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner"
+        }
+      }
+    }
+  }
+}

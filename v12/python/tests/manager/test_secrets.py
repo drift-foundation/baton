@@ -795,9 +795,18 @@ class TheBearerIsHeldForTheActsThatSpendIt(SecretCase):
         self.assertFalse(live_secret(BEARER))
         self.assertNotIn(BEARER, _dump(self.path))
 
-    def test_a_decline_that_quotes_the_bearer_is_refused(self):
+    def test_a_decline_that_carries_the_bearer_is_refused_before_it_settles(self):
         """`reason` is caller prose that reaches a durable column and rides the
-        settlement's signature."""
+        settlement's signature, and the containment case that scope existed for
+        was a decline explaining itself by QUOTING the bearer.
+
+        W33937 refuses that decision one step earlier, as the bearer-carrying
+        decline it is (`integrity/schema`), so the settlement it would have
+        journalled never happens. THE SECRET NEVER BECOMES LIVE ON THIS PATH,
+        and that is the correction rather than a gap in it: a decline hands
+        this manager no bearer, so there is nothing to register for a walk to
+        hold the settlement against.
+        """
         self.issued()
         with self.assertRaises(ContractRefusal) as caught:
             accept_offer(self.store, self.port, offer_id="offer-1",
@@ -805,8 +814,28 @@ class TheBearerIsHeldForTheActsThatSpendIt(SecretCase):
                          runtime_attempt_id="attempt-1",
                          work_ref={"authority_uuid": UUID, "work_id": WORK},
                          reason=f"the worker rejected {BEARER}")
-        self.assertEqual(caught.exception.code, "secret-leak")
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
         self.assertFalse(live_secret(BEARER))
+        # THE REFUSAL IS A PUBLIC SURFACE and the store is a durable one. The
+        # decline carried the secret twice over -- as the operand and inside
+        # the prose -- and neither copy reaches either.
+        self.assertNotIn(BEARER, str(caught.exception))
+        self.assertNotIn(BEARER, _dump(self.path))
+
+    def test_declining_holds_no_bearer_and_leaves_nothing_behind(self):
+        """The positive half: a bearer-free decline settles the offer and
+        consumes its verifier without the secret being handed over at all."""
+        self.issued()
+        settled = accept_offer(self.store, self.port, offer_id="offer-1",
+                               decision="decline", now=NOW,
+                               runtime_attempt_id="attempt-1",
+                               work_ref={"authority_uuid": UUID,
+                                         "work_id": WORK},
+                               reason="the worker is busy")
+        self.assertEqual(settled["state"], "declined")
+        self.assertFalse(live_secret(BEARER))
+        self.assertNotIn(BEARER, _dump(self.path))
 
     def test_a_bearer_that_is_not_text_still_refuses_as_a_capability(self):
         """Registering it would answer a different question: a value that
