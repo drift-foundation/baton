@@ -232,14 +232,31 @@ class TheProviderArgvAndEnvironmentAreClosed(AdapterCase):
 
     def test_the_argv_is_exactly_the_pinned_vector_plus_one_prompt(self):
         """GOLDEN. The one operand a golden test cannot establish is whether
-        `acceptEdits` is the right spelling — W39364's live turn owns that —
-        so what this pins is that nothing else is composed and that the prompt
-        is the last word."""
+        the flag is the right spelling for the pinned image — the live turn
+        under W64268 owns that — so what this pins is that nothing else is
+        composed and that the prompt is the last word."""
         argv, _options = self.spoken()
         self.assertEqual(argv[:-1], ["claude", "--print",
-                                     "--permission-mode", "acceptEdits",
+                                     "--dangerously-skip-permissions",
                                      "--output-format", "json"])
-        self.assertEqual(len(argv), 7)
+        self.assertEqual(len(argv), 6)
+
+    def test_the_inner_permission_policy_is_bypassed_and_not_re_spelled(self):
+        """W64268's negative half.
+
+        The decision names ONE activation flag. The two nearby spellings are
+        wrong in ways a positive vector alone would not catch:
+        `--allow-dangerously-skip-permissions` merely permits bypass to be
+        selected later and does not activate it, and any surviving
+        `--permission-mode` operand keeps the inner command allowlist this
+        Work removed. Occurring exactly once also forbids composing the flag
+        twice while one is being removed.
+        """
+        argv, _options = self.spoken()
+        self.assertNotIn("--permission-mode", argv)
+        self.assertNotIn("acceptEdits", argv)
+        self.assertNotIn("--allow-dangerously-skip-permissions", argv)
+        self.assertEqual(argv.count("--dangerously-skip-permissions"), 1)
 
     def test_the_prompt_carries_the_task_and_names_nothing_protocol(self):
         argv, _options = self.spoken()

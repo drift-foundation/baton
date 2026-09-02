@@ -135,10 +135,22 @@ PROVIDER_CREDENTIAL = ".credentials.json"
 #
 # The spike ran `--print --permission-mode plan`, which is right for a
 # ping-pong that must touch nothing and wrong for a task whose whole point is
-# to edit files. `acceptEdits` is the deliberate change and it is the single
-# operand in this module a golden test cannot establish -- the first live turn
-# under W39364 is what proves it, and if the spelling is wrong the correction
-# is this tuple and its vector case.
+# to edit files. W39364 then ran `--permission-mode acceptEdits`, and live
+# dogfood measured what that actually was: an inner COMMAND allowlist. The
+# agent could edit its private candidate but was refused the task's own Python
+# verification, which the outer worker then ran itself -- proving the command
+# belonged inside the container and was never a host-authority request.
+#
+# W64268 ruled that the container IS the boundary. Inside an accepted trusted
+# worker runtime the agent may run the image's tools without per-command
+# approval, so this tuple names the CLI's bypass ACTIVATION flag. Two nearby
+# spellings are deliberately NOT used: `--allow-dangerously-skip-permissions`
+# only permits bypass to be selected later, and `--permission-mode
+# bypassPermissions` reintroduces the mode operand this Work removed.
+#
+# This is inner policy only. The external boundary -- read-only inputs, one
+# private writable scratch, dropped capabilities, no host socket, no privilege,
+# manager-owned lifecycle -- is `worker_manager.oci`'s and is UNCHANGED.
 #
 # `--print` is the non-interactive mode: one prompt, one answer, no terminal.
 # `--output-format json` is W55360's operand and is the whole of that Work's
@@ -146,7 +158,7 @@ PROVIDER_CREDENTIAL = ".credentials.json"
 # stdout instead of prose, which is what makes reading that one stream a
 # bounded, closed-vocabulary act rather than a diagnostic passthrough.
 PROVIDER_PROGRAM = "claude"
-PROVIDER_ARGUMENTS = ("--print", "--permission-mode", "acceptEdits",
+PROVIDER_ARGUMENTS = ("--print", "--dangerously-skip-permissions",
                       "--output-format", "json")
 
 # HOW MUCH OF THE PROVIDER'S STRUCTURED STDOUT IS EVER HELD, and W39357's
