@@ -153,3 +153,10 @@ repair. This Work remains ordered after W61984: the permission correction is
 what lets the next isolated worker execute its own verification, but it must
 not be folded into or used to rewrite the finalization candidate already under
 review. The scheduler dependency should remain explicit until W61984 closes.
+
+### Scheduling update — 2026-09-02
+
+W61984 closed satisfying after its independently reviewed proposal was
+integrated. The dependency described above is satisfied. W64268 is ready for a
+separate isolated v12 attempt; it remains forbidden to fold this correction
+into W61984 or implement it through the v11 host runner.
