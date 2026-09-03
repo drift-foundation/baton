@@ -683,3 +683,27 @@ back the whole step, leaving no partial scheduler relations or indexes. Schema
 transitions are expected and may be frequent while v12 remains experimental;
 each still has an explicit ordered migration and fail-closed validation. This
 v12 Job-store migration has no v11 schema or deployment consequence.
+
+## Operator resolution of final implementer-preflight contradictions — 2026-09-03
+
+The earlier “Operator resolution of canonical-principal persistence” is
+superseded only in how the canonical principal is obtained. `AuthorityPort`
+does not gain `canonical_principal()`, and the participant-bound Authority
+session does not gain a principal-resolution read. Those restricted sessions
+remain unchanged.
+
+At pool activation, trusted deployment resolves every configured participant
+through the Authority API/bootstrap face's existing `principal_of(participant)`
+operation. Deployment supplies those resolved values—not operator-authored or
+participant-derived principal strings—to scheduler pool activation. The Job
+store persists the normalized worker/principal/generation associations already
+approved. On restart, trusted deployment resolves them again and attachment
+compares them with the persisted generation; mismatch fails closed without
+rewriting either association or a live allocation. Claim adoption still
+compares the returned authorization principal with the reserved principal, so
+alias collapse and cross-restart capacity accounting are unchanged.
+
+W71877 persists only the lane and logical worker. W71918 introduces the durable
+provider-neutral `AgentSession` identity and its correction/review continuity
+relations. W71877 neither exposes nor creates a placeholder session boundary
+for W71918.

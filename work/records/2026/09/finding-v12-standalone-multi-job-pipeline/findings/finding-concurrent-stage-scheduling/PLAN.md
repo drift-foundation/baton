@@ -34,12 +34,9 @@
    scheduler axis `allocation state` with `reserved`, `recovery-required`, and
    `released`. Resolve the remaining principal, generation, relation-shape,
    AgentSession-ownership, and fixture corrections before implementation.
-2e. [done, operator resolution 2026-09-03] Add a read-only
-   `AuthorityPort.canonical_principal()` contract. Persist worker, participant,
-   principal, lane, profile and pool generation with configuration and
-   allocations; revalidate the Authority-owned mapping on attachment and fail
-   closed on drift. Claim adoption must match the reserved principal, and
-   aliases share one effective live capacity.
+2e. [superseded by item 2h, 2026-09-03] The proposed read-only
+   `AuthorityPort.canonical_principal()` would cross the restricted Authority
+   session boundary and is not implemented.
 2f. [done, operator resolution 2026-09-03] Persist final pool-generation,
    worker, stage-allocation and lane-affinity relations, with cross-generation
    live uniqueness per worker, principal and stage episode. W71877 records no
@@ -48,6 +45,13 @@
    enforce one live claim per canonical principal. Prove the four-capacity path
    with four distinct principals, the alias-collapse negative case, and restart
    revalidation of persisted worker/principal associations.
+2h. [done, operator resolution after final implementer preflight 2026-09-03]
+   Trusted deployment resolves each participant through the Authority
+   API/bootstrap face during pool activation and supplies the resolved
+   principals to the scheduler. Persist and revalidate those associations on
+   restart, fail closed on mismatch, and compare every returned claim principal
+   with its reservation. Do not change `AuthorityPort` or the participant-bound
+   Authority session.
 3. [done, operator acceptance 2026-09-03] Apply the closed settlement table:
    safe no-assignment endings and cleanup `complete`/`retained` release an
    allocation; uncertain survival or cleanup failure requires recovery and
@@ -62,9 +66,9 @@
    selection/reservation and durable slot lifecycle around the existing
    concrete-offer and authority-claim boundary. Bind adopted offers to the
    selected participant, preserve append-only stage episodes, and migrate the
-   Job store only under the accepted schema ruling. Expose a provider-neutral
-   `AgentSession` boundary to W71918; do not implement its durable
-   correction/review session mechanics here.
+   Job store only under the accepted schema ruling. Persist lane and logical
+   worker only; W71918 introduces the durable provider-neutral `AgentSession`
+   identity and its correction/review continuity mechanics.
 6. [pending W71917/W71918 composition] Compose implementation and review
    launch/settlement so every slot owns separate runtime, workspace,
    credential, output, and log identities. W71917 is approved and ready for
@@ -73,7 +77,7 @@
 7. [pending focused verification] Prove two implementation and two review slots, offer/claim races,
    fallback from unavailable affinity, independent reviewer separation,
    review-ahead, launch failure, canonical cleanup release, wedged isolation,
-   participant-bound adoption, explicit normal/degraded pool generations,
+   participant-bound adoption, explicit pool variants and separation classes,
    cross-lane session non-reuse, and restart recovery.
 8. [pending independent review] Bind the verdict to the immutable proposal and
    enumerate every changed production and test path.
