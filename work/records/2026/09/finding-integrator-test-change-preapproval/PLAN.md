@@ -44,7 +44,7 @@
    generation 6 immutable. Add a new focused test module rather than weakening
    existing expectations; the scheduled scope explicitly authorizes these
    additive policy/configuration regressions.
-10. [decomposed; pending approver execution] Complete the three accountable
+10. [done; all three children closed satisfying] Complete the three accountable
     child gates:
     - W72003: accept/deploy the exact reviewed generation-7 candidate and prove
       a fresh healthy `baton.merge` runtime;
@@ -54,7 +54,7 @@
     - W72013, blocked on W72003: use separate immutable candidates to prove an
       otherwise authorized read-only target and an owner-writable out-of-scope
       test both refuse before any content or mode mutation.
-11. [pending final independent assessment] After W72003, W72011, and W72013
-    close satisfying, review their retained configuration, proposal, preflight,
-    runtime, byte, mode, and refusal/completion evidence. Close W71459 only if
-    the whole acceptance boundary is demonstrated.
+11. [done; independently signed off 2026-09-03] After W72003, W72011, and
+    W72013 close satisfying, review their retained configuration, proposal,
+    preflight, runtime, byte, mode, and refusal/completion evidence. The full
+    boundary is demonstrated in `review-2026-09-03T02-22-15Z.md`.

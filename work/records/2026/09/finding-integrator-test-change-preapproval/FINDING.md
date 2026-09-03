@@ -339,3 +339,40 @@ The negative cases remain separate so a scope refusal cannot masquerade as a
 mode refusal or vice versa. No negative candidate is eligible for successful
 import. W71459 cannot close while any child is open, and generation acceptance
 alone is not final live proof.
+
+## Final independent live acceptance — 2026-09-03
+
+All three child gates are closed satisfying and the combined evidence now
+demonstrates the whole acceptance boundary.
+
+The installed configuration is generation 7 and is byte-identical to the
+reviewed candidate at SHA-256
+`e7fac15abbcb33a09df3a5c650b2e7a9127515ecbba5ce9ff222953b1b4b6b55`.
+Canonical W72003 event 72426 records approver closure under generation-7
+authorization after successful deployment and a fresh healthy, non-quarantined
+`baton.merge` runtime. Its plan and progress were not updated by the approver
+before closure; the append-only terminal review in that child reconstructs the
+canonical evidence and explicitly supersedes only the stale plan status.
+
+W72011's independently reviewed one-file candidate added one expressly
+scheduled test function and changed no existing expectation. Generation-7
+`baton.merge` assignment episode 73134 completed the whole-set preflight,
+imported only the reviewed bytes without a prompt or privileged replacement,
+and preserved checkout mode `0600` rather than propagating candidate custody
+mode `0444`. The final checkout hash remains the candidate digest
+`0cd0aa957ecd7c454edb9dea0218ebb364fee70bb8bc02801900f7b4adca3afe`.
+
+W72013 used two separately reviewed one-path candidates and two distinct
+managed assignments. Episode 72941 returned
+`REFUSAL[owner-write-preflight]` for the scheduled but read-only `0444` target;
+episode 72970 returned `REFUSAL[missing-scheduled-test-scope]` for the otherwise
+admissible owner-writable `0664` target. Current hashes and modes still match
+the recorded before/after states, and neither candidate entered the checkout.
+No negative attempt prompted, repaired, broadened scope, or mutated content or
+mode.
+
+The focused W71459/W65212 policy and configuration slice independently passes
+11 tests, the role/configuration/deployment slice passes 82 tests, and
+`git diff --check` passes. No protocol, application, dispatcher,
+execution-policy generator, or infrastructure change was needed. W71459 is
+satisfying and may close.
