@@ -56,3 +56,66 @@ fact requires a new reviewed fixture, never silent substitution.
   refusal and retained runtime/log evidence.
 
 No proposal from this negative Work is authorized for successful import.
+
+## Candidate preparation — 2026-09-03
+
+**Observed:** W72003 closed satisfying under accepted generation 7. Immediate
+revalidation found both targets byte-identical to the recorded base and
+planning-time hashes, with the recorded regular-file type, `sl:sl` ownership,
+and modes (`0444` for Case A; `0664` for Case B).
+
+**Confirmed:** the two proposals are separate one-path candidates. Case A's
+only delta is an additive assertion that durable-text operand descriptors name
+real supplied operands. Case B's only delta is an additive assertion over the
+retained generation-7 integrator role text; that path remains intentionally
+outside this Work's scheduled test scope. Exact locators and digests are in
+`evidence/preparation.md`. Independent review and the two managed refusal
+attempts remain pending.
+
+## Live negative-gate result — 2026-09-03
+
+**Confirmed:** two separate generation-7 `baton.merge` assignment episodes
+demonstrated the intended fail-closed causes without mutation.
+
+- Case A episode 72941 accepted the scheduled test authority and independently
+  reviewed bytes, passed base/type/ownership checks, and returned
+  `REFUSAL[owner-write-preflight]` to `baton.ops` because the canonical target
+  remained mode `0444`.
+- Case B episode 72970 accepted the review binding but correctly held that it
+  cannot cure absent Work scope. With base/type/ownership/owner-write checks
+  otherwise passing on canonical mode `0664`, it returned
+  `REFUSAL[missing-scheduled-test-scope]` to `baton.ops` before mutation.
+
+Both attempts used the fresh generation-7 integrator runtime, were delivered
+under distinct assignment action keys, and explicitly recorded no prompt,
+repair, privileged replacement, partial import, or cross-case inspection. A
+final independent hash/mode/status check proved both canonical targets and both
+frozen proposal digests unchanged. The retained details are
+`evidence/case-a-refusal.md`, `evidence/case-b-refusal.md`, and
+`evidence/final-assessment.md`.
+
+## Independent proposal reviews — 2026-09-03
+
+**Confirmed:** both one-path proposals are byte-accountable against
+`b06c7cbe4f6ef867ea09c735958dc477e6a9e01e`, their base copies match the
+canonical targets, and each additive assertion passes when loaded against the
+current repository sources. Neither changes, removes, or weakens an existing
+assertion or expected behaviour.
+
+Case A is otherwise admissible: W72013 expressly schedules its exact existing
+test path, and `review-2026-09-03T00-25-32Z.md` binds candidate digest
+`4712c238b86a8b1ebff6e617106672bd2e2955cde0c102b8597cb3fec18dda49`.
+Its canonical target remains regular, base-identical, owned by `sl:sl`, and
+mode `0444`; the managed attempt must refuse only the missing owner-write bit.
+
+Case B remains deliberately unauthorized:
+`review-2026-09-03T00-25-35Z.md` binds and evaluates candidate digest
+`1cd0e532bf3c1f35953a316682358f93029c84befb27d28780af958e34ea38ca`
+without supplying the Work scope that is intentionally absent. Its canonical
+target remains regular, base-identical, owned by `sl:sl`, and mode `0664`; the
+managed attempt must refuse missing scheduled test-change authority rather
+than rely on a filesystem or base failure.
+
+No successful import is authorized in either case. The two generation-7
+managed refusal attempts remain pending and must retain separate before/after
+evidence.

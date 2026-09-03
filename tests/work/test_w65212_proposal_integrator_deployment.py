@@ -107,3 +107,25 @@ def test_generation_five_candidate_is_complete_and_generator_exact():
 		             if '"--participant", "baton.merge"' in line]
 	assert installed == generated
 	assert all("git" not in line.lower() for line in installed)
+
+
+def test_generation_seven_candidate_authorizes_scheduled_test_imports():
+	"""The deployed role admits reviewed test work only through exact scope."""
+	base = os.path.join(
+		REPO, "work", "records", "2026", "09",
+		"finding-integrator-test-change-preapproval", "evidence",
+		"generation-7")
+	with open(os.path.join(base, "baton.json"), encoding="utf-8") as handle:
+		candidate = json.load(handle)
+	assert candidate["generation"] == 7
+	instructions = candidate["teams"]["baton"]["roles"]["integ"][
+		"instructions"]
+	for boundary in (
+			"accepted Work description or plan",
+			"explicitly schedules adding, editing, or removing tests",
+			"already owner-writable before any mutation",
+			"Import reviewed content without preserving custody modes",
+			"verify final bytes and modes",
+			"never request interactive approval"):
+		assert boundary in instructions, \
+			f"generation-7 integrator instructions omit {boundary!r}"

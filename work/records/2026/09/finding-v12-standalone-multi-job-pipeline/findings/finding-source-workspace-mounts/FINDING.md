@@ -63,3 +63,12 @@ This Work authorizes adding tests and editing existing tests under
 launch, disk capacity, containment, restart, Git-aware and non-Git fixtures,
 and bootstrap retirement. Any deletion or weakened expectation must be
 explicit and independently reviewed; unrelated test changes are excluded.
+
+## Execution ordering — 2026-09-02
+
+The scope above is approved as the first ordinary workload driven by the
+persistent v12 Job manager from W71875. It does not return to the supervised
+dogfood operator and does not create another per-iteration complete candidate
+archive. Work begins only after W71875 is independently reviewed and integrated
+so this leaf can exercise the durable submission, workspace, status, review,
+and correction line it is intended to enable.

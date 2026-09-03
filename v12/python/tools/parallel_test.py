@@ -187,7 +187,22 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     # import them FAILS rather than passing quietly.
                     "tests.tools.test_user_credentials",
                     "tests.tools.test_parallel_runner",
-                    "tests.tools.test_worker_image_build")
+                    "tests.tools.test_worker_image_build",
+                    # W71875's persistent Job manager. APPENDED rather than
+                    # inserted, so no existing member moves. Every case owns a
+                    # disposable temporary directory holding its own Job store
+                    # and its own Worker Manager control store, drives a strict
+                    # in-process fake session, and starts no container, builds
+                    # no image and touches no shared artefact -- which is what
+                    # this phase is for.
+                    "tests.job_manager.test_delegation",
+                    "tests.job_manager.test_documents",
+                    "tests.job_manager.test_restart",
+                    "tests.job_manager.test_status",
+                    "tests.job_manager.test_store",
+                    "tests.job_manager.test_submission",
+                    "tests.job_manager.test_sweep",
+                    "tests.job_manager.test_tool")
 
 # ONE AT A TIME, IN THIS ORDER, AND NEVER BESIDE THE PARALLEL PHASE.
 #

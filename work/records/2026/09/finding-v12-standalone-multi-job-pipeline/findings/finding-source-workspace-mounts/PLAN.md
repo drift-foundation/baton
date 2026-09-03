@@ -1,5 +1,8 @@
 # Plan
 
+0. [blocked on W71875] Submit this accepted scope as the first ordinary Job
+   through the integrated persistent v12 manager; do not use dogfood or a new
+   complete candidate archive.
 1. [pending revalidation] Re-read W62098's latest source/workspace rulings and
    map current workspace allocation, OCI mounts, dogfood staging, and profile
    inputs. Preserve W62535's preflight-before-staging ordering invariant.
