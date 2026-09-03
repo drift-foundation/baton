@@ -100,7 +100,7 @@ class Reading(ToolCase):
         answer = self.run_tool("--store", self.job_path,
                                "--incarnation", "jobs-1", "status")
         self.assertFalse(answer["canonical"])
-        self.assertEqual(answer["schema"], "baton.v12.job-status/1")
+        self.assertEqual(answer["schema"], "baton.v12.job-status/2")
         self.assertEqual([one["job_id"] for one in answer["jobs"]],
                          ["job-a", "job-b"])
 

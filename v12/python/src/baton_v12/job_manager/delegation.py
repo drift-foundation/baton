@@ -55,15 +55,17 @@ import json
 
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
+from ..eventing import EventQueue, pump
 from ..worker_manager import (attempt_activity_of, attempt_runtime_of,
                               boundaries, claimed_offers_for,
                               frozen_output_of, issue_offer,
                               recover_on_restart, submit_claim)
+from ..worker_manager.events import publish_offer_states
 
 __all__ = ["CANONICAL_OPERATIONS", "INTENT_OPERANDS", "OBSERVATION_MEMBERS",
            "OPERATIONS", "ManagerOperations", "Unobserved",
            "canonical_operation", "check_binding", "observation_of",
-           "stage_intent"]
+           "stage_intent", "unobserved"]
 
 # act -> the identity the MANAGER journals that act under, keyed by offer id.
 CANONICAL_OPERATIONS = {"admit": "offer.issue:{offer_id}",
@@ -86,7 +88,7 @@ INTENT_OPERANDS = ("offer_id", "work_id", "runtime_attempt_id",
 # object here, and a fake in a test may too -- so it is written down rather
 # than discovered from whatever the caller happened to pass.
 OPERATIONS = ("canonical", "canonical_operation", "receipt_of", "recover",
-              "admit", "claim", "observe")
+              "attach", "drain", "admit", "claim", "observe")
 
 # What one stage's canonical observation carries. Every member is another
 # package's public read; none of them is this leaf's opinion.
@@ -100,6 +102,17 @@ OPERATIONS = ("canonical", "canonical_operation", "receipt_of", "recover",
 # the other store's claim as this Job's. The reader answers WHICH offer holds
 # it and this leaf decides whether that offer is the one it proved.
 OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output")
+
+
+def unobserved():
+    """The observation of a stage nothing canonical is currently answering for.
+
+    A FRESH DOCUMENT EACH TIME. It is handed to a projection that keeps it
+    beside a stage, and one shared dict would make two stages' observations the
+    same object -- which is fine until the day something writes to one.
+    """
+    return {"claimed_by": None, "runtime": None, "activity": None,
+            "output": None}
 
 
 def canonical_operation(act, offer_id):
@@ -236,8 +249,7 @@ def _bound(observed, stage):
                                required=OBSERVATION_MEMBERS)
     holder = held["claimed_by"]
     if holder is None:
-        return {"claimed_by": None, "runtime": None, "activity": None,
-                "output": None}
+        return unobserved()
     boundaries.identity(holder, "the offer holding an attempt's claim")
     if holder != stage["offer_id"]:
         raise ContractRefusal(
@@ -282,7 +294,8 @@ class ManagerOperations:
     private attribute of either package.
     """
 
-    __slots__ = ("control", "port", "_mint_bearer", "_deliver_bearer")
+    __slots__ = ("control", "port", "events", "_mint_bearer",
+                 "_deliver_bearer")
 
     # THE CANONICAL STORE IS OPEN. A status document says so, because a
     # projection assembled without the manager can only report what was
@@ -290,9 +303,16 @@ class ManagerOperations:
     # running" and "nobody looked" are not the same answer.
     canonical = True
 
-    def __init__(self, control, port, *, mint_bearer, deliver_bearer):
+    def __init__(self, control, port, *, mint_bearer, deliver_bearer,
+                 events=None):
         self.control = control
         self.port = port
+        # THE TRANSPORT IS OURS BY DEFAULT AND SUPPLIABLE ON PURPOSE. One
+        # process holding both products needs exactly one queue between them;
+        # a deployment that later puts a socket or a broker in the middle
+        # supplies its own object here and changes nothing else, because what
+        # travels is a regenerable assertion rather than an authority.
+        self.events = EventQueue() if events is None else events
         # Typed before anything is spent. A capability that cannot be called
         # would otherwise fault in the middle of a delegated authority act.
         self._mint_bearer = boundaries.capability(mint_bearer,
@@ -319,8 +339,39 @@ class ManagerOperations:
         abandoned by `recover_on_restart`; an accepted one stays recoverable.
         Deciding that here would be a second opinion about the manager's
         durable state.
+
+        NOTHING IS PUBLISHED FROM IN HERE, and that is deliberate rather than
+        an omission. `recover_on_restart` commits as it settles, so a publish
+        placed inside it would emit under its own write; and an assertion that
+        exists only because somebody was on this code path is exactly the
+        one-shot notice the level-triggered design rejects. The caller attaches
+        after this returns, which republishes the same facts from the rows
+        recovery has just committed.
         """
         return recover_on_restart(self.control, now=now)
+
+    def attach(self, offer_ids):
+        """Ask the manager to republish the current state of these offers.
+
+        WHAT A CONSUMER DOES INSTEAD OF READING SOMEBODY ELSE'S TABLES. The
+        consumer names the offers it is holding episodes for; the manager
+        answers about its own rows, into the transport. Called after every
+        recovery and on every resume, so a lost delivery costs latency rather
+        than a wedged stage.
+        """
+        return publish_offer_states(self.control, self.events, offer_ids)
+
+    def drain(self, handlers, *, quiescent=()):
+        """Dispatch what is queued, at the top level, one handler at a time.
+
+        The manager's own connection is probed alongside whatever the caller
+        supplies, because both stores must be out of transaction before any
+        handler runs: a consumer writing its store inside this manager's write
+        would be one transaction with two owners.
+        """
+        return pump(self.events, handlers,
+                    quiescent=tuple(quiescent)
+                    + (lambda: self.control._connection.in_transaction,))
 
     def admit(self, stage, job):
         """Issue the offer that authorizes one stage.
@@ -407,6 +458,16 @@ class Unobserved:
     def recover(self, *, now):
         return self._refuse("run the manager's restart recovery")
 
+    def attach(self, offer_ids):
+        # NOT A REFUSAL, because attaching is how a reader says what it holds
+        # and a reader with no manager holds no conversation with one. It
+        # asserts nothing, which is the honest answer, and `canonical: false`
+        # is what tells the operator why.
+        return []
+
+    def drain(self, handlers, *, quiescent=()):
+        return 0
+
     def admit(self, stage, job):
         return self._refuse("issue an offer")
 
@@ -414,8 +475,7 @@ class Unobserved:
         return self._refuse("submit a claim")
 
     def observe(self, stage):
-        return {"claimed_by": None, "runtime": None, "activity": None,
-                "output": None}
+        return unobserved()
 
     @staticmethod
     def _refuse(what):

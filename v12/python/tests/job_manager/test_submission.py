@@ -13,8 +13,9 @@ import sqlite3
 import unittest
 
 from baton_v12.contracts import ContractRefusal
-from baton_v12.job_manager import (job_rows, jobs_of, stage_rows, stages_of,
-                                   submission_of, submission_rows, submit)
+from baton_v12.job_manager import (episodes_of, job_rows, jobs_of, live_of,
+                                   stage_rows, stages_of, submission_of,
+                                   submission_rows, submit)
 
 if __package__:
     from .fixtures import (NOW, WORK_A, WORK_B, JobManagerCase, job,
@@ -49,10 +50,30 @@ class Recording(JobManagerCase):
         self.assertEqual(first["work_id"], WORK_A)
         self.assertEqual(first["profile_name"], "reference")
         self.assertEqual(json.loads(first["depends_on"]), [])
-        # DERIVED, so a restarted process recomputes them rather than needing
-        # to have remembered them.
-        self.assertEqual(first["offer_id"], "offer:job-a/implementation")
-        self.assertEqual(first["attempt_id"], "attempt:job-a/implementation")
+        # AND THE STAGE ROW CARRIES NO OFFER OR ATTEMPT. W73629 moved those
+        # onto the episode, because a stage outlives the offer that was trying
+        # to admit it and a copy on the stage would be a second account of
+        # whichever episode is current.
+        self.assertNotIn("offer_id", dict(first))
+        self.assertNotIn("attempt_id", dict(first))
+
+    def test_the_submission_opens_the_stages_first_episode(self):
+        """One act: a stage with no episode is one nothing could admit.
+
+        The identities are still DERIVED, and episode 1's are still the
+        spelling a schema-1 store wrote, so a migrated store's canonical
+        operation ids are the ones its receipts already name.
+        """
+        store = self.store()
+        submit(store, submission())
+        held = episodes_of(store, "job-a/implementation")
+        self.assertEqual(len(held), 1)
+        self.assertEqual(held[0]["episode"], 1)
+        self.assertEqual(held[0]["offer_id"], "offer:job-a/implementation")
+        self.assertEqual(held[0]["attempt_id"],
+                         "attempt:job-a/implementation")
+        self.assertIsNone(held[0]["ended_state"])
+        self.assertEqual(live_of(store, "job-a/implementation")["episode"], 1)
 
     def test_the_review_stage_records_its_gate(self):
         store = self.store()
@@ -187,9 +208,9 @@ class Persistence(JobManagerCase):
         with self.assertRaises(sqlite3.IntegrityError):
             store._connection.execute(
                 "INSERT INTO stages (stage_id, job_id, ordinal, kind, "
-                "work_id, profile_name, profile_digest, depends_on, offer_id, "
-                "attempt_id) VALUES ('other', 'job-a', 9, 'implementation', "
-                "'w', 'p', 'd', '[]', 'o', 'a')")
+                "work_id, profile_name, profile_digest, depends_on) "
+                "VALUES ('other', 'job-a', 9, 'implementation', "
+                "'w', 'p', 'd', '[]')")
 
 
 if __name__ == "__main__":

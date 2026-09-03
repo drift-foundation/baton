@@ -197,6 +197,7 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     # this phase is for.
                     "tests.job_manager.test_delegation",
                     "tests.job_manager.test_documents",
+                    "tests.job_manager.test_recovery",
                     "tests.job_manager.test_restart",
                     "tests.job_manager.test_status",
                     "tests.job_manager.test_store",

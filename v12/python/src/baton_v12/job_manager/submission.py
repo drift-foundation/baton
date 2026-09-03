@@ -19,7 +19,7 @@ import json
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
-from . import documents, schema
+from . import documents, episodes, schema
 from .store import job_signature
 
 __all__ = ["job_of", "job_rows", "jobs_of", "stage_rows", "stages_of",
@@ -66,8 +66,8 @@ def submit(store, document):
         for ordinal, job in enumerate(owned["jobs"]):
             _job(connection, submission_id, ordinal, job)
             for position, stage in enumerate(job["stages"]):
-                stages.append(_stage(connection, job["job_id"], position,
-                                     stage))
+                stages.append(_stage(connection, store, job["job_id"],
+                                     position, stage, recorded_at))
         return documents.submission_recorded(
             submission_id=submission_id, signature=signature,
             jobs=[job["job_id"] for job in owned["jobs"]], stages=stages,
@@ -126,20 +126,28 @@ def _job(connection, submission_id, ordinal, job):
          job["terminal_policy"]))
 
 
-def _stage(connection, job_id, ordinal, stage):
+def _stage(connection, store, job_id, ordinal, stage, recorded_at):
+    """One submitted stage, and the first episode that will try to admit it.
+
+    THE STAGE AND ITS FIRST EPISODE ARE ONE ACT. W73629 moved the offer and
+    attempt identities onto the episode, because a stage can outlive the offer
+    that was trying to admit it -- but a stage with no episode at all would be
+    one nothing could ever admit, so the first one is opened here rather than
+    waiting for a sweep to notice it is missing.
+
+    The identities are still DERIVED, and episode 1's are still the plain
+    `offer:{stage_id}` and `attempt:{stage_id}` a schema-1 store wrote. What
+    changed is that they are now stored on a row that can be succeeded.
+    """
     stage_id = documents.stage_id(job_id, stage["kind"])
-    # THE OFFER AND THE ATTEMPT ARE DERIVED FROM THE STAGE, not invented per
-    # sweep. An identity a restarted process can recompute is what lets the
-    # next incarnation ask the manager's journal whether the act it is about
-    # to perform has already committed.
     connection.execute(
         "INSERT INTO stages (stage_id, job_id, ordinal, kind, work_id, "
-        "profile_name, profile_digest, depends_on, offer_id, attempt_id) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "profile_name, profile_digest, depends_on) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         (stage_id, job_id, ordinal, stage["kind"], stage["work_id"],
          stage["profile_name"], stage["profile_digest"],
-         json.dumps(stage["depends_on"], sort_keys=True, ensure_ascii=False),
-         f"offer:{stage_id}", f"attempt:{stage_id}"))
+         json.dumps(stage["depends_on"], sort_keys=True, ensure_ascii=False)))
+    episodes.open_first(connection, store, stage_id, recorded_at)
     return stage_id
 
 

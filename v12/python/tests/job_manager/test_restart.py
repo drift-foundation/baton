@@ -46,7 +46,7 @@ class RealComposition(JobManagerCase):
         super().setUp()
         self.jobs = self.store()
         submit(self.jobs, submission(jobs=[job("job-a")]))
-        self.stage = stage_rows(self.jobs)[0]
+        self.stage = self.attempting(self.jobs)
         self.control_store = self.control()
         self.acts = self.operations(control=self.control_store)
 
@@ -99,7 +99,7 @@ class RealComposition(JobManagerCase):
             self.control_store._connection.execute(
                 "SELECT count(*) FROM offers").fetchone()[0], 1)
         # AND NOT SKIPPED: the receipt is there, naming the same operation.
-        held = receipts_of(resumed, self.stage["stage_id"])["admit"]
+        held = receipts_of(resumed, self.stage["stage_id"], 1)["admit"]
         self.assertEqual(held["state"], "adopted")
         self.assertEqual(held["operation_id"],
                          canonical_operation("admit", self.stage["offer_id"]))
@@ -107,13 +107,13 @@ class RealComposition(JobManagerCase):
 
     def test_an_adopted_receipt_records_the_managers_own_committed_result(self):
         sweep(self.jobs, self.acts, now=NOW)
-        performed = receipts_of(self.jobs, self.stage["stage_id"])["admit"]
+        performed = receipts_of(self.jobs, self.stage["stage_id"], 1)["admit"]
         self.jobs._connection.execute("DELETE FROM receipts")
         self.jobs._connection.execute(
             "DELETE FROM operations WHERE kind = 'stage.receipt'")
         resumed = self.restart()
         sweep(resumed, self.acts, now=LATER)
-        adopted = receipts_of(resumed, self.stage["stage_id"])["admit"]
+        adopted = receipts_of(resumed, self.stage["stage_id"], 1)["admit"]
         # SAME FACT, TWO PROVENANCES. The receipt is taken from the manager's
         # journal either way, so a restart audit compares receipts rather than
         # how they were obtained -- and the bearer is in neither.
@@ -176,7 +176,7 @@ class RealComposition(JobManagerCase):
                          ("refused", "operation-collision"))
         self.assertIn("input_digest", refusal.message)
         # NOT RECORDED AS ADOPTED, and not recorded at all.
-        self.assertEqual(receipts_of(resumed, self.stage["stage_id"]), {})
+        self.assertEqual(receipts_of(resumed, self.stage["stage_id"], 1), {})
         self.assertEqual(receipt_rows(resumed), [])
 
     def test_a_committed_act_this_intent_does_own_is_still_adopted(self):
@@ -373,7 +373,7 @@ class TheReadCallWindow(JobManagerCase):
         super().setUp()
         self.jobs = self.store()
         submit(self.jobs, submission(jobs=[job("job-a")]))
-        self.stage = stage_rows(self.jobs)[0]
+        self.stage = self.attempting(self.jobs)
         self.job = job_of(self.jobs, "job-a")
         self.operation_id = canonical_operation("admit",
                                                 self.stage["offer_id"])
@@ -397,7 +397,7 @@ class TheReadCallWindow(JobManagerCase):
         # AND NONE OF IT REACHED THIS STORE: no receipt for the act, and no
         # outcome reported for it either -- the sweep raised instead of
         # answering.
-        self.assertEqual(receipts_of(self.jobs, self.stage["stage_id"]), {})
+        self.assertEqual(receipts_of(self.jobs, self.stage["stage_id"], 1), {})
         self.assertEqual(receipt_rows(self.jobs), [])
 
     def test_a_foreign_offer_winning_a_refused_call_is_not_performed(self):
@@ -438,7 +438,7 @@ class TheReadCallWindow(JobManagerCase):
         report = sweep(self.jobs, acts, now=NOW)
         self.assertEqual([(one["act"], one["outcome"])
                           for one in report["acts"]], [("admit", "performed")])
-        held = receipts_of(self.jobs, self.stage["stage_id"])["admit"]
+        held = receipts_of(self.jobs, self.stage["stage_id"], 1)["admit"]
         self.assertEqual(held["state"], "performed")
         self.assertEqual(held["operation_id"], self.operation_id)
 
@@ -476,7 +476,7 @@ class TwoOffersOneAttempt(JobManagerCase):
         super().setUp()
         self.jobs = self.store()
         submit(self.jobs, submission(jobs=[job("job-a")]))
-        self.stage = stage_rows(self.jobs)[0]
+        self.stage = self.attempting(self.jobs)
         self.control_store = self.control()
         self.acts = self.operations(control=self.control_store)
         # This store's own offer, issued by an ordinary sweep. The stage is
@@ -560,7 +560,7 @@ class TwoOffersOneAttempt(JobManagerCase):
         self.assertEqual([row["act"] for row in receipt_rows(self.jobs)],
                          ["admit"])
         self.assertEqual(
-            sorted(receipts_of(self.jobs, self.stage["stage_id"])), ["admit"])
+            sorted(receipts_of(self.jobs, self.stage["stage_id"], 1)), ["admit"])
         self.assertNotIn(
             FOREIGN_OFFER,
             str([dict(row) for row in receipt_rows(self.jobs)]))

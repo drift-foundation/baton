@@ -377,6 +377,15 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # contracts
         "value", "payload", "document", "name", "names", "what", "required",
         "validator",
+        # W73629: what this manager PUBLISHES about the offers it owns.
+        # `offer` is one canonical offers-table row the caller already holds,
+        # `queue` is the transport the assertion is appended to, and
+        # `offer_ids` is the set of identities a consumer named as relevant.
+        # All three are supplied by the caller and none is traversal state:
+        # the publisher keeps no cursor, no position and no memory between
+        # calls, which is exactly what makes the same call answer the same
+        # thing every time it is repeated.
+        "offer", "queue", "offer_ids",
         # the control store
         "path", "incarnation", "clock", "operation_id", "kind", "signature",
         "action", "operands", "refusal", "sealed",

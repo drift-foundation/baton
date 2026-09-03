@@ -1116,6 +1116,24 @@ STATED_OWNERS = {
         "owned by `oci.py:_stream`: storable text that MAY be empty, because "
         "nothing on this stream is what a quiet engine writes",
     ("injected", "oci.py:EnginePort.__call__", "run.stderr"): "the same",
+    # -- W73629: the offer-state publisher reads a row somebody owned -------
+    #
+    # `events.py:offer_state` is handed one row that `offers._offers` -- that
+    # module's ONE declared crossing out of the table -- has already proved
+    # against `OFFER_COLUMNS`. Owning it again here is the blanket
+    # revalidation of a trusted internal value 4bz rules against, and it would
+    # put three boundary entries in this inventory asserting exactly what an
+    # existing entry asserts. An earlier round of this Work did own them, and
+    # the review that caught the resulting probe deficit is what produced this
+    # declaration instead.
+    ("caller", "events.py:offer_state", "offer"):
+        "owned by `offers.py:_offers`, this module's one crossing out of the "
+        "offers table; a published assertion is built from a row that owner "
+        "has already proved",
+    ("caller", "events.py:offer_state", "offer.offer_id"): "the same",
+    ("caller", "events.py:offer_state", "offer.runtime_attempt_id"):
+        "the same",
+    ("caller", "events.py:offer_state", "offer.state"): "the same",
     # -- outbound: 4bz leaves the values to the next receiver ----------------
     ("caller", "documents.py:offer_bearer", "issued"):
         "an outbound constructor receives this build's own values; the "
@@ -6344,6 +6362,7 @@ class EveryProbeProvesItArrived(BoundaryCase):
 
     def all_probes(self):
         return {**self.probes(), **self.column_probes(),
+                **self.event_probes(),
                 **self.custody_probes(),
                 **self.attempt_probes(), **self.lane_probes(),
                 **self.session_probes(), **self.output_probes(),
@@ -6351,6 +6370,58 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 **self.intake_probes(), **self.sealing_probes(),
                 **self.credential_probes(), **self.launch_probes(),
                 **self.worker_entry_probes()}
+
+    def event_probes(self):
+        """W73629: the three owned entries of the offer-state publisher.
+
+        `events.py` publishes what this manager already holds, so most of what
+        it touches is a row `offers._offers` has owned on the way out of the
+        table and is deliberately NOT owned again. What remains is the three
+        values a CALLER supplies: the state a consumer hands back to be ranked,
+        the transport it wants the assertions appended to, and the identities
+        it named as relevant.
+
+        The state probe drives `offer_state_revision` directly rather than
+        through `offer_state`, because that is the public entry a consumer
+        actually calls with a value it received -- reaching it through a row
+        this manager read would be probing a value that arrives already owned.
+        """
+        from baton_v12.eventing import EventQueue
+        from baton_v12.worker_manager import events
+
+        store = self.store
+
+        def ranking():
+            events.offer_state_revision(SURROGATE)
+
+        def publishing_to(queue, offer_ids):
+            def run():
+                events.publish_offer_states(store, queue, offer_ids)
+            return run
+
+        class _NoPublish:
+            """A transport whose `publish` is not callable at all."""
+
+            publish = None
+
+        entries = receiving_entries()
+        found = {}
+        for site, subject, label, probe in (
+                ("events.py:offer_state_revision", "state",
+                 "a canonical offer state", ranking),
+                ("events.py:publish_offer_states", "offer_ids", "an offer id",
+                 publishing_to(EventQueue(), [SURROGATE])),
+                ("events.py:publish_offer_states", "queue",
+                 "the transport's publish",
+                 publishing_to(_NoPublish(), ["offer:probe"]))):
+            entry = ("caller", site, subject)
+            # Keyed off the inventory rather than listed blind: an entry this
+            # build no longer owns must drop out here rather than become a
+            # probe of nothing, which is what `probed, never owned` catches.
+            if entry not in entries:
+                continue
+            found[(entry, label)] = (label, probe)
+        return found
 
     def expected(self):
         """(entry, label) for every entry the LAYER or a DELEGATE owns.
@@ -6855,6 +6926,15 @@ WITNESSES = {
         "test_a_worker_entry_bound_is_a_positive_whole_number",
     ("caller", "worker_entry.py:_Reader.__init__", "channel"):
         "test_a_reader_only_ever_receives_a_channel_the_port_proved",
+    # -- W73629: the published offer row ------------------------------------
+    ("caller", "events.py:offer_state", "offer"):
+        "test_a_published_offer_row_is_owned_where_it_leaves_the_table",
+    ("caller", "events.py:offer_state", "offer.offer_id"):
+        "test_a_published_offer_row_is_owned_where_it_leaves_the_table",
+    ("caller", "events.py:offer_state", "offer.runtime_attempt_id"):
+        "test_a_published_offer_row_is_owned_where_it_leaves_the_table",
+    ("caller", "events.py:offer_state", "offer.state"):
+        "test_a_published_offer_row_is_owned_where_it_leaves_the_table",
 }
 
 
@@ -6873,6 +6953,47 @@ class EveryStatedOwnerHasAWitness(BoundaryCase):
 
 class StatedRules(BoundaryCase):
     """The witnesses themselves. Each exercises one stated rule."""
+
+    # -- W73629's published offer row ----------------------------------------
+
+    def test_a_published_offer_row_is_owned_where_it_leaves_the_table(self):
+        """The publisher never sees an offer value nobody proved.
+
+        A stated owner is a claim until something exercises it, and the claim
+        here is that `offers._offers` has already owned every column by the
+        time `offer_state` reads one. So this spoils a persisted column behind
+        this build's back and requires the refusal to name THAT owner's
+        document -- if the publisher were reading the table by some other path,
+        the bad value would reach it and escape as something else.
+
+        WHAT IT WITNESSES IS THE ROW, which is why one method stands for all
+        four entries. The claim is not "each member has its own check here"; it
+        is that the row arrives through one owner that has already proved all
+        of them. A spoiled column proving the publisher refuses at `a persisted
+        offer` is exactly that fact, and it is the same fact for the member
+        entries as for the row entry.
+        """
+        from baton_v12.eventing import EventQueue
+        from baton_v12.worker_manager import events
+
+        # The three members `offer_state` reads, spoiled one at a time with
+        # the same canonical value every other column probe in this file uses.
+        # `offer_id` keeps its own spelling, because a publisher asked about an
+        # id no row carries would answer silence rather than reaching the row
+        # at all -- which would be a vacuous probe.
+        for column in ("state", "runtime_attempt_id"):
+            with self.subTest(column=column):
+                self.setUp()
+                try:
+                    offer_id = self.issued()
+                    self.corrupt(f"UPDATE offers SET {column} = ?",
+                                 self.SPOILED[
+                                     schema.OFFER_COLUMNS[column].kind])
+                    self.refusing("a persisted offer",
+                                  lambda: events.publish_offer_states(
+                                      self.store, EventQueue(), [offer_id]))
+                finally:
+                    self.doCleanups()
 
     # -- W6627's stated owners, exercised through the public operation -------
 

@@ -26,10 +26,10 @@ nothing produced.
 import json
 
 from ..worker_manager import boundaries
-from . import delegation, documents, schema, submission
+from . import delegation, documents, episodes, schema, submission
 
 __all__ = ["ACT_OUTCOMES", "gates_of", "owed_acts", "receipt_rows",
-           "receipts_of", "stage_states", "status"]
+           "receipts_of", "replaceable", "stage_states", "status"]
 
 # What one sweep can answer about one owed act.
 ACT_OUTCOMES = ("performed", "adopted", "deferred", "refused")
@@ -52,26 +52,59 @@ def receipt_rows(store):
     return [boundaries.row(record, "a persisted receipt",
                            schema.RECEIPT_COLUMNS)
             for record in store._connection.execute(
-                "SELECT * FROM receipts ORDER BY stage_id, act").fetchall()]
+                "SELECT * FROM receipts ORDER BY stage_id, episode, act"
+            ).fetchall()]
 
 
-def receipts_of(store, stage_id):
-    """Every receipt for one stage, keyed by the act it records."""
+def receipts_of(store, stage_id, episode):
+    """Every receipt for ONE EPISODE of one stage, keyed by the act.
+
+    W73629 put the episode in the key. A replacement legitimately performs its
+    own `admit`, and a reader that gathered a stage's receipts across every
+    episode would see the abandoned attempt's `admit` and conclude the fresh
+    episode had already been offered -- which is the wedge, one layer up.
+    """
     boundaries.identity(stage_id, "a stage id")
     return {record["act"]: record for record in
             [boundaries.row(entry, "a persisted receipt",
                             schema.RECEIPT_COLUMNS)
              for entry in store._connection.execute(
-                 "SELECT * FROM receipts WHERE stage_id = ? ORDER BY act",
-                 (stage_id,)).fetchall()]}
+                 "SELECT * FROM receipts WHERE stage_id = ? AND episode = ? "
+                 "ORDER BY act", (stage_id, episode)).fetchall()]}
 
 
-def _observed_state(stage, receipts, observed):
+def replaceable(entry):
+    """Whether this stage owes a FRESH episode because its last one ended.
+
+    Only an ending in the closed replaceable set answers yes. An episode that
+    ended any other way is a stage that stopped, and it is projected as such
+    rather than re-offered on this leaf's own authority.
+    """
+    if entry["episode"] is not None or not entry["history"]:
+        return False
+    return (entry["history"][-1]["ended_state"]
+            in documents.REPLACEABLE_ENDINGS)
+
+
+def _observed_state(entry):
     """One stage's state from evidence, before dependencies are considered.
 
-    Returns `None` when nothing has happened to this stage yet, which is the
-    only case where the gates decide between `blocked` and `queued`.
+    Returns `None` when nothing has happened to this stage's CURRENT episode
+    yet, which is the only case where the gates decide between `blocked` and
+    `queued`.
+
+    NO LIVE EPISODE IS TWO DIFFERENT ANSWERS, and W73629 exists because they
+    were one. A stage whose episode ended in a replaceable way owes a fresh
+    one and is back where an unstarted stage is -- `None` here, so the gates
+    decide. A stage whose episode ended any other way is over: an operator has
+    to see that, so it is `exceptional` rather than a stage that will quietly
+    be offered again.
     """
+    stage = entry["stage"]
+    receipts = entry["receipts"]
+    observed = entry["observed"]
+    if entry["episode"] is None:
+        return None if replaceable(entry) else "exceptional"
     # A DURABLY REFUSED ACT IS THE FIRST ANSWER. Whatever else is true of the
     # stage, an act this control plane delegated and the manager refused for
     # good is a condition an operator has to see rather than a state to keep
@@ -127,12 +160,26 @@ def stage_states(store, operations, stages=None):
     rows = stages if stages is not None else submission.stage_rows(store)
     held = {}
     for stage in rows:
-        observed = delegation.observation_of(
-            operations, stage, submission.job_of(store, stage["job_id"]))
-        receipts = receipts_of(store, stage["stage_id"])
-        held[stage["stage_id"]] = {
-            "stage": stage, "observed": observed, "receipts": receipts,
-            "state": _observed_state(stage, receipts, observed)}
+        stage_id = stage["stage_id"]
+        history = episodes.episodes_of(store, stage_id)
+        live = episodes.live_of(store, stage_id)
+        # NOTHING CANONICAL IS READ FOR A STAGE THAT HAS NO LIVE EPISODE, and
+        # that is not an optimization. Its identities belong to an attempt that
+        # is over; asking the manager about them would answer with the ended
+        # offer's own facts and project a finished attempt as this stage's
+        # current one.
+        held[stage_id] = {
+            "stage": stage, "episode": live,
+            "attempt": (episodes.attempting(stage, live)
+                        if live is not None else None),
+            "history": history,
+            "observed": (delegation.observation_of(
+                operations, episodes.attempting(stage, live),
+                submission.job_of(store, stage["job_id"]))
+                if live is not None else delegation.unobserved()),
+            "receipts": (receipts_of(store, stage_id, live["episode"])
+                         if live is not None else {})}
+        held[stage_id]["state"] = _observed_state(held[stage_id])
     for entry in held.values():
         if entry["state"] is not None:
             continue
@@ -169,21 +216,26 @@ def owed_acts(store, operations, held=None):
     owed = []
     for stage_id in sorted(held):
         entry = held[stage_id]
-        stage = entry["stage"]
         act = _owed(entry)
         if act is None:
             continue
+        # An act is owed BY AN EPISODE, so a stage with none owes nothing here
+        # -- what it owes is a replacement, which the sweep opens before it
+        # derives anything.
+        attempt = entry["attempt"]
         owed.append(documents.act(
-            stage_id=stage_id, job_id=stage["job_id"], kind=stage["kind"],
-            act=act,
-            operation_id=operations.canonical_operation(act,
-                                                        stage["offer_id"]),
-            offer_id=stage["offer_id"], attempt_id=stage["attempt_id"],
-            work_id=stage["work_id"]))
+            stage_id=stage_id, job_id=attempt["job_id"],
+            kind=attempt["kind"], episode=attempt["episode"], act=act,
+            operation_id=operations.canonical_operation(
+                act, attempt["offer_id"]),
+            offer_id=attempt["offer_id"], attempt_id=attempt["attempt_id"],
+            work_id=attempt["work_id"]))
     return owed
 
 
 def _owed(entry):
+    if entry["episode"] is None:
+        return None
     if entry["state"] == "queued":
         return "admit"
     # `offered` is the only state a claim is owed from. A claimed, running or
@@ -201,6 +253,15 @@ def status(store, operations, *, observed_at):
     ONE DOCUMENT FOR EVERY SUBMISSION IN THE STORE, because an operator asking
     "what is running" is not asking about one submission and would otherwise
     have to know what to ask for.
+
+    IT READS AND RECORDS NOTHING, which bounds what it can say. Review [P2,
+    2026-09-03]: applying a canonical ending is a durable act, so this pass
+    does not attach to the publisher and does not apply one. What it reports is
+    what this store has RECORDED, plus the canonical observation of each
+    stage's current episode -- so an offer that ended since the last sweep is
+    over canonically and still `offered` here until a serving reconciler
+    applies it. One tick, in a serving deployment; in a store nobody is
+    advancing, exactly as stale as that store is.
     """
     held = stage_states(store, operations)
     jobs = []
@@ -227,6 +288,7 @@ def status(store, operations, *, observed_at):
 
 def _stage_status(entry, held):
     stage = entry["stage"]
+    live = entry["episode"]
     observed = entry["observed"]
     frozen = observed.get("output")
     runtime = observed.get("runtime")
@@ -234,10 +296,23 @@ def _stage_status(entry, held):
         stage_id=stage["stage_id"], job_id=stage["job_id"],
         kind=stage["kind"], state=entry["state"], work_id=stage["work_id"],
         profile_name=stage["profile_name"],
-        profile_digest=stage["profile_digest"], offer_id=stage["offer_id"],
-        attempt_id=stage["attempt_id"], gates=gates_of(stage, held),
+        profile_digest=stage["profile_digest"],
+        # THE CURRENT ATTEMPT, AND NULL WHEN THERE IS NONE. A stage between an
+        # ending and its replacement genuinely has no offer, and naming the
+        # ended one here would report a finished attempt as the live one --
+        # which is the projection half of the defect this Work corrects.
+        episode=live["episode"] if live is not None else None,
+        offer_id=live["offer_id"] if live is not None else None,
+        attempt_id=live["attempt_id"] if live is not None else None,
+        # AND THE WHOLE HISTORY BESIDE IT. The abandoned episode keeps its
+        # identities and its ending here, so a recovered stage shows what
+        # happened to it rather than only where it got to.
+        episodes=[documents.stage_episode(**record)
+                  for record in entry["history"]],
+        gates=gates_of(stage, held),
         receipts=[documents.receipt(
-            stage_id=record["stage_id"], act=record["act"],
+            stage_id=record["stage_id"], episode=record["episode"],
+            act=record["act"],
             operation_id=record["operation_id"], state=record["state"],
             recorded_at=record["recorded_at"],
             detail=json.loads(record["detail"]))

@@ -30,7 +30,8 @@ import json
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
-from . import delegation, documents, projection, submission
+from ..worker_manager import events
+from . import delegation, documents, episodes, projection, submission
 from .store import job_signature
 
 __all__ = ["TICK_SECONDS", "reconcile", "serve", "sweep"]
@@ -40,39 +41,90 @@ __all__ = ["TICK_SECONDS", "reconcile", "serve", "sweep"]
 # deployment that wants another cadence supplies one.
 TICK_SECONDS = 5
 
+# WHERE THE TWO ENDING VOCABULARIES MEET, so the relationship between them is a
+# fact this build cannot start without rather than one a test happens to check.
+# `documents.py` asserts the half it can see -- every replaceable ending is an
+# ending -- and this is the half that needs both packages in scope: every
+# ending this store acts on is a terminal offer state, and the one terminal
+# offer state it must NOT act on is the successful one. Review [P1,
+# 2026-09-03] is what a build that got this wrong did to a running stage.
+assert frozenset(documents.EPISODE_ENDINGS) < frozenset(
+    events.TERMINAL_OFFER_STATES)
+assert (frozenset(events.TERMINAL_OFFER_STATES)
+        - frozenset(documents.EPISODE_ENDINGS)) == {"claimed"}
+
 _RECEIPT_KIND = "stage.receipt"
 
 
-def receipt_operation_id(stage_id, act):
-    return f"{_RECEIPT_KIND}:{stage_id}:{act}"
+def receipt_operation_id(stage_id, episode, act):
+    """One receipt's durable identity, WITH THE EPISODE IN IT.
+
+    W73629: without the episode a replacement's `admit` would replay the
+    abandoned episode's receipt instead of recording its own, so the fresh
+    offer would be issued and then reported as an act that had already
+    happened -- which is the wedge again, one layer down.
+    """
+    return f"{_RECEIPT_KIND}:{stage_id}:{episode}:{act}"
 
 
 def reconcile(store, operations, *, now):
-    """Resume: run the manager's own restart recovery, then sweep once.
+    """Resume: recover, RESYNCHRONIZE, then sweep once.
 
     The recovery is the MANAGER's, not a second one written here. An offer a
     previous incarnation issued and never delivered a bearer for is abandoned
     by `recover_on_restart`; an accepted one stays recoverable. Re-deciding
     that would be a second opinion about somebody else's durable state, and
     the two opinions would differ exactly when it mattered.
+
+    W73629 ADDED THE MIDDLE STEP, and it is the correction at this level.
+    Recovery used to end a stage's offer and tell nobody, so this store went
+    on projecting `offered` and owing a `claim` against an offer that had
+    ended -- one restart wedged the stage permanently. Now the seam is asked to
+    REPUBLISH the current canonical state of every offer this store's live
+    episodes name, and the sweep applies what comes back before it derives
+    anything.
+
+    THE ASK IS LEVEL-TRIGGERED, so nothing depends on having been listening at
+    the right moment. An assertion missed while this process was down, or
+    dropped with the transient transport, costs one tick of latency and
+    nothing else: resynchronizing is exactly what attaching does, and it
+    happens on every resume rather than once at a moment nobody can name.
     """
     recovered = operations.recover(now=now)
-    return sweep(store, operations, now=now, recovered=recovered)
+    return sweep(store, operations, now=now, recovered=recovered,
+                 attach=True)
 
 
-def sweep(store, operations, *, now, recovered=None):
-    """One tick: adopt what already committed, then derive and delegate.
+def sweep(store, operations, *, now, recovered=None, attach=False):
+    """One tick: observe, replace, adopt, then derive and delegate.
 
-    THE ADOPTION PASS COMES FIRST AND COVERS EVERY ACT, not only the ones a
-    stage still owes. A crash between a delegated call and its receipt leaves
-    the manager holding a committed operation and this store holding no record
-    of it -- and for the claim in particular the canonical state has already
-    moved on, so the act is no longer owed and a pass that only looked at owed
-    acts would leave the receipt missing forever. Reconciling by the identity
-    rather than by the eligibility is what makes "records the returned
-    identity/receipt" survive a restart.
+    THE ADOPTION PASS COMES BEFORE DERIVATION AND COVERS EVERY ACT, not only
+    the ones a stage still owes. A crash between a delegated call and its
+    receipt leaves the manager holding a committed operation and this store
+    holding no record of it -- and for the claim in particular the canonical
+    state has already moved on, so the act is no longer owed and a pass that
+    only looked at owed acts would leave the receipt missing forever.
+    Reconciling by the identity rather than by the eligibility is what makes
+    "records the returned identity/receipt" survive a restart.
+
+    W73629 PUT TWO PASSES IN FRONT OF IT, in this order and for this reason:
+
+    1. `_observe` drains whatever canonical state assertions are waiting, so
+       an episode whose offer has ended is RECORDED as ended before anything
+       reads what the stage owes. Draining afterwards would derive from state
+       this same tick already knew was stale.
+    2. `_replace` opens a fresh episode for every stage whose last one ended
+       in a way that took nothing back. Doing it before adoption is what makes
+       the replacement's `admit` an act THIS tick performs rather than one the
+       operator waits another tick for.
+
+    Both are no-ops on an ordinary tick, which is what a level-triggered
+    design buys: the recovery path and the running path are one piece of code
+    rather than two that have to agree.
     """
     boundaries.instant(now, "the sweep's instant")
+    observed = _observe(store, operations, attach=attach)
+    replaced = _replace(store, operations)
     held = projection.stage_states(store, operations)
     acts = _adopt(store, operations, held)
     if acts:
@@ -80,11 +132,156 @@ def sweep(store, operations, *, now, recovered=None):
         # decided from the state AFTER adoption rather than before it.
         held = projection.stage_states(store, operations)
     for owed in projection.owed_acts(store, operations, held):
-        stage = held[owed["stage_id"]]["stage"]
-        acts.append(_delegate(store, operations, owed, stage,
-                              submission.job_of(store, stage["job_id"])))
+        entry = held[owed["stage_id"]]
+        acts.append(_delegate(store, operations, owed, entry["attempt"],
+                              submission.job_of(store,
+                                                entry["stage"]["job_id"])))
     return documents.sweep_report(observed_at=now, recovered=recovered,
+                                  observed=observed, replaced=replaced,
                                   acts=acts)
+
+
+def _observe(store, operations, *, attach):
+    """Apply every canonical state assertion waiting for this store.
+
+    NOTHING IS READ OUT OF THE WORKER MANAGER HERE. This asks its seam to
+    republish what that manager already holds, then drains the transport; the
+    assertions arrive as documents and `apply_offer_state` is the one thing in
+    this package that ends an episode.
+
+    ATTACHING NAMES WHAT IS RELEVANT. A control store may carry other Job
+    stores' offers, so what this store asks about is the offers its own LIVE
+    episodes name: an ended episode needs no further assertion, and asking
+    about somebody else's offer would be taking an interest in a row that is
+    not this store's business.
+
+    Answers how many assertions were applied, so a tick that resynchronized
+    can say so rather than leaving it to be inferred from what followed.
+    """
+    if attach:
+        operations.attach([episode["offer_id"]
+                           for episode in _live_episodes(store)])
+    return operations.drain(
+        {events.OFFER_STATE_KIND: lambda event: apply_offer_state(store,
+                                                                  event)},
+        quiescent=(lambda: store._connection.in_transaction,))
+
+
+def _live_episodes(store):
+    return [live for stage in submission.stage_rows(store)
+            for live in [episodes.live_of(store, stage["stage_id"])]
+            if live is not None]
+
+
+def _replace(store, operations):
+    """Open a fresh episode for every stage whose last one ended recoverably.
+
+    THE ENDING IS WHAT AUTHORIZES THIS, and only an ending in the closed
+    replaceable set. An abandoned offer decided nothing about the stage -- the
+    manager ended it because it could not account for a bearer, not because
+    anybody looked at the work -- so re-admitting it takes nothing back. An
+    episode that ended any other way is a stage that stopped, and this pass
+    leaves it stopped for the projection to report.
+
+    ONE REPLACEMENT PER ENDING, decided by the store rather than by this loop.
+    The successor's operation identity is derived from the ended episode's
+    number, so two managers reconciling one abandonment open the same episode
+    and the second replays the first's committed result; the partial unique
+    index refuses a second live episode however else the race arrives.
+    """
+    opened = []
+    held = projection.stage_states(store, operations)
+    for stage_id in sorted(held):
+        entry = held[stage_id]
+        if not projection.replaceable(entry):
+            continue
+        opened.append(episodes.open_next(store, stage_id,
+                                         entry["history"][-1]))
+    return opened
+
+
+def apply_offer_state(store, event):
+    """Record what one canonical `offer.state` assertion means for this store.
+
+    THE ONLY EFFECT AN ASSERTION CAN HAVE IS ENDING AN EPISODE, and it is
+    worth being exact about why that is enough. A live offer -- `issued` or
+    `accepted` -- tells this store nothing it does not already derive from its
+    own receipts and the canonical observation it takes at projection time. An
+    offer that will never produce a claim is the one fact it cannot derive,
+    because the thing it would have derived it from is the offer that is now
+    over.
+
+    A TERMINAL OFFER IS NOT A TERMINAL STAGE. `claimed` is terminal for the
+    offer and is the ending that means the stage is RUNNING, so it ends no
+    episode here: the attempt that offer froze is the one the projection goes
+    on observing. Review [P1, 2026-09-03] measured what treating the offer's
+    whole terminal set as episode endings did -- a claimed stage came back
+    `exceptional` with its identities cleared at the next restart. The set that
+    ends an execution is `documents.EPISODE_ENDINGS`, and it is not
+    `events.TERMINAL_OFFER_STATES`.
+
+    IDEMPOTENT THREE TIMES OVER, because at-least-once delivery means the same
+    assertion arrives again after a restart, after a reconnect, and on any
+    republication. An assertion about an offer this store never asked for is
+    silence; an assertion that the offer is still live has no effect; and an
+    episode that has already recorded an ending keeps the one it recorded. The
+    journalled `episode.end` identity is the fourth: two callers applying one
+    assertion concurrently commit one row and replay it.
+
+    A STALE ASSERTION CANNOT REGRESS ANYTHING. Revisions are monotone over the
+    canonical lifecycle, so an older one is by construction either about a live
+    state -- no effect -- or not greater than the ending already recorded, and
+    an already-ended episode is never re-ended. The replacement episode is a
+    different row with a different offer id, so no assertion about the ended
+    offer can reach it at all.
+
+    Answers the episode it ended, or `None` when the assertion changed nothing.
+    """
+    taken = boundaries.document(event, "an offer state assertion",
+                                required=events.OFFER_STATE_MEMBERS)
+    offer_id = boundaries.identity(taken["offer_id"], "an offer id")
+    state = boundaries.text(taken["state"], "a canonical offer state")
+    revision = events.offer_state_revision(state)
+    if taken["revision"] != revision:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the assertion about {name_value(offer_id)} carries revision "
+            f"{name_value(taken['revision'])} and this build ranks "
+            f"{name_value(state)} at {revision}; a revision that does not "
+            f"follow from the state it travels with cannot order anything")
+    episode = episodes.episode_by_offer(store, offer_id)
+    if episode is None:
+        return None
+    if episode["attempt_id"] != taken["attempt_id"]:
+        raise ContractRefusal(
+            "refused", "operation-collision",
+            f"the assertion about {name_value(offer_id)} names attempt "
+            f"{name_value(taken['attempt_id'])} and episode "
+            f"{episode['episode']} of stage "
+            f"{name_value(episode['stage_id'])} asked for "
+            f"{name_value(episode['attempt_id'])}; one offer froze one "
+            f"attempt, and applying this would record an ending for an "
+            f"execution this store never asked for")
+    if state not in documents.EPISODE_ENDINGS:
+        return None
+    if episode["ended_state"] is not None:
+        # THE SAME ENDING AGAIN IS THE ORDINARY CASE and answers "nothing
+        # changed". A DIFFERENT one is not ignorable: one offer reaches one
+        # ending, so two would mean this store and the publisher disagree
+        # about which offer this episode asked for, and quietly keeping the
+        # first would be deciding that disagreement by arrival order.
+        if episode["ended_state"] != state:
+            raise ContractRefusal(
+                "refused", "operation-collision",
+                f"episode {episode['episode']} of stage "
+                f"{name_value(episode['stage_id'])} recorded "
+                f"{name_value(episode['ended_state'])} and this assertion "
+                f"about {name_value(offer_id)} says {name_value(state)}; one "
+                f"offer reaches one ending, so keeping the first by arrival "
+                f"order would be deciding a disagreement rather than "
+                f"reporting it")
+        return None
+    return episodes.end_episode(store, episode, state, revision)
 
 
 def _adopt(store, operations, held):
@@ -107,21 +304,28 @@ def _adopt(store, operations, held):
     adopted = []
     for stage_id in sorted(held):
         entry = held[stage_id]
-        stage = entry["stage"]
-        job = submission.job_of(store, stage["job_id"])
+        attempt = entry["attempt"]
+        # A stage between an ending and its replacement has no identities to
+        # reconcile against. Its ended episode's acts were adopted while it
+        # was live, and asking the journal about them again would be adopting
+        # a finished attempt's receipts onto a stage that has moved on.
+        if attempt is None:
+            continue
+        job = submission.job_of(store, attempt["job_id"])
         for act in documents.ACTS:
             if act in entry["receipts"]:
                 continue
-            operation_id = operations.canonical_operation(act,
-                                                          stage["offer_id"])
-            record = _proved(operations, operation_id, stage, job)
+            operation_id = operations.canonical_operation(
+                act, attempt["offer_id"])
+            record = _proved(operations, operation_id, attempt, job)
             if record is None:
                 continue
             state = "refused" if record["state"] == "refused" else "adopted"
-            _record(store, {"stage_id": stage_id, "act": act}, record, state)
+            _record(store, {"stage_id": stage_id, "act": act,
+                            "episode": attempt["episode"]}, record, state)
             adopted.append(documents.reconciliation(
-                stage_id=stage_id, act=act, outcome=state,
-                operation_id=operation_id))
+                stage_id=stage_id, episode=attempt["episode"], act=act,
+                outcome=state, operation_id=operation_id))
     return adopted
 
 
@@ -206,9 +410,9 @@ def _delegate(store, operations, owed, stage, job):
         if record is None:
             if deferred is not None:
                 return documents.reconciliation(
-                    stage_id=owed["stage_id"], act=owed["act"],
-                    outcome="deferred", operation_id=canonical_id,
-                    detail=deferred)
+                    stage_id=owed["stage_id"], episode=owed["episode"],
+                    act=owed["act"], outcome="deferred",
+                    operation_id=canonical_id, detail=deferred)
             # THE DERIVED IDENTITY IS WRONG, and this is where that shows.
             # The operation happened and the journal holds nothing under
             # the name this build asked for, so every later reconciliation
@@ -228,8 +432,8 @@ def _delegate(store, operations, owed, stage, job):
              else ("performed" if performed else "adopted"))
     _record(store, owed, record, state)
     return documents.reconciliation(
-        stage_id=owed["stage_id"], act=owed["act"], outcome=state,
-        operation_id=canonical_id)
+        stage_id=owed["stage_id"], episode=owed["episode"], act=owed["act"],
+        outcome=state, operation_id=canonical_id)
 
 
 def _perform(operations, act, stage, job):
@@ -249,10 +453,11 @@ def _record(store, owed, record, state):
     """
     stage_id = owed["stage_id"]
     act = owed["act"]
+    episode = owed["episode"]
     operation_id = record["operation_id"]
     signature = job_signature(_RECEIPT_KIND,
-                              {"stage_id": stage_id, "act": act,
-                               "operation_id": operation_id})
+                              {"stage_id": stage_id, "episode": episode,
+                               "act": act, "operation_id": operation_id})
     detail = {"canonical_state": record["state"],
               "settled_at": record["settled_at"],
               "result": json.loads(record["result"])
@@ -263,14 +468,16 @@ def _record(store, owed, record, state):
     def perform(connection):
         recorded_at = store._now()
         connection.execute(
-            "INSERT INTO receipts (stage_id, act, operation_id, state, "
-            "detail, recorded_at, incarnation) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (stage_id, act, operation_id, state,
+            "INSERT INTO receipts (stage_id, episode, act, operation_id, "
+            "state, detail, recorded_at, incarnation) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (stage_id, episode, act, operation_id, state,
              json.dumps(detail, sort_keys=True, ensure_ascii=False),
              recorded_at, store.incarnation))
         return documents.receipt(
-            stage_id=stage_id, act=act, operation_id=operation_id,
-            state=state, recorded_at=recorded_at, detail=detail)
+            stage_id=stage_id, episode=episode, act=act,
+            operation_id=operation_id, state=state, recorded_at=recorded_at,
+            detail=detail)
 
-    return store.transact(receipt_operation_id(stage_id, act), _RECEIPT_KIND,
-                          signature, perform)
+    return store.transact(receipt_operation_id(stage_id, episode, act),
+                          _RECEIPT_KIND, signature, perform)

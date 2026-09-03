@@ -70,17 +70,22 @@ from ..contracts import (ContractRefusal, canonical_text,
 from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
 
-__all__ = ["ACTS", "CONTRACTS", "DEPENDENCY_MEMBERS", "JOB_MEMBERS",
-           "MAX_JOBS", "MAX_STAGES", "STAGE_KINDS", "STAGE_MEMBERS",
-           "STAGE_STATES", "STATUS_SCHEMA", "SUBMISSION_MEMBERS",
-           "SUBMISSION_SCHEMA", "TERMINAL_POLICIES", "TERMINAL_STAGE_STATES",
-           "act", "dependency_gate", "job_status", "owned_submission",
-           "read_submission", "receipt", "reconciliation", "stage_id",
-           "stage_status", "status", "submission_recorded",
-           "submission_signature", "sweep_report"]
+__all__ = ["ACTS", "CONTRACTS", "DEPENDENCY_MEMBERS", "EPISODE_ENDINGS",
+           "JOB_MEMBERS",
+           "MAX_JOBS", "MAX_STAGES", "REPLACEABLE_ENDINGS", "STAGE_KINDS",
+           "STAGE_MEMBERS", "STAGE_STATES", "STATUS_SCHEMA",
+           "SUBMISSION_MEMBERS", "SUBMISSION_SCHEMA", "TERMINAL_POLICIES",
+           "TERMINAL_STAGE_STATES", "act", "dependency_gate", "job_status",
+           "owned_submission", "read_submission", "receipt", "reconciliation",
+           "stage_episode", "stage_id", "stage_status", "status",
+           "submission_recorded", "submission_signature", "sweep_report"]
 
 SUBMISSION_SCHEMA = "baton.v12.job-submission/1"
-STATUS_SCHEMA = "baton.v12.job-status/1"
+# W73629 moved this to /2. A stage now reports the EPISODES it has been through
+# and its offer/attempt identities name the current one, so a reader written
+# against /1 would see one stage's history as the stage itself. The version is
+# in the name so that reader is told rather than left to find out.
+STATUS_SCHEMA = "baton.v12.job-status/2"
 
 # The three stages this milestone's vertical slice has. They are a CLOSED
 # vocabulary rather than free text because the projection below maps each one
@@ -106,6 +111,48 @@ STAGE_STATES = ("blocked", "queued", "offered", "claimed", "running",
 # same-line correction cycle is W71918's, and inventing a second offer here
 # would be this leaf building the state machine it was told not to build.
 TERMINAL_STAGE_STATES = ("changes-requested", "completed", "exceptional")
+
+# Which canonical offer endings END THIS STAGE'S EXECUTION EPISODE.
+#
+# A TERMINAL OFFER IS NOT A TERMINAL STAGE, and review [P1, 2026-09-03] is what
+# that sentence cost. `claimed` is terminal for the OFFER -- there is nothing
+# further to do to it -- and it is the one ending that means the stage's
+# execution is going WELL: the claim was taken, the attempt the offer froze is
+# the one now running, and everything the projection reports about that stage
+# from here comes from that same attempt. Ending the episode on it cleared the
+# stage's current offer and attempt identities, stopped observing the running
+# attempt, and reported a claimed stage as `exceptional` at its next restart --
+# a stage that was working, broken by the machinery meant to recover the ones
+# that were not.
+#
+# So this set is the offer endings that end an EXECUTION, and `claimed` is
+# deliberately absent from it. The others all mean the same thing in different
+# words: this offer will never produce a claim, so nothing is going to run on
+# the attempt it froze.
+EPISODE_ENDINGS = ("abandoned-after-restart", "claim-refused", "declined",
+                   "expired", "settlement-expired")
+
+# Which of those endings make the stage's episode REPLACEABLE, as a
+# closed set with one member.
+#
+# W73629 reproduced and corrected exactly one: an offer a different manager
+# incarnation abandoned because nothing durable proved its bearer was ever
+# delivered. Nobody decided anything about that stage, so re-admitting it takes
+# back nothing.
+#
+# `expired` and `declined` are DELIBERATELY ABSENT and are not oversights. An
+# expired offer WAS delivered and its worker did not accept in time; a declined
+# one was answered. Whether either should be re-offered, offered elsewhere, or
+# reported is a scheduling policy decision that belongs to the pool leaf, and
+# quietly re-offering here would be this leaf making it. Neither is hidden: an
+# episode ending outside this set is recorded, stays in the status history, and
+# projects the stage `exceptional`, so an operator sees a stage that stopped
+# rather than one silently retrying.
+REPLACEABLE_ENDINGS = ("abandoned-after-restart",)
+
+# Stated rather than assumed: every replaceable ending is an ending, and the
+# one offer ending that is not an execution ending is the successful one.
+assert frozenset(REPLACEABLE_ENDINGS) <= frozenset(EPISODE_ENDINGS)
 
 # The two acts this leaf derives and delegates. Both are control-plane acts on
 # the admission half of a stage; starting a runtime, freezing an output,
@@ -365,26 +412,39 @@ def submission_signature(owned):
 CONTRACTS = {
     "submission.recorded": (("submission_id", "signature", "jobs", "stages",
                              "recorded_at"), ()),
-    "stage.act": (("stage_id", "job_id", "kind", "act", "operation_id",
-                   "offer_id", "attempt_id", "work_id"), ()),
-    "stage.receipt": (("stage_id", "act", "operation_id", "state",
+    "stage.act": (("stage_id", "job_id", "kind", "episode", "act",
+                   "operation_id", "offer_id", "attempt_id", "work_id"), ()),
+    "stage.receipt": (("stage_id", "episode", "act", "operation_id", "state",
                        "recorded_at", "detail"), ()),
     "stage.dependency-gate": (("stage_id", "state", "open"), ()),
+    # One attempt at admitting one stage. `ended_state` is null while it is
+    # live, and the three ending members travel together because an ending
+    # nobody can order against the next assertion is not one.
+    "stage.episode": (("stage_id", "episode", "offer_id", "attempt_id",
+                       "opened_at", "incarnation", "ended_state",
+                       "ended_revision", "ended_at"), ()),
+    # `episode`, `offer_id` and `attempt_id` name the CURRENT episode and are
+    # null between an ending and its replacement; `episodes` is the whole
+    # append-only history, which is where an abandoned attempt stays visible.
     "stage.status": (("stage_id", "job_id", "kind", "state", "work_id",
-                      "profile_name", "profile_digest", "offer_id",
-                      "attempt_id", "gates", "receipts", "runtime",
-                      "artifacts"), ()),
+                      "profile_name", "profile_digest", "episode", "offer_id",
+                      "attempt_id", "episodes", "gates", "receipts",
+                      "runtime", "artifacts"), ()),
     "job.status": (("job_id", "submission_id", "input_digest",
                     "policy_digest", "test_scope", "terminal_policy",
                     "stages"), ()),
     "status": (("schema", "observed_at", "incarnation", "canonical",
                 "jobs"), ()),
-    "reconciliation": (("stage_id", "act", "outcome", "operation_id"),
-                       ("detail",)),
+    "reconciliation": (("stage_id", "episode", "act", "outcome",
+                        "operation_id"), ("detail",)),
     # `recovered` is the manager's OWN restart report and is null on an
     # ordinary tick, so a reader can tell a resumed process from a running
-    # one without keeping count of ticks.
-    "sweep": (("observed_at", "recovered", "acts"), ()),
+    # one without keeping count of ticks. `observed` counts the canonical
+    # state assertions this tick applied and `replaced` names the episodes it
+    # opened because an earlier one ended -- a recovery that did something is
+    # reported rather than inferred from the acts that followed it.
+    "sweep": (("observed_at", "recovered", "observed", "replaced", "acts"),
+              ()),
 }
 
 
@@ -423,6 +483,10 @@ def receipt(**members):
 
 def dependency_gate(**members):
     return _emit("stage.dependency-gate", members)
+
+
+def stage_episode(**members):
+    return _emit("stage.episode", members)
 
 
 def stage_status(**members):

@@ -129,7 +129,7 @@ class Delegation(SweepCase):
     def test_the_receipt_names_the_canonical_operation(self):
         self.submit()
         sweep(self.jobs, self.acts, now=NOW)
-        held = receipts_of(self.jobs, "job-a/implementation")
+        held = receipts_of(self.jobs, "job-a/implementation", 1)
         self.assertEqual(sorted(held), ["admit"])
         self.assertEqual(held["admit"]["operation_id"],
                          "offer.issue:offer:job-a/implementation")
@@ -163,7 +163,7 @@ class Refusals(SweepCase):
                          [("job-a/implementation", "claim", "deferred")])
         self.assertEqual(report["acts"][0]["detail"]["code"], "precondition")
         self.assertEqual(sorted(receipts_of(self.jobs,
-                                            "job-a/implementation")),
+                                            "job-a/implementation", 1)),
                          ["admit"])
         # AND IT IS STILL OWED. The next tick asks again.
         self.assertEqual(self.outcomes(sweep(self.jobs, self.acts, now=LATER)),
@@ -177,7 +177,7 @@ class Refusals(SweepCase):
         report = sweep(self.jobs, self.acts, now=NOW)
         self.assertEqual(self.outcomes(report),
                          [("job-a/implementation", "admit", "refused")])
-        held = receipts_of(self.jobs, "job-a/implementation")
+        held = receipts_of(self.jobs, "job-a/implementation", 1)
         self.assertEqual(held["admit"]["state"], "refused")
         # AND THE STAGE STOPS. A settled refusal is a condition an operator
         # sees rather than something to keep sweeping past.

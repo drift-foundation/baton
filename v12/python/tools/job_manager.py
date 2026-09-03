@@ -105,8 +105,17 @@ class _ReadOnly:
     """The manager's public READS, with every act refused.
 
     `status` is a read-only surface and this is what makes that a mechanism
-    rather than a promise: the object it is handed cannot issue an offer or
-    take a claim, because it has no method that does.
+    rather than a promise: the object it is handed cannot issue an offer, take
+    a claim, or apply a canonical ending, because it has no method that does.
+
+    WHAT THAT COSTS, STATED RATHER THAN HIDDEN. A status run reports the
+    pipeline as this store has RECORDED it, plus the canonical observation of
+    each stage's current episode. An offer that ended after the last sweep is
+    canonically over and not yet recorded here, so the stage still reads
+    `offered` until a serving reconciler attaches and applies it. A serving
+    deployment is therefore at most one tick behind; a store nobody is
+    advancing is exactly as behind as "nobody looked", which is the honest
+    answer for a read-only view of it.
     """
 
     canonical = True
@@ -127,6 +136,16 @@ class _ReadOnly:
 
     def observe(self, stage):
         return self._operations.observe(stage)
+
+    # NO `attach` AND NO `drain`, and review [P2, 2026-09-03] is why the
+    # earlier draft's were removed rather than wired up. Attaching asks the
+    # manager to republish canonical state; APPLYING what comes back ends an
+    # episode, which is a durable act. A read-only surface performs none, so a
+    # status run that attached would either write -- and stop being read-only
+    # -- or drain assertions into a handler that ignored them, which is an
+    # operator being told a fact was consumed when it was discarded. This
+    # object has exactly the members `status` calls, and the serving
+    # reconciler is the one consumer that attaches.
 
 
 def _refuses(*ignored):

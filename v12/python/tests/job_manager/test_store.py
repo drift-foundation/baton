@@ -16,7 +16,8 @@ import unittest
 
 from baton_v12.contracts import ContractRefusal
 from baton_v12.job_manager import (SCHEMA_VERSION, STORE_KIND, JobStore,
-                                   job_signature)
+                                   episodes_of, job_signature, live_of,
+                                   owed_acts, stage_rows, status)
 from baton_v12.worker_manager import ControlStore
 
 if __package__:
@@ -222,6 +223,162 @@ class Journal(JobManagerCase):
         self.assertEqual(record["kind"], "probe")
         self.assertEqual(record["state"], "committed")
         self.assertEqual(record["settled_at"], NOW)
+
+
+# The schema-1 shape, exactly as this package shipped it at `efbad19`. Kept
+# here rather than imported because the point of the case below is that a store
+# written by THAT build opens under this one -- a copy that tracked the current
+# schema would test nothing.
+SCHEMA_1 = """
+CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+
+CREATE TABLE operations (
+  operation_id TEXT PRIMARY KEY, kind TEXT NOT NULL, signature TEXT NOT NULL,
+  state TEXT NOT NULL CHECK (state IN ('committed', 'refused')),
+  result TEXT, refusal TEXT, settled_at TEXT NOT NULL,
+  CHECK ((state = 'committed' AND refusal IS NULL)
+         OR (state = 'refused' AND result IS NULL AND refusal IS NOT NULL))
+);
+
+CREATE TABLE submissions (
+  submission_id TEXT PRIMARY KEY, signature TEXT NOT NULL,
+  document TEXT NOT NULL, incarnation TEXT NOT NULL,
+  recorded_at TEXT NOT NULL
+);
+
+CREATE TABLE jobs (
+  job_id TEXT PRIMARY KEY,
+  submission_id TEXT NOT NULL REFERENCES submissions(submission_id),
+  ordinal INTEGER NOT NULL, input_digest TEXT NOT NULL,
+  policy_digest TEXT NOT NULL, test_scope TEXT NOT NULL,
+  terminal_policy TEXT NOT NULL
+);
+
+CREATE TABLE stages (
+  stage_id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(job_id),
+  ordinal INTEGER NOT NULL, kind TEXT NOT NULL, work_id TEXT NOT NULL,
+  profile_name TEXT NOT NULL, profile_digest TEXT NOT NULL,
+  depends_on TEXT NOT NULL, offer_id TEXT NOT NULL, attempt_id TEXT NOT NULL,
+  UNIQUE (job_id, kind)
+);
+
+CREATE TABLE receipts (
+  stage_id TEXT NOT NULL REFERENCES stages(stage_id),
+  act TEXT NOT NULL CHECK (act IN ('admit', 'claim')),
+  operation_id TEXT NOT NULL,
+  state TEXT NOT NULL CHECK (state IN ('performed', 'adopted', 'refused')),
+  detail TEXT NOT NULL, recorded_at TEXT NOT NULL, incarnation TEXT NOT NULL,
+  PRIMARY KEY (stage_id, act)
+);
+"""
+
+
+class MigratingFromSchemaOne(JobManagerCase):
+    """W73629 — a store written before episodes existed, carried forward WHOLE.
+
+    A persisted submission is a pipeline somebody is running, so the store is
+    migrated rather than refused. The obligation this fixes on the migration is
+    that it INVENTS NOTHING: every episode 1 asserts exactly what its schema-1
+    stage row already asserted, so the canonical operation identities a
+    migrated store reconciles against are the ones its receipts already name.
+    """
+
+    def write_schema_1(self):
+        connection = sqlite3.connect(self.job_path, isolation_level=None)
+        self.addCleanup(connection.close)
+        connection.executescript(SCHEMA_1)
+        connection.execute("INSERT INTO meta VALUES ('store_kind', ?)",
+                           (STORE_KIND,))
+        connection.execute("INSERT INTO meta VALUES ('schema_version', '1')")
+        connection.execute(
+            "INSERT INTO submissions VALUES ('sub-1', 's', '{}', 'jobs-old', "
+            "?)", (NOW,))
+        connection.execute(
+            "INSERT INTO jobs VALUES ('job-a', 'sub-1', 0, 'sha256:1', "
+            "'sha256:2', '[]', 'report-and-hold')")
+        connection.execute(
+            "INSERT INTO stages VALUES ('job-a/implementation', 'job-a', 0, "
+            "'implementation', '0000000a-W1', 'reference', 'sha256:b', '[]', "
+            "'offer:job-a/implementation', 'attempt:job-a/implementation')")
+        connection.execute(
+            "INSERT INTO receipts VALUES ('job-a/implementation', 'admit', "
+            "'offer.issue:offer:job-a/implementation', 'performed', '{}', ?, "
+            "'jobs-old')", (NOW,))
+        connection.close()
+
+    def test_a_schema_one_store_opens_at_the_current_version(self):
+        self.write_schema_1()
+        store = self.store()
+        recorded = dict(store._connection.execute(
+            "SELECT key, value FROM meta").fetchall())
+        self.assertEqual(recorded["schema_version"], str(SCHEMA_VERSION))
+        self.assertEqual(recorded["store_kind"], STORE_KIND)
+
+    def test_every_migrated_stage_keeps_the_identities_it_already_had(self):
+        self.write_schema_1()
+        store = self.store()
+        held = episodes_of(store, "job-a/implementation")
+        self.assertEqual(len(held), 1)
+        self.assertEqual(held[0]["episode"], 1)
+        # THE OLD ROW'S OWN IDENTITIES, not recomputed ones. The manager
+        # journal already holds `offer.issue:offer:job-a/implementation`, and
+        # an episode naming anything else would orphan that reconciliation.
+        self.assertEqual(held[0]["offer_id"], "offer:job-a/implementation")
+        self.assertEqual(held[0]["attempt_id"],
+                         "attempt:job-a/implementation")
+        self.assertIsNone(held[0]["ended_state"])
+        # The submission's own instant and incarnation, because that is when
+        # and by whom this episode was really opened.
+        self.assertEqual(held[0]["opened_at"], NOW)
+        self.assertEqual(held[0]["incarnation"], "jobs-old")
+        self.assertEqual(live_of(store, "job-a/implementation")["episode"], 1)
+
+    def test_the_migrated_receipt_belongs_to_episode_one(self):
+        self.write_schema_1()
+        store = self.store()
+        row = store._connection.execute(
+            "SELECT * FROM receipts").fetchone()
+        self.assertEqual(row["episode"], 1)
+        self.assertEqual(row["act"], "admit")
+        self.assertEqual(row["operation_id"],
+                         "offer.issue:offer:job-a/implementation")
+
+    def test_the_migrated_stage_row_drops_the_moved_columns(self):
+        self.write_schema_1()
+        store = self.store()
+        stage = stage_rows(store)[0]
+        self.assertEqual(stage["stage_id"], "job-a/implementation")
+        self.assertNotIn("offer_id", dict(stage))
+        self.assertNotIn("attempt_id", dict(stage))
+
+    def test_a_migrated_store_still_derives_and_projects(self):
+        """The pipeline survives the migration rather than merely the rows.
+
+        It had an `admit` receipt, so it is `offered` and owes its claim --
+        exactly what the same store answered before this build existed.
+        """
+        from baton_v12.job_manager import Unobserved
+
+        self.write_schema_1()
+        store = self.store()
+        acts = self.operations()
+        self.assertEqual([one["act"] for one in owed_acts(store, acts)],
+                         ["claim"])
+        held = status(store, Unobserved(),
+                      observed_at=NOW)["jobs"][0]["stages"][0]
+        self.assertEqual(held["state"], "offered")
+        self.assertEqual(held["episode"], 1)
+        self.assertEqual([one["episode"] for one in held["episodes"]], [1])
+
+    def test_reopening_a_migrated_store_migrates_nothing_further(self):
+        self.write_schema_1()
+        self.store().close()
+        again = self.store(incarnation="jobs-2")
+        self.assertEqual(len(episodes_of(again, "job-a/implementation")), 1)
+        self.assertEqual(
+            dict(again._connection.execute(
+                "SELECT key, value FROM meta").fetchall())["schema_version"],
+            str(SCHEMA_VERSION))
 
 
 if __name__ == "__main__":

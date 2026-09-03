@@ -201,6 +201,18 @@ class JobManagerCase(unittest.TestCase):
         certify_profile(control, "runtime", "reference", PROFILE)
         return control
 
+    def attempting(self, store, stage_id="job-a/implementation"):
+        """One stage row merged with the episode currently answering for it.
+
+        W73629 moved the offer and attempt identities off the stage and onto
+        the episode, so a case that wants "this stage's offer" wants the live
+        episode's. This is the same view the projection hands the seam.
+        """
+        from baton_v12.job_manager import attempting, live_of, stage_rows
+
+        row = {one["stage_id"]: one for one in stage_rows(store)}[stage_id]
+        return attempting(row, live_of(store, stage_id))
+
     def operations(self, control=None, port=None):
         from baton_v12.worker_manager import AuthorityPort
 
@@ -236,9 +248,13 @@ class FakeOperations:
     canonical = True
 
     def __init__(self):
+        from baton_v12.eventing import EventQueue
+
         self.journal = {}
         self.observations = {}
         self.refusals = {}
+        self.states = {}
+        self.events = EventQueue()
         self.calls = []
 
     def canonical_operation(self, act, offer_id):
@@ -252,6 +268,38 @@ class FakeOperations:
     def recover(self, *, now):
         self.calls.append(("recover", now))
         return {"abandoned": [], "recoverable": []}
+
+    def attach(self, offer_ids):
+        """Republish whatever this fake has been told the canonical state is.
+
+        A case sets `states` for the offers it cares about; attaching turns
+        those into the same `offer.state` documents the real publisher builds,
+        so a case drives the consumer through its real handler rather than
+        calling it directly. Silence for an offer nobody set is the real
+        publisher's answer too.
+        """
+        from baton_v12.worker_manager.events import offer_state
+
+        self.calls.append(("attach", tuple(offer_ids)))
+        published = []
+        for offer_id in offer_ids:
+            held = self.states.get(offer_id)
+            if held is None:
+                continue
+            self.events.publish(offer_state(held))
+            published.append(offer_id)
+        return published
+
+    def drain(self, handlers, *, quiescent=()):
+        from baton_v12.eventing import pump
+
+        return pump(self.events, handlers, quiescent=tuple(quiescent))
+
+    def canonical_state(self, offer_id, attempt_id, state):
+        """Pretend the manager's offers table holds this row's state."""
+        self.states[offer_id] = {"offer_id": offer_id,
+                                 "runtime_attempt_id": attempt_id,
+                                 "state": state}
 
     def admit(self, stage, job):
         # THE SIGNATURE IS THE REAL ONE'S SHAPE, because the binding proof

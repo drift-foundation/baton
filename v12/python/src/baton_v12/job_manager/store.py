@@ -34,7 +34,7 @@ from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
 from ..worker_manager.store import revive_refusal, seal_refusal
 from . import schema
-from .schema import SCHEMA, SCHEMA_VERSION, STORE_KIND
+from .schema import MIGRATIONS, SCHEMA, SCHEMA_VERSION, STORE_KIND
 
 __all__ = ["JobStore", "job_signature"]
 
@@ -174,7 +174,7 @@ class JobStore:
                 f"Job manager cannot read "
                 f"({name_value(type(failure).__name__)}), so it is not a Job "
                 f"store this build owns. Nothing was changed") from None
-        cls._validate(recorded, path)
+        cls._migrate(connection, cls._validate(recorded, path), path)
         connection.execute("PRAGMA foreign_keys = ON")
 
     @staticmethod
@@ -221,10 +221,13 @@ class JobStore:
 
     @staticmethod
     def _validate(recorded, path):
+        """Prove the store is this product's, and answer the version it is at.
+
+        KIND BEFORE VERSION: version 1 is true of several stores beside this
+        one, so telling a caller their store is the wrong VERSION when it is
+        the wrong PRODUCT sends them to fix the wrong thing.
+        """
         kind = recorded.get(_META_STORE_KIND)
-        # KIND BEFORE VERSION: version 1 is true of several stores beside this
-        # one, so telling a caller their store is the wrong VERSION when it is
-        # the wrong PRODUCT sends them to fix the wrong thing.
         if kind != STORE_KIND:
             raise ContractRefusal(
                 "integrity", "schema",
@@ -232,12 +235,73 @@ class JobStore:
                 f"not a {STORE_KIND} store; this Job manager opens its own "
                 f"stores and adopts nothing. Nothing was changed")
         version = recorded.get(_META_SCHEMA_VERSION)
-        if version != str(SCHEMA_VERSION):
-            raise ContractRefusal(
-                "integrity", "schema",
-                f"the Job store at {name_value(path)} is schema "
-                f"{name_value(version)}; this build is {SCHEMA_VERSION} and "
-                f"does not guess across versions. Nothing was changed")
+        # A VERSION THIS BUILD HAS NO PATH FROM is still refused untouched.
+        # Migrating forward is not the same as guessing across versions: the
+        # step from each older shape to the next is written down in
+        # `MIGRATIONS`, and a version with no entry -- an unknown spelling, or
+        # a store written by a LATER build -- has no such statement and is not
+        # improvised one.
+        if version == str(SCHEMA_VERSION):
+            return SCHEMA_VERSION
+        for known in sorted(MIGRATIONS):
+            if version == str(known):
+                return known
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the Job store at {name_value(path)} is schema "
+            f"{name_value(version)}; this build is {SCHEMA_VERSION}, carries "
+            f"no migration from that version, and does not guess across "
+            f"versions. Nothing was changed")
+
+    @classmethod
+    def _migrate(cls, connection, version, path):
+        """Carry an older store forward, WHOLE, in one transaction.
+
+        A persisted submission is a pipeline somebody is running. Refusing it
+        because the next slice added a relation would be this build deciding
+        an operator's durable work is disposable, so each recorded step runs
+        in order and the version is stamped in the SAME transaction that
+        performed it. A step that fails rolls the whole thing back and leaves
+        a store at exactly the version it was opened at -- there is no half-
+        migrated shape for the next open to have to recognise.
+
+        `foreign_keys` stays OFF for the duration and is turned on by the
+        caller afterwards. The steps rebuild tables that others reference, and
+        SQLite would otherwise decide a mid-migration moment is a violation of
+        a constraint the finished shape satisfies.
+        """
+        if version == SCHEMA_VERSION:
+            return
+        connection.execute("BEGIN IMMEDIATE")
+        try:
+            at = version
+            while at != SCHEMA_VERSION:
+                for statement in _statements(MIGRATIONS[at]):
+                    connection.execute(statement)
+                at += 1
+                connection.execute(
+                    "UPDATE meta SET value = ? WHERE key = ?",
+                    (str(at), _META_SCHEMA_VERSION))
+            # THE FINISHED SHAPE IS PROVED BEFORE THE COMMIT, not assumed from
+            # having run the statements. A migration that produced a store
+            # this build cannot own is a migration whose next act would be
+            # refused anyway, and refusing it here leaves the old store intact.
+            objects = set(cls._objects(connection))
+            missing = [table for table in schema.TABLES
+                       if table not in objects]
+            if missing:
+                raise ContractRefusal(
+                    "integrity", "schema",
+                    f"migrating the Job store at {name_value(path)} to schema "
+                    f"{SCHEMA_VERSION} left it without "
+                    f"{', '.join(missing)}; nothing was changed")
+            connection.execute("COMMIT")
+        except BaseException:
+            try:
+                connection.execute("ROLLBACK")
+            except BaseException:
+                pass
+            raise
 
     def close(self):
         self._connection.close()

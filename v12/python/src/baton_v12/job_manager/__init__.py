@@ -39,28 +39,36 @@ from .delegation import (CANONICAL_OPERATIONS, INTENT_OPERANDS, OBSERVATION_MEMB
                          OPERATIONS, ManagerOperations, Unobserved,
                          canonical_operation, check_binding, observation_of,
                          stage_intent)
-from .documents import (ACTS, STAGE_KINDS, STAGE_STATES, STATUS_SCHEMA,
-                        SUBMISSION_SCHEMA, TERMINAL_POLICIES,
+from .documents import (ACTS, EPISODE_ENDINGS, REPLACEABLE_ENDINGS,
+                        STAGE_KINDS, STAGE_STATES,
+                        STATUS_SCHEMA, SUBMISSION_SCHEMA, TERMINAL_POLICIES,
                         TERMINAL_STAGE_STATES, owned_submission,
                         read_submission, stage_id, submission_signature)
-from .manager import TICK_SECONDS, reconcile, serve, sweep
-from .projection import (ACT_OUTCOMES, owed_acts, receipt_rows,
-                         receipts_of, status)
+from .episodes import (attempting, episode_by_offer, episode_of, episodes_of,
+                       live_of)
+from .manager import (TICK_SECONDS, apply_offer_state, reconcile, serve,
+                      sweep)
+from .projection import (ACT_OUTCOMES, owed_acts, receipt_rows, receipts_of,
+                         replaceable, status)
 from .schema import SCHEMA_VERSION, STORE_KIND, TABLES
 from .store import JobStore, job_signature
 from .submission import (job_of, job_rows, jobs_of, stage_rows, stages_of,
                          submission_of, submission_rows, submit)
 
-__all__ = ["ACTS", "ACT_OUTCOMES", "CANONICAL_OPERATIONS", "INTENT_OPERANDS",
-           "OBSERVATION_MEMBERS", "OPERATIONS", "SCHEMA_VERSION",
+__all__ = ["ACTS", "ACT_OUTCOMES", "CANONICAL_OPERATIONS", "EPISODE_ENDINGS",
+           "INTENT_OPERANDS",
+           "OBSERVATION_MEMBERS", "OPERATIONS", "REPLACEABLE_ENDINGS",
+           "SCHEMA_VERSION",
            "STAGE_KINDS", "STAGE_STATES", "STATUS_SCHEMA", "STORE_KIND",
            "SUBMISSION_SCHEMA", "TABLES", "TERMINAL_POLICIES",
            "TERMINAL_STAGE_STATES", "TICK_SECONDS", "JobStore",
-           "ManagerOperations", "Unobserved", "canonical_operation",
-           "check_binding", "job_of", "job_rows", "job_signature", "jobs_of",
+           "ManagerOperations", "Unobserved", "apply_offer_state",
+           "attempting", "canonical_operation",
+           "check_binding", "episode_by_offer", "episode_of", "episodes_of",
+           "job_of", "job_rows", "job_signature", "jobs_of", "live_of",
            "observation_of", "owed_acts", "owned_submission",
            "read_submission", "receipt_rows",
-           "receipts_of", "reconcile",
+           "receipts_of", "reconcile", "replaceable",
            "serve", "stage_id", "stage_intent", "stage_rows", "stages_of",
            "status", "submission_of", "submission_rows",
            "submission_signature", "submit", "sweep"]

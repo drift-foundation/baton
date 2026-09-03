@@ -35,7 +35,9 @@ class CanonicalIdentities(JobManagerCase):
         super().setUp()
         self.jobs = self.store()
         submit(self.jobs, submission())
-        self.stages = {row["stage_id"]: row for row in stage_rows(self.jobs)}
+        self.stages = {row["stage_id"]: self.attempting(self.jobs,
+                                                        row["stage_id"])
+                       for row in stage_rows(self.jobs)}
         self.stage = self.stages["job-a/implementation"]
         self.job = {"input_digest": "sha256:" + "1" * 64,
                     "policy_digest": "sha256:" + "2" * 64}
@@ -88,8 +90,7 @@ class TheBearer(JobManagerCase):
         super().setUp()
         self.jobs = self.store()
         submit(self.jobs, submission())
-        self.stage = {row["stage_id"]: row
-                      for row in stage_rows(self.jobs)}["job-a/implementation"]
+        self.stage = self.attempting(self.jobs)
         self.control_store = self.control()
         self.acts = self.operations(control=self.control_store)
 
@@ -128,7 +129,7 @@ class Observation(JobManagerCase):
     def test_an_unstarted_stage_observes_absence_rather_than_a_guess(self):
         jobs = self.store()
         submit(jobs, submission())
-        stage = stage_rows(jobs)[0]
+        stage = self.attempting(jobs)
         observed = self.operations().observe(stage)
         self.assertEqual(sorted(observed), sorted(OBSERVATION_MEMBERS))
         self.assertEqual(observed, {"claimed_by": None, "runtime": None,
@@ -169,7 +170,7 @@ class Binding(JobManagerCase):
         super().setUp()
         self.jobs = self.store()
         submit(self.jobs, submission(jobs=[job("job-a")]))
-        self.stage = stage_rows(self.jobs)[0]
+        self.stage = self.attempting(self.jobs)
         self.job = job_of(self.jobs, "job-a")
         self.control_store = self.control()
         self.acts = self.operations(control=self.control_store)
