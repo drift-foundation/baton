@@ -106,6 +106,13 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     "tests.manager.test_credentials",
                     "tests.manager.test_intake",
                     "tests.manager.test_launch",
+                    # W81857's durable per-attempt file exchange, at both of
+                    # its ends. PARALLEL: every case owns one temporary launch
+                    # home and one disposable control store, and the worker
+                    # half patches the two container root CONSTANTS onto the
+                    # module for the life of one case -- which is process
+                    # state, and every shard is a fresh interpreter.
+                    "tests.manager.test_exchange",
                     "tests.manager.test_sealing",
                     "tests.manager.test_interrogation",
                     "tests.manager.test_manifest_rules",
@@ -197,6 +204,7 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     # this phase is for.
                     "tests.job_manager.test_delegation",
                     "tests.job_manager.test_documents",
+                    "tests.job_manager.test_exchange",
                     "tests.job_manager.test_launch",
                     "tests.job_manager.test_recovery",
                     "tests.job_manager.test_restart",

@@ -17,7 +17,8 @@ from unittest import mock
 from baton_v12.authority import Authority
 from baton_v12.contracts import (ContractRefusal, digest, digest_of_bytes,
                                  forget_secret, live_secret, remember_secret)
-from baton_v12.job_manager import (JobStore, reconcile, status, submit)
+from baton_v12.job_manager import (JobStore, reconcile, status, submit,
+                                   sweep)
 from baton_v12.worker_manager import (ControlStore,
                                       attempt_preparation_failure_of,
                                       attempt_runtime_of,
@@ -177,7 +178,12 @@ class SingleWorkerCase(unittest.TestCase):
             "input_manifest": self.manifest,
             "task_document": self.task_document,
             "launch_contract": "v12-assignment-1",
-            "launch_role": "implementation"}
+            "launch_role": "implementation",
+            # W81857's three: where an answered, frozen, collected result is
+            # handed on, and what is decided about its untrusted bytes first.
+            "review_route": "rview",
+            "retention_policy_digest": "sha256:" + "5" * 64,
+            "retention_disposition": "retain"}
         self.secret = "single-worker-secret-" + "7" * 40
         self.addCleanup(self._forget_secret)
         self.submission = fixtures.submission(
@@ -209,13 +215,25 @@ class SingleWorkerCase(unittest.TestCase):
         while live_secret(self.secret):
             forget_secret(self.secret)
 
-    def running(self, job, operations):
+    def commanded(self, job, operations):
+        """Drive the pipeline until the worker has been given its command.
+
+        W81857 CHANGED WHAT THIS WAITS FOR, and the change is the Work. This
+        used to wait for `running`, which the projection answered as soon as a
+        runtime identity was attached -- so every case below proved its
+        composition against a stage the control plane called "working" while
+        the container sat idle with nothing to do. `waiting` is the honest
+        state at this point: the runtime is up, the durable command sequence is
+        published, and no worker has accepted it. These cases run against a
+        fake engine, so nothing inside a container answers, and `waiting` is
+        where a correct pipeline stops.
+        """
         for _ in range(6):
             reconcile(job, operations, now=fixtures.NOW)
             projected = status(job, operations, observed_at=fixtures.NOW)
-            if projected["jobs"][0]["stages"][0]["state"] == "running":
+            if projected["jobs"][0]["stages"][0]["state"] == "waiting":
                 return projected
-        self.fail("the one-worker pipeline did not become running")
+        self.fail("the one-worker pipeline did not reach a commanded worker")
 
 
 class TheProductionCompositionIsRestartSafe(SingleWorkerCase):
@@ -244,7 +262,7 @@ class TheProductionCompositionIsRestartSafe(SingleWorkerCase):
 
         resumed_job, resumed_control = self.stores("after-" + point)
         resumed = self.operations(resumed_job, resumed_control, engine)
-        projected = self.running(resumed_job, resumed)
+        projected = self.commanded(resumed_job, resumed)
         stage = projected["jobs"][0]["stages"][0]
         self.assertEqual(len(engine.starts), 1)
         self.assertEqual(len(claimed_offers_for(resumed_control,
@@ -256,9 +274,9 @@ class TheProductionCompositionIsRestartSafe(SingleWorkerCase):
         job, control = self.stores("first")
         submit(job, self.submission)
         operations = self.operations(job, control, engine)
-        first = self.running(job, operations)
+        first = self.commanded(job, operations)
         stage = first["jobs"][0]["stages"][0]
-        self.assertEqual(stage["state"], "running")
+        self.assertEqual(stage["state"], "waiting")
         self.assertEqual(len(engine.starts), 1)
         attempt_id = stage["attempt_id"]
         self.assertEqual(attempt_runtime_of(control, attempt_id)["runtime_id"],
@@ -272,8 +290,8 @@ class TheProductionCompositionIsRestartSafe(SingleWorkerCase):
 
         restarted_job, restarted_control = self.stores("restarted")
         restarted = self.operations(restarted_job, restarted_control, engine)
-        after = self.running(restarted_job, restarted)
-        self.assertEqual(after["jobs"][0]["stages"][0]["state"], "running")
+        after = self.commanded(restarted_job, restarted)
+        self.assertEqual(after["jobs"][0]["stages"][0]["state"], "waiting")
         self.assertEqual(len(engine.starts), 1,
                          "restart started a duplicate OCI runtime")
         self.assertEqual(len(claimed_offers_for(restarted_control,
@@ -332,7 +350,7 @@ class TheProductionCompositionIsRestartSafe(SingleWorkerCase):
         control.close()
         resumed_job, resumed_control = self.stores("accepted-resume")
         resumed = self.operations(resumed_job, resumed_control, engine)
-        self.running(resumed_job, resumed)
+        self.commanded(resumed_job, resumed)
         self.assertEqual(len(engine.starts), 1)
         resumed.close()
 
@@ -395,8 +413,8 @@ class TheProductionCompositionIsRestartSafe(SingleWorkerCase):
 
         resumed_job, resumed_control = self.stores("start-window-resumed")
         resumed = self.operations(resumed_job, resumed_control, engine)
-        after = self.running(resumed_job, resumed)
-        self.assertEqual(after["jobs"][0]["stages"][0]["state"], "running")
+        after = self.commanded(resumed_job, resumed)
+        self.assertEqual(after["jobs"][0]["stages"][0]["state"], "waiting")
         self.assertEqual(len(engine.starts), 1,
                          "reconciliation started a duplicate OCI runtime")
         resumed.close()
@@ -520,10 +538,10 @@ class TheConfigurationBoundaryIsClosed(SingleWorkerCase):
         root it refuses before it does any provider work.
         """
         carrying = dict(self.config,
-                        schema="baton.v12.single-worker-deployment/1")
+                        schema="baton.v12.single-worker-deployment/2")
         held = self.refused(carrying, "superseded-schema")
         self.assertEqual(held.code, "schema")
-        self.assertIn("single-worker-deployment/2", held.message)
+        self.assertIn("single-worker-deployment/3", held.message)
 
     def test_a_configuration_without_a_task_document_is_refused(self):
         carrying = dict(self.config)
@@ -612,7 +630,7 @@ class TheConfigurationBoundaryIsClosed(SingleWorkerCase):
         operations = self.operations(job, control, engine)
         with open(self.task_document, "wb") as writing:
             writing.write(b'{"schema":"somebody-elses-task"}')
-        projected = self.running(job, operations)
+        projected = self.commanded(job, operations)
         stage = projected["jobs"][0]["stages"][0]
         place = os.path.join(self.storage, stage["attempt_id"], "inputs",
                              single_worker.TASK_DOCUMENT)
@@ -657,7 +675,7 @@ class TheWorkloadDocumentIsDeliveredWithTheProtocolPair(SingleWorkerCase):
         job, control = self.stores(name)
         submit(job, self.submission)
         operations = self.operations(job, control, engine)
-        projected = self.running(job, operations)
+        projected = self.commanded(job, operations)
         stage = projected["jobs"][0]["stages"][0]
         inputs = os.path.join(self.storage, stage["attempt_id"], "inputs")
         return engine, job, control, operations, stage, inputs
@@ -720,7 +738,7 @@ class TheWorkloadDocumentIsDeliveredWithTheProtocolPair(SingleWorkerCase):
         self.assertEqual(
             self.staged(status(resumed_job, resumed,
                                observed_at=fixtures.NOW))
-            ["job-a/implementation"]["state"], "running")
+            ["job-a/implementation"]["state"], "waiting")
         resumed.close()
 
     @staticmethod
@@ -755,7 +773,7 @@ class TheWorkloadDocumentIsDeliveredWithTheProtocolPair(SingleWorkerCase):
             reconcile(resumed_job, resumed, now=fixtures.NOW)
         held = self.staged(status(resumed_job, resumed,
                                   observed_at=fixtures.NOW))
-        self.assertEqual(held["job-a/implementation"]["state"], "running",
+        self.assertEqual(held["job-a/implementation"]["state"], "waiting",
                          "the already-started runtime was not left alone")
         with open(place, "rb") as reading:
             self.assertEqual(reading.read(),
@@ -1037,7 +1055,7 @@ class TheCertifiedWorkerReachesTheDeliveredTask(SingleWorkerCase):
         job, control = self.stores("reachability")
         submit(job, self.submission)
         operations = self.operations(job, control, engine)
-        projected = self.running(job, operations)
+        projected = self.commanded(job, operations)
         stage = projected["jobs"][0]["stages"][0]
         operations.close()
         return os.path.join(self.storage, stage["attempt_id"], "inputs")
@@ -1362,7 +1380,7 @@ class CredentialRestartProvesTheLiveRuntimeFirst(PreparationCase):
         job, control, operations = self.resumed("recovery-exact-again", engine)
         asked = len(engine.vectors)
         held = self.serve(job, operations)
-        self.assertEqual(held["job-a/implementation"]["state"], "running")
+        self.assertEqual(held["job-a/implementation"]["state"], "waiting")
         self.assertEqual(len(engine.starts), 1,
                          "recovery started a second runtime")
         # THE PROOF IS ENGINE TRAFFIC, and adoption used to make none of it.
@@ -1536,7 +1554,7 @@ class ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored(
         submit(job, self.submission)
         operations = self.operations(job, control, engine)
         held = self.serve(job, operations)
-        self.assertEqual(held["job-a/implementation"]["state"], "running")
+        self.assertEqual(held["job-a/implementation"]["state"], "waiting")
         root = os.path.join(
             os.path.realpath(self.config["launch_home"]),
             held["job-a/implementation"]["attempt_id"])
@@ -2025,7 +2043,7 @@ class TheFailedStartEndingCommitsWithItsNaming(PreparationCase):
         # than negatively, because a future change to what a resumed process
         # concludes here should be visible as a change rather than pass a
         # loose check.
-        self.assertEqual(held["job-a/implementation"]["state"], "running")
+        self.assertEqual(held["job-a/implementation"]["state"], "waiting")
         self.assertNotIn(self.secret, json.dumps(engine.vectors))
         self.assertEqual(held["job-b/implementation"]["state"], "queued")
         operations.close()
@@ -2148,3 +2166,180 @@ class AnUntrustedBearerIsNeverAllowedToWedgeTheManager(PreparationCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheAnsweredEndingRunsThroughTheRealOwners(SingleWorkerCase):
+    """W81857 review 2026-09-04T03-43-45Z [P1]: the ending, not a fake of it.
+
+    Every other case in this file stops where the container would start doing
+    work. This one runs the REAL in-image program over the REAL exchange this
+    deployment composed, and then drives `_SingleWorker.ending` through the
+    Worker Manager's own quiescence, disposition, freeze, intake, retention,
+    Authority pass and cleanup operations. Only the engine boundary is the
+    recording fixture, as everywhere else here.
+
+    IT EXISTS BECAUSE THE TERMINAL'S DIGEST WAS NEVER ENFORCED. The member was
+    carried and never compared, so an `answered` terminal naming any envelope
+    drove the whole success path whenever a separately valid `output.json`
+    happened to exist. Writing the comparison was not enough either: the first
+    correction compared the terminal against the FROZEN RESULT's own
+    `manifest_digest`, which is the manager's result manifest rather than the
+    worker's completion envelope, and would have refused every honest attempt.
+    A case that ran only fakes would have agreed with that mistake.
+    """
+
+    def quiescing(self):
+        """An engine whose runtime stops running once it is told to stop.
+
+        `adapter.stop` orders and then OBSERVES, and the freeze takes a
+        positively quiescent runtime, so a fixture that reported `Running`
+        forever could never reach the ending at all.
+        """
+        original = Engine.__call__
+
+        def call(engine, argv, *, seconds=None):
+            if argv[1] == "stop":
+                engine.stopped = True
+            answer = original(engine, argv, seconds=seconds)
+            if argv[1] == "inspect" and getattr(engine, "stopped", False):
+                body = json.loads(answer["stdout"])
+                body["State"]["Running"] = False
+                answer = Engine.answer(stdout=json.dumps(body))
+            return answer
+
+        Engine.__call__ = call
+        self.addCleanup(setattr, Engine, "__call__", original)
+        return Engine()
+
+    def worked(self, incarnation):
+        """Drive the pipeline to a real answered terminal.
+
+        The worker is `baton_worker` itself, entered at `serve_exchange` with
+        the launch document this deployment wrote, over the command and event
+        namespaces this deployment mounted. Nothing about the protocol is
+        simulated; what is substituted is the provider, exactly as the
+        reference image's own fixture agent substitutes it.
+        """
+        import baton_worker
+        import scripted_agent
+
+        engine = self.quiescing()
+        job, control = self.stores(incarnation)
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+        attempt_id = stage["attempt_id"]
+        home = os.path.join(self.storage, attempt_id)
+        delivered = single_worker.launch.adopt(
+            self.config["launch_home"], attempt_id=attempt_id,
+            session="session-" + digest(attempt_id)[7:31],
+            contract=self.config["launch_contract"], role="implementation",
+            transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+            workspace_group=single_worker.configured_workspace_group(control))
+        for module, name, value in (
+                (baton_worker, "INPUT_ROOT", os.path.join(home, "inputs")),
+                (baton_worker, "OUTPUT_ROOT", os.path.join(home, "workspace")),
+                (scripted_agent, "OUTPUT_ROOT",
+                 os.path.join(home, "workspace"))):
+            held = getattr(module, name)
+            setattr(module, name, value)
+            self.addCleanup(setattr, module, name, held)
+        self.assertEqual(
+            baton_worker.serve_exchange(
+                scripted_agent.ScriptedAgent(), delivered.document,
+                delivered.document["session"],
+                delivered.exchange.command_root,
+                delivered.exchange.event_root), 0)
+        return job, control, operations, attempt_id, delivered.exchange
+
+    def spoke(self, report):
+        return [(one["act"], one["outcome"]) for one in report["spoken"]]
+
+    def test_a_matching_terminal_drives_the_whole_ending(self):
+        from baton_v12.worker_manager import intake_receipt_of, retentions_of
+
+        job, control, operations, attempt_id, held = self.worked("ending-ok")
+        report = sweep(job, operations, now=fixtures.NOW)
+        self.assertEqual(self.spoke(report), [("conclude", "performed")])
+        detail = report["spoken"][0]["detail"]
+        self.assertEqual(detail["disposition"], "completed")
+        self.assertEqual(detail["retention"], "retain")
+        self.assertEqual(detail["review_route"], self.config["review_route"])
+        # EVERY OWNER ACTUALLY RAN, read back from its own durable record
+        # rather than from what the composition said it did.
+        self.assertIsNotNone(intake_receipt_of(control, attempt_id))
+        self.assertTrue(retentions_of(control, attempt_id))
+        self.assertEqual(
+            status(job, operations,
+                   observed_at=fixtures.NOW)["jobs"][0]["stages"][0]["state"],
+            "completed")
+        operations.close()
+
+    def test_the_ending_is_not_asked_again_once_cleanup_is_settled(self):
+        job, control, operations, _attempt_id, _held = self.worked("ending-once")
+        sweep(job, operations, now=fixtures.NOW)
+        report = sweep(job, operations, now=fixtures.NOW)
+        self.assertEqual(report["spoken"], [])
+        operations.close()
+
+    def test_a_terminal_naming_another_envelope_stops_before_intake(self):
+        """The mismatch control, through the real owners.
+
+        The freeze is durable and has committed; what must not happen is
+        everything after it. A result nobody took custody of cannot reach
+        review, and a runtime is not removed on the strength of a correlation
+        that failed.
+        """
+        from baton_v12.worker_manager import intake_receipt_of
+
+        job, control, operations, attempt_id, held = self.worked("ending-bad")
+        self.rewrite(held, "sha256:" + "9" * 64)
+        report = sweep(job, operations, now=fixtures.NOW)
+        self.assertEqual(self.spoke(report), [("conclude", "deferred")])
+        self.assertEqual(report["spoken"][0]["detail"]["code"],
+                         "operation-collision")
+        self.assertIsNone(intake_receipt_of(control, attempt_id))
+        self.assertEqual(
+            status(job, operations,
+                   observed_at=fixtures.NOW)["jobs"][0]["stages"][0]["state"],
+            "answering")
+        operations.close()
+
+    def test_a_terminal_with_no_usable_digest_never_reaches_the_ending(self):
+        """The missing and malformed controls, refused at their own owner.
+
+        `exchange.observation` holds an answered terminal to a canonical
+        sha256 digest, so a null or malformed one makes the whole exchange
+        `unreadable` -- the stage is `exceptional` and the ending is never
+        owed. The refusal is one layer earlier than the mismatch above, which
+        is where a shape rule belongs.
+        """
+        job, control, operations, attempt_id, held = self.worked("ending-null")
+        for spoiled in (None, "not-a-digest"):
+            with self.subTest(manifest_digest=spoiled):
+                self.rewrite(held, spoiled)
+                self.assertEqual(
+                    single_worker.exchange.observation(held)["state"],
+                    "unreadable")
+                report = sweep(job, operations, now=fixtures.NOW)
+                self.assertEqual(report["spoken"], [])
+                self.assertEqual(
+                    status(job, operations, observed_at=fixtures.NOW)
+                    ["jobs"][0]["stages"][0]["state"], "exceptional")
+        operations.close()
+
+    def rewrite(self, held, manifest_digest):
+        """Replace the worker's terminal digest, as the provider could.
+
+        The event namespace is writable by the container and the provider runs
+        under the same identity, so this is not a contrived edit: it is the
+        exact substitution the untrusted-input rule exists to survive.
+        """
+        place = os.path.join(held.event_root,
+                             single_worker.exchange.TERMINAL_DOCUMENT)
+        with open(place, encoding="utf-8") as reading:
+            document = json.load(reading)
+        document["manifest_digest"] = manifest_digest
+        os.chmod(place, 0o644)
+        with open(place, "w", encoding="utf-8") as writing:
+            json.dump(document, writing)

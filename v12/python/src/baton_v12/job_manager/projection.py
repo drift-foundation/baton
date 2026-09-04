@@ -28,8 +28,9 @@ import json
 from ..worker_manager import boundaries
 from . import delegation, documents, episodes, schema, submission
 
-__all__ = ["ACT_OUTCOMES", "gates_of", "owed_acts", "receipt_rows",
-           "receipts_of", "replaceable", "stage_states", "status"]
+__all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "owed_acts",
+           "owed_exchange", "receipt_rows", "receipts_of", "replaceable",
+           "stage_states", "status"]
 
 # What one sweep can answer about one owed act.
 ACT_OUTCOMES = ("performed", "adopted", "deferred", "refused")
@@ -126,6 +127,23 @@ def _observed_state(entry):
     if observed.get("start_failure") is not None \
             or observed.get("preparation_failure") is not None:
         return "exceptional"
+    # W81857 review 2026-09-04T03-43-45Z [P1]: THE ENDING IS OWED UNTIL ITS
+    # LAST SUBSTEP IS SETTLED, AND A FROZEN OUTPUT IS NOT THAT SUBSTEP.
+    #
+    # This used to give any frozen output precedence, and `EXCHANGE_OWED` asks
+    # `conclude` only for `answering` -- so a process death after
+    # `request_freeze` and before intake, retention, the Authority pass and
+    # cleanup left durable frozen output that every later sweep read as
+    # `completed`. The remaining owed acts were never replayed: the Work was
+    # reported finished while its assignment was still live and its result had
+    # never reached the review Route.
+    #
+    # The freeze is the THIRD of seven steps. What says the ending finished is
+    # the manager's own cleanup axis, which `authorize_cleanup` is the last
+    # step to move, so an answered exchange keeps owing `conclude` until that
+    # axis is terminal however much of the middle already committed.
+    if _ending_owed(entry):
+        return "answering"
     frozen = observed.get("output")
     if type(frozen) is dict:
         disposition = frozen.get("disposition")
@@ -145,11 +163,146 @@ def _observed_state(entry):
                 and runtime.get("execution_runtime") == "uncertain":
             return "exceptional"
         if type(runtime) is dict and runtime.get("runtime_id") is not None:
-            return _RUNNING[stage["kind"]]
+            return _conversing(entry)
         return "claimed"
     if "admit" in receipts:
         return "offered"
     return None
+
+
+# W81857: WHAT AN ATTACHED RUNTIME ACTUALLY MEANS, keyed by the exchange this
+# manager can read rather than by the identity it was handed.
+#
+# The left column is the file exchange's own closed vocabulary and the right is
+# this leaf's. `working` becomes the stage-specific active word because the
+# worker has published its pre-dispatch receipt, which is the first moment
+# anything durable says a provider turn was begun. Everything before that is a
+# container that is up.
+_EXCHANGE_STATES = {"not-requested": "starting", "waiting": "waiting",
+                    "working": None, "answered": "answering",
+                    "faulted": "exceptional", "lost": "exceptional",
+                    "unreadable": "exceptional"}
+
+# W81857 review [P1]: AND THE RUNTIME AXIS DECIDES WHETHER THE EXCHANGE STATE
+# IS STILL TRUE.
+#
+# `working` says the worker published its pre-dispatch receipt. It does not say
+# the worker is still there, and it cannot: a receipt is durable and a process
+# is not. A container that died mid-turn keeps a receipt and never publishes a
+# terminal, so reading `working` alone recreated the exact defect this Work
+# exists to remove -- silence interpreted as progress, one layer down.
+#
+# So the active word requires BOTH: a receipt, and a runtime this manager
+# observes as actually running. Every other axis value with a receipt and no
+# terminal is the pinned incomplete/lost outcome -- reported, contained, and
+# authorizing no replay, because only a named recovery act with positive
+# evidence may turn it into an ending.
+_LIVE = "running"
+
+# Which axis values still permit each pre-answer exchange state. An answered
+# terminal is deliberately absent from this table: the ending quiesces the
+# runtime on purpose, so `answering` is the one state whose correctness does
+# not depend on the container still being up.
+_REQUIRES_LIVE_RUNTIME = ("not-requested", "waiting", "working")
+
+
+def _conversing(entry):
+    """Which state a claimed stage with an ATTACHED RUNTIME is actually in.
+
+    THE DEFECT THIS FUNCTION IS, spelled out because the one-line version it
+    replaced looked correct for a month. `_observed_state` mapped an attached
+    runtime identity straight onto the stage-specific running word, so a
+    container that started, read no command, spawned no provider and idled at
+    zero CPU was projected `running` -- and elapsed time and process health
+    cannot tell that apart from useful execution. A projection whose most
+    reassuring answer is also its default is not reporting anything.
+
+    ABSENCE IS `starting`, NOT AN INFERRED FAILURE AND NOT AN INFERRED
+    SUCCESS. A control plane holding no exchange read has not looked; a
+    deployment that composes no exchange has nothing to look at. Both are
+    honestly "the container is up and this control plane cannot see a turn in
+    it", and neither is grounds for reporting work in progress or for reporting
+    that something went wrong.
+
+    AN UNKNOWN EXCHANGE STATE IS `exceptional` rather than the least alarming
+    member of the set. The exchange's vocabulary is closed, so a value outside
+    it means this build and that reader disagree about what a state is.
+
+    AND THE TWO AXES ARE READ TOGETHER. Review [P1]: a quiescent or destroyed
+    runtime with a receipt and no terminal was projected as the active word,
+    because only `uncertain` was treated as exceptional and everything else was
+    handed to the exchange mapping alone. A worker that died mid-turn is not
+    working, whatever its durable receipt says.
+    """
+    found = entry["observed"].get("exchange")
+    if type(found) is not dict:
+        return "starting"
+    state = found.get("state")
+    held = _EXCHANGE_STATES.get(state, "exceptional")
+    if state in _REQUIRES_LIVE_RUNTIME:
+        runtime = entry["observed"].get("runtime")
+        alive = (type(runtime) is dict
+                 and runtime.get("execution_runtime") == _LIVE)
+        if not alive:
+            # INCOMPLETE, AND REPORTED AS SUCH. The turn may have been begun
+            # and cannot still be running; nothing here decides whether it was
+            # lost, because deciding that is a recovery act with its own
+            # positive evidence and its own record.
+            return "exceptional"
+    return _RUNNING[entry["stage"]["kind"]] if held is None else held
+
+
+# The cleanup axis values that mean the ending REACHED ITS LAST STEP. Anything
+# else -- `pending`, `blocked-on-intake` -- is an ending that has not finished,
+# whatever committed before it.
+_CLEANUP_SETTLED = ("complete", "retained", "failed")
+
+
+def _ending_owed(entry):
+    """Whether a worker's ending still has owed steps, from CANONICAL state.
+
+    LEVEL-TRIGGERED FROM THE LAST SUBSTEP'S OWN AXIS, which is what makes every
+    crash boundary in the middle of the ending replayable. The ordered owners
+    each journal their own act, so asking again after a partial ending replays
+    what committed and performs what did not; what this decides is only whether
+    to ask.
+
+    IT TAKES PRECEDENCE OVER THE FROZEN OUTPUT because the freeze is the third
+    of seven steps. A stage whose output is frozen and whose assignment has not
+    been passed is not `completed`, and reporting it as such is how a result
+    that never reached review looked finished.
+
+    W81857 review 2026-09-04T07-00-54Z [P1]: AND IT NO LONGER DEPENDS ON THE
+    EXCHANGE BEING READABLE. This used to require an exchange whose state was
+    `answered`, which the read-only `job_manager status` surface never has --
+    it is given no deployment factory and honestly reports `exchange: null`.
+    So the very same durable state that a serving manager called `answering`
+    read back as `completed` there, which is the freeze-window defect wearing
+    the one disguise the pass-2 correction did not cover: a reader that cannot
+    see the exchange was inventing the end of an ending it could not see.
+    `exchange: null` says nobody looked; it does not make a false terminal
+    state truthful, and a dependent gate must not open on one.
+
+    THE FROZEN OUTPUT IS THE MANAGER'S OWN EVIDENCE THAT A WORKER ANSWERED,
+    which is what makes the exchange unnecessary here. Nothing but the ending
+    freezes an output, so a frozen result with an unsettled cleanup axis is an
+    ending in progress however the reader learned about it -- and both facts
+    are the Worker Manager's own, available to every reader that holds its
+    control store.
+
+    THE CLEANUP AXIS IS ASKED FIRST, so a settled ending is settled for every
+    reader and the answer does not depend on which evidence happened to be
+    available.
+    """
+    observed = entry["observed"]
+    runtime = observed.get("runtime")
+    cleanup = runtime.get("cleanup") if type(runtime) is dict else None
+    if cleanup in _CLEANUP_SETTLED:
+        return False
+    found = observed.get("exchange")
+    if type(found) is dict and found.get("state") == "answered":
+        return True
+    return type(observed.get("output")) is dict
 
 
 def stage_states(store, operations, stages=None):
@@ -265,6 +418,33 @@ def _owed(entry):
     return None
 
 
+# W81857: which stage state owes which exchange act. Both are derived from
+# canonical state alone, so an ordinary tick and the first tick after a restart
+# ask the same question and get the same answer -- which is what makes the
+# crash window between an act and anything recording it cost latency instead of
+# a lost turn.
+EXCHANGE_OWED = {"starting": "dispatch", "answering": "conclude"}
+
+
+def owed_exchange(held):
+    """Every exchange act this control plane owes right now, in stable order.
+
+    `waiting` AND THE ACTIVE WORD OWE NOTHING, deliberately. A published
+    command that the worker has not accepted is the manager having done
+    everything it owes, and a worker that has published its receipt is a
+    provider turn nobody may interrupt -- asking again in either state would be
+    this leaf deciding that silence means something.
+    """
+    owed = []
+    for stage_id in sorted(held):
+        entry = held[stage_id]
+        act = EXCHANGE_OWED.get(entry["state"])
+        if act is None or entry["attempt"] is None:
+            continue
+        owed.append((act, entry["attempt"]))
+    return owed
+
+
 def status(store, operations, *, observed_at):
     """The read-only status document, versioned and whole.
 
@@ -335,6 +515,12 @@ def _stage_status(entry, held):
             recorded_at=record["recorded_at"],
             detail=json.loads(record["detail"]))
             for _, record in sorted(entry["receipts"].items())],
+        # W81857: THE EXCHANGE, REPORTED AS THE DEPLOYMENT ANSWERED IT and
+        # never resolved, opened or walked here. `null` says this control plane
+        # holds no exchange read, which is a different answer from an exchange
+        # that has been read and carries no command yet.
+        exchange=(observed.get("exchange")
+                  if type(observed.get("exchange")) is dict else None),
         runtime={"runtime_id": runtime.get("runtime_id"),
                  "execution_runtime": runtime.get("execution_runtime"),
                  "assignment": runtime.get("assignment"),

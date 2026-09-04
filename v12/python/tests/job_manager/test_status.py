@@ -135,6 +135,10 @@ class States(StatusCase):
                                activity={"attempt_id": attempt_id,
                                          "bytes_observed": 12,
                                          "observed_at": NOW})
+            # W81857: THE ACTIVE WORD IS EARNED BY THE WORKER'S RECEIPT, not
+            # by the runtime identity. The negative half of this rule is
+            # `test_a_started_container_nobody_commanded_is_not_running`.
+            self.acts.commanded(stage_id, state="working")
         self.assertEqual(self.states(status(self.jobs, self.acts,
                                             observed_at=NOW)),
                          {"job-a/implementation": "running",

@@ -136,7 +136,12 @@ class Observation(JobManagerCase):
         self.assertEqual(observed, {"claimed_by": None, "runtime": None,
                                     "activity": None, "output": None,
                                     "start_failure": None,
-                                    "preparation_failure": None})
+                                    "preparation_failure": None,
+                                    # W81857: a deployment that supplied no
+                                    # exchange read answers `None`, which is
+                                    # "nobody looked" rather than "nothing is
+                                    # happening".
+                                    "exchange": None})
 
     def test_the_closed_surface_is_what_a_deployment_must_supply(self):
         acts = self.operations()
@@ -152,11 +157,13 @@ class Observation(JobManagerCase):
                          {"claimed_by": None, "runtime": None,
                           "activity": None, "output": None,
                           "start_failure": None,
-                          "preparation_failure": None})
+                          "preparation_failure": None, "exchange": None})
         for call in (lambda: unobserved.receipt_of("offer.issue:x"),
                      lambda: unobserved.recover(now=NOW),
                      lambda: unobserved.admit({}, {}),
-                     lambda: unobserved.claim({})):
+                     lambda: unobserved.claim({}),
+                     lambda: unobserved.dispatch({}, {}),
+                     lambda: unobserved.conclude({}, {})):
             with self.assertRaises(ContractRefusal) as caught:
                 call()
             self.assertEqual(caught.exception.code, "capability")

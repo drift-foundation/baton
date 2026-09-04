@@ -417,11 +417,24 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # acceptance with no compatibility path. This table refuses an entry
         # nothing uses, which is how a leftover operand would have been found.
         "session", "contract", "role",
+        # W81857: `transport` is the fifth member of launch `/2`, and it is an
+        # operand for exactly the reason the other three are -- it is what a
+        # caller SAYS and this module decides the shape from. It is also what
+        # decides whether the exchange namespaces are created beside the
+        # document, so a launch that could be materialized without naming it
+        # would be one whose mounts and whose document disagree.
+        "transport",
         # `launch_delivered` is the PAIR the adapter's capability answers with,
         # reaching the argv composer exactly as a credential delivery's pairs
         # do. The capability itself is adapter construction and is not an
         # operand here, for the same reason `credential_delivery` is not.
         "launch_delivered",
+        # W81857: `exchange_delivered` is the TRIPLE SET the exchange
+        # capability answers with, reaching the argv composer exactly as
+        # `launch_delivered`'s pair does. The capability itself is adapter
+        # construction and is not an operand here, for the same reason
+        # `credential_delivery` is not.
+        "exchange_delivered",
         # W33936: the deployment's configured workspace GROUP, added to an
         # execution container as a SUPPLEMENTARY group so the container's fixed
         # non-root uid can write a root this manager owns -- the primary

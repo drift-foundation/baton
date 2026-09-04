@@ -30,19 +30,24 @@ from baton_v12.contracts import (ContractRefusal, check_manifest_structure,
                                  check_no_durable_secret, digest,
                                  digest_of_bytes)
 from baton_v12.job_manager import ManagerOperations
-from baton_v12.worker_manager import (AuthorityPort, accept_offer,
+from baton_v12.worker_manager import (AuthorityPort, DISPOSITIONS,
+                                      RETENTION_DISPOSITIONS, accept_offer,
                                       activate_assignment,
-                                      attempt_runtime_of, certify_profile,
+                                      attempt_preparation_failure_of,
+                                      attempt_runtime_of,
+                                      attempt_start_failure_of,
+                                      authorize_cleanup, certify_profile,
                                       claimed_offers_for,
                                       configure_workspace_group,
                                       configured_workspace_group,
-                                      attempt_preparation_failure_of,
-                                      attempt_start_failure_of,
-                                      label_context, record_attempt,
-                                      reconcile_runtime,
+                                      decide_retention, label_context,
+                                      load_manifest, observe,
+                                      reconcile_runtime, record_attempt,
                                       refuse_runtime_preparation,
+                                      request_freeze, request_intake,
                                       request_runtime_start, retain_manifest)
-from baton_v12.worker_manager import credentials, launch, workspaces
+from baton_v12.worker_manager import (credentials, exchange, launch,
+                                      workspaces)
 from baton_v12.worker_manager.oci import ENGINES, EnginePort, OciAdapter
 
 from tools.user_credentials import SourceRefusal, UserCredentialSources
@@ -50,16 +55,25 @@ from tools.user_credentials import SourceRefusal, UserCredentialSources
 __all__ = ["CONFIG_ENV", "CONFIG_SCHEMA", "factory", "operations_from"]
 
 CONFIG_ENV = "BATON_V12_SINGLE_WORKER_CONFIG"
-# W81115: SCHEMA `/2`, AND THE VERSION MOVED BECAUSE THE DOCUMENT DID.
-#
-# `/2` carries one required member `/1` never had. Adding a required member to
-# a closed, version-named document is a NEW CONTRACT rather than a compatible
-# reading of the old one, and there is deliberately no fallback: a `/1`
+# W81115 MOVED THIS TO `/2`, and its reason is kept because the rule is the
+# same one applied twice. `/2` added one required member -- the frozen task
+# document -- and adding a required member to a closed, version-named document
+# is a NEW CONTRACT rather than a compatible reading of the old one. A `/1`
 # document is refused by the equality test below rather than accepted with a
-# task nobody named. A deployment that could start without one would start the
-# certified worker over an input root it refuses before it does any provider
-# work at all, which is the defect this Work exists to remove.
-CONFIG_SCHEMA = "baton.v12.single-worker-deployment/2"
+# task nobody named.
+#
+# W81857: SCHEMA `/3`, AND THE VERSION MOVED BECAUSE THE DOCUMENT DID AGAIN.
+#
+# `/3` carries three required members `/2` never had, and every one of them is
+# a decision this deployment could not previously make because it had nothing
+# to make it about: until now the composition started a container and stopped.
+# `review_route` is where an answered, frozen, taken-into-custody result is
+# handed on; `retention_policy_digest` and `retention_disposition` are what is
+# decided about the untrusted bytes before that handoff. There is deliberately
+# no fallback and no default for any of them -- a deployment that could end an
+# attempt without saying where the result goes would be choosing a destination
+# nobody named.
+CONFIG_SCHEMA = "baton.v12.single-worker-deployment/3"
 MAX_CONFIG_BYTES = 1024 * 1024
 
 # W81115: THE TWO NAMES THE CERTIFIED WORKLOAD FIXES, mirrored here rather than
@@ -85,7 +99,8 @@ _MEMBERS = (
     "workspace_storage", "workspace_group", "launch_home",
     "credential_home", "credential_sources", "credential_slots",
     "credential_profile", "input_source", "input_manifest", "task_document",
-    "launch_contract", "launch_role")
+    "launch_contract", "launch_role", "review_route",
+    "retention_policy_digest", "retention_disposition")
 _DIGEST = re.compile(r"\Asha256:[0-9a-f]{64}\Z")
 _NETWORK = re.compile(r"\A[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}\Z")
 
@@ -180,11 +195,12 @@ def _held(document):
             "the configuration's credential_sources")
     for member in ("authority_uuid", "participant", "principal",
                    "profile_name", "adapter_name", "engine", "network",
-                   "launch_contract", "launch_role"):
+                   "launch_contract", "launch_role", "review_route",
+                   "retention_disposition"):
         given[member] = _text(given[member],
                               f"the configuration's {member}")
     for member in ("profile_digest", "policy_digest", "adapter_digest",
-                   "image_digest"):
+                   "image_digest", "retention_policy_digest"):
         given[member] = _digest(given[member],
                                 f"the configuration's {member}")
     if len(given["authority_uuid"]) != 32:
@@ -217,6 +233,16 @@ def _held(document):
     if manifest["assignment_contract"] != given["launch_contract"]:
         _refuse("the bootstrap input manifest names another assignment "
                 "contract", category="refused", code="precondition")
+    # W81857: THE RETENTION DISPOSITION IS THE MANAGER'S OWN CLOSED
+    # VOCABULARY, checked here rather than at the act. A configuration naming a
+    # word `decide_retention` refuses would start a container, run a provider,
+    # freeze and collect its result, and only then discover that nothing may be
+    # decided about it -- which is the whole class of failure this preflight
+    # exists to move to startup.
+    if given["retention_disposition"] not in RETENTION_DISPOSITIONS:
+        _refuse(f"the configured retention_disposition is one of "
+                f"{', '.join(RETENTION_DISPOSITIONS)}",
+                category="policy", code="denied")
     if given["launch_role"] != "implementation":
         _refuse("the single-worker deployment launches only the "
                 "implementation role", category="policy", code="denied")
@@ -248,9 +274,13 @@ def _held(document):
         _refuse("the configuration's credential_profile is one object")
     given["credential_resolution"] = credentials.resolved_delivery(
         given["credential_slots"], profile=given["credential_profile"])
+    # W81857: THE PRODUCTION LAUNCH IS `/2`, and the preflight authors the
+    # exact version this deployment will write. Proving `/1` and then writing
+    # `/2` would be proving a document nothing composes.
     launch.launch_document(session="single-worker-preflight",
                            contract=given["launch_contract"],
-                           role=given["launch_role"])
+                           role=given["launch_role"],
+                           transport=exchange.EXCHANGE_TRANSPORT)
     measured = workspaces.directory_manifest(given["input_source"])
     if measured != manifest["sources"][0]["content_manifest"]:
         _refuse("the configured bootstrap source does not match the input "
@@ -468,15 +498,38 @@ class _AuthoritySession:
                 "publication capability", category="refused",
                 code="capability")
 
+    def pass_work(self, *arguments):
+        """W81857: the ONE lifecycle transition this deployment's ending makes.
+
+        ADDED HERE RATHER THAN REACHED THROUGH THE PORT. `AuthorityPort` is the
+        narrow capability the Worker Manager holds, and every operation on it
+        is one that manager performs; a pass is the DEPLOYMENT's act -- it ends
+        the assignment and moves the Work's Route in one authority
+        transaction -- and widening the manager's port to carry it would give
+        the manager an authority it has no operation for.
+
+        The wrapper stays a wrapper: it forwards one exact operand document to
+        the real session, exactly as the six lifecycle operations above do,
+        and the answer is held to its shape at the one caller that reads it.
+        """
+        return self._session.pass_work(*arguments)
+
 
 class _SingleWorker:
     """The launch capability; it receives no Authority bootstrap or path."""
 
     def __init__(self, given, control, port, *, credential_provider,
-                 engine_run, clock=None, checkpoint=None):
+                 engine_run, session=None, clock=None, checkpoint=None):
         self.given = given
         self.control = control
         self.port = port
+        # W81857: THE SESSION, FOR THE ONE ACT THE PORT DOES NOT CARRY. It is
+        # optional only so focused verification can compose a worker that
+        # never reaches an ending; `_passed` refuses without it rather than
+        # skipping the handoff, because an attempt whose result is frozen,
+        # collected and retained and whose Work never moves is a stage that
+        # looks finished and has not been handed to anybody.
+        self.session = session
         self.group = configured_workspace_group(control)
         self.credential_home = credentials.CredentialHome(
             given["credential_home"])
@@ -1050,6 +1103,327 @@ class _SingleWorker:
         if launched is not None:
             launch.discard(launched.root)
 
+    # -- W81857: the durable file exchange -----------------------------------
+    #
+    # THREE ENTRY POINTS AND ONE RECONSTRUCTION. Every pass rebuilds this
+    # attempt's launch and exchange delivery from durable state -- nothing is
+    # carried in a field, and the process that started the container has no
+    # standing the next one lacks. That is the whole point of the transport:
+    # the manager's lifetime is not the container's, so a restarted manager
+    # reaches exactly the same delivery by rereading exactly the same files.
+
+    def observed_exchange(self, stage):
+        """This attempt's exchange, as an observation that never raises.
+
+        THE PROJECTION READS THIS FOR EVERY STAGE ON EVERY TICK, which is why
+        a refusal here is caught and reported rather than propagated. The
+        acceptance requires a faulted stage to leave every other stage
+        observable; an adoption refusal that escaped would make one damaged
+        launch root stop the sweep from observing anything at all.
+
+        WHAT COMES BACK IS SAFE. The category and the code and nothing else --
+        a refusal's prose is composed from values this deployment read,
+        including values a worker wrote, and the exchange's durable-evidence
+        rule does not stop applying because the value is on its way to a
+        status document.
+        """
+        try:
+            launched = self._adopted(stage["attempt_id"])
+            if launched is None or launched.exchange is None:
+                return None
+            return exchange.observation(launched.exchange)
+        except ContractRefusal as refusal:
+            return {"transport": exchange.EXCHANGE_TRANSPORT,
+                    "sequence_id": None, "command": None, "receipt": None,
+                    "states": [], "terminal": None, "foreign": [],
+                    "state": "unreadable",
+                    "unreadable": {"category": refusal.category,
+                                   "code": refusal.code}}
+
+    def command(self, stage, job):
+        """Publish THE ONE command sequence into this attempt's exchange.
+
+        THIS IS THE ACT THE WHOLE WORK EXISTS FOR. Before it the container is
+        up and has been asked for nothing -- which is the state W81857
+        reproduced and which every health and elapsed-time signal reports as
+        indistinguishable from useful execution. After it the command is a
+        durable file, and neither this process nor the manager that restarts
+        after it is needed for the container to act on it.
+
+        IT IS SAFE TO CALL TWICE AND THAT IS NOT AN ACCIDENT. The document is
+        authored from the attempt alone, so two managers compose identical
+        bytes under an identical derived name; the publisher adopts an
+        identical existing command and refuses a different one rather than
+        replacing a command the worker may already have receipted.
+        """
+        self._matches(stage, job)
+        attempt_id = stage["attempt_id"]
+        launched = self._adopted(attempt_id)
+        if launched is None or launched.exchange is None:
+            _refuse(f"attempt {attempt_id!r} has no exchange delivery to "
+                    f"publish a command into; a command nothing mounts is a "
+                    f"file no container will ever read",
+                    category="refused", code="precondition")
+        published = exchange.publish_command(
+            launched.exchange,
+            exchange.command_document(session=self._session_of(attempt_id),
+                                      attempt_id=attempt_id))
+        # THE HOST PATH STAYS HERE. What the control plane reports is whether
+        # this call published the sequence and which command it is; where this
+        # deployment keeps its launch home is a fact about the machine and not
+        # about the stage, and a sweep report is read by whoever is watching
+        # the service rather than by whoever provisioned it.
+        return {"published": published["published"],
+                "command_digest": published["command_digest"]}
+
+    def ending(self, stage, job):
+        """Drive ONE answered attempt through the already-ruled ending.
+
+        THE ORDER IS THE RULING'S AND IS NOT AN IMPLEMENTATION CHOICE:
+
+          1. positively quiesce and reconcile the exact runtime;
+          2. record the worker's returned disposition;
+          3. freeze the declared output for that disposition;
+          4. collect it and record the intake receipt;
+          5. decide every artifact's retention under the configured policy;
+          6. end the exact Authority assignment by passing it to the
+             configured review Route; and only then
+          7. authorize runtime cleanup.
+
+        `authorize_cleanup` REFUSES WHILE THE ASSIGNMENT IS LIVE, so cleaning
+        up before the pass is not an implementation option. Conversely, ending
+        the assignment before intake can quarantine the result if the
+        collection races that ending. The pass therefore follows intake and
+        retention and precedes cleanup, which is where W44657 put it.
+
+        AND IT IS ASKED AGAIN UNTIL IT IS FINISHED. Review
+        2026-09-04T03-43-45Z [P1]: the projection used to call a stage
+        `completed` the moment its output was frozen, which is the THIRD of
+        those seven steps -- so a process death after `request_freeze` left
+        intake, retention, the Authority pass and cleanup owed forever while
+        the board reported the Work done and its assignment stayed live. The
+        stage now stays `answering` until the manager's own cleanup axis is
+        terminal, and every step above replays: `stop` re-observes an already
+        quiescent runtime, `observe` of the same disposition is a no-op, the
+        freeze replays its immutable record, intake and retention replay their
+        journalled operations, and the pass is effectively-once by identity. So
+        this whole function is safe to re-enter at any boundary a crash can
+        land on.
+
+        THE WORKER'S TERMINAL IS A CLAIM AND NOT A SETTLEMENT. What it decides
+        here is only that the ending is owed and which disposition to ask the
+        freeze about; the freeze validates `/output/output.json` itself, the
+        quiescence is a positive observation of the exact runtime, and intake
+        measures the bytes rather than believing them. A container that
+        published `answered` over an empty output root reaches a refusal from
+        those owners, not a completed stage. Its `manifest_digest` is compared
+        with the digest the freeze produced, below, so a terminal naming
+        another envelope cannot ride a separately valid one.
+
+        NO ABANDONMENT AND NO RETRY. A faulted, lost or incomplete exchange is
+        REPORTED -- the projection reads it as `exceptional` -- and this
+        composition does not end it. W44716's abandonment is the owner for a
+        started attempt policy decides to end, and deciding that is not this
+        vertical slice's.
+        """
+        self._matches(stage, job)
+        row = self._claim(stage)
+        attempt_id = stage["attempt_id"]
+        launched = self._adopted(attempt_id)
+        if launched is None or launched.exchange is None:
+            _refuse(f"attempt {attempt_id!r} has no exchange delivery to end",
+                    category="refused", code="precondition")
+        view = exchange.observation(launched.exchange)
+        terminal = view["terminal"]
+        if terminal is None or terminal["ending"] != "answered":
+            _refuse(f"attempt {attempt_id!r}'s exchange reports "
+                    f"{view['state']!r}; only a correlated answered terminal "
+                    f"authorizes the successful ending",
+                    category="refused", code="precondition")
+        disposition = terminal["disposition"]
+        if disposition not in DISPOSITIONS:
+            _refuse(f"attempt {attempt_id!r}'s worker answered disposition "
+                    f"{disposition!r} and this manager knows "
+                    f"{', '.join(DISPOSITIONS)}; a disposition nobody can name "
+                    f"is not one to freeze an output under",
+                    category="refused", code="precondition")
+        state = attempt_runtime_of(self.control, attempt_id)
+        runtime_id = state["runtime_id"]
+        if runtime_id is None:
+            _refuse(f"attempt {attempt_id!r} answered its command and this "
+                    f"manager holds no runtime identity for it; a freeze takes "
+                    f"a positively quiescent runtime and there is nothing here "
+                    f"to observe", category="refused", code="precondition")
+        roots = workspaces.assignment_workspace(
+            self.group, self.given["workspace_storage"], attempt_id)
+        delivery, orphan = self._credential(attempt_id, state, roots)
+        adapter = self._adapter(roots, delivery, orphan, launched)
+        # QUIESCENCE IS ORDERED, NOT WAITED FOR. The container is started
+        # INTERACTIVE so its idle PID 1 outlives the provider it ran, and
+        # `reconcile_runtime` observes rather than stops.
+        #
+        # ONLY `quiescent`, AND `absent` IS NOT THE SAME PROOF: a runtime that
+        # is merely GONE was never observed to have finished writing, so
+        # freezing its output would seal bytes nobody watched the end of.
+        stopped = adapter.stop({"runtime_id": runtime_id,
+                               "operation_id": f"quiesce:{attempt_id}"})
+        if stopped.get("state") != "quiescent":
+            _refuse(f"attempt {attempt_id!r}'s runtime was ordered to stop and "
+                    f"observed {stopped.get('state')!r}; a freeze takes a "
+                    f"positively quiescent runtime, and an absent one is not "
+                    f"the same proof because its writer was never seen to "
+                    f"finish", category="refused", code="precondition")
+        reconcile_runtime(self.control, adapter, attempt_id=attempt_id)
+        observe(self.control, attempt_id=attempt_id, axis="worker_disposition",
+                value=disposition)
+        frozen = request_freeze(self.control, self.port, adapter,
+                                attempt_id=attempt_id,
+                                disposition=disposition)
+        # W81857 review 2026-09-04T03-43-45Z [P1]: THE TERMINAL'S DIGEST IS
+        # COMPARED, AND THIS IS THE VALUE TO COMPARE IT WITH.
+        #
+        # `manifest_digest` was carried and never enforced, so an answered
+        # terminal naming another envelope drove the whole success ending
+        # whenever a separately valid `/output/output.json` happened to exist --
+        # which defeats the correlation the member was added to provide.
+        #
+        # IT IS THE SEALED RESULT'S `completion_manifest_digest`, NOT THE
+        # FROZEN RESULT'S OWN `manifest_digest`. Those are two documents:
+        # `manifest_digest` names the MANAGER's result manifest, and the
+        # worker's terminal names the WORKER's completion envelope. Comparing
+        # the terminal against the result manifest would refuse every honest
+        # attempt, which the real-composition regression caught. `sealing`
+        # opens `/output/output.json` itself, validates its shape against the
+        # declarations and recomputes its digest over the bytes it read, and
+        # records that digest in the sealed result -- so this compares the
+        # worker's claim with this manager's own independent answer about the
+        # same file.
+        #
+        # THE COMPARISON CANNOT HAPPEN EARLIER, because that answer does not
+        # exist until the freeze commits.
+        #
+        # A MISMATCH REFUSES AND SETTLES NOTHING FURTHER. The freeze is durable
+        # and replays; intake, retention, the Authority pass and cleanup do not
+        # happen, so no result reaches review and no runtime is removed on the
+        # strength of a correlation that failed. The stage stays `answering`
+        # and the sweep reports the refusal every tick, which is an operator's
+        # problem to look at rather than a silence.
+        sealed = load_manifest(self.control, frozen["manifest_digest"],
+                               "resultManifest")
+        validated = (sealed or {}).get("completion_manifest_digest")
+        if terminal["manifest_digest"] != validated:
+            _refuse(f"attempt {attempt_id!r}'s worker answered completion "
+                    f"manifest {terminal['manifest_digest']!r} and this "
+                    f"manager validated {validated!r}; a terminal that names "
+                    f"another envelope is not evidence about the output this "
+                    f"manager froze",
+                    category="refused", code="operation-collision")
+        receipt = request_intake(self.control, self.port, adapter,
+                                 attempt_id=attempt_id)
+        held = list(receipt["artifacts"])
+        decided = decide_retention(
+            self.control, self.port, adapter, attempt_id=attempt_id,
+            artifact_ids=[one["artifact_id"] for one in held],
+            disposition=self.given["retention_disposition"],
+            retention_policy_digest=self.given["retention_policy_digest"])
+        passed = self._passed(attempt_id, _assignment(row))
+        authorize_cleanup(
+            self.control, self.port, adapter, attempt_id=attempt_id,
+            retention_policy_digest=self.given["retention_policy_digest"])
+        return {"disposition": disposition,
+                "manifest_digest": frozen["manifest_digest"],
+                "result_id": frozen["result_id"],
+                "receipt_digest": receipt["receipt_digest"],
+                "artifacts": sorted(one["artifact_id"] for one in held),
+                "retention": decided["disposition"],
+                "review_route": passed["route"]}
+
+    def _passed(self, attempt_id, expect):
+        """The authority's own answer to this deployment's pass, held to shape.
+
+        WHAT IS KEPT IS WHAT THE AUTHORITY SAID, not what this deployment asked
+        for. A route echo is not the proof and taking one as proof was a
+        measured defect in the supervised composition: an answer ABOUT ANOTHER
+        GENERATION that happened to echo the route was accepted as this
+        attempt's pass, and cleanup then ran on the strength of a transition
+        that ended somebody else's assignment. The ASSIGNMENT the authority
+        says it ended is what is compared, and the route is checked beside it
+        rather than instead of it.
+
+        EFFECTIVELY ONCE BY IDENTITY. The operation id is derived from this
+        attempt, so an exact replay replays the authority's own committed
+        answer instead of passing a second time; a different generation carries
+        a different signature and collides rather than silently reusing this
+        one's pass.
+        """
+        if self.session is None:
+            _refuse("this deployment holds no Authority pass capability, so "
+                    "an ended attempt's Work cannot reach its review Route",
+                    category="refused", code="capability")
+        route = self.given["review_route"]
+        answered = self.session.pass_work({
+            "expect": dict(expect), "operation_id": f"pass:{attempt_id}",
+            "to_route": route, "comment": PASS_COMMENT})
+        if type(answered) is not dict:
+            _refuse(f"the authority answered the review pass with "
+                    f"{type(answered).__name__} and this deployment reads a "
+                    f"document", category="refused", code="precondition")
+        missing = sorted(one for one in PASS_MEMBERS if one not in answered)
+        if missing:
+            _refuse(f"the review pass answered without {', '.join(missing)}; "
+                    f"a document missing either the ended assignment or the "
+                    f"route it moved the Work to is not evidence this "
+                    f"assignment ended", category="refused",
+                    code="precondition")
+        if answered["assignment"] != expect:
+            _refuse(f"the review pass ended {answered['assignment']!r} and "
+                    f"this attempt holds {expect!r}; an answer about another "
+                    f"assignment is not evidence that this one ended",
+                    category="refused", code="operation-collision")
+        if answered["route"] != route:
+            _refuse(f"the assignment was passed to {answered['route']!r} and "
+                    f"this deployment asked for {route!r}",
+                    category="refused", code="precondition")
+        if answered["cause"] != "pass" or answered["fenced"]:
+            _refuse(f"the assignment ended {answered['cause']!r} with fenced "
+                    f"{answered['fenced']!r}; the approved transition is an "
+                    f"unfenced pass and nothing else is one",
+                    category="refused", code="precondition")
+        if answered["phase"] != "queued" or answered["gate"] is not None:
+            _refuse(f"the assignment was passed into phase "
+                    f"{answered['phase']!r} behind gate {answered['gate']!r}; "
+                    f"the approved handoff leaves the Work queued and ungated "
+                    f"for its review route to claim",
+                    category="refused", code="precondition")
+        return {"route": answered["route"], "cause": answered["cause"],
+                "phase": answered["phase"], "gate": answered["gate"]}
+
+    def _session_of(self, attempt_id):
+        """The one container session identity this attempt's launch carries.
+
+        DERIVED FROM THE ATTEMPT, so the process that publishes the command and
+        the process that authored the launch document reach the same value
+        without either remembering anything.
+        """
+        return "session-" + digest(attempt_id)[7:31]
+
+    def _adopted(self, attempt_id):
+        """This attempt's launch and exchange delivery, from durable state.
+
+        ADOPTION AND NOT MATERIALIZATION. A delivery that is absent here is one
+        no container ever mounted, and authoring a replacement under a running
+        container would turn lost durable evidence into state that looks valid
+        -- which is the correction `_launch_document` records for the launch
+        document and which applies with more force to a namespace the worker
+        writes.
+        """
+        return launch.adopt(
+            self.given["launch_home"], attempt_id=attempt_id,
+            session=self._session_of(attempt_id),
+            contract=self.given["launch_contract"],
+            role=self.given["launch_role"],
+            transport=exchange.EXCHANGE_TRANSPORT, workspace_group=self.group)
+
     def _launch_document(self, attempt_id, state):
         """Adopt this attempt's exact launch delivery; author one ONLY before
         a start.
@@ -1072,10 +1446,7 @@ class _SingleWorker:
         ending for every boundary alike.
         """
         given = self.given
-        session = "session-" + digest(attempt_id)[7:31]
-        launched = launch.adopt(
-            given["launch_home"], attempt_id=attempt_id, session=session,
-            contract=given["launch_contract"], role=given["launch_role"])
+        launched = self._adopted(attempt_id)
         if launched is not None:
             return launched
         if state["execution_runtime"] != "not-started":
@@ -1084,9 +1455,30 @@ class _SingleWorker:
                     "mounted by nothing that exists and would claim evidence "
                     "this deployment does not have",
                     category="refused", code="precondition")
+        # W81857: THE PRODUCTION LAUNCH SELECTS THE FILE EXCHANGE, and its two
+        # namespaces are created here -- before the start, inside the same
+        # attempt-private root, under a parent this manager closes read-only
+        # once every entry exists. A namespace created after the start is one
+        # nothing mounts, and there is no second chance at a mount table.
         return launch.materialize(
-            given["launch_home"], attempt_id=attempt_id, session=session,
-            contract=given["launch_contract"], role=given["launch_role"])
+            given["launch_home"], attempt_id=attempt_id,
+            session=self._session_of(attempt_id),
+            contract=given["launch_contract"], role=given["launch_role"],
+            transport=exchange.EXCHANGE_TRANSPORT, workspace_group=self.group)
+
+# What this deployment says when it hands an implementation result on. The
+# authority records it beside the transition, so it is written once here rather
+# than composed at the call site.
+PASS_COMMENT = ("the implementation worker answered, its declared output is "
+                "frozen, collected and retained, and the candidate is ready "
+                "for independent review")
+
+# THE CLOSED RESULT A PASS ANSWERS WITH. `AuthorityCore.pass_work` returns the
+# ended assignment beside the new Route, and every member of it is read at
+# `_passed` -- holding a document to the members it must carry is what makes
+# that a comparison rather than a `get` that shrugs at an absence.
+PASS_MEMBERS = ("assignment", "route", "cause", "phase", "gate", "fenced")
+
 
 class _Operations(ManagerOperations):
     __slots__ = ("_dispose", "_worker")
@@ -1170,11 +1562,20 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                                      "credential_sources")}
         worker = _SingleWorker(
             runtime, control_store, port, credential_provider=provider,
-            engine_run=engine_run or _engine_run, clock=clock,
+            engine_run=engine_run or _engine_run, session=session, clock=clock,
             checkpoint=checkpoint)
         return _Operations(
             control_store, port, mint_bearer=_bearer,
             deliver_bearer=worker.delivered, start_runtime=worker.start,
+            # W81857: THE THREE EXCHANGE CAPABILITIES, supplied separately
+            # because they are three different authorities. Reading is a pure
+            # observation the projection performs on every tick for every
+            # stage; publishing the command is the one act that commits this
+            # attempt to a provider turn; ending it freezes, takes custody of
+            # and hands on somebody's work.
+            observe_exchange=worker.observed_exchange,
+            dispatch_exchange=worker.command,
+            conclude_attempt=worker.ending,
             worker=worker, dispose=authority.dispose)
     except BaseException:
         authority.dispose()

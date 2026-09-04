@@ -71,6 +71,7 @@ from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
 
 __all__ = ["ACTS", "CONTRACTS", "DEPENDENCY_MEMBERS", "EPISODE_ENDINGS",
+           "EXCHANGE_ACTS", "stage_exchange",
            "JOB_MEMBERS",
            "MAX_JOBS", "MAX_STAGES", "REPLACEABLE_ENDINGS", "STAGE_KINDS",
            "STAGE_MEMBERS", "STAGE_STATES", "STATUS_SCHEMA",
@@ -86,7 +87,14 @@ SUBMISSION_SCHEMA = "baton.v12.job-submission/1"
 # and its offer/attempt identities name the current one, so a reader written
 # against /1 would see one stage's history as the stage itself. The version is
 # in the name so that reader is told rather than left to find out.
-STATUS_SCHEMA = "baton.v12.job-status/2"
+# W81857 moved this to /3. A stage no longer reports `running` on the
+# strength of an attached runtime identity: the vocabulary gains
+# `starting`, `waiting` and `answering`, and every stage carries the
+# canonical file-exchange projection beside its runtime. A reader written
+# against /2 would see a started container it used to be told was working, and
+# the version is in the name so that reader is told rather than left to find
+# out.
+STATUS_SCHEMA = "baton.v12.job-status/3"
 
 # The three stages this milestone's vertical slice has. They are a CLOSED
 # vocabulary rather than free text because the projection below maps each one
@@ -103,9 +111,27 @@ TERMINAL_POLICIES = ("report-and-hold",)
 # What a stage may be, in the vocabulary the acceptance bullet names. Every
 # one of these is DERIVED at read time from persisted receipts plus canonical
 # manager state -- none of them is a column this leaf advances on its own.
-STAGE_STATES = ("blocked", "queued", "offered", "claimed", "running",
-                "reviewing", "integrating", "changes-requested", "completed",
-                "exceptional")
+# W81857 added three, and the reason each one exists is that the state it
+# replaced was a lie.
+#
+# `starting` is a claimed stage whose runtime is attached and which this
+# control plane has NOT commanded, or cannot see a command for. It is what
+# `running` used to say, and saying `running` there is the whole defect: the
+# retained W71917 container was healthy, idle and projected as work in
+# progress for as long as anybody cared to look.
+#
+# `waiting` is a stage whose command is published and whose worker has not
+# accepted it yet. The manager has done everything it owes and the container
+# has not answered -- which is a real, bounded, ordinary state and is not the
+# same as either of its neighbours.
+#
+# `answering` is a stage whose worker published a valid terminal answer and
+# whose output is not frozen yet. The turn is over and the ending is owed;
+# calling that `completed` would report a result nobody has taken custody of,
+# and calling it `running` would report a provider that has stopped.
+STAGE_STATES = ("blocked", "queued", "offered", "claimed", "starting",
+                "waiting", "running", "reviewing", "integrating", "answering",
+                "changes-requested", "completed", "exceptional")
 
 # Where a stage stops being something this control plane owes an act for.
 # `changes-requested` is terminal FOR THIS LEAF and not for the pipeline: the
@@ -160,6 +186,13 @@ assert frozenset(REPLACEABLE_ENDINGS) <= frozenset(EPISODE_ENDINGS)
 # deciding a review and importing a proposal are other leaves' operations and
 # are absent here rather than represented by a placeholder.
 ACTS = ("admit", "claim")
+
+# W81857: THE TWO EXCHANGE ACTS, and they are deliberately not members of
+# `ACTS`. `ACTS` is the closed set this leaf writes RECEIPTS for; these two
+# write none, because the durable command file and each ending substep's own
+# journalled operation are the records, and a second account of either here is
+# the one this leaf could not keep true across the crash window it exists for.
+EXCHANGE_ACTS = ("dispatch", "conclude")
 
 # Bounds on one submission. A control plane that accepts an unbounded document
 # accepts an unbounded amount of durable work from one call.
@@ -427,10 +460,17 @@ CONTRACTS = {
     # `episode`, `offer_id` and `attempt_id` name the CURRENT episode and are
     # null between an ending and its replacement; `episodes` is the whole
     # append-only history, which is where an abandoned attempt stays visible.
+    # W81857: `exchange` is the canonical file-exchange projection, beside
+    # the runtime rather than folded into it. The two answer different
+    # questions -- whether a container is up, and whether a turn is happening
+    # inside it -- and the whole of this Work is that the first one was being
+    # read as the second. `null` means this control plane holds no exchange
+    # read at all, which is "nobody looked" and is deliberately distinguishable
+    # from an exchange that has been looked at and carries no command.
     "stage.status": (("stage_id", "job_id", "kind", "state", "work_id",
                       "profile_name", "profile_digest", "episode", "offer_id",
                       "attempt_id", "episodes", "gates", "receipts",
-                      "runtime", "artifacts"), ()),
+                      "runtime", "exchange", "artifacts"), ()),
     "job.status": (("job_id", "submission_id", "input_digest",
                     "policy_digest", "test_scope", "terminal_policy",
                     "stages"), ()),
@@ -452,8 +492,18 @@ CONTRACTS = {
     # reported rather than inferred from the acts that followed it. `started`
     # names every claimed stage this tick asked the deployment to launch,
     # whatever came back.
+    # W81857: `spoken` names every stage this tick published a command for
+    # or drove through its ending, whatever came back. It is separate from
+    # `started` for the reason `started` is separate from `acts`: they settle
+    # no receipt, and what this leaf reports is which stage it asked for.
     "sweep": (("observed_at", "recovered", "observed", "replaced", "acts",
-               "started"), ()),
+               "started", "spoken"), ()),
+    # One claimed, started stage's attempt at being COMMANDED, or at being
+    # ended after it answered. `act` is `dispatch` or `conclude`; `outcome` is
+    # the same closed set a launch answers with, because the question is the
+    # same one: did this tick perform it, defer it, or find it refused.
+    "stage.exchange": (("stage_id", "episode", "attempt_id", "act",
+                        "outcome"), ("detail",)),
 }
 
 
@@ -516,6 +566,10 @@ def reconciliation(**members):
 
 def stage_launch(**members):
     return _emit("stage.launch", members)
+
+
+def stage_exchange(**members):
+    return _emit("stage.exchange", members)
 
 
 def sweep_report(**members):

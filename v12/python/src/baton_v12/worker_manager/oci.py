@@ -64,8 +64,8 @@ import re
 from ..contracts import ContractRefusal, check_no_durable_secret
 from ..contracts.pod import own
 from ..contracts.errors import name_value
-from . import (boundaries, credentials, documents, launch, sealing,
-               workspaces)
+from . import (boundaries, credentials, documents, exchange, launch,
+               sealing, workspaces)
 
 __all__ = ["ENGINES", "EnginePort", "LABEL_PREFIX", "LABEL_CONTEXT",
            "MAX_DIAGNOSTIC",
@@ -858,8 +858,66 @@ def _launch_mount(pair):
     return source, target
 
 
+def _exchange_mounts(exchange_delivered):
+    """The TWO binds an exchange delivery authorizes, and nothing else.
+
+    W81857. THE TARGETS ARE THIS CONTRACT'S CONSTANTS and never operands, for
+    the same reason the launch document's is: a target a caller could vary is a
+    container pointed at something else. What crosses to this function is the
+    triple set the typed capability answered with, owned here exactly as a
+    credential delivery's pairs are.
+
+    THE DIRECTION IS PART OF THE TARGET, and that is the whole safety property.
+    The command namespace is read-only because a worker that could rewrite its
+    own command could change what it was asked to do between reading it and
+    publishing a receipt for it; the event namespace is writable because a
+    worker that cannot write cannot answer. A delivery asking for either the
+    other way round is refused rather than composed.
+    """
+    if exchange_delivered is None:
+        return ()
+    if type(exchange_delivered) not in (list, tuple):
+        _refuse(f"an exchange delivery is a sequence of binds; this is "
+                f"{name_value(exchange_delivered)}")
+    wanted = ((exchange.COMMAND_TARGET, False), (exchange.EVENT_TARGET, True))
+    if len(exchange_delivered) != len(wanted):
+        _denied(f"an exchange delivery is exactly "
+                f"{name_value(exchange.COMMAND_TARGET)} read-only and "
+                f"{name_value(exchange.EVENT_TARGET)} writable; this names "
+                f"{len(exchange_delivered)} binds")
+    composed = []
+    for one, (target, writable) in zip(exchange_delivered, wanted):
+        if type(one) not in (list, tuple) or len(one) != 3:
+            _refuse(f"an exchange bind is a source, a target and a direction; "
+                    f"this is {name_value(one)}")
+        source = canonical_source(one[0], "an exchange delivery source")
+        if boundaries.text(one[1], "an exchange delivery target") != target:
+            _denied(f"an exchange delivery lands on {name_value(one[1])}; the "
+                    f"worker reads its command at "
+                    f"{name_value(exchange.COMMAND_TARGET)} and answers under "
+                    f"{name_value(exchange.EVENT_TARGET)}, which are "
+                    f"constants of this contract rather than operands")
+        if one[2] is not writable:
+            _denied(f"an exchange delivery asks for {name_value(target)} "
+                    f"writable={name_value(one[2])}; the command namespace is "
+                    f"read-only and the event namespace is writable, and "
+                    f"neither direction is a parameter a caller may relax")
+        # A DIRECTORY, PROVED HERE. A regular file bound over either fixed
+        # target is a namespace neither end can enumerate, and a link is a
+        # source this manager would be resolving on the worker's behalf.
+        # `canonical_source` already resolved it, so this is the object that
+        # will actually be mounted.
+        if not os.path.isdir(source):
+            _refuse(f"an exchange delivery names {name_value(source)}, which "
+                    f"is not a directory; each half of the exchange is one "
+                    f"namespace at one path", code="path")
+        composed.append((source, target, writable))
+    return tuple(composed)
+
+
 def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                mounts=(), credentials_delivered=(), launch_delivered=None,
+               exchange_delivered=None,
                name, workspace_group=None, network=NETWORK_NONE,
                interactive=False):
     """The closed argv that STARTS one runtime, restrictions and all.
@@ -1013,6 +1071,26 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                         f"nor the engine says which")
         argv += ["--mount",
                  f"type=bind,source={source},target={target},readonly=true"]
+    # W81857: THE FILE EXCHANGE, composed after every other family and refused
+    # outright if any of them would contain either target. The command
+    # namespace is what the manager's authority over this container's work
+    # rests on; an assignment, credential or launch mount over it would decide
+    # what the worker reads there, which is the one thing a fixed target exists
+    # to take away from everybody else.
+    for source, target, writable in _exchange_mounts(exchange_delivered):
+        for taken in ([one[1] for one in assigned]
+                      + [one[1] for one in
+                         _credential_mounts(credentials_delivered)]
+                      + ([_launch_mount(launch_delivered)[1]]
+                         if launch_delivered is not None else [])):
+            if taken == target or _within(target, taken):
+                _denied(f"an exchange namespace lands on "
+                        f"{name_value(target)}, which this start already "
+                        f"mounts; the worker would read one of the two and "
+                        f"neither this manager nor the engine says which")
+        argv += ["--mount",
+                 f"type=bind,source={source},target={target},"
+                 f"readonly={'false' if writable else 'true'}"]
     # THE IMAGE, LAST and by digest. Every flag precedes it, so nothing a
     # caller supplies can be read as an argument to the engine itself.
     argv.append(image_digest)
@@ -1785,6 +1863,11 @@ class OciAdapter:
                 launch_delivered=(self.launch_delivery.mount()
                                   if self.launch_delivery is not None
                                   else None),
+                exchange_delivered=(
+                    self.launch_delivery.exchange.mounts()
+                    if self.launch_delivery is not None
+                    and self.launch_delivery.exchange is not None
+                    else None),
                 name=_runtime_name(taken["operation_id"]),
                 workspace_group=self.workspace_group,
                 network=self.network, interactive=self.interactive)

@@ -78,12 +78,20 @@ class TheLaunchIsLevelTriggered(JobManagerCase):
     def test_a_running_stage_is_observed_rather_than_started_again(self):
         self.claimed()
         sweep(self.jobs, self.acts, now=SOON)
-        # The manager now reports a runtime, so the stage is `running`.
+        # The manager now reports a runtime AND the exchange reports a worker
+        # that accepted its command, so the stage is `running`.
+        #
+        # W81857 made the second half necessary. A runtime identity alone used
+        # to be enough for this projection, and that is precisely the defect:
+        # the container this test stands in for could be idling with no
+        # command, no provider and no output, and nothing here would have
+        # noticed. `test_status` owns the negative case.
         self.acts.observed(STAGE, claimed_by=True,
                            runtime={"attempt_id": f"attempt:{STAGE}",
                                     "runtime_id": "runtime-1",
                                     "execution_runtime": "running",
                                     "cleanup": None, "assignment": None})
+        self.acts.commanded(STAGE, state="working")
         before = len([one for one in self.acts.calls if one[0] == "launch"])
         report = sweep(self.jobs, self.acts, now=SOON)
         self.assertEqual(report["started"], [])

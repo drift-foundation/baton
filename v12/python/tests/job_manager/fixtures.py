@@ -103,7 +103,7 @@ def _unobserved():
     """A stage nothing canonical has happened to yet."""
     return {"claimed_by": None, "runtime": None, "activity": None,
             "output": None, "start_failure": None,
-            "preparation_failure": None}
+            "preparation_failure": None, "exchange": None}
 
 
 # The kind the MANAGER journals each delegated act under. The fake below signs
@@ -258,6 +258,9 @@ class FakeOperations:
         self.states = {}
         self.launches = {}
         self.recorded_failures = {}
+        self.commands = {}
+        self.endings = {}
+        self.attaching = set()
         self.events = EventQueue()
         self.calls = []
 
@@ -299,10 +302,19 @@ class FakeOperations:
 
         return pump(self.events, handlers, quiescent=tuple(quiescent))
 
-    def starts(self, stage_id, answer=None):
-        """Configure what this deployment's runtime start answers, or raises."""
+    def starts(self, stage_id, answer=None, attaches=False):
+        """Configure what this deployment's runtime start answers, or raises.
+
+        `attaches` makes the successful start ALSO record the canonical runtime
+        observation, which is what the real Worker Manager does inside
+        `request_runtime_start`. A case about the post-start acts wants it; a
+        case about the launch pass itself deliberately does not, because
+        leaving the observation empty is how it drives the pass again.
+        """
         self.launches[stage_id] = ({"runtime_id": f"runtime-{stage_id}"}
                                    if answer is None else answer)
+        if attaches:
+            self.attaching.add(stage_id)
 
     def fails(self, stage_id, error, *, records=True):
         """Fail this stage's launch, with or without a canonical record.
@@ -375,6 +387,61 @@ class FakeOperations:
                 self.observed(stage_id, claimed_by=True,
                               start_failure=self.recorded_failures[stage_id])
             raise held
+        # W81857: A SUCCESSFUL START MAY ATTACH THE RUNTIME TO THE CANONICAL
+        # OBSERVATION, because the real one does -- `request_runtime_start`
+        # journals the attachment, so the very next canonical read sees it.
+        #
+        # IT IS OPT-IN AND THE DEFAULT DID NOT MOVE. Cases written before this
+        # existed drive the launch pass by leaving the observation empty and
+        # asking again, and quietly attaching for all of them would have
+        # rewritten what those cases measure. `attaches` is how a case says it
+        # is about what happens AFTER a container is up.
+        if stage_id in self.attaching:
+            self.observed(stage_id, claimed_by=True,
+                          runtime={"attempt_id": stage["attempt_id"],
+                                   "runtime_id": held.get("runtime_id"),
+                                   "execution_runtime": "running",
+                                   "cleanup": None, "assignment": None})
+        return held
+
+    def dispatch(self, stage, job):
+        """The deployment's exchange publication, as a case configures it.
+
+        DEFAULT IS A REFUSAL, and it is the honest one: a deployment given no
+        dispatch cannot command a container, which is exactly what
+        `ManagerOperations` answers with no `dispatch_exchange`. A case that
+        wants a commanded worker says so with `commands`.
+
+        A PERFORMED PUBLICATION MOVES THE OBSERVATION, because the real one
+        does: the command is a durable file, so the very next scan of the
+        exchange reports `waiting`. A fake that published and answered
+        `not-requested` would make every level-triggered pass look like it
+        publishes twice.
+        """
+        stage_id = stage["stage_id"]
+        self.calls.append(("dispatch", stage_id))
+        answer = self._exchange_act("dispatch", stage_id, self.commands)
+        if not self._exchange_of(stage_id):
+            self.commanded(stage_id, answer=answer)
+        return answer
+
+    def _exchange_of(self, stage_id):
+        held = self.observations.get(stage_id)
+        return None if held is None else held.get("exchange")
+
+    def conclude(self, stage, job):
+        stage_id = stage["stage_id"]
+        self.calls.append(("conclude", stage_id))
+        return self._exchange_act("conclude", stage_id, self.endings)
+
+    def _exchange_act(self, act, stage_id, configured):
+        held = configured.get(stage_id)
+        if held is None:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"this fake deployment was given no {act} for {stage_id}")
+        if isinstance(held, BaseException):
+            raise held
         return held
 
     def observe(self, stage):
@@ -384,6 +451,23 @@ class FakeOperations:
 
     def refuse(self, stage_id, act, refusal):
         self.refusals[(stage_id, act)] = refusal
+
+    def commanded(self, stage_id, answer=None, state="waiting", **members):
+        """This stage's exchange, in the REAL reader's shape.
+
+        The default is the state a published command with no worker receipt
+        projects, because that is the interesting one: it is the first moment
+        this control plane has done everything it owes and the container has
+        not answered.
+        """
+        if not isinstance(answer, BaseException):
+            self.commands[stage_id] = {"published": True} if answer is None \
+                else answer
+        held = dict(self.observations.get(stage_id) or _unobserved())
+        held["exchange"] = {"transport": "baton.worker-exchange/1",
+                            "sequence_id": f"sequence-{stage_id}",
+                            "state": state, **members}
+        self.observations[stage_id] = held
 
     def observed(self, stage_id, **members):
         """One stage's canonical observation, in the REAL reader's shape.
@@ -402,15 +486,39 @@ class FakeOperations:
             held["claimed_by"] = identities(stage_id, 1)[0]
         self.observations[stage_id] = held
 
-    def frozen(self, stage_id, disposition, artifacts=None):
+    def frozen(self, stage_id, disposition, artifacts=None,
+               execution_runtime="ended", cleanup="complete"):
+        """One frozen result, with the two axes a case may need to steer.
+
+        W81857 review [P1] made `cleanup` a fact this projection reads: the
+        ending is owed until the manager's own cleanup axis is terminal, so a
+        fixture that always answered `None` there could only ever model a
+        HALF-FINISHED ending.
+
+        IT DEFAULTS TO `complete`, which is what every case written before the
+        ending existed meant by "this stage is frozen": a finished stage. A
+        case about the window between the freeze and the last step says so by
+        naming an unsettled value, and re-review 2026-09-04T07-00-54Z is why
+        that is now the explicit half -- an unsettled default would have made
+        every pre-existing terminal expectation mean something its author
+        never wrote.
+
+        AND THE EXCHANGE SURVIVES. `observed` rebuilds the observation from
+        the unobserved shape, so freezing used to erase whatever exchange a
+        case had set -- which made a frozen stage look like one this control
+        plane holds no exchange read for, and hid exactly the window the
+        review reproduced.
+        """
         from baton_v12.job_manager.episodes import identities
 
         _offer_id, attempt_id = identities(stage_id, 1)
+        held = self.observations.get(stage_id) or {}
         self.observed(stage_id, claimed_by=True,
+                      exchange=held.get("exchange"),
                       runtime={"attempt_id": attempt_id,
                                "runtime_id": "runtime-1",
-                               "execution_runtime": "ended",
-                               "cleanup": None, "assignment": None},
+                               "execution_runtime": execution_runtime,
+                               "cleanup": cleanup, "assignment": None},
                       output={"attempt_id": attempt_id,
                               "result_id": f"result-{stage_id}",
                               "disposition": disposition,

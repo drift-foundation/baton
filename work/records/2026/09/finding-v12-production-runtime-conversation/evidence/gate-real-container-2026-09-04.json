@@ -1,0 +1,192 @@
+{
+ "artifacts": [
+  {
+   "artifact_id": "attempt-2c3272579b12a48416f7597481eec70322824f5eb4529eed5bb44d3a00618908:proposal",
+   "bytes": 34,
+   "content_digest": "sha256:8fe1a86819bffd60ed45269f42acef6d1648db7944ff0cedc0a1c7c1671b0b48",
+   "locator": "file:///var/tmp/w81857-gate/storage/attempt-2c3272579b12a48416f7597481eec70322824f5eb4529eed5bb44d3a00618908/custody/attempt-2c3272579b12a48416f7597481eec70322824f5eb4529eed5bb44d3a00618908/proposal",
+   "media_type": "application/octet-stream",
+   "output_name": "proposal"
+  }
+ ],
+ "attempt_id": "attempt-2c3272579b12a48416f7597481eec70322824f5eb4529eed5bb44d3a00618908",
+ "command_files": [
+  "sequence-a87238738fcf9b084de9dfa82cf96a6a.json"
+ ],
+ "commanded_at_tick": 2,
+ "commanding_tick_exited_at": "2026-09-04T07:05:10Z",
+ "container_exit": "exited 0 2026-09-04T07:05:10.979314917Z",
+ "engine_exec_ids": "null",
+ "epochs": {
+  "commanding_tick_exited_at": 1788505510.958,
+  "receipt.json": 1788505510.969,
+  "state-describe.json": 1788505510.971,
+  "state-work.json": 1788505510.974,
+  "terminal.json": 1788505510.974
+ },
+ "event_files": [
+  "receipt.json",
+  "state-describe.json",
+  "state-work.json",
+  "terminal.json"
+ ],
+ "exchange_after_the_gap": {
+  "command": {
+   "command_digest": "sha256:cf91b3e4a377839782e552890720b2b00a0f1858a6d6618e0909268b34bbdad1",
+   "operations": [
+    "describe",
+    "work"
+   ],
+   "sequence_id": "sequence-a87238738fcf9b084de9dfa82cf96a6a"
+  },
+  "foreign": [],
+  "receipt": {
+   "accepted_at": "2026-09-04T07:05:10.000Z"
+  },
+  "sequence_id": "sequence-a87238738fcf9b084de9dfa82cf96a6a",
+  "state": "answered",
+  "states": [
+   {
+    "operation": "describe",
+    "state": "answered"
+   },
+   {
+    "operation": "work",
+    "state": "answered"
+   }
+  ],
+  "terminal": {
+   "answered": [
+    "describe",
+    "work"
+   ],
+   "disposition": "completed",
+   "ending": "answered",
+   "fault_code": null,
+   "manifest_digest": "sha256:24c30577525d24d25c6b2141d7c9bf13b70f0f1c19f97653d29569762afe5800"
+  },
+  "transport": "baton.worker-exchange/1",
+  "unreadable": null
+ },
+ "exchange_removed_by_the_ending": true,
+ "exchange_when_commanded": {
+  "command": {
+   "command_digest": "sha256:cf91b3e4a377839782e552890720b2b00a0f1858a6d6618e0909268b34bbdad1",
+   "operations": [
+    "describe",
+    "work"
+   ],
+   "sequence_id": "sequence-a87238738fcf9b084de9dfa82cf96a6a"
+  },
+  "foreign": [],
+  "receipt": {
+   "accepted_at": "2026-09-04T07:05:10.000Z"
+  },
+  "sequence_id": "sequence-a87238738fcf9b084de9dfa82cf96a6a",
+  "state": "answered",
+  "states": [
+   {
+    "operation": "describe",
+    "state": "answered"
+   },
+   {
+    "operation": "work",
+    "state": "answered"
+   }
+  ],
+  "terminal": {
+   "answered": [
+    "describe",
+    "work"
+   ],
+   "disposition": "completed",
+   "ending": "answered",
+   "fault_code": null,
+   "manifest_digest": "sha256:24c30577525d24d25c6b2141d7c9bf13b70f0f1c19f97653d29569762afe5800"
+  },
+  "transport": "baton.worker-exchange/1",
+  "unreadable": null
+ },
+ "expected_worker_digest": "sha256:da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+ "final_state": "completed",
+ "gap_closed_at": "2026-09-04T07:05:11Z",
+ "gap_opened_at": "2026-09-04T07:05:11Z",
+ "gate": "passed",
+ "home": "/var/tmp/w81857-gate",
+ "image_carries_the_reviewed_worker": true,
+ "image_digest": "sha256:db9f397171153338ce068b46a7c9ab48c79b80d9f1ad1db4c149541a5eb8199b",
+ "image_worker_digest": "sha256:da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+ "manager_alive_at_the_end_of_the_gap": {
+  "other_deployments_on_this_host": [
+   [
+    "python3",
+    "-m",
+    "tools.job_manager",
+    "--store",
+    "/home/sl/.local/state/baton/v12/w71917/jobs.sqlite3",
+    "--incarnation"
+   ]
+  ],
+  "this_deployment": []
+ },
+ "manager_alive_while_the_worker_worked": {
+  "other_deployments_on_this_host": [
+   [
+    "python3",
+    "-m",
+    "tools.job_manager",
+    "--store",
+    "/home/sl/.local/state/baton/v12/w71917/jobs.sqlite3",
+    "--incarnation"
+   ]
+  ],
+  "this_deployment": []
+ },
+ "margin_seconds": 0.011,
+ "no_channel_was_ever_opened": true,
+ "no_staging_residue": true,
+ "one_command": true,
+ "one_receipt": true,
+ "output_json_digest": "sha256:a3f8fce37f5dc223f005ed946cd63598b75f4362cf3a2aa9d0954c5bc44b2bbe",
+ "output_json_present": true,
+ "output_manifest_digest": "sha256:24c30577525d24d25c6b2141d7c9bf13b70f0f1c19f97653d29569762afe5800",
+ "provider_turn_began_after_the_commanding_manager_exited": true,
+ "provider_turn_seconds": 0.005,
+ "runtime_after_cleanup": "absent",
+ "runtime_id": "cfea69c86c49730c2ddcd56868b89f5d7b8ce9dd3b79c765e1d564fb2c6f33ec",
+ "source_approved_proposal": "sha256:93535b7e861faa2ed70bb0af5f1ad7b54b39dc95303410719d08be35f02d131b",
+ "state_after_three_more_incarnations": "completed",
+ "still_removed_after_three_more_incarnations": true,
+ "ticks": [
+  {
+   "exchange": null,
+   "exited_at": 1788505510.5613043,
+   "incarnation": "gate-tick-1",
+   "runtime": null,
+   "state": "offered",
+   "status": 0
+  },
+  {
+   "exchange": "answered",
+   "exited_at": 1788505510.9582705,
+   "incarnation": "gate-tick-2",
+   "runtime": "cfea69c86c49730c2ddcd56868b89f5d7b8ce9dd3b79c765e1d564fb2c6f33ec",
+   "state": "starting",
+   "status": 0
+  },
+  {
+   "exchange": "not-requested",
+   "incarnation": "gate-tick-8",
+   "runtime": "cfea69c86c49730c2ddcd56868b89f5d7b8ce9dd3b79c765e1d564fb2c6f33ec",
+   "state": "completed",
+   "status": 0
+  }
+ ],
+ "unmet_acceptance": [],
+ "written_during_the_gap": {
+  "receipt.json": "2026-09-04T07:05:10Z",
+  "state-describe.json": "2026-09-04T07:05:10Z",
+  "state-work.json": "2026-09-04T07:05:10Z",
+  "terminal.json": "2026-09-04T07:05:10Z"
+ }
+}

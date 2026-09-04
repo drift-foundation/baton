@@ -20,11 +20,11 @@ The bearer exists for the immediate offer-accept call and is then discarded;
 credentials are read lazily from the invoking user's private source registry.
 
 The configuration is one JSON object with schema
-`baton.v12.single-worker-deployment/2` and exactly these members:
+`baton.v12.single-worker-deployment/3` and exactly these members:
 
 | Member | Required value |
 |---|---|
-| `schema` | `baton.v12.single-worker-deployment/2` |
+| `schema` | `baton.v12.single-worker-deployment/3` |
 | `authority_store`, `authority_uuid` | Absolute Authority store path and its exact 32-character UUID |
 | `participant`, `principal` | The one endpoint and the principal Authority resolves it to |
 | `profile_name`, `profile_digest` | The one certified implementation runtime profile |
@@ -38,11 +38,16 @@ The configuration is one JSON object with schema
 | `input_source`, `input_manifest` | Absolute already-staged source directory and its complete frozen `inputManifest` document, whose one source destination is exactly `source` |
 | `task_document` | Absolute path to the frozen JSON workload document this profile's input manifest declares as its `human_contract` artifact |
 | `launch_contract`, `launch_role` | The immutable worker launch contract and `implementation` role |
+| `review_route` | The Route an answered, frozen, collected candidate's assignment is passed to |
+| `retention_policy_digest`, `retention_disposition` | The policy every intaken artifact is decided under, and one of `retain`, `quarantine`, `discard-after-intake` |
 
-Schema `/2` supersedes `/1` and there is no fallback: `/2` adds a required
-member, which makes it a new contract rather than a compatible reading of the
-old one, and a configuration that named no task would start the certified
-worker over an input root it refuses before doing any provider work.
+Each version supersedes the last and there is no fallback: adding a required
+member to a closed, version-named document is a new contract rather than a
+compatible reading of the old one. `/2` added the frozen task, without which
+the certified worker refuses its input root before doing any provider work.
+`/3` adds the three members the ending needs — a deployment that could freeze,
+collect and retain a result without saying where the Work goes would be
+choosing a destination nobody named.
 
 Unknown or missing members refuse. Before an offer exists, the factory checks
 the complete input manifest, relates its Authority, assignment contract,
@@ -82,6 +87,112 @@ an already-composed root re-proves the installed document — no-follow, ordinar
 read-only, exact bytes — because the generic manifest reader deliberately reads
 only the two protocol documents and says nothing about the workload material
 beside them.
+
+### The durable file exchange, and why production has no pipe
+
+The Job Manager's process lifetime is not the container's. Production
+manager-to-worker commands and worker-to-manager receipts, state changes and
+terminal outcomes are durable files in one attempt-private exchange, so a
+manager restart destroys no protocol state, makes no healthy container
+unknowable, and never replays an uncertain write.
+
+The exchange is a third delivery, created before the runtime starts, inside the
+same attempt-private launch root under `launch_home`. It cannot live under
+either assignment root: `inputs` is frozen before the start, so a later command
+could not be published there, and anything under `workspace` is also reachable
+through the worker's writable `/output` mount, so the worker could rename or
+replace the very command addressed to it. The root itself stays mode `0555`,
+which is what stops the container moving either namespace — that is a
+permission of the parent.
+
+| Host, under `<launch_home>/<attempt-id>/` | Container | Mode | Written by |
+|---|---|---|---|
+| `launch.json` | `/run/baton/launch.json` | `0444`, read-only bind | the manager |
+| `command/` | `/run/baton/exchange/command` | `0755`, read-only bind | the manager |
+| `events/` | `/run/baton/exchange/events` | `02770` in the workspace group, writable bind | the worker |
+
+The launch document selects the transport, and nothing else does. A production
+launch is `baton.worker-launch/2` and carries a fifth member,
+`transport: "baton.worker-exchange/1"`. `baton.worker-launch/1` remains the
+explicitly allowed diagnostic and test transport that `worker_entry.converse`
+speaks to; a worker that chose the file exchange because it found the
+directories mounted would be a worker with two live contracts and no version.
+
+**The manager publishes one command sequence per attempt, after the container
+is up.** The document is closed, canonical, and atomically published under a
+filename derived from its own sequence identity; it names the exact attempt,
+the launched session, and the ordered operations `describe` then `work` with
+their stable attempt-derived operation identities. Two managers racing the same
+attempt compose identical bytes under an identical name, so the second adopts
+the first's document; a different document under that name refuses rather than
+replacing a command the worker may already have receipted.
+
+**The worker publishes its receipt before it dispatches the provider**, and
+that receipt is the durable replay fence. Rescanning the command namespace, a
+manager restart during the turn, and a re-entry of the worker process after a
+crash all find it, and none of them starts a second provider turn. A worker
+that finds its receipt with no terminal result publishes nothing further and
+exits non-zero: it cannot know whether the provider a previous incarnation
+started is still running, so claiming loss would be claiming an observation it
+does not have.
+
+Every worker-written document is untrusted input. The manager bounds and
+no-follow opens it, closes its member set, and holds its session, attempt,
+sequence and command digest against the command it authored itself. A terminal
+document claiming `answered` is a claim: `/output/output.json`, a positive
+observation of the exact runtime, and the existing freeze and intake gates are
+what settle it.
+
+**Nothing credential-capable crosses.** The exchange carries the receipt, the
+per-operation state events and one terminal document, and the terminal carries
+only the completed operation names, a bounded fault code from the worker's own
+closed set, the worker disposition when there is one, and the digest of the
+completion envelope already published under the existing `/output` contract.
+No recap, prompt, source excerpt, tool input or output, and no provider stdout
+or stderr. Manager-minted safe progress logs and their read/follow surface
+remain W61599's; this deployment creates no `result/logs` sink.
+
+### Status says what is actually happening
+
+Status is now `baton.v12.job-status/3`, and a stage carries its canonical
+exchange projection beside its runtime. A runtime identity alone is no longer
+rendered as active work — that was the defect. The vocabulary gained three
+words:
+
+| State | What it means |
+|---|---|
+| `starting` | The container is up and this control plane has not commanded it, or holds no exchange read at all |
+| `waiting` | The command sequence is published and the worker has not accepted it |
+| `running` / `reviewing` / `integrating` | The worker published its pre-dispatch receipt, so a provider turn is owned |
+| `answering` | A correlated `answered` terminal exists and the output is not frozen yet |
+| `completed` / `changes-requested` | From the frozen result's disposition, unchanged |
+| `exceptional` | A faulted or lost exchange, unreadable worker material, or a recorded start or preparation failure |
+
+A stage's `exchange` member is `null` when this control plane holds no exchange
+read — "nobody looked", which is deliberately not the same answer as an
+exchange that has been read and carries no command.
+
+Publishing the command and driving the ending are level-triggered, exactly as
+the launch is: both are derived from canonical state on every tick, including
+the first tick after a restart, and neither writes a Job-store receipt. The
+durable command file and each ending substep's own journalled operation are the
+records.
+
+On one correlated `answered` terminal the deployment drives the already-ruled
+successful ending in this fixed order: positively quiesce and reconcile the
+exact runtime, record the worker's disposition, freeze the declared output,
+collect it and record the intake receipt, decide every artifact's retention
+under `retention_policy_digest`, pass the exact assignment generation to
+`review_route`, and only then authorize runtime cleanup. `authorize_cleanup`
+refuses while the assignment is live, so cleanup before the pass is not an
+option; ending the assignment before intake could quarantine the result if the
+collection raced that ending.
+
+A faulted, lost or incomplete exchange is **reported and contained**. This
+slice adds no automatic abandonment, retry or pool policy: the stage projects
+`exceptional`, every other stage stays observable, and ending a started attempt
+on purpose remains W44716's `abandon_attempt` under a decision nobody has made
+here.
 
 The manager never parses the task's provider-specific schema. The worker owns
 that vocabulary; this deployment treats the document as digest-bound content. The runtime composer receives only the

@@ -57,11 +57,13 @@ import stat
 from ..contracts import ContractRefusal, check_no_durable_secret
 from ..contracts.errors import name_value
 from . import boundaries
+from . import exchange
 
-__all__ = ["LAUNCH_MEMBERS", "LAUNCH_SCHEMA", "LAUNCH_TARGET",
+__all__ = ["EXCHANGE_MEMBERS", "EXCHANGE_SCHEMA", "LAUNCH_MEMBERS",
+           "LAUNCH_SCHEMA", "LAUNCH_TARGET",
            "MAX_LAUNCH_BYTES", "MAX_LAUNCH_VALUE", "MAX_SESSION",
-           "READ_ONLY_DIR", "READ_ONLY_FILE", "LaunchDelivery",
-           "adopt", "launch_document", "materialize"]
+           "READ_ONLY_DIR", "READ_ONLY_FILE", "TRANSPORTS", "LaunchDelivery",
+           "adopt", "launch_document", "materialize", "members_for"]
 
 # THE FIXED CONTAINER PATH, a constant of the contract at BOTH ends. A path a
 # caller could vary is a path a runtime can be pointed at wrongly, so there is
@@ -80,6 +82,49 @@ LAUNCH_SCHEMA = "baton.worker-launch/1"
 # from this tuple -- it cannot import this package, and a second copy is what
 # `test_oci` holds against this one by reading the worker's own literal.
 LAUNCH_MEMBERS = ("schema", "session", "contract", "role")
+
+# W81857: THE SECOND VERSION, AND IT EXISTS TO SELECT A TRANSPORT.
+#
+# The present image always enters the stdin framing loop, because that is the
+# only thing `baton.worker-launch/1` can describe -- it says what the container
+# IS and nothing about how it is spoken to. The file exchange cannot be
+# smuggled in through path discovery or an environment flag: a worker that
+# looked for a mounted command directory and used it if present would be a
+# worker with two live contracts and no version, which is the exact shape the
+# environment transport was retired for.
+#
+# So `/2` is a NEW CONTRACT with one added member, refused by the equality test
+# rather than read as a compatible `/1`. `transport` names the production
+# channel explicitly, and the closed vocabulary below is the whole of what it
+# may say.
+#
+# `/1` IS NOT A FALLBACK AND IS NOT DEPRECATED. It remains the explicitly
+# allowed diagnostic and test transport `worker_entry.converse` speaks to, and
+# a production deployment that wants the exchange says so in its own launch
+# document rather than being upgraded into it.
+EXCHANGE_SCHEMA = "baton.worker-launch/2"
+EXCHANGE_MEMBERS = LAUNCH_MEMBERS + ("transport",)
+
+# schema -> the closed member set that schema carries. Both ends read this
+# relationship the same way: the version decides the shape, and there is no
+# document that is valid under two of them.
+TRANSPORTS = {LAUNCH_SCHEMA: None,
+              EXCHANGE_SCHEMA: exchange.EXCHANGE_TRANSPORT}
+
+
+def members_for(document):
+    """The closed member set the schema in this document names.
+
+    THE SCHEMA DECIDES THE SHAPE, which is what makes the two versions two
+    contracts rather than one contract with an optional member. A reader that
+    accepted the union would accept a `/1` document carrying a transport and a
+    `/2` document carrying none, and each of those is a manager and a worker
+    disagreeing silently about which channel is authoritative.
+    """
+    schema = document.get("schema") if type(document) is dict else None
+    if schema == EXCHANGE_SCHEMA:
+        return EXCHANGE_MEMBERS
+    return LAUNCH_MEMBERS
 
 # The identity ceiling is the WORKER'S, deliberately. `session` is the value
 # every frame on the worker-entry channel is bound to, and the worker refuses
@@ -159,8 +204,8 @@ def _value(given, name, ceiling):
     return value
 
 
-def launch_document(*, session, contract, role):
-    """The complete four-member document, or a refusal.
+def launch_document(*, session, contract, role, transport=None):
+    """The complete document for the version this transport selects.
 
     AUTHORED HERE RATHER THAN ASSEMBLED BY A CALLER, and rebuilt over
     `LAUNCH_MEMBERS` rather than copied from a mapping, so how a caller
@@ -177,6 +222,18 @@ def launch_document(*, session, contract, role):
                 "session": _value(session, "session", MAX_SESSION),
                 "contract": _value(contract, "contract", MAX_LAUNCH_VALUE),
                 "role": _value(role, "role", MAX_LAUNCH_VALUE)}
+    if transport is not None:
+        # W81857: THE VERSION MOVES WITH THE MEMBER, and the value is held to
+        # the one transport this build knows. A `transport` this manager cannot
+        # name is a channel it cannot compose mounts for, so writing it would
+        # produce a container told to speak something nothing is listening to.
+        if transport != exchange.EXCHANGE_TRANSPORT:
+            _denied(f"a launch document selects "
+                    f"{name_value(exchange.EXCHANGE_TRANSPORT)}; this is "
+                    f"{name_value(transport)}")
+        document["schema"] = EXCHANGE_SCHEMA
+        document["transport"] = _value(transport, "transport",
+                                       MAX_LAUNCH_VALUE)
     check_no_durable_secret(document, what="a worker launch document")
     return document
 
@@ -231,11 +288,24 @@ class LaunchDelivery:
     contract's constant rather than anything it was told.
     """
 
-    def __init__(self, *, attempt_id, root, place, document):
+    def __init__(self, *, attempt_id, root, place, document,
+                 delivery=None):
         self.attempt_id = attempt_id
         self.root = root
         self.place = place
         self.document = document
+        # W81857: THE EXCHANGE RIDES WITH THE LAUNCH, and it is one object
+        # rather than two capabilities the adapter has to relate. Both are
+        # non-secret control material fixed before start, both belong to the
+        # exact attempt and session, and both may be removed only after
+        # positive runtime absence -- so a composition that could hold one
+        # without the other is a composition that can mount a container's
+        # command namespace without telling it the channel exists.
+        #
+        # `None` MEANS `/1`, and it is the ordinary case: the diagnostic and
+        # test transport has no exchange, and a document that selected one
+        # would be describing mounts nothing composed.
+        self.exchange = delivery
 
     def mount(self):
         """The ONE read-only bind this delivery authorizes.
@@ -248,7 +318,8 @@ class LaunchDelivery:
         return (self.place, LAUNCH_TARGET)
 
 
-def materialize(storage, *, attempt_id, session, contract, role):
+def materialize(storage, *, attempt_id, session, contract, role,
+                transport=None, workspace_group=None):
     """Author one launch document and put it on disk as this manager's own.
 
     `storage` is the manager's own launch storage, NOT an assignment root. The
@@ -270,7 +341,8 @@ def materialize(storage, *, attempt_id, session, contract, role):
         _refuse(f"the manager's launch storage is not an absolute path; a "
                 f"root this build cannot name exactly is not a root",
                 code="path")
-    document = launch_document(session=session, contract=contract, role=role)
+    document = launch_document(session=session, contract=contract,
+                               role=role, transport=transport)
     payload = _bytes(document)
     root = os.path.join(os.path.realpath(home), attempt)
     if os.path.lexists(root):
@@ -312,6 +384,16 @@ def materialize(storage, *, attempt_id, session, contract, role):
             os.fchmod(handle, READ_ONLY_FILE)
         finally:
             os.close(handle)
+        delivery = _exchange_materialized(root, attempt, document,
+                                          workspace_group)
+        # THE ROOT IS CLOSED LAST, AFTER EVERY ENTRY IT WILL EVER HOLD EXISTS.
+        # `READ_ONLY_DIR` is what stops the container renaming or replacing
+        # `command` and `events` themselves -- those are permissions of this
+        # parent, not of the namespaces -- so closing it before they were
+        # created would have meant creating them somewhere the worker could
+        # move. A parent can only be closed once nothing more needs to be made
+        # in it, which is the same ordering `workspaces.assignment_workspace`
+        # states for the assignment home.
         os.chmod(root, READ_ONLY_DIR)
     except BaseException:
         # A FAILED MATERIALIZATION TEARS ITSELF DOWN. Half a delivery is a root
@@ -321,10 +403,33 @@ def materialize(storage, *, attempt_id, session, contract, role):
         discard(root)
         raise
     return LaunchDelivery(attempt_id=attempt, root=root, place=place,
-                          document=document)
+                          document=document, delivery=delivery)
 
 
-def adopt(storage, *, attempt_id, session, contract, role):
+def _exchange_materialized(root, attempt, document, workspace_group):
+    """The exchange namespaces this document's transport selects, or nothing.
+
+    THE DOCUMENT DECIDES, not the caller's intent. Whatever a caller asked for,
+    what is on disk under this root has to agree with the launch document the
+    worker will read -- a container told it speaks the file exchange and given
+    no namespaces is a container that cannot answer, and namespaces created
+    beside a `/1` document are host state nothing will ever mount.
+    """
+    if document["schema"] != EXCHANGE_SCHEMA:
+        return None
+    if workspace_group is None:
+        _denied(f"attempt {name_value(attempt)}'s launch document selects "
+                f"{name_value(exchange.EXCHANGE_TRANSPORT)} and this "
+                f"materialization names no workspace group; the container's "
+                f"fixed uid is not this manager's, so without the "
+                f"deployment's configured group the worker holds no share in "
+                f"the namespace it must answer in")
+    return exchange.materialize(root, attempt_id=attempt,
+                                workspace_group=workspace_group)
+
+
+def adopt(storage, *, attempt_id, session, contract, role,
+          transport=None, workspace_group=None):
     """Recover the delivery THIS MANAGER already made, or FAIL CLOSED.
 
     W47225. `materialize` refuses an existing root and `discard` removes one,
@@ -383,7 +488,7 @@ def adopt(storage, *, attempt_id, session, contract, role):
     # deriving the expectation before touching the disk is what makes the
     # comparison below a comparison rather than a second rule set.
     expected = _bytes(launch_document(session=session, contract=contract,
-                                      role=role))
+                                      role=role, transport=transport))
     root = os.path.join(os.path.realpath(home), attempt)
     if not os.path.lexists(root):
         return None
@@ -402,12 +507,17 @@ def adopt(storage, *, attempt_id, session, contract, role):
                     f"{oct(stat.S_IMODE(held.st_mode))} and this manager "
                     f"established {oct(READ_ONLY_DIR)}; a delivery whose "
                     f"modes have moved is not the one it wrote")
-        # EXACTLY THE ONE ENTRY, because `discard` deletes every name here.
+        # EXACTLY THE ENTRIES THIS TRANSPORT CREATES, because `discard`
+        # deletes every name here. W81857 widened the set from one to three and
+        # the rule did not change: the expectation is derived from the
+        # transport being adopted, so a `/1` root carrying exchange namespaces
+        # -- or a `/2` root missing them -- is refused rather than repaired.
+        wanted = sorted(_root_entries(transport))
         entries = sorted(os.listdir(opened))
-        if entries != [name]:
+        if entries != wanted:
             _denied(f"attempt {name_value(attempt)}'s launch root holds "
                     f"{entries!r} and this manager creates exactly "
-                    f"{[name]!r}; adopting a widened root would authorize "
+                    f"{wanted!r}; adopting a widened root would authorize "
                     f"deleting an entry this component never wrote")
         try:
             document = os.open(name, os.O_RDONLY | os.O_NOFOLLOW,
@@ -443,10 +553,34 @@ def adopt(storage, *, attempt_id, session, contract, role):
                 f"is merely well formed proves which KIND of thing it is and "
                 f"not which delivery")
     place = os.path.join(root, name)
+    delivery = None
+    if transport is not None:
+        # THE NAMESPACES ARE PROVED, NOT ASSUMED, and a `/2` root that has
+        # lost one of them refuses rather than answering a delivery whose
+        # mounts would fail at the engine. `exchange.adopt` answers `None`
+        # only for a root that has neither, which cannot be reached here
+        # because the entry set above already required both.
+        delivery = exchange.adopt(root, attempt_id=attempt,
+                                  workspace_group=workspace_group)
+        if delivery is None:
+            _denied(f"attempt {name_value(attempt)}'s launch document selects "
+                    f"{name_value(transport)} and its exchange namespaces are "
+                    f"absent; a replacement authored now would be mounted by "
+                    f"nothing that exists")
     return LaunchDelivery(attempt_id=attempt, root=root, place=place,
                           document=launch_document(session=session,
                                                    contract=contract,
-                                                   role=role))
+                                                   role=role,
+                                                   transport=transport),
+                          delivery=delivery)
+
+
+def _root_entries(transport):
+    """Every name this manager creates in a launch root for one transport."""
+    name = os.path.basename(LAUNCH_TARGET)
+    if transport is None:
+        return (name,)
+    return (name, exchange.COMMAND_DIRECTORY, exchange.EVENT_DIRECTORY)
 
 
 def discard(root):
@@ -460,6 +594,13 @@ def discard(root):
     if not os.path.isdir(root):
         return not os.path.lexists(root)
     os.chmod(root, 0o700)
+    # W81857: THE EXCHANGE FIRST, AND THROUGH ITS OWN WALK. This loop removes
+    # names in a directory nothing else may write, which is exactly why it can
+    # afford to be flat; the event namespace is writable by the container, so
+    # the entries under it are DYNAMIC and none of them was authored here.
+    # Widening this loop to recurse would have made a launch teardown follow
+    # whatever a worker left behind.
+    exchange.discard(root)
     for name in sorted(os.listdir(root)):
         try:
             os.remove(os.path.join(root, name))

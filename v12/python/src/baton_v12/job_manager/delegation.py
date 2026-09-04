@@ -89,7 +89,8 @@ INTENT_OPERANDS = ("offer_id", "work_id", "runtime_attempt_id",
 # object here, and a fake in a test may too -- so it is written down rather
 # than discovered from whatever the caller happened to pass.
 OPERATIONS = ("canonical", "canonical_operation", "receipt_of", "recover",
-              "attach", "drain", "admit", "claim", "launch", "observe")
+              "attach", "drain", "admit", "claim", "launch", "dispatch",
+              "conclude", "observe")
 
 # W76207: `launch` is the THIRD act, and it is deliberately not a fourth
 # receipt. `admit` and `claim` are the two acts this control plane journals in
@@ -117,7 +118,7 @@ OPERATIONS = ("canonical", "canonical_operation", "receipt_of", "recover",
 # the other store's claim as this Job's. The reader answers WHICH offer holds
 # it and this leaf decides whether that offer is the one it proved.
 OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output",
-                       "start_failure", "preparation_failure")
+                       "start_failure", "preparation_failure", "exchange")
 
 # W76207: `start_failure` is the manager's OWN journalled record that this
 # attempt's start failed, and it is a fifth member rather than something
@@ -126,6 +127,22 @@ OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output",
 # runtime id afterwards, so an attached identity is not evidence that anything
 # is running -- which is exactly how this projection used to report a stage as
 # `running` after its start had durably failed.
+
+# W81857: `exchange` is a SEVENTH member and it is the one that answers
+# whether this stage is DOING anything. Every other member says something about
+# the container -- whether a claim froze the attempt, whether an identity is
+# attached, how many bytes were seen -- and none of them can distinguish a
+# runtime that is executing an assignment from a runtime that started, found
+# nothing to do, and is idling. That distinction is what W81857 exists for, so
+# it is asked as its own member and derived from nothing.
+#
+# IT IS THE DEPLOYMENT'S READ AND NOT THIS MANAGER'S. The exchange lives beside
+# the launch delivery, on a host path only the deployment that composed the
+# mounts knows; asking the Worker Manager for it would mean this leaf inventing
+# where a deployment keeps its state. So it arrives through an injected
+# capability exactly as the runtime start does, and a deployment that supplies
+# none answers `None` -- which the projection reports as "nobody looked" rather
+# than as "nothing is happening".
 
 # W76207 re-review [P1]: `preparation_failure` is a SIXTH member and not a
 # spelling of the fifth. The manager keeps two records because they mean two
@@ -146,7 +163,7 @@ def unobserved():
     """
     return {"claimed_by": None, "runtime": None, "activity": None,
             "output": None, "start_failure": None,
-            "preparation_failure": None}
+            "preparation_failure": None, "exchange": None}
 
 
 def canonical_operation(act, offer_id):
@@ -329,7 +346,8 @@ class ManagerOperations:
     """
 
     __slots__ = ("control", "port", "events", "_mint_bearer",
-                 "_deliver_bearer", "_start_runtime")
+                 "_deliver_bearer", "_start_runtime", "_observe_exchange",
+                 "_dispatch_exchange", "_conclude_attempt")
 
     # THE CANONICAL STORE IS OPEN. A status document says so, because a
     # projection assembled without the manager can only report what was
@@ -338,7 +356,8 @@ class ManagerOperations:
     canonical = True
 
     def __init__(self, control, port, *, mint_bearer, deliver_bearer,
-                 events=None, start_runtime=None):
+                 events=None, start_runtime=None, observe_exchange=None,
+                 dispatch_exchange=None, conclude_attempt=None):
         self.control = control
         self.port = port
         # THE TRANSPORT IS OURS BY DEFAULT AND SUPPLIABLE ON PURPOSE. One
@@ -362,6 +381,31 @@ class ManagerOperations:
                                else boundaries.capability(
                                    start_runtime,
                                    "the deployment's runtime start"))
+        # W81857: THE THREE HALVES OF THE FILE EXCHANGE, and all three are
+        # optional for the same reason the runtime start is. A control plane
+        # that admits, claims and observes without them is a real deployment;
+        # what it must not do is report a started container as work in
+        # progress, and the projection is what keeps that honest rather than a
+        # required capability here.
+        #
+        # THEY ARE THREE RATHER THAN ONE because they are three different
+        # authorities. Reading the exchange is a pure observation any tick may
+        # perform; publishing the command is the one act that commits this
+        # attempt to a provider turn; ending it is the composition that
+        # freezes, takes custody of and hands on somebody's work. A single
+        # capability holding all three would let a read reach the ending.
+        self._observe_exchange = (None if observe_exchange is None
+                                  else boundaries.capability(
+                                      observe_exchange,
+                                      "the deployment's exchange read"))
+        self._dispatch_exchange = (None if dispatch_exchange is None
+                                   else boundaries.capability(
+                                       dispatch_exchange,
+                                       "the deployment's exchange dispatch"))
+        self._conclude_attempt = (None if conclude_attempt is None
+                                  else boundaries.capability(
+                                      conclude_attempt,
+                                      "the deployment's attempt ending"))
 
     def canonical_operation(self, act, offer_id):
         return canonical_operation(act, offer_id)
@@ -485,6 +529,60 @@ class ManagerOperations:
                 f"reports work it can never begin")
         return self._start_runtime(stage, job)
 
+    def dispatch(self, stage, job):
+        """Publish THE ONE command sequence for a started, idle runtime.
+
+        THE ACT THIS WHOLE WORK EXISTS FOR. Until it happens the container is
+        up and has been asked for nothing; after it, the durable command is on
+        disk where a restarted manager and the container itself both find it.
+
+        LEVEL-TRIGGERED AND IDEMPOTENT BY IDENTITY, so the crash window this
+        control plane cannot avoid costs nothing. The command's filename is
+        derived from the attempt, so a second manager publishing the same
+        sequence composes the same bytes under the same name and adopts the
+        first one's document; a DIFFERENT document under that name refuses
+        rather than replacing a command the worker may already have receipted.
+        There is no Job-store receipt for this and there is deliberately not
+        going to be one: the durable file IS the record, and a second account
+        of it here is the one this leaf could not keep true.
+
+        A deployment that supplied no dispatch refuses here rather than
+        answering: a control plane that starts containers it can never speak
+        to is the defect, not a posture.
+        """
+        if self._dispatch_exchange is None:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"this Job manager was given no exchange dispatch, so it "
+                f"cannot ask stage {name_value(stage['stage_id'])} to do "
+                f"anything; a control plane that starts a runtime and never "
+                f"commands it reports work that will never begin")
+        return self._dispatch_exchange(stage, job)
+
+    def conclude(self, stage, job):
+        """Drive ONE answered attempt through the already-ruled ending.
+
+        WHAT THIS METHOD IS NOT. It is not the ending. Quiescence, the recorded
+        worker disposition, the output freeze, intake, the retention decision,
+        the exact-generation Authority pass and the runtime cleanup are all the
+        Worker Manager's own public operations in an order their owners fixed,
+        composed by the deployment that holds the homes and capabilities they
+        need. This leaf contributes the decision that NOW is when to ask.
+
+        IDEMPOTENCE IS EACH SUBSTEP'S OWNER'S. Every act in that composition is
+        journalled under an identity its owner derives, so a second call after
+        a crash replays rather than repeats -- which is why there is no receipt
+        here either.
+        """
+        if self._conclude_attempt is None:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"this Job manager was given no attempt ending, so it cannot "
+                f"conclude stage {name_value(stage['stage_id'])}; an answered "
+                f"worker whose result nobody freezes is a stage that will "
+                f"never complete")
+        return self._conclude_attempt(stage, job)
+
     def observe(self, stage):
         """Every canonical fact the projection needs, from public readers.
 
@@ -519,7 +617,14 @@ class ManagerOperations:
                 "start_failure": attempt_start_failure_of(self.control,
                                                           attempt_id),
                 "preparation_failure": attempt_preparation_failure_of(
-                    self.control, attempt_id)}
+                    self.control, attempt_id),
+                # W81857: AND THE ONE FACT THE CANONICAL STORE DOES NOT HOLD.
+                # `None` is "nobody looked", which the projection reports as a
+                # started container this control plane cannot see a turn in --
+                # deliberately not as an idle one and deliberately not as a
+                # working one.
+                "exchange": (self._observe_exchange(stage)
+                             if self._observe_exchange is not None else None)}
 
 
 class Unobserved:
@@ -562,6 +667,12 @@ class Unobserved:
 
     def launch(self, stage, job):
         return self._refuse("start a worker runtime")
+
+    def dispatch(self, stage, job):
+        return self._refuse("publish a worker command")
+
+    def conclude(self, stage, job):
+        return self._refuse("end an answered attempt")
 
     def observe(self, stage):
         return unobserved()

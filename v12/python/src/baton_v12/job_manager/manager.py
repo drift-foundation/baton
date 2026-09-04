@@ -142,9 +142,77 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # tick has already moved past.
     started = _launch(store, operations, projection.stage_states(store,
                                                                  operations))
+    # W81857: AND THE EXCHANGE PASS IS AFTER THE LAUNCH, REACQUIRING AGAIN.
+    # A stage this tick just started is a stage that now owes a command, and
+    # deriving that from state read before the launch would make every fresh
+    # container wait a whole tick for a sequence this tick could already have
+    # published. The same reacquisition is what lets one tick command a stage
+    # and the next one end it without either being edge-triggered on the other.
+    spoken = _converse(store, operations, projection.stage_states(store,
+                                                                  operations))
     return documents.sweep_report(observed_at=now, recovered=recovered,
                                   observed=observed, replaced=replaced,
-                                  acts=acts, started=started)
+                                  acts=acts, started=started, spoken=spoken)
+
+
+def _converse(store, operations, held):
+    """Publish the command a started stage owes, and end one that answered.
+
+    LEVEL-TRIGGERED, WHICH IS THE WHOLE POINT, exactly as `_launch` is. Both
+    acts are derived from canonical state -- a started runtime with no command,
+    and a worker terminal that answered with no frozen output -- so an ordinary
+    tick and the first tick after a restart ask the same question and get the
+    same answer. Nothing here depends on having been the process that started
+    the container, held a pipe, or saw an event.
+
+    NOTHING IS WRITTEN TO THE JOB STORE, and that is the ruling rather than an
+    omission. The command is a durable file whose name this build derives, and
+    every substep of the ending is journalled by its own owner under an
+    identity that owner derives, so replay is those owners' question. A receipt
+    here would be a second account of a fact somebody else already holds -- and
+    the one this leaf could not keep true, because the crash window it exists
+    for is between the act and the receipt.
+
+    A FAILURE IS CONTAINED TO ITS STAGE. A container that answered nonsense, a
+    provider that faulted, an ending whose freeze refused: none of those may
+    stop this sweep from observing every other stage. What makes a stage stop
+    is a fact its own owner recorded, which the next projection reads.
+
+    AN UNEXPECTED FAULT IS NOT CONTAINED. `_launch` contains an adapter fault
+    only when the Worker Manager proved it recorded one; there is no equivalent
+    proof for a programming error in a deployment's ending composition, and
+    turning one into a per-stage outcome would bury it as a transient
+    condition.
+    """
+    spoken = []
+    for act, attempt in projection.owed_exchange(held):
+        stage_id = attempt["stage_id"]
+        job = submission.job_of(store, attempt["job_id"])
+        try:
+            performed = (operations.dispatch(attempt, job)
+                         if act == "dispatch"
+                         else operations.conclude(attempt, job))
+        except ContractRefusal as refusal:
+            # EVERY REFUSAL HERE IS A CONDITION AND NOT AN ENDING, DURABLE OR
+            # NOT, and the difference from `_launch` is a fact about who owns
+            # the record. A durable launch refusal that nobody journalled would
+            # leave a stage claimed and retried forever, which is why that pass
+            # raises; here the DURABLE endings are the Worker Manager's own
+            # failed freeze, refused intake and abandonment records, and the
+            # next projection reads them through the observation this leaf
+            # already takes. There is no state this pass could leave that the
+            # exchange and the canonical readers do not already describe.
+            spoken.append(documents.stage_exchange(
+                stage_id=stage_id, episode=attempt["episode"],
+                attempt_id=attempt["attempt_id"], act=act, outcome="deferred",
+                detail={"category": refusal.category, "code": refusal.code,
+                        "message": refusal.message}))
+            continue
+        spoken.append(documents.stage_exchange(
+            stage_id=stage_id, episode=attempt["episode"],
+            attempt_id=attempt["attempt_id"], act=act, outcome="performed",
+            detail=performed if type(performed) is dict else None))
+    return spoken
 
 
 def _launch(store, operations, held):

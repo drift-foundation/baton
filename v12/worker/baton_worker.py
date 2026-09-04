@@ -115,6 +115,78 @@ LAUNCH_DOCUMENT = "/run/baton/launch.json"
 LAUNCH_SCHEMA = "baton.worker-launch/1"
 LAUNCH_MEMBERS = ("schema", "session", "contract", "role")
 
+# W81857: THE SECOND LAUNCH VERSION, AND WHAT IT SELECTS.
+#
+# `/1` describes what this container IS and says nothing about how it is
+# spoken to, so a worker reading only `/1` can only ever enter the stdin
+# framing loop below. That loop is correct and stays -- it is the diagnostic
+# and test transport -- but it makes the manager process that holds the pipe
+# the only reader of a provider's answer, and a manager restart then destroys
+# protocol state a healthy container is still producing.
+#
+# `/2` adds exactly one member, `transport`, and the value below is the only
+# one this program knows. THE VERSION IS CHECKED BY EQUALITY and the member
+# set is decided by the version: there is no document that is valid under both
+# and no discovery path that turns a mounted directory into a contract. A
+# container that finds `/run/baton/exchange/command` present and is launched
+# under `/1` uses stdin, because a worker that picked its own transport from
+# the filesystem would be a worker with two live contracts and no version --
+# which is what the retired environment channel was.
+EXCHANGE_LAUNCH_SCHEMA = "baton.worker-launch/2"
+EXCHANGE_LAUNCH_MEMBERS = LAUNCH_MEMBERS + ("transport",)
+EXCHANGE_TRANSPORT = "baton.worker-exchange/1"
+
+# THE TWO FIXED EXCHANGE ROOTS, constants of the contract at both ends and
+# never operands. The manager writes the command namespace and mounts it
+# READ-ONLY here; this program writes the event namespace and the manager
+# reads it as untrusted input. A path this program could be told is a path a
+# container can be pointed at wrongly, which is the same rule the launch
+# document's own fixed path states.
+COMMAND_ROOT = "/run/baton/exchange/command"
+EVENT_ROOT = "/run/baton/exchange/events"
+
+COMMAND_SCHEMA = "baton.worker-exchange.command/1"
+RECEIPT_SCHEMA = "baton.worker-exchange.receipt/1"
+STATE_SCHEMA = "baton.worker-exchange.state/1"
+TERMINAL_SCHEMA = "baton.worker-exchange.terminal/1"
+
+COMMAND_MEMBERS = ("schema", "session", "attempt_id", "sequence_id",
+                   "operations")
+COMMAND_OPERATION_MEMBERS = ("operation", "operation_id")
+RECEIPT_DOCUMENT = "receipt.json"
+TERMINAL_DOCUMENT = "terminal.json"
+
+# The worker's own closed ending vocabulary, the same three words the framed
+# transport answers with. `lost` is accepted by the manager's reader and is
+# deliberately NOT published by this program: a process that finds its own
+# receipt with no terminal cannot know whether the provider it started is
+# still running, and claiming loss would be exactly the observation it lacks.
+# The manager derives loss by combining the durable receipt with its own exact
+# runtime observation, which is evidence this side does not have.
+EXCHANGE_ENDINGS = ("answered", "faulted", "lost")
+EXCHANGE_STATES = ("dispatched", "answered", "faulted")
+
+# The bytes any one exchange document may be. Bounded before it is read, for
+# the reason the launch reader is: a reader with no bound is bounded by
+# whoever writes the file.
+MAX_EXCHANGE_BYTES = 65536                     # 64 KiB
+MAX_EXCHANGE_VALUE = 4096
+
+# How long this program waits between scans of the command namespace, and how
+# many entries it will look at. The command is published AFTER the container
+# starts -- that is what makes it a level-triggered manager act rather than a
+# launch-time one -- so PID 1 waits for it here instead of on a pipe nobody
+# may be holding.
+SCAN_SECONDS = 2
+
+# GROUP-READABLE, OWNER-WRITABLE-BY-NOBODY. The manager runs as another uid and
+# reaches this namespace through the deployment's configured workspace group,
+# which the container holds as a supplementary group; a document published at
+# the process default 0600 would be one only this container could read. The
+# document is finished when it is written and nothing writes it again, and the
+# mode says so on disk.
+EVENT_FILE = 0o440
+
 # The manager writes these same four names, the same schema string and the same
 # ceilings. THE TWO COPIES ARE NECESSARY -- this program cannot import the
 # manager, which is the isolation rule the image is built on -- and a case in
@@ -499,21 +571,39 @@ def launched(document, place=LAUNCH_DOCUMENT):
     operator reading `describe` now sees which generation the container was
     launched under, which is a fact worth having anyway.
     """
-    missing = sorted(name for name in LAUNCH_MEMBERS if name not in document)
-    extra = sorted(name for name in document if name not in LAUNCH_MEMBERS)
+    # W81857: THE SCHEMA DECIDES THE MEMBER SET, which is what makes the two
+    # versions two contracts rather than one contract with an optional member.
+    # A reader that accepted the union would accept a `/1` document carrying a
+    # transport and a `/2` document carrying none, and each of those is a
+    # manager and a worker disagreeing silently about which channel is
+    # authoritative. An unknown schema is held to `/1`'s set so the refusal
+    # names the version rather than the members.
+    given = document.get("schema")
+    members = (EXCHANGE_LAUNCH_MEMBERS if given == EXCHANGE_LAUNCH_SCHEMA
+               else LAUNCH_MEMBERS)
+    missing = sorted(name for name in members if name not in document)
+    extra = sorted(name for name in document if name not in members)
     if missing or extra:
         raise WorkerFault(
             "launch",
-            f"{place} is exactly {', '.join(LAUNCH_MEMBERS)}"
+            f"{place} is exactly {', '.join(members)}"
             + (f"; missing {', '.join(missing)}" if missing else "")
             + (f"; unexpected {', '.join(extra)}" if extra else ""))
-    if document["schema"] != LAUNCH_SCHEMA:
+    if given not in (LAUNCH_SCHEMA, EXCHANGE_LAUNCH_SCHEMA):
         raise WorkerFault(
             "launch",
             f"{place} says it is {document['schema']!r} and this worker reads "
-            f"{LAUNCH_SCHEMA!r}; a launch document from another generation is "
-            f"not one to read the recognised parts out of")
-    for name in LAUNCH_MEMBERS:
+            f"{LAUNCH_SCHEMA!r} and {EXCHANGE_LAUNCH_SCHEMA!r}; a launch "
+            f"document from another generation is not one to read the "
+            f"recognised parts out of")
+    if given == EXCHANGE_LAUNCH_SCHEMA \
+            and document.get("transport") != EXCHANGE_TRANSPORT:
+        raise WorkerFault(
+            "launch",
+            f"{place} selects transport {document.get('transport')!r} and "
+            f"this worker speaks {EXCHANGE_TRANSPORT!r}; a transport this "
+            f"program cannot name is a channel nothing is listening to")
+    for name in members:
         value = document[name]
         if type(value) is not str or not value:
             raise WorkerFault(
@@ -524,7 +614,7 @@ def launched(document, place=LAUNCH_DOCUMENT):
                 "launch",
                 f"{place} carries a {name} wider than {MAX_LAUNCH_VALUE} "
                 f"characters")
-    return {name: document[name] for name in LAUNCH_MEMBERS}
+    return {name: document[name] for name in members}
 
 
 def canonical(value):
@@ -1338,7 +1428,458 @@ def handle(request, identity, seen, agent, spent):
         "recap": reported.get("recap")})
 
 
-def serve(stdin, stdout, agent, place=LAUNCH_DOCUMENT):
+# -- W81857: the durable file exchange ---------------------------------------
+#
+# THE SAME OPERATION HANDLER, THE OTHER TRANSPORT. Everything below composes
+# requests and publishes documents; not one rule about what an operation IS
+# lives here. `handle` still validates the closed request member set, checks
+# entitlement on every message, consumes the operation id once, reads
+# `/input/input.json` and `/input/assignment.json`, runs the agent, measures
+# the declared outputs and publishes `/output/output.json` atomically. A second
+# serve loop that reimplemented any of that would be a second worker-entry
+# protocol nobody reviewed, which is the thing this file exists not to be.
+
+
+def _publish(root, name, document):
+    """One event document, published ATOMICALLY under a fixed name.
+
+    FIVE STEPS AND ALL FIVE MATTER: exclusive no-follow staging so nothing
+    already at the staging name is written through; the complete write; `fsync`
+    on the file so the bytes survive the machine; `rename` WITHIN the directory
+    so the final name never exists half written; and `fsync` on the directory
+    so the rename itself survives. A manager scanning mid-publication sees the
+    staging name, which is not one of the four names its contract describes and
+    is therefore not protocol state.
+
+    THE MODE IS ESTABLISHED, NOT REQUESTED, and it is the same correction the
+    launch document's writer records. A creation mode is filtered by the
+    umask, and the manager reaches this namespace as another uid through the
+    deployment's configured group -- so a document left at the process default
+    is one only this container can read, which is a lost turn on somebody
+    else's machine and nothing in the mount table would show why.
+
+    AND THE STAGING NAME IS UNIQUE PER PUBLICATION. W81857 review
+    2026-09-04T03-43-45Z [P1]: a fixed `.publishing` name plus `O_EXCL` means a
+    process that died between creation and rename left a file that made every
+    later incarnation of this program fail `FileExistsError` forever -- a
+    permanent wedge created by a crash, inside the transport whose entire
+    purpose is surviving one. A unique name cannot collide with a stale one,
+    and a stale one is invisible: the manager reads the four fixed names this
+    contract describes and reports anything else as a foreign entry rather than
+    reading it.
+
+    THE FINAL NAME IS REPLACED RATHER THAN LINKED, and that is the difference
+    from the manager's own publisher. A state event is published TWICE for one
+    operation -- `dispatched` before the provider and then its outcome -- so
+    the second publication must land on the first. The receipt and the terminal
+    are each written once, behind the fence that reads them first.
+    """
+    payload = canonical(document)
+    if len(payload) > MAX_EXCHANGE_BYTES:
+        raise WorkerFault("answer",
+                          f"a {name} of {len(payload)} bytes is wider than "
+                          f"the {MAX_EXCHANGE_BYTES} this exchange carries")
+    place = os.path.join(root, name)
+    staged = os.path.join(root, f".{name}.{os.getpid()}."
+                                f"{os.urandom(8).hex()}.publishing")
+    handle = os.open(staged,
+                     os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                     0o000)
+    # ONE CLEANUP BOUNDARY OVER EVERYTHING AFTER THE CREATE, the same shape the
+    # manager's publisher was corrected to. W81857 review
+    # 2026-09-04T04-17-15Z [P2] found the leak on the manager side and asked
+    # for the same audit here: several small unwinds that each cover one step
+    # are several places for a step to be added outside one, and a transient
+    # write or sync failure leaving a staging file behind is a leak whether or
+    # not unique names keep it from being a wedge.
+    #
+    # A SUCCESSFUL `replace` CONSUMES THE STAGED NAME, so the unlink below is
+    # an ordinary no-op on the happy path rather than a second act with an
+    # effect.
+    try:
+        try:
+            written = 0
+            while written < len(payload):
+                step = os.write(handle, payload[written:])
+                if type(step) is not int or step <= 0:
+                    raise WorkerFault("answer",
+                                      f"publishing {name} made no progress "
+                                      f"after {written} of {len(payload)} "
+                                      f"bytes")
+                written += step
+            os.fchmod(handle, EVENT_FILE)
+            os.fsync(handle)
+        finally:
+            os.close(handle)
+        os.replace(staged, place)
+        opened = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(opened)
+        finally:
+            os.close(opened)
+        return place
+    finally:
+        try:
+            os.unlink(staged)
+        except OSError:
+            pass
+
+
+def _exchange_read(root, name):
+    """One named regular file's whole bytes, or absence. NO-FOLLOW, BOUNDED.
+
+    The four properties are `read_launch`'s and each one is a way this program
+    can be handed something other than a document: NO-FOLLOW so a link at a
+    fixed name is refused rather than resolved, NON-BLOCKING so a FIFO cannot
+    stop this program inside `open`, REGULAR proved on the DESCRIPTOR rather
+    than on the path, and BOUNDED at one byte past the ceiling.
+    """
+    try:
+        descriptor = os.open(os.path.join(root, name),
+                             os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except FileNotFoundError:
+        return None
+    except OSError:
+        raise WorkerFault("exchange",
+                          f"{name} could not be opened as an ordinary file; a "
+                          f"link or a device at a name this contract fixes is "
+                          f"not a document") from None
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            raise WorkerFault("exchange", f"{name} is not a regular file")
+        raw = os.read(descriptor, MAX_EXCHANGE_BYTES + 1)
+    finally:
+        os.close(descriptor)
+    if len(raw) > MAX_EXCHANGE_BYTES:
+        raise WorkerFault("exchange",
+                          f"{name} is wider than {MAX_EXCHANGE_BYTES} bytes")
+    return raw
+
+
+def _commanded(root, session):
+    """The one manager-authored command in this namespace, or absence.
+
+    EXACTLY ONE, AND ITS NAME IS ITS OWN SEQUENCE IDENTITY. The manager derives
+    the filename from the sequence rather than being given a path, so a
+    namespace holding two commands is one this program did not receive from a
+    manager it recognises -- choosing between them by directory order would be
+    inventing which turn was asked for.
+
+    STAGING NAMES ARE INVISIBLE, which is the other half of atomic
+    publication: a scan that raced a rename sees a dot-prefixed name and must
+    read nothing, because the document under it is not finished.
+
+    AND THE NAMESPACE IS PROVED READ-ONLY. A command this worker could rewrite
+    is one the manager cannot hold it to -- it could change what it was asked
+    to do between reading the command and publishing the receipt that fences
+    it. The proof is an attempted write-open, which is the only thing that
+    answers the question: the mode bits describe the host file and say nothing
+    about how it was mounted.
+    """
+    try:
+        entries = sorted(os.listdir(root))
+    except OSError:
+        return None
+    named = [one for one in entries
+             if one.endswith(".json") and not one.startswith(".")]
+    if not named:
+        return None
+    if len(named) > 1:
+        raise WorkerFault("exchange",
+                          f"this exchange carries {len(named)} commands and "
+                          f"one attempt has one sequence")
+    name = named[0]
+    raw = _exchange_read(root, name)
+    if raw is None:
+        return None
+    try:
+        writable = os.open(os.path.join(root, name),
+                           os.O_WRONLY | os.O_NOFOLLOW)
+    except OSError:
+        pass
+    else:
+        os.close(writable)
+        raise WorkerFault("exchange",
+                          f"{name} is writable from inside this container; a "
+                          f"command this worker could rewrite is not one the "
+                          f"manager can hold it to")
+    try:
+        document = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        raise WorkerFault("exchange", f"{name} is not UTF-8 JSON") from None
+    _closed(document, COMMAND_MEMBERS, name)
+    if document["schema"] != COMMAND_SCHEMA:
+        raise WorkerFault("exchange",
+                          f"{name} says it is {document['schema']!r} and this "
+                          f"worker reads {COMMAND_SCHEMA!r}")
+    if document["session"] != session:
+        # NOT THIS CONTAINER'S COMMAND. A frame that is not for this session is
+        # not a request to this container at all, and the file transport
+        # answers that question exactly as `bind` does for the framed one.
+        raise WorkerFault("session",
+                          f"{name} names another container session; a worker "
+                          f"answers only the session the manager minted for "
+                          f"it")
+    if name != document["sequence_id"] + ".json":
+        raise WorkerFault("exchange",
+                          f"{name} carries sequence "
+                          f"{document['sequence_id']!r}; the published name "
+                          f"is derived from the sequence identity")
+    ordered = document["operations"]
+    if type(ordered) is not list or not ordered \
+            or len(ordered) > len(OPERATIONS):
+        raise WorkerFault("exchange",
+                          f"{name} carries a bounded ordered operation list")
+    for one in ordered:
+        _closed(one, COMMAND_OPERATION_MEMBERS, name)
+        if one["operation"] not in OPERATIONS:
+            raise WorkerFault(
+                "entitlement",
+                f"this worker is not asked to {one['operation']!r}; it "
+                f"answers {', '.join(OPERATIONS)}")
+        _exchange_value(one["operation_id"], "an operation id", name)
+    _exchange_value(document["attempt_id"], "an attempt id", name)
+    return document, digest_of(raw)
+
+
+def _closed(document, members, name):
+    if type(document) is not dict:
+        raise WorkerFault("exchange", f"{name} is JSON objects")
+    missing = sorted(one for one in members if one not in document)
+    extra = sorted(one for one in document if one not in members)
+    if missing or extra:
+        raise WorkerFault(
+            "exchange",
+            f"{name} is exactly {', '.join(members)}"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    return document
+
+
+def _exchange_value(value, what, name):
+    if type(value) is not str or not value \
+            or len(value) > MAX_EXCHANGE_VALUE:
+        raise WorkerFault("exchange",
+                          f"{name} carries {what} that is not bounded "
+                          f"non-empty text")
+    return value
+
+
+def digest_of(payload):
+    """The digest every event document is correlated by.
+
+    Over the EXACT BYTES the manager published rather than over a
+    recanonicalization of them: the manager holds its own bytes and this holds
+    the file, so two readers that canonicalize differently cannot disagree
+    about what was commanded.
+    """
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def _bound(command, digested, **members):
+    """Every event document, bound to the exact command it answers.
+
+    THE DIGEST IS THE BINDING and the identities are the readable half of it.
+    A manager that found a document naming another sequence would have no way
+    to tell a stale delivery from a foreign one, so all four travel on every
+    document this program publishes.
+    """
+    return {"session": command["session"],
+            "attempt_id": command["attempt_id"],
+            "sequence_id": command["sequence_id"],
+            "command_digest": digested, **members}
+
+
+def _published_manifest_digest():
+    """The completion envelope's own digest, read back from what was published.
+
+    READ BACK RATHER THAN CARRIED. `publish_completion` is the atomic writer
+    and its output is the durable record; naming its digest here from a value
+    passed alongside would be a second account of a document that already
+    exists. The manager validates that same file independently before it
+    freezes anything, so this is a correlation label rather than evidence.
+    """
+    try:
+        raw = _exchange_read(OUTPUT_ROOT, OUTPUT_MANIFEST)
+    except WorkerFault:
+        return None
+    if raw is None:
+        return None
+    try:
+        document = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        return None
+    found = document.get("manifest_digest") if type(document) is dict else None
+    # THE SHAPE, NOT THE LENGTH. The manager holds this member to a canonical
+    # sha256 grammar, so a value that would be refused there is not one this
+    # program publishes -- a worker that wrote something the manager cannot
+    # read would be moving its own mistake into a container the manager can no
+    # longer ask about.
+    if type(found) is not str or not re.match(r"\Asha256:[0-9a-f]{64}\Z",
+                                              found):
+        return None
+    return found
+
+
+def serve_exchange(agent, seen, expected, command_root, event_root,
+                   sleep=None):
+    """The durable transport. NOTHING HERE DEPENDS ON A LIVE MANAGER.
+
+    THE ORDER IS THE WHOLE CONTRACT:
+
+      1. wait for the one command, which the manager publishes AFTER this
+         container is up -- so this program is running before there is
+         anything to do, which is exactly the state the defect this Work
+         corrects reported as `running`;
+      2. publish the RECEIPT before the provider is dispatched. That receipt is
+         the durable replay fence: rescanning this namespace, a manager
+         restart during the turn, and a re-entry of this program after a crash
+         all find it and none of them starts a second provider turn;
+      3. publish one state event per operation actually reached, so an operator
+         can tell "the turn is running" from "the turn is over" without
+         interpreting silence; and
+      4. publish ONE terminal document carrying only bounded protocol facts.
+
+    A RECEIPT WITH NO TERMINAL IS NOT AN ENDING THIS PROGRAM MAY WRITE. Re-
+    entering here after a receipt means a previous incarnation reached the
+    provider and this one cannot know whether that provider is still running,
+    already finished, or gone. Publishing `lost` would be claiming an
+    observation this side does not have; the manager combines the durable
+    receipt with its own exact runtime observation and decides.
+
+    WHAT NEVER CROSSES: the provider's recap, its stdout or stderr, the prompt,
+    a source excerpt, tool input or output, or any diagnostic prose. The
+    terminal document carries the completed operation names, a bounded fault
+    CODE from this program's own closed set, the worker disposition when there
+    is one, and the digest of the completion envelope already published under
+    the existing `/output` contract.
+    """
+    waiting = time.sleep if sleep is None else sleep
+    try:
+        found = _commanded(command_root, expected)
+        while found is None:
+            waiting(SCAN_SECONDS)
+            found = _commanded(command_root, expected)
+        command, digested = found
+    except WorkerFault:
+        # NOTHING CORRELATES A REFUSAL ABOUT THE COMMAND ITSELF. Without a
+        # command there is no sequence, no digest and no session this program
+        # may publish under -- writing an uncorrelated document into a
+        # namespace the manager reads by identity would be inventing state
+        # rather than reporting one. The manager already owns the launched
+        # runtime and reads this exchange as `waiting`.
+        return 2
+    if _exchange_read(event_root, RECEIPT_DOCUMENT) is not None:
+        # THE FENCE, AND IT IS READ BEFORE ANYTHING IS DISPATCHED. A receipt
+        # under this command means a provider turn was already begun for it.
+        # Whether it finished is not this program's question and not one it can
+        # answer, so it reports the sequence as already accepted and stops.
+        return 0 if _exchange_read(event_root,
+                                   TERMINAL_DOCUMENT) is not None else 4
+    _publish(event_root, RECEIPT_DOCUMENT,
+             _bound(command, digested, schema=RECEIPT_SCHEMA,
+                    accepted_at=_instant()))
+    spent = set()
+    answered = []
+    disposition = None
+    # BOUND BEFORE THE LOOP, because a command carries a BOUNDED ordered list
+    # rather than necessarily the whole pair, and the terminal below needs
+    # this value on every path. A sequence that never reached `work` has no
+    # completion envelope to name and therefore no answer to publish.
+    manifest = None
+    for one in command["operations"]:
+        operation = one["operation"]
+        identity = {"protocol": PROTOCOL, "session": command["session"],
+                    "operation_id": one["operation_id"]}
+        request = {**identity, "operation": operation}
+        _publish(event_root, f"state-{operation}.json",
+                 _bound(command, digested, schema=STATE_SCHEMA,
+                        operation=operation,
+                        operation_id=one["operation_id"],
+                        state="dispatched"))
+        try:
+            answer = handle(request, identity, seen, agent, spent)
+        except WorkerFault as fault:
+            return _faulted(event_root, command, digested, operation,
+                            one["operation_id"], answered, fault.code)
+        except Exception:                                  # noqa: BLE001
+            # THE AGENT'S FAILURE IS NOT THIS PROGRAM'S CRASH, and it is not
+            # this program's diagnostic either. The framed transport answers a
+            # bounded description with no traceback; here even the exception's
+            # type name stays out of the durable document, because a durable
+            # file is a different surface from a frame the manager reads once.
+            return _faulted(event_root, command, digested, operation,
+                            one["operation_id"], answered, "agent")
+        # AN ANSWER NAMES THE ENVELOPE IT PUBLISHED, or it is not an answer.
+        # W81857 review [P1] made this member load-bearing: the manager
+        # compares it with the digest its own independent validation of
+        # `/output/output.json` produced, and refuses the whole success ending
+        # on a mismatch. So a `work` that ran and cannot read back its own
+        # completion envelope is reported as a FAULT rather than as an answer
+        # with a null digest -- publishing the latter would be asking the
+        # manager to accept a correlation this program could not make.
+        #
+        # IT IS CHECKED BEFORE THE `answered` STATE IS PUBLISHED, and re-review
+        # 2026-09-04T04-17-15Z [P1] is why the order matters now. The manager
+        # holds a terminal against its own state evidence: an operation the
+        # terminal does not answer must not be sitting there answered, and a
+        # faulted ending must name the operation it stopped on. Publishing
+        # `answered` for `work` and then faulting over the envelope would emit
+        # exactly that contradiction, and the manager would refuse the whole
+        # exchange rather than read the fault.
+        if operation == "work":
+            disposition = answer.get("disposition")
+            manifest = _published_manifest_digest()
+            if manifest is None:
+                return _faulted(event_root, command, digested, operation,
+                                one["operation_id"], answered, "output")
+        _publish(event_root, f"state-{operation}.json",
+                 _bound(command, digested, schema=STATE_SCHEMA,
+                        operation=operation,
+                        operation_id=one["operation_id"],
+                        state="answered"))
+        answered.append(operation)
+    if manifest is None:
+        # EVERY COMMANDED OPERATION SUCCEEDED AND NONE OF THEM WAS `work`, so
+        # there is nothing this sequence could correlate an answer to. The
+        # manager holds an answered terminal to a canonical completion digest,
+        # so publishing one here would be publishing a document it refuses;
+        # the honest report is that this exchange asked for no work.
+        return _faulted(event_root, command, digested,
+                        command["operations"][-1]["operation"],
+                        command["operations"][-1]["operation_id"],
+                        answered[:-1], "exchange")
+    _publish(event_root, TERMINAL_DOCUMENT,
+             _bound(command, digested, schema=TERMINAL_SCHEMA,
+                    ending="answered", answered=answered,
+                    disposition=disposition, fault_code=None,
+                    manifest_digest=manifest))
+    return 0
+
+
+def _faulted(event_root, command, digested, operation, operation_id, answered,
+             code):
+    """One refused operation, ended once and correlated.
+
+    THE FAULT CODE AND NOTHING ELSE. This program's codes are a closed set of
+    short literals it authored; a message is composed from values it read,
+    including the assignment, the agent's answer and the container's own paths,
+    and none of those is material the finding permits in a durable exchange
+    document.
+    """
+    _publish(event_root, f"state-{operation}.json",
+             _bound(command, digested, schema=STATE_SCHEMA,
+                    operation=operation, operation_id=operation_id,
+                    state="faulted"))
+    _publish(event_root, TERMINAL_DOCUMENT,
+             _bound(command, digested, schema=TERMINAL_SCHEMA,
+                    ending="faulted", answered=answered, disposition=None,
+                    fault_code=code, manifest_digest=None))
+    return 1
+
+
+def serve(stdin, stdout, agent, place=LAUNCH_DOCUMENT,
+          command_root=COMMAND_ROOT, event_root=EVENT_ROOT, sleep=None):
     """The loop. Every answerable fault becomes a correlated frame; nothing
     becomes a traceback.
 
@@ -1373,6 +1914,15 @@ def serve(stdin, stdout, agent, place=LAUNCH_DOCUMENT):
         seen = launched(document, place)
     except WorkerFault as fault:
         latched = fault
+    # W81857: THE LAUNCH DOCUMENT SELECTS THE TRANSPORT, and it is the only
+    # thing that does. `seen` is the VALIDATED document, so a `/1` container
+    # cannot reach the branch below however its filesystem happens to look, and
+    # a latched container -- one whose document is correlatable and wrong in
+    # some other way -- has no validated transport at all and answers its one
+    # correlated fault through the framing loop exactly as it did before.
+    if seen.get("transport") == EXCHANGE_TRANSPORT:
+        return serve_exchange(agent, seen, expected, command_root, event_root,
+                              sleep=sleep)
     spent = set()
     while True:
         try:
@@ -1445,7 +1995,8 @@ def _scripted_default():
 
 
 def main(argv=None, stdin=None, stdout=None, agent=None,
-         place=LAUNCH_DOCUMENT):
+         place=LAUNCH_DOCUMENT, command_root=COMMAND_ROOT,
+         event_root=EVENT_ROOT):
     # NO ENVIRONMENT OPERAND AT ALL, W26291. It is not defaulted to `os.environ`
     # and then ignored: a parameter that still exists is a parameter something
     # can be threaded back through, and the supersession retains no fallback.
@@ -1457,7 +2008,8 @@ def main(argv=None, stdin=None, stdout=None, agent=None,
     # seam that silently replaced it would run somebody else's agent under the
     # caller's assignment.
     return serve(stdin or sys.stdin.buffer, stdout or sys.stdout.buffer,
-                 _scripted_default() if agent is None else agent, place)
+                 _scripted_default() if agent is None else agent, place,
+                 command_root, event_root)
 
 
 if __name__ == "__main__":
