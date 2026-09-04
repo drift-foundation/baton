@@ -102,3 +102,40 @@ Together with closed W71875 and W76207, this clears the recorded prerequisites
 for the first ordinary self-hosted submission. W71917 is ready to enter the
 persistent v12 Job Manager; the no-dogfood and no-new-candidate-archive limits
 remain in force.
+
+## Production-conversation correction — 2026-09-03
+
+The readiness conclusion immediately above is **superseded** by the live
+W71917 submission. The persistent manager admitted and claimed the stage and
+started its interactive Docker runtime, but no production owner opened the
+worker-entry conversation or sent `describe` and `work`; Claude therefore
+never started while the stage misleadingly projected `running`. Confirmed
+defect W81857 owns the durable, restart-safe production conversation and
+truthful status correction. W71917 is blocked on W81857. A recorded manual
+conversation may gather evidence from the retained runtime, but cannot satisfy
+this Work's ordinary autonomous-production acceptance boundary.
+
+## Production conversation gate cleared — 2026-09-04
+
+W81857 closed satisfying at commit `756b720`. Its independently reviewed
+production path publishes commands and observes receipts, state and terminal
+outcomes through one durable per-attempt file exchange; the worker continues
+without a live Job Manager, and a fresh manager recovers by rescan without
+opening stdin/stdout or issuing a second provider invocation. Its source-bound
+real-container gate passed.
+
+W71917 is therefore ready as the first ordinary self-hosted v12 workload. The
+retained pre-W81857 runtime is not resumed or injected into: it contains old
+worker bytes and has no exchange mounts. Submit a fresh Job and attempt through
+the integrated persistent Job Manager and production worker factory, using the
+committed source/workspace dossier as its immutable instructions. The existing
+no-dogfood and no-per-iteration-complete-archive boundaries remain in force.
+
+## Planning ownership clarification — 2026-09-04
+
+Live dependency identities, gates, phases, and closure state belong to Baton's
+authoritative graph, not to `PLAN.md`. The plan now states only durable product
+prerequisites and sequence so graph changes cannot make it stale. This finding
+retains the Work identifiers above solely as chronological evidence of what
+happened and why the launch conclusion changed; they are not a second source of
+current scheduler truth.

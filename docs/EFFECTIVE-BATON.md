@@ -950,6 +950,16 @@ write concurrently without fighting:
 - `review-*.md` — append-only review evidence. Corrections append a dated
   marker; they never rewrite what a reviewer already said.
 
+Keep live graph state out of `PLAN.md`. A plan names the durable capability,
+defect, prerequisite, and execution order; it does not say `blocked on W…`,
+record the current phase of another Work, or duplicate a dependency edge.
+Baton is the authority for those identities and relationships, and changing
+the graph must not make the plan stale. `FINDING.md` may cite Work identifiers
+as dated journal evidence of what happened and why a ruling changed, but those
+historical citations are not current scheduler state. When a dependency
+changes, update Baton; update the plan only when the underlying product
+condition or intended sequence changes.
+
 ## Finding the Work that awaits you
 
 `home` and `tree` show a team's containment window three levels deep. A Work

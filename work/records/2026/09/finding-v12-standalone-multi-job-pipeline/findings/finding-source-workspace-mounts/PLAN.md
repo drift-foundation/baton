@@ -1,12 +1,14 @@
 # Plan
 
-0. [ready after W81115 closed satisfying 2026-09-03]
-   Submit this accepted scope as the first ordinary self-hosted Job through
-   the integrated persistent v12 manager; do not use dogfood or a new complete
-   candidate archive.
-1. [pending revalidation] Re-read W62098's latest source/workspace rulings and
+0. [ready; the production file-exchange prerequisite is satisfied]
+   Submit this accepted scope as a fresh first ordinary self-hosted Job through
+   the integrated persistent v12 manager and production file exchange; do not
+   use dogfood, a retained pre-file-exchange runtime, or a new complete
+   candidate archive. Autonomous worker execution and restart recovery without
+   authoritative stdin/stdout are accepted prerequisites.
+1. [pending revalidation] Re-read the current source/workspace rulings and
    map current workspace allocation, OCI mounts, dogfood staging, and profile
-   inputs. Preserve W62535's preflight-before-staging ordering invariant.
+   inputs. Preserve the accepted preflight-before-staging ordering invariant.
 2. [pending] Define a generic nominated-source and manager-created persistent
    workspace capability with explicit storage quota and bounded scratch.
 3. [pending] Implement direct read-only local source mounting and disk-backed
