@@ -27,7 +27,8 @@ from datetime import datetime, timezone
 
 from baton_v12.authority import Authority, claim_signature
 from baton_v12.contracts import (ContractRefusal, check_manifest_structure,
-                                 check_no_durable_secret, digest)
+                                 check_no_durable_secret, digest,
+                                 digest_of_bytes)
 from baton_v12.job_manager import ManagerOperations
 from baton_v12.worker_manager import (AuthorityPort, accept_offer,
                                       activate_assignment,
@@ -49,8 +50,33 @@ from tools.user_credentials import SourceRefusal, UserCredentialSources
 __all__ = ["CONFIG_ENV", "CONFIG_SCHEMA", "factory", "operations_from"]
 
 CONFIG_ENV = "BATON_V12_SINGLE_WORKER_CONFIG"
-CONFIG_SCHEMA = "baton.v12.single-worker-deployment/1"
+# W81115: SCHEMA `/2`, AND THE VERSION MOVED BECAUSE THE DOCUMENT DID.
+#
+# `/2` carries one required member `/1` never had. Adding a required member to
+# a closed, version-named document is a NEW CONTRACT rather than a compatible
+# reading of the old one, and there is deliberately no fallback: a `/1`
+# document is refused by the equality test below rather than accepted with a
+# task nobody named. A deployment that could start without one would start the
+# certified worker over an input root it refuses before it does any provider
+# work at all, which is the defect this Work exists to remove.
+CONFIG_SCHEMA = "baton.v12.single-worker-deployment/2"
 MAX_CONFIG_BYTES = 1024 * 1024
+
+# W81115: THE TWO NAMES THE CERTIFIED WORKLOAD FIXES, mirrored here rather than
+# imported. `claude_agent` runs INSIDE the image, on its own interpreter and
+# import path; a host composer that imported it would be reaching across the
+# boundary the whole delivery exists to cross, and would take its
+# provider-specific task parser with it. What keeps the two copies honest is
+# not an import but a test: the receiving-end fixture drives the real worker
+# entry over the root this deployment composes and asserts these names against
+# the workload's own constants.
+TASK_DOCUMENT = "task.json"
+SOURCE_DESTINATION = "source"
+# THE WORKER'S OWN READ CEILING. `claude_agent._task` reads at most 1 MiB and
+# a document wider than that is one it will never see whole, so this refuses it
+# at configuration time rather than delivering material the receiving end
+# cannot accept.
+MAX_TASK_BYTES = 1024 * 1024
 
 _MEMBERS = (
     "schema", "authority_store", "authority_uuid", "participant",
@@ -58,7 +84,7 @@ _MEMBERS = (
     "adapter_name", "adapter_digest", "engine", "image_digest", "network",
     "workspace_storage", "workspace_group", "launch_home",
     "credential_home", "credential_sources", "credential_slots",
-    "credential_profile", "input_source", "input_manifest",
+    "credential_profile", "input_source", "input_manifest", "task_document",
     "launch_contract", "launch_role")
 _DIGEST = re.compile(r"\Asha256:[0-9a-f]{64}\Z")
 _NETWORK = re.compile(r"\A[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}\Z")
@@ -146,7 +172,7 @@ def _held(document):
         _refuse(f"a single-worker configuration says {given['schema']!r}; "
                 f"this deployment reads {CONFIG_SCHEMA!r}")
     for member in ("authority_store", "workspace_storage", "launch_home",
-                   "credential_home", "input_source"):
+                   "credential_home", "input_source", "task_document"):
         given[member] = _path(given[member], f"the configuration's {member}")
     if given["credential_sources"] is not None:
         given["credential_sources"] = _path(
@@ -197,6 +223,25 @@ def _held(document):
     if len(manifest["sources"]) != 1:
         _refuse("the bootstrap deployment accepts exactly one staged source",
                 category="policy", code="denied")
+    # W81115: AND ITS DESTINATION IS THE ONE THE WORKLOAD STAGES.
+    #
+    # The certified task contract fixes `source_root` to `source` and the
+    # adapter copies exactly `/input/source`, so a manifest naming any other
+    # destination composes a root the worker cannot use -- which is how this
+    # deployment reached `running` with both fixed worker paths absent. The
+    # check also reserves the task document's name from a source directory
+    # that would collide with it.
+    #
+    # W71917 REPLACES THE COPY, NOT THIS RULE. Its ruled direct read-only mount
+    # lands the same fixed path; what this pins is the path, which is the part
+    # the worker fixes.
+    if manifest["sources"][0]["destination"] != SOURCE_DESTINATION:
+        _refuse(f"the bootstrap input manifest stages its source at "
+                f"{manifest['sources'][0]['destination']!r} and the certified "
+                f"workload reads exactly {SOURCE_DESTINATION!r}",
+                category="policy", code="denied")
+    given["task_bytes"] = _task_bytes(given["task_document"],
+                                      manifest["human_contract"])
     if type(given["credential_slots"]) is not list:
         _refuse("the configuration's credential_slots is one list")
     if type(given["credential_profile"]) is not dict:
@@ -211,6 +256,94 @@ def _held(document):
         _refuse("the configured bootstrap source does not match the input "
                 "manifest's content identity", code="digest")
     return given
+
+
+def _task_bytes(place, contract):
+    """The frozen workload document, READ ONCE and held as exact bytes.
+
+    W81115. `single_worker` composed an input root carrying the two protocol
+    manifests and the staged source and nothing else, while the certified
+    worker opens `/input/task.json` before it does any provider work. The Job
+    projection therefore reached `running` over a root the worker refuses, and
+    no later operation could make the document appear.
+
+    READ HERE, WHICH IS BEFORE ANYTHING EXISTS TO UNDO. This runs inside static
+    configuration validation -- before the Authority is opened, before an offer
+    is made, before an attempt or a workspace exists -- so every refusal below
+    happens with no attempt root to leave partial and nothing to settle.
+
+    HELD AS BYTES, AND THE PATH IS NEVER REOPENED. What this deployment
+    delivers is decided once, here; a change to the configured path afterwards
+    cannot change what a later composition publishes. That is also why the
+    bytes rather than the path are what the constructed deployment carries.
+
+    NO-FOLLOW, ORDINARY, BOUNDED, in that order and for three different
+    reasons. A final symlink is a path this deployment did not choose;
+    a directory, FIFO or device is not a document; and one byte past the
+    worker's own ceiling is material the receiving end will never see whole.
+    `O_NONBLOCK` so that opening a FIFO nobody has opened for writing answers
+    rather than hanging the whole deployment before it starts.
+
+    AND IT IS THE MANIFEST'S HUMAN CONTRACT, which is the approved decision
+    this rests on. For THIS production profile the task document IS the input
+    manifest's `human_contract` artifact, so the frozen manifest already
+    carries its media type, its width and its digest -- and holding the bytes
+    to them is what makes the delivery digest-bound rather than
+    path-trusting. The locator stays provenance and is never read as a host
+    path.
+
+    WHAT IS DELIBERATELY NOT DONE HERE. The document's provider-specific
+    schema is not parsed. `claude_agent` owns that vocabulary at the receiving
+    end, and a host-side copy of it would be a second reader of one contract --
+    which is exactly what the retired dogfood helpers were, and why they could
+    not be reused: they follow the final symlink, parse on the host, and
+    reserialize the object instead of delivering the bytes.
+    """
+    if type(contract) is not dict:
+        _refuse("the bootstrap input manifest carries no human contract")
+    if contract["media_type"] != "application/json":
+        _refuse(f"this profile's task document is the input manifest's "
+                f"human contract and that artifact is "
+                f"{contract['media_type']!r} rather than 'application/json'",
+                category="refused", code="precondition")
+    if type(contract["bytes"]) is not int or type(contract["bytes"]) is bool \
+            or contract["bytes"] > MAX_TASK_BYTES:
+        _refuse(f"this profile's human-contract artifact is wider than the "
+                f"{MAX_TASK_BYTES}-byte ceiling the workload reads",
+                code="limit")
+    try:
+        handle = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC
+                         | os.O_NONBLOCK)
+    except OSError as failure:
+        _refuse(f"the configured task document could not be opened "
+                f"({type(failure).__name__})", code="path")
+    try:
+        found = os.fstat(handle)
+        if not stat.S_ISREG(found.st_mode):
+            _refuse("the configured task document is one ordinary file",
+                    code="path")
+        pieces = []
+        remaining = MAX_TASK_BYTES + 1
+        while remaining:
+            part = os.read(handle, remaining)
+            if not part:
+                break
+            pieces.append(part)
+            remaining -= len(part)
+    finally:
+        os.close(handle)
+    raw = b"".join(pieces)
+    if len(raw) > MAX_TASK_BYTES:
+        _refuse(f"the configured task document is wider than "
+                f"{MAX_TASK_BYTES} bytes", code="limit")
+    if len(raw) != contract["bytes"]:
+        _refuse(f"the configured task document is {len(raw)} bytes and this "
+                f"profile's human-contract artifact declares "
+                f"{contract['bytes']}", code="digest")
+    if digest_of_bytes(raw) != contract["content_digest"]:
+        _refuse("the configured task document is not the content this "
+                "profile's human-contract artifact names", code="digest")
+    return raw
 
 
 def _sayable(message, instead):
@@ -446,6 +579,16 @@ class _SingleWorker:
                 _refuse("the bootstrap input root is partial; restart refuses "
                         "rather than completing material whose provenance it "
                         "cannot prove", code="path")
+            # W81115: THE WORKLOAD DOCUMENT FIRST, and the order is the
+            # content. `compose_input_root` FREEZES the root when it finishes
+            # -- 0555 on the directory -- so nothing can be added afterwards,
+            # and the source copy walks a tree this deployment does not want
+            # deciding whether the task name is still free. Publishing here
+            # means the whole root is composed before the protocol pair
+            # completes it, which is also W76207's rule: a death anywhere in
+            # between leaves a partial root the next process refuses above
+            # rather than repairs.
+            self._published_task(roots["inputs"])
             source = manifest["sources"][0]
             target = os.path.join(roots["inputs"], source["destination"])
             copied = workspaces.copied_manifest(
@@ -463,7 +606,141 @@ class _SingleWorker:
         if held_input != manifest or held_assignment != assignment:
             _refuse("the existing bootstrap input root is another delivery",
                     category="refused", code="precondition")
+        # W81115: AND THE WORKLOAD DOCUMENT IS PROVED TOO, on every restart.
+        #
+        # `read_input_root` deliberately reads exactly the two PROTOCOL
+        # documents -- that is the generic component's whole contract -- so a
+        # matching manifest pair says nothing at all about the workload
+        # material beside it. Inferring the task from `input.json` would be
+        # this deployment concluding something the reader it called never
+        # looked at.
+        self._proved_task(roots["inputs"])
         return held_input
+
+    def _published_task(self, inputs):
+        """Install the held task bytes as the read-only workload document.
+
+        NEVER FROM THE CONFIGURED PATH. The bytes were read once, at
+        construction, and are what this publishes; reopening the path here
+        would let material change between the proof and the delivery, which is
+        the whole reason `_task_bytes` holds them.
+
+        REFUSED RATHER THAN REPLACED when the name is taken, AND THE
+        EXCLUSIVE CREATION IS BOTH DECISIONS AT ONCE. An input root carrying a
+        task this composition did not write is material whose provenance it
+        cannot prove, and W76207's rule for exactly that is to refuse and
+        record one preparation ending rather than repair in place.
+
+        THERE IS NO SECOND PATHNAME, and two reviews are why. The first cut
+        checked the final name and finished with `os.replace`, which CLOBBERS,
+        so a creator that won the interval between the check and the rename had
+        its document silently replaced (review 2026-09-04T00:56:36Z [P1]). The
+        second made that transition a no-clobber `os.link` -- and left the
+        STAGING NAME as a mutable pathname between the proof and the
+        publication, so a creator that unlinked it and put a symlink there had
+        that symlink hard-linked at the final name, published, and reported as
+        success (review 2026-09-04T01:06:30Z [P1]).
+
+        Both defects are one defect: a name proved at one moment and used at
+        another. Defending the interval a third time would be the same bet
+        again, so the interval is GONE. The document is created directly at its
+        final name with `O_CREAT | O_EXCL | O_NOFOLLOW`, which IS the
+        no-clobber decision -- an existing file, directory or symlink at that
+        name fails `EEXIST` and nothing is written -- and every act after it is
+        on THE DESCRIPTOR THAT CREATION RETURNED. The bytes, the readback and
+        the mode all reach the same inode, and there is no other pathname for
+        anything to substitute.
+
+        UNREADABLE UNTIL PROVED. Mode 0 at creation, and `fchmod` on that same
+        descriptor only after the bytes have been read back and compared -- so
+        the document becomes readable exactly when it becomes both complete and
+        proved. What an interrupted composition leaves is an unreadable file
+        inside a root with no protocol pair, which the partial-root rule
+        refuses above and `_proved_task` would refuse for its mode.
+
+        NOT `workspaces._write_read_only`, which is the same shape one
+        component over. That one is the private owner of the two protocol
+        documents, and publishing this through it would mean making a generic
+        Worker Manager operation public to carry workload material -- the
+        vocabulary boundary this Work is explicitly held to. It also stages,
+        for a reason that is real where it lives: those documents are composed
+        into a root a container may already be mounting. This one is written
+        before the root is frozen and before any runtime exists, so nothing can
+        observe the incomplete name, and removing the second pathname is worth
+        more here than atomic appearance is.
+        """
+        held = self.given["task_bytes"]
+        place = os.path.join(inputs, TASK_DOCUMENT)
+        try:
+            handle = os.open(place, os.O_RDWR | os.O_CREAT | os.O_EXCL
+                             | os.O_NOFOLLOW | os.O_CLOEXEC, 0o000)
+        except FileExistsError:
+            _refuse(f"the bootstrap input root already carries "
+                    f"{TASK_DOCUMENT!r}; a workload document this composition "
+                    f"did not write is material whose provenance it cannot "
+                    f"prove", code="path")
+        except OSError as failure:
+            _refuse(f"the bootstrap task document could not be created "
+                    f"({type(failure).__name__})", code="path")
+        try:
+            written = 0
+            while written < len(held):
+                moved = os.write(handle, held[written:])
+                if moved <= 0:
+                    _refuse("the bootstrap task document could not be written "
+                            "whole", code="limit")
+                written += moved
+            os.fsync(handle)
+            os.lseek(handle, 0, os.SEEK_SET)
+            if os.read(handle, len(held) + 1) != held:
+                _refuse("the published bootstrap task document is not the "
+                        "content this deployment holds", code="digest")
+            os.fchmod(handle, 0o444)
+        except BaseException:
+            # THE NAME THIS OPERATION EXCLUSIVELY CREATED IS ITS OWN TO REMOVE,
+            # and it is removed by name rather than proved first because the
+            # exclusive creation is what established that the name was free:
+            # nothing else has published under it in between without this
+            # having already failed.
+            os.close(handle)
+            os.unlink(place)
+            raise
+        os.close(handle)
+        return place
+
+    def _proved_task(self, inputs):
+        """The installed workload document, re-proved against the held bytes.
+
+        The same three questions the configuration asked, asked again of what
+        is actually on disk: a no-follow ordinary file, the exact bytes this
+        deployment holds, and the read-only mode that says on disk what the
+        delivery says in prose. A root whose protocol pair matches while its
+        task has moved is a root the worker would read something else out of.
+        """
+        held = self.given["task_bytes"]
+        place = os.path.join(inputs, TASK_DOCUMENT)
+        try:
+            handle = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC
+                             | os.O_NONBLOCK)
+        except OSError as failure:
+            _refuse(f"the existing bootstrap input root carries no readable "
+                    f"{TASK_DOCUMENT!r} ({type(failure).__name__})",
+                    code="path")
+        try:
+            found = os.fstat(handle)
+            if not stat.S_ISREG(found.st_mode):
+                _refuse(f"the existing {TASK_DOCUMENT!r} is one ordinary file",
+                        code="path")
+            if stat.S_IMODE(found.st_mode) != 0o444:
+                _refuse(f"the existing {TASK_DOCUMENT!r} is not the read-only "
+                        f"document this deployment published", code="path")
+            raw = os.read(handle, len(held) + 1)
+        finally:
+            os.close(handle)
+        if raw != held:
+            _refuse("the existing bootstrap input root carries another task "
+                    "document", category="refused", code="precondition")
+        return place
 
     def _adapter(self, roots, delivery, orphan, launched):
         given = self.given

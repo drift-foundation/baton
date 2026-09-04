@@ -1,6 +1,6 @@
 # Plan
 
-0. [ready — W71875 and W76207 closed satisfying]
+0. [blocked on confirmed launch-preflight defect W81115]
    Submit this accepted scope as the first ordinary self-hosted Job through
    the integrated persistent v12 manager; do not use dogfood or a new complete
    candidate archive.

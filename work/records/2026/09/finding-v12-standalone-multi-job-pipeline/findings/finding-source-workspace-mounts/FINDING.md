@@ -82,3 +82,12 @@ This Work therefore waits for the approved one-worker bootstrap W76207 as well
 as W71875. Once W76207 is integrated, this remains the first ordinary
 self-hosted v12 workload and still does not use the dogfood operator or a new
 complete candidate archive.
+
+## Launch-preflight correction — 2026-09-03
+
+The readiness statement above is temporarily superseded by confirmed defect
+W81115. Revalidation before the first real submission found that W76207's
+production composer does not materialize the `/input/task.json` document the
+certified Claude worker requires before provider execution. W71917 remains the
+first ordinary self-hosted workload, but it waits for that bounded production
+task-delivery correction rather than launching a container known to fail.

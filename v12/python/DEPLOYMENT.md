@@ -20,11 +20,11 @@ The bearer exists for the immediate offer-accept call and is then discarded;
 credentials are read lazily from the invoking user's private source registry.
 
 The configuration is one JSON object with schema
-`baton.v12.single-worker-deployment/1` and exactly these members:
+`baton.v12.single-worker-deployment/2` and exactly these members:
 
 | Member | Required value |
 |---|---|
-| `schema` | `baton.v12.single-worker-deployment/1` |
+| `schema` | `baton.v12.single-worker-deployment/2` |
 | `authority_store`, `authority_uuid` | Absolute Authority store path and its exact 32-character UUID |
 | `participant`, `principal` | The one endpoint and the principal Authority resolves it to |
 | `profile_name`, `profile_digest` | The one certified implementation runtime profile |
@@ -35,15 +35,56 @@ The configuration is one JSON object with schema
 | `launch_home`, `credential_home` | Absolute persistent launch state and manager-private credential homes |
 | `credential_sources` | Absolute private user registry described below; the public production factory refuses `null` |
 | `credential_slots`, `credential_profile` | Closed logical slot names and the trusted provider/reference mapping for them |
-| `input_source`, `input_manifest` | Absolute already-staged source directory and its complete frozen `inputManifest` document |
+| `input_source`, `input_manifest` | Absolute already-staged source directory and its complete frozen `inputManifest` document, whose one source destination is exactly `source` |
+| `task_document` | Absolute path to the frozen JSON workload document this profile's input manifest declares as its `human_contract` artifact |
 | `launch_contract`, `launch_role` | The immutable worker launch contract and `implementation` role |
+
+Schema `/2` supersedes `/1` and there is no fallback: `/2` adds a required
+member, which makes it a new contract rather than a compatible reading of the
+old one, and a configuration that named no task would start the certified
+worker over an input root it refuses before doing any provider work.
 
 Unknown or missing members refuse. Before an offer exists, the factory checks
 the complete input manifest, relates its Authority, assignment contract,
 policy, profile and image to the configured values, measures `input_source`,
 validates the credential mapping and OCI posture, opens Authority against the
 expected UUID, and proves the configured participant resolves to the
-configured principal and Work. The runtime composer receives only the
+configured principal and Work.
+
+### The workload document, and why it is configuration rather than payload
+
+The certified worker reads two things this manager fixes: the frozen task at
+`/input/task.json` and the source tree at `/input/source`. They are separate
+immutable inputs — the source is what the agent edits, the task is what it was
+asked to do — and neither is ever an environment value.
+
+For this production profile the task document **is** the input manifest's
+`human_contract` artifact, and that relationship is what makes the delivery
+digest-bound rather than path-trusting. The artifact must declare
+`application/json`, a width no greater than the worker's 1 MiB read ceiling,
+and the byte count and SHA-256 digest of the configured file. The artifact's
+locator stays provenance and is never read as a host path; `task_document`
+names the local materialization.
+
+During static validation — before Authority is opened and before any offer or
+attempt root exists — the factory opens `task_document` once with `O_NOFOLLOW`,
+proves it is an ordinary file, reads at most the ceiling, and holds those exact
+bytes. Missing, linked, non-regular, oversized, byte-count-mismatched and
+digest-mismatched material all refuse there, where there is nothing yet to
+leave behind. The held bytes are what every later composition publishes, so
+changing the configured path afterwards cannot change what is delivered.
+
+When an attempt's input root is composed, those bytes are installed as the
+read-only ordinary file `task.json` before the source is copied and before the
+protocol pair freezes the root. A root that already carries a `task.json` this
+composition did not write is refused rather than replaced. On restart, adopting
+an already-composed root re-proves the installed document — no-follow, ordinary,
+read-only, exact bytes — because the generic manifest reader deliberately reads
+only the two protocol documents and says nothing about the workload material
+beside them.
+
+The manager never parses the task's provider-specific schema. The worker owns
+that vocabulary; this deployment treats the document as digest-bound content. The runtime composer receives only the
 restricted participant-bound Authority port—not the Authority store path,
 bootstrap object, principal lookup or credential-source registry. A direct
 test or embedding may inject a credential-provider capability through the

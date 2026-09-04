@@ -8,13 +8,15 @@ engine boundary replaced with a recording process capability.
 import copy
 import json
 import os
+import stat
+import subprocess
 import tempfile
 import unittest
 from unittest import mock
 
 from baton_v12.authority import Authority
-from baton_v12.contracts import (ContractRefusal, digest, forget_secret,
-                                 live_secret, remember_secret)
+from baton_v12.contracts import (ContractRefusal, digest, digest_of_bytes,
+                                 forget_secret, live_secret, remember_secret)
 from baton_v12.job_manager import (JobStore, reconcile, status, submit)
 from baton_v12.worker_manager import (ControlStore,
                                       attempt_preparation_failure_of,
@@ -118,7 +120,32 @@ class SingleWorkerCase(unittest.TestCase):
             runtime_attempt_id="unused",
             policy_digest=fixtures.POLICY_DIGEST,
             profile_digest=fixtures.PROFILE)
+        # W81115: THE PRODUCTION PROFILE, which the conformance vector is not.
+        #
+        # That vector's human contract is a Markdown dossier and it stages its
+        # source at `workspace/source`; both are correct for a generic
+        # manifest and neither is what the certified Claude workload reads.
+        # This profile is the approved one: the task document IS the input
+        # manifest's human-contract artifact, and the source lands at the one
+        # destination the workload stages.
+        self.task_document = os.path.join(self.root, "task.json")
+        self.task_bytes = json.dumps(
+            {"schema": "baton.dogfood-task/1", "task_id": "w81115-bootstrap",
+             "instructions": "write one bounded proposal",
+             "source_root": "source",
+             "verification": ["python3", "-c", "raise SystemExit(0)"]},
+            sort_keys=True).encode("utf-8")
+        with open(self.task_document, "wb") as writing:
+            writing.write(self.task_bytes)
         self.manifest = copy.deepcopy(given)
+        self.manifest["sources"][0]["destination"] = (
+            single_worker.SOURCE_DESTINATION)
+        self.manifest["human_contract"] = {
+            "artifact_id": "w81115-task-1",
+            "media_type": "application/json",
+            "bytes": len(self.task_bytes),
+            "content_digest": digest_of_bytes(self.task_bytes),
+            "locator": "artifact://contracts/w81115-task-1"}
         self.manifest["sources"][0]["content_manifest"] = (
             single_worker.workspaces.directory_manifest(self.source))
         self.manifest.pop("manifest_digest")
@@ -148,6 +175,7 @@ class SingleWorkerCase(unittest.TestCase):
                         "reference": "fixture/one"}},
             "input_source": self.source,
             "input_manifest": self.manifest,
+            "task_document": self.task_document,
             "launch_contract": "v12-assignment-1",
             "launch_role": "implementation"}
         self.secret = "single-worker-secret-" + "7" * 40
@@ -463,6 +491,135 @@ class TheConfigurationBoundaryIsClosed(SingleWorkerCase):
         self.assertNotIn("authority_store", operations._worker.given)
         operations.close()
 
+    def resealed(self, **members):
+        """One configuration whose manifest carries these overrides."""
+        manifest = copy.deepcopy(self.manifest)
+        manifest.update(members)
+        manifest.pop("manifest_digest")
+        manifest["manifest_digest"] = digest(manifest)
+        return dict(self.config, input_manifest=manifest)
+
+    def refused(self, configured, name):
+        job, control = self.stores(name)
+        with self.assertRaises(ContractRefusal) as caught:
+            single_worker.operations_from(
+                configured, job, control, engine_run=Engine(),
+                credential_provider=lambda *_: self.secret)
+        # NOTHING WAS REACHED. Static task validation happens before the
+        # Authority is opened and before any offer exists, so a refusal here
+        # leaves no claimed offer and no attempt root to be partial.
+        self.assertEqual(claimed_offers_for(control, "no-attempt"), [])
+        self.assertEqual(os.listdir(self.storage), [])
+        return caught.exception
+
+    def test_a_configuration_of_the_superseded_schema_is_refused(self):
+        """W81115: `/2` adds a required member, so it is a new contract.
+
+        There is no fallback on purpose: a `/1` document names no task, and a
+        deployment that started anyway would start the certified worker over a
+        root it refuses before it does any provider work.
+        """
+        carrying = dict(self.config,
+                        schema="baton.v12.single-worker-deployment/1")
+        held = self.refused(carrying, "superseded-schema")
+        self.assertEqual(held.code, "schema")
+        self.assertIn("single-worker-deployment/2", held.message)
+
+    def test_a_configuration_without_a_task_document_is_refused(self):
+        carrying = dict(self.config)
+        carrying.pop("task_document")
+        held = self.refused(carrying, "no-task-member")
+        self.assertEqual(held.code, "schema")
+        self.assertIn("task_document", held.message)
+
+    def test_task_material_this_deployment_cannot_hold_is_refused(self):
+        """Every static negative, before anything exists to undo."""
+        linked = os.path.join(self.root, "task-link.json")
+        os.symlink(self.task_document, linked)
+        directory = os.path.join(self.root, "task-directory")
+        os.makedirs(directory)
+        wide = os.path.join(self.root, "task-wide.json")
+        with open(wide, "wb") as writing:
+            writing.write(b"x" * (single_worker.MAX_TASK_BYTES + 1))
+        fifo = os.path.join(self.root, "task-fifo.json")
+        os.mkfifo(fifo)
+        cases = [
+            ("missing", os.path.join(self.root, "absent.json"), "path"),
+            ("symlink", linked, "path"),
+            ("directory", directory, "path"),
+            # THE ANTI-HANG BOUNDARY, EXECUTED. Review 2026-09-04T00:56:36Z
+            # [P2]: a directory refuses at the open, so it never reached the
+            # case `O_NONBLOCK` is there for. Nothing has this FIFO open for
+            # writing, so an ordinary blocking open would hang the whole
+            # deployment before it started rather than refusing it.
+            ("fifo", fifo, "path"),
+            ("oversized", wide, "limit")]
+        for name, place, code in cases:
+            with self.subTest(case=name):
+                held = self.refused(dict(self.config, task_document=place),
+                                    "task-" + name)
+                self.assertEqual(held.code, code)
+
+    def test_a_task_that_is_not_the_declared_human_contract_is_refused(self):
+        """The approved relationship, held in both directions.
+
+        This profile DEFINES the task document as the input manifest's
+        human-contract artifact, so the manifest's own media type, width and
+        digest are what the held bytes are proved against. A profile whose
+        human contract describes something else -- the conformance vector's
+        Markdown dossier, say -- must refuse rather than deliver an unproved
+        document.
+        """
+        contract = dict(self.manifest["human_contract"])
+        cases = [
+            ("media_type", dict(contract, media_type="text/markdown"),
+             "precondition"),
+            ("bytes", dict(contract, bytes=contract["bytes"] + 1), "digest"),
+            ("content_digest",
+             dict(contract, content_digest="sha256:" + "e" * 64), "digest"),
+            ("width", dict(contract,
+                           bytes=single_worker.MAX_TASK_BYTES + 1), "limit")]
+        for name, human, code in cases:
+            with self.subTest(member=name):
+                held = self.refused(self.resealed(human_contract=human),
+                                    "human-" + name)
+                self.assertEqual(held.code, code)
+
+    def test_a_source_destination_the_workload_does_not_read_is_refused(self):
+        """The adjacent fact the reproduction found beside the missing task.
+
+        The certified task contract fixes `source_root` and the adapter copies
+        exactly `/input/source`, so a manifest staging anywhere else composes
+        a root the worker cannot use -- which is how this deployment reached
+        `running` with both fixed worker paths absent.
+        """
+        sources = copy.deepcopy(self.manifest["sources"])
+        sources[0]["destination"] = "workspace/source"
+        held = self.refused(self.resealed(sources=sources), "wrong-source")
+        self.assertEqual((held.category, held.code), ("policy", "denied"))
+        self.assertIn("workspace/source", held.message)
+
+    def test_the_held_bytes_and_not_the_path_are_what_is_delivered(self):
+        """A change to the configured path after construction changes nothing.
+
+        The document is read once, at configuration time, and the constructed
+        deployment carries the BYTES. Reopening the path at composition would
+        put the delivery back at the mercy of whatever the path names then.
+        """
+        engine = Engine()
+        job, control = self.stores("held-bytes")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        with open(self.task_document, "wb") as writing:
+            writing.write(b'{"schema":"somebody-elses-task"}')
+        projected = self.running(job, operations)
+        stage = projected["jobs"][0]["stages"][0]
+        place = os.path.join(self.storage, stage["attempt_id"], "inputs",
+                             single_worker.TASK_DOCUMENT)
+        with open(place, "rb") as reading:
+            self.assertEqual(reading.read(), self.task_bytes)
+        operations.close()
+
     def test_unknown_configuration_members_are_refused(self):
         job, control = self.stores("closed-config")
         carrying = dict(self.config, surprise=True)
@@ -485,6 +642,464 @@ class TheConfigurationBoundaryIsClosed(SingleWorkerCase):
                                           self.secret)
         self.assertEqual(caught.exception.code, "digest")
         self.assertEqual(claimed_offers_for(control, "no-attempt"), [])
+
+
+class TheWorkloadDocumentIsDeliveredWithTheProtocolPair(SingleWorkerCase):
+    """W81115: the composed root the certified worker can actually read.
+
+    W76207's production tests replace the OCI engine and prove the START
+    VECTOR, so they proved a `running` projection over a root missing both
+    paths the workload fixes. What is asserted here is the root itself.
+    """
+
+    def composed(self, name="workload-root"):
+        engine = Engine()
+        job, control = self.stores(name)
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        projected = self.running(job, operations)
+        stage = projected["jobs"][0]["stages"][0]
+        inputs = os.path.join(self.storage, stage["attempt_id"], "inputs")
+        return engine, job, control, operations, stage, inputs
+
+    def test_the_root_carries_both_manifests_the_task_and_the_source(self):
+        engine, _job, _control, operations, _stage, inputs = self.composed()
+        self.assertEqual(
+            sorted(os.listdir(inputs)),
+            ["assignment.json", "input.json", "source", "task.json"])
+        with open(os.path.join(inputs, single_worker.TASK_DOCUMENT),
+                  "rb") as reading:
+            self.assertEqual(reading.read(), self.task_bytes)
+        self.assertTrue(os.path.isdir(
+            os.path.join(inputs, single_worker.SOURCE_DESTINATION)))
+        self.assertEqual(len(engine.starts), 1)
+        operations.close()
+
+    def test_the_task_is_read_only_inside_a_frozen_root(self):
+        """The mode says on disk what the delivery says in prose, and the
+        frozen root is what stops the host replacing a bound file."""
+        _engine, _job, _control, operations, _stage, inputs = self.composed(
+            "workload-modes")
+        place = os.path.join(inputs, single_worker.TASK_DOCUMENT)
+        self.assertEqual(stat.S_IMODE(os.stat(place).st_mode), 0o444)
+        self.assertEqual(stat.S_IMODE(os.stat(inputs).st_mode), 0o555)
+        self.assertFalse(os.path.lexists(place + ".composing"),
+                         "a staging name survived the composition")
+        operations.close()
+
+    def test_the_engine_is_given_the_root_that_carries_the_task(self):
+        """The mount vector and the composed root are one fact, not two."""
+        engine, _job, _control, operations, _stage, inputs = self.composed(
+            "workload-mount")
+        mounted = [one for one in engine.mounts
+                   if one["Destination"] == "/input"]
+        self.assertEqual(len(mounted), 1)
+        self.assertEqual(os.path.realpath(mounted[0]["Source"]),
+                         os.path.realpath(inputs))
+        self.assertFalse(mounted[0]["RW"])
+        operations.close()
+
+    def test_a_restart_neither_rewrites_the_task_nor_starts_a_second_runtime(
+            self):
+        """The already-composed root is ADOPTED, and proving it now includes
+        the workload document."""
+        engine, job, control, operations, stage, inputs = self.composed(
+            "workload-restart")
+        place = os.path.join(inputs, single_worker.TASK_DOCUMENT)
+        before = os.stat(place)
+        operations.close()
+        resumed_job, resumed_control = self.stores("workload-restart-again")
+        resumed = self.operations(resumed_job, resumed_control, engine)
+        for _ in range(6):
+            reconcile(resumed_job, resumed, now=fixtures.NOW)
+        after = os.stat(place)
+        self.assertEqual((after.st_ino, after.st_mtime_ns),
+                         (before.st_ino, before.st_mtime_ns),
+                         "a restart republished the task document")
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(
+            self.staged(status(resumed_job, resumed,
+                               observed_at=fixtures.NOW))
+            ["job-a/implementation"]["state"], "running")
+        resumed.close()
+
+    @staticmethod
+    def staged(projected):
+        return {one["stage_id"]: one
+                for job_status in projected["jobs"]
+                for one in job_status["stages"]}
+
+    def rewritten(self, place, payload):
+        """Replace a delivered document inside the frozen root."""
+        os.chmod(os.path.dirname(place), 0o755)
+        os.chmod(place, 0o644)
+        with open(place, "wb") as writing:
+            writing.write(payload)
+        os.chmod(place, 0o444)
+        os.chmod(os.path.dirname(place), 0o555)
+
+    def test_a_changed_task_in_a_composed_root_refuses_rather_than_repairs(
+            self):
+        """`read_input_root` reads exactly the two PROTOCOL documents, so a
+        matching manifest pair says nothing about the workload material beside
+        it. Inferring the task from `input.json` would be this deployment
+        concluding something the reader it called never looked at."""
+        engine, _job, _control, operations, _stage, inputs = self.composed(
+            "workload-changed")
+        operations.close()
+        place = os.path.join(inputs, single_worker.TASK_DOCUMENT)
+        self.rewritten(place, b'{"schema": "somebody-elses-task"}')
+        resumed_job, resumed_control = self.stores("workload-changed-again")
+        resumed = self.operations(resumed_job, resumed_control, engine)
+        for _ in range(6):
+            reconcile(resumed_job, resumed, now=fixtures.NOW)
+        held = self.staged(status(resumed_job, resumed,
+                                  observed_at=fixtures.NOW))
+        self.assertEqual(held["job-a/implementation"]["state"], "running",
+                         "the already-started runtime was not left alone")
+        with open(place, "rb") as reading:
+            self.assertEqual(reading.read(),
+                             b'{"schema": "somebody-elses-task"}',
+                             "the changed task was repaired in place")
+        self.assertEqual(len(engine.starts), 1)
+        resumed.close()
+
+    def contended(self, name, plant):
+        """One real composition with `plant` racing the task's creation.
+
+        THE SEAM IS THE EXCLUSIVE CREATION ITSELF, because that is the only
+        pathname this operation has left: the document is created directly at
+        its final name and every act after it is on that descriptor. `plant`
+        runs immediately before the real `os.open`, which is the whole of the
+        interval a racing creator gets.
+        """
+        engine = Engine()
+        job, control = self.stores(name)
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        raced = []
+        opener = os.open
+
+        def racing(place, flags, *rest, **options):
+            if isinstance(place, str) \
+                    and place.endswith(single_worker.TASK_DOCUMENT) \
+                    and flags & os.O_CREAT and not raced:
+                raced.append(place)
+                plant(place)
+            return opener(place, flags, *rest, **options)
+
+        with mock.patch.object(single_worker.os, "open", racing):
+            for _ in range(6):
+                reconcile(job, operations, now=fixtures.NOW)
+        self.assertEqual(len(raced), 1, "the publishing seam was never driven")
+        held = self.staged(status(job, operations, observed_at=fixtures.NOW))
+        stage = held["job-a/implementation"]
+        # ONE RECORDED ENDING AND NO RUNTIME, whatever was planted.
+        self.assertEqual(stage["state"], "exceptional")
+        self.assertEqual(engine.starts, [], "a runtime ran over that root")
+        self.assertIsNotNone(
+            attempt_preparation_failure_of(control, stage["attempt_id"]))
+        operations.close()
+        return raced[0]
+
+    def test_a_target_that_appears_before_the_creation_is_refused(self):
+        """Review 2026-09-04T00:56:36Z [P1]: the rename seam clobbered.
+
+        `O_EXCL` guarded only a staging name, and the act finished with
+        `os.replace`, which CLOBBERS -- so a creator that won the interval
+        between the absence check and the rename had its document silently
+        replaced by this one. The exclusive creation of the final name is both
+        decisions at once now, and this drives a creator winning it.
+        """
+        foreign = b'{"schema": "somebody-elses-task"}'
+
+        def plant(place):
+            with open(place, "xb") as writing:
+                writing.write(foreign)
+
+        place = self.contended("workload-collision", plant)
+        with open(place, "rb") as reading:
+            self.assertEqual(reading.read(), foreign,
+                             "the racing document was replaced")
+
+    def test_a_link_at_the_final_name_is_refused_and_never_followed(self):
+        """Review 2026-09-04T01:06:30Z [P1]: the proved descriptor and the
+        published object must be one inode.
+
+        The correction that removed the rename left the STAGING name as a
+        mutable pathname between the proof and the publication, so a creator
+        that unlinked it and put a symlink there had that symlink hard-linked
+        at the final name and reported as success. There is no second pathname
+        now, so the substitution has nowhere to happen -- and a link that
+        arrives at the FINAL name is refused by the same exclusive creation
+        rather than written through.
+        """
+        elsewhere = os.path.join(self.root, "foreign-task.json")
+        with open(elsewhere, "wb") as writing:
+            writing.write(b'{"schema": "somebody-elses-task"}')
+
+        place = self.contended("workload-linked",
+                               lambda where: os.symlink(elsewhere, where))
+        self.assertTrue(os.path.islink(place), "the link was replaced")
+        with open(elsewhere, "rb") as reading:
+            self.assertEqual(reading.read(),
+                             b'{"schema": "somebody-elses-task"}',
+                             "the link was followed and its target written")
+
+    def test_the_published_document_is_the_held_bytes_at_a_real_file(self):
+        """The positive half of the same rule, asserted at the final name.
+
+        What the root carries is an ordinary file -- not a link, not a
+        directory -- whose bytes are exactly the ones this deployment read once
+        and holds, and whose mode is the read-only one that says on disk what
+        the delivery says in prose.
+        """
+        _engine, _job, _control, operations, _stage, inputs = self.composed(
+            "workload-identity")
+        place = os.path.join(inputs, single_worker.TASK_DOCUMENT)
+        found = os.lstat(place)
+        self.assertTrue(stat.S_ISREG(found.st_mode), "the task is not a file")
+        self.assertFalse(stat.S_ISLNK(found.st_mode))
+        self.assertEqual(stat.S_IMODE(found.st_mode), 0o444)
+        self.assertEqual(found.st_nlink, 1,
+                         "the published document carries another name")
+        with open(place, "rb") as reading:
+            self.assertEqual(reading.read(), self.task_bytes)
+        operations.close()
+
+    def test_a_task_changed_before_the_root_is_adopted_is_refused(self):
+        """Review [P2]: the changed-task case only covered a live runtime.
+
+        This is the other one: composition completed, the process stopped
+        before the start, and the workload document changed before the next
+        process adopted the root. `read_input_root` would accept that root --
+        its protocol pair is untouched -- so the task proof is the only thing
+        standing between a worker and a document nobody delivered.
+        """
+        engine = Engine()
+        job, control = self.stores("workload-adopt-changed")
+        submit(job, self.submission)
+        stopped = []
+
+        def dying(point):
+            if point == "input" and not stopped:
+                stopped.append(point)
+                raise RuntimeError("fixture process stopped")
+
+        operations = single_worker.operations_from(
+            self.config, job, control, engine_run=engine,
+            credential_provider=lambda *_: self.secret,
+            clock=lambda: fixtures.NOW, checkpoint=dying)
+        with self.assertRaisesRegex(RuntimeError, "process stopped"):
+            for _ in range(6):
+                reconcile(job, operations, now=fixtures.NOW)
+        held = self.staged(status(job, operations, observed_at=fixtures.NOW))
+        attempt_id = held["job-a/implementation"]["attempt_id"]
+        inputs = os.path.join(self.storage, attempt_id, "inputs")
+        self.assertEqual(sorted(os.listdir(inputs)),
+                         ["assignment.json", "input.json", "source",
+                          "task.json"], "the root was not composed")
+        self.assertEqual(engine.starts, [], "a runtime was already started")
+        operations.close()
+
+        foreign = b'{"schema": "somebody-elses-task"}'
+        self.rewritten(os.path.join(inputs, single_worker.TASK_DOCUMENT),
+                       foreign)
+        resumed_job, resumed_control = self.stores("workload-adopt-again")
+        resumed = self.operations(resumed_job, resumed_control, engine)
+        for _ in range(6):
+            reconcile(resumed_job, resumed, now=fixtures.NOW)
+        self.assertEqual(
+            self.staged(status(resumed_job, resumed,
+                               observed_at=fixtures.NOW))
+            ["job-a/implementation"]["state"], "exceptional")
+        self.assertEqual(engine.starts, [], "a runtime ran over that root")
+        self.assertIsNotNone(
+            attempt_preparation_failure_of(resumed_control, attempt_id))
+        with open(os.path.join(inputs, single_worker.TASK_DOCUMENT),
+                  "rb") as reading:
+            self.assertEqual(reading.read(), foreign,
+                             "the changed task was repaired in place")
+        resumed.close()
+
+    def test_a_task_this_composition_did_not_write_is_never_replaced(self):
+        """An input root carrying workload material from somewhere else is
+        material whose provenance this deployment cannot prove, and W76207's
+        rule for exactly that is one recorded preparation ending."""
+        engine = Engine()
+        job, control = self.stores("workload-foreign")
+        submit(job, self.submission)
+        planted = []
+
+        def before_input(point):
+            if point == "workspace" and not planted:
+                planted.append(point)
+                held = self.staged(status(job, operations,
+                                          observed_at=fixtures.NOW))
+                inputs = os.path.join(
+                    self.storage,
+                    held["job-a/implementation"]["attempt_id"], "inputs")
+                with open(os.path.join(inputs,
+                                       single_worker.TASK_DOCUMENT),
+                          "wb") as writing:
+                    writing.write(b'{"schema": "somebody-elses-task"}')
+
+        operations = single_worker.operations_from(
+            self.config, job, control, engine_run=engine,
+            credential_provider=lambda *_: self.secret,
+            clock=lambda: fixtures.NOW, checkpoint=before_input)
+        for _ in range(6):
+            reconcile(job, operations, now=fixtures.NOW)
+        self.assertEqual(planted, ["workspace"],
+                         "the fixture never planted a foreign task")
+        held = self.staged(status(job, operations, observed_at=fixtures.NOW))
+        self.assertEqual(held["job-a/implementation"]["state"], "exceptional")
+        self.assertEqual(engine.starts, [], "a runtime ran over that root")
+        self.assertIsNotNone(attempt_preparation_failure_of(
+            control, held["job-a/implementation"]["attempt_id"]))
+        operations.close()
+
+    def test_an_interrupted_composition_refuses_rather_than_completing_it(
+            self):
+        """W76207's partial-root rule, now with workload material in it.
+
+        A death after the task is published and before the protocol pair is
+        frozen leaves a partial root, and the next process refuses it rather
+        than finishing somebody else's composition.
+        """
+        engine = Engine()
+        job, control = self.stores("workload-partial")
+        submit(job, self.submission)
+        stopped = []
+
+        def dying(*args, **members):
+            del args, members
+            stopped.append("composing")
+            raise RuntimeError("fixture process stopped")
+
+        operations = self.operations(job, control, engine)
+        # THE INTERVAL IS INSIDE `_input`, which is why this is not a
+        # checkpoint: the `input` checkpoint fires after the whole root is
+        # composed. What a death here leaves is the workload material this
+        # composition published and the protocol pair it never wrote.
+        with mock.patch.object(single_worker.workspaces,
+                               "compose_input_root", dying):
+            with self.assertRaisesRegex(RuntimeError, "process stopped"):
+                for _ in range(6):
+                    reconcile(job, operations, now=fixtures.NOW)
+        self.assertEqual(stopped, ["composing"])
+        held = self.staged(status(job, operations, observed_at=fixtures.NOW))
+        attempt_id = held["job-a/implementation"]["attempt_id"]
+        inputs = os.path.join(self.storage, attempt_id, "inputs")
+        self.assertIn(single_worker.TASK_DOCUMENT, os.listdir(inputs))
+        self.assertNotIn("input.json", os.listdir(inputs),
+                         "the fixture stopped after the pair was composed")
+        self.assertEqual(stopped, ["composing"])
+        operations.close()
+
+        resumed_job, resumed_control = self.stores("workload-partial-again")
+        resumed = self.operations(resumed_job, resumed_control, engine)
+        for _ in range(6):
+            reconcile(resumed_job, resumed, now=fixtures.NOW)
+        self.assertEqual(
+            self.staged(status(resumed_job, resumed,
+                               observed_at=fixtures.NOW))
+            ["job-a/implementation"]["state"], "exceptional")
+        self.assertEqual(engine.starts, [])
+        self.assertIsNotNone(
+            attempt_preparation_failure_of(resumed_control, attempt_id))
+        resumed.close()
+
+
+class TheCertifiedWorkerReachesTheDeliveredTask(SingleWorkerCase):
+    """W81115's acceptance, proved from the RECEIVING end.
+
+    Every other case here asserts what this deployment composes. This one
+    asserts that the certified workload can use it: the real `baton_worker`
+    program, in this process, over the real framed transport, with the real
+    `ClaudeAgent` behind the documented `main(agent=...)` seam and only the
+    provider process replaced -- driven at the exact root `single_worker`
+    produced.
+
+    A HOST-SIDE PARSER CALL WOULD NOT BE THIS. The reproduction that opened
+    this Work called `claude_agent._task` directly, which proves the document
+    is readable and nothing about whether a `work` request gets that far. The
+    defect was that the worker refuses BEFORE any provider work, so the
+    evidence has to be the provider seam being reached.
+
+    NO DAEMON AND NO PROVIDER CREDENTIAL. The engine boundary is this suite's
+    recording fixture as everywhere else, the transport is a pipe pair, and
+    the provider is an injected process-running capability.
+    """
+
+    def composed_root(self):
+        engine = Engine()
+        job, control = self.stores("reachability")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        projected = self.running(job, operations)
+        stage = projected["jobs"][0]["stages"][0]
+        operations.close()
+        return os.path.join(self.storage, stage["attempt_id"], "inputs")
+
+    def test_a_work_request_over_the_composed_root_reaches_the_provider(self):
+        from tests.manager.test_worker_entry import (LiveWorker,
+                                                     launch_document, spoken)
+        import baton_worker
+        import claude_agent
+        from claude_agent import ClaudeAgent
+
+        inputs = self.composed_root()
+        # THE WORKLOAD'S OWN CONSTANTS, held against this deployment's copies.
+        # The image cannot import this package and this package cannot import
+        # the image, so the two fixed names exist twice; this is where they
+        # stop being allowed to disagree.
+        self.assertEqual(single_worker.TASK_DOCUMENT,
+                         claude_agent.TASK_DOCUMENT)
+        self.assertEqual(single_worker.SOURCE_DESTINATION,
+                         claude_agent.SOURCE_ROOT)
+        outputs = os.path.join(self.root, "worker-output")
+        scratch = os.path.join(self.root, "worker-scratch")
+        credentials = os.path.join(self.root, "worker-credentials")
+        for place in (outputs, scratch, credentials):
+            os.makedirs(place)
+        with open(os.path.join(credentials, "claude"), "w",
+                  encoding="utf-8") as writing:
+            writing.write("not-a-credential\n")
+        for module, name, value in (
+                (baton_worker, "INPUT_ROOT", inputs),
+                (baton_worker, "OUTPUT_ROOT", outputs),
+                (claude_agent, "INPUT_ROOT", inputs),
+                (claude_agent, "OUTPUT_ROOT", outputs),
+                (claude_agent, "CREDENTIAL_ROOT", credentials)):
+            held = getattr(module, name)
+            setattr(module, name, value)
+            self.addCleanup(setattr, module, name, held)
+
+        spoke = []
+
+        def provider(argv, **options):
+            spoke.append(list(argv))
+            return subprocess.CompletedProcess(argv, 0, None, None)
+
+        agent = ClaudeAgent(run=provider, home=scratch)
+        answered = spoken(self, LiveWorker(agent, launch_document(self)),
+                          ["work"], ["op-w81115-1"])
+        self.assertEqual(answered["ending"], "answered", answered["why"])
+        answer = answered["answers"][0]
+        self.assertTrue(answer["ok"], answer)
+        # THE PROVIDER SEAM WAS REACHED, which is the whole acceptance: the
+        # worker read the delivered task, staged the delivered source, and got
+        # as far as running the thing this deployment cannot run for it.
+        self.assertTrue(spoke, "the work turn never reached the provider")
+        self.assertEqual(spoke[0][0], claude_agent.PROVIDER_PROGRAM)
+        # AND THE PROMPT IS THE DELIVERED TASK'S OWN INSTRUCTIONS, so the
+        # document that crossed is the one this deployment published rather
+        # than any other readable file.
+        held = json.loads(self.task_bytes.decode("utf-8"))
+        self.assertTrue(
+            any(held["instructions"] in one for one in spoke[0]),
+            "the provider was not given the delivered task's instructions")
 
 
 class PreparationCase(SingleWorkerCase):
