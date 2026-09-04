@@ -72,3 +72,13 @@ dogfood operator and does not create another per-iteration complete candidate
 archive. Work begins only after W71875 is independently reviewed and integrated
 so this leaf can exercise the durable submission, workspace, status, review,
 and correction line it is intended to enable.
+
+## Execution-order correction — 2026-09-03
+
+The final sentence above is **superseded** where it treats W71875 alone as a
+complete launch path. W71875 intentionally implements only `admit` and
+`claim`; no production deployment composition yet starts the claimed runtime.
+This Work therefore waits for the approved one-worker bootstrap W76207 as well
+as W71875. Once W76207 is integrated, this remains the first ordinary
+self-hosted v12 workload and still does not use the dogfood operator or a new
+complete candidate archive.

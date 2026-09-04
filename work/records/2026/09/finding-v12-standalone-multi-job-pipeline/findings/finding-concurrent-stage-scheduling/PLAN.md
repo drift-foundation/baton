@@ -1,5 +1,10 @@
 # Plan
 
+0. [blocked on W71917 after the 2026-09-03 bootstrap correction] Preserve the
+   approved scheduler contract, but do not begin implementation until W76207
+   establishes the one-worker production launch seam and W71917 replaces its
+   bootstrap source/workspace boundary.
+
 1. [done, reviewer revalidation 2026-09-03] Inventory the public offer, claim,
    attempt, session, cleanup and runtime-lane operations and the integrated Job
    projection. W73629 is integrated at `4876751`; the focused 188-test

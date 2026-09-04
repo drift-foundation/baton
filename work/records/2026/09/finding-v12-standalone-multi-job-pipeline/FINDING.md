@@ -222,3 +222,28 @@ resume the candidate with a replacement worker, restart implementation, or
 await operator direction. Additional runtime profiles are warranted only for
 a materially different model, toolchain, credential source, resource class,
 or security posture—not merely to obtain another concurrent slot.
+
+## Bootstrap correction — 2026-09-03
+
+The six-child ordering above assumed that W71875's persistent process could
+launch W71917 as its first ordinary workload. Revalidation after integration
+found that assumption false. The implemented Job Manager deliberately owns
+only `admit` and `claim`: its deployment factory can issue and deliver a
+bearer, but no production deployment composition currently turns the claimed
+stage into a workspace-backed runtime. The source says runtime start waits on
+W71917/W71877, while W71917 says it must execute through that runtime. That is
+a bootstrap cycle, not an operator command that can be wished away.
+
+The approved correction adds one bounded prerequisite leaf before W71917. It
+builds the trusted, production deployment composition needed to drive one
+claimed implementation stage into one live worker by composing existing
+public Authority, Worker Manager, OCI adapter, credential, launch and legacy
+workspace capabilities. This is the final v11-coordinated bootstrap exception:
+it may use the existing bootstrap workspace boundary, but it must not call the
+retired dogfood operator or create another complete candidate archive.
+
+The new leaf owns no source/workspace redesign, pool scheduling, review loop,
+or integration policy. W71917 remains the first ordinary self-hosted v12
+workload and replaces the bootstrap workspace boundary with its approved
+immutable-source and persistent-workspace contract. W71877 remains approved
+but does not start implementation ahead of this bootstrap and W71917.
