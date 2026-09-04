@@ -2174,3 +2174,46 @@ trailers nor Git name/email fields are security authority. The manager-owned
 runtime identity, and the returned commit object. Integration verifies that
 binding and preserves author attribution rather than trusting metadata chosen
 inside the worker.
+
+## Worker base images are selected deliberately — confirmed 2026-09-04
+
+The operating-system layer of a worker image is an explicit reviewed input,
+not an accidental consequence of whichever language-runtime tag happened to
+resolve on build day. Each image record names the upstream image, exact digest,
+architecture, contained OS release, language runtime, provider runtime, and the
+reason that combination was selected. Runtime launch continues to use the
+validated final image digest; changing the base is an image update that must be
+rebuilt, validated, and selected explicitly under the existing W55361 rule.
+
+For Node 22 provider workers, the current default is the Docker Official Image
+`node:22-bookworm-slim`, pinned by digest for an authorized build. This is not a
+claim that download popularity is stable or authoritative. It is the official
+Node 22 Debian-default lineage, uses the ordinary glibc environment expected by
+native Claude and Codex payloads, and the `slim` variant omits the broad
+`buildpack-deps` package set while retaining a conventional Debian package and
+certificate ecosystem. Baton's worker is a single-purpose image with explicit
+dependencies, so that smaller surface is preferable to the official full
+default. The official Node image documentation describes `slim` as containing
+only the minimal packages needed to run Node, and its current `versions.json`
+names Bookworm as Node 22's Debian default:
+
+- https://github.com/nodejs/docker-node#image-variants
+- https://github.com/nodejs/docker-node/blob/main/versions.json
+
+Alpine is not the default merely because its bytes are smaller. It replaces
+glibc with musl, and the official Node image documentation warns that software
+built for Debian/glibc generally does not run there without compatibility
+work. Provider CLIs include native payloads, so accepting that compatibility
+risk to save image space has no value in the first production profile. A
+provider may use Alpine only after its own explicit compatibility gate.
+
+The Python reference worker remains the digest-pinned `python:3.13-slim`
+selection already reviewed under W6633; that digest currently contains Debian
+13 (Trixie). The Node provider images currently contain Debian 12 (Bookworm).
+One shared Debian release across providers is preferred when the official
+runtime variants and live provider gates support it, because it reduces
+certificate, package, debugging, and security-update variance. It is an image
+construction default, not protocol vocabulary and not a requirement to force
+incompatible providers onto one OS. The present mismatch is therefore known
+and acceptable during the proof, while the next provider-image selection must
+state whether convergence is practical rather than inheriting a moving tag.

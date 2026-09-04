@@ -767,3 +767,17 @@ whose prerequisites have closed are actionable.
     `Baton-Model` trailers for readable history, while making `result.json` the
     authoritative attempt-to-runtime-to-commit binding that integration must
     verify. Do not expose real email addresses, credentials or session ids.
+37. [confirmed 2026-09-04; provider-image selection, implementation deferred]
+    Treat every worker base OS/runtime as a reviewed image input. Default Node
+    22 provider workers to the digest-pinned official
+    `node:22-bookworm-slim` lineage: Debian/glibc compatibility for native
+    provider payloads, the official Node 22 Debian default, and a smaller
+    explicit-dependency surface than the full `buildpack-deps` image. Do not
+    select Alpine by size alone because its musl boundary requires a separate
+    provider compatibility proof. Prefer one stable Debian release across
+    provider images when their official variants and live gates support it,
+    but keep the OS outside protocol vocabulary and allow reviewed exceptions.
+    Preserve W6633's existing digest-pinned Python reference image. On the next
+    authorized provider-image update, record the base tag and digest,
+    architecture, `/etc/os-release`, language/provider versions, rationale and
+    validation evidence; never inherit a moving base silently.
