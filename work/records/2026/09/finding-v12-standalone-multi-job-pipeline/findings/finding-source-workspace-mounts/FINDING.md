@@ -91,3 +91,14 @@ production composer does not materialize the `/input/task.json` document the
 certified Claude worker requires before provider execution. W71917 remains the
 first ordinary self-hosted workload, but it waits for that bounded production
 task-delivery correction rather than launching a container known to fail.
+
+## Launch gate cleared — 2026-09-03
+
+W81115 closed satisfying after implementing and independently validating the
+production task-document delivery. The production factory now holds the exact
+digest-bound task bytes during static validation and publishes them as the
+read-only `/input/task.json` before source composition and input-root freeze.
+Together with closed W71875 and W76207, this clears the recorded prerequisites
+for the first ordinary self-hosted submission. W71917 is ready to enter the
+persistent v12 Job Manager; the no-dogfood and no-new-candidate-archive limits
+remain in force.
