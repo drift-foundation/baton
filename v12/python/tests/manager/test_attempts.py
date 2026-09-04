@@ -25,7 +25,8 @@ from baton_v12.worker_manager import (AuthorityPort, ControlStore, TRANSITIONS,
                                       certify_profile, issue_offer, observe,
                                       reconcile_runtime, record_attempt,
                                       request_cancellation,
-                                      request_runtime_start, submit_claim)
+                                      request_runtime_start, runtime_lane,
+                                      submit_claim)
 from baton_v12.worker_manager import attempts as attempts_module
 from baton_v12.worker_manager.attempts import (OBSERVED_RUNTIME,
                                                authorize_input_root)
@@ -1303,6 +1304,74 @@ class ARefusedStartIsSettledRatherThanStranded(TheRuntimeIsStartedOnceAndReconci
         # The reason the start failed is still what an operator reads first.
         self.assertIn("refused to start", str(caught.exception))
 
+    def test_the_settlement_and_the_record_land_together_or_not_at_all(self):
+        """Re-review 2026-09-03T22:00:26Z [P1]: the sibling's lost ending.
+
+        Reconciling first attaches the runtime, and an attached runtime
+        projects the Job stage `running` -- which the control plane never
+        calls the deployment about again. A death before the record therefore
+        made this ending permanently unreachable, exactly as it did for the
+        preparation sibling. Neither fact may survive alone.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+
+        def dying(**members):
+            del members
+            raise KeyboardInterrupt("the process stopped mid-act")
+
+        with mock.patch.object(attempts_module.documents,
+                               "runtime_start_failed", dying):
+            with self.assertRaises(KeyboardInterrupt):
+                request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                      inputs=inputs)
+        self.assertIsNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+        self.assertIsNone(self.row()["runtime_id"],
+                          "the attachment survived the act that was to record "
+                          "the failure it followed")
+        self.assertEqual(self.row()["execution_runtime"], "start-requested",
+                         "an uncertain settlement survived on its own")
+        self.assertEqual(len(adapter.started), 1)
+
+    def test_an_uncertain_settlement_is_part_of_the_record_act_too(self):
+        """The path where this manager knows least is the one that had three
+        separate writes.
+
+        Nothing could be established, so `uncertain` is the honest ending --
+        and leaving it durable without the record is the same lost ending one
+        step further out, because `uncertain` is a state the projection reads
+        as terminal.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            "the engine could not be listed")
+
+        def dying(**members):
+            del members
+            raise KeyboardInterrupt("the process stopped mid-act")
+
+        with mock.patch.object(attempts_module.documents,
+                               "runtime_start_failed", dying):
+            with self.assertRaises(KeyboardInterrupt):
+                request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                      inputs=inputs)
+        self.assertEqual(self.row()["execution_runtime"], "start-requested")
+        self.assertIsNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+        # AND THE NEXT PASS STILL REACHES THE ENDING, from the state the
+        # rollback left, which is what makes the interval resumable.
+        attempts_module._record_and_raise_start_failure(
+            self.store, ATTEMPT,
+            {"kind": "refusal", "category": "policy", "code": "denied",
+             "message": "the engine refused"})
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+        self.assertEqual(
+            attempts_module.attempt_start_failure_of(
+                self.store, ATTEMPT)["execution_runtime"], "uncertain")
+
     def test_a_start_that_created_nothing_this_manager_can_name_is_uncertain(
             self):
         """FAIL CLOSED, and deliberately not "absent".
@@ -2556,6 +2625,583 @@ class TheAxesAgreeWithTheStore(AttemptCase):
             TRANSITIONS["output"] = {}
         with self.assertRaises(TypeError):
             TRANSITIONS["output"]["sealed"] = ("open",)
+
+
+class ThePublicFailedStartProjection(
+        ARefusedStartIsSettledRatherThanStranded):
+    """W76207: `attempt_start_failure_of`, held to the owner-record rule.
+
+    The Job Manager projects a stage as `exceptional` from this read, so an
+    identity that merely COLLIDES must not be able to end somebody's stage.
+    Review [P1] found the first version trusting any committed row under the
+    derived id; these cases hold it to the discipline `intake` already applies
+    to the same record -- the kind agrees, the journal's own reader decodes the
+    answer, and the facts it names are this attempt's own.
+    """
+
+    def failed(self, failure=None):
+        """One attempt whose start really did fail, journalled by the manager."""
+        adapter, inputs = self.refused(failure)
+        adapter.listing = []
+        with self.assertRaises(Exception):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        return adapter
+
+    def operation_id(self):
+        return attempts_module.start_failure_operation_id(self.row())
+
+    def test_a_real_failed_start_is_projected_with_its_own_facts(self):
+        """THE POSITIVE REPLAY the earlier cases never drove."""
+        self.failed()
+        record = attempts_module.attempt_start_failure_of(self.store, ATTEMPT)
+        self.assertIsNotNone(record)
+        self.assertEqual(record["attempt_id"], ATTEMPT)
+        self.assertEqual(record["start_operation_id"],
+                         attempts_module._start_operation_id(self.row()))
+        from baton_v12.worker_manager.documents import RUNTIME_START_FAILED
+
+        self.assertEqual(sorted(record), sorted(RUNTIME_START_FAILED))
+        # The default driver refuses, so the recorder preserves a REFUSAL.
+        self.assertEqual(record["failure"]["kind"], "refusal")
+
+    def test_a_driver_fault_is_projected_with_its_typed_fault(self):
+        """The other shape the recorder preserves, and the one the Job
+        Manager's contained-fault path depends on."""
+        self.failed(RuntimeError("the driver fell over"))
+        record = attempts_module.attempt_start_failure_of(self.store, ATTEMPT)
+        self.assertEqual(record["failure"]["kind"], "fault")
+        self.assertEqual(record["failure"]["fault"], "RuntimeError")
+
+    def test_a_row_committed_as_another_kind_refuses(self):
+        """AN IDENTITY IS NOT A WARRANT.
+
+        A row this manager committed as something else, under an id that
+        happens to collide, must not be readable as a failed start -- it would
+        make a Job exceptional on the strength of an unrelated act.
+        """
+        self.failed()
+        self.store._connection.execute(
+            "UPDATE operations SET kind = 'attempt.record' "
+            "WHERE operation_id = ?", (self.operation_id(),))
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
+        self.assertIn("rather than a start-failed record",
+                      caught.exception.message)
+
+    def test_a_record_describing_another_act_refuses(self):
+        """AND THE FACTS IT NAMES ARE THIS ATTEMPT'S OWN.
+
+        The three compared members are exactly what the identity is derived
+        from, so this proves the digest's contents rather than trusting that a
+        matching id could only come from matching facts.
+        """
+        self.failed()
+        import json as _json
+
+        held = self.store.operation_record(self.operation_id())
+        spoiled = _json.loads(held["result"])
+        spoiled["attempt_id"] = "attempt-somebody-else"
+        self.store._connection.execute(
+            "UPDATE operations SET result = ? WHERE operation_id = ?",
+            (_json.dumps(spoiled, sort_keys=True), self.operation_id()))
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT)
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertIn("attempt_id", caught.exception.message)
+
+    def test_a_refused_row_under_that_identity_is_not_a_failure(self):
+        """A collision is not evidence, so it answers absence rather than
+        inventing an ending out of a conflict."""
+        self.failed()
+        self.store._connection.execute(
+            "UPDATE operations SET state = 'refused', result = NULL, "
+            "refusal = ? WHERE operation_id = ?",
+            (json.dumps({"category": "refused", "code": "precondition",
+                         "message": "a colliding act", "durable": True},
+                        sort_keys=True), self.operation_id()))
+        self.assertIsNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+
+
+class APreparationThatNeverReachedAStartIsRecordedAsOne(
+        ARefusedStartIsSettledRatherThanStranded):
+    """W76207: the ending a post-claim preparation had no path to.
+
+    A deployment composes an assignment's workspace, input root, manifests,
+    credential and launch delivery AFTER the claim and BEFORE any adapter
+    exists. `request_runtime_start` was the only public way to reach a durable
+    ending, and it authorizes the input root first -- so a preparation that
+    failed before that root existed had no ending at all, and the control
+    plane asked its stage again on every tick.
+
+    ITS OWN KIND, AND RE-REVIEW [P1] IS WHY. The first cut filed it as
+    `runtime.start-failed`, which is `intake`'s authority to remove a
+    container that came from a failed start. One durable row cannot mean both
+    "a start act failed" and "no start act happened", least of all when one
+    meaning is a destruction authorization.
+    """
+
+    def preparation(self):
+        return ContractRefusal("integrity", "path",
+                               "the input root is partial")
+
+    def journalled(self):
+        return attempts_module.attempt_preparation_failure_of(self.store,
+                                                              ATTEMPT)
+
+    def preparation_operation_id(self):
+        return attempts_module._preparation_failure_operation_id(self.row())
+
+    def test_a_prepared_attempt_records_the_refusal_as_its_own_kind(self):
+        self.delivered()
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        # THE CLOSED PAIR IS UNCHANGED and only the message grew, exactly as a
+        # refused start's does.
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "path"))
+        self.assertIn("the input root is partial", caught.exception.message)
+        self.assertIn("journalled as", caught.exception.message)
+        record = self.journalled()
+        self.assertEqual(record["attempt_id"], ATTEMPT)
+        self.assertEqual(record["failure"]["kind"], "refusal")
+        self.assertEqual(record["failure"]["code"], "path")
+        self.assertEqual(record["execution_runtime"], "not-started")
+        self.assertIsNone(record["runtime_id"])
+        from baton_v12.worker_manager.documents import (
+            RUNTIME_PREPARATION_FAILED)
+
+        self.assertEqual(sorted(record), sorted(RUNTIME_PREPARATION_FAILED))
+
+    def test_it_is_not_the_failed_start_record_and_authorizes_no_removal(self):
+        """The correction re-review asked for, asserted rather than described.
+
+        `intake._failed_start_record` reads the failed-start row as this
+        manager's account that a runtime came from a failed start. A
+        preparation must be invisible to it.
+        """
+        self.delivered()
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.assertIsNotNone(self.journalled())
+        self.assertIsNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+        self.assertNotEqual(
+            self.preparation_operation_id(),
+            attempts_module.start_failure_operation_id(self.row()))
+        from baton_v12.worker_manager import authorize_failed_start_cleanup
+
+        capable = Adapter()
+        capable.destroy_failed_start = lambda command: None
+        capable.normalize_directory = lambda command: None
+        capable.custodian_image_digest = "sha256:" + "c" * 64
+        with self.assertRaises(ContractRefusal) as caught:
+            authorize_failed_start_cleanup(
+                self.store, self.port, capable, attempt_id=ATTEMPT,
+                retention_policy_digest="sha256:" + "7" * 64)
+        self.assertIn("no committed failed-start record",
+                      caught.exception.message)
+
+    def test_no_start_operation_is_journalled_and_no_lane_is_taken(self):
+        """A record naming a start operation would be this manager writing
+        down an act it did not perform."""
+        self.delivered()
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.assertEqual(self.row()["execution_runtime"], "not-started")
+        self.assertNotIn("start_operation_id", self.journalled())
+        self.assertIsNone(self.store.operation_record(
+            attempts_module._start_operation_id(self.row())))
+        self.assertIsNone(runtime_lane(self.store, ATTEMPT)["holder"])
+
+    def test_the_exact_same_preparation_refusal_replays(self):
+        """A restart finds the same material and refuses the same way, so the
+        second call is an exact replay rather than a collision."""
+        self.delivered()
+        for _ in range(2):
+            with self.assertRaises(ContractRefusal):
+                attempts_module.refuse_runtime_preparation(
+                    self.store, attempt_id=ATTEMPT,
+                    refusal=self.preparation())
+        self.assertIsNotNone(self.journalled())
+
+    def test_a_start_that_was_requested_and_never_attached_is_recorded(self):
+        """THE RESTART WINDOW, and re-review [P1] is why it is recorded here.
+
+        A credential recovery that fails closed happens after the start
+        operation committed and before any runtime was attached. The first
+        correction re-raised there, so the stage stayed `claimed` and was
+        asked again forever -- an ordinary refusal is neither an ending nor a
+        safe wait state.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        record = self.journalled()
+        self.assertEqual(record["execution_runtime"], "start-requested")
+        self.assertEqual(record["failure"]["code"], "path")
+
+    def test_an_attempt_that_was_never_activated_refuses(self):
+        """The record is held against the assignment activation FIXED, and an
+        attempt with none has nothing to have prepared."""
+        record_attempt(self.store, attempt_id=ATTEMPT, adapter_name="docker",
+                       adapter_digest=ADAPTER, profile_digest=PROFILE)
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIsNone(self.journalled())
+
+    def test_the_start_acts_own_record_is_never_written_over(self):
+        """THE ONE ENDING THIS DEFERS TO, and re-review [P1] chose it.
+
+        An axis guard was the wrong question twice over: which value the
+        execution axis holds does not say whether an attempt has an account
+        already, and this operation now moves that axis itself when it
+        identifies a runtime. A start act that FAILED has its own record --
+        the one `intake` removes a container on -- and a preparation ending
+        written over it would be a second account of one act.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = []
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertIsNotNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "already-terminal"))
+        self.assertIn("failed-start record", caught.exception.message)
+        self.assertIsNone(self.journalled())
+
+    def test_the_record_names_the_runtime_the_identification_attached(self):
+        """RECONCILE, THEN RECORD -- the order the sibling record fixes.
+
+        Recording first would durably say `None` about a runtime that exists,
+        and it is also what made identification a one-shot act: the record
+        makes the stage exceptional, so a caller that named afterwards had no
+        second chance.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+        adapter = Adapter()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": attempts_module._runtime_labels(
+                                self.row())}]
+        adapter.observed = {"runtime_id": "runtime-1", "state": "running",
+                            "why": None}
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation(),
+                adapter=adapter)
+        self.assertIn("the runtime was identified as",
+                      caught.exception.message)
+        record = self.journalled()
+        self.assertEqual(record["runtime_id"], "runtime-1")
+        self.assertEqual(self.row()["runtime_id"], "runtime-1")
+
+    def identifying(self, runtime_id="runtime-1", state="running"):
+        """An adapter that names exactly one runtime for these labels."""
+        adapter = Adapter(runtime_id)
+        adapter.listing = [{"runtime_id": runtime_id,
+                            "labels": attempts_module._runtime_labels(
+                                self.row())}]
+        adapter.observation = {"state": state, "why": "it is up",
+                               "mounts": None}
+        return adapter
+
+    def test_a_start_ending_that_wins_the_race_is_the_only_one_written(self):
+        """Re-review 2026-09-03T22:00:26Z [P1]: the door check goes stale.
+
+        The sibling is asked before the engine is, and the engine is asked
+        before the ending's transaction opens. A start failure committed in
+        that interval passed the first check and was then followed by a
+        preparation record -- both accounts of one attempt, which is exactly
+        what the guard exists to prevent. It is asked again where there is no
+        interval, and refusing there unwinds the attachment too, because they
+        are one act.
+        """
+        start_adapter, inputs = self.refused()
+
+        def interleaved(store, adapter, attempt_id):
+            """The competing ending, committed from the identification."""
+            del adapter
+            with self.assertRaises(ContractRefusal):
+                request_runtime_start(store, start_adapter,
+                                      attempt_id=attempt_id, inputs=inputs)
+            return None, "; a competing start ending committed"
+
+        with mock.patch.object(attempts_module, "_identification",
+                               interleaved):
+            with self.assertRaises(ContractRefusal) as caught:
+                attempts_module.refuse_runtime_preparation(
+                    self.store, attempt_id=ATTEMPT,
+                    refusal=self.preparation(), adapter=object())
+        # THE CALLER STILL READS ITS OWN REFUSAL, not this manager's note
+        # about a race -- the account swap an earlier review already found on
+        # the sequential path.
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "path"))
+        self.assertIn("no preparation ending was written",
+                      caught.exception.message)
+        # EXACTLY ONE ENDING, and it is the start act's own.
+        self.assertIsNotNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+        self.assertIsNone(self.journalled())
+
+    def test_the_ending_and_the_attachment_land_together_or_not_at_all(self):
+        """Re-review 2026-09-03T21:24:16Z [P1]: the interval that lost this.
+
+        Two separate durable acts lose the ending in EITHER order, because
+        each one alone moves the stage out of `claimed` and the control plane
+        drives claimed stages only. An attachment that survived a death on its
+        own is exactly the half that made the ending unreachable forever, so a
+        death inside this act must leave neither.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+
+        def dying(**members):
+            del members
+            raise KeyboardInterrupt("the process stopped mid-act")
+
+        with mock.patch.object(attempts_module.documents,
+                               "runtime_preparation_failed", dying):
+            with self.assertRaises(KeyboardInterrupt):
+                attempts_module.refuse_runtime_preparation(
+                    self.store, attempt_id=ATTEMPT,
+                    refusal=self.preparation(),
+                    adapter=self.identifying())
+        self.assertIsNone(self.journalled())
+        self.assertIsNone(self.row()["runtime_id"],
+                          "the attachment survived the act that was to name "
+                          "it in the record")
+        self.assertEqual(self.row()["execution_runtime"], "start-requested")
+        # AND THE NEXT PASS CONVERGES, which is what the untouched state is
+        # for: this is the level-triggered path a resumed manager re-enters.
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation(),
+                adapter=self.identifying())
+        self.assertEqual(self.journalled()["runtime_id"], "runtime-1")
+        self.assertEqual(self.row()["runtime_id"], "runtime-1")
+
+    def test_an_attachment_that_refuses_is_contained_and_the_ending_stands(self):
+        """The reconciliation still never takes the ending with it.
+
+        The axis is terminal, so the observation the engine's answer implies
+        cannot follow it and the attachment refuses INSIDE the act. What is
+        rolled back is the attachment alone -- and the record is then written
+        over the axes the rollback left standing rather than over the ones
+        this manager meant to establish.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="destroyed")
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation(),
+                adapter=self.identifying())
+        self.assertIn("could not be attached", caught.exception.message)
+        self.assertIn("journalled as", caught.exception.message)
+        record = self.journalled()
+        self.assertEqual(record["execution_runtime"], "destroyed")
+        self.assertIsNone(record["runtime_id"])
+        self.assertIsNone(self.row()["runtime_id"],
+                          "a refused attachment was kept")
+        self.assertEqual(self.row()["execution_runtime"], "destroyed")
+
+    def test_an_identified_name_the_registry_holds_live_is_not_said(self):
+        """Naming the runtime puts an ADAPTER-SUPPLIED value in TWO places.
+
+        The account is one: `ContractRefusal` refuses to be constructed around
+        a value the secret registry holds live, so a message quoting one would
+        replace this manager's ending with an assertion at the raising site --
+        `_sayable`'s finding, one level out. The ending's SIGNATURE is the
+        other, and an unsignable ending is no ending at all.
+
+        The durable row is the third place, and it is the store's own rule
+        rather than this one's: the attachment refuses, is contained, and the
+        record is written over the axes that containment leaves standing. All
+        three keep the value off a durable surface and none of them costs the
+        ending.
+        """
+        from baton_v12.contracts import forget_secret, remember_secret
+
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+        remember_secret("runtime-1")
+        try:
+            with self.assertRaises(ContractRefusal) as caught:
+                attempts_module.refuse_runtime_preparation(
+                    self.store, attempt_id=ATTEMPT,
+                    refusal=self.preparation(),
+                    adapter=self.identifying())
+        finally:
+            forget_secret("runtime-1")
+        self.assertIn("the runtime was identified", caught.exception.message)
+        self.assertNotIn("runtime-1", caught.exception.message)
+        self.assertIn("journalled as", caught.exception.message)
+        self.assertIn("could not be attached", caught.exception.message)
+        # THE ENDING IS STILL WRITTEN, which is the property that matters: a
+        # stage with no canonical failure is asked again on every tick.
+        record = self.journalled()
+        self.assertIsNone(record["runtime_id"])
+        self.assertEqual(record["execution_runtime"], "start-requested")
+        self.assertIsNone(self.row()["runtime_id"])
+
+    def test_the_same_identification_replays_and_a_different_one_collides(self):
+        """The plan is an operand of the ending, by IDENTITY.
+
+        Two endings attaching the same runtime are one act however the adapter
+        described it, and two attaching different runtimes are two accounts of
+        one attempt -- which the journal refuses rather than overwrites.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+        for state in ("running", "quiescent"):
+            with self.assertRaises(ContractRefusal) as caught:
+                attempts_module.refuse_runtime_preparation(
+                    self.store, attempt_id=ATTEMPT,
+                    refusal=self.preparation(),
+                    adapter=self.identifying(state=state))
+            self.assertIn("journalled as", caught.exception.message)
+        record = self.journalled()
+        self.assertEqual(record["runtime_id"], "runtime-1")
+        self.assertEqual(record["execution_runtime"], "running",
+                         "the first account is not the one that stands")
+
+    def test_an_identification_that_fails_never_takes_the_ending_with_it(self):
+        """It runs while a failure is already on its way out.
+
+        An ending nobody could write because the engine was unreachable is the
+        retry loop this record exists to stop.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+
+        class Unreachable:
+            def list(self, request):
+                raise OSError("the engine socket is gone")
+
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation(),
+                adapter=Unreachable())
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "path"))
+        self.assertIn("could not be identified", caught.exception.message)
+        self.assertIsNotNone(self.journalled())
+
+    def test_an_operand_that_is_not_this_managers_refusal_is_refused(self):
+        self.delivered()
+        for given in (None, "a refusal", OSError("not a refusal")):
+            with self.subTest(given=type(given).__name__):
+                with self.assertRaises(ContractRefusal) as caught:
+                    attempts_module.refuse_runtime_preparation(
+                        self.store, attempt_id=ATTEMPT, refusal=given)
+                self.assertEqual((caught.exception.category,
+                                  caught.exception.code),
+                                 ("integrity", "schema"))
+
+    def test_a_durable_refusal_is_still_durable_when_it_comes_back(self):
+        """Review [P2]: the reconstructed refusal dropped `durable`.
+
+        The Job control plane branches on that flag to tell a condition from
+        an ending, so a durable input silently becoming non-durable is the
+        settlement changing what the failure MEANS.
+        """
+        self.delivered()
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT,
+                refusal=ContractRefusal("policy", "denied",
+                                        "the source provider is closed",
+                                        durable=True))
+        self.assertTrue(caught.exception.durable)
+
+    def test_a_maximum_width_refusal_does_not_overflow_the_bound(self):
+        """Review [P2]: appending to an already-maximal message raised a raw
+        `AssertionError` at the raising site -- the settlement turning a
+        reportable failure into a crash."""
+        from baton_v12.contracts.errors import MESSAGE_LIMIT
+
+        self.delivered()
+        widest = "x" * MESSAGE_LIMIT
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT,
+                refusal=ContractRefusal("integrity", "path", widest))
+        self.assertEqual(len(caught.exception.message), MESSAGE_LIMIT)
+        # THE ACCOUNT IS WHAT SURVIVES: the caller already holds the message
+        # it raised, and which record was written is what it does not.
+        self.assertIn("journalled as", caught.exception.message)
+        self.assertIsNotNone(self.journalled())
+
+    def test_a_row_committed_as_another_kind_refuses(self):
+        """AN IDENTITY IS NOT A WARRANT, held to the sibling reader's rule."""
+        self.delivered()
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.store._connection.execute(
+            "UPDATE operations SET kind = 'attempt.record' "
+            "WHERE operation_id = ?", (self.preparation_operation_id(),))
+        with self.assertRaises(ContractRefusal) as caught:
+            self.journalled()
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertIn("rather than a preparation-failed record",
+                      caught.exception.message)
+
+    def test_a_record_describing_another_act_refuses(self):
+        self.delivered()
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        held = self.store.operation_record(self.preparation_operation_id())
+        spoiled = json.loads(held["result"])
+        spoiled["attempt_id"] = "attempt-somebody-else"
+        self.store._connection.execute(
+            "UPDATE operations SET result = ? WHERE operation_id = ?",
+            (json.dumps(spoiled, sort_keys=True),
+             self.preparation_operation_id()))
+        with self.assertRaises(ContractRefusal) as caught:
+            self.journalled()
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertIn("attempt_id", caught.exception.message)
+
+    def test_a_refused_row_under_that_identity_is_not_a_failure(self):
+        """A collision is not evidence, so it answers absence rather than
+        inventing an ending out of a conflict."""
+        self.delivered()
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.store._connection.execute(
+            "UPDATE operations SET state = 'refused', result = NULL, "
+            "refusal = ? WHERE operation_id = ?",
+            (json.dumps({"category": "refused", "code": "precondition",
+                         "message": "a colliding act", "durable": True},
+                        sort_keys=True), self.preparation_operation_id()))
+        self.assertIsNone(self.journalled())
 
 
 if __name__ == "__main__":

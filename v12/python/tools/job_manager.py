@@ -170,6 +170,32 @@ def _operations_from(name, store, control):
     return factory(store, control)
 
 
+def _release(operations, stream):
+    """Give a factory-owned object back whatever it opened, exactly once.
+
+    W76207: a production factory opens an Authority, a credential home and a
+    launch home that the two stores' context managers know nothing about, so
+    a serve that returned or failed simply leaked them. The factory owns those
+    handles, so the factory's object is asked to close them -- this tool does
+    not go looking for what they were.
+
+    OPTIONAL BY DESIGN AND SILENT WHEN ABSENT. Most operations objects hold
+    nothing to release; requiring the member would make every deployment
+    declare a teardown it does not need. A failure while releasing is reported
+    and not raised: it must not replace the outcome the run already reached,
+    and it must not stop the remaining handles from being released.
+    """
+    close = getattr(operations, "close", None)
+    if close is None:
+        return None
+    try:
+        close()
+    except BaseException as failure:
+        print(f"the deployment's operations did not release cleanly: "
+              f"{type(failure).__name__}: {failure}", file=stream)
+    return None
+
+
 def _serve(taken, clock, stream):
     import signal
     import time
@@ -177,25 +203,44 @@ def _serve(taken, clock, stream):
     with _job_store(taken, clock) as store:
         with ControlStore.open(taken.control, incarnation=taken.incarnation,
                                clock=clock) as control:
-            operations = _operations_from(taken.operations, store, control)
-            running = [True]
+            # CONSTRUCTION IS INSIDE THE RELEASE, and review [P1] is why the
+            # earlier version's comment was a claim the code did not keep: the
+            # call sat in FRONT of the `try`, so a factory that opened an
+            # Authority and then failed on its next operand returned nothing
+            # for `_release` to close.
+            #
+            # WHAT THIS CAN AND CANNOT DO, stated because the difference
+            # matters. It guarantees that an object the factory RETURNED is
+            # always released, however this block leaves. It cannot release
+            # handles a factory took and then abandoned by raising -- nothing
+            # here ever saw them -- so a factory that acquires more than one
+            # resource owns cleaning up its own partial construction, and this
+            # tool holds it to that rather than pretending to do it for it.
+            operations = None
+            try:
+                operations = _operations_from(taken.operations, store,
+                                              control)
+                running = [True]
 
-            def stop(number, frame):
-                # POLITE, AND ONCE. The tick in flight finishes and its
-                # receipts are written; a loop that died mid-act would leave
-                # exactly the performed-but-unrecorded window reconciliation
-                # exists to close, for no reason.
-                running[0] = False
+                def stop(number, frame):
+                    # POLITE, AND ONCE. The tick in flight finishes and its
+                    # receipts are written; a loop that died mid-act would
+                    # leave exactly the performed-but-unrecorded window
+                    # reconciliation exists to close, for no reason.
+                    running[0] = False
 
-            signal.signal(signal.SIGINT, stop)
-            signal.signal(signal.SIGTERM, stop)
-            if taken.once:
-                return _emit(reconcile(store, operations, now=clock()),
-                             stream)
-            return _emit(serve(store, operations, clock=clock,
-                               sleep=time.sleep,
-                               should_continue=lambda: running[0],
-                               interval=taken.interval), stream)
+                signal.signal(signal.SIGINT, stop)
+                signal.signal(signal.SIGTERM, stop)
+                if taken.once:
+                    return _emit(reconcile(store, operations, now=clock()),
+                                 stream)
+                return _emit(serve(store, operations, clock=clock,
+                                   sleep=time.sleep,
+                                   should_continue=lambda: running[0],
+                                   interval=taken.interval), stream)
+            finally:
+                if operations is not None:
+                    _release(operations, stream)
 
 
 def main(argv, *, clock=None, stream=None):

@@ -30,8 +30,10 @@ ANSWER, not a later stage of the same one.
 
 from types import MappingProxyType
 
-from ..contracts import ContractRefusal, digest
-from ..contracts.errors import name_value
+from ..contracts import (ContractRefusal, check_no_durable_secret,
+                         digest)
+from ..contracts.errors import (MESSAGE_LIMIT, name_value,
+                                type_name_of)
 from . import (boundaries, documents, lanes, oci, schema, sessions,
                workspaces)
 from .store import manager_signature
@@ -227,6 +229,166 @@ def attempt_runtime_of(store, attempt_id):
             # refusal at the caller: an attempt with no fixed assignment is
             # not one a grants file can be held against.
             "assignment": _fixed_assignment(found)}
+
+
+def _committed_record(store, attempt_id, operation_id, what, members):
+    """One of this manager's OWN journalled records, read back and owned.
+
+    W76207 re-review [P1]: the two ending readers below had this written out
+    twice, so the boundary that owns an adopted record existed at two sites
+    with two labels for one rule. A rule that exists twice is a rule that holds
+    in one of the two places, and this distribution has been shown that more
+    than once -- so the identity derivation and the per-record comparisons stay
+    with each reader, and the part that is the SAME becomes one owner.
+
+    THE DISCIPLINE IS `intake`'s, applied here for the same reason it applies
+    there. An identity is not a warrant: a row this manager committed as
+    something else, under an id that happens to collide, must not be readable
+    as an ending -- it would end somebody's stage on the strength of an
+    unrelated act. So the kind agrees, the answer is decoded through the
+    journal's own `replay` rather than off the stored bytes, and the document
+    is owned before a caller sees a member of it.
+
+    ABSENCE IS THE ORDINARY ANSWER, and a REFUSED row is absence too: these
+    identities are journalled only on the committed path, so a refusal under
+    one is a collision rather than evidence, and reading it as an ending would
+    invent one out of a conflict.
+
+    THE LABEL CARRIES A LITERAL. A shared owner whose label is entirely the
+    caller's noun is one the boundary inventory cannot attribute and a probe
+    cannot assert; `_optional` above is under the same rule for the same
+    reason.
+    """
+    held = store.operation_record(operation_id)
+    if held is None or held["state"] != "committed":
+        return None
+    kind = f"runtime.{what}"
+    if held.get("kind") != kind:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"attempt {name_value(attempt_id)} names operation "
+            f"{name_value(operation_id)}, which this manager committed as "
+            f"{name_value(held.get('kind'))} rather than a "
+            f"{what} record")
+    _, committed = store.replay(operation_id, held["signature"], kind=kind)
+    if committed is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"attempt {name_value(attempt_id)} names operation "
+            f"{name_value(operation_id)}, which this manager committed with "
+            f"no recorded answer for a {what} record")
+    # THE LABEL IS A LITERAL, and the varying half is carried by the refusals
+    # around it rather than inside it. A label composed out of the caller's
+    # noun is one the boundary inventory extracts with a hole in it and a probe
+    # can never match; the kind this record had to be is already named, exactly,
+    # by the mismatch refusal above.
+    return boundaries.document(committed, "a committed ending record",
+                               required=members)
+
+
+def attempt_start_failure_of(store, attempt_id):
+    """W76207: this manager's OWN record that an attempt's start FAILED.
+
+    THE CONSUMER COULD NOT SEE THIS, and that is the whole reason it exists.
+    `request_runtime_start` journals its intent and only THEN calls the
+    adapter, so an adapter fault cannot be that operation's refusal -- it is
+    its own journalled act, under the identity `start_failure_operation_id`
+    derives. A projection built on `attempt_runtime_of` alone therefore reads
+    a stage as RUNNING whenever failed-start reconciliation attached a runtime
+    id, because an attached identity was the only fact it could ask for.
+
+    A READ OF THE OWNER'S OWN RECORD, and deliberately not a second runtime
+    state. The identity is derived from the attempt row exactly as the
+    recorder derives it, and the answer is the journal's committed document.
+    Nothing here decides what a failed start MEANS for anybody's stage; it
+    makes a fact this manager already recorded askable by a public name
+    instead of only by opening a table.
+
+    ABSENCE IS THE ORDINARY ANSWER, twice over: a well-formed id naming no
+    attempt, and an attempt whose start has not failed, are both `None` -- the
+    same shape the other two projections answer with.
+
+    A REFUSED ROW IS NOT A START FAILURE. `_record_and_raise_start_failure`
+    journals this identity only on the committed path, so a refusal under it
+    is a collision rather than evidence, and reading one as a failure would
+    invent an ending out of a conflict.
+    """
+    found = _attempt_row(store, attempt_id)
+    if found is None:
+        return None
+    # THE KIND, THE JOURNAL'S OWN DECODE AND THE DOCUMENT OWNERSHIP ARE THE
+    # SHARED OWNER'S -- `intake`'s discipline, written once for both endings.
+    record = _committed_record(store, attempt_id,
+                              start_failure_operation_id(found),
+                              "start-failed", documents.RUNTIME_START_FAILED)
+    if record is None:
+        return None
+    # ...AND THE FACTS IT NAMES ARE THIS ATTEMPT'S OWN. The three compared here
+    # are exactly what the identity is DERIVED from, so comparing them re-proves
+    # the digest's contents instead of trusting that a matching id could only
+    # have come from matching facts.
+    for member, mine in (("attempt_id", attempt_id),
+                         ("expect", _fixed_assignment(found)),
+                         ("start_operation_id", _start_operation_id(found))):
+        if record[member] != mine:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the failed-start record for attempt "
+                f"{name_value(attempt_id)} names {member} "
+                f"{name_value(record[member])} and this attempt now carries "
+                f"{name_value(mine)}; a record describing another act cannot "
+                f"say what happened to this one")
+    # `runtime_id` AND `execution_runtime` ARE DELIBERATELY NOT COMPARED, and
+    # this reader has a sharper reason than `intake`'s. They capture the axes
+    # at the instant the failure settled, and reconciliation may legitimately
+    # attach a runtime afterwards -- which is the EXACT case this projection
+    # exists for. Requiring them to agree would refuse the one situation it was
+    # added to report.
+    return record
+
+
+def attempt_preparation_failure_of(store, attempt_id):
+    """W76207: this manager's OWN record that a post-claim PREPARATION failed.
+
+    A SIBLING OF `attempt_start_failure_of`, and separate for the reason the
+    two records are separate. That one is the account of a START ACT that
+    failed, and `intake` reads it as the authority to remove a container this
+    manager started. This one is the DEPLOYMENT'S ending: its post-claim
+    composition could not carry the attempt further. Re-review
+    2026-09-03T19:24:19Z [P1]: it says nothing about whether a start act
+    occurred or what exists on the engine -- a continuation refused after an
+    earlier process started a runtime is recorded here too -- and it authorizes
+    nothing. Two facts, two kinds, two readers.
+
+    Held to exactly the discipline its sibling is: the kind agrees, the answer
+    is decoded through the journal's own `replay`, and the facts the identity
+    is derived from are re-proved against this attempt rather than trusted
+    because an id matched.
+
+    `runtime_id` AND `execution_runtime` ARE NOT COMPARED, for the sibling's
+    reason once more: they capture the axes at the instant the preparation
+    refused, and a later reconciliation may legitimately move either.
+    """
+    found = _attempt_row(store, attempt_id)
+    if found is None:
+        return None
+    record = _committed_record(store, attempt_id,
+                              _preparation_failure_operation_id(found),
+                              "preparation-failed",
+                              documents.RUNTIME_PREPARATION_FAILED)
+    if record is None:
+        return None
+    for member, mine in (("attempt_id", attempt_id),
+                         ("expect", _fixed_assignment(found))):
+        if record[member] != mine:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the preparation-failure record for attempt "
+                f"{name_value(attempt_id)} names {member} "
+                f"{name_value(record[member])} and this attempt now carries "
+                f"{name_value(mine)}; a record describing another act cannot "
+                f"say what happened to this one")
+    return record
 
 
 def attempt_activity_of(store, attempt_id):
@@ -1236,6 +1398,435 @@ def request_runtime_start(store, adapter, *, attempt_id, inputs=None):
                              minted_labels=started["labels"])
 
 
+def _preparation_failure_operation_id(attempt):
+    """The ONE identity a failed preparation is journalled under.
+
+    PRIVATE, unlike `start_failure_operation_id`. That one is public because
+    W32648's cleanup crossing is AUTHORIZED by the record it names and has to
+    say which identity it was written under; this record authorizes nothing,
+    so nothing outside this module needs to compose its name.
+
+    STABLE FOR THE ONE ATTEMPT -- the attempt and its fixed assignment, and
+    nothing that can change. The changeable facts ride the SIGNATURE, which is
+    W32648's correction applied here rather than rediscovered: folding them
+    into the id would mean a different failure selected a different row and
+    never reached the collision guard at all.
+    """
+    return "runtime.preparation-failed:" + digest({
+        "attempt_id": attempt["runtime_attempt_id"],
+        "assignment": _fixed_assignment(attempt),
+    })[len("sha256:"):]
+
+
+def refuse_runtime_preparation(store, *, attempt_id, refusal, adapter=None):
+    """Record that a post-claim preparation could not be completed.
+
+    W76207. A deployment composes an assignment's workspace, input root,
+    manifests, credential delivery and launch delivery AFTER the claim commits
+    and BEFORE any adapter exists, and continues that composition on every
+    later tick until a runtime is observable. Nothing could record a refusal
+    from that work: `request_runtime_start` reaches the durable failed-start
+    record through the adapter, so it authorizes the input root first, and the
+    boundaries that fail are the ones that would have produced that root. The
+    stage stayed claimed with no canonical failure and the control plane asked
+    again on every tick, forever.
+
+    WHAT THIS RECORD MEANS, stated exactly once and here. Re-review
+    2026-09-03T19:24:19Z [P1] found an earlier version of this text claiming
+    the record proves no start act ever happened -- which the post-start
+    continuation path then contradicted by writing it after a preceding
+    process had started a runtime. It is the DEPLOYMENT'S ending: this
+    composition could not carry this attempt any further. It is not an account
+    of whether a start act occurred, not an account of what exists on the
+    engine, and NOT cleanup authority. What a reader may conclude from it is
+    that no further launch will be attempted; `execution_runtime` and
+    `runtime_id` say what the axes held when it was written, and
+    `runtime.start-failed` remains the only account of a start act and the only
+    authority `intake` removes a container on.
+
+    ASK, THEN COMMIT ONCE, when a caller supplies an adapter. The engine is
+    asked before anything is written and its answer is committed WITH this
+    record, in one transaction. Re-review 2026-09-03T21:24:16Z [P1] supersedes
+    the earlier "reconcile, then record" rule and the second-chance argument
+    that justified it: BOTH orderings of two separate durable acts lose this
+    ending across a process death, because either act on its own moves the
+    stage out of `claimed` and the control plane calls this deployment for
+    claimed stages alone. `_record_preparation_failure` owns the whole of that
+    reasoning. What survives unchanged is WHY the identification comes first at
+    all -- the record NAMES the runtime, so an ending written without it would
+    durably say `None` about a runtime that exists.
+
+    THE IDENTIFICATION NEVER TAKES THE ENDING WITH IT. Asking runs while a
+    failure is already on its way out, so a refusal or fault from the engine is
+    appended to the account rather than raised, and the attachment it implies
+    is contained within the act: an ending nobody could write because the
+    engine was unreachable is the retry loop this record exists to stop.
+
+    WHAT IS STILL NOT DONE. No start operation is journalled, no lane is
+    occupied, and nothing is destroyed.
+
+    THE ORIGINAL REFUSAL IS RAISED, with its closed pair AND its durability
+    unchanged and only its message grown -- bounded, because a maximum-width
+    refusal plus settlement prose is a message no refusal may carry.
+    """
+    boundaries.identity(attempt_id, "a runtime attempt id")
+    if type(refusal) is not ContractRefusal:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"a refused preparation carries this manager's own closed "
+            f"refusal; this is {type_name_of(refusal)}")
+    attempt = _require_attempt(store, attempt_id)
+    if attempt["assignment_generation"] is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} is not activated; a failed "
+            f"preparation is recorded against the assignment activation "
+            f"fixed, and an attempt with none has nothing to have prepared")
+    # THE ONE ENDING THIS DEFERS TO. Re-review [P1] replaced an axis guard with
+    # this: which axis value an attempt holds is not what says whether it has
+    # an account already, and the reconciliation this operation now performs
+    # moves that axis itself. A start act that failed has its OWN record, and
+    # it is the one an operator and `intake` both read -- so a preparation
+    # ending written over it would be a second account of one act.
+    #
+    # THIS READ IS NOT THE DECISION, and re-review 2026-09-03T22:00:26Z [P1]
+    # is why it says so now. The engine is asked between here and the ending's
+    # transaction, and a start failure committed in that interval passed this
+    # check and was then followed by a preparation record -- both accounts
+    # committed, which is exactly what this guard exists to prevent. The
+    # authoritative answer is asked again INSIDE that transaction, where there
+    # is no interval; this one exists so the ordinary case refuses early, with
+    # the closed pair a caller already reads, before anything is asked of the
+    # engine at all. The two can only disagree in the direction that is
+    # stricter later, which is the shape `request_runtime_start` uses for the
+    # lane.
+    if attempt_start_failure_of(store, attempt_id) is not None:
+        raise ContractRefusal(
+            "refused", "already-terminal",
+            f"attempt {name_value(attempt_id)} holds this manager's own "
+            f"failed-start record; that account of the act it followed stands, "
+            f"and a preparation ending is not written over it")
+    plan, asked = _identification(store, adapter, attempt_id)
+    raise ContractRefusal(
+        refusal.category, refusal.code,
+        _grown(refusal.message,
+               asked + _record_preparation_failure(store, attempt_id,
+                                                   _refusal_failure(refusal),
+                                                   plan)),
+        durable=refusal.durable)
+
+
+def _identification(store, adapter, attempt_id):
+    """Ask the engine which runtime is this attempt's -- and nothing durable.
+
+    Answers the plan the ending will COMMIT WITH ITSELF, plus a string the
+    caller appends. The attachment is not made here, and re-review
+    2026-09-03T21:24:16Z [P1] is exactly why: see `_record_preparation_failure`
+    for what an attachment made on its own could lose.
+
+    NEVER RAISES: this runs while a failure is already on its way out, and an
+    identification that threw would replace the ending with the attempt to make
+    one. A plan nobody could compose is simply no plan, and the ending is
+    written without one.
+    """
+    if adapter is None:
+        return None, ""
+    try:
+        plan = _identify(store, adapter, attempt_id)
+    except ContractRefusal as second:
+        return None, (f"; and the exact runtime could not be identified "
+                      f"afterwards: {second.message}")
+    except Exception as failure:                           # noqa: BLE001
+        return None, (f"; and identifying the exact runtime afterwards raised "
+                      f"{type(failure).__name__}")
+    return plan, _named(_identified_as(plan))
+
+
+def _identified_as(plan):
+    """WHICH RUNTIME, when the engine named one, and what it decided when not.
+
+    The first cut reported the decision word for every plan, so the ordinary
+    answer -- the one an operator is reading this message to get -- said
+    `attached` and never which container that was.
+    """
+    if plan["decision"] == "attached":
+        return plan["runtime_id"]
+    return plan["decision"]
+
+
+def _named(identified):
+    """The account of what was identified, held to §13 BEFORE it is raised.
+
+    Naming the runtime rather than the decision word puts an ADAPTER-SUPPLIED
+    value into a refusal message, and `ContractRefusal` refuses to be
+    constructed around a value the secret registry holds live. An account that
+    could not be said would replace this manager's ending with an assertion at
+    the raising site, which is `_sayable`'s finding one level out.
+
+    THE FACT SURVIVES AND ONLY THE NAME IS DROPPED, and the replacement says
+    why -- an operator reading it knows the identification happened and knows
+    where the name went.
+    """
+    account = f"; the runtime was identified as {name_value(identified)}"
+    try:
+        check_no_durable_secret(account, what="an identified runtime")
+    except ContractRefusal:
+        return ("; the runtime was identified, and §13 keeps the engine's "
+                "name for it off this account because the secret registry "
+                "holds that value live")
+    return account
+
+
+def _grown(message, account):
+    """One refusal's message plus what this manager did about it, BOUNDED.
+
+    Review [P2]: the first cut concatenated and raised. `ContractRefusal` owns
+    a closed `MESSAGE_LIMIT`, so a valid refusal already at that width became
+    an `AssertionError` at this raising site the moment anything was appended
+    -- the settlement turning a reportable failure into a crash.
+
+    THE ACCOUNT IS WHAT SURVIVES, and the original message is what is cut. The
+    caller already has the refusal it raised; what it does not have, and what
+    an operator reading the journal needs, is which record this manager wrote.
+    """
+    room = MESSAGE_LIMIT - len(account)
+    if room <= 0:
+        return account[:MESSAGE_LIMIT]
+    if len(message) <= room:
+        return message + account
+    return message[:max(room - 1, 0)] + "\u2026" + account
+
+
+def _sayable(failure):
+    """The typed failure, held to §13 BEFORE it is signed or stored.
+
+    W76207 review 2026-09-03T18:49:20Z [P1]. `ContractRefusal` refuses to be
+    CONSTRUCTED around a live bearer, so a refusal handed here was safe when it
+    was raised -- and a bearer registered between that moment and this one
+    makes the same text unsayable. The §13 walk then raised out of
+    `manager_signature`, before any row existed, and the caller was left with
+    an ordinary refusal, no durable ending, and a control plane asking again on
+    every tick. The secret never reached a durable surface and the ACCEPTED
+    ENDING was lost, which is its own defect.
+
+    THE DIAGNOSTIC IS PRESERVED AS FAR AS IT CAN BE. The kind, the closed pair
+    and the fault class all survive; only the message -- the one member that
+    can quote an operand -- is replaced, and it is replaced with a sentence
+    saying exactly why. `check_no_durable_secret` is the shipped rule rather
+    than a second copy of it.
+    """
+    message = failure.get("message")
+    if message is None:
+        return failure
+    try:
+        check_no_durable_secret(message, what="a failed preparation's account")
+    except ContractRefusal:
+        return dict(failure,
+                    message="this preparation's own diagnostic quoted a value "
+                            "the secret registry holds live, so §13 keeps it "
+                            "off this record; the refusal's category and code "
+                            "are its whole surviving account")
+    return failure
+
+
+def _record_preparation_failure(store, attempt_id, failure, plan=None):
+    """The durable record AND the identification it names, in ONE act.
+
+    Never raises, for the reason `_record_start_failure` never does: it runs
+    while another failure is on its way out, and a recorder that threw would
+    replace the thing that went wrong with the attempt to write it down.
+
+    ONE COMMIT, AND RE-REVIEW 2026-09-03T21:24:16Z [P1] IS WHY. Two orderings
+    of two independent durable acts were tried and both lose the ending across
+    a process death, because each has an intermediate state that removes the
+    obligation to finish:
+
+      RECORD THEN NAME made the stage `exceptional`, and the control plane
+      calls this deployment for `claimed` stages alone -- so nothing ever came
+      back and the runtime stayed unnamed.
+      NAME THEN RECORD attaches a runtime, which projects the stage `running`
+      -- so nothing came back for that either, and the ending itself was the
+      thing permanently lost, with a stage reported as an ordinary running
+      success that no launch would ever follow.
+
+    There is no third order, because the state that removes the obligation is
+    reached by whichever act goes first. So the two acts are one: the engine is
+    asked BEFORE the transaction opens, and the attachment its answer implies
+    is applied INSIDE the transaction that writes this record. A death anywhere
+    in between leaves the whole act undone and the stage still `claimed`, which
+    is the level-triggered state the next tick drives through this same path.
+
+    THE PLAN IS AN OPERAND OF THE ACT, by identity rather than by prose. The
+    engine's own account of WHY rides the record and never the signature, so
+    this operation's §13 exposure is what it always was -- the attempt, its
+    fixed assignment and the failure -- while a plan naming a different runtime
+    is still a different act that collides rather than replays.
+
+    AND THE ATTACHMENT STILL NEVER TAKES THE ENDING WITH IT. It is contained
+    within the act by its own savepoint, so a refusal from it is appended to
+    the account and the record is written over the axes as they really stand.
+    A fault is not contained: a process that is dying is not one that should
+    commit half of this.
+    """
+    attempt = _require_attempt(store, attempt_id)
+    expect = _fixed_assignment(attempt)
+    sayable = _sayable(failure)
+    operation_id = _preparation_failure_operation_id(attempt)
+    try:
+        signature = manager_signature("runtime.preparation-failed",
+                                      {"attempt_id": attempt_id,
+                                       "expect": expect, "failure": sayable,
+                                       "identified": _plan_identity(plan)})
+    except ContractRefusal as unsayable:
+        # SIGNING IS A §13 WALK, and it was outside the guard. Review
+        # 2026-09-03T18:49:20Z [P1]: `_sayable` owns the message this manager
+        # was handed, but every operand is walked again here -- so anything
+        # that becomes unsayable between composing and signing would raise out
+        # of a recorder that promises never to. It cannot leave the caller with
+        # no ending. `_plan_identity` keeps the one adapter-supplied operand
+        # out of that walk rather than relying on this to catch it.
+        return (f"; and the preparation failure could not be signed: "
+                f"{unsayable.code}")
+    # WHAT THE ATTACHMENT HAD TO SAY, carried out of the act it happens in.
+    # A replay runs no action at all, and has nothing to say for the same
+    # reason: the attachment already happened, and its account went out with
+    # the refusal that first raised it.
+    attaching = []
+
+    def act(connection):
+        # THE SIBLING, ASKED AGAIN WHERE THERE IS NO INTERVAL. Re-review
+        # 2026-09-03T22:00:26Z [P1]: the door check upstream is stale by the
+        # time this opens, because the engine was asked in between. If the
+        # start act's own record won that race it is the sole ending and the
+        # sole cleanup authority, so neither this record NOR the attachment it
+        # would commit may land -- and refusing here is what unwinds both,
+        # since they are one act.
+        if attempt_start_failure_of(store, attempt_id) is not None:
+            raise ContractRefusal(
+                "refused", "already-terminal",
+                f"attempt {name_value(attempt_id)} took this manager's own "
+                f"failed-start record while the engine was being asked; that "
+                f"account of the act it followed stands, and a preparation "
+                f"ending is not written over it")
+        attaching.append(_identified_within(store, connection, attempt_id,
+                                            plan))
+        # THE AXES AS THEY NOW STAND, read after the attachment inside the
+        # same transaction. Composing them beforehand would mean predicting
+        # what this act is about to do and then durably asserting the
+        # prediction -- and the one case where the prediction is wrong is the
+        # contained one, which is the case a reader most needs the truth about.
+        now = _require_attempt(store, attempt_id)
+        return documents.runtime_preparation_failed(
+            attempt_id=attempt_id, expect=expect,
+            runtime_id=now["runtime_id"],
+            execution_runtime=now["execution_runtime"], failure=sayable)
+
+    try:
+        store.transact(operation_id, "runtime.preparation-failed", signature,
+                       act)
+    except ContractRefusal as refused:
+        if refused.code == "already-terminal":
+            # THE RACE, LOST AND SAID SO. Nothing of this act committed: no
+            # attachment, no row. It is CONTAINED rather than raised for the
+            # reason every other failure here is -- the caller is entitled to
+            # the refusal it actually raised, and the control plane reads the
+            # start act's record and reports that stage exceptional through
+            # it. Replacing the engine's reason with this manager's note about
+            # a race it lost is the account swap an earlier review already
+            # found on the sequential path.
+            return "".join(attaching) + (
+                f"; and no preparation ending was written, because "
+                f"{refused.message}")
+        # A COLLISION IS AN ANSWER. This attempt already holds a preparation
+        # record and the facts arriving now differ from it, so the journal
+        # refuses -- and the FIRST account, written when the manager knew
+        # most, is the one that stands.
+        return "".join(attaching) + (
+            f"; and this attempt already holds a different preparation "
+            f"record, which stands: {refused.message}")
+    except Exception as failed:                            # noqa: BLE001
+        return "".join(attaching) + (
+            f"; and the preparation failure could not be recorded: "
+            f"{type(failed).__name__}")
+    return "".join(attaching) + (f"; the failed preparation is journalled as "
+                                 f"{name_value(operation_id)}")
+
+
+def _plan_identity(plan):
+    """The part of an identification that is an OPERAND of the ending.
+
+    WHICH RUNTIME THE ENGINE NAMED, and nothing the engine said about it. Two
+    endings that attach different runtimes are two different acts and must
+    collide; two that attach the same one, described in the adapter's own
+    changeable prose, are the same act and must replay.
+
+    AS A DIGEST, because the operand is ADAPTER-SUPPLIED. `manager_signature`
+    is a §13 walk, and a runtime id the secret registry holds live would make
+    this ending unsignable -- leaving the caller with no durable ending and the
+    control plane asking again on every tick, which is the retry loop this
+    record exists to stop. A digest distinguishes the two acts exactly as the
+    value would and quotes nothing.
+    """
+    if plan is None:
+        return None
+    return digest({"decision": plan["decision"],
+                   "runtime_id": plan.get("runtime_id")})
+
+
+def _identified_within(store, connection, attempt_id, plan):
+    """Commit what the engine named, inside an ending's own transaction.
+
+    SHARED BY BOTH ENDINGS. Re-review 2026-09-03T22:00:26Z [P1] found the
+    failed-start record still committing its reconciliation as a separate act,
+    which loses it exactly as the preparation ending used to be lost. One rule
+    written once is what keeps the next correction from having to be made
+    twice.
+
+    CONTAINED BY A SAVEPOINT, for the reason the recorder around it contains
+    its own refusals: an ending nobody could write because the attachment
+    refused is the retry loop this record exists to stop. What is rolled back
+    is the attachment alone; the ending is then written over the axes the
+    rollback left standing, which is what they really hold.
+
+    A `BaseException` IS NOT CONTAINED and passes straight out, so the owner
+    rolls the whole act back. It is a process being torn down rather than a
+    boundary answering, and half of this act is exactly what must never survive
+    one. An ordinary fault is contained like a refusal: it is still the
+    attachment failing, and it is still not a reason to lose the ending.
+    """
+    if plan is None:
+        return ""
+    mark = f"identified_{abs(hash(attempt_id)) % 10 ** 12}"
+
+    def undone():
+        for statement in (f"ROLLBACK TO {mark}", f"RELEASE {mark}"):
+            try:
+                connection.execute(statement)
+            except Exception:                              # noqa: BLE001
+                pass
+
+    connection.execute(f"SAVEPOINT {mark}")
+    try:
+        settled = _reconciled(store, attempt_id, plan, within=connection)
+    except ContractRefusal as second:
+        undone()
+        return (f"; and the identified runtime could not be attached: "
+                f"{second.message}")
+    except Exception as failure:                           # noqa: BLE001
+        undone()
+        return (f"; and attaching the identified runtime raised "
+                f"{type(failure).__name__}")
+    connection.execute(f"RELEASE {mark}")
+    # WHAT WAS COMMITTED, which is a different fact from what was ASKED. The
+    # caller has already reported the engine's answer; this reports what this
+    # manager durably did with it, and the two differ exactly when the
+    # attachment was contained or the answer was a cancellation.
+    axis = _require_attempt(store, attempt_id)["execution_runtime"]
+    return (f"; the identification is committed as "
+            f"{name_value(settled['decision'])} and this attempt's execution "
+            f"runtime is now {name_value(axis)}")
+
+
 def _refusal_failure(refusal):
     """A refused start, as the record's typed failure."""
     return {"kind": "refusal", "category": refusal.category,
@@ -1259,28 +1850,61 @@ def _fault_failure(fault):
             "message": str(fault)}
 
 
-def _record_and_raise_start_failure(store, attempt_id, failure):
+def _record_and_raise_start_failure(store, attempt_id, failure, plan=None):
     """The recording itself, with its refusals RAISED.
 
     Named apart from the reporting wrapper below so a case can drive the rule
     and see what it answers.  Production never calls this directly: a recorder
     that raised into a failure already on its way out would substitute its own
     problem for the one that actually happened.
+
+    THE SETTLEMENT COMMITS WITH THE RECORD, and re-review 2026-09-03T22:00:26Z
+    [P1] is why. This used to follow a `reconcile_runtime` that had already
+    committed on its own, and an attached runtime projects the Job stage
+    `running` -- which the control plane never calls the deployment about
+    again. A death between the two acts therefore made this record permanently
+    unreachable, the same defect `_record_preparation_failure` was corrected
+    for and for the identical reason. The engine is asked before the
+    transaction opens, and what its answer implies is applied inside it.
+
+    THE UNCERTAIN ENDING RIDES THE SAME ACT. A settlement nothing could
+    establish still has to leave `uncertain` durably, and leaving it as a
+    third separate write would reopen the window on the one path where this
+    manager knows least.
+
+    THE OPERANDS, NOT THE OUTCOME, ARE WHAT IS SIGNED. The changeable facts
+    still ride the signature exactly as `start_failure_operation_id` requires
+    -- the typed failure, and which runtime the engine named -- but the axes
+    are read after the settlement rather than predicted before it, because the
+    settlement is now part of this act. The engine's name for the runtime is
+    folded in as a digest for `_plan_identity`'s stated reason.
     """
     attempt = _require_attempt(store, attempt_id)
-    record = {"attempt_id": attempt_id, "expect": _fixed_assignment(attempt),
-              "start_operation_id": _start_operation_id(attempt),
-              "runtime_id": attempt["runtime_id"],
-              "execution_runtime": attempt["execution_runtime"],
-              "failure": failure}
+    expect = _fixed_assignment(attempt)
+    start_operation_id = _start_operation_id(attempt)
     operation_id = start_failure_operation_id(attempt)
-    signature = manager_signature("runtime.start-failed", record)
-    store.transact(operation_id, "runtime.start-failed", signature,
-                   lambda connection: documents.runtime_start_failed(**record))
-    return operation_id
+    signature = manager_signature("runtime.start-failed",
+                                  {"attempt_id": attempt_id, "expect": expect,
+                                   "start_operation_id": start_operation_id,
+                                   "failure": failure,
+                                   "identified": _plan_identity(plan)})
+    settling = []
+
+    def act(connection):
+        settling.append(_identified_within(store, connection, attempt_id, plan)
+                        + _settle_unknown_start(store, attempt_id))
+        now = _require_attempt(store, attempt_id)
+        return documents.runtime_start_failed(
+            attempt_id=attempt_id, expect=expect,
+            start_operation_id=start_operation_id,
+            runtime_id=now["runtime_id"],
+            execution_runtime=now["execution_runtime"], failure=failure)
+
+    store.transact(operation_id, "runtime.start-failed", signature, act)
+    return operation_id, "".join(settling)
 
 
-def _record_start_failure(store, attempt_id, failure):
+def _record_start_failure(store, attempt_id, failure, plan=None):
     """The durable manager-owned record of a failed start.
 
     W32648, approver ruling M33800.  The start operation ALREADY COMMITTED --
@@ -1308,8 +1932,8 @@ def _record_start_failure(store, attempt_id, failure):
     attempt to write it down.
     """
     try:
-        operation_id = _record_and_raise_start_failure(store, attempt_id,
-                                                       failure)
+        operation_id, settled = _record_and_raise_start_failure(
+            store, attempt_id, failure, plan)
     except ContractRefusal as collided:
         # A COLLISION IS AN ANSWER, not a failure to record.  This start act
         # already has a record and the facts arriving now differ from it, so
@@ -1320,11 +1944,11 @@ def _record_start_failure(store, attempt_id, failure):
     except Exception as failed:                            # noqa: BLE001
         return (f"; and the start failure could not be recorded: "
                 f"{type(failed).__name__}")
-    return (f"; the start failure is journalled as "
-            f"{name_value(operation_id)}")
+    return settled + (f"; the start failure is journalled as "
+                      f"{name_value(operation_id)}")
 
 
-def _settle_unknown_start(store, adapter, attempt_id):
+def _settle_unknown_start(store, attempt_id):
     """Leave an ENDING when the exact state could not be established.
 
     RE-REVIEW [P0]: `_start_failed` caught a failed reconciliation only to
@@ -1343,10 +1967,18 @@ def _settle_unknown_start(store, adapter, attempt_id):
     truer before it failed is not overwritten -- this closes a hole, and
     replacing an observation with `uncertain` would open a different one.
 
+    WITHIN THE RECORD'S OWN ACT. Re-review 2026-09-03T22:00:26Z [P1]: this ran
+    as its own write beside the reconciliation and the record, and any durable
+    act that lands alone can be the one a process death keeps. `uncertain` is
+    an ending the projection reads, so leaving it without the record is the
+    same lost-ending shape one path further out.
+
     Answers a string so the caller can append what it did to the refusal an
     operator reads, and never raises: this runs while another failure is
     already being reported, and a settlement that threw would replace the
-    thing that went wrong with the attempt to describe it.
+    thing that went wrong with the attempt to describe it. Its own write takes
+    a savepoint, so a contained failure here leaves the record's transaction
+    intact.
     """
     try:
         row = _require_attempt(store, attempt_id)
@@ -1380,10 +2012,13 @@ def _start_failed(store, adapter, attempt_id, refusal):
 
     RECONCILIATION IS THE OWNER, and it is called rather than reimplemented.
     W26294 settled what an exact observation means; if a runtime carries this
-    attempt's labels it is attached here, which is what makes it nameable by
-    the ordinary destroy crossing, and if the manager cannot establish what
-    exists the axis records `uncertain`. Both preserve the invariant that
-    matters most: NO REPLACEMENT IS STARTED on either path.
+    attempt's labels it is attached, which is what makes it nameable by the
+    ordinary destroy crossing, and if the manager cannot establish what exists
+    the axis records `uncertain`. Both preserve the invariant that matters
+    most: NO REPLACEMENT IS STARTED on either path. W76207 re-review
+    2026-09-03T22:00:26Z [P1]: the engine is ASKED here and the attachment its
+    answer implies is committed by the record's own transaction, so the
+    settlement and the record cannot be separated by a process death.
 
     THE ORIGINAL REFUSAL IS NOT LOST, AND NEITHER IS ITS CLOSED PAIR. The
     category and the code come through unchanged and only the message grows,
@@ -1406,9 +2041,8 @@ def _start_failed(store, adapter, attempt_id, refusal):
                                _refusal_failure(refusal)))
 
 
-def _settle_failed_start(store, adapter, attempt_id):
-    """RECONCILE FIRST, and fall back to `uncertain` only when that cannot
-    answer. Shared by every failed start, however it failed.
+def _settled_and_recorded(store, adapter, attempt_id, failure):
+    """ASK, then commit the settlement and the record as ONE act.
 
     ONE BOUNDARY FOR BOTH KINDS OF FAILURE. A refusal and a fault differ in
     what they say about WHY the start did not complete and not at all in what
@@ -1418,36 +2052,21 @@ def _settle_failed_start(store, adapter, attempt_id):
     nothing can be established. Splitting them was how the fault path lost the
     reconciliation.
 
+    THE ORDER USED TO BE THE CONTENT, and re-review 2026-09-03T22:00:26Z [P1]
+    supersedes that. Reconciling first does name the runtime the record then
+    carries, which is real and is preserved -- but as a SEPARATE durable act it
+    also projected the Job stage `running` before the record existed, and the
+    control plane calls the deployment for `claimed` stages alone. A death in
+    between made this ending permanently unreachable. The settlement and the
+    record are one transaction now; only the ASKING happens before it, and
+    nothing asks the engine while the write lock is held.
+
     Answers a string the caller appends to whatever it is reporting, and never
     raises: this runs while another failure is already on its way out, and a
     settlement that threw would replace it.
     """
-    try:
-        settled = reconcile_runtime(store, adapter, attempt_id=attempt_id)
-    except ContractRefusal as second:
-        return (f"; and the exact runtime state could not be reconciled "
-                f"afterwards: {second.message}"
-                f"{_settle_unknown_start(store, adapter, attempt_id)}")
-    except Exception as failure:                           # noqa: BLE001
-        return (f"; and reconciling the exact runtime state afterwards "
-                f"raised {type(failure).__name__}"
-                f"{_settle_unknown_start(store, adapter, attempt_id)}")
-    row = _require_attempt(store, attempt_id)
-    return (f"; the start was settled as {name_value(settled['decision'])} "
-            f"and this attempt's execution runtime is now "
-            f"{name_value(row['execution_runtime'])}")
-
-
-def _settled_and_recorded(store, adapter, attempt_id, failure):
-    """Reconcile, then record -- in that order, and both for every failure.
-
-    THE ORDER IS THE CONTENT.  The record names the runtime the reconciliation
-    attached, so recording first would durably say `None` about a runtime that
-    exists, and the ordinary destroy crossing would then have a record
-    disagreeing with the attempt row it is meant to authorize.
-    """
-    return (_settle_failed_start(store, adapter, attempt_id)
-            + _record_start_failure(store, attempt_id, failure))
+    plan, asked = _identification(store, adapter, attempt_id)
+    return asked + _record_start_failure(store, attempt_id, failure, plan)
 
 
 def _started(answer):
@@ -1490,6 +2109,27 @@ def reconcile_runtime(store, adapter, *, attempt_id, minted=None,
     whose labels are wrong: that is not an absence, it is a mismatch this call
     caused.
     """
+    plan = _identify(store, adapter, attempt_id, minted, minted_labels)
+    return _reconciled(store, attempt_id, plan)
+
+
+def _identify(store, adapter, attempt_id, minted=None, minted_labels=None):
+    """WHAT THE ENGINE SAYS EXISTS, answered as a PLAN and nothing more.
+
+    W76207 re-review 2026-09-03T21:24:16Z [P1] SPLIT THIS OUT, and the split is
+    between ASKING and RECORDING rather than between two decisions. Every rule
+    about what the answers mean is still here and is still asked exactly once;
+    what is not here is any durable effect. A caller that must commit this
+    answer TOGETHER WITH something else of its own can therefore ask first and
+    commit once -- which is what the failed-preparation ending does, because a
+    stage whose runtime is attached is no longer the control plane's to drive.
+
+    AND NOTHING IS ASKED FROM INSIDE A TRANSACTION, which is the other half of
+    why the halves are separable. The engine is a remote process and an owner
+    holds the store's write lock for the whole of its act; an adapter call made
+    under that lock would hold every other writer out for as long as the engine
+    takes to answer, and a hung engine would become a hung manager.
+    """
     boundaries.capability(getattr(adapter, "list", None),
                           "the runtime adapter's list")
     # W26294: BOTH CAPABILITIES AT THE PUBLIC BOUNDARY, beside each other and
@@ -1512,41 +2152,33 @@ def reconcile_runtime(store, adapter, *, attempt_id, minted=None,
     attempt = _require_attempt(store, attempt_id)
     labels = _runtime_labels(attempt)
     listed = _listed(adapter.list({"labels": labels}))
-    # THE MINTED RUNTIME IS CHECKED BEFORE THE FILTER. A runtime this call
-    # started carrying labels for a different assignment was filtered out and
-    # reported as uncertainty -- but it is not absent, it is WRONG, and dropping
-    # it would leave a mislabelled runtime running with the manager waiting for
-    # news.
     if minted is not None:
         own = [runtime for runtime in listed
                if runtime["runtime_id"] == minted]
         own_labels = minted_labels if minted_labels is not None else (
             own[0]["labels"] if own else None)
         if own_labels is not None and own_labels != labels:
-            return _cancel(store, attempt_id,
-                           f"the runtime this call started "
-                           f"({name_value(minted)}) carries labels for a "
-                           f"different assignment")
+            return _cancelling(f"the runtime this call started "
+                               f"({name_value(minted)}) carries labels for a "
+                               f"different assignment")
     found = [runtime for runtime in listed if runtime["labels"] == labels]
     if len(found) > 1:
-        return _cancel(store, attempt_id,
-                       f"{len(found)} runtimes carry this assignment's labels; "
-                       f"starting another would compound it",
-                       runtimes=[runtime["runtime_id"] for runtime in found])
+        return _cancelling(f"{len(found)} runtimes carry this assignment's "
+                           f"labels; starting another would compound it",
+                           runtimes=[runtime["runtime_id"]
+                                     for runtime in found])
     if len(found) == 1:
         runtime = found[0]
         if minted is not None and runtime["runtime_id"] != minted:
-            return _cancel(store, attempt_id,
-                           f"this call started {name_value(minted)} and the "
-                           f"adapter holds "
-                           f"{name_value(runtime['runtime_id'])} for these "
-                           f"labels")
+            return _cancelling(f"this call started {name_value(minted)} and "
+                               f"the adapter holds "
+                               f"{name_value(runtime['runtime_id'])} for "
+                               f"these labels")
         # W26294: THE EXACT RUNTIME IS OBSERVED BEFORE ANYTHING IS RECORDED.
         # Membership in `ps --all` proves this container carries this
         # assignment's labels and says nothing about whether it is alive.
         state, value, why = _observed(adapter, runtime["runtime_id"])
-        return _settled(store, attempt, runtime["runtime_id"],
-                        state, value, why)
+        return _attaching(runtime["runtime_id"], value, why)
     # W26294 review [P0]: AN EXACT IDENTITY IS STILL A QUESTION THIS SEAM CAN
     # ASK, and until now it did not.
     #
@@ -1569,31 +2201,59 @@ def reconcile_runtime(store, adapter, *, attempt_id, minted=None,
             # ASKED AND STILL UNKNOWN. The identity is not erased -- an
             # attachment already made stands, and a lost `minted` stays the
             # caller's to reconcile again.
-            observe(store, attempt_id=attempt_id, axis="execution_runtime",
-                    value="uncertain")
-            return documents.runtime_uncertain(
-                attempt_id=attempt_id, decision="uncertain",
-                why=f"the adapter lists no runtime for these labels and "
-                    f"cannot say what {name_value(known)} is: {why}")
+            return {"decision": "uncertain", "runtimes": None,
+                    "why": f"the adapter lists no runtime for these labels "
+                           f"and cannot say what {name_value(known)} is: "
+                           f"{why}"}
         # PROVED, BY NAME. `absent` here is the answer the acceptance asks for
         # and the listing alone can never give: this exact runtime is gone.
         # The attachment is what fixes WHICH runtime this attempt had, and it
         # is true whatever state that runtime is now in -- `observed` carries
         # the state, which is the whole of W26294's correction to this
         # document's meaning.
-        return _settled(store, attempt, known, state, value, why)
+        return _attaching(known, value, why)
     # NO EXACT IDENTITY AT ALL, which is the one reconciliation that still
     # cannot ask the question: nothing was started by this call and nothing is
     # recorded, so there is no runtime to name.
-    observe(store, attempt_id=attempt_id, axis="execution_runtime",
-            value="uncertain")
-    return documents.runtime_uncertain(
-        attempt_id=attempt_id, decision="uncertain",
-        why="the adapter reports no runtime and this attempt names none; a "
-            "second start would risk two runtimes for one assignment")
+    return {"decision": "uncertain", "runtimes": None,
+            "why": "the adapter reports no runtime and this attempt names "
+                   "none; a second start would risk two runtimes for one "
+                   "assignment"}
 
 
-def _settled(store, attempt, runtime_id, state, value, why):
+def _cancelling(why, runtimes=None):
+    """A mismatch or a multiplicity, as the plan that answers it."""
+    return {"decision": "cancel", "why": why, "runtimes": runtimes}
+
+
+def _attaching(runtime_id, value, why):
+    """One exact runtime and what it was just observed to be."""
+    return {"decision": "attached", "runtime_id": runtime_id,
+            "observed": value, "why": why, "runtimes": None}
+
+
+def _reconciled(store, attempt_id, plan, *, within=None):
+    """The plan's DURABLE effect, and the document that answers it.
+
+    ONE OWNER for what an identification MEANS, whichever caller asked for it
+    and whether it commits alone or inside somebody else's act. `within` is
+    an already-open owner transaction; see `_attach` for what it changes and
+    what it deliberately does not.
+    """
+    if plan["decision"] == "cancel":
+        return _cancel(store, attempt_id, plan["why"], plan["runtimes"])
+    if plan["decision"] == "uncertain":
+        observe(store, attempt_id=attempt_id, axis="execution_runtime",
+                value="uncertain")
+        return documents.runtime_uncertain(attempt_id=attempt_id,
+                                           decision="uncertain",
+                                           why=plan["why"])
+    return _settled(store, _require_attempt(store, attempt_id),
+                    plan["runtime_id"], plan["observed"], plan["why"],
+                    within=within)
+
+
+def _settled(store, attempt, runtime_id, value, why, *, within=None):
     """Attach the exact identity and RECORD the state just observed.
 
     ONE OWNER FOR BOTH WAYS AN EXACT RUNTIME IS FOUND. The listing names one
@@ -1634,13 +2294,15 @@ def _settled(store, attempt, runtime_id, state, value, why):
     """
     attempt_id = attempt["runtime_attempt_id"]
     # ONE OWNER FOR "INCONCLUSIVE", read from the value that is actually
-    # recorded and returned. `state` and `value` agree on it by construction
-    # (`OBSERVED_RUNTIME` maps `uncertain` to itself and nothing else to it),
-    # and deciding it from `observed` is what makes the document consistent
-    # with ITSELF rather than with a variable a reader has to go and check.
+    # recorded and returned. The adapter's own state word and this value agree
+    # on it by construction (`OBSERVED_RUNTIME` maps `uncertain` to itself and
+    # nothing else to it), and deciding it from `observed` is what makes the
+    # document consistent with ITSELF rather than with a variable a reader has
+    # to go and check -- which is also why the state word is not an operand
+    # here at all.
     inconclusive = value == "uncertain"
     attached = _attach(store, attempt, runtime_id, value,
-                       why if inconclusive else None)
+                       why if inconclusive else None, within=within)
     # A CANCELLATION IS A DIFFERENT DOCUMENT and passes straight through. It
     # answers a mismatch rather than an attachment, and there is no observation
     # of this attempt's runtime to state in it.
@@ -1790,7 +2452,8 @@ def _inconclusive(why):
     return f"the exact runtime could not be observed: {str(why)[:MAX_INCONCLUSIVE]}"
 
 
-def _attach(store, attempt, runtime_id, value="running", why=None):
+def _attach(store, attempt, runtime_id, value="running", why=None, *,
+            within=None):
     """The FIRST positive attachment fixes the runtime identity.
 
     Review [P1] in the frozen host: this overwrote `runtime_id`
@@ -1849,12 +2512,22 @@ def _attach(store, attempt, runtime_id, value="running", why=None):
             **({"why": why} if why is not None else {}))
 
     try:
-        answer = store.transact(f"attempt.attach:{attempt_id}:{runtime_id}",
-                                "attempt.attach",
-                                manager_signature("attempt.attach",
-                                                  {"attempt_id": attempt_id,
-                                                   "runtime_id": runtime_id}),
-                                act)
+        # WITHIN AN OWNER'S OPEN ACT, the attachment is not a second
+        # operation. W76207 re-review 2026-09-03T21:24:16Z [P1]: the failed
+        # preparation ending and the identification it names must both land or
+        # neither, because attaching a runtime moves the stage out of the one
+        # state the control plane calls that deployment for. `store.transact`
+        # opens a transaction, so it cannot be the inner one; the CAS below
+        # and its observation are the whole effect either way, and the OUTER
+        # operation is what journals them and what a retry replays.
+        if within is None:
+            answer = store.transact(
+                f"attempt.attach:{attempt_id}:{runtime_id}", "attempt.attach",
+                manager_signature("attempt.attach",
+                                  {"attempt_id": attempt_id,
+                                   "runtime_id": runtime_id}), act)
+        else:
+            answer = act(within)
     except ContractRefusal as refusal:
         # ONLY THE COMPARE-AND-SWAP'S OWN REFUSAL IS A LOST RACE. A broad catch
         # here swallowed an operation COLLISION and answered it as a

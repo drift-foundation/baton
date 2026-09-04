@@ -1072,6 +1072,27 @@ NOT_AN_ENTRY = {
 # Every one still needs a witness: a declared owner with nothing exercising it
 # is a claim, not a boundary.
 STATED_OWNERS = {
+    # -- W76207: the failed preparation this manager records -----------------
+    #
+    # The operand is this package's OWN closed type rather than caller data, so
+    # there is no boundary layer for it: what a caller may hand across is a
+    # `ContractRefusal` and nothing else, and `refuse_runtime_preparation`
+    # types it exactly before anything is read or written. Its message is
+    # walked for §13 separately, at `_sayable` and again at
+    # `manager_signature`, because a value that was sayable when the refusal
+    # was raised may not be by the time it is signed.
+    ("caller", "attempts.py:refuse_runtime_preparation", "refusal"):
+        "an exact type check on this package's own closed refusal, before the "
+        "attempt row is read",
+    # Its optional identification adapter is FORWARDED to `_identify`, which
+    # owns every capability it calls -- the same owner `reconcile_runtime`
+    # forwards to. It is not owned again here on purpose: this operation runs
+    # while a failure is already on its way out, so what a missing capability
+    # may do is join the account, never replace the ending -- and a refusal
+    # raised at this door would do exactly that.
+    ("caller", "attempts.py:refuse_runtime_preparation", "adapter"):
+        "forwarded to `_identify`, which owns the capabilities it calls; a "
+        "refusal from it is contained in the account rather than raised",
     # -- the port forwards, and the authority owns its own operands ----------
     ("caller", "authority_port.py:AuthorityPort.project_work", "work_id"):
         "forwarded to the authority's projection, which owns its own operands",
@@ -2092,8 +2113,24 @@ DELEGATED = {
         ("attempts.py:_optional", "caller:value"),
     ("caller", "attempts.py:request_runtime_start", "attempt_id"):
         ("attempts.py:_attempt_row", "caller:attempt_id"),
+    # W76207: the preparation-failure projection reads the same row through
+    # the same owner every other projection here does.
+    ("caller", "attempts.py:attempt_preparation_failure_of", "attempt_id"):
+        ("attempts.py:_attempt_row", "caller:attempt_id"),
     ("caller", "attempts.py:reconcile_runtime", "attempt_id"):
         ("attempts.py:_attempt_row", "caller:attempt_id"),
+    # W76207 re-review 2026-09-03T21:24:16Z [P1]: asking the engine and
+    # committing the answer are separable now, because the failed-preparation
+    # ending has to commit the answer inside its own act. The questions all
+    # moved to `_identify` together and so did the owners for the operands
+    # they are asked with; this operation still receives them and still names
+    # exactly one place they are owned.
+    ("caller", "attempts.py:reconcile_runtime", "adapter"):
+        ("attempts.py:_identify", "caller:adapter"),
+    ("caller", "attempts.py:reconcile_runtime", "minted"):
+        ("attempts.py:_identify", "caller:minted"),
+    ("caller", "attempts.py:reconcile_runtime", "minted_labels"):
+        ("attempts.py:_identify", "caller:minted_labels"),
     ("caller", "attempts.py:request_cancellation", "attempt_id"):
         ("attempts.py:_attempt_row", "caller:attempt_id"),
     ("caller", "handshake.py:negotiate_acp", "profile_digest"):
@@ -2192,6 +2229,35 @@ class BoundaryCase(unittest.TestCase):
                 self.store, self.port, attempt_id="attempt-1",
                 expect={"work_ref": {"authority_uuid": UUID, "work_id": WORK},
                         "participant": WHO, "generation": 1})
+        return run
+
+    def spoiling_preparation_record(self):
+        """One real preparation record, then its stored answer replaced.
+
+        W76207. The record is read back by `attempt_preparation_failure_of`,
+        which decodes it through the journal's own `replay` and then OWNS it as
+        a document -- so what this proves is that a committed answer this
+        process did not write arrives at that owner rather than being trusted
+        because its identity matched.
+        """
+        def run():
+            self.claimed()
+            worker_manager.activate_assignment(
+                self.store, self.port, attempt_id="attempt-1",
+                expect={"work_ref": {"authority_uuid": UUID, "work_id": WORK},
+                        "participant": WHO, "generation": 1})
+            try:
+                worker_manager.refuse_runtime_preparation(
+                    self.store, attempt_id="attempt-1",
+                    refusal=ContractRefusal("integrity", "path",
+                                            "the input root is partial"))
+            except ContractRefusal:
+                pass
+            self.corrupt("UPDATE operations SET result = ? "
+                         "WHERE kind = 'runtime.preparation-failed'",
+                         "[\"not a document\"]")
+            worker_manager.attempt_preparation_failure_of(self.store,
+                                                          "attempt-1")
         return run
 
     def spoiling_attempt(self, column):
@@ -5563,6 +5629,24 @@ class BoundaryCase(unittest.TestCase):
              "a runtime attempt id"): ("a runtime attempt id",
                 lambda: worker_manager.request_runtime_start(
                     store, FakeAdapter(self), attempt_id=SURROGATE)),
+            # W76207: the post-claim preparation this manager could not
+            # complete, and the read of its record. The writer takes no
+            # adapter at all -- that is the operation rather than an omission
+            # here -- so the attempt id is its one owned crossing; the reader
+            # owns the same id and the committed record it decodes.
+            (at("attempts.py:refuse_runtime_preparation", "attempt_id"),
+             "a runtime attempt id"): ("a runtime attempt id",
+                lambda: worker_manager.refuse_runtime_preparation(
+                    store, attempt_id=SURROGATE,
+                    refusal=ContractRefusal("refused", "precondition",
+                                            "the preparation refused"))),
+            (at("attempts.py:attempt_preparation_failure_of", "attempt_id"),
+             "a runtime attempt id"): ("a runtime attempt id",
+                lambda: worker_manager.attempt_preparation_failure_of(
+                    store, SURROGATE)),
+            (at("attempts.py:_committed_record", "committed"),
+             "a committed ending record"): ("a committed ending record",
+                self.spoiling_preparation_record()),
             (at("attempts.py:reconcile_runtime", "adapter"),
              "the runtime adapter's list"):
                 ("the runtime adapter's list",
@@ -5655,13 +5739,18 @@ class BoundaryCase(unittest.TestCase):
                 "injected"), "a started runtime's labels"):
                 ("a started runtime's labels",
                  self.starting({"runtime_id": "runtime-1", "labels": 7})),
-            (at("attempts.py:reconcile_runtime", "adapter.list", "injected"),
+            # W76207: the listing is asked in `_identify` now, which is where
+            # every question this seam puts to the engine went when asking and
+            # committing were separated. The probes are the same three and
+            # still drive the public operation; only the site they land on
+            # follows the code.
+            (at("attempts.py:_identify", "adapter.list", "injected"),
              "a listed runtime"): ("a listed runtime", self.listing([7])),
-            (at("attempts.py:reconcile_runtime", "adapter.list.runtime_id",
+            (at("attempts.py:_identify", "adapter.list.runtime_id",
                 "injected"), "a listed runtime's id"):
                 ("a listed runtime's id",
                  self.listing([{"runtime_id": 7, "labels": {}}])),
-            (at("attempts.py:reconcile_runtime", "adapter.list.labels",
+            (at("attempts.py:_identify", "adapter.list.labels",
                 "injected"), "a listed runtime's labels"):
                 ("a listed runtime's labels",
                  self.listing([{"runtime_id": "runtime-1", "labels": 7}])),
@@ -6542,6 +6631,11 @@ class EveryProbeProvesItArrived(BoundaryCase):
 # label, so it is exercised rather than probed -- and the mapping is checked both
 # ways, so a rule with no witness and a witness naming no rule both fail.
 WITNESSES = {
+    # -- W76207: the failed preparation this manager records -----------------
+    ("caller", "attempts.py:refuse_runtime_preparation", "refusal"):
+        "test_a_preparation_refusal_is_this_packages_own_closed_type",
+    ("caller", "attempts.py:refuse_runtime_preparation", "adapter"):
+        "test_an_identification_adapter_is_owned_by_the_reconciliation",
     # -- W6632: the constrained OCI adapter core -----------------------------
     ("caller", "oci.py:run_vector", "mounts"):
         "test_a_mount_sequence_is_iterated_and_never_read",
@@ -6953,6 +7047,66 @@ class EveryStatedOwnerHasAWitness(BoundaryCase):
 
 class StatedRules(BoundaryCase):
     """The witnesses themselves. Each exercises one stated rule."""
+
+    # -- W76207's recorded preparation failure -------------------------------
+
+    def test_an_identification_adapter_is_owned_by_the_reconciliation(self):
+        """The stated rule, exercised at both halves of what it claims.
+
+        An object with no `list` is refused BY THE RECONCILIATION -- so the
+        refusal names that owner's capability rather than anything composed
+        here -- and the ending is still recorded, with the owner's refusal
+        carried in its account. A rule that owned this operand at this door
+        would raise instead, which is the ending taken away by the attempt to
+        describe it.
+        """
+        self.claimed()
+        worker_manager.activate_assignment(
+            self.store, self.port, attempt_id="attempt-1",
+            expect={"work_ref": {"authority_uuid": UUID, "work_id": WORK},
+                    "participant": WHO, "generation": 1})
+        with self.assertRaises(ContractRefusal) as caught:
+            worker_manager.refuse_runtime_preparation(
+                self.store, attempt_id="attempt-1", adapter=object(),
+                refusal=ContractRefusal("integrity", "path",
+                                        "the input root is partial"))
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "path"))
+        self.assertIn("the runtime adapter's list", caught.exception.message)
+        self.assertIsNotNone(
+            worker_manager.attempt_preparation_failure_of(self.store,
+                                                          "attempt-1"),
+            "an unusable adapter took the ending with it")
+
+    def test_a_preparation_refusal_is_this_packages_own_closed_type(self):
+        """The stated rule, exercised rather than asserted in prose.
+
+        The claim is that `refuse_runtime_preparation` types its refusal
+        operand EXACTLY -- this package's own closed `ContractRefusal` and
+        nothing else -- before the attempt row is read or anything is written.
+        So each of these is a plausible stand-in, and each must refuse at that
+        rule rather than reaching the store and failing somewhere later.
+        """
+        class Lookalike:
+            category = "refused"
+            code = "precondition"
+            message = "I look like a refusal"
+            durable = False
+
+        for given in (None, "a refusal", OSError("not a refusal"),
+                      Lookalike()):
+            with self.subTest(given=type(given).__name__):
+                with self.assertRaises(ContractRefusal) as caught:
+                    worker_manager.refuse_runtime_preparation(
+                        self.store, attempt_id="attempt-1", refusal=given)
+                self.assertEqual((caught.exception.category,
+                                  caught.exception.code),
+                                 ("integrity", "schema"))
+                self.assertIn("closed refusal", caught.exception.message)
+                self.assertIsNone(
+                    worker_manager.attempt_preparation_failure_of(
+                        self.store, "attempt-1"),
+                    "a refusal this manager did not type reached the record")
 
     # -- W73629's published offer row ----------------------------------------
 

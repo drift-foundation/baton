@@ -197,13 +197,20 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     # this phase is for.
                     "tests.job_manager.test_delegation",
                     "tests.job_manager.test_documents",
+                    "tests.job_manager.test_launch",
                     "tests.job_manager.test_recovery",
                     "tests.job_manager.test_restart",
                     "tests.job_manager.test_status",
                     "tests.job_manager.test_store",
                     "tests.job_manager.test_submission",
                     "tests.job_manager.test_sweep",
-                    "tests.job_manager.test_tool")
+                    "tests.job_manager.test_tool",
+                    # W76207's production one-worker composition. PARALLEL:
+                    # real stores and filesystem material are confined to one
+                    # temporary root per case; the OCI boundary is a recording
+                    # callable, so no daemon, image, credential or network is
+                    # shared or reached.
+                    "tests.tools.test_single_worker")
 
 # ONE AT A TIME, IN THIS ORDER, AND NEVER BESIDE THE PARALLEL PHASE.
 #

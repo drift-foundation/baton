@@ -37,6 +37,7 @@ from baton_v12.job_manager import (JobStore, ManagerOperations,
                                    owed_acts, receipt_rows, receipts_of,
                                    reconcile, stage_rows, status, submit,
                                    sweep)
+from baton_v12.job_manager.episodes import identities
 from baton_v12.worker_manager import AuthorityPort, accept_offer
 from baton_v12.worker_manager.events import (OFFER_STATE_KIND,
                                              STATE_REVISIONS,
@@ -53,9 +54,8 @@ else:
                           submission)
 
 STAGE = "job-a/implementation"
-FIRST_OFFER = "offer:job-a/implementation"
-SECOND_OFFER = "offer:job-a/implementation#2"
-FIRST_ATTEMPT = "attempt:job-a/implementation"
+FIRST_OFFER, FIRST_ATTEMPT = identities(STAGE, 1)
+SECOND_OFFER, _SECOND_ATTEMPT = identities(STAGE, 2)
 ABANDONED = "abandoned-after-restart"
 
 
@@ -577,8 +577,7 @@ class OneReplacementPerEnding(JobManagerCase):
                 (STAGE, NOW))
 
     def test_an_episode_records_one_ending_and_is_not_rewritten(self):
-        self.acts.canonical_state(SECOND_OFFER, "attempt:job-a/implementation#2",
-                                  "expired")
+        self.acts.canonical_state(SECOND_OFFER, _SECOND_ATTEMPT, "expired")
         sweep(self.jobs, self.acts, now=SOON, attach=True)
         first, second = episodes_of(self.jobs, STAGE)
         self.assertEqual(first["ended_state"], ABANDONED,

@@ -77,7 +77,8 @@ __all__ = ["ACTS", "CONTRACTS", "DEPENDENCY_MEMBERS", "EPISODE_ENDINGS",
            "SUBMISSION_MEMBERS", "SUBMISSION_SCHEMA", "TERMINAL_POLICIES",
            "TERMINAL_STAGE_STATES", "act", "dependency_gate", "job_status",
            "owned_submission", "read_submission", "receipt", "reconciliation",
-           "stage_episode", "stage_id", "stage_status", "status",
+           "stage_episode", "stage_id", "stage_launch", "stage_status",
+           "status",
            "submission_recorded", "submission_signature", "sweep_report"]
 
 SUBMISSION_SCHEMA = "baton.v12.job-submission/1"
@@ -437,14 +438,22 @@ CONTRACTS = {
                 "jobs"), ()),
     "reconciliation": (("stage_id", "episode", "act", "outcome",
                         "operation_id"), ("detail",)),
+    # W76207: ONE claimed stage's attempt at becoming a live worker. It is a
+    # separate document from a reconciliation because it settles no receipt --
+    # the acts it drives are journalled by the Worker Manager, and what this
+    # leaf reports is which stage it asked for, and what came back.
+    "stage.launch": (("stage_id", "episode", "attempt_id", "outcome"),
+                     ("runtime_id", "detail")),
     # `recovered` is the manager's OWN restart report and is null on an
     # ordinary tick, so a reader can tell a resumed process from a running
     # one without keeping count of ticks. `observed` counts the canonical
     # state assertions this tick applied and `replaced` names the episodes it
     # opened because an earlier one ended -- a recovery that did something is
-    # reported rather than inferred from the acts that followed it.
-    "sweep": (("observed_at", "recovered", "observed", "replaced", "acts"),
-              ()),
+    # reported rather than inferred from the acts that followed it. `started`
+    # names every claimed stage this tick asked the deployment to launch,
+    # whatever came back.
+    "sweep": (("observed_at", "recovered", "observed", "replaced", "acts",
+               "started"), ()),
 }
 
 
@@ -503,6 +512,10 @@ def status(**members):
 
 def reconciliation(**members):
     return _emit("reconciliation", members)
+
+
+def stage_launch(**members):
+    return _emit("stage.launch", members)
 
 
 def sweep_report(**members):

@@ -56,11 +56,13 @@ fact and IS provable now; it recovers a posture and satisfies no runtime gate.
 from .authority_port import (AuthorityPort, SESSION_MEMBERS,
                              SESSION_OPERATIONS)
 from .attempts import (AXES, TRANSITIONS, activate_assignment,
-                       attempt_activity_of, attempt_runtime_of,
+                       attempt_activity_of,
+                       attempt_preparation_failure_of, attempt_runtime_of,
+                       attempt_start_failure_of,
                        finalize_quiescent_assignment, label_context,
-                       observe, observe_activity,
-                       reconcile_runtime, record_attempt, request_cancellation,
-                       request_runtime_start)
+                       observe, observe_activity, reconcile_runtime,
+                       record_attempt, refuse_runtime_preparation,
+                       request_cancellation, request_runtime_start)
 from .offers import (OFFER_TTL_SECONDS, SETTLE_SECONDS, accept_offer,
                      certify_profile, claim_operation_id, claimed_offers_for,
                      expire_overdue, issue_offer, recover_on_restart,
@@ -174,7 +176,9 @@ __all__ = ["CUSTODY", "KEEPS_MATERIAL", "LANE_PARTS", "abandon_attempt",
            "SESSION_MEMBERS", "SESSION_OPERATIONS", "SCHEMA_VERSION",
            "SETTLE_SECONDS", "STORE_KIND", "TABLES", "TRANSITIONS",
            "accept_offer", "activate_assignment", "attempt_activity_of",
-           "attempt_runtime_of", "observe_activity",
+           "attempt_preparation_failure_of",
+           "attempt_runtime_of", "attempt_start_failure_of",
+           "observe_activity",
            "certify_profile", "label_context",
            "claim_operation_id", "claimed_offers_for", "expire_overdue",
            # W61984: the ONE already-quiescent assignment finalization. It is
@@ -184,5 +188,11 @@ __all__ = ["CUSTODY", "KEEPS_MATERIAL", "LANE_PARTS", "abandon_attempt",
            "finalize_quiescent_assignment",
            "issue_offer", "manager_signature", "observe",
            "reconcile_runtime", "record_attempt", "recover_on_restart",
+           # W76207: the post-claim preparation this manager could not
+           # complete, recorded and read as its OWN kind. A deployment's
+           # preparation happens outside this manager and its durable ending
+           # must not; it is deliberately not filed under the failed-start
+           # record, which is `intake`'s authority to remove a container.
+           "refuse_runtime_preparation",
            "request_cancellation", "request_runtime_start", "revive_refusal",
            "seal_refusal", "settle_claim", "submit_claim"]

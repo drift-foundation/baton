@@ -111,6 +111,21 @@ def _observed_state(entry):
     # sweeping past.
     if any(record["state"] == "refused" for record in receipts.values()):
         return "exceptional"
+    # AND SO IS A START THIS MANAGER RECORDED AS FAILED. W76207: the runtime
+    # axis alone could not say this. A failed start is journalled as the
+    # manager's own act and reconciliation may ATTACH a runtime id afterwards,
+    # so a projection reading only `runtime` reported a stage as `running` on
+    # the strength of an identity its start never earned. The owner's record
+    # decides, and it is read before the runtime is looked at rather than
+    # after, so the attached identity never gets to answer first.
+    # ...AND SO IS A PREPARATION THIS MANAGER RECORDED AS FAILED. Re-review
+    # [P1]: the two are one answer to this projection and two facts to the
+    # manager, which is why they are asked as two members and joined here. A
+    # preparation that refused never reached an adapter, so it carries no
+    # runtime the axis could have reported either.
+    if observed.get("start_failure") is not None \
+            or observed.get("preparation_failure") is not None:
+        return "exceptional"
     frozen = observed.get("output")
     if type(frozen) is dict:
         disposition = frozen.get("disposition")
@@ -126,6 +141,9 @@ def _observed_state(entry):
         return "exceptional"
     if observed.get("claimed_by") is not None or "claim" in receipts:
         runtime = observed.get("runtime")
+        if type(runtime) is dict \
+                and runtime.get("execution_runtime") == "uncertain":
+            return "exceptional"
         if type(runtime) is dict and runtime.get("runtime_id") is not None:
             return _RUNNING[stage["kind"]]
         return "claimed"

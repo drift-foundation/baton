@@ -57,9 +57,10 @@ from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from ..eventing import EventQueue, pump
 from ..worker_manager import (attempt_activity_of, attempt_runtime_of,
-                              boundaries, claimed_offers_for,
-                              frozen_output_of, issue_offer,
-                              recover_on_restart, submit_claim)
+                              attempt_preparation_failure_of,
+                              attempt_start_failure_of, boundaries,
+                              claimed_offers_for, frozen_output_of,
+                              issue_offer, recover_on_restart, submit_claim)
 from ..worker_manager.events import publish_offer_states
 
 __all__ = ["CANONICAL_OPERATIONS", "INTENT_OPERANDS", "OBSERVATION_MEMBERS",
@@ -88,7 +89,21 @@ INTENT_OPERANDS = ("offer_id", "work_id", "runtime_attempt_id",
 # object here, and a fake in a test may too -- so it is written down rather
 # than discovered from whatever the caller happened to pass.
 OPERATIONS = ("canonical", "canonical_operation", "receipt_of", "recover",
-              "attach", "drain", "admit", "claim", "observe")
+              "attach", "drain", "admit", "claim", "launch", "observe")
+
+# W76207: `launch` is the THIRD act, and it is deliberately not a fourth
+# receipt. `admit` and `claim` are the two acts this control plane journals in
+# its own store; a runtime start is journalled by the Worker Manager under an
+# identity it derives, so replaying it is that manager's question and not a
+# second state machine here. What this leaf owns is WHEN to ask -- level-
+# triggered, from canonical state, on every tick including the first one after
+# a restart.
+#
+# IT IS NOT HIDDEN INSIDE `claim`, and that is the whole correction. A crash
+# after the Authority commits the claim makes the next manager adopt the
+# canonical `offer.settle` receipt WITHOUT calling `claim` again -- so a launch
+# folded into that call would be skipped forever, exactly once, on the path
+# nobody watches.
 
 # What one stage's canonical observation carries. Every member is another
 # package's public read; none of them is this leaf's opinion.
@@ -101,7 +116,25 @@ OPERATIONS = ("canonical", "canonical_operation", "receipt_of", "recover",
 # away the only member that says whose claim was found, and `status` reported
 # the other store's claim as this Job's. The reader answers WHICH offer holds
 # it and this leaf decides whether that offer is the one it proved.
-OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output")
+OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output",
+                       "start_failure", "preparation_failure")
+
+# W76207: `start_failure` is the manager's OWN journalled record that this
+# attempt's start failed, and it is a fifth member rather than something
+# derived from `runtime` because it cannot be derived from it. The manager
+# journals the failure as its own act and reconciliation may still ATTACH a
+# runtime id afterwards, so an attached identity is not evidence that anything
+# is running -- which is exactly how this projection used to report a stage as
+# `running` after its start had durably failed.
+
+# W76207 re-review [P1]: `preparation_failure` is a SIXTH member and not a
+# spelling of the fifth. The manager keeps two records because they mean two
+# things -- a start act that failed, which is also its authority to remove the
+# container that start created, and a post-claim preparation that never
+# reached a start and authorizes nothing. Filing one under the other's kind so
+# this projection would not have to distinguish them was the defect; asking
+# for both and treating either as an ending is what unifies them HERE, where
+# unification is a stage state rather than a durable act.
 
 
 def unobserved():
@@ -112,7 +145,8 @@ def unobserved():
     same object -- which is fine until the day something writes to one.
     """
     return {"claimed_by": None, "runtime": None, "activity": None,
-            "output": None}
+            "output": None, "start_failure": None,
+            "preparation_failure": None}
 
 
 def canonical_operation(act, offer_id):
@@ -295,7 +329,7 @@ class ManagerOperations:
     """
 
     __slots__ = ("control", "port", "events", "_mint_bearer",
-                 "_deliver_bearer")
+                 "_deliver_bearer", "_start_runtime")
 
     # THE CANONICAL STORE IS OPEN. A status document says so, because a
     # projection assembled without the manager can only report what was
@@ -304,7 +338,7 @@ class ManagerOperations:
     canonical = True
 
     def __init__(self, control, port, *, mint_bearer, deliver_bearer,
-                 events=None):
+                 events=None, start_runtime=None):
         self.control = control
         self.port = port
         # THE TRANSPORT IS OURS BY DEFAULT AND SUPPLIABLE ON PURPOSE. One
@@ -319,6 +353,15 @@ class ManagerOperations:
                                                   "the bearer mint")
         self._deliver_bearer = boundaries.capability(
             deliver_bearer, "the deployment's bearer delivery")
+        # THE RUNTIME COMPOSITION IS THE DEPLOYMENT'S, and it is optional here
+        # because a control plane with no way to start a worker is a real and
+        # useful deployment: it still admits, claims, observes and reports. A
+        # deployment that supplies none says so by omission and `launch`
+        # refuses rather than pretending it started something.
+        self._start_runtime = (None if start_runtime is None
+                               else boundaries.capability(
+                                   start_runtime,
+                                   "the deployment's runtime start"))
 
     def canonical_operation(self, act, offer_id):
         return canonical_operation(act, offer_id)
@@ -409,14 +452,53 @@ class ManagerOperations:
         submit_claim(self.control, self.port, offer_id=stage["offer_id"])
         return None
 
+    def launch(self, stage, job):
+        """Drive ONE claimed stage into a live worker, through the deployment.
+
+        WHAT THIS METHOD IS NOT. It is not a composition. The attempt record,
+        the activation, the workspace and input delivery, the retained
+        manifest, the credential materialization, the launch delivery, the
+        adapter and `request_runtime_start` are all the Worker Manager's own
+        public operations, ordered by the deployment that holds the homes and
+        capabilities they need. This leaf holds none of those and is not going
+        to grow them: what it contributes is the canonical operands and the
+        decision that NOW is when to ask.
+
+        IDEMPOTENCE IS THE MANAGER'S, NOT A RECEIPT HERE. Every act in that
+        composition is journalled by its owner under an identity that owner
+        derives, so a second call after a crash replays rather than repeats.
+        Writing a Job-store receipt for the launch would be a second account
+        of a fact somebody else already owns -- and the one this leaf could
+        not keep true, because the crash window it exists for is between the
+        act and the receipt.
+
+        A deployment that supplied no runtime start refuses here rather than
+        answering: a control plane cannot report that a worker is coming up
+        when nothing in it can start one.
+        """
+        if self._start_runtime is None:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"this Job manager was given no runtime start, so it cannot "
+                f"launch stage {name_value(stage['stage_id'])}; a deployment "
+                f"that admits and claims without one is a control plane that "
+                f"reports work it can never begin")
+        return self._start_runtime(stage, job)
+
     def observe(self, stage):
         """Every canonical fact the projection needs, from public readers.
 
-        FOUR READS AND NO OPINION. WHICH offer holds this attempt's claim,
+        FIVE READS AND NO OPINION. WHICH offer holds this attempt's claim,
         whether the attempt has a runtime, how much of that runtime this
-        manager has observed, and what result was frozen. `observation_of`
-        binds them to the stage; this method decides nothing and is not the
-        place a caller should reach for one.
+        manager has observed, what result was frozen, and whether this
+        manager recorded that the start FAILED. `observation_of` binds them to
+        the stage; this method decides nothing and is not the place a caller
+        should reach for one.
+
+        THE FIFTH IS NOT REDUNDANT WITH THE SECOND. A failed start is its own
+        journalled act and reconciliation may attach a runtime id after it, so
+        reading only the runtime would report a stage as running on the
+        strength of an identity its start never earned.
 
         WHOSE CLAIM IT IS, BECAUSE THE MANAGER KNOWS. This answered a boolean
         until re-review [P1, 2026-09-03], and the offer id it discarded was the
@@ -433,7 +515,11 @@ class ManagerOperations:
         return {"claimed_by": _one_claim(self.control, attempt_id),
                 "runtime": attempt_runtime_of(self.control, attempt_id),
                 "activity": attempt_activity_of(self.control, attempt_id),
-                "output": frozen_output_of(self.control, attempt_id)}
+                "output": frozen_output_of(self.control, attempt_id),
+                "start_failure": attempt_start_failure_of(self.control,
+                                                          attempt_id),
+                "preparation_failure": attempt_preparation_failure_of(
+                    self.control, attempt_id)}
 
 
 class Unobserved:
@@ -473,6 +559,9 @@ class Unobserved:
 
     def claim(self, stage):
         return self._refuse("submit a claim")
+
+    def launch(self, stage, job):
+        return self._refuse("start a worker runtime")
 
     def observe(self, stage):
         return unobserved()

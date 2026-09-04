@@ -135,9 +135,10 @@ def _stage(connection, store, job_id, ordinal, stage, recorded_at):
     one nothing could ever admit, so the first one is opened here rather than
     waiting for a sweep to notice it is missing.
 
-    The identities are still DERIVED, and episode 1's are still the plain
-    `offer:{stage_id}` and `attempt:{stage_id}` a schema-1 store wrote. What
-    changed is that they are now stored on a row that can be succeeded.
+    New identities are DERIVED once in `open_first`, then stored on the
+    episode. Schema migration separately preserves the plain identities an
+    old store already used; new stores use bounded worker-contract identities
+    from their first episode onward.
     """
     stage_id = documents.stage_id(job_id, stage["kind"])
     connection.execute(

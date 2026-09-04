@@ -19,11 +19,11 @@ is the difference between recovering a stage and pretending the failure did
 not happen.
 
 IDENTITIES ARE STORED, NOT RE-DERIVED. The derivation below is used once, when
-an episode is opened, and the row is what every later reader asks. That is what
-lets episode 1 keep the plain `offer:{stage_id}` spelling a schema-1 store
-already wrote into the manager's journal while episode 2 gets a new one -- the
-identity a restart reconciles against is the one that was actually used, not
-one recomputed from a rule that has since gained a case.
+an episode is opened, and the row is what every later reader asks. A schema-1
+migration therefore keeps the plain `offer:{stage_id}` identity already used
+by that store, while a newly submitted stage starts with a bounded identity
+the worker contract can carry. A restart reconciles the identity actually
+stored on the episode, never one recomputed from a newer rule.
 
 WHAT DECIDES "AT MOST ONE REPLACEMENT". Not this module: the partial unique
 index `episodes_one_live_per_stage`, plus the journalled operation identity
@@ -34,7 +34,7 @@ row. A duplicate abandonment notice cannot mint a second offer for the same
 reason, in whatever order it arrives.
 """
 
-from ..contracts import ContractRefusal
+from ..contracts import ContractRefusal, digest
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from . import documents, schema
@@ -59,11 +59,13 @@ def end_operation_id(stage_id, episode):
 def identities(stage_id, episode):
     """The offer and attempt ids one new episode is opened with.
 
-    EPISODE 1 KEEPS THE UNADORNED SPELLING. It is the identity a schema-1
-    store already used, so a migrated store's `offer.issue:offer:job-a/…`
-    journal row is still the row its receipt names. Suffixing every episode
-    would have been tidier to read and would have orphaned every operation
-    identity this package has already committed.
+    THE ROW PRESERVES OLD IDENTITIES; THIS DERIVATION DOES NOT REWRITE THEM.
+    Schema-1 migration copies the offer and attempt names already stored on
+    each stage into episode 1, so its journal references remain exact. New
+    episodes need identities the worker contract can actually carry: stage ids
+    contain `/`, while its bounded `opaqueId` grammar deliberately does not.
+    A canonical digest of stage plus episode keeps the derivation stable and
+    bounded without interpreting either value as path or protocol syntax.
     """
     boundaries.identity(stage_id, "a stage id")
     if type(episode) is not int or episode < 1:
@@ -71,8 +73,9 @@ def identities(stage_id, episode):
             "integrity", "schema",
             f"a stage episode is a whole number from 1; this is "
             f"{name_value(episode)}")
-    suffix = "" if episode == 1 else f"#{episode}"
-    return (f"offer:{stage_id}{suffix}", f"attempt:{stage_id}{suffix}")
+    identity = digest({"stage_id": stage_id, "episode": episode})[
+        len("sha256:"):]
+    return f"offer-{identity}", f"attempt-{identity}"
 
 
 def attempting(stage, episode):

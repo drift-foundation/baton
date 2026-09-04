@@ -15,6 +15,7 @@ import unittest
 
 from baton_v12.job_manager import (STAGE_STATES, STATUS_SCHEMA, Unobserved,
                                    receipt_rows, status, submit, sweep)
+from baton_v12.job_manager.episodes import identities
 
 if __package__:
     from .fixtures import (LATER, NOW, FakeOperations, JobManagerCase, job,
@@ -125,12 +126,13 @@ class States(StatusCase):
             stage("integration")])]))
         for stage_id in ("job-a/implementation", "job-a/review",
                          "job-a/integration"):
+            _offer_id, attempt_id = identities(stage_id, 1)
             self.acts.observed(stage_id, claimed_by=True,
-                               runtime={"attempt_id": f"attempt:{stage_id}",
+                               runtime={"attempt_id": attempt_id,
                                         "runtime_id": "runtime-1",
                                         "execution_runtime": "running",
                                         "cleanup": None, "assignment": None},
-                               activity={"attempt_id": f"attempt:{stage_id}",
+                               activity={"attempt_id": attempt_id,
                                          "bytes_observed": 12,
                                          "observed_at": NOW})
         self.assertEqual(self.states(status(self.jobs, self.acts,
@@ -138,6 +140,19 @@ class States(StatusCase):
                          {"job-a/implementation": "running",
                           "job-a/review": "reviewing",
                           "job-a/integration": "integrating"})
+
+    def test_an_uncertain_runtime_is_exceptional_and_never_running(self):
+        submit(self.jobs, submission(jobs=[job("job-a")]))
+        _offer_id, attempt_id = identities("job-a/implementation", 1)
+        self.acts.observed(
+            "job-a/implementation", claimed_by=True,
+            runtime={"attempt_id": attempt_id, "runtime_id": "runtime-1",
+                     "execution_runtime": "uncertain", "cleanup": None,
+                     "assignment": None})
+        self.assertEqual(
+            self.states(status(self.jobs, self.acts,
+                               observed_at=NOW))["job-a/implementation"],
+            "exceptional")
 
     def test_a_completed_stage_opens_its_successor_s_gate(self):
         submit(self.jobs, submission())
@@ -203,22 +218,23 @@ class Locators(StatusCase):
 
     def test_a_running_stage_reports_its_runtime_identity_and_activity(self):
         submit(self.jobs, submission(jobs=[job("job-a")]))
+        _offer_id, attempt_id = identities("job-a/implementation", 1)
         self.acts.observed(
             "job-a/implementation", claimed_by=True,
-            runtime={"attempt_id": "attempt:job-a/implementation",
+            runtime={"attempt_id": attempt_id,
                      "runtime_id": "runtime-1",
                      "execution_runtime": "running", "cleanup": None,
                      "assignment": {"work_ref": {"work_id": "0000000a-W1"},
                                     "participant": "baton.claude",
                                     "generation": 1}},
-            activity={"attempt_id": "attempt:job-a/implementation",
+            activity={"attempt_id": attempt_id,
                       "bytes_observed": 4096, "observed_at": NOW})
         found = self.stage_of(status(self.jobs, self.acts, observed_at=NOW),
                               "job-a/implementation")
         self.assertEqual(found["runtime"]["runtime_id"], "runtime-1")
         self.assertEqual(found["runtime"]["assignment"]["generation"], 1)
         self.assertEqual(found["runtime"]["activity"]["bytes_observed"], 4096)
-        self.assertEqual(found["attempt_id"], "attempt:job-a/implementation")
+        self.assertEqual(found["attempt_id"], attempt_id)
 
     def test_a_frozen_result_reports_the_managers_own_artifact_locators(self):
         submit(self.jobs, submission(jobs=[job("job-a")]))
@@ -246,7 +262,8 @@ class Locators(StatusCase):
                               "job-a/implementation")
         self.assertEqual([one["act"] for one in found["receipts"]], ["admit"])
         self.assertEqual(found["receipts"][0]["operation_id"],
-                         "offer.issue:offer:job-a/implementation")
+                         "offer.issue:" + identities(
+                             "job-a/implementation", 1)[0])
         self.assertEqual(found["receipts"][0]["detail"]["canonical_state"],
                          "committed")
 

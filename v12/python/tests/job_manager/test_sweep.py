@@ -14,8 +14,10 @@ through; and an ordinary refusal leaves the act owed instead of recording one.
 import unittest
 
 from baton_v12.contracts import ContractRefusal
-from baton_v12.job_manager import (JobStore, owed_acts, receipts_of, sweep,
+from baton_v12.job_manager import (JobStore, owed_acts, receipt_rows,
+                                   receipts_of, sweep,
                                    submit)
+from baton_v12.job_manager.episodes import identities
 
 if __package__:
     from .fixtures import (LATER, NOW, FakeOperations, JobManagerCase, job,
@@ -132,7 +134,8 @@ class Delegation(SweepCase):
         held = receipts_of(self.jobs, "job-a/implementation", 1)
         self.assertEqual(sorted(held), ["admit"])
         self.assertEqual(held["admit"]["operation_id"],
-                         "offer.issue:offer:job-a/implementation")
+                         "offer.issue:" + identities(
+                             "job-a/implementation", 1)[0])
         self.assertEqual(held["admit"]["state"], "performed")
         self.assertEqual(held["admit"]["incarnation"], "jobs-1")
 
@@ -140,12 +143,44 @@ class Delegation(SweepCase):
         self.submit()
         for _ in range(4):
             sweep(self.jobs, self.acts, now=NOW)
+        # THE JOURNALLED ACTS, once each. W76207 added a third call to this
+        # surface, so the assertion names the two acts this leaf keeps
+        # RECEIPTS for rather than every call the fake saw -- the receipt is
+        # what makes them once-only, and it is what this case is about.
         self.assertEqual(
-            sorted(self.acts.calls),
+            sorted(one for one in self.acts.calls
+                   if one[0] in ("admit", "claim")),
             [("admit", "job-a/implementation"),
              ("admit", "job-b/implementation"),
              ("claim", "job-a/implementation"),
              ("claim", "job-b/implementation")])
+
+    def test_the_launch_is_asked_every_tick_and_never_receipted(self):
+        """W76207: the third call is LEVEL-TRIGGERED, and that is the point.
+
+        `admit` and `claim` happen once because a receipt says they did. A
+        launch has no receipt here -- the Worker Manager journals the start
+        under its own derived identity -- so this leaf asks again on every
+        tick until canonical state says the runtime is up. That is what makes
+        the first tick after a restart behave exactly like any other, which is
+        the crash window the whole seam exists for.
+        """
+        self.submit()
+        sweep(self.jobs, self.acts, now=NOW)
+        sweep(self.jobs, self.acts, now=NOW)
+        # Both stages are claimed by now, so both are asked, every tick.
+        for _ in range(3):
+            before = len([one for one in self.acts.calls
+                          if one[0] == "launch"])
+            sweep(self.jobs, self.acts, now=NOW)
+            after = len([one for one in self.acts.calls
+                         if one[0] == "launch"])
+            self.assertEqual(after - before, 2)
+        # AND NOTHING WAS RECEIPTED FOR IT. The two acts this leaf owns are
+        # still the only rows in its store.
+        self.assertEqual(sorted({row["act"] for row in
+                                 receipt_rows(self.jobs)}),
+                         ["admit", "claim"])
 
 
 class Refusals(SweepCase):
@@ -238,7 +273,8 @@ class OrdinarySuccess(SweepCase):
         # And then nothing more is owed.
         self.assertEqual(sweep(self.jobs, self.acts, now=LATER)["acts"], [])
         self.assertEqual(
-            sorted(self.acts.calls),
+            sorted(one for one in self.acts.calls
+                   if one[0] in ("admit", "claim")),
             [("admit", "job-a/implementation"), ("admit", "job-a/review"),
              ("admit", "job-b/implementation"),
              ("claim", "job-a/implementation"), ("claim", "job-a/review"),
@@ -257,8 +293,10 @@ class Persistence(SweepCase):
                          ["admit", "admit"])
         self.assertEqual([one["operation_id"]
                           for one in owed_acts(resumed, self.acts)],
-                         ["offer.issue:offer:job-a/implementation",
-                          "offer.issue:offer:job-b/implementation"])
+                         ["offer.issue:" + identities(
+                             "job-a/implementation", 1)[0],
+                          "offer.issue:" + identities(
+                              "job-b/implementation", 1)[0]])
 
 
 if __name__ == "__main__":

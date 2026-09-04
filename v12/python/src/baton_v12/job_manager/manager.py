@@ -136,9 +136,124 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
         acts.append(_delegate(store, operations, owed, entry["attempt"],
                               submission.job_of(store,
                                                 entry["stage"]["job_id"])))
+    # THE LAUNCH PASS IS LAST, AND IT REACQUIRES STATE FIRST. W76207: what a
+    # stage is owed here depends on receipts this same tick may have written,
+    # so deriving it from the `held` above would be deciding from state the
+    # tick has already moved past.
+    started = _launch(store, operations, projection.stage_states(store,
+                                                                 operations))
     return documents.sweep_report(observed_at=now, recovered=recovered,
                                   observed=observed, replaced=replaced,
-                                  acts=acts)
+                                  acts=acts, started=started)
+
+
+def _launch(store, operations, held):
+    """Ask the deployment to drive every CLAIMED stage into a live worker.
+
+    LEVEL-TRIGGERED, WHICH IS THE WHOLE POINT. The eligibility is a fact about
+    canonical state -- claimed, with no runtime and no recorded start failure --
+    so an ordinary tick and the first tick after a restart ask exactly the same
+    question and get the same answer. Folding this into `claim()` would have
+    made it edge-triggered on an act a resumed manager deliberately does not
+    repeat: a crash after the Authority commits the claim leaves the next
+    incarnation adopting the canonical settlement without calling `claim`, and
+    a launch hidden in there would be skipped once, permanently, on the one
+    path nobody is watching.
+
+    A FAILURE IS CONTAINED TO ITS STAGE. Unlike a delegated act, this pass does
+    not raise: the acceptance says a failed start must contain that stage and
+    still leave every other stage observable, so each launch is reported as its
+    own outcome and the loop continues. A DURABLE refusal is the Worker
+    Manager's recorded start failure, which the next projection reads as
+    `exceptional` through `attempt_start_failure_of` or its preparation
+    sibling; an ordinary one is a condition this tick could not satisfy and
+    the next tick asks again.
+
+    Nothing is written to the Job store here. `admit` and `claim` remain the
+    only receipt acts this leaf owns; the runtime start is journalled by its
+    owner under an identity that owner derives, so replay is that manager's
+    question rather than a second account kept here.
+    """
+    started = []
+    for stage_id in sorted(held):
+        entry = held[stage_id]
+        # `claimed` is exactly "the claim is taken and no runtime is attached".
+        # `running` already has one, and a recorded start failure has already
+        # made the stage `exceptional`, so neither is asked again.
+        if entry["state"] != "claimed":
+            continue
+        attempt = entry["attempt"]
+        job = submission.job_of(store, attempt["job_id"])
+        try:
+            answer = operations.launch(attempt, job)
+        except ContractRefusal as refusal:
+            detail = {"category": refusal.category, "code": refusal.code,
+                      "message": refusal.message}
+            if _recorded_failure(operations, attempt, job):
+                # THE CANONICAL ENDING EXISTS, so this stage is over and the
+                # next projection reads it as `exceptional`. Containing it here
+                # is what keeps one failed stage from ending the sweep.
+                started.append(documents.stage_launch(
+                    stage_id=stage_id, episode=attempt["episode"],
+                    attempt_id=attempt["attempt_id"], outcome="refused",
+                    detail=detail))
+                continue
+            if refusal.durable:
+                # A DURABLE ENDING NOBODY RECORDED IS NOT A STAGE OUTCOME.
+                # Review [P1]: reporting it as `refused` left the stage
+                # `claimed` with no canonical failure, so the next tick asked
+                # again and the one after that, forever. The deployment's
+                # composition owns recording its own durable endings through
+                # the Worker Manager; one that refuses durably and journals
+                # nothing has left this control plane no fact to project and
+                # no reason to stop, and saying so loudly is the only answer
+                # that is not a silent retry loop.
+                raise ContractRefusal(
+                    "integrity", "schema",
+                    f"the launch of stage {name_value(stage_id)} refused "
+                    f"durably as {name_value(refusal.code)} and the Worker "
+                    f"Manager holds no failed-start record for attempt "
+                    f"{name_value(attempt['attempt_id'])}; a durable ending "
+                    f"this control plane cannot observe would leave the stage "
+                    f"claimed and retried on every tick") from refusal
+            # AN ORDINARY REFUSAL IS A CONDITION, not an ending: the workspace
+            # is not ready, the worker has not accepted. The next tick asks
+            # again, which is what level-triggered means.
+            started.append(documents.stage_launch(
+                stage_id=stage_id, episode=attempt["episode"],
+                attempt_id=attempt["attempt_id"], outcome="deferred",
+                detail=detail))
+            continue
+        except Exception as fault:
+            # THE ADAPTER FAULT PATH, and review [P1] is why it is here.
+            # `request_runtime_start` journals the failed start and then
+            # RE-RAISES the adapter's own typed fault, so a real engine error
+            # is not a `ContractRefusal` at all -- it escaped this loop,
+            # skipped every stage sorted after it, and ended `serve` even
+            # though the canonical failure record now existed.
+            #
+            # ONLY A FAULT THE MANAGER PROVED IT RECORDED IS CONTAINED. A
+            # programming error has no such record, and turning one into a
+            # per-stage outcome would bury it as a transient condition.
+            if not _recorded_failure(operations, attempt, job):
+                raise
+            started.append(documents.stage_launch(
+                stage_id=stage_id, episode=attempt["episode"],
+                attempt_id=attempt["attempt_id"], outcome="refused",
+                detail={"category": "runtime-observation", "code": "fault",
+                        "message": f"{type(fault).__name__}: {fault}"}))
+            continue
+        # THE RUNTIME IDENTITY IS THE MANAGER'S ANSWER, not a row this leaf
+        # went looking for. An answer that names none is not a failure -- an
+        # uncertain reconciliation carries no identity -- so it is reported as
+        # what it is and the next tick observes rather than starting again.
+        runtime_id = (answer.get("runtime_id") if type(answer) is dict
+                      else None)
+        started.append(documents.stage_launch(
+            stage_id=stage_id, episode=attempt["episode"],
+            attempt_id=attempt["attempt_id"], outcome="started",
+            runtime_id=runtime_id))
+    return started
 
 
 def _observe(store, operations, *, attach):
@@ -198,6 +313,25 @@ def _replace(store, operations):
         opened.append(episodes.open_next(store, stage_id,
                                          entry["history"][-1]))
     return opened
+
+
+def _recorded_failure(operations, attempt, job):
+    """Did the Worker Manager durably record that THIS attempt will not run?
+
+    The one question that decides whether a launch failure is this stage's
+    ending or this control plane's problem. It is asked through the same bound
+    observation everything else here goes through, so a foreign attempt under
+    a derived id cannot answer it -- and it is asked AFTER the failure, because
+    the record is written by the act that just failed.
+
+    A refusal while asking is not an answer and is not swallowed: an
+    unreadable or colliding failure record is an integrity problem in its own
+    right, and `observation_of` raises it rather than letting this pass
+    conclude that nothing was recorded.
+    """
+    observed = delegation.observation_of(operations, attempt, job)
+    return (observed["start_failure"] is not None
+            or observed["preparation_failure"] is not None)
 
 
 def apply_offer_state(store, event):

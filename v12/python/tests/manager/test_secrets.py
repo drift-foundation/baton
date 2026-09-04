@@ -1132,6 +1132,26 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
                           "ONE atomic read; the assignment is `documents."
                           "assignment` composed of owned row values and no "
                           "bearer is reachable from any of it",
+    "attempt_start_failure_of":
+        "W76207: answers this manager's OWN committed record that a start "
+        "failed, read back from its journal under the identity "
+        "`start_failure_operation_id` derives from the attempt row. The "
+        "document is the one `documents.runtime_start_failed` composed -- "
+        "attempt, fixed assignment, start operation, runtime id, execution "
+        "axis and the typed adapter fault -- so nothing in it is a value a "
+        "caller supplied and no bearer, verifier or credential is reachable "
+        "from any of it. A refused row under that identity is a collision "
+        "rather than evidence and is answered as absence",
+    "attempt_preparation_failure_of":
+        "W76207: answers this manager's OWN committed record that a post-claim "
+        "preparation failed, read back from its journal under the identity the "
+        "attempt row derives. The document is the one "
+        "`documents.runtime_preparation_failed` composed -- attempt, fixed "
+        "assignment, runtime id, execution axis and the typed refusal the "
+        "deployment raised -- so nothing in it is a value a caller supplied "
+        "and no bearer, verifier or credential is reachable from any of it. A "
+        "refused row under that identity is a collision rather than evidence "
+        "and is answered as absence",
     "label_context": "projects the two label members off the activated row; "
                      "there is no operand to construct from",
     "AuthorityPort": "a capability wrapper; it constructs no document",
@@ -1161,6 +1181,12 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
     "activate_assignment": "the same",
     "observe": "a closed axis vocabulary and its own answer",
     "request_runtime_start": "the same",
+    # W76207: the post-claim preparation this manager could not complete. It
+    # composes `documents.runtime_preparation_failed` out of the attempt row
+    # and the closed refusal the deployment raised; the message it carries is
+    # walked for §13 at `manager_signature` like every other durable operand,
+    # and no adapter, engine answer or credential is reachable from any of it.
+    "refuse_runtime_preparation": "the same",
     "reconcile_runtime": "the same",
     "request_cancellation": "the same; the adapter settlements ride back "
                             "uninterpreted and reach no durable surface here",

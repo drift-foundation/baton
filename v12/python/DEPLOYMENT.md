@@ -1,5 +1,137 @@
 # Deploying the v12 Worker Manager
 
+## Running the persistent manager with one implementation worker
+
+W76207 supplies the first production operations factory for the persistent Job
+Manager: `tools.single_worker:factory`. It is intentionally one worker, one
+implementation Work, one profile and one image. Worker selection, capacity,
+review and integration belong to later Work and are not hidden defaults here.
+
+Create a new Job store for this first runnable bootstrap. Stores populated by a
+pre-W76207 build retain their already-recorded episode identities for audit and
+restart integrity; those old identities predate the worker contract's bounded
+`opaqueId` grammar and are not rewritten. Every episode created by this build
+uses a deterministic contract-valid identity and is restartable from its row.
+
+The factory reads the absolute path in `BATON_V12_SINGLE_WORKER_CONFIG`. That
+environment variable contains a path only. In particular, neither the offer
+bearer nor provider credential bytes are configuration or environment values.
+The bearer exists for the immediate offer-accept call and is then discarded;
+credentials are read lazily from the invoking user's private source registry.
+
+The configuration is one JSON object with schema
+`baton.v12.single-worker-deployment/1` and exactly these members:
+
+| Member | Required value |
+|---|---|
+| `schema` | `baton.v12.single-worker-deployment/1` |
+| `authority_store`, `authority_uuid` | Absolute Authority store path and its exact 32-character UUID |
+| `participant`, `principal` | The one endpoint and the principal Authority resolves it to |
+| `profile_name`, `profile_digest` | The one certified implementation runtime profile |
+| `policy_digest` | The Job and input manifest's exact policy digest |
+| `adapter_name`, `adapter_digest` | The deployment's fixed OCI adapter identity |
+| `engine`, `image_digest`, `network` | `docker` or `podman`, an immutable image digest, and the approved network name |
+| `workspace_storage`, `workspace_group` | Absolute persistent storage and the provisioned non-authority gid described below |
+| `launch_home`, `credential_home` | Absolute persistent launch state and manager-private credential homes |
+| `credential_sources` | Absolute private user registry described below; the public production factory refuses `null` |
+| `credential_slots`, `credential_profile` | Closed logical slot names and the trusted provider/reference mapping for them |
+| `input_source`, `input_manifest` | Absolute already-staged source directory and its complete frozen `inputManifest` document |
+| `launch_contract`, `launch_role` | The immutable worker launch contract and `implementation` role |
+
+Unknown or missing members refuse. Before an offer exists, the factory checks
+the complete input manifest, relates its Authority, assignment contract,
+policy, profile and image to the configured values, measures `input_source`,
+validates the credential mapping and OCI posture, opens Authority against the
+expected UUID, and proves the configured participant resolves to the
+configured principal and Work. The runtime composer receives only the
+restricted participant-bound Authority port—not the Authority store path,
+bootstrap object, principal lookup or credential-source registry. A direct
+test or embedding may inject a credential-provider capability through the
+Python construction seam; that seam is why the schema accepts `null`, but the
+public `module:factory` deployment does not.
+
+Submit a Job document once, then start the service. The Job and control stores,
+all three homes, source, config and Authority store are outside the checkout.
+Use a fresh incarnation value for every manager process start:
+
+    cd /opt/baton/v12/python
+    PYTHONPATH=src:. python3 -m tools.job_manager \
+      --store /var/lib/baton/v12/jobs.sqlite3 \
+      --incarnation submit-20260903-01 \
+      submit --document /etc/baton/bootstrap-job.json
+
+    BATON_V12_SINGLE_WORKER_CONFIG=/etc/baton/single-worker.json \
+    PYTHONPATH=src:. python3 -m tools.job_manager \
+      --store /var/lib/baton/v12/jobs.sqlite3 \
+      --incarnation manager-20260903-01 \
+      serve --control /var/lib/baton/v12/worker-control.sqlite3 \
+      --operations tools.single_worker:factory --interval 5
+
+Ordinary status is a separate read-only command and needs no Authority or
+factory capability:
+
+    PYTHONPATH=src:. python3 -m tools.job_manager \
+      --store /var/lib/baton/v12/jobs.sqlite3 \
+      --incarnation status-20260903-01 \
+      status --control /var/lib/baton/v12/worker-control.sqlite3
+
+After a crash, run the same `serve` command with a new incarnation and the same
+durable paths and configuration. The manager adopts the accepted claim,
+attempt, workspace/input, credential and launch records, reconciles a requested
+or running OCI identity, and does not issue a second offer, claim or runtime.
+An uncertain runtime is reported `exceptional`; it is never implicit permission
+to start another container.
+
+A post-claim preparation that cannot be completed — a workspace that is not
+this attempt's own, an input root carrying material but no protocol pair, a
+staged source whose bytes changed, a manifest collision, a credential source
+that refuses, a launch document that cannot be adopted — is recorded by the
+Worker Manager as this attempt's **failed preparation**. That is its own
+durable record and it is deliberately not the failed-start record: it says
+this deployment's composition could not carry the attempt further, it says
+nothing about whether a start act ever happened, and it authorises no removal.
+The stage is then reported `exceptional` and is not asked again; every other
+stage stays observable and the loop keeps serving. Nothing contradictory is
+repaired: the material is left exactly as it was found, for an operator to
+look at.
+
+Before that record is written, anything the composition still holds is ended
+or named, depending on which side of the start request it is on. **Before a
+start**, no runtime can have received either delivery, so the credential
+delivery is torn down and the launch document discarded — including one an
+earlier process published and this one adopted. **After a start**, neither is
+removed, because a container may hold the mount; instead the manager asks the
+engine which runtime carries this attempt's whole label set and attaches the
+one it identifies, so what is left running is named in its own records for an
+operator to end. Nothing is stopped from here: every operation that stops a
+runtime is fenced at the Authority first, and this deployment holds no
+authority to fence the Work it is executing.
+
+**The naming and the ending are one act.** The engine is asked before anything
+is written, and the attachment its answer implies is committed inside the same
+transaction that writes the preparation record. Neither can be left without
+the other by a process that dies: an attached runtime alone would project the
+stage `running`, and a record alone would project it `exceptional`, and in
+both cases the loop calls this deployment no further. What an interrupted act
+leaves is the stage still `claimed`, which the next process drives through the
+same path from canonical state. An attachment the manager refuses — a runtime
+whose observed state cannot follow the axis it holds — is rolled back on its
+own and the record still stands, describing the axes as they really are.
+
+The restart window after a published credential delivery is held to the same
+rule. If the process died after the engine created the container and after the
+delivery was published, restart adopts this attempt's exact launch document —
+it never authors a replacement once a start has been requested, and a document
+that is missing or that cannot be proved ends the stage under the naming rule
+above. Otherwise it proves the live runtime through the manager's own
+credential recovery before rereading any bearer: the container's identity,
+labels and mounts must all agree. When they do not, that recovery fails
+closed, accepts no output, stops only what it identified exactly, performs
+bounded cleanup, and its whole account becomes this attempt's recorded
+preparation failure. The stage is
+`exceptional` and is not asked again, with the host left exactly as the
+recovery left it for an operator to look at.
+
 ## Provisioning the workspace group
 
 A worker runs as the fixed non-root identity `65532:65532`, which is not the

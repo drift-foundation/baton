@@ -183,6 +183,17 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
             "request_runtime_start": ((store, _NoAdapter()),
                                       dict(attempt_id="attempt-1"),
                                       ["attempt_id"]),
+            # W76207: the post-claim preparation this manager could not
+            # complete, and the read of its record. The writer's refusal
+            # operand is this manager's own closed type rather than caller
+            # text, so the attempt id is the one durable text either takes.
+            "refuse_runtime_preparation": (
+                (store,),
+                dict(attempt_id="attempt-1",
+                     refusal=ContractRefusal("refused", "precondition",
+                                             "the preparation refused")),
+                ["attempt_id"]),
+            "attempt_preparation_failure_of": ((store, "attempt-1"), {}, [1]),
             "request_cancellation": ((store, port, _NoAgent(), _NoAdapter()),
                                      dict(attempt_id="attempt-1"),
                                      ["attempt_id"]),
@@ -327,6 +338,7 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
             # takes one caller text; the writer takes that same text beside a
             # count, which is not text and is proved on its own.
             "attempt_activity_of": ((store, "attempt-1"), {}, [1]),
+            "attempt_start_failure_of": ((store, "attempt-1"), {}, [1]),
             "observe_activity": (
                 (store,), dict(attempt_id="attempt-1", bytes_observed=0),
                 ["attempt_id"]),

@@ -11,6 +11,7 @@ import os
 import tempfile
 import unittest
 
+from baton_v12.contracts import ContractRefusal
 from baton_v12.job_manager import JobStore, ManagerOperations, stage_intent
 from baton_v12.worker_manager import (ControlStore, certify_profile,
                                       manager_signature)
@@ -101,7 +102,8 @@ class FakeSession:
 def _unobserved():
     """A stage nothing canonical has happened to yet."""
     return {"claimed_by": None, "runtime": None, "activity": None,
-            "output": None}
+            "output": None, "start_failure": None,
+            "preparation_failure": None}
 
 
 # The kind the MANAGER journals each delegated act under. The fake below signs
@@ -254,6 +256,8 @@ class FakeOperations:
         self.observations = {}
         self.refusals = {}
         self.states = {}
+        self.launches = {}
+        self.recorded_failures = {}
         self.events = EventQueue()
         self.calls = []
 
@@ -295,6 +299,34 @@ class FakeOperations:
 
         return pump(self.events, handlers, quiescent=tuple(quiescent))
 
+    def starts(self, stage_id, answer=None):
+        """Configure what this deployment's runtime start answers, or raises."""
+        self.launches[stage_id] = ({"runtime_id": f"runtime-{stage_id}"}
+                                   if answer is None else answer)
+
+    def fails(self, stage_id, error, *, records=True):
+        """Fail this stage's launch, with or without a canonical record.
+
+        `records=True` is the production shape: `request_runtime_start`
+        journals the failed start and THEN lets the fault out, so the Job
+        manager can prove the ending exists. `records=False` is the deployment
+        that refused durably and journalled nothing, which the manager must
+        not quietly retry forever.
+        """
+        self.launches[stage_id] = error
+        if records:
+            from baton_v12.job_manager.episodes import identities
+
+            _offer_id, attempt_id = identities(stage_id, 1)
+            self.recorded_failures[stage_id] = {
+                "attempt_id": attempt_id, "expect": None,
+                "start_operation_id": f"runtime.start:{stage_id}",
+                "runtime_id": None, "execution_runtime": "absent",
+                "failure": {"kind": "fault", "fault": type(error).__name__,
+                            "message": str(error)}}
+        else:
+            self.recorded_failures.pop(stage_id, None)
+
     def canonical_state(self, offer_id, attempt_id, state):
         """Pretend the manager's offers table holds this row's state."""
         self.states[offer_id] = {"offer_id": offer_id,
@@ -318,6 +350,33 @@ class FakeOperations:
         return self._act("claim", stage, {"offer_id": stage["offer_id"],
                                           "state": "claimed"})
 
+    def launch(self, stage, job):
+        """The deployment's runtime start, as a case configures it.
+
+        DEFAULT IS A REFUSAL, and it is the honest one: a deployment that was
+        given no runtime start cannot begin work, which is exactly what
+        `ManagerOperations` answers with no `start_runtime`. A case that wants
+        a live worker says so with `starts`.
+        """
+        stage_id = stage["stage_id"]
+        self.calls.append(("launch", stage_id))
+        held = self.launches.get(stage_id)
+        if held is None:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"this fake deployment was given no runtime start for "
+                f"{stage_id}")
+        if isinstance(held, BaseException):
+            # THE RECORD IS WRITTEN BEFORE THE RAISE, exactly as the real
+            # `request_runtime_start` does it: the failed start is journalled
+            # and only then does the adapter's fault come back out. A case that
+            # wants the unrecorded variant says so with `records=False`.
+            if stage_id in self.recorded_failures:
+                self.observed(stage_id, claimed_by=True,
+                              start_failure=self.recorded_failures[stage_id])
+            raise held
+        return held
+
     def observe(self, stage):
         return self.observations.get(stage["stage_id"], _unobserved())
 
@@ -338,16 +397,21 @@ class FakeOperations:
         held = _unobserved()
         held.update(members)
         if held["claimed_by"] is True:
-            held["claimed_by"] = f"offer:{stage_id}"
+            from baton_v12.job_manager.episodes import identities
+
+            held["claimed_by"] = identities(stage_id, 1)[0]
         self.observations[stage_id] = held
 
     def frozen(self, stage_id, disposition, artifacts=None):
+        from baton_v12.job_manager.episodes import identities
+
+        _offer_id, attempt_id = identities(stage_id, 1)
         self.observed(stage_id, claimed_by=True,
-                      runtime={"attempt_id": f"attempt:{stage_id}",
+                      runtime={"attempt_id": attempt_id,
                                "runtime_id": "runtime-1",
                                "execution_runtime": "ended",
                                "cleanup": None, "assignment": None},
-                      output={"attempt_id": f"attempt:{stage_id}",
+                      output={"attempt_id": attempt_id,
                               "result_id": f"result-{stage_id}",
                               "disposition": disposition,
                               "manifest_digest": "sha256:" + "c" * 64,

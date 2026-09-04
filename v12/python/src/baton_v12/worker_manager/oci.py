@@ -1545,6 +1545,24 @@ class OciAdapter:
             _refuse(f"an interactive channel is asked for or it is not; this "
                     f"is {name_value(interactive)}")
         self.interactive = interactive
+        # W76207 re-review 2026-09-03T22:20:58Z [P1]: WHAT THIS ADAPTER
+        # DECIDED ABOUT THE TWO MOUNTS, kept so a caller can read it.
+        #
+        # `_undelivered` already asks the engine which runtimes carry this
+        # attempt's labels and settles or refuses to settle each delivery on
+        # the answer -- and it said so only in the refusal PROSE its caller
+        # composes. A deployment holding the same two roots therefore had no
+        # way to know an owner had already decided, and unwound them itself:
+        # a start that created a container and then failed left that container
+        # running over a credential root and a launch document this manager
+        # had just removed. Prose is not an API, so the answer is kept beside
+        # the deliveries it is about.
+        #
+        # `None` MEANS NOBODY DECIDED, which is the case a caller must handle
+        # itself: every exit that never reached the settlement -- an
+        # unmountable root, a delivery belonging to another attempt, a refusal
+        # raised before `start` was called at all -- leaves this untouched.
+        self.settlement = None
 
     def _mounts_the_authorized_root(self, authorized):
         """The one input bind this delivery may carry, and it is the proved one.
@@ -2057,6 +2075,10 @@ class OciAdapter:
     def _undelivered(self, labels):
         """W6634: the credential ending for a start that produced no runtime.
 
+        THE ANSWER IS KEPT ON THIS ADAPTER as well as returned, because the
+        caller that composes the refusal is not the only one that needs it:
+        see `settlement` for the deployment this was invisible to.
+
         Fourth review [P1]: a start the engine declined raised immediately, so
         the volatile root and the live registration stayed while no runtime id
         and no lifecycle record existed. The single `destroy` path this Work
@@ -2076,6 +2098,12 @@ class OciAdapter:
         distinguishable from one that failed cleanly -- which is exactly what
         "cleanup uncertainty is not settlement" requires.
         """
+        self.settlement = self._settling(labels)
+        return self.settlement
+
+    def _settling(self, labels):
+        """The settlement itself. Split from the recording above so that every
+        one of its exits is kept without repeating the assignment at each."""
         # ONE LISTING, TWO ENDINGS. W26291 re-review [P1]: the launch root had
         # no ending at all, so a refused start left it behind -- and it is not
         # the credential's dependent, because a delivery with no credential

@@ -34,6 +34,13 @@ __all__ = ["CONTRACTS", "ASSIGNMENT", "profile_certified",
            "offer_accepted", "claim_recorded", "settlement_observed",
            "recoverable_offer", "recovery_report", "assignment", "work_ref",
            "WORK_REF", "RUNTIME_LABELS", "RUNTIME_START_FAILED",
+           # W76207 re-review [P1]: THE MEMBER SET IS EXPORTED AND THE
+           # CONSTRUCTOR IS NOT. The record's members are read back by
+           # `attempts.attempt_preparation_failure_of`, so that name is public
+           # for the same reason its sibling's is. Composing the document is
+           # this package's own act, and a public constructor would be one
+           # more trust-domain crossing for a caller nobody has.
+           "RUNTIME_PREPARATION_FAILED",
            "DESTROY_COMMAND",
            "FAILED_START_DESTROY_COMMAND",
            "attempt_recorded", "assignment_activated", "observation",
@@ -156,6 +163,38 @@ CONTRACTS = {
     "runtime.start-failed": (("attempt_id", "expect", "start_operation_id",
                               "runtime_id", "execution_runtime", "failure"),
                              ()),
+    # W76207: THE OTHER POST-CLAIM FAILURE, and it is a sibling of the record
+    # above rather than a spelling of it.
+    #
+    # A deployment composes an assignment's workspace, input root, manifests,
+    # credential and launch delivery after the claim, and CONTINUES that
+    # composition on every later tick until a runtime is observable. This is
+    # that deployment's ending: its composition could not carry the attempt
+    # further. Re-review 2026-09-03T19:24:19Z [P1] corrected what this used to
+    # claim -- that no start act happened and none ever will. It says nothing
+    # about whether a start act occurred: a continuation refused after an
+    # earlier process started a runtime is recorded here too, and the record
+    # above remains the only account of a start act.
+    #
+    # SO IT CARRIES NO `start_operation_id` -- there is no act OF ITS OWN for
+    # it to name -- AND IT AUTHORIZES NOTHING. `intake._failed_start_record`
+    # reads the sibling as this manager's account that a runtime CAME FROM a
+    # failed start, which is a destruction authorization; filing a preparation
+    # under that kind would give one durable row two meanings and make one of
+    # them an authority to remove a container. What reads this one is the
+    # projection that has to report the stage.
+    #
+    # The axis and the runtime it names are the facts as they stood when the
+    # record was written -- after any identification its writer performed, and
+    # W76207 re-review 2026-09-03T21:24:16Z [P1] makes that exact: the
+    # identification is committed BY THIS ROW'S OWN ACT, so the two facts land
+    # together or neither does. They are named for the same reason the sibling
+    # names them: `None` is the honest statement that nothing was established,
+    # and an optional member would let a record omit the fact a reader needs
+    # most.
+    "runtime.preparation-failed": (("attempt_id", "expect",
+                                    "runtime_id", "execution_runtime",
+                                    "failure"), ()),
     # W32576: THE OTHER MANAGER-OWNED ENDING RECORD, and it is a sibling of
     # the one above rather than a variant of it. A start that failed and a
     # handshake that refused are two different facts about one attempt -- the
@@ -489,6 +528,7 @@ RUNTIME_LABELS = CONTRACTS["runtime.labels"][0]
 # process did not write on this run, and the crossing compares four of its
 # members against the attempt row -- so it is owned as a document first.
 RUNTIME_START_FAILED = CONTRACTS["runtime.start-failed"][0]
+RUNTIME_PREPARATION_FAILED = CONTRACTS["runtime.preparation-failed"][0]
 DESTROY_COMMAND = CONTRACTS["destroy.command"][0]
 FAILED_START_DESTROY_COMMAND = CONTRACTS["destroy.failed-start-command"][0]
 # W32576: read back by the refused-session cleanup crossing, for the same
@@ -833,6 +873,24 @@ def runtime_start_failed(**members):
     of the fault than the one that was raised.
     """
     return _emit("runtime.start-failed", members)
+
+
+def runtime_preparation_failed(**members):
+    """W76207: THE POST-CLAIM PREPARATION THAT NEVER REACHED A START.
+
+    Its sibling above is written when the adapter was called and the start act
+    failed; this one is written when the deployment could not compose the
+    material a start needs at all -- a workspace that is not this attempt's
+    own, an input root carrying material and no protocol pair, a credential
+    delivery whose live runtime could not be proved.
+
+    NO `start_operation_id`, AND THE ABSENCE IS THE CONTRACT. There was no
+    start act for this to have followed, and naming one would be this manager
+    writing down an operation it never performed. It is also what keeps the
+    two records apart at `intake`, where the failed-start row is a
+    DESTRUCTION AUTHORIZATION and this one authorizes nothing at all.
+    """
+    return _emit("runtime.preparation-failed", members)
 
 
 def runtime_cancel(**members):

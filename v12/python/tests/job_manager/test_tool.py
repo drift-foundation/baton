@@ -203,5 +203,108 @@ class TheLoop(JobManagerCase):
         self.assertEqual(TICK_SECONDS, 5)
 
 
+# W76207: the factory this module's release cases import by `module:attribute`,
+# exactly as an operator names a production one.
+_ACQUIRED = []
+
+
+class _Released:
+    """An operations object that records having been released."""
+
+    canonical = False
+
+    def __init__(self, name):
+        self.name = name
+        _ACQUIRED.append(name)
+
+    def close(self):
+        _ACQUIRED.remove(self.name)
+
+
+def releasing_factory(store, control):
+    return _Released("operations")
+
+
+def failing_factory(store, control):
+    """A factory that acquires one handle and THEN fails.
+
+    The shape review [P1] named: an Authority opened, and a refusal on the next
+    operand. Its own partial acquisition is its to clean up, and it does -- the
+    tool never saw it.
+    """
+    held = _Released("half-built")
+    try:
+        raise ContractRefusal("integrity", "schema",
+                              "the configured image digest is not a digest")
+    except BaseException:
+        held.close()
+        raise
+
+
+def leaking_factory(store, control):
+    """The same, WITHOUT cleaning up after itself.
+
+    Kept so the boundary this tool can and cannot hold is a measured fact
+    rather than a claim: the handle stays acquired, and the tool is not what
+    lost it.
+    """
+    _Released("leaked")
+    raise ContractRefusal("integrity", "schema", "and nothing was released")
+
+
+class TheFactoryHandleIsReleased(ToolCase):
+    """Review [P1]: construction now happens INSIDE the release boundary.
+
+    The earlier version called the factory in front of the `try`, so an object
+    it returned was released but a factory that failed mid-construction left
+    nothing for the tool to close -- while a comment and PROGRESS.md both
+    claimed construction-failure cleanup the code did not provide.
+    """
+
+    def setUp(self):
+        super().setUp()
+        _ACQUIRED.clear()
+        store = self.store()
+        submit(store, submission(jobs=[job("job-a")]))
+        store.close()
+
+    def serve_with(self, attribute):
+        return self.run_tool(
+            "--store", self.job_path, "--incarnation", "jobs-1", "serve",
+            "--control", self.control_path, "--once",
+            # THIS MODULE, BY THE NAME IT IS ACTUALLY RUNNING UNDER. Naming
+            # it literally imported a SECOND copy under discovery -- the
+            # package path and the top-level path are two module objects with
+            # two `_ACQUIRED` lists, so the case observed the wrong one.
+            "--operations", f"{__name__}:{attribute}")
+
+    def test_a_returned_operations_object_is_always_released(self):
+        with self.assertRaises(Exception):
+            # `_Released` refuses every act, so the run fails -- which is the
+            # point: the release must happen however the block is left.
+            self.serve_with("releasing_factory")
+        self.assertEqual(_ACQUIRED, [])
+
+    def test_a_factory_that_cleans_up_its_own_failure_leaves_nothing_held(self):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.serve_with("failing_factory")
+        self.assertIn("not a digest", caught.exception.message)
+        self.assertEqual(_ACQUIRED, [],
+                         "the factory released what it had taken")
+
+    def test_a_factory_that_leaks_is_not_hidden_by_this_tool(self):
+        """The honest limit, measured rather than promised.
+
+        Nothing here ever saw the leaked handle, so the tool cannot close it.
+        The original failure still reaches the operator unchanged, which is
+        the property that matters: a cleanup problem must not replace the
+        refusal that caused it.
+        """
+        with self.assertRaises(ContractRefusal) as caught:
+            self.serve_with("leaking_factory")
+        self.assertIn("nothing was released", caught.exception.message)
+        self.assertEqual(_ACQUIRED, ["leaked"])
+
+
 if __name__ == "__main__":
     unittest.main()

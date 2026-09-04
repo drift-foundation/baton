@@ -56,7 +56,8 @@ class CanonicalIdentities(JobManagerCase):
     def test_the_manager_journals_the_admit_identity_this_build_derives(self):
         self.acts.admit(self.stage, self.job)
         derived = canonical_operation("admit", self.stage["offer_id"])
-        self.assertEqual(derived, "offer.issue:offer:job-a/implementation")
+        self.assertEqual(derived, f"offer.issue:{self.stage['offer_id']}")
+        self.assertNotIn("/", self.stage["offer_id"])
         record = self.acts.receipt_of(derived)
         self.assertIsNotNone(
             record,
@@ -71,7 +72,7 @@ class CanonicalIdentities(JobManagerCase):
         self.accept()
         self.acts.claim(self.stage)
         derived = canonical_operation("claim", self.stage["offer_id"])
-        self.assertEqual(derived, "offer.settle:offer:job-a/implementation")
+        self.assertEqual(derived, f"offer.settle:{self.stage['offer_id']}")
         record = self.acts.receipt_of(derived)
         self.assertIsNotNone(record)
         self.assertEqual(record["kind"], "offer.settle")
@@ -133,7 +134,9 @@ class Observation(JobManagerCase):
         observed = self.operations().observe(stage)
         self.assertEqual(sorted(observed), sorted(OBSERVATION_MEMBERS))
         self.assertEqual(observed, {"claimed_by": None, "runtime": None,
-                                    "activity": None, "output": None})
+                                    "activity": None, "output": None,
+                                    "start_failure": None,
+                                    "preparation_failure": None})
 
     def test_the_closed_surface_is_what_a_deployment_must_supply(self):
         acts = self.operations()
@@ -147,7 +150,9 @@ class Observation(JobManagerCase):
         self.assertFalse(unobserved.canonical)
         self.assertEqual(unobserved.observe({"attempt_id": "attempt:x"}),
                          {"claimed_by": None, "runtime": None,
-                          "activity": None, "output": None})
+                          "activity": None, "output": None,
+                          "start_failure": None,
+                          "preparation_failure": None})
         for call in (lambda: unobserved.receipt_of("offer.issue:x"),
                      lambda: unobserved.recover(now=NOW),
                      lambda: unobserved.admit({}, {}),

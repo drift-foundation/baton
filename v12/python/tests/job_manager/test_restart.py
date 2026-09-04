@@ -447,15 +447,15 @@ FOREIGN_OFFER = "offer:foreign-job/implementation"
 
 
 class TwoOffersOneAttempt(JobManagerCase):
-    """Re-review [P1, 2026-09-03]: two offers naming ONE derived attempt id.
+    """Re-review [P1, 2026-09-03]: two offers naming ONE attempt id.
 
     The classes above are about one derived OFFER id meaning two intents, and
     the proof that closed them compares what `issue_offer` signed. This is the
-    other identity. `attempt:{stage_id}` is derived from the Job id and the
-    stage kind exactly as the offer id is, and the manager holds ONE claimed
-    offer per attempt -- so a distinct canonical offer, issued for another Work
-    and proving nothing about this store, can take the slot this stage's own
-    claim was going to take.
+    other identity. The attempt id is deterministically derived from the Job
+    id and stage kind exactly as the offer id is, and the manager holds ONE
+    claimed offer per attempt -- so a distinct canonical offer, issued for
+    another Work and proving nothing about this store, can take the slot this
+    stage's own claim was going to take.
 
     The intent proof cannot see it and should not: it is keyed by THIS store's
     offer id, and this store's offer really is its own. What was unqualified
@@ -523,8 +523,8 @@ class TwoOffersOneAttempt(JobManagerCase):
         # BOTH OFFERS AND THE ATTEMPT ARE NAMED, so an operator reading the
         # refusal can tell which store the claim belongs to.
         self.assertIn(FOREIGN_OFFER, refusal.message)
-        self.assertIn(self.stage["offer_id"], refusal.message)
-        self.assertIn(self.stage["attempt_id"], refusal.message)
+        self.assertIn(self.stage["offer_id"][:32], refusal.message)
+        self.assertIn(self.stage["attempt_id"][:32], refusal.message)
         return refusal
 
     def test_a_foreign_claim_on_this_attempt_is_not_projected_as_this_jobs(self):

@@ -9,6 +9,7 @@ intent replays, and the same identity carrying a different intent refuses.
 """
 
 import json
+import re
 import sqlite3
 import unittest
 
@@ -16,6 +17,7 @@ from baton_v12.contracts import ContractRefusal
 from baton_v12.job_manager import (episodes_of, job_rows, jobs_of, live_of,
                                    stage_rows, stages_of, submission_of,
                                    submission_rows, submit)
+from baton_v12.job_manager.episodes import identities
 
 if __package__:
     from .fixtures import (NOW, WORK_A, WORK_B, JobManagerCase, job,
@@ -60,20 +62,27 @@ class Recording(JobManagerCase):
     def test_the_submission_opens_the_stages_first_episode(self):
         """One act: a stage with no episode is one nothing could admit.
 
-        The identities are still DERIVED, and episode 1's are still the
-        spelling a schema-1 store wrote, so a migrated store's canonical
-        operation ids are the ones its receipts already name.
+        New identities are derived in the bounded worker-contract grammar;
+        migration separately preserves identities an old store already wrote.
         """
         store = self.store()
         submit(store, submission())
         held = episodes_of(store, "job-a/implementation")
         self.assertEqual(len(held), 1)
         self.assertEqual(held[0]["episode"], 1)
-        self.assertEqual(held[0]["offer_id"], "offer:job-a/implementation")
-        self.assertEqual(held[0]["attempt_id"],
-                         "attempt:job-a/implementation")
+        self.assertEqual((held[0]["offer_id"], held[0]["attempt_id"]),
+                         identities("job-a/implementation", 1))
         self.assertIsNone(held[0]["ended_state"])
         self.assertEqual(live_of(store, "job-a/implementation")["episode"], 1)
+
+    def test_new_episode_identities_fit_the_worker_contract(self):
+        grammar = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
+        first = identities("job-a/implementation", 1)
+        second = identities("job-a/implementation", 2)
+        self.assertNotEqual(first, second)
+        for identity in first + second:
+            self.assertLessEqual(len(identity), 160)
+            self.assertIsNotNone(grammar.fullmatch(identity))
 
     def test_the_review_stage_records_its_gate(self):
         store = self.store()
