@@ -92,6 +92,57 @@ class Submitting(ToolCase):
                      clock=self.clock, stream=io.StringIO())
 
 
+# W85500: THE TWO OBSERVATION FACTORIES these cases name by module:attribute.
+#
+# Module level, because the tool RESOLVES the operand by import and nothing is
+# searched for -- a factory reachable only from inside a test method would not
+# be reachable the way the real one is.
+_OBSERVING = {"closed": 0, "asked": []}
+
+
+class _Observer:
+    """The one member an observation factory owes, and one extra it must not
+    be able to hand on."""
+
+    def __init__(self, refusal=None):
+        self._refusal = refusal
+
+    def observe_exchange(self, stage):
+        _OBSERVING["asked"].append(stage["stage_id"])
+        if self._refusal is not None:
+            return {"transport": "baton.worker-exchange/1",
+                    "sequence_id": None, "command": None, "receipt": None,
+                    "states": [], "terminal": None, "foreign": [],
+                    "state": "unreadable",
+                    "unreadable": {"category": "refused",
+                                   "code": self._refusal}}
+        return {"transport": "baton.worker-exchange/1",
+                "sequence_id": "sequence-" + stage["attempt_id"],
+                "command": {"published": True}, "receipt": {"seen": True},
+                "states": [], "foreign": [], "state": "faulted",
+                "terminal": {"ending": "faulted", "fault_code": "output",
+                             "disposition": None, "manifest_digest": None}}
+
+    def conclude(self, stage, job):
+        """DELIBERATELY PRESENT. `_Observing` must not hand this on."""
+        raise AssertionError("an observation surface reached an ending")
+
+    def close(self):
+        _OBSERVING["closed"] += 1
+
+
+def observing(job_store, control_store):
+    del job_store, control_store
+    _OBSERVING.update(closed=0, asked=[])
+    return _Observer()
+
+
+def refusing(job_store, control_store):
+    del job_store, control_store
+    _OBSERVING.update(closed=0, asked=[])
+    return _Observer(refusal="precondition")
+
+
 class Reading(ToolCase):
 
     def test_status_without_a_control_store_reports_nobody_looked(self):
@@ -113,6 +164,137 @@ class Reading(ToolCase):
                                "--control", self.control_path)
         self.assertTrue(answer["canonical"])
         self.assertEqual(answer["jobs"][0]["stages"][0]["state"], "queued")
+
+    # -- W85500: the observation-only status branch --------------------------
+
+    def test_status_without_the_operand_still_reports_nobody_looked(self):
+        """THE DEFAULT IS UNCHANGED and that is the whole compatibility half.
+
+        W81857 ruled that the standalone read-only status always reports
+        `exchange: null` because it has no deployment factory. W85500
+        supersedes only the narrowness of that -- it does not make looking the
+        default -- so a status run with no `--observe` answers exactly what it
+        answered before.
+        """
+        self.control().close()
+        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+                      "submit", "--document", self.document())
+        answer = self.run_tool("--store", self.job_path,
+                               "--incarnation", "jobs-1", "status",
+                               "--control", self.control_path)
+        for job in answer["jobs"]:
+            for stage in job["stages"]:
+                self.assertIsNone(stage["exchange"])
+
+    def test_the_operand_is_resolved_asked_and_then_released(self):
+        """The wiring, end to end through the real tool.
+
+        WHAT THIS DELIBERATELY DOES NOT ASSERT is the exchange appearing in the
+        document. `delegation._bound` drops every attempt-keyed observation for
+        a stage whose attempt no claim binds to it -- correctly, because an
+        unclaimed attempt has nothing to say about this stage -- and these
+        stages are submitted and never claimed. The exchange REACHING a status
+        document is proved where a real claim exists, in
+        `tests.tools.test_single_worker`, against a real faulted terminal.
+        """
+        self.control().close()
+        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+                      "submit", "--document", self.document())
+        answer = self.run_tool(
+            "--store", self.job_path, "--incarnation", "jobs-1", "status",
+            "--control", self.control_path,
+            "--observe", "tests.job_manager.test_tool:observing")
+        self.assertTrue(answer["canonical"])
+        self.assertEqual(answer["schema"], "baton.v12.job-status/3")
+        self.assertEqual([one["job_id"] for one in answer["jobs"]],
+                         ["job-a", "job-b"])
+        # THE READER WAS ASKED FOR EVERY STAGE, which is what the projection
+        # does with an exchange read it has been given.
+        self.assertEqual(sorted(_OBSERVING["asked"]),
+                         ["job-a/implementation", "job-a/review",
+                          "job-b/implementation"])
+        # AND THE FACTORY WAS GIVEN BACK WHAT IT OPENED, exactly once.
+        self.assertEqual(_OBSERVING["closed"], 1)
+
+    def test_the_observation_surface_carries_no_act_and_no_refresh(self):
+        """The composition, not the factory's promise about itself.
+
+        `_Observing` takes ONE member by name from whatever the factory
+        answers. A factory carrying a dispatch or an ending hands neither of
+        them on, and the refresh is absent because refreshing RECORDS -- a
+        status that recorded would be a read that mutates.
+        """
+        from tools.job_manager import _Observing
+
+        self.control().close()
+        control = self.control(incarnation="manager-obs")
+        surface = _Observing(control, _Observer())
+        for act in ("admit", "claim", "launch", "dispatch", "conclude",
+                    "recover", "attach", "drain"):
+            self.assertFalse(hasattr(surface, act), act)
+        self.assertIsNone(surface.refresh_runtime({"attempt_id": "a"}))
+
+    def test_a_factory_that_cannot_read_the_exchange_is_refused_by_name(self):
+        self.control().close()
+        control = self.control(incarnation="manager-bare")
+        from tools.job_manager import _Observing
+
+        with self.assertRaises(SystemExit) as caught:
+            _Observing(control, object())
+        self.assertIn("observe_exchange", str(caught.exception))
+
+    def test_an_operand_that_is_not_module_attribute_is_refused(self):
+        self.control().close()
+        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+                      "submit", "--document", self.document())
+        with self.assertRaises(SystemExit) as caught:
+            self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+                          "status", "--control", self.control_path,
+                          "--observe", "not-a-factory")
+        self.assertIn("module:attribute", str(caught.exception))
+
+    def test_a_refusing_exchange_read_still_produces_a_status_document(self):
+        """One damaged launch root must not stop a status run from reporting
+        anything at all, which is this Work's own defect in miniature.
+
+        The real reader answers an `unreadable` observation rather than
+        raising, and this proves the tool carries that all the way to a
+        document instead of exiting.
+        """
+        self.control().close()
+        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+                      "submit", "--document", self.document())
+        answer = self.run_tool(
+            "--store", self.job_path, "--incarnation", "jobs-1", "status",
+            "--control", self.control_path,
+            "--observe", "tests.job_manager.test_tool:refusing")
+        self.assertTrue(answer["canonical"])
+        self.assertEqual(len(answer["jobs"]), 2)
+        self.assertEqual(sorted(_OBSERVING["asked"]),
+                         ["job-a/implementation", "job-a/review",
+                          "job-b/implementation"])
+
+    def test_observe_without_a_control_store_is_refused_not_ignored(self):
+        """W85500 review 2026-09-04T14-27-54Z [P1].
+
+        `_status` answered `Unobserved()` before it looked at the operand, so
+        an operator who ASKED for observation got a successful run, `exchange:
+        null`, and no indication the request had not been performed -- which is
+        the same shape as the defect this Work exists to correct.
+        """
+        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+                      "submit", "--document", self.document())
+        # THE MODULE-LEVEL RECORD IS CLEARED HERE, because it is shared by
+        # every case that resolves a factory and this one asserts an ABSENCE.
+        _OBSERVING.update(closed=0, asked=[])
+        with self.assertRaises(SystemExit) as caught:
+            self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+                          "status",
+                          "--observe", "tests.job_manager.test_tool:observing")
+        self.assertIn("--control", str(caught.exception))
+        # AND THE FACTORY WAS NEVER RESOLVED, so the refusal is about the
+        # operand combination rather than about anything the factory did.
+        self.assertEqual(_OBSERVING["asked"], [])
 
     def test_the_status_surface_holds_no_authority_capability(self):
         from tools.job_manager import _ReadOnly

@@ -105,8 +105,7 @@ test("ACP readiness accepts projection 11 and still refuses an unsupported futur
 // W55705 (approver ruling M58455): `runtime.actionOwner` is MANDATORY for a
 // managed ACP bridge, because the post-turn claim settlement owes one durable
 // incident and an ownerless incident is refused. The rig names one so every
-// case that is about something else still describes a startable deployment;
-// the cases that are about the refusal itself pass `runtime: null`.
+// case that is about something else still describes a startable deployment.
 const ACTION_OWNER = "baton.slaw";
 
 function rig({ env = {}, participant = "baton.claude",
@@ -732,6 +731,7 @@ async () => {
 		permissionMode: "bypassPermissions",
 		policyResources: [policy],
 		stateDir: join(home, "state"),
+		runtime: { actionOwner: ACTION_OWNER },
 		// W28681: named so this case is refused for the launcher path it
 		// is about rather than for the deadline it is not.
 		turnTimeoutMs: 60000,
@@ -1107,6 +1107,7 @@ test("policy configuration refuses absent, empty, blank and bad env forms", () =
 		const { config } = rig();
 		return JSON.parse(JSON.stringify({
 			baton: config.baton, agent: config.agent,
+			runtime: config.runtime,
 			session: config.session, permissionMode: config.permissionMode,
 			policyResources: config.policyResources,
 			stateDir: config.stateDir, retryMs: config.retryMs,
@@ -1146,9 +1147,11 @@ test("an unreadable policy resource refuses before the agent spawns", (t) => {
 	chmodSync(locked, 0o000);
 	const raw = {
 		baton: config.baton, agent: config.agent,
+		runtime: config.runtime,
 		session: config.session, permissionMode: config.permissionMode,
 		policyResources: [locked],
 		stateDir: config.stateDir, retryMs: config.retryMs,
+		turnTimeoutMs: config.turnTimeoutMs,
 	};
 	try {
 		assert.throws(() => validateConfig(raw),
@@ -1811,6 +1814,7 @@ test("W101: the ACP launch configuration must name an explicit role", () => {
 		const { config } = rig();
 		return JSON.parse(JSON.stringify({
 			baton: config.baton, agent: config.agent,
+			runtime: config.runtime,
 			session: config.session, permissionMode: config.permissionMode,
 			policyResources: config.policyResources,
 			stateDir: config.stateDir, retryMs: config.retryMs,
@@ -1977,17 +1981,20 @@ test("the deployment configuration validates runtime identity metadata",
 			actionOwner: "baton.slaw" } });
 		assert.deepEqual(ok.runtime, { provider: "Anthropic",
 			model: "claude-opus-5", actionOwner: "baton.slaw" });
-		// Absent is absent — nothing is inferred from the agent command
+		// Absent is refused — nothing is inferred from the agent command
 		// or from the participant's name.
-		const bare = validateConfig(base);
-		assert.deepEqual(bare.runtime, { provider: undefined,
-			model: undefined, actionOwner: undefined });
+		assert.throws(() => validateConfig(base),
+			/runtime\.actionOwner is required/);
+		assert.throws(() => validateConfig({ ...base,
+			runtime: { actionOwner: "lang.ada" } }),
+			/must differ from baton\.participant/);
 		assert.throws(() => validateConfig({ ...base,
 			runtime: { actionOwner: "slaw" } }), /team\.member/);
 		assert.throws(() => validateConfig({ ...base,
-			runtime: { provider: "" } }), /non-empty/);
+			runtime: { provider: "", actionOwner: ACTION_OWNER } }), /non-empty/);
 		assert.throws(() => validateConfig({ ...base,
-			runtime: { guessed: "x" } }), /not a runtime metadata field/);
+			runtime: { guessed: "x", actionOwner: ACTION_OWNER } }),
+			/not a runtime metadata field/);
 	});
 
 test("a delivery failure is classified rather than called transport",
@@ -2145,6 +2152,7 @@ test("W28681: the turn deadline is mandatory configuration with no default",
 		const { config } = rig();
 		const base = JSON.parse(JSON.stringify({
 			baton: config.baton, agent: config.agent,
+			runtime: config.runtime,
 			session: config.session, permissionMode: config.permissionMode,
 			policyResources: config.policyResources,
 			stateDir: config.stateDir, retryMs: config.retryMs,
@@ -2175,6 +2183,7 @@ test("W28681: a deadline this runtime cannot hold is refused", () => {
 	const { config } = rig();
 	const base = JSON.parse(JSON.stringify({
 		baton: config.baton, agent: config.agent,
+		runtime: config.runtime,
 		session: config.session, permissionMode: config.permissionMode,
 		policyResources: config.policyResources,
 		stateDir: config.stateDir, retryMs: config.retryMs,
@@ -2685,6 +2694,101 @@ test("W55705: a returned prompt whose exact claim survives is failed, never idle
 		assert.equal(spy.incidents[0].work, "7ba67cb8-W51487");
 		assert.equal(spy.incidents[0].episode, 55530);
 		assert.match(spy.incidents[0].detail, /still holds an active claim/);
+	});
+
+test("W85873: a returned poke over a pre-existing claim is failed, never idle",
+	async () => {
+		// THE RECURRENCE, not the neighboring-poke shape covered below. The
+		// delivered action itself is a poke and carries no Work identity; an
+		// independent post-turn canonical read still sees W85500 in this
+		// participant's claim slot. Settlement is action-kind neutral, so that
+		// live claim decides the runtime state and incident.
+		const { log, config } = rig();
+		const spy = runtimeSpy();
+		const time = clock();
+		const poke = pokeAction(85773);
+		const surviving = workAction("7ba67cb8-W85500",
+			{ episode: 85563, claimed: true });
+		const { signal, runWait } = script([envelope([poke])]);
+		const settlement = settlementFor(config,
+			{ spy, reads: [slot([surviving])], now: time.now });
+		await runBridge(config, { signal, runWait, logger: quiet, now: time.now,
+			runtime: spy.runtime, settlement });
+		const prompts = events(log).filter((entry) =>
+			entry.event === "prompt/start");
+		assert.equal(prompts.length, 1, "the poke turn did not run exactly once");
+		assert.match(prompts[0].text, /poke-answer poke=85773/);
+		assert.ok(!spy.published.some(([state]) => state === "idle"),
+			`idle was published beside a surviving claim: `
+			+ JSON.stringify(spy.published));
+		const failure = spy.published.find(([state]) => state === "failed");
+		assert.ok(failure, JSON.stringify(spy.published));
+		assert.equal(failure[1].cause, "internal");
+		assert.equal(failure[1].work, "7ba67cb8-W85500");
+		assert.equal(failure[1].episode, 85563);
+		assert.equal(settlement.fence.correlation, "held");
+		assert.equal(settlement.fence.work, "7ba67cb8-W85500");
+		assert.equal(settlement.fence.episode, 85563);
+		assert.equal(spy.incidents.length, 1,
+			"the surviving claim produced no actionable incident");
+		assert.equal(spy.incidents[0].work, "7ba67cb8-W85500");
+		assert.equal(spy.incidents[0].episode, 85563);
+	});
+
+test("W85873: repeated pokes stay fenced across restart until canonical release",
+	async () => {
+		// First process: a poke returns over a claim and persists one held fence.
+		// Second process: a later poke is retained while that claim survives,
+		// then is delivered normally after an exact canonical read proves the
+		// slot free. No poke replays, releases, accepts or transfers the Work.
+		const { log, config } = rig();
+		const firstSpy = runtimeSpy();
+		const firstTime = clock();
+		const firstPoke = pokeAction(85773);
+		const held = workAction("7ba67cb8-W85500",
+			{ episode: 85563, claimed: true });
+		const firstFeed = script([envelope([firstPoke])]);
+		const firstSettlement = settlementFor(config, {
+			spy: firstSpy, reads: [slot([held])], now: firstTime.now });
+		await runBridge(config, { signal: firstFeed.signal,
+			runWait: firstFeed.runWait, logger: quiet, now: firstTime.now,
+			runtime: firstSpy.runtime, settlement: firstSettlement });
+		assert.equal(firstSpy.incidents.length, 1);
+		assert.ok(!firstSpy.published.some(([state]) => state === "idle"));
+
+		config.session.mode = "load";
+		const secondSpy = runtimeSpy();
+		const secondTime = clock(2_000_000);
+		const nextPoke = pokeAction(85774);
+		const secondFeed = script([
+			envelope([nextPoke]),
+			() => {
+				secondTime.advance(RECONCILE_MS + 1);
+				return envelope([nextPoke]);
+			},
+		]);
+		const secondSettlement = settlementFor(config, {
+			spy: secondSpy, reads: [slot([held]), () => {
+				assert.ok(!secondSpy.published.some(([state]) => state === "idle"),
+					"restart published idle before canonical release");
+				return slot([]);
+			}, slot([])],
+			now: secondTime.now });
+		await runBridge(config, { signal: secondFeed.signal,
+			runWait: secondFeed.runWait, logger: quiet, now: secondTime.now,
+			runtime: secondSpy.runtime, settlement: secondSettlement });
+		const prompts = events(log).filter((entry) =>
+			entry.event === "prompt/start");
+		assert.equal(prompts.length, 2,
+			"the repeated poke ran while held or failed to resume after release");
+		assert.match(prompts[0].text, /poke-answer poke=85773/);
+		assert.match(prompts[1].text, /poke-answer poke=85774/);
+		assert.equal(secondSpy.incidents.length, 0,
+			"restart duplicated the already-filed incident");
+		assert.ok(secondSpy.published.some(([state]) => state === "idle"),
+			"ordinary poke delivery did not resume after canonical release");
+		assert.equal(secondSettlement.restore().state, "absent",
+			"the released claim left a restart fence behind");
 	});
 
 test("W55705: a failed prompt whose exact claim survives is delivered again",
@@ -3239,7 +3343,9 @@ test("W55705: a managed bridge refuses to start without a configured owner",
 		// bridge is outside this contract rather than a degraded mode of it,
 		// and the refusal lands BEFORE the lease and before the first wait.
 		for (const runtime of [null, { provider: "claude" }]) {
-			const { config } = rig({ runtime });
+			const { config } = rig();
+			if (runtime === null) delete config.runtime;
+			else config.runtime = runtime;
 			const spy = runtimeSpy();
 			const { signal, runWait } = script([envelope([])]);
 			await assert.rejects(
@@ -3419,7 +3525,8 @@ test("W55705: a bridge may not owe its own stranded-claim incident",
 		// AND IT REFUSES BEFORE ROLE LOADING, the lease and the first wait,
 		// which the injected instruction loader and the empty publication
 		// both assert.
-		const { config } = rig({ runtime: { actionOwner: "baton.claude" } });
+		const { config } = rig();
+		config.runtime.actionOwner = "baton.claude";
 		assert.equal(config.runtime.actionOwner, config.baton.participant);
 		const spy = runtimeSpy();
 		let waited = 0;

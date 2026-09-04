@@ -20,6 +20,9 @@
     "role": "impl",
     "waitTimeoutSeconds": 60
   },
+  "runtime": {
+    "actionOwner": "baton.slaw"
+  },
   "agent": {
     "command": "/absolute/path/to/claude-policy/launch-agent-sandboxed.sh",
     "args": [],

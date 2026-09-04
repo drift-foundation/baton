@@ -13,6 +13,25 @@ measurement, retained evidence, and the independent assessment of the whole
 vertical slice. It does not repair a component defect inline; a defect returns
 to its owning Work and this proof is rerun from a clean submission.
 
+## Review-ahead scheduling ruling — 2026-09-04
+
+The open component dependencies constrain FREEZING AND RUNNING the integrated
+proof, not independent review of its demonstration contract. The scenario
+shape, required evidence, operator-intervention budget, test-change authority,
+resource measurements, and pass/fail boundary can be reviewed before those
+components finish. That review may require a targeted delta review if a
+component's accepted interface later differs materially from the assumptions
+recorded here; it cannot claim that the demonstration itself passed.
+
+Protocol 11 cannot represent those stage-scoped edges. For review-ahead, the
+eligible reviewer temporarily removes the open component edges, claims and
+reviews this plan, restores every still-open component edge before leaving
+review, and reroutes the Work to implementation. Restoring the first edge
+atomically releases the review claim, so this is deliberately a
+`block`-then-`reroute` ceremony rather than a `pass`. The live proof therefore
+stays blocked until all providers are accepted, then becomes runnable without
+an operator watching the queue.
+
 ## Demonstration shape
 
 - Submit at least two independent Git-backed Jobs from the same immutable base

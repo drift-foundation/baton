@@ -127,7 +127,12 @@ class AdapterCase(unittest.TestCase):
         self.calls = []
 
         def run(argv, **options):
-            self.calls.append((list(argv), dict(options)))
+            recorded = dict(options)
+            recorded["resolved_env"] = dict(options.get("env", {}))
+            for name, place in recorded["resolved_env"].items():
+                if name != "PATH" and place.startswith("/proc/self/fd/"):
+                    recorded["resolved_env"][name] = os.path.realpath(place)
+            self.calls.append((list(argv), recorded))
             if argv[0] == claude_agent.PROVIDER_PROGRAM:
                 if timeout:
                     raise subprocess.TimeoutExpired(argv, 1)
@@ -223,6 +228,266 @@ class ThePositiveTurnWritesTheDeclaredProposal(AdapterCase):
         self.assertEqual(held(), before)
 
 
+class NeitherChildLeavesEphemeraInTheCandidate(AdapterCase):
+    """W85497: the candidate is the proposal, so a cache in it is a change.
+
+    THE MEASUREMENT THIS ANSWERS. The first ordinary self-hosted W71917 retry
+    published a 10,779,527-byte patch for ten real paths, because
+    `python3 -m compileall -q src tests tools` wrote 149 `cpython-311`
+    entries into the tree this adapter diffs. Verification is not allowed to
+    turn its own generated artefacts into proposed source changes.
+
+    BOTH CHILDREN ARE ASKED, and the provider is the one an inspection would
+    miss: it is PROMPTED to run the verification command itself, and `work`
+    walks the tree after that turn -- so a provider that does as it is asked
+    contaminates the proposal even when the adapter's own verification is
+    perfectly clean.
+    """
+
+    def envs(self):
+        """The two composed environments, by the program each belongs to."""
+        self.worked(edits={"harness.py": "print('now covered')\n"})
+        provider = next(options for argv, options in self.calls
+                        if argv[0] == claude_agent.PROVIDER_PROGRAM)
+        verifier = next(options for argv, options in self.calls
+                        if argv[0] != claude_agent.PROVIDER_PROGRAM)
+        return provider["resolved_env"], verifier["resolved_env"]
+
+    def test_the_verifier_inherits_the_exact_held_directory_objects(self):
+        """The provider-writable names are no longer launch authority."""
+        self.worked(edits={"harness.py": "print('now covered')\n"})
+        options = next(options for argv, options in self.calls
+                       if argv[0] != claude_agent.PROVIDER_PROGRAM)
+        passed = set(options["pass_fds"])
+        for name in ("HOME", *(one for one, _leaf
+                               in ClaudeAgent.EPHEMERA_ROOTS)):
+            place = options["env"][name]
+            self.assertRegex(place, r"\A/proc/self/fd/[0-9]+\Z")
+            self.assertIn(int(place.rsplit("/", 1)[1]), passed)
+            self.assertTrue(options["resolved_env"][name].startswith(
+                self.scratch + os.sep), (name, options))
+
+    def test_every_ephemeral_root_is_outside_the_candidate(self):
+        provider, verifier = self.envs()
+        candidate = os.path.join(self.scratch, claude_agent.CANDIDATE)
+        for whose, env in (("provider", provider), ("verification", verifier)):
+            for name in ("PYTHONPYCACHEPREFIX", "TMPDIR", "XDG_CACHE_HOME"):
+                place = env[name]
+                self.assertTrue(os.path.isabs(place), (whose, name, place))
+                # NOT `startswith`: `candidate-other` starts with `candidate`
+                # and is not inside it. The relative path is the question.
+                self.assertTrue(
+                    os.path.relpath(place, candidate).startswith(os.pardir),
+                    f"the {whose}'s {name} is inside the candidate: {place}")
+                self.assertTrue(
+                    place.startswith(self.scratch + os.sep),
+                    f"the {whose}'s {name} is outside the private scratch: "
+                    f"{place}")
+
+    def test_every_named_root_exists_before_either_child_starts(self):
+        """W85497 review 2026-09-04T13-56-04Z [P1]: named is not created.
+
+        Only the OUTER ephemera directory was made; the three children were
+        pointed at and absent, and an absent directory is one the child
+        silently ignores. A boundary that depends on a directory existing is
+        declarative until the directory exists.
+        """
+        provider, verifier = self.envs()
+        for whose, env in (("provider", provider), ("verification", verifier)):
+            for name, _leaf in ClaudeAgent.EPHEMERA_ROOTS:
+                place = env[name]
+                self.assertTrue(os.path.isdir(place),
+                                f"the {whose}'s {name} does not exist: "
+                                f"{place}")
+                self.assertEqual(stat.S_IMODE(os.stat(place).st_mode), 0o700)
+
+    def test_a_child_given_this_environment_really_selects_those_roots(self):
+        """THE PROOF THE STRING CHECK CANNOT GIVE.
+
+        A reviewer's probe of the composed environment found Python presented
+        with the old absent `TMPDIR` selecting `/tmp` instead. So this runs a
+        REAL interpreter with the composed environment and asks it where it
+        would put a temporary file and its bytecode.
+        """
+        import subprocess as sub
+
+        _provider, verifier = self.envs()
+        answered = sub.run(
+            [sys.executable, "-c",
+             "import os, tempfile; print(tempfile.gettempdir()); "
+             "print(os.environ['PYTHONPYCACHEPREFIX']); "
+             "print(tempfile.NamedTemporaryFile(delete=False).name)"],
+            env=verifier, capture_output=True, text=True, timeout=120)
+        self.assertEqual(answered.returncode, 0, answered.stderr)
+        chose, prefix, made = answered.stdout.split()
+        self.assertEqual(chose, verifier["TMPDIR"])
+        self.assertEqual(prefix, verifier["PYTHONPYCACHEPREFIX"])
+        self.assertTrue(made.startswith(verifier["TMPDIR"] + os.sep), made)
+        candidate = os.path.join(self.scratch, claude_agent.CANDIDATE)
+        self.assertTrue(
+            os.path.relpath(made, candidate).startswith(os.pardir), made)
+
+    def test_the_pycache_prefix_is_set_because_compileall_ignores_the_other(
+            self):
+        """`PYTHONDONTWRITEBYTECODE` cannot answer this and is not relied on.
+
+        `compileall` writes bytecode as its PURPOSE and ignores that variable;
+        a local 3.13 reproduction produced `__pycache__/probe.cpython-313.pyc`
+        with it set. `PYTHONPYCACHEPREFIX` is the name that decides WHERE.
+        """
+        provider, verifier = self.envs()
+        for env in (provider, verifier):
+            self.assertIn("PYTHONPYCACHEPREFIX", env)
+            self.assertNotIn("PYTHONDONTWRITEBYTECODE", env)
+
+    def test_the_verification_home_is_not_the_candidate_and_holds_no_bearer(
+            self):
+        """It used to BE the candidate, so a command writing to its own home
+        wrote into the proposal; and it is not the provider's home either,
+        because that one holds the link to the mounted credential."""
+        provider, verifier = self.envs()
+        candidate = os.path.join(self.scratch, claude_agent.CANDIDATE)
+        self.assertNotEqual(verifier["HOME"], candidate)
+        self.assertTrue(
+            os.path.relpath(verifier["HOME"], candidate).startswith(os.pardir),
+            verifier["HOME"])
+        self.assertNotEqual(verifier["HOME"], provider["HOME"])
+        for base, _directories, files in os.walk(verifier["HOME"]):
+            for name in files:
+                self.assertNotIn(claude_agent.PROVIDER_CREDENTIAL, name)
+
+    def test_the_providers_home_is_still_the_prepared_credential_home(self):
+        """The correction moves ephemera, not the credential."""
+        provider, _verifier = self.envs()
+        self.assertTrue(os.path.lexists(
+            os.path.join(provider["HOME"], claude_agent.PROVIDER_HOME_STATE,
+                         claude_agent.PROVIDER_CREDENTIAL)))
+
+    def test_provider_symlinks_cannot_replace_the_verifiers_owned_roots(self):
+        """Review 2026-09-04T14:44:23Z: predictable is attacker-known.
+
+        The provider runs as this uid and can name scratch siblings. Replacing
+        either verifier root with a link must be a refusal before verification,
+        never an `exist_ok` plus chmod that follows the link into candidate.
+        """
+        self.calls = []
+
+        def run(argv, **options):
+            self.calls.append((list(argv), dict(options)))
+            if argv[0] == claude_agent.PROVIDER_PROGRAM:
+                candidate = options["cwd"]
+                self.write(os.path.join(candidate, "harness.py"),
+                           "print('now covered')\n")
+                for name in (claude_agent.VERIFICATION_HOME,
+                             claude_agent.VERIFICATION_EPHEMERA):
+                    place = os.path.join(self.scratch, name)
+                    shutil.rmtree(place)
+                    os.symlink(candidate, place)
+                return subprocess.CompletedProcess(argv, 0, None, None)
+            self.fail("verification followed a provider-controlled root")
+
+        agent = ClaudeAgent(run=run, home=self.scratch)
+        with self.assertRaises(TaskRefusal) as caught:
+            agent.work({"contract": "t"}, list(DECLARED))
+        self.assertIn("verifier root", str(caught.exception))
+        candidate = os.path.join(self.scratch, claude_agent.CANDIDATE)
+        for name in ("cache", "pycache", "tmp"):
+            self.assertFalse(os.path.lexists(os.path.join(candidate, name)))
+        self.assertEqual(len(self.calls), 1)
+
+    def test_a_descendant_cannot_redirect_a_root_after_final_validation(self):
+        """Review 2026-09-04T18-59-48Z: discriminate the TOCTOU.
+
+        The replacement happens inside the injected process-launch seam,
+        after `_verify` has performed its final held-object validation and
+        before the real interpreter resolves its environment. The old
+        pathname environment wrote bytecode through this link into candidate;
+        the descriptor-bound environment keeps using the renamed object.
+        """
+        self.task(dict(TASK, verification=["python3", "-m", "compileall",
+                                           "-q", "."]))
+        held = os.path.join(self.scratch,
+                            claude_agent.VERIFICATION_EPHEMERA,
+                            "pycache-held")
+        seen = {}
+
+        def run(argv, **options):
+            if argv[0] == claude_agent.PROVIDER_PROGRAM:
+                self.write(os.path.join(options["cwd"], "harness.py"),
+                           "print('now covered')\n")
+                return subprocess.CompletedProcess(argv, 0, None, None)
+            visible = os.path.join(self.scratch,
+                                   claude_agent.VERIFICATION_EPHEMERA,
+                                   "pycache")
+            os.rename(visible, held)
+            os.symlink(options["cwd"], visible)
+            seen["resolved"] = os.path.realpath(
+                options["env"]["PYTHONPYCACHEPREFIX"])
+            return subprocess.run(argv, **options)
+
+        answered = ClaudeAgent(run=run, home=self.scratch).work(
+            {"contract": "t"}, list(DECLARED))
+        self.assertEqual(answered["disposition"], "completed")
+        candidate = os.path.join(self.scratch, claude_agent.CANDIDATE)
+        self.assertEqual(self.caches(candidate), [])
+        self.assertEqual(seen["resolved"], held)
+        self.assertTrue(any(files for _base, _directories, files
+                            in os.walk(held)),
+                        "the verifier produced no bytecode in the held root")
+
+    def test_a_real_compileall_leaves_the_candidate_cache_free(self):
+        """THE DEFECT ITSELF, with a real interpreter rather than a double.
+
+        The fake provider cannot write bytecode, so this drives the adapter's
+        own verification with the actual command the retry ran and then asks
+        the published proposal what it contains.
+        """
+        self.task(dict(TASK, verification=["python3", "-m", "compileall",
+                                           "-q", "."]))
+        agent = ClaudeAgent(run=self.compiling(), home=self.scratch)
+        answered = agent.work({"contract": "t"}, list(DECLARED))
+        self.assertEqual(answered["disposition"], "completed")
+        candidate = os.path.join(self.scratch, claude_agent.CANDIDATE)
+        self.assertEqual(self.caches(candidate), [],
+                         "verification wrote its own bytecode into the tree "
+                         "this adapter publishes")
+        self.assertEqual(self.result()["changed_paths"], ["harness.py"])
+        # AND THE BYTECODE REALLY WAS PRODUCED, somewhere. A case that proved
+        # only "no caches in the candidate" would also pass if the command had
+        # never compiled anything at all.
+        made = [place for place in (
+            os.path.join(self.scratch, claude_agent.VERIFICATION_EPHEMERA,
+                         "pycache"),)
+            for _b, _d, files in os.walk(place) if files]
+        self.assertTrue(made, "nothing compiled, so nothing was proved")
+
+    def compiling(self):
+        """A provider double that edits, then a REAL `compileall` child."""
+        import subprocess as sub
+
+        self.calls = []
+
+        def run(argv, **options):
+            self.calls.append((list(argv), dict(options)))
+            if argv[0] == claude_agent.PROVIDER_PROGRAM:
+                self.write(os.path.join(options["cwd"], "harness.py"),
+                           "print('now covered')\n")
+                return sub.CompletedProcess(argv, 0, None, None)
+            return sub.run(argv, **options)
+
+        return run
+
+    @staticmethod
+    def caches(tree):
+        found = []
+        for base, directories, files in os.walk(tree):
+            if os.path.basename(base) == "__pycache__":
+                found.append(os.path.relpath(base, tree))
+            found.extend(os.path.relpath(os.path.join(base, name), tree)
+                         for name in files if name.endswith(".pyc"))
+        return sorted(found)
+
+
 class TheProviderArgvAndEnvironmentAreClosed(AdapterCase):
 
     def spoken(self):
@@ -281,7 +546,13 @@ class TheProviderArgvAndEnvironmentAreClosed(AdapterCase):
         os.environ["ANTHROPIC_API_KEY"] = "not-a-credential-either"
         self.addCleanup(os.environ.pop, "ANTHROPIC_API_KEY", None)
         _argv, options = self.spoken()
-        self.assertEqual(sorted(options["env"]), ["HOME", "PATH"])
+        # STILL A CLOSED SET, and W85497 adds three members to it rather than
+        # opening it. The set is spelled out so a fourth arriving without a
+        # decision fails here; what this case has always proved -- that
+        # `os.environ` is not forwarded -- is the assertion below it.
+        self.assertEqual(sorted(options["env"]),
+                         ["HOME", "PATH", "PYTHONPYCACHEPREFIX", "TMPDIR",
+                          "XDG_CACHE_HOME"])
         self.assertNotIn("ANTHROPIC_API_KEY", options["env"])
 
     def test_the_provider_runs_in_the_private_copy_and_not_the_source(self):

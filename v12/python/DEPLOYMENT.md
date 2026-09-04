@@ -227,6 +227,85 @@ factory capability:
       --incarnation status-20260903-01 \
       status --control /var/lib/baton/v12/worker-control.sqlite3
 
+### Three different freshnesses, and which command gives you which
+
+W85500 added a second way to run `status`, so there are now three surfaces and
+it is worth being explicit about what each one can and cannot know.
+
+**The serving loop reconciles.** Every `serve` tick asks the engine about each
+live attempt's attached runtime BEFORE it projects anything, and records the
+answer. That is the only place the runtime axis becomes fresh, because asking
+means recording, and recording is a write. Until W85500 nothing asked after the
+start: a worker that faulted and exited stayed projected `running` for as long
+as anybody looked, while the engine reported the exact runtime gone.
+
+**What a refresh that fails does, and what it deliberately does not do.** Each
+tick's `refreshed` entry carries the state that was recorded, or `not-asked`
+when the deployment supplies no refresh at all. Two failures are contained per
+stage so that one damaged attempt cannot stop every other stage being observed
+or progressed: malformed evidence from a deployment is reported with its
+refusal category and code, and an engine invocation this deployment could not
+make — a missing engine binary, or a runner that hit its deadline — is
+reported `uncertain / engine-unreachable` with the failure's type name.
+Nothing is recorded from an unreachable engine: the runtime axis keeps
+whatever it last knew, which is the honest difference between "gone" and
+"nobody could ask". Neither containment touches the exchange axis, so a
+readable terminal is still projected. Anything else — a defect in the
+deployment's own code — is NOT contained: it ends the tick and reaches
+whoever is running the loop. A serving loop answers only its last tick's
+report, so a defect quietly turned into report data would vanish on the next
+successful tick.
+
+**A dead daemon reads as `policy / denied`, not as `engine-unreachable`.**
+Worth knowing before you go diagnosing one. This composition asks the engine
+by running the Docker CLI, and a daemon that is not there does not stop the
+CLI from running — it runs and exits non-zero, so the adapter refuses the
+listing `policy / denied`, and that is the category and code the stage
+carries. It is contained per stage and records nothing on the runtime axis
+exactly like the malformed-evidence case above, so what you can rely on is
+unchanged; what you cannot do is read `engine-unreachable` as the only shape
+an absent daemon takes. Telling an unreachable daemon apart from a genuine
+policy or integrity refusal would need a typed adapter failure this build
+deliberately does not have.
+
+**Status with `--observe` looks at the durable exchange.** The bare read-only
+status reports `exchange: null` — not because the worker's terminal is
+unreadable, but because that surface was never given a way to look. Supplying
+an observation factory changes exactly that one thing:
+
+    BATON_V12_SINGLE_WORKER_CONFIG=/etc/baton/single-worker.json \
+    PYTHONPATH=src:. python3 -m tools.job_manager \
+      --store /var/lib/baton/v12/jobs.sqlite3 \
+      --incarnation status-20260903-01 \
+      status --control /var/lib/baton/v12/worker-control.sqlite3 \
+      --observe tools.single_worker:observing_factory
+
+That factory reads the immutable configuration and the already-open control
+store and reconstructs this attempt's launch and exchange files. It opens no
+Authority, mints no session, configures no workspace group or storage,
+certifies no profile, constructs no credential home, and holds no engine. It
+is deliberately NOT `tools.single_worker:factory`, which carries mint,
+delivery, start, dispatch, ending and pass; `--observe` and `--operations` are
+resolved separately so a read can never be handed a serving object.
+
+**It still does not refresh the runtime, and that is on purpose.** Refreshing
+means reconciling, and reconciling records what it saw — a status command that
+did it would be a read that mutates. So the runtime axis in any status
+document is exactly as fresh as the serving loop that last advanced the store.
+If no loop is advancing it, the status is as stale as that store and says so
+rather than writing. The exchange axis has no such limit: the terminal is a
+file, so `--observe` reads the same bytes a restarted manager would.
+
+**Without `--observe` nothing changes.** The default is still `exchange:
+null`, which means "nobody looked" and not "nothing happened".
+
+A worker that faults is reported `exceptional` with its typed `fault_code`,
+and a fault authorises nothing: no freeze, no intake, no retention, no
+Authority pass, no cleanup, no replacement attempt, no second command and no
+second provider turn. The two axes stay separate — observing that a container
+exited never manufactures the quiescence a successful ending requires, and an
+unreadable exchange never stops the engine being asked.
+
 After a crash, run the same `serve` command with a new incarnation and the same
 durable paths and configuration. The manager adopts the accepted claim,
 attempt, workspace/input, credential and launch records, reconciles a requested

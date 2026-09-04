@@ -836,6 +836,17 @@ def test_every_acp_lifecycle_template_selects_the_two_hour_turn_deadline():
 		assert document["turnTimeoutMs"] == 7200000, name
 
 
+def test_every_acp_lifecycle_template_names_an_external_action_owner():
+	for name in ("acp-bridge.template.json",
+	             "acp-claude.template.json",
+	             "acp-gemini.template.json"):
+		document = json.loads(open(os.path.join(REPO, "conf", name),
+		                           encoding="utf-8").read())
+		owner = document["runtime"]["actionOwner"]
+		assert owner == "baton.slaw", name
+		assert owner != document["baton"]["participant"], name
+
+
 def test_the_setup_documentation_explains_the_acp_boundary():
 	import pathlib
 	prose = " ".join((pathlib.Path(REPO) / "docs" / "BATON-SETUP.md")

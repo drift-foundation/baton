@@ -679,8 +679,10 @@ whose prerequisites have closed are actionable.
     Codex, and explicit unknowns for less capable agents. Never scrape terminal
     `/status` output or turn telemetry into workflow authority. The top-level
     `work/records/2026/08/finding-worker-telemetry-introspection/` record owns
-    this follow-up. Its descriptive Job title deliberately omits a `V12`
-    prefix; label `v12` is the future campaign organizer. It does not gate
+    this follow-up. New Work created in the protocol-11 authority temporarily
+    uses a `V12:` title prefix for visibility. Once v12 labels land, label
+    `v12` becomes the canonical filterable campaign organizer and v12-native
+    Work returns to descriptive titles without the prefix. It does not gate
     W38956.
 32. [confirmed 2026-08-30; W43972; MVP result boundary] Give every attempt a
     manager-owned persistent `result/` envelope split into worker-writable,

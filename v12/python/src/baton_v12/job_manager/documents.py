@@ -496,8 +496,23 @@ CONTRACTS = {
     # or drove through its ending, whatever came back. It is separate from
     # `started` for the reason `started` is separate from `acts`: they settle
     # no receipt, and what this leaf reports is which stage it asked for.
+    # W85500: `refreshed` names every live attempt this tick asked the engine
+    # about before it projected anything. It is separate from `observed` for
+    # the reason `spoken` is separate from `started`: `observed` is canonical
+    # state this manager drained, and this is the RUNTIME axis, which no
+    # canonical assertion carries.
     "sweep": (("observed_at", "recovered", "observed", "replaced", "acts",
-               "started", "spoken"), ()),
+               "started", "spoken", "refreshed"), ()),
+    # One live attempt's runtime refresh. `state` is what the reconciliation
+    # recorded, or null when this tick could not ask. `detail` carries only
+    # what this manager itself can name: a contained refusal's typed category
+    # and code, or `uncertain / engine-unreachable` plus the type name of the
+    # failure a deployment reported its engine with. Never a refusal's prose
+    # and never an engine's message -- both are composed from bytes a worker
+    # or a daemon wrote, and a sweep report is read by whoever watches the
+    # service.
+    "stage.refresh": (("stage_id", "episode", "attempt_id", "state"),
+                      ("detail",)),
     # One claimed, started stage's attempt at being COMMANDED, or at being
     # ended after it answered. `act` is `dispatch` or `conclude`; `outcome` is
     # the same closed set a launch answers with, because the question is the
@@ -570,6 +585,10 @@ def stage_launch(**members):
 
 def stage_exchange(**members):
     return _emit("stage.exchange", members)
+
+
+def stage_refresh(**members):
+    return _emit("stage.refresh", members)
 
 
 def sweep_report(**members):

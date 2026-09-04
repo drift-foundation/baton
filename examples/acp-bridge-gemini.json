@@ -12,6 +12,9 @@
     "role": "<ROLE-WITH-CONFIGURED-INSTRUCTIONS>",
     "waitTimeoutSeconds": 60
   },
+  "runtime": {
+    "actionOwner": "<RECOVERY-OR-OPERATIONS-TEAM.MEMBER-DISTINCT-FROM-RUNNER>"
+  },
   "agent": {
     "command": "<ABSOLUTE-PATH-TO-GEMINI-CLI>",
     "args": ["--acp"],

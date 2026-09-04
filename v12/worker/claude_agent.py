@@ -223,6 +223,31 @@ VERIFICATION_SECONDS = 900
 # -- what this adapter writes ------------------------------------------------
 
 CANDIDATE = "candidate"
+
+# W85497: WHERE A CHILD'S EPHEMERA GO, and the reason they are named here.
+#
+# Both children run WITH `candidate` AS THEIR WORKING DIRECTORY, and the
+# candidate is the tree this adapter walks, diffs, revalidates and publishes.
+# Anything an interpreter drops beside the source it is reading therefore
+# becomes a PROPOSED CHANGE. The first ordinary self-hosted W71917 retry is
+# the measurement: `python3 -m compileall -q src tests tools` wrote 149
+# `__pycache__` entries into the candidate and the resulting patch was
+# 10,779,527 bytes for ten real paths.
+#
+# THE PROVIDER'S CACHES ARRIVE BEFORE THE WALK, which is why this is not only
+# the verifier's problem. The provider is prompted to run the verification
+# command itself before returning, and `work` diffs the tree AFTER that turn --
+# so a provider that does as it is asked contaminates the proposal even if the
+# adapter's own verification writes nothing at all.
+#
+# EACH NAME IS A DIRECTORY UNDER THE PRIVATE SCRATCH, never under `candidate`
+# and never the ambient default: `TMPDIR` unset would put temporary files in
+# `/tmp` (harmless but unbounded across turns), and `XDG_CACHE_HOME` unset
+# resolves under `HOME` -- which for the provider is the directory holding its
+# credential link.
+PROVIDER_EPHEMERA = "provider-ephemera"
+VERIFICATION_EPHEMERA = "verification-ephemera"
+VERIFICATION_HOME = "verification-home"
 PATCH = "change.patch"
 RESULT = "result.json"
 VERIFICATION = "verification.txt"
@@ -311,48 +336,67 @@ class ClaudeAgent:
         candidate = os.path.join(scratch, CANDIDATE)
         source = os.path.join(INPUT_ROOT, task["source_root"])
         copied = _copy_tree(source, candidate)
-        provider = self._provider(task, candidate, scratch)
-        # THE PROVIDER OWNED THIS TREE, so it is held to the staged tree's own
-        # rules before anything reads or copies it. Review [P1]: the source
-        # check ran before Claude and nothing ran after, so a link the
-        # provider created was dereferenced by the diff and copied as regular
-        # bytes into the host-visible proposal -- and the credential mount is
-        # one of the things a link can name.
-        written = _checked_tree(candidate, what="the candidate copy")
-        # THE PROVIDER'S ENDING DECIDES NOTHING ON ITS OWN. What is written is
-        # decided by what is ON DISK afterwards, which is why the diff is taken
-        # before the disposition is chosen: a provider that exited 0 and
-        # changed nothing produced no candidate, and one that exited non-zero
-        # after editing left something an operator still has to see.
-        patch, measured = _diff(source, candidate, written)
-        verification = (self._verify(task, candidate)
-                        if provider["ok"] and patch else None)
-        # THE VERIFICATION COMMAND IS THE PAYLOAD'S, and it ran between the
-        # measurement and the publication. Review [P1]: proving the paths were
-        # still regular held their TYPE and not their BYTES, so a command that
-        # overwrote a checked file in place published contents the patch never
-        # described. What is proved here is the measurement itself.
-        _revalidated(candidate, written, measured, what="the candidate copy")
-        disposition, why = _disposition(provider, patch, verification)
-        _publish(proposal, candidate, written, measured, patch, verification,
-                 result={"schema": "baton.dogfood-proposal/1",
-                         "task_id": task["task_id"],
-                         "disposition": disposition,
-                         "why": why,
-                         "changed_paths": sorted(patch),
-                         "source_entries": copied,
-                         # W55360: the mapped word, or null on a clean turn.
-                         # This is the ONLY member of this record derived from
-                         # anything a child wrote, and it is one of a closed
-                         # set this module spells.
-                         "provider": {"status": provider["status"],
-                                      "failure_reason":
-                                          provider.get("failure_reason"),
-                                      "seconds_bound": PROVIDER_SECONDS},
-                         "verification": (
-                             {"status": verification["status"],
-                              "argv": list(task["verification"])}
-                             if verification is not None else None)})
+        # W85497 review 2026-09-04T14:44:23Z: every predictable child root is
+        # created EXCLUSIVELY before the provider runs. The provider owns the
+        # candidate turn and must not get a window in which an absent verifier
+        # name can be replaced with a link into that candidate.
+        environments = self._child_environments(scratch)
+        verification_environment, verification_directories = (
+            self._pinned_environment(scratch, environments["verification"]))
+        try:
+            provider = self._provider(task, candidate, scratch,
+                                      environments["provider"])
+            # THE PROVIDER OWNED THIS TREE, so it is held to the staged tree's
+            # own rules before anything reads or copies it. Review [P1]: the
+            # source check ran before Claude and nothing ran after, so a link
+            # the provider created was dereferenced by the diff and copied as
+            # regular bytes into the host-visible proposal -- and the
+            # credential mount is one of the things a link can name.
+            written = _checked_tree(candidate, what="the candidate copy")
+            # THE PROVIDER'S ENDING DECIDES NOTHING ON ITS OWN. What is written
+            # is decided by what is ON DISK afterwards, which is why the diff
+            # is taken before the disposition is chosen: a provider that
+            # exited 0 and changed nothing produced no candidate, and one that
+            # exited non-zero after editing left something an operator still
+            # has to see.
+            patch, measured = _diff(source, candidate, written)
+            verification = (self._verify(
+                task, candidate, verification_environment,
+                verification_directories)
+                            if provider["ok"] and patch else None)
+            # THE VERIFICATION COMMAND IS THE PAYLOAD'S, and it ran between
+            # the measurement and the publication. Review [P1]: proving the
+            # paths were still regular held their TYPE and not their BYTES, so
+            # a command that overwrote a checked file in place published
+            # contents the patch never described. What is proved here is the
+            # measurement itself.
+            _revalidated(candidate, written, measured,
+                         what="the candidate copy")
+            disposition, why = _disposition(provider, patch, verification)
+            _publish(proposal, candidate, written, measured, patch,
+                     verification,
+                     result={"schema": "baton.dogfood-proposal/1",
+                             "task_id": task["task_id"],
+                             "disposition": disposition,
+                             "why": why,
+                             "changed_paths": sorted(patch),
+                             "source_entries": copied,
+                             # W55360: the mapped word, or null on a clean
+                             # turn. This is the ONLY member of this record
+                             # derived from anything a child wrote, and it is
+                             # one of a closed set this module spells.
+                             "provider": {
+                                 "status": provider["status"],
+                                 "failure_reason":
+                                     provider.get("failure_reason"),
+                                 "seconds_bound": PROVIDER_SECONDS},
+                             "verification": (
+                                 {"status": verification["status"],
+                                  "argv": list(task["verification"])}
+                                 if verification is not None else None)})
+        finally:
+            for _name, descriptor in verification_directories:
+                os.close(descriptor)
         recap = (f"{disposition}: {why}"
                  f" ({len(patch)} changed path(s))")[:MAX_RECAP]
         return {"disposition": ("completed" if disposition == "candidate"
@@ -377,22 +421,231 @@ class ClaudeAgent:
         os.chmod(made, 0o700)
         return made
 
-    def _provider(self, task, candidate, scratch):
+    # THE THREE ROOTS EACH CHILD IS GIVEN, by environment name.
+    #
+    # Named in one place because they are made and pointed at in one place. A
+    # name added here without a directory, or a directory made without a name,
+    # is the review [P1] this structure exists to make impossible.
+    EPHEMERA_ROOTS = (("PYTHONPYCACHEPREFIX", "pycache"),
+                      ("TMPDIR", "tmp"),
+                      ("XDG_CACHE_HOME", "cache"))
+
+    def _new_directory(self, scratch, name):
+        """Create one predictable child root exclusively, without repair.
+
+        `exist_ok=True` is forbidden at this boundary. An existing name is not
+        ours merely because it has the desired spelling, and chmodding it can
+        follow a provider-created link. Production scratch is new, so a
+        collision is a custody failure rather than reusable state.
+        """
+        made = os.path.join(scratch, name)
+        try:
+            os.mkdir(made, 0o700)
+        except FileExistsError as failed:
+            raise TaskRefusal(
+                f"the private child root {made} already exists; predictable "
+                f"runtime paths are created exclusively and never repaired") from failed
+        os.chmod(made, 0o700)
+        return made
+
+    def _new_ephemera(self, scratch, name):
+        made = self._new_directory(scratch, name)
+        roots = {}
+        for variable, leaf in self.EPHEMERA_ROOTS:
+            roots[variable] = self._new_directory(made, leaf)
+        return made, roots
+
+    def _child_environments(self, scratch):
+        """Create both child environments before either child may execute."""
+        provider_home = self._prepared_home(scratch)
+        _provider_root, provider_roots = self._new_ephemera(
+            scratch, PROVIDER_EPHEMERA)
+        verification_home = self._new_directory(scratch, VERIFICATION_HOME)
+        _verification_root, verification_roots = self._new_ephemera(
+            scratch, VERIFICATION_EPHEMERA)
+        return {
+            "provider": self._closed_environment(
+                home=provider_home, roots=provider_roots, scratch=scratch),
+            "verification": self._closed_environment(
+                home=verification_home, roots=verification_roots,
+                scratch=scratch),
+        }
+
+    @staticmethod
+    def _checked_directory(scratch, place):
+        """Prove every path component is an ordinary owned scratch directory.
+
+        This check is repeated immediately before each child. The provider can
+        write as the worker uid and knows the scratch layout, so creation alone
+        is not evidence that a verifier path still names what we created.
+        """
+        import stat
+
+        scratch = os.path.abspath(scratch)
+        place = os.path.abspath(place)
+        try:
+            scratch_state = os.lstat(scratch)
+        except OSError as failed:
+            raise TaskRefusal(
+                f"private scratch {scratch} cannot be validated "
+                f"({type(failed).__name__})") from failed
+        if not stat.S_ISDIR(scratch_state.st_mode):
+            raise TaskRefusal(
+                f"private scratch {scratch} is not an ordinary directory")
+        try:
+            inside = os.path.commonpath((scratch, place)) == scratch
+        except ValueError:
+            inside = False
+        if not inside or place == scratch:
+            raise TaskRefusal(
+                f"the child root {place} is not beneath private scratch "
+                f"{scratch}")
+        current = scratch
+        for component in os.path.relpath(place, scratch).split(os.sep):
+            current = os.path.join(current, component)
+            try:
+                held = os.lstat(current)
+            except OSError as failed:
+                raise TaskRefusal(
+                    f"the private child root component {current} cannot be "
+                    f"validated ({type(failed).__name__})") from failed
+            if not stat.S_ISDIR(held.st_mode):
+                raise TaskRefusal(
+                    f"the private child root component {current} is not an "
+                    f"ordinary directory; links and special files are "
+                    f"refused")
+            if stat.S_IMODE(held.st_mode) != 0o700:
+                raise TaskRefusal(
+                    f"the private child root component {current} has mode "
+                    f"{stat.S_IMODE(held.st_mode):04o}, not 0700")
+        resolved = os.path.realpath(place)
+        if os.path.commonpath((scratch, resolved)) != scratch:
+            raise TaskRefusal(
+                f"the private child root {place} resolves outside scratch "
+                f"to {resolved}")
+        return place
+
+    def _closed_environment(self, *, home, roots, scratch):
+        """The whole environment a child gets, composed member by member.
+
+        `HOME` and `PATH` are what this adapter always gave. The three cache
+        and temporary names are W85497's correction and they all point INSIDE
+        `ephemera`, which is under the private scratch and outside `candidate`.
+        Nothing else is added and `os.environ` is still never consulted.
+
+        EVERY NAMED ROOT IS CREATED HERE, and review 2026-09-04T13-56-04Z [P1]
+        is why that is not a detail. Only the OUTER directory was made; the
+        three children were named and absent, and an absent directory is one
+        the child silently ignores -- a probe of the composed environment found
+        Python presented with that `TMPDIR` selecting `/tmp` instead. A
+        boundary that depends on a directory existing is declarative until the
+        directory exists, so the loop below makes each one at the same mode as
+        its parent before either child is started.
+        """
+        composed = {"HOME": self._checked_directory(scratch, home),
+                    "PATH": "/usr/local/bin:/usr/bin:/bin"}
+        for name, _leaf in self.EPHEMERA_ROOTS:
+            # `compileall` WRITES BYTECODE AS ITS PURPOSE and ignores
+            # `PYTHONDONTWRITEBYTECODE`; `PYTHONPYCACHEPREFIX` is the name that
+            # decides WHERE, and it is the one that keeps the candidate clean.
+            composed[name] = self._checked_directory(scratch, roots[name])
+        return composed
+
+    def _revalidated_environment(self, scratch, environment):
+        """Re-prove the prepared paths after the provider had write access."""
+        checked = dict(environment)
+        checked["HOME"] = self._checked_directory(scratch, checked["HOME"])
+        for name, _leaf in self.EPHEMERA_ROOTS:
+            checked[name] = self._checked_directory(scratch, checked[name])
+        return checked
+
+    def _pinned_environment(self, scratch, environment):
+        """Open verifier roots before the provider can create descendants.
+
+        Review 2026-09-04T18-59-48Z [P1]: checking a pathname immediately
+        before launch still leaves a check/use interval. A provider descendant
+        can outlive its leader, replace the checked name with a link to the
+        candidate, and let the verifier resolve that link.
+
+        These descriptors hold the exact directory objects created before the
+        provider runs. The verifier inherits them explicitly and resolves only
+        `/proc/self/fd/<n>`; replacing a scratch pathname cannot redirect an
+        already-open object. The ordinary names remain useful for the provider
+        environment and for operator inspection, but they are no longer the
+        verifier's authority.
+        """
+        checked = self._revalidated_environment(scratch, environment)
+        pinned = {"PATH": checked["PATH"]}
+        held = []
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        try:
+            for name in ("HOME", *(one for one, _leaf in self.EPHEMERA_ROOTS)):
+                descriptor = os.open(checked[name], flags)
+                state = os.fstat(descriptor)
+                named = os.lstat(checked[name])
+                if (not stat.S_ISDIR(state.st_mode)
+                        or stat.S_IMODE(state.st_mode) != 0o700
+                        or (state.st_dev, state.st_ino)
+                        != (named.st_dev, named.st_ino)):
+                    os.close(descriptor)
+                    raise TaskRefusal(
+                        f"the private verifier root {checked[name]} did not "
+                        f"remain the exact owned mode-0700 directory while "
+                        f"it was opened")
+                held.append((name, descriptor))
+                pinned[name] = f"/proc/self/fd/{descriptor}"
+        except BaseException:
+            for _name, descriptor in held:
+                os.close(descriptor)
+            raise
+        return pinned, tuple(held)
+
+    @staticmethod
+    def _revalidated_directories(environment, directories):
+        """Validate held objects, never provider-writable pathnames."""
+        for name, descriptor in directories:
+            try:
+                state = os.fstat(descriptor)
+            except OSError as failed:
+                raise TaskRefusal(
+                    f"the held verifier root {name} cannot be validated "
+                    f"({type(failed).__name__})") from failed
+            if not stat.S_ISDIR(state.st_mode):
+                raise TaskRefusal(
+                    f"the held verifier root {name} is not a directory")
+            if stat.S_IMODE(state.st_mode) != 0o700:
+                raise TaskRefusal(
+                    f"the held verifier root {name} has mode "
+                    f"{stat.S_IMODE(state.st_mode):04o}, not 0700")
+            if state.st_nlink == 0:
+                raise TaskRefusal(
+                    f"the held verifier root {name} was removed after the "
+                    f"provider ran")
+            if environment[name] != f"/proc/self/fd/{descriptor}":
+                raise TaskRefusal(
+                    f"the verifier environment no longer names its held "
+                    f"{name} directory")
+        return tuple(descriptor for _name, descriptor in directories)
+
+    def _provider(self, task, candidate, scratch, environment):
         """One provider turn, over a closed argv and a closed environment.
 
         THE ENVIRONMENT IS COMPOSED, NEVER INHERITED. `os.environ` is not
         forwarded, and that is the point rather than tidiness: a credential
         variable present in this process would silently outrank every other
         source and decide which account the trial ran as. What the child gets
-        is `HOME`, `PATH` and nothing else.
+        is `HOME`, `PATH` and W85497's three ephemeral roots -- nothing else.
+
+        THE HOME IS STILL THE PREPARED CREDENTIAL HOME. The cache correction
+        moves where bytecode and temporaries LAND; it does not move the
+        provider's credential, which stays exactly where `_prepared_home` puts
+        it and is the one thing this turn cannot run without.
         """
-        home = self._prepared_home(scratch)
         argv = [PROVIDER_PROGRAM, *PROVIDER_ARGUMENTS, _prompt(task)]
         try:
             status, record, partial = self._ran_provider(
                 argv, cwd=candidate, seconds=PROVIDER_SECONDS,
-                env={"HOME": home,
-                     "PATH": "/usr/local/bin:/usr/bin:/bin"})
+                env=self._revalidated_environment(scratch, environment))
         except subprocess.TimeoutExpired:
             return {"ok": False, "status": None,
                     "failure_reason": PROVIDER_TIMED_OUT,
@@ -539,7 +792,7 @@ class ClaudeAgent:
             reader.join()
         return return_code, bytes(held), partial[0]
 
-    def _ran(self, argv, *, cwd, seconds, env):
+    def _ran(self, argv, *, cwd, seconds, env, pass_fds=()):
         """One child, bounded, WITH BOTH STREAMS ON `/dev/null`.
 
         THIS IS THE WHOLE BOUNDARY, and it is one line rather than a
@@ -585,6 +838,7 @@ class ClaudeAgent:
         a reason to publish untrusted bytes by default.
         """
         return self._run(argv, cwd=cwd, env=env, timeout=seconds,
+                         pass_fds=pass_fds,
                          stdout=subprocess.DEVNULL,
                          stderr=subprocess.DEVNULL).returncode
 
@@ -640,7 +894,7 @@ class ClaudeAgent:
             os.symlink(slot, link)
         return home
 
-    def _verify(self, task, candidate):
+    def _verify(self, task, candidate, environment, directories):
         """The task's OWN command, in the candidate copy, bounded.
 
         Run here so the proposal carries evidence the worker produced; the
@@ -667,11 +921,20 @@ class ClaudeAgent:
         # was rejected for the same reason in the third round: a defence that
         # depends on the child not knowing a path is not a boundary. `_ran` is
         # the boundary.
+        #
+        # ITS HOME IS NO LONGER THE CANDIDATE, which W85497 corrects. `HOME`
+        # pointed at the tree being measured, so anything the command wrote to
+        # its own home wrote into the proposal. It now gets a private,
+        # CREDENTIAL-FREE home beside the candidate rather than inside it: the
+        # provider's prepared home is deliberately NOT shared with this child,
+        # because that home exists to hold the link to the bearer and this
+        # command is provider-edited code.
         try:
-            status = self._ran(list(task["verification"]), cwd=candidate,
-                               seconds=VERIFICATION_SECONDS,
-                               env={"HOME": candidate,
-                                    "PATH": "/usr/local/bin:/usr/bin:/bin"})
+            pass_fds = self._revalidated_directories(environment, directories)
+            status = self._ran(
+                list(task["verification"]), cwd=candidate,
+                seconds=VERIFICATION_SECONDS,
+                env=environment, pass_fds=pass_fds)
         except subprocess.TimeoutExpired:
             return {"status": None,
                     "text": _transcript(task, f"did not finish within "

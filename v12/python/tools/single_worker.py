@@ -29,7 +29,7 @@ from baton_v12.authority import Authority, claim_signature
 from baton_v12.contracts import (ContractRefusal, check_manifest_structure,
                                  check_no_durable_secret, digest,
                                  digest_of_bytes)
-from baton_v12.job_manager import ManagerOperations
+from baton_v12.job_manager import ManagerOperations, RefreshUnavailable
 from baton_v12.worker_manager import (AuthorityPort, DISPOSITIONS,
                                       RETENTION_DISPOSITIONS, accept_offer,
                                       activate_assignment,
@@ -1140,6 +1140,98 @@ class _SingleWorker:
                     "unreadable": {"category": refusal.category,
                                    "code": refusal.code}}
 
+    def refresh_runtime(self, stage):
+        """Ask the ENGINE what this attempt's attached runtime is now.
+
+        W85500. THE SERVING LOOP'S ONE RUNTIME READ, and until this existed
+        there was none after the start. `request_runtime_start` attaches a
+        runtime and records it; `_prepared` reconciles only while a stage
+        still projects `claimed`; and `ending` reconciles only after an
+        `answered` terminal -- which an exceptional stage never reaches,
+        correctly, because it owes no act. So a worker that wrote a faulted
+        terminal and exited was projected `running` for as long as anybody
+        looked, while the engine independently reported the exact runtime
+        exited.
+
+        WHAT IT MAY NOT DO is the whole boundary. `reconcile_runtime` lists by
+        the complete immutable assignment labels, observes the exact attached
+        identity even when the listing is empty, and records the answer. It
+        starts nothing. This composition gives it a NAMING-ONLY adapter: no
+        credential is read, resolved or registered, no launch document is
+        authored or adopted, no command is published, no provider is invoked,
+        and no workspace material is written.
+
+        NOTHING TO REFRESH IS AN ANSWER, not a refusal. An attempt that never
+        attached a runtime has nothing for an engine to be asked about, and
+        asking would be this deployment inventing a question about a container
+        that does not exist. `None` is what the sweep reports as `not-asked`.
+
+        AND IT NEVER MANUFACTURES QUIESCENCE. What comes back is whatever the
+        reconciliation recorded. A stopped container is `quiescent` on the
+        RUNTIME axis and says nothing whatever about the worker's answer; the
+        ending stays gated on a correlated `answered` terminal.
+        """
+        attempt_id = stage["attempt_id"]
+        state = attempt_runtime_of(self.control, attempt_id)
+        if state is None or state["runtime_id"] is None:
+            return None
+        # A RUNTIME ALREADY AT THE END OF ITS AXIS IS NOT ASKED ABOUT AGAIN.
+        # The transition table names nothing after `destroyed`, so an engine
+        # answer could only be refused by the recorder -- and every sweep after
+        # a cleanup would become a refusal this pass then has to contain.
+        if state["execution_runtime"] == "destroyed":
+            return None
+        roots = workspaces.assignment_workspace(
+            self.group, self.given["workspace_storage"], attempt_id)
+        # NO CREDENTIAL, NO LAUNCH DELIVERY, NO ORPHAN. All three are absent on
+        # purpose: this call identifies and observes, and every one of those
+        # operands exists for a START.
+        adapter = self._adapter(roots, None, None, None)
+        # THE ENGINE'S OWN FAILURES, NAMED BY THE DEPLOYMENT THAT OWNS THEM.
+        # Review 2026-09-04T19:08:40Z [P1]: the manager caught `OSError` and
+        # then caught `Exception`, so it was deciding what an engine failure
+        # is on behalf of every deployment -- and turning everything else into
+        # report data `serve` discards on the next tick.
+        #
+        # THESE TWO ARE ONE OPERATIONAL FACT AND TWO PYTHON TYPES. The runner
+        # is `subprocess.run`: an invocation that could not be made at all --
+        # a missing engine binary -- arrives as `OSError`, and one that hit
+        # its deadline arrives as `TimeoutExpired`, which is not an `OSError`
+        # and used to reach the blanket branch. Both mean the question could
+        # not be put, and neither says anything about whether the container is
+        # still there.
+        #
+        # A DEAD DAEMON IS NOT ONE OF THEM, and review 2026-09-04T21:52:30Z
+        # measured that through this exact composition. The CLI runs perfectly
+        # well and answers NON-ZERO, so `OciAdapter.list` refuses it `policy /
+        # denied` and the manager reports that category and code. It is
+        # contained per stage like any other refusal and it records nothing on
+        # the runtime axis, so the accepted boundary holds -- but it is not
+        # `uncertain / engine-unreachable`, and this comment used to say it
+        # was. Telling an unreachable daemon apart from an ordinary policy or
+        # integrity refusal needs a typed adapter failure that does not exist
+        # yet; wrapping every OCI `ContractRefusal` instead would report a
+        # mislabelled runtime or a hand-edited listing as an unreachable
+        # engine, which is a different fact entirely.
+        #
+        # NOTHING WIDER. A defect in this composition is not an unreachable
+        # engine and must not be dressed as one; it escapes, and the manager
+        # lets it.
+        try:
+            reconcile_runtime(self.control, adapter, attempt_id=attempt_id)
+        except (OSError, subprocess.TimeoutExpired) as unreachable:
+            raise RefreshUnavailable(unreachable) from unreachable
+        # THE RECORDED AXIS, READ BACK, and not the reconciliation's own
+        # answer document. That document reports what this call OBSERVED, in
+        # one of several shapes depending on which branch it took; what the
+        # sweep reports is the durable runtime axis, which is the same fact
+        # every other reader sees and the one a restart reaches too. Reading
+        # it back also means this answer cannot disagree with the projection
+        # taken a moment later in the same tick.
+        return {"execution_runtime":
+                attempt_runtime_of(self.control,
+                                   attempt_id)["execution_runtime"]}
+
     def command(self, stage, job):
         """Publish THE ONE command sequence into this attempt's exchange.
 
@@ -1576,10 +1668,117 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
             observe_exchange=worker.observed_exchange,
             dispatch_exchange=worker.command,
             conclude_attempt=worker.ending,
+            # W85500: THE FOURTH, AND IT IS SERVING-ONLY. It records, so no
+            # status surface gets it; the observation-only composition is
+            # built without it for exactly that reason.
+            refresh_runtime=worker.refresh_runtime,
             worker=worker, dispose=authority.dispose)
     except BaseException:
         authority.dispose()
         raise
+
+
+class _Observation:
+    """W85500: the durable exchange reader, composed from NOTHING ELSE.
+
+    WHAT IT IS FOR. `tools.job_manager status` could never report a worker's
+    terminal, because `_ReadOnly` has no exchange read at all -- so the
+    run6 faulted terminal sat on disk, correlated and readable, while the one
+    command an operator runs printed `exchange: null`. The parser was not the
+    problem; nothing had been given a way to look.
+
+    WHAT IT DELIBERATELY IS NOT. `operations_from` configures the workspace
+    group and storage on the control store, certifies a profile, constructs a
+    credential home, opens an Authority and mints a session -- and hands back
+    an object carrying mint, delivery, start, dispatch, ending and pass. This
+    class does none of that and carries none of it. It reads immutable
+    configuration, it reads the already-open control store, and it adopts
+    launch material from disk.
+
+    IT HOLDS NO CONTROL STORE WRITE AND NO ENGINE. There is no runtime refresh
+    here on purpose: reconciling RECORDS what it saw, and a status command
+    that recorded would be a read that mutates. Runtime freshness belongs to
+    the serving loop.
+    """
+
+    def __init__(self, document, control_store, *, job_store=None):
+        given = _held(document)
+        # THE JOB STORE IS ACCEPTED AND NOT READ, exactly as `operations_from`
+        # accepts it: every factory has the same public shape.
+        #
+        # AN EARLIER DRAFT OF THIS CLASS COMPARED THE STORE'S AUTHORITY
+        # BINDING against the configured one, and that check has been removed
+        # rather than kept. It was written while W83781's candidate was in
+        # this checkout, and it reads `JobStore.authority_uuid` -- an
+        # attribute W83781 introduces and which this Work's declared base does
+        # not have. On this base `getattr` answers `None`, so the comparison
+        # would have refused EVERY observation, including every correct one.
+        #
+        # THE ORDERING IS THE REASON IT STAYS OUT. W83781 is ordered behind
+        # this Work rather than integrated over it, so a candidate here must
+        # not depend on it. The binding belongs to that Work's boundary and
+        # is its to enforce, in `operations_from` and in the store itself.
+        del job_store
+        self.given = given
+        self.control = control_store
+        self.launch_home = given["launch_home"]
+        # THE SAME GROUP THE SERVING DEPLOYMENT READS, from the same store.
+        # `launch.adopt` validates the delivery against it, so an observation
+        # that skipped it would either refuse every real launch or -- worse --
+        # accept one belonging to another group's workspace.
+        self.group = configured_workspace_group(control_store)
+
+    @staticmethod
+    def _session_of(attempt_id):
+        """The same derivation `_SingleWorker` uses, for the same reason.
+
+        Derived from the attempt, so a process that authored nothing reaches
+        the value the authoring process used without remembering anything.
+        """
+        return "session-" + digest(attempt_id)[7:31]
+
+    def observe_exchange(self, stage):
+        """The same reconstruction the serving deployment performs.
+
+        NEVER RAISES, for the reason the serving one does not: the projection
+        reads this for every stage on every pass, and one damaged launch root
+        must not stop a status run from reporting anything at all. What comes
+        back on a refusal is the category and the code and nothing else --
+        a refusal's prose is composed from values a worker wrote.
+        """
+        try:
+            attempt_id = stage["attempt_id"]
+            launched = launch.adopt(
+                self.launch_home, attempt_id=attempt_id,
+                session=self._session_of(attempt_id),
+                contract=self.given["launch_contract"],
+                role=self.given["launch_role"],
+                transport=exchange.EXCHANGE_TRANSPORT,
+                workspace_group=self.group)
+            if launched is None or launched.exchange is None:
+                return None
+            return exchange.observation(launched.exchange)
+        except ContractRefusal as refusal:
+            return {"transport": exchange.EXCHANGE_TRANSPORT,
+                    "sequence_id": None, "command": None, "receipt": None,
+                    "states": [], "terminal": None, "foreign": [],
+                    "state": "unreadable",
+                    "unreadable": {"category": refusal.category,
+                                   "code": refusal.code}}
+
+
+def observation_from(document, job_store, control_store):
+    """Build the observation-only surface from one already-read document."""
+    return _Observation(document, control_store, job_store=job_store)
+
+
+def observing_factory(job_store, control_store):
+    """The `status --observe` entry point, named the same way `factory` is."""
+    place = os.environ.get(CONFIG_ENV)
+    if place is None:
+        _refuse(f"{CONFIG_ENV} names the required absolute deployment "
+                "configuration path", category="refused", code="capability")
+    return observation_from(_read(place), job_store, control_store)
 
 
 def factory(job_store, control_store):

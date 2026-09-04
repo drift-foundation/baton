@@ -139,3 +139,26 @@ prerequisites and sequence so graph changes cannot make it stale. This finding
 retains the Work identifiers above solely as chronological evidence of what
 happened and why the launch conclusion changed; they are not a second source of
 current scheduler truth.
+
+## First ordinary self-hosted run6 outcome — 2026-09-04
+
+Run6 proved the production path far enough to admit and claim the Work, start
+the selected real Claude image, publish the durable command, run the provider,
+and receive a durable terminal. Claude itself returned status 0 after editing
+ten substantive paths. The attempt is nevertheless not a review candidate:
+
+- the worker terminal is `faulted` because mandatory compilation returned 1;
+- the selected Claude image contains Python 3.11 while this distribution
+  requires Python 3.13 or newer, and the exact failure is unchanged
+  `worker_manager/custody.py` syntax that passes on host Python 3.13.7;
+- the compile verifier added 149 Python 3.11 cache paths, inflating the patch
+  to 10,779,527 bytes; and
+- after Docker recorded the container exited, the live Job Manager continued
+  to report the stage `starting`, its runtime `running`, and no exchange.
+
+The retained proposal is diagnostic evidence only and must not be imported.
+The Python-floor/candidate-clean verification defect (W85497) and the missing
+faulted terminal observation (W85500) each have their own top-level record
+because both affect every future workload, not only this source/workspace
+change. A fresh ordinary self-hosted attempt follows those bounded corrections;
+no manual conversion of run6 into a successful answer is permitted.

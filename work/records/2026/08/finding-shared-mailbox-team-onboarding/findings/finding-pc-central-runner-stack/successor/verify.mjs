@@ -44,6 +44,9 @@ const validatedAcp = validateAcp(acp);
 if (validatedAcp.baton.participant !== "pc.code" || validatedAcp.baton.role !== "impl") {
 	throw new Error("pc.code ACP identity/role mismatch");
 }
+if (validatedAcp.runtime.actionOwner !== "pc.slaw") {
+	throw new Error("pc.code ACP recovery owner mismatch");
+}
 if (validatedAcp.agent.env.BATON_BIN !== validatedAcp.baton.binary
 		|| validatedAcp.agent.env.BATON_CONFIG !== validatedAcp.baton.config
 		|| validatedAcp.agent.env.BATON_PARTICIPANT !== validatedAcp.baton.participant

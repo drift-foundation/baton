@@ -215,14 +215,20 @@ class JobManagerCase(unittest.TestCase):
         row = {one["stage_id"]: one for one in stage_rows(store)}[stage_id]
         return attempting(row, live_of(store, stage_id))
 
-    def operations(self, control=None, port=None):
+    def operations(self, control=None, port=None, **supplied):
+        """The REAL operations object, with any optional capability supplied.
+
+        `**supplied` reaches `ManagerOperations` unchanged, so a case about one
+        optional capability names exactly that one and every other stays
+        absent -- which is the posture the class documents.
+        """
         from baton_v12.worker_manager import AuthorityPort
 
         control = control if control is not None else self.control()
         port = port if port is not None else AuthorityPort(
             self.session, fake_claim_signature)
         return ManagerOperations(control, port, mint_bearer=self.mint,
-                                 deliver_bearer=self.deliver)
+                                 deliver_bearer=self.deliver, **supplied)
 
     def mint(self):
         bearer = f"bearer-{len(self.minted) + 1}"
@@ -260,6 +266,8 @@ class FakeOperations:
         self.recorded_failures = {}
         self.commands = {}
         self.endings = {}
+        self.refreshes = {}
+        self.refreshed_calls = []
         self.attaching = set()
         self.events = EventQueue()
         self.calls = []
@@ -447,7 +455,56 @@ class FakeOperations:
     def observe(self, stage):
         return self.observations.get(stage["stage_id"], _unobserved())
 
+    def refresh_runtime(self, stage):
+        """The deployment's engine refresh, as a case configures it.
+
+        DEFAULT IS `None` AND NOT A REFUSAL, because that is what
+        `ManagerOperations` answers with no `refresh_runtime`: a control plane
+        with no engine is a real deployment, and silence about a runtime is not
+        a claim that one is gone. A case that wants a refreshed -- or a
+        refusing -- runtime says so with `refreshed`.
+
+        A PERFORMED REFRESH MOVES THE OBSERVATION, because the real one does:
+        the reconciliation WRITES what it saw, so the very next canonical read
+        reports it. A fake that answered `quiescent` and left the observation
+        saying `running` would let a case pass that the production composition
+        could not.
+
+        RECORDED BESIDE `calls`, NOT IN IT, and that is a boundary rather than
+        tidiness. `calls` is this fake's record of the ACTS a pass performed,
+        and cases in several modules -- including ones this Work has no
+        authority to edit -- assert it exactly to prove that a given pass
+        performed nothing. A per-tick observation every live stage receives
+        would change what all of those assertions mean.
+        """
+        stage_id = stage["stage_id"]
+        self.refreshed_calls.append(stage_id)
+        held = self.refreshes.get(stage_id)
+        if held is None:
+            return None
+        if isinstance(held, BaseException):
+            raise held
+        # THE REAL SEAM'S OWN RULE, applied here rather than reimplemented.
+        # W85500 review 2026-09-04T14-27-54Z [P1] is about what the manager
+        # accepts from a deployment; a fake that was MORE permissive than
+        # `ManagerOperations` would let a case pass that production could not,
+        # which is the one thing a stand-in must never do.
+        from baton_v12.job_manager.delegation import _refreshed
+
+        held = _refreshed(held, stage)
+        seen = self.observations.get(stage_id)
+        if held is not None and seen is not None \
+                and seen.get("runtime") is not None:
+            runtime = dict(seen["runtime"])
+            runtime["execution_runtime"] = held["execution_runtime"]
+            self.observations[stage_id] = dict(seen, runtime=runtime)
+        return held
+
     # -- what a case sets ----------------------------------------------------
+
+    def refreshed(self, stage_id, execution_runtime="quiescent"):
+        """What this stage's engine refresh answers on the next sweep."""
+        self.refreshes[stage_id] = {"execution_runtime": execution_runtime}
 
     def refuse(self, stage_id, act, refusal):
         self.refusals[(stage_id, act)] = refusal

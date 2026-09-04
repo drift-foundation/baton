@@ -2168,6 +2168,496 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
+    """W85500: the fault/exit race, through the real owners.
+
+    THE MEASURED DEFECT. The W71917 run6 worker wrote a correlated terminal
+    with `ending: faulted` and `fault_code: output`, then its container exited
+    with code 1. More than a minute later the live persistent Job Manager still
+    projected the stage as `starting`, the runtime as `running`, and
+    `exchange: null` -- while the engine independently reported that exact
+    runtime exited.
+
+    WHAT THESE CASES REPRODUCE, EXACTLY. The race and not the code. The
+    terminal here is a real one written by the real `baton_worker` over the
+    real exchange, but its `Silent` agent FAILS ITS TURN, so the code the
+    worker correlates is `fault_code: agent` and every assertion below names
+    that. Producing run6's `output` needs a broken completion-envelope
+    publication rather than a failing provider -- a different defect, and not
+    this Work's; `Silent`'s own docstring carries the reasoning. Every member
+    of `exchange.FAULT_CODES` reaches the projection identically, because it
+    is the terminal's `ending` that maps to `exceptional` and the code travels
+    beside it, so the defect above is reproduced by a correlated FAULTED
+    terminal on disk with the container gone and nothing having asked.
+
+    Nothing about the terminal is hand-written, so a change to the worker's own
+    correlation rules fails here rather than being agreed with by a fixture.
+    """
+
+    class Exiting(Engine):
+        """A container that stops on its own, as a faulted worker's does.
+
+        `TheAnsweredEndingRunsThroughTheRealOwners.quiescing` models a runtime
+        the MANAGER stopped. This one exits without being asked, which is the
+        whole race: nothing ordered it, so nothing in the manager had a reason
+        to look.
+        """
+
+        def __init__(self):
+            super().__init__()
+            self.exited = False
+            # W85500 re-review 2026-09-04T19:08:40Z [P1]: what the ENGINE
+            # BOUNDARY itself raises, so a case can drive the real
+            # `_SingleWorker.refresh_runtime` translation rather than a
+            # stand-in for it. `None` is every other case's ordinary engine.
+            self.raising = None
+            # W85500 re-review 2026-09-04T21:52:30Z [P2]: what a DEAD DAEMON
+            # answers, which is an ordinary non-zero result and not a raised
+            # exception. Set to a whole answer document so the case owns the
+            # exact shape the CLI produces.
+            self.refusing = None
+
+        def __call__(self, argv, *, seconds=None):
+            if self.raising is not None:
+                raise self.raising
+            if self.refusing is not None:
+                # RECORDED AND ANSWERED, because a refused vector is one the
+                # engine was still asked for; only the answer differs.
+                self.vectors.append(list(argv))
+                return dict(self.refusing)
+            answer = super().__call__(argv, seconds=seconds)
+            if argv[1] == "inspect" and self.exited:
+                body = json.loads(answer["stdout"])
+                body["State"]["Running"] = False
+                answer = Engine.answer(stdout=json.dumps(body))
+            return answer
+
+    class Silent:
+        """A provider substitute whose turn fails, as run6's effectively did.
+
+        THE FAULT IS THE WORKER'S OWN, not this class's. `baton_worker` turns
+        an agent exception into a correlated faulted terminal carrying
+        `fault_code: agent` and nothing else -- no traceback, no message, no
+        type name -- and returns 1. So what these cases drive is the real
+        correlation path over the real exchange.
+
+        WHY NOT run6's EXACT `output` CODE. That one is raised when a
+        well-formed `work` answer cannot name the completion envelope, and the
+        worker PUBLISHES that envelope itself from the answer -- so producing
+        it needs a broken publication rather than a failing provider, which is
+        a different defect and not this Work's. Every member of
+        `exchange.FAULT_CODES` reaches the projection identically: the
+        terminal's `ending` is what maps to `exceptional`, and the code
+        travels beside it. The cases below assert the code is in that closed
+        vocabulary as well as naming this one, so a build that widened the set
+        fails here.
+        """
+
+        def __init__(self):
+            self.turns = 0
+
+        def consider(self, seen, request):
+            return {"decision": "decline", "contract_digest": "",
+                    "reason": "this fixture agent is not asked to consent"}
+
+        def work(self, seen, declared):
+            del seen, declared
+            self.turns += 1
+            raise RuntimeError("the fixture provider could not finish")
+
+    def faulted(self, incarnation):
+        """Drive the pipeline to a real correlated faulted terminal.
+
+        Returns everything a later sweep or a fresh incarnation needs, plus
+        the agent, so a restart can prove the provider was not entered twice.
+        """
+        import baton_worker
+
+        engine = self.Exiting()
+        job, control = self.stores(incarnation)
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+        attempt_id = stage["attempt_id"]
+        home = os.path.join(self.storage, attempt_id)
+        delivered = single_worker.launch.adopt(
+            self.config["launch_home"], attempt_id=attempt_id,
+            session="session-" + digest(attempt_id)[7:31],
+            contract=self.config["launch_contract"], role="implementation",
+            transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+            workspace_group=single_worker.configured_workspace_group(control))
+        for name, value in (("INPUT_ROOT", os.path.join(home, "inputs")),
+                            ("OUTPUT_ROOT", os.path.join(home, "workspace"))):
+            held = getattr(baton_worker, name)
+            setattr(baton_worker, name, value)
+            self.addCleanup(setattr, baton_worker, name, held)
+        agent = self.Silent()
+        # THE WORKER ANSWERS NON-ZERO, which is what a faulted turn does.
+        self.assertEqual(
+            baton_worker.serve_exchange(
+                agent, delivered.document, delivered.document["session"],
+                delivered.exchange.command_root,
+                delivered.exchange.event_root), 1)
+        # AND THEN THE CONTAINER GOES AWAY, between sweeps and unasked.
+        engine.exited = True
+        return job, control, operations, engine, agent, attempt_id, delivered
+
+    def projected(self, job, operations):
+        return status(job, operations,
+                      observed_at=fixtures.NOW)["jobs"][0]["stages"][0]
+
+    def test_the_next_sweep_reports_exceptional_and_a_quiescent_runtime(self):
+        """BOTH AXES, FROM ONE SWEEP, and neither derived from the other."""
+        job, _control, operations, engine, _agent, _attempt, _held = \
+            self.faulted("fault-1")
+        before = len(engine.starts)
+        report = sweep(job, operations, now=fixtures.NOW)
+        held = self.projected(job, operations)
+        self.assertEqual(held["state"], "exceptional")
+        # THE EXCHANGE AXIS: the worker's own correlated terminal, read from
+        # the durable file rather than from a live container.
+        self.assertEqual(held["exchange"]["state"], "faulted")
+        self.assertEqual(held["exchange"]["terminal"]["ending"], "faulted")
+        self.assertEqual(held["exchange"]["terminal"]["fault_code"], "agent")
+        self.assertIn(held["exchange"]["terminal"]["fault_code"],
+                      single_worker.exchange.FAULT_CODES)
+        # THE RUNTIME AXIS: the exact container, observed as gone.
+        self.assertEqual(held["runtime"]["execution_runtime"], "quiescent")
+        refreshed = {one["attempt_id"]: one for one in report["refreshed"]}
+        self.assertEqual(refreshed[held["attempt_id"]]["state"], "quiescent")
+        # AND NOTHING WAS STARTED TO FIND THAT OUT.
+        self.assertEqual(len(engine.starts), before)
+        operations.close()
+
+    def unreachable(self, incarnation, raising):
+        """One sweep whose engine cannot be asked, through the real seam."""
+        job, control, operations, engine, _agent, _attempt, _held = \
+            self.faulted(incarnation)
+        before = self.projected(job, operations)["runtime"][
+            "execution_runtime"]
+        engine.raising = raising
+        report = sweep(job, operations, now=fixtures.NOW)
+        engine.raising = None
+        held = self.projected(job, operations)
+        operations.close()
+        return report, held, before
+
+    def test_an_engine_that_cannot_be_asked_is_uncertain_not_gone(self):
+        """W85500 re-review 2026-09-04T19:08:40Z [P1], at the real seam.
+
+        The manager used to catch `OSError` itself and then catch `Exception`
+        after it. It is the DEPLOYMENT that knows which of its own failures
+        mean the engine could not be reached, so it names them: this
+        composition's runner is `subprocess.run`, and an invocation that could
+        not be made at all -- a missing engine binary -- arrives from it as
+        `OSError`. A dead daemon is NOT this shape, which
+        `test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine`
+        measures.
+
+        NOTHING IS RECORDED FROM AN UNASKED QUESTION. The runtime axis keeps
+        exactly what it last knew, which is the honest difference between
+        "gone" and "nobody could ask" -- and the durable terminal, which lives
+        on a different axis entirely, is still read and still projected.
+        """
+        report, held, before = self.unreachable(
+            "fault-unreachable", OSError("no such engine binary"))
+        refreshed = {one["attempt_id"]: one for one in report["refreshed"]}
+        self.assertEqual(refreshed[held["attempt_id"]]["state"], None)
+        self.assertEqual(refreshed[held["attempt_id"]]["detail"],
+                         {"category": "uncertain",
+                          "code": "engine-unreachable", "error": "OSError"})
+        # THE ENGINE'S OWN PROSE IS NOWHERE IN THE REPORT.
+        self.assertNotIn("no such engine binary", json.dumps(report))
+        # THE RUNTIME AXIS IS UNTOUCHED, not quiesced and not destroyed.
+        self.assertEqual(held["runtime"]["execution_runtime"], before)
+        # AND THE OTHER AXIS WAS READ ANYWAY.
+        self.assertEqual(held["exchange"]["state"], "faulted")
+        self.assertEqual(held["exchange"]["terminal"]["fault_code"], "agent")
+        self.assertEqual(held["state"], "exceptional")
+
+    def test_a_runner_that_timed_out_is_the_same_unasked_question(self):
+        """The type that used to reach the blanket branch.
+
+        `subprocess.TimeoutExpired` is not an `OSError`, and it is the same
+        operational fact: the question could not be put. Under the previous
+        candidate it was reported as an implementation `fault` -- and on any
+        tick but the last one of a serving run, reported nowhere at all.
+        """
+        report, held, _before = self.unreachable(
+            "fault-timeout",
+            subprocess.TimeoutExpired(["docker", "inspect"], 600))
+        refreshed = {one["attempt_id"]: one for one in report["refreshed"]}
+        self.assertEqual(refreshed[held["attempt_id"]]["detail"],
+                         {"category": "uncertain",
+                          "code": "engine-unreachable",
+                          "error": "TimeoutExpired"})
+        self.assertEqual(held["state"], "exceptional")
+
+    def test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine(self):
+        """Review 2026-09-04T21:52:30Z [P2]: WHAT THIS BOUNDARY REALLY SEES.
+
+        The operator documentation and the source comment both promised that a
+        dead daemon socket arrives as `OSError` and is therefore reported
+        `uncertain / engine-unreachable`. It does not. The CLI runs perfectly
+        well and answers NON-ZERO, so `OciAdapter.list` refuses the listing
+        `policy / denied`, and that is the category and code the stage carries.
+
+        The accepted containment boundary is untouched by that -- the refusal
+        stays on this stage, nothing is recorded on the runtime axis, and the
+        durable terminal is still read and still projected -- so what this
+        pins is the PROMISE rather than the behaviour. Telling an unreachable
+        daemon apart from a genuine policy or integrity refusal needs a typed
+        adapter failure this build does not have, and a later build that adds
+        one has to change this case to say so.
+        """
+        job, _control, operations, engine, _agent, _attempt, _held = \
+            self.faulted("fault-dead-daemon")
+        before = self.projected(job, operations)["runtime"][
+            "execution_runtime"]
+        engine.refusing = Engine.answer(
+            status=1, stderr="Cannot connect to the Docker daemon at "
+                             "unix:///var/run/docker.sock. Is the docker "
+                             "daemon running?\n")
+        report = sweep(job, operations, now=fixtures.NOW)
+        engine.refusing = None
+        held = self.projected(job, operations)
+        operations.close()
+        refreshed = {one["attempt_id"]: one for one in report["refreshed"]}
+        self.assertEqual(refreshed[held["attempt_id"]]["state"], None)
+        self.assertEqual(refreshed[held["attempt_id"]]["detail"],
+                         {"category": "policy", "code": "denied"})
+        # THE DAEMON'S OWN PROSE IS NOWHERE IN THE REPORT.
+        self.assertNotIn("docker daemon", json.dumps(report))
+        # THE RUNTIME AXIS IS UNTOUCHED, and the other axis was read anyway.
+        self.assertEqual(held["runtime"]["execution_runtime"], before)
+        self.assertEqual(held["exchange"]["state"], "faulted")
+        self.assertEqual(held["exchange"]["terminal"]["fault_code"], "agent")
+        self.assertEqual(held["state"], "exceptional")
+
+    def test_an_arbitrary_defect_in_this_composition_escapes(self):
+        """AND THE OTHER HALF OF THE SAME RULE.
+
+        Only what this deployment NAMED is translated. A defect in its own
+        code is not an unreachable engine, must not be dressed as one, and
+        must not become per-tick report data that `serve` discards on the next
+        successful tick. It escapes to whoever is running the loop.
+        """
+        job, _control, operations, engine, _agent, _attempt, _held = \
+            self.faulted("fault-defect")
+        engine.raising = RuntimeError("this composition has a defect")
+        with self.assertRaises(RuntimeError) as raised:
+            sweep(job, operations, now=fixtures.NOW)
+        self.assertIn("this composition has a defect", str(raised.exception))
+        engine.raising = None
+        operations.close()
+
+    def test_the_fault_alone_authorizes_no_act_at_all(self):
+        """The acceptance's negative half, read from the OWNERS' own records.
+
+        A faulted terminal is not a successful answer. No freeze, no intake, no
+        retention, no Authority pass, no cleanup, no replacement attempt, no
+        second command and no second provider turn follow from it.
+        """
+        from baton_v12.worker_manager import (intake_receipt_of,
+                                              retentions_of)
+
+        job, control, operations, engine, agent, attempt_id, _held = \
+            self.faulted("fault-2")
+        commands = [one for one in engine.vectors if one[1] == "run"]
+        report = sweep(job, operations, now=fixtures.NOW)
+        self.assertEqual(report["spoken"], [])
+        self.assertEqual(report["acts"], [])
+        self.assertIsNone(intake_receipt_of(control, attempt_id))
+        self.assertFalse(retentions_of(control, attempt_id))
+        self.assertEqual(agent.turns, 1)
+        self.assertEqual([one for one in engine.vectors if one[1] == "run"],
+                         commands)
+        self.assertEqual(self.projected(job, operations)["episode"], 1)
+        operations.close()
+
+    def test_repeated_sweeps_replay_the_same_facts_and_do_nothing(self):
+        job, _control, operations, engine, agent, _attempt, _held = \
+            self.faulted("fault-3")
+        first = self.projected(job, operations)
+        sweep(job, operations, now=fixtures.NOW)
+        after = self.projected(job, operations)
+        sweep(job, operations, now=fixtures.NOW)
+        again = self.projected(job, operations)
+        self.assertEqual(after, again)
+        self.assertEqual(again["state"], "exceptional")
+        self.assertEqual(agent.turns, 1)
+        self.assertEqual(len(engine.starts), 1)
+        del first
+        operations.close()
+
+    def test_a_fresh_incarnation_reconstructs_the_same_observation(self):
+        """THE RESTART CONTROL. The manager's lifetime is not the container's,
+        and the terminal is a file: a process that saw none of this reaches
+        exactly the same answer by rereading exactly the same bytes."""
+        job, control, operations, engine, agent, attempt_id, held = \
+            self.faulted("fault-4")
+        sweep(job, operations, now=fixtures.NOW)
+        was = self.projected(job, operations)
+        operations.close()
+        job.close()
+        control.close()
+
+        resumed_job, resumed_control = self.stores("fault-4-resumed")
+        resumed = self.operations(resumed_job, resumed_control, engine)
+        report = reconcile(resumed_job, resumed, now=fixtures.NOW)
+        now = status(resumed_job, resumed,
+                     observed_at=fixtures.NOW)["jobs"][0]["stages"][0]
+        self.assertEqual(now["state"], "exceptional")
+        self.assertEqual(now["exchange"]["terminal"]["fault_code"], "agent")
+        self.assertEqual(now["runtime"]["execution_runtime"], "quiescent")
+        self.assertEqual(now["attempt_id"], was["attempt_id"])
+        self.assertEqual(now["episode"], was["episode"])
+        # NOTHING WAS RE-DONE: no new runtime, no second provider turn, no act.
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(agent.turns, 1)
+        self.assertEqual(report["spoken"], [])
+        self.assertEqual(report["acts"], [])
+        # AND THE RETAINED EVIDENCE IS STILL THERE, unmodified.
+        self.assertTrue(os.path.lexists(os.path.join(
+            held.exchange.event_root,
+            single_worker.exchange.TERMINAL_DOCUMENT)))
+        del attempt_id
+        resumed.close()
+
+    def test_the_observation_only_status_surface_reports_the_same_terminal(
+            self):
+        """PLAN ITEM 5, WHERE A CLAIM EXISTS.
+
+        The tool's own cases prove the operand is resolved, asked and released;
+        this proves the thing the operator actually wanted -- a faulted
+        terminal appearing in a status document produced with NO serving
+        deployment, no Authority and no engine.
+        """
+        from baton_v12.job_manager import status as project
+        from tools.job_manager import _Observing
+
+        job, control, operations, _engine, _agent, _attempt, _held = \
+            self.faulted("fault-5")
+        sweep(job, operations, now=fixtures.NOW)
+        operations.close()
+
+        observed = single_worker.observation_from(self.config, job, control)
+        held = project(job, _Observing(control, observed),
+                       observed_at=fixtures.NOW)["jobs"][0]["stages"][0]
+        self.assertEqual(held["exchange"]["state"], "faulted")
+        self.assertEqual(held["exchange"]["terminal"]["fault_code"], "agent")
+        self.assertEqual(held["state"], "exceptional")
+        # AND THE RUNTIME AXIS IS THE SERVING LOOP'S, reported exactly as the
+        # store holds it rather than refreshed by this read.
+        self.assertEqual(held["runtime"]["execution_runtime"], "quiescent")
+
+    def test_a_real_observing_status_run_mutates_no_durable_state(self):
+        """W85500 review 2026-09-04T14-27-54Z [P1]: BEHAVIOUR, not capability.
+
+        The other cases prove the surface HOLDS no act and that its
+        `refresh_runtime` answers `None`. Neither of them would notice a
+        durable write arriving by some other route, and "no Authority acts AND
+        no durable mutation" is the accepted distinction from serving
+        operations.
+
+        So this runs the REAL `tools.job_manager status --observe` command --
+        the operator's actual invocation, through `main`, with both stores
+        closed first so nothing this process holds can mask a write -- and
+        compares every byte of every durable file this deployment owns before
+        and after. The terminal must still come back, or the run proved
+        nothing: an observation that returned nothing would also mutate
+        nothing.
+        """
+        import hashlib
+        import io as streams
+
+        from tools.job_manager import main as tool
+
+        job, control, operations, _engine, _agent, _attempt, _held = \
+            self.faulted("observe-durable")
+        sweep(job, operations, now=fixtures.NOW)
+        operations.close()
+        job.close()
+        control.close()
+
+        def durable():
+            """Every durable byte this deployment owns, by path.
+
+            The two stores AND their write-ahead siblings, plus the launch and
+            exchange trees, because a write that landed only in a `-wal` file
+            is still a write.
+            """
+            found = {}
+            for root in (self.root,):
+                for base, _directories, files in os.walk(root):
+                    for name in files:
+                        place = os.path.join(base, name)
+                        with open(place, "rb") as reading:
+                            found[os.path.relpath(place, root)] = \
+                                hashlib.sha256(reading.read()).hexdigest()
+            return found
+
+        # THE OPERATOR'S OWN INVOCATION, which resolves its configuration from
+        # the environment exactly as the documented command does. Written
+        # OUTSIDE the tree this case digests, so staging it is not itself the
+        # change being measured.
+        place = os.path.join(self._temporary.name, "..", "observe-config.json")
+        place = os.path.abspath(place)
+        self.addCleanup(lambda: os.path.exists(place) and os.unlink(place))
+        with open(place, "w", encoding="utf-8") as writing:
+            json.dump(self.config, writing)
+
+        before = durable()
+        # A SNAPSHOT OF NOTHING WOULD COMPARE EQUAL TO A SNAPSHOT OF NOTHING.
+        # The stores and the launch tree are all under this root, so an empty
+        # inventory here means the walk is looking in the wrong place.
+        self.assertGreater(len(before), 10, sorted(before))
+        self.assertTrue(any(one.endswith("jobs.sqlite3") for one in before),
+                        sorted(before))
+        self.assertTrue(any(one.endswith("control.sqlite3") for one in before),
+                        sorted(before))
+        stream = streams.StringIO()
+        with mock.patch.dict(os.environ,
+                             {single_worker.CONFIG_ENV: place}, clear=False):
+            code = tool(["--store", self.job_path,
+                         "--incarnation", "observing-1",
+                         "status", "--control", self.control_path,
+                         "--observe",
+                         "tools.single_worker:observing_factory"],
+                        clock=lambda: fixtures.NOW, stream=stream)
+        after = durable()
+
+        self.assertEqual(code, 0)
+        answered = json.loads(stream.getvalue())
+        stage = answered["jobs"][0]["stages"][0]
+        # THE TERMINAL CAME BACK, or this measured an empty run.
+        self.assertEqual(stage["exchange"]["state"], "faulted")
+        self.assertEqual(stage["exchange"]["terminal"]["fault_code"], "agent")
+        self.assertEqual(stage["state"], "exceptional")
+        # AND NOTHING THIS DEPLOYMENT OWNS CHANGED, byte for byte.
+        self.assertEqual(sorted(after), sorted(before),
+                         "an observing status run added or removed a durable "
+                         "file")
+        altered = sorted(one for one in before
+                         if before[one] != after.get(one))
+        self.assertEqual(altered, [],
+                         f"an observing status run rewrote durable state: "
+                         f"{altered}")
+
+    def test_the_observation_only_surface_opens_no_authority_and_no_engine(
+            self):
+        """What it is NOT, asserted rather than promised."""
+        job, control, operations, _engine, _agent, _a, _h = \
+            self.faulted("fault-6")
+        operations.close()
+        observed = single_worker.observation_from(self.config, job, control)
+        for act in ("admit", "claim", "launch", "dispatch", "conclude",
+                    "start", "delivered", "ending", "command",
+                    "refresh_runtime"):
+            self.assertFalse(hasattr(observed, act), act)
+        self.assertTrue(hasattr(observed, "observe_exchange"))
+
+
 class TheAnsweredEndingRunsThroughTheRealOwners(SingleWorkerCase):
     """W81857 review 2026-09-04T03-43-45Z [P1]: the ending, not a fake of it.
 

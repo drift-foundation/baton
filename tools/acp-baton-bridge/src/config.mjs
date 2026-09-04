@@ -231,13 +231,14 @@ export function validateConfig(raw) {
 	// runner from a Gemini one when every ACP lease publishes adapter
 	// `acp` and nothing else — and neither may be inferred from a
 	// participant name or an executable path, which is exactly how a
-	// roster starts lying. It is optional, validated, and carried
-	// through verbatim.
+	// roster starts lying. Provider and model are optional; every supplied
+	// value is validated and carried through verbatim.
 	//
-	// `actionOwner` is the participant who owes this runner's
-	// interactive answers. The authority already accepts it; without it
-	// here, a `waiting-input` state can never become the ruled
-	// actionable Inbox entry. No owner is ever guessed.
+	// W55705/W85873: `actionOwner` is the participant who owes this runner's
+	// interactive answers AND its stranded-claim incident. It is required and
+	// cannot be the runner: without an external owner the durable incident is
+	// either refused or retained behind the very fence it must resolve. No
+	// owner is ever guessed from the runner, Route, role, session or telemetry.
 	let runtime = { provider: undefined, model: undefined,
 		actionOwner: undefined };
 	if (raw.runtime !== undefined) {
@@ -262,6 +263,16 @@ export function validateConfig(raw) {
 				&& !/^[^.\s]+\.[^.\s]+$/.test(runtime.actionOwner)) {
 			fail("runtime.actionOwner must be team.member");
 		}
+	}
+	if (runtime.actionOwner === undefined) {
+		fail("runtime.actionOwner is required: name an explicit recovery/"
+			+ "operations participant as team.member; it is never inferred from "
+			+ "the runner, Route, role, session or runtime telemetry");
+	}
+	if (runtime.actionOwner === baton.participant) {
+		fail("runtime.actionOwner must differ from baton.participant: a "
+			+ "stranded-claim incident addressed back to the fenced runner "
+			+ "cannot be acted on");
 	}
 
 	return {

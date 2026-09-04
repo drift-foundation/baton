@@ -11,11 +11,13 @@ changes-requested or exceptional stays blocked rather than being pushed
 through; and an ordinary refusal leaves the act owed instead of recording one.
 """
 
+import json
+import subprocess
 import unittest
 
 from baton_v12.contracts import ContractRefusal
-from baton_v12.job_manager import (JobStore, owed_acts, receipt_rows,
-                                   receipts_of, sweep,
+from baton_v12.job_manager import (JobStore, RefreshUnavailable, owed_acts,
+                                   receipt_rows, receipts_of, status, sweep,
                                    submit)
 from baton_v12.job_manager.episodes import identities
 
@@ -250,6 +252,256 @@ class Containment(SweepCase):
         # one stays contained rather than being retried or discarded.
         self.assertEqual(self.outcomes(sweep(self.jobs, self.acts, now=LATER)),
                          [("job-b/implementation", "claim", "performed")])
+
+
+class TheEngineIsAskedBeforeAnythingIsProjected(SweepCase):
+    """W85500: the runtime axis, refreshed on every tick.
+
+    THE DEFECT. A start attaches a runtime and records it; every ordinary
+    sweep afterwards read that recorded row, and the only other caller of the
+    reconciliation is the successful ending -- which an exceptional stage
+    never reaches, correctly, because it owes no act. So a worker that wrote a
+    faulted terminal and exited stayed projected `running` for as long as
+    anybody looked.
+    """
+
+    def live(self):
+        """Which stages have an episode currently answering for them."""
+        from baton_v12.job_manager import episodes, submission as rows
+
+        return sorted(one["stage_id"] for one in rows.stage_rows(self.jobs)
+                      if episodes.live_of(self.jobs, one["stage_id"])
+                      is not None)
+
+    def test_exactly_the_stages_with_a_live_episode_are_refreshed(self):
+        """NOT "every stage". A stage whose episode is over has identities
+        belonging to an attempt that is finished, and asking the engine about
+        them would refresh somebody else's runtime into this stage's row."""
+        self.submit()
+        sweep(self.jobs, self.acts, now=NOW)
+        report = sweep(self.jobs, self.acts, now=LATER)
+        self.assertEqual(sorted(one["stage_id"] for one in
+                                report["refreshed"]), self.live())
+        self.assertEqual(len(report["refreshed"]), len(self.live()))
+        # AND EACH ONE NAMES THE EPISODE AND ATTEMPT IT ASKED ABOUT, so a
+        # reader can tell which attempt an answer belongs to.
+        for one in report["refreshed"]:
+            self.assertIsInstance(one["episode"], int)
+            self.assertTrue(one["attempt_id"].startswith("attempt-"))
+
+    def test_a_deployment_with_no_refresh_says_not_asked(self):
+        """`None` is 'nobody looked', not 'the runtime is gone'."""
+        self.submit()
+        report = sweep(self.jobs, self.acts, now=NOW)
+        self.assertEqual({one["state"] for one in report["refreshed"]},
+                         {"not-asked"})
+        self.assertEqual([one for one in report["refreshed"]
+                          if "detail" in one], [])
+
+    def test_what_the_refresh_recorded_is_what_this_tick_projects(self):
+        """THE ORDER IS THE POINT. The refresh runs before the first
+        projection, so this tick reports this tick's runtime truth rather than
+        last tick's."""
+        self.submit()
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.observed("job-a/implementation", claimed_by=True,
+                           runtime={"execution_runtime": "running",
+                                    "cleanup": None})
+        self.acts.refreshed("job-a/implementation", "quiescent")
+        report = sweep(self.jobs, self.acts, now=LATER)
+        refreshed = {one["stage_id"]: one for one in report["refreshed"]}
+        self.assertEqual(refreshed["job-a/implementation"]["state"],
+                         "quiescent")
+        projected = status(self.jobs, self.acts, observed_at=LATER)
+        held = [one for job in projected["jobs"] for one in job["stages"]
+                if one["stage_id"] == "job-a/implementation"][0]
+        self.assertEqual(held["runtime"]["execution_runtime"], "quiescent")
+
+    def test_one_stages_refusal_leaves_every_other_stage_refreshed(self):
+        """THE ACCEPTANCE'S ISOLATION HALF. An escaping refusal would make one
+        damaged attempt stop the sweep projecting anything at all -- which is
+        this Work's own defect arriving by a different road."""
+        self.submit()
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refreshes["job-a/implementation"] = ContractRefusal(
+            "refused", "precondition", "this engine cannot be asked")
+        self.acts.refreshed("job-b/implementation", "quiescent")
+        report = sweep(self.jobs, self.acts, now=LATER)
+        refreshed = {one["stage_id"]: one for one in report["refreshed"]}
+        self.assertEqual(refreshed["job-a/implementation"]["state"], None)
+        self.assertEqual(refreshed["job-a/implementation"]["detail"],
+                         {"category": "refused", "code": "precondition"})
+        self.assertEqual(refreshed["job-b/implementation"]["state"],
+                         "quiescent")
+        # AND THE REFUSAL'S PROSE IS NOWHERE, because it is composed from
+        # values this deployment read and some of those come from a worker.
+        self.assertNotIn("cannot be asked", json.dumps(report))
+        # AND THE REST OF THE TICK HAPPENED. The refusal contained itself; it
+        # did not stop the derivation that follows it.
+        self.assertEqual(self.outcomes(report),
+                         [("job-a/implementation", "claim", "performed"),
+                          ("job-b/implementation", "claim", "performed")])
+
+    def test_a_malformed_refresh_answer_is_contained_not_believed(self):
+        """W85500 review 2026-09-04T14-27-54Z [P1].
+
+        The manager called `.get` on whatever came back, so a deployment
+        answering a scalar aborted the WHOLE sweep with `AttributeError` before
+        the first projection -- suppressing an exchange terminal that was
+        readable on disk and stopping every unrelated stage.
+
+        RE-REVIEW 2026-09-04T19:08:40Z [P1] ADDED THE LAST TWO. `isinstance`
+        plus `.get` is not a closed document: an undeclared member was
+        accepted and silently discarded, and a `dict` SUBCLASS ran its own
+        `.get` inside the validation boundary and propagated whatever that
+        raised out of it. Both are now refused as the malformed evidence they
+        are.
+        """
+
+        class Hostile(dict):
+            def get(self, *_args, **_kwargs):
+                raise RuntimeError("a subclass method ran inside the boundary")
+
+        self.submit()
+        sweep(self.jobs, self.acts, now=NOW)
+        for wrong in ("wrong", 7, ["running"],
+                      {"execution_runtime": "made-up"},
+                      {"something_else": "running"},
+                      {"execution_runtime": "quiescent", "unexpected": 1},
+                      Hostile(execution_runtime="quiescent")):
+            self.acts.refreshes["job-a/implementation"] = wrong
+            self.acts.refreshed("job-b/implementation", "quiescent")
+            report = sweep(self.jobs, self.acts, now=LATER)
+            held = {one["stage_id"]: one for one in report["refreshed"]}
+            self.assertEqual(held["job-a/implementation"]["state"], None,
+                             wrong)
+            self.assertEqual(
+                held["job-a/implementation"]["detail"],
+                {"category": "integrity", "code": "schema"}, wrong)
+            # AND THE OTHER STAGE STILL GOT ITS ANSWER.
+            self.assertEqual(held["job-b/implementation"]["state"],
+                             "quiescent", wrong)
+
+    def test_an_engine_that_cannot_be_asked_is_uncertain_not_gone(self):
+        """A deployment's own `RefreshUnavailable` is an unasked question.
+
+        Only typed refusals were contained, so a socket, a pipe or a missing
+        binary aborted the sweep before anything was projected. Nothing is
+        recorded from this: the runtime axis keeps whatever it last knew, which
+        is the honest difference between "gone" and "unasked".
+
+        THE CONDITION IS THE DEPLOYMENT'S, which is re-review
+        2026-09-04T19:08:40Z [P1]. The manager used to catch `OSError` and
+        decide on every deployment's behalf what an unreachable engine is --
+        and a `subprocess` runner that hit its deadline raises
+        `TimeoutExpired`, which is the same operational fact and not an
+        `OSError`. Both are translated where they are understood, and this
+        pass contains what was named.
+        """
+        self.submit()
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refreshes["job-a/implementation"] = RefreshUnavailable(
+            OSError("the engine socket is not there"))
+        self.acts.refreshed("job-b/implementation", "quiescent")
+        report = sweep(self.jobs, self.acts, now=LATER)
+        held = {one["stage_id"]: one for one in report["refreshed"]}
+        self.assertEqual(held["job-a/implementation"]["state"], None)
+        self.assertEqual(held["job-a/implementation"]["detail"],
+                         {"category": "uncertain",
+                          "code": "engine-unreachable", "error": "OSError"})
+        self.assertEqual(held["job-b/implementation"]["state"], "quiescent")
+        self.assertNotIn("socket is not there", json.dumps(report))
+        # AND THE TICK FINISHED: the derivation after this pass still ran.
+        self.assertEqual(self.outcomes(report),
+                         [("job-a/implementation", "claim", "performed"),
+                          ("job-b/implementation", "claim", "performed")])
+
+    def test_a_timed_out_runner_is_the_same_unasked_question(self):
+        """The type the blanket branch used to swallow, named by its owner.
+
+        `subprocess.TimeoutExpired` is not an `OSError`, so under the previous
+        candidate a runner that hit its deadline was reported as an
+        implementation `fault` -- and on any tick but the last one, reported
+        nowhere at all.
+        """
+        self.submit()
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refreshes["job-a/implementation"] = RefreshUnavailable(
+            subprocess.TimeoutExpired(["docker", "inspect"], 600))
+        self.acts.refreshed("job-b/implementation", "quiescent")
+        report = sweep(self.jobs, self.acts, now=LATER)
+        held = {one["stage_id"]: one for one in report["refreshed"]}
+        self.assertEqual(held["job-a/implementation"]["detail"],
+                         {"category": "uncertain",
+                          "code": "engine-unreachable",
+                          "error": "TimeoutExpired"})
+        self.assertEqual(held["job-b/implementation"]["state"], "quiescent")
+
+    def test_an_arbitrary_defect_escapes_rather_than_becoming_report_data(
+            self):
+        """RE-REVIEW 2026-09-04T19:08:40Z [P1], and it reverses this
+        candidate's own earlier answer.
+
+        The previous pass caught `Exception` and turned any defect into a
+        per-tick `refresh-fault` detail. That is not disclosure on the serving
+        path: `serve` overwrites `report` every tick and answers only the last
+        one, so a programming defect caught on an earlier tick is raised
+        nowhere, recorded nowhere, and gone entirely as soon as one tick
+        succeeds. Containment is for malformed evidence and for the failure a
+        deployment itself named; a defect belongs to whoever is running the
+        loop.
+        """
+        self.submit()
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refreshes["job-a/implementation"] = RuntimeError(
+            "engine transport broke")
+        self.acts.refreshed("job-b/implementation", "quiescent")
+        with self.assertRaises(RuntimeError) as raised:
+            sweep(self.jobs, self.acts, now=LATER)
+        self.assertIn("engine transport broke", str(raised.exception))
+
+    def test_an_unreachable_engine_never_suppresses_a_readable_exchange(self):
+        """The acceptance sentence this finding put at risk, directly.
+
+        The exchange is a durable file and is read by the projection that runs
+        AFTER this pass. A contained engine failure that escaped would mean
+        nobody ever read it.
+        """
+        self.submit()
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.observed("job-a/implementation", claimed_by=True,
+                           runtime={"runtime_id": "runtime-1",
+                                    "execution_runtime": "running",
+                                    "cleanup": None})
+        self.acts.commanded("job-a/implementation", state="faulted",
+                            terminal={"ending": "faulted",
+                                      "fault_code": "agent",
+                                      "disposition": None,
+                                      "manifest_digest": None})
+        self.acts.refreshes["job-a/implementation"] = RefreshUnavailable(
+            OSError("broken"))
+        report = sweep(self.jobs, self.acts, now=LATER)
+        del report
+        projected = status(self.jobs, self.acts, observed_at=LATER)
+        held = [one for job in projected["jobs"] for one in job["stages"]
+                if one["stage_id"] == "job-a/implementation"][0]
+        self.assertEqual(held["exchange"]["terminal"]["fault_code"], "agent")
+        self.assertEqual(held["state"], "exceptional")
+
+    def test_repeated_sweeps_ask_again_and_change_nothing_else(self):
+        """LEVEL-TRIGGERED, like every other pass here: the answer is read
+        from the engine each tick rather than remembered."""
+        self.submit()
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refreshed("job-a/implementation", "quiescent")
+        self.acts.refreshed("job-b/implementation", "quiescent")
+        first = sweep(self.jobs, self.acts, now=LATER)
+        self.acts.refreshed_calls.clear()
+        second = sweep(self.jobs, self.acts, now=LATER)
+        self.assertEqual(sorted(self.acts.refreshed_calls), self.live())
+        self.assertEqual([one["state"] for one in first["refreshed"]],
+                         [one["state"] for one in second["refreshed"]])
+        self.assertEqual(second["acts"], [])
 
 
 class OrdinarySuccess(SweepCase):

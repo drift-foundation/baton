@@ -148,11 +148,82 @@ class Observation(JobManagerCase):
         for member in OPERATIONS:
             self.assertTrue(hasattr(acts, member), member)
 
+    def test_the_runtime_refresh_is_a_capability_and_not_a_read(self):
+        """W85500: absent means `None`, and `None` means nobody looked.
+
+        Every OTHER missing capability on this surface REFUSES, because a
+        control plane that cannot start, command or end a worker is reporting
+        work it can never do. This one is different and deliberately so: a
+        deployment with no engine is a real deployment, and silence about a
+        runtime is not the same claim as a runtime that is gone.
+        """
+        acts = self.operations()
+        self.assertIsNone(acts.refresh_runtime({"stage_id": "job-a/x",
+                                                "attempt_id": "attempt-1"}))
+
+    def test_a_supplied_refresh_is_called_with_the_attempted_stage(self):
+        seen = []
+        acts = self.operations(refresh_runtime=lambda stage: seen.append(
+            stage) or {"execution_runtime": "quiescent"})
+        answer = acts.refresh_runtime({"stage_id": "job-a/x",
+                                       "attempt_id": "attempt-1"})
+        self.assertEqual(answer, {"execution_runtime": "quiescent"})
+        self.assertEqual(seen, [{"stage_id": "job-a/x",
+                                 "attempt_id": "attempt-1"}])
+
+    def test_the_refresh_answer_is_an_exact_document_with_exactly_one_member(
+            self):
+        """W85500 re-review 2026-09-04T19:08:40Z [P1].
+
+        `isinstance(answer, dict)` plus `.get` is a floor rather than a
+        contract. An undeclared member was accepted and silently discarded --
+        so a deployment that answered a second fact was told nothing, and a
+        build that started reading that member would change meaning under a
+        deployment that never heard about it. And a `dict` SUBCLASS reached
+        the boundary as itself, so its own `.get` ran INSIDE the validation
+        and whatever it raised came out of the seam that exists to stop
+        exactly that.
+        """
+
+        class Hostile(dict):
+            def get(self, *_args, **_kwargs):
+                raise RuntimeError("a subclass method ran inside the boundary")
+
+        stage = {"stage_id": "job-a/x", "attempt_id": "attempt-1"}
+        for wrong in ({"execution_runtime": "quiescent", "unexpected": 1},
+                      Hostile(execution_runtime="quiescent")):
+            acts = self.operations(refresh_runtime=lambda _stage, answer=wrong:
+                                   answer)
+            with self.assertRaises(ContractRefusal) as raised:
+                acts.refresh_runtime(stage)
+            self.assertEqual((raised.exception.category,
+                              raised.exception.code),
+                             ("integrity", "schema"), wrong)
+        # AND THE ANSWER THAT IS ACCEPTED IS THIS SEAM'S OWN COPY, so a
+        # deployment holding a reference to what it returned cannot reach into
+        # what the sweep is about to project.
+        answered = {"execution_runtime": "quiescent"}
+        acts = self.operations(refresh_runtime=lambda _stage: answered)
+        taken = acts.refresh_runtime(stage)
+        self.assertEqual(taken, answered)
+        self.assertIsNot(taken, answered)
+
+    def test_a_refresh_that_cannot_be_called_is_refused_before_it_is_spent(
+            self):
+        """Typed at construction, like every other capability here: one that
+        could not be called would otherwise fault in the middle of a sweep."""
+        with self.assertRaises(ContractRefusal):
+            self.operations(refresh_runtime="not a capability")
+
     def test_a_status_surface_with_no_control_store_refuses_every_act(self):
         # `observe` still answers -- emptily -- because a read-only status has
         # to be able to say "nobody looked" without pretending it did.
         unobserved = Unobserved()
         self.assertFalse(unobserved.canonical)
+        # W85500: AND THE REFRESH ANSWERS `None` RATHER THAN REFUSING, because
+        # refreshing RECORDS what it saw and a status surface that recorded
+        # would be a read that mutates.
+        self.assertIsNone(unobserved.refresh_runtime({"attempt_id": "a"}))
         self.assertEqual(unobserved.observe({"attempt_id": "attempt:x"}),
                          {"claimed_by": None, "runtime": None,
                           "activity": None, "output": None,

@@ -36,7 +36,8 @@ authority's, the Worker Manager's control store, and this leaf's Job store.
 """
 
 from .delegation import (CANONICAL_OPERATIONS, INTENT_OPERANDS, OBSERVATION_MEMBERS,
-                         OPERATIONS, ManagerOperations, Unobserved,
+                         OPERATIONS, ManagerOperations,
+                         RefreshUnavailable, Unobserved,
                          canonical_operation, check_binding, observation_of,
                          stage_intent)
 from .documents import (ACTS, EPISODE_ENDINGS, REPLACEABLE_ENDINGS,
@@ -62,7 +63,8 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "CANONICAL_OPERATIONS", "EPISODE_ENDINGS",
            "STAGE_KINDS", "STAGE_STATES", "STATUS_SCHEMA", "STORE_KIND",
            "SUBMISSION_SCHEMA", "TABLES", "TERMINAL_POLICIES",
            "TERMINAL_STAGE_STATES", "TICK_SECONDS", "JobStore",
-           "ManagerOperations", "Unobserved", "apply_offer_state",
+           "ManagerOperations", "RefreshUnavailable", "Unobserved",
+           "apply_offer_state",
            "attempting", "canonical_operation",
            "check_binding", "episode_by_offer", "episode_of", "episodes_of",
            "job_of", "job_rows", "job_signature", "jobs_of", "live_of",

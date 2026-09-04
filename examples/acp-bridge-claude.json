@@ -11,6 +11,9 @@
     "role": "<ROLE-WITH-CONFIGURED-INSTRUCTIONS>",
     "waitTimeoutSeconds": 60
   },
+  "runtime": {
+    "actionOwner": "<RECOVERY-OR-OPERATIONS-TEAM.MEMBER-DISTINCT-FROM-RUNNER>"
+  },
   "agent": {
     "command": "<ABSOLUTE-PATH-TO-SANDBOX-LAUNCHER-OR-CLAUDE-AGENT-ACP>",
     "args": [],

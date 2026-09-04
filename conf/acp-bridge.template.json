@@ -17,6 +17,9 @@
     "role": "impl",
     "waitTimeoutSeconds": 60
   },
+  "runtime": {
+    "actionOwner": "baton.slaw"
+  },
   "agent": {
     "command": "/absolute/path/to/sandbox-launcher-or-claude-agent-acp",
     "args": [],

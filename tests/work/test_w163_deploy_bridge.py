@@ -70,6 +70,18 @@ def test_the_examples_are_present_inert_and_non_secret(release):
 			"a host-specific inferred path leaked into the example"
 
 
+def test_the_examples_require_an_explicit_external_action_owner(release):
+	target, _facts = release
+	for name in ("acp-bridge-claude.example.json",
+	             "acp-bridge-gemini.example.json"):
+		path = os.path.join(target, "conf", name)
+		with open(path, encoding="utf-8") as handle:
+			document = json.load(handle)
+		owner = document["runtime"]["actionOwner"]
+		assert "TEAM.MEMBER" in owner, name
+		assert owner != document["baton"]["participant"], name
+
+
 def test_the_pinned_runtime_is_already_inside_the_target(release):
 	target, _facts = release
 	runtime = os.path.join(target, "lib", "acp-baton-bridge")
@@ -88,6 +100,9 @@ def test_the_pinned_runtime_is_already_inside_the_target(release):
 	assert os.path.isfile(os.path.join(
 		target, "lib", "codex-event-bridge", "src",
 		"codex_baton_bridge.mjs"))
+	assert os.path.isfile(os.path.join(
+		target, "lib", "codex-event-bridge", "src",
+		"quarantine_store.mjs"))
 
 
 def test_the_bridge_runs_from_the_target_without_checkout_npm_or_network(

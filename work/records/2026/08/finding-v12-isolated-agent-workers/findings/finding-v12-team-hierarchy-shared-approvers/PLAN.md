@@ -10,8 +10,10 @@
    capacity and runtime projections.
 5. [done 2026-08-25] Add conformance cases for shared subtree approval, leaf-local
    approval, absent principals, ambiguous grants and cross-scope isolation.
-6. [deferred] Design the Teams and Inbox views for hierarchy and inherited
-   grants before implementation.
+6. [deferred; clarified 2026-09-04] Design the Teams and Inbox views for
+   hierarchy, inherited grants, and one cross-team manager identity before
+   implementation. The UI and command surface must select an effective scope
+   without manufacturing a separate participant identity per team.
 
 ## Reviewer design pass — 2026-08-25
 

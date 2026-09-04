@@ -98,6 +98,9 @@ or model identity is inferred:
     "role": "impl",
     "waitTimeoutSeconds": 60
   },
+  "runtime": {
+    "actionOwner": "baton.slaw"
+  },
   "agent": {
     "command": "/absolute/path/to/claude-agent-acp",
     "args": [],
@@ -160,6 +163,15 @@ or model identity is inferred:
   that bridge's README (W12229). The shared role-instruction reader both
   families use returns accepted role prose ALONE, so the launcher block is
   composed beside it rather than inside it.
+- `runtime.actionOwner` is REQUIRED and names the explicit recovery or
+  operations participant that receives this runner's actionable incidents.
+  It must be a `team.member` address different from `baton.participant`.
+  The bridge refuses a missing or self-addressed owner during configuration
+  validation; it never infers one from the runner, Route, role, ACP session,
+  or runtime telemetry. This matters after every action kind, including a
+  poke: if an ACP turn returns while the participant still holds a canonical
+  Work claim, the bridge publishes `failed`, retains a durable settlement
+  fence, and files one incident instead of publishing `idle` over that claim.
 - `permissionMode` is the exact operator-selected ACP session mode
   (the ruled trial mode is `bypassPermissions`). The bridge requires it
   among the agent's advertised modes and selects it after new/load; a

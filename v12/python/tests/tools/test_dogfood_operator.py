@@ -16,6 +16,8 @@ directories and documents, which is what makes it worth running on every
 change rather than only where Docker is reachable.
 """
 
+import contextlib
+import io
 import json
 import os
 import shutil
@@ -93,6 +95,396 @@ class TheIndependentDerivationReadsReceiptLocators(unittest.TestCase):
 
         self.assertEqual(derived["members_present"],
                          sorted(dogfood_operator.PROPOSAL_MEMBERS))
+
+
+class TheIndependentRerunNeverChangesWhatItMeasures(unittest.TestCase):
+    """W85497: the operator's own rerun contaminated the retained candidate.
+
+    THE MEASUREMENT. The first ordinary self-hosted W71917 retry reported ten
+    changed workload paths and later packaged a 10,779,527-byte patch, because
+    `_derived` computed `changed` and THEN ran
+    `python3 -m compileall -q src tests tools` with `cwd` set to the retained
+    custody candidate and no cache root. Both numbers were right about the tree
+    each looked at; the rerun changed it in between.
+    """
+
+    def held(self, body="print('verified')\n", command=None):
+        """A retained proposal with one source file, ready to derive from."""
+        home = tempfile.mkdtemp(prefix="v12-w85497-")
+        self.addCleanup(shutil.rmtree, home, True)
+        source = os.path.join(home, "source")
+        proposal = os.path.join(home, "proposal")
+        candidate = os.path.join(proposal, "candidate")
+        os.makedirs(source)
+        os.makedirs(candidate)
+        for root in (source, candidate):
+            with open(os.path.join(root, "harness.py"), "w",
+                      encoding="utf-8") as writing:
+                writing.write(body)
+        task = {"verification": command
+                if command is not None
+                else [sys.executable, "-m", "compileall", "-q", "."]}
+        return proposal, candidate, source, task
+
+    @staticmethod
+    def caches(tree):
+        found = []
+        for base, _directories, files in os.walk(tree):
+            if os.path.basename(base) == "__pycache__":
+                found.append(os.path.relpath(base, tree))
+            found.extend(os.path.relpath(os.path.join(base, name), tree)
+                         for name in files if name.endswith(".pyc"))
+        return sorted(found)
+
+    def test_a_real_compileall_leaves_the_retained_candidate_untouched(self):
+        """THE DEFECT ITSELF, with the actual command the retry ran."""
+        proposal, candidate, source, task = self.held()
+        before = dogfood_operator._candidate_snapshot(candidate)
+
+        derived = dogfood_operator._derived("file://" + proposal, task, source)
+
+        self.assertEqual(derived["verification_status"], 0)
+        self.assertEqual(derived["changed_paths"], [])
+        self.assertEqual(self.caches(candidate), [],
+                         "the rerun wrote its own bytecode into the retained "
+                         "candidate")
+        self.assertEqual(dogfood_operator._candidate_snapshot(candidate),
+                         before,
+                         "a successful rerun left the candidate changed")
+
+    def test_a_rerun_that_writes_into_the_candidate_is_refused(self):
+        """THE PROOF IS TAKEN, NOT ASSUMED.
+
+        A cache root spelled wrong by some future edit, or a command that
+        writes somewhere this correction did not anticipate, must fail rather
+        than pass quietly -- so this drives a command that deliberately writes
+        beside the source and asks what the boundary does.
+        """
+        proposal, candidate, source, _task = self.held()
+        task = {"verification": [sys.executable, "-c",
+                                 "open('sneaked.txt', 'w').write('x')"]}
+        with self.assertRaises(dogfood_operator._Lost) as caught:
+            dogfood_operator._derived("file://" + proposal, task, source)
+        self.assertIn("changed the retained candidate", str(caught.exception))
+        self.assertIn("sneaked.txt", str(caught.exception))
+
+    def test_a_rerun_that_rewrites_a_file_in_place_is_refused_too(self):
+        """Paths alone would miss this: the set is identical afterwards."""
+        proposal, candidate, source, _task = self.held()
+        task = {"verification": [sys.executable, "-c",
+                                 "open('harness.py', 'w').write('other')"]}
+        with self.assertRaises(dogfood_operator._Lost) as caught:
+            dogfood_operator._derived("file://" + proposal, task, source)
+        self.assertIn("rewrote 1", str(caught.exception))
+        self.assertIn("harness.py", str(caught.exception))
+
+    def test_the_ephemeral_root_is_outside_the_proposal_and_is_removed(self):
+        """Where the bytecode DID go, and that nothing was left behind."""
+        proposal, candidate, source, _task = self.held()
+        seen = {}
+        import subprocess as sub
+
+        real = sub.run
+
+        def watched(argv, **options):
+            seen.update(options.get("env") or {})
+            return real(argv, **options)
+
+        with mock.patch.object(sub, "run", watched):
+            dogfood_operator._derived(
+                "file://" + proposal,
+                {"verification": [sys.executable, "-m", "compileall", "-q",
+                                  "."]},
+                source)
+        for name in ("PYTHONPYCACHEPREFIX", "TMPDIR", "XDG_CACHE_HOME"):
+            place = seen[name]
+            self.assertTrue(
+                os.path.relpath(place, proposal).startswith(os.pardir),
+                f"{name} is inside the retained proposal: {place}")
+            # AND IT IS GONE. The rerun's scratch is not something retention
+            # should have to reason about.
+            self.assertFalse(os.path.exists(place), place)
+
+    def test_ambient_temp_selection_cannot_put_ephemera_in_the_proposal(self):
+        """Review 2026-09-04T14:44:23Z: ambient is not a boundary."""
+        proposal, candidate, source, task = self.held()
+        ambient = os.path.join(proposal, "ambient-tmp")
+        os.makedirs(ambient)
+        previous = tempfile.tempdir
+        tempfile.tempdir = ambient
+        self.addCleanup(setattr, tempfile, "tempdir", previous)
+        seen = {}
+        import subprocess as sub
+
+        real = sub.run
+
+        def watched(argv, **options):
+            seen.update(options["env"])
+            return real(argv, **options)
+
+        with mock.patch.object(sub, "run", watched):
+            dogfood_operator._derived("file://" + proposal, task, source)
+        for name in ("PYTHONPYCACHEPREFIX", "TMPDIR", "XDG_CACHE_HOME"):
+            self.assertTrue(
+                os.path.relpath(seen[name], proposal).startswith(os.pardir),
+                f"ambient tempfile selection retained {name}: {seen[name]}")
+
+    def test_cleanup_obstruction_is_a_typed_failure_with_the_residue_named(
+            self):
+        """Child-controlled residue cannot be silently accepted as success."""
+        proposal, candidate, source, task = self.held()
+        seen = {}
+        import subprocess as sub
+
+        def obstructed(argv, **options):
+            root = os.path.dirname(options["env"]["TMPDIR"])
+            seen["root"] = root
+            os.chmod(root, 0)
+            return sub.CompletedProcess(argv, 0, None, None)
+
+        with mock.patch.object(sub, "run", obstructed):
+            with self.assertRaises(dogfood_operator._Lost) as caught:
+                dogfood_operator._derived("file://" + proposal, task, source)
+        residue = seen["root"]
+        self.assertIn("left ephemera", str(caught.exception))
+        self.assertIn(residue, str(caught.exception))
+        self.assertTrue(os.path.lexists(residue))
+        os.chmod(residue, 0o700)
+        shutil.rmtree(residue)
+
+    def test_a_failing_verification_shows_the_operator_the_diagnostic(self):
+        """W85497: `DEVNULL` threw away the line, caret and `SyntaxError`.
+
+        The bytes go to THIS PROCESS'S stderr and nowhere else -- the returned
+        record still carries only the frozen argv and the integer status, which
+        is what reaches evidence, retention, the recap and Baton.
+        """
+        proposal, candidate, source, _task = self.held(
+            body="def broken(:\n    pass\n")
+        errors = io.StringIO()
+        with contextlib.redirect_stderr(errors):
+            derived = dogfood_operator._derived(
+                "file://" + proposal,
+                {"verification": [sys.executable, "-m", "compileall", "-q",
+                                  "."]},
+                source)
+        self.assertNotEqual(derived["verification_status"], 0)
+        shown = errors.getvalue()
+        self.assertIn("harness.py", shown)
+        self.assertIn("SyntaxError", shown)
+        # AND NONE OF IT IS IN THE RECORD. The durable answer is the argv and
+        # the status, which is exactly what it was before this correction.
+        self.assertEqual(sorted(derived),
+                         ["changed_paths", "members_present",
+                          "verification_argv", "verification_status"])
+        for value in derived.values():
+            self.assertNotIn("SyntaxError", repr(value))
+
+    def test_the_shown_diagnostic_is_bounded(self):
+        """A shouting command cannot fill a supervising terminal."""
+        proposal, candidate, source, _task = self.held()
+        task = {"verification": [
+            sys.executable, "-c",
+            "import sys; sys.stdout.write('x' * 200000); sys.exit(3)"]}
+        errors = io.StringIO()
+        with contextlib.redirect_stderr(errors):
+            derived = dogfood_operator._derived("file://" + proposal, task,
+                                                source)
+        self.assertEqual(derived["verification_status"], 3)
+        shown = errors.getvalue()
+        self.assertLess(len(shown), dogfood_operator.MAX_DIAGNOSTIC + 500)
+        self.assertIn("earlier bytes dropped", shown)
+
+    def test_the_capture_is_bounded_and_not_only_the_printing(self):
+        """W85497 review 2026-09-04T13-56-04Z [P1]: a DIFFERENT bound.
+
+        The case above proves what an operator SEES is bounded. It passed
+        while `subprocess.PIPE` accumulated the entire stream in this process
+        for as long as the 900-second command ran, and the truncation happened
+        after the child exited -- so a shouting command could exhaust the
+        operator's memory with the terminal bound intact.
+
+        The child now writes to a file inside the ephemeral root and only the
+        tail is ever READ, so this asks for the thing the other case cannot
+        distinguish: that `subprocess.run` returned no captured stream at all.
+        """
+        proposal, candidate, source, _task = self.held()
+        task = {"verification": [
+            sys.executable, "-c",
+            "import sys; sys.stdout.write('x' * 200000); sys.exit(3)"]}
+        held = []
+        import subprocess as sub
+
+        real = sub.run
+
+        def watched(argv, **options):
+            answer = real(argv, **options)
+            held.append(answer)
+            return answer
+
+        with contextlib.redirect_stderr(io.StringIO()):
+            with mock.patch.object(sub, "run", watched):
+                dogfood_operator._derived("file://" + proposal, task, source)
+        self.assertTrue(held)
+        for answer in held:
+            self.assertIsNone(answer.stdout, "the whole stream was held in "
+                                             "memory after all")
+            self.assertIsNone(answer.stderr)
+
+    def test_an_empty_cache_directory_is_a_change_the_snapshot_sees(self):
+        """W85497 review [P1]: directories were not recorded at all.
+
+        `os.walk`'s FILES were the whole snapshot, so an empty `__pycache__`
+        produced an identical answer before and after and was accepted -- while
+        being exactly the entry the finding's candidate-clean rule names.
+        """
+        proposal, candidate, source, _task = self.held()
+        before = dogfood_operator._candidate_snapshot(candidate)
+        os.makedirs(os.path.join(candidate, "__pycache__"))
+        after = dogfood_operator._candidate_snapshot(candidate)
+        self.assertNotEqual(after, before)
+        self.assertEqual(after["__pycache__"], "dir")
+        # AND THE BOUNDARY REFUSES IT, which is what the snapshot is for.
+        task = {"verification": [sys.executable, "-c",
+                                 "import os; os.makedirs('__pycache__')"]}
+        proposal, candidate, source, _task = self.held()
+        with self.assertRaises(dogfood_operator._Lost) as caught:
+            dogfood_operator._derived("file://" + proposal, task, source)
+        self.assertIn("__pycache__", str(caught.exception))
+
+    def test_a_path_that_changes_kind_is_a_change_too(self):
+        """A digest comparison alone reads this as 'the name is still there'."""
+        proposal, candidate, source, _task = self.held()
+        before = dogfood_operator._candidate_snapshot(candidate)
+        os.unlink(os.path.join(candidate, "harness.py"))
+        os.makedirs(os.path.join(candidate, "harness.py"))
+        after = dogfood_operator._candidate_snapshot(candidate)
+        self.assertEqual(before["harness.py"][:5], "file:")
+        self.assertEqual(after["harness.py"], "dir")
+
+    def test_special_entries_are_typed_without_opening_or_hanging(self):
+        """FIFO/socket output is a change, never something to hash."""
+        proposal, candidate, source, _task = self.held()
+        fifo = os.path.join(candidate, "left.fifo")
+        socket_path = os.path.join(candidate, "left.sock")
+        os.mkfifo(fifo)
+        with open(socket_path, "wb"):
+            pass
+        import stat
+
+        real_lstat = os.lstat
+        real_open = os.open
+
+        def typed(place, *operands, **options):
+            held = real_lstat(place, *operands, **options)
+            if place == socket_path:
+                return os.stat_result((stat.S_IFSOCK | 0o600, *tuple(held)[1:]))
+            return held
+
+        def guarded(place, *operands, **options):
+            if place == socket_path:
+                self.fail("the snapshot tried to open a socket")
+            return real_open(place, *operands, **options)
+
+        with mock.patch.object(os, "lstat", typed):
+            with mock.patch.object(os, "open", guarded):
+                snapshot = dogfood_operator._candidate_snapshot(candidate)
+        self.assertEqual(snapshot["left.fifo"], "fifo")
+        self.assertEqual(snapshot["left.sock"], "socket")
+
+    def test_post_command_special_entries_are_refused_without_hanging(self):
+        """The post-success snapshot is inside the verifier's time bound."""
+        proposal, candidate, source, _task = self.held()
+        task = {"verification": [sys.executable, "-c",
+                                 "import os; os.mkfifo('left.fifo')"]}
+        with self.assertRaises(dogfood_operator._Lost) as caught:
+            dogfood_operator._derived("file://" + proposal, task, source)
+        self.assertIn("left.fifo", str(caught.exception))
+
+        # This managed test host forbids binding pathname sockets, so the
+        # second discriminator supplies the kernel type at the lstat seam and
+        # makes `os.open` a tripwire. The subprocess hook still adds the entry
+        # only after the before-snapshot, exercising the post-command path.
+        proposal, candidate, source, _task = self.held()
+        socket_path = os.path.join(candidate, "left.sock")
+        import stat
+        import subprocess as sub
+
+        real_lstat = os.lstat
+        real_open = os.open
+
+        def leaves_socket(argv, **options):
+            with open(socket_path, "wb"):
+                pass
+            return sub.CompletedProcess(argv, 0, None, None)
+
+        def typed(place, *operands, **options):
+            held = real_lstat(place, *operands, **options)
+            if place == socket_path:
+                return os.stat_result((stat.S_IFSOCK | 0o600, *tuple(held)[1:]))
+            return held
+
+        def guarded(place, *operands, **options):
+            if place == socket_path:
+                self.fail("the post-command snapshot tried to open a socket")
+            return real_open(place, *operands, **options)
+
+        with mock.patch.object(sub, "run", leaves_socket):
+            with mock.patch.object(os, "lstat", typed):
+                with mock.patch.object(os, "open", guarded):
+                    with self.assertRaises(dogfood_operator._Lost) as caught:
+                        dogfood_operator._derived(
+                            "file://" + proposal,
+                            {"verification": [sys.executable, "-c", "pass"]},
+                            source)
+        self.assertIn("left.sock", str(caught.exception))
+
+    def test_a_large_file_is_digested_without_being_held_whole(self):
+        """W85497 review [P1]: `reading.read()` made this operator's memory a
+        function of somebody else's build output.
+
+        The discriminator is the READ SIZE, not the answer: the digest is the
+        same either way, so a case that only compared digests would agree with
+        the unbounded version. This counts what the largest single read was.
+        """
+        import hashlib
+
+        proposal, candidate, source, _task = self.held()
+        big = os.path.join(candidate, "artefact.bin")
+        payload = os.urandom(1024) * (5 * 1024)          # ~5 MiB
+        with open(big, "wb") as writing:
+            writing.write(payload)
+        largest = []
+        real = open
+
+        class Counting:
+            """A file wrapper that records how much each read ASKED for."""
+
+            def __init__(self, handle):
+                self._handle = handle
+
+            def read(self, size=-1):
+                largest.append(size)
+                return self._handle.read(size)
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *ignored):
+                self._handle.close()
+                return False
+
+        def watched(place, *rest, **options):
+            handle = real(place, *rest, **options)
+            return Counting(handle) if "b" in "".join(rest) else handle
+
+        with mock.patch("builtins.open", watched):
+            found = dogfood_operator._candidate_snapshot(candidate)
+        self.assertEqual(found["artefact.bin"],
+                         "file:" + hashlib.sha256(payload).hexdigest())
+        self.assertTrue(largest)
+        self.assertEqual(max(largest), dogfood_operator.DIGEST_CHUNK)
+        self.assertNotIn(-1, largest, "a whole file was read in one call")
 
 
 class PassingSession:

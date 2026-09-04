@@ -20,6 +20,9 @@
     "role": "impl",
     "waitTimeoutSeconds": 60
   },
+  "runtime": {
+    "actionOwner": "baton.slaw"
+  },
   "agent": {
     "command": "/absolute/path/to/gemini",
     "args": [

@@ -33,7 +33,29 @@
 # Locking these three inputs is a supply-chain design that was presented and
 # deliberately NOT selected for the MVP; it remains available and is not
 # authorized by this comment.
-FROM node:22-bookworm-slim
+#
+# THE SUITE IS TRIXIE AND THAT IS THE WHOLE W85497 CORRECTION. `v12/python/
+# pyproject.toml` declares `requires-python >= 3.13`, and Debian BOOKWORM's
+# unversioned `python3` is 3.11 -- so the first ordinary self-hosted W71917
+# retry ran a provider that succeeded and a verification that could not, with
+# `python3 -m compileall` reporting an unterminated string at
+# `worker_manager/custody.py:752` in source no candidate had touched. The
+# image was rejecting syntax this distribution's floor makes legal.
+#
+# WHY THE SUITE AND NOT A SECOND INTERPRETER. Installing `python3.13` beside
+# Debian's own, or importing one from `python:3.13-slim` in a second stage,
+# both leave TWO Pythons in the artefact and make "which one ran" a question
+# the evidence has to answer for every future probe. Moving the suite leaves
+# exactly one `python3`, keeps every apt package NAME in this recipe unchanged,
+# and keeps Node 22 -- which is the provider runtime and the reason this image
+# is not the reference image's `python:3.13-slim`.
+#
+# MEASURED, NOT INFERRED: `node:22-trixie-slim` plus this recipe's own
+# `apt-get install python3` answers `Python 3.13.5` on Debian 13.6. The gate
+# in `tests/manager/test_dogfood_image.py` asks the built ARTEFACT rather than
+# trusting this comment, because a recipe naming a suite and an image carrying
+# an interpreter are two facts and only the second one runs.
+FROM node:22-trixie-slim
 
 # THE PROVIDER RUNTIME, BY EXACT VERSION. "Which agent answered" is a fact the
 # evidence has to carry, and a floating tag makes that unanswerable the day
@@ -117,6 +139,16 @@ USER 65532:65532
 ENTRYPOINT ["python3", "/opt/baton/dogfood_entry.py"]
 
 # Deterministic bytes and an explicit module path, as in the reference image.
+#
+# `PYTHONDONTWRITEBYTECODE` IS NOT THE CACHE BOUNDARY AND MUST NOT BE READ AS
+# ONE. W85497 measured both halves of why. `compileall` writes bytecode as its
+# PURPOSE and ignores this variable -- a local 3.13 reproduction produced
+# `__pycache__/probe.cpython-313.pyc` with it set -- and `claude_agent`
+# composes its children's environments member by member rather than inheriting
+# this process's, so an image-level `ENV` reaches neither child in the first
+# place. The boundary is `PYTHONPYCACHEPREFIX` on the composed environments in
+# `claude_agent.py`, and it is written there. This line stays for the
+# interpreter's OWN imports inside the container, which is all it ever did.
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/opt/baton \

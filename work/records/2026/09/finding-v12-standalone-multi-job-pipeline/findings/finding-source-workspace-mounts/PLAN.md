@@ -1,11 +1,12 @@
 # Plan
 
-0. [ready; the production file-exchange prerequisite is satisfied]
-   Submit this accepted scope as a fresh first ordinary self-hosted Job through
-   the integrated persistent v12 manager and production file exchange; do not
-   use dogfood, a retained pre-file-exchange runtime, or a new complete
-   candidate archive. Autonomous worker execution and restart recovery without
-   authoritative stdin/stdout are accepted prerequisites.
+0. [blocked on bounded production-runtime corrections]
+   The first ordinary self-hosted attempt reached the real provider but exposed
+   a worker-image Python-floor mismatch, verifier-created cache pollution, and
+   loss of a durable faulted terminal after container exit. Retain that attempt
+   only as diagnostic evidence. Retry from a fresh committed baseline after
+   those generic runtime boundaries are independently corrected; do not import
+   or manually promote the faulted proposal.
 1. [pending revalidation] Re-read the current source/workspace rulings and
    map current workspace allocation, OCI mounts, dogfood staging, and profile
    inputs. Preserve the accepted preflight-before-staging ordering invariant.

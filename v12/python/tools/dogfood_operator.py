@@ -3069,9 +3069,24 @@ def _derived(custody_locator, task, source):
     proposal = _proposal_root(custody_locator)
     candidate = os.path.join(proposal, "candidate")
     changed = sorted(_changed_paths(source, candidate))
-    verified = subprocess.run(list(task["verification"]), cwd=candidate,
-                              stdout=subprocess.DEVNULL,
-                              stderr=subprocess.DEVNULL, timeout=900)
+    # W85497: THE RERUN WRITES NOTHING INTO WHAT IT IS MEASURING.
+    #
+    # This is the boundary the first ordinary self-hosted W71917 retry crossed.
+    # `changed` above is computed, and then the verification ran with `cwd` set
+    # to the RETAINED CUSTODY CANDIDATE and no cache root -- so its 149
+    # `__pycache__` entries landed in the tree after the changed-path answer
+    # was taken. That is how independent evidence could report ten workload
+    # paths while later proposal packaging saw a 10,779,527-byte patch: both
+    # were right about the tree they looked at, and this rerun changed it in
+    # between.
+    snapshot = _candidate_snapshot(candidate)
+    verified = _verified(task, candidate, proposal)
+    # AND THE PROOF IS TAKEN, NOT ASSERTED. A cache root that a future edit
+    # spelled wrong, or a command that writes somewhere this correction did not
+    # anticipate, is caught by comparing the whole tree rather than by trusting
+    # the environment composed above.
+    if verified.returncode == 0:
+        _unchanged_by_verification(candidate, snapshot)
     return {"changed_paths": changed,
             "verification_argv": list(task["verification"]),
             "verification_status": verified.returncode,
@@ -3083,6 +3098,274 @@ def _derived(custody_locator, task, source):
             "members_present": sorted(
                 one for one in PROPOSAL_MEMBERS
                 if os.path.exists(os.path.join(proposal, one)))}
+
+
+# HOW MUCH OF A FAILED COMMAND THE OPERATOR SEES. Enough for `compileall` to
+# name the file, the line, the caret and the `SyntaxError` -- which is the
+# diagnostic W85497 found discarded -- and bounded so a shouting command cannot
+# fill a supervising terminal.
+MAX_DIAGNOSTIC = 4000
+
+# An explicit operator-owned volatile root, rather than `tempfile`'s ambient
+# selection. The latter can be redirected beneath a retained proposal by
+# `TMPDIR` or `tempfile.tempdir`, which would make the verifier's supposedly
+# ephemeral output part of custody. This deployment already requires `/tmp`
+# for bounded operator scratch; every created child is checked again below.
+VERIFICATION_TEMP_ROOT = "/tmp"
+
+
+def _verified(task, candidate, proposal):
+    """The frozen command, rerun with its ephemera OUTSIDE the proposal.
+
+    THE ENVIRONMENT IS THE HOST'S, WITH THREE NAMES OVERRIDDEN, and the
+    difference from the worker adapter is deliberate. `claude_agent` composes
+    its children's environments from nothing because those children run beside
+    a mounted bearer; this one is the OPERATOR'S OWN rerun on the operator's
+    own host, and a closed environment here would break a frozen command that
+    legitimately needs the host's `PATH`, locale or interpreter selection. What
+    is corrected is where it WRITES.
+
+    `PYTHONDONTWRITEBYTECODE` IS NOT USED and would not work: `compileall`
+    writes bytecode as its purpose and ignores it. `PYTHONPYCACHEPREFIX` is
+    the name that decides where.
+    """
+    import subprocess
+    import sys
+    import stat
+    import tempfile
+
+    # EXPLICITLY OUTSIDE THE PROPOSAL, not merely wherever ambient `tempfile`
+    # configuration happens to point today. Review 2026-09-04T14:44:23Z found
+    # that `tempfile.tempdir` beneath the retained proposal put every one of
+    # these files inside custody while this comment claimed the opposite.
+    try:
+        temporary_root = os.lstat(VERIFICATION_TEMP_ROOT)
+    except OSError as failed:
+        raise _Lost(
+            f"the independent verification temporary root "
+            f"{VERIFICATION_TEMP_ROOT} is unavailable "
+            f"({type(failed).__name__})") from failed
+    if not stat.S_ISDIR(temporary_root.st_mode):
+        raise _Lost(
+            f"the independent verification temporary root "
+            f"{VERIFICATION_TEMP_ROOT} is not an ordinary directory")
+    ephemera = tempfile.mkdtemp(prefix="dogfood-verify-",
+                                dir=VERIFICATION_TEMP_ROOT)
+    if (_within(ephemera, proposal) or _within(ephemera, candidate)):
+        os.rmdir(ephemera)
+        raise _Lost(
+            f"the independent verification's temporary root {ephemera} is "
+            f"inside retained proposal storage; no command was started")
+    try:
+        env = dict(os.environ)
+        env["PYTHONPYCACHEPREFIX"] = os.path.join(ephemera, "pycache")
+        env["TMPDIR"] = os.path.join(ephemera, "tmp")
+        env["XDG_CACHE_HOME"] = os.path.join(ephemera, "cache")
+        for name in ("PYTHONPYCACHEPREFIX", "TMPDIR", "XDG_CACHE_HOME"):
+            os.mkdir(env[name], 0o700)
+        # CAPTURED RATHER THAN DISCARDED, and the distinction is the finding's.
+        # The worker adapter's no-stream ruling governs a child running beside
+        # the attempt's credential mount; this is the operator's own host-side
+        # rerun of a command the operator froze, and sending it to `DEVNULL`
+        # threw away `compileall`'s filename, line, caret and `SyntaxError`
+        # while still failing the attempt. What must not happen is these bytes
+        # reaching a durable member.
+        #
+        # CAPTURED TO A FILE, NOT TO A PIPE, and review 2026-09-04T13-56-04Z
+        # [P1] is why. `subprocess.PIPE` accumulates the WHOLE stream in this
+        # process's memory for as long as the 900-second command runs, and the
+        # truncation happened afterwards -- so the bound was on what an
+        # operator SAW and not on what this process held. A shouting command
+        # could still exhaust the operator's memory while the case that was
+        # supposed to prove otherwise passed.
+        #
+        # THE FILE LIVES IN THE EPHEMERAL ROOT this call already owns, so it is
+        # outside the retained proposal by construction and is removed with
+        # everything else in the `finally` below. Only the tail is ever read
+        # into memory.
+        with open(os.path.join(ephemera, "verification.out"), "w+b") as said:
+            verified = subprocess.run(list(task["verification"]),
+                                      cwd=candidate, stdout=said,
+                                      stderr=subprocess.STDOUT, timeout=900,
+                                      env=env)
+            if verified.returncode != 0:
+                _shown(task, verified.returncode, said)
+        return verified
+    finally:
+        import shutil
+
+        try:
+            shutil.rmtree(ephemera)
+        except OSError as failed:
+            # CHILD BYTES ARE NOT REPEATED. The path and exception class are
+            # enough for an operator to locate residue and distinguish it from
+            # verification success; silent retention was the defect.
+            raise _Lost(
+                f"independent verification left ephemera at {ephemera}; "
+                f"cleanup failed ({type(failed).__name__})") from failed
+
+
+def _within(place, root):
+    """Whether resolved `place` is `root` or one of its descendants."""
+    place = os.path.realpath(place)
+    root = os.path.realpath(root)
+    try:
+        return os.path.commonpath((place, root)) == root
+    except ValueError:
+        return False
+
+
+def _shown(task, status, said):
+    """A bounded, actionable diagnostic, to the SUPERVISING OPERATOR only.
+
+    This process's own stderr and nowhere else. It is not returned, so it
+    cannot reach `evidence`, the retained record, the proposal, the recap or a
+    Baton message -- every one of which the finding forbids -- and an operator
+    watching this run gets the line and caret that say WHICH file failed
+    instead of a bare exit status they have to reproduce by hand.
+
+    THE TAIL IS SOUGHT, NOT SLICED. `said` is the file the child wrote to, so
+    the bound here is on what is READ rather than on what is discarded after
+    reading: at most `MAX_DIAGNOSTIC` bytes ever enter this process, however
+    much the command produced.
+    """
+    import sys
+
+    total = said.seek(0, os.SEEK_END)
+    said.seek(max(0, total - MAX_DIAGNOSTIC))
+    text = said.read().decode("utf-8", "replace")
+    if total > MAX_DIAGNOSTIC:
+        text = f"[{total - MAX_DIAGNOSTIC} earlier bytes dropped]\n" + text
+    print(f"independent verification {' '.join(task['verification'])} exited "
+          f"{status}; its output follows and is NOT recorded anywhere "
+          f"durable:\n{text}", file=sys.stderr, flush=True)
+
+
+# HOW MUCH OF A FILE IS HELD WHILE IT IS DIGESTED. A candidate may carry an
+# artefact of any size, and a snapshot that read each one whole would make this
+# operator's memory a function of somebody else's build output.
+DIGEST_CHUNK = 1 << 20
+
+
+def _candidate_snapshot(tree):
+    """EVERY entry under the candidate, typed, with file bytes digested.
+
+    Paths AND bytes, because either alone misses half of what a verification
+    can do: a command that only adds files leaves every existing digest intact,
+    and one that rewrites a file in place leaves the path set intact.
+
+    AND DIRECTORIES, which review 2026-09-04T13-56-04Z [P1] found missing. Only
+    `os.walk`'s FILES were recorded, so an empty `__pycache__` produced an
+    identical snapshot before and after and was accepted -- while being exactly
+    the entry the finding's candidate-clean rule names. A directory that
+    appears is a change to the retained candidate whether or not anything is
+    in it yet.
+
+    TYPED, because a path becoming a different KIND of thing is a change no
+    digest comparison would see: a file replaced by a directory, or either
+    replaced by a link, compares as "the name is still there".
+
+    STREAMED, because a candidate may carry an artefact of any size and this
+    operator's memory must not be a function of it.
+    """
+    import stat
+
+    found = {}
+    for base, directories, files in os.walk(tree):
+        for name in directories:
+            place = os.path.join(base, name)
+            relative = os.path.relpath(place, tree)
+            held = os.lstat(place)
+            found[relative] = (_snapshot_kind(held.st_mode, place)
+                               if not stat.S_ISREG(held.st_mode)
+                               else _snapshot_file(place))
+        for name in files:
+            place = os.path.join(base, name)
+            relative = os.path.relpath(place, tree)
+            held = os.lstat(place)
+            found[relative] = (_snapshot_file(place)
+                               if stat.S_ISREG(held.st_mode)
+                               else _snapshot_kind(held.st_mode, place))
+    return found
+
+
+def _snapshot_kind(mode, place):
+    """A bounded description of an entry that must never be opened."""
+    import stat
+
+    if stat.S_ISLNK(mode):
+        return f"link:{os.readlink(place)}"
+    if stat.S_ISDIR(mode):
+        return "dir"
+    if stat.S_ISFIFO(mode):
+        return "fifo"
+    if stat.S_ISSOCK(mode):
+        return "socket"
+    if stat.S_ISCHR(mode):
+        return "character-device"
+    if stat.S_ISBLK(mode):
+        return "block-device"
+    return f"special:{stat.S_IFMT(mode):o}"
+
+
+def _snapshot_file(place):
+    """Digest one regular inode through a no-follow validated descriptor."""
+    import hashlib
+    import stat
+
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0)
+    # O_NONBLOCK keeps a last-moment regular-to-FIFO replacement from hanging
+    # the operator before fstat can reject it. It has no effect on a regular
+    # file. O_NOFOLLOW closes the equivalent link-replacement race.
+    flags |= getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        descriptor = os.open(place, flags)
+    except OSError as failed:
+        raise _Lost(
+            f"the candidate entry {place} could not be opened without "
+            f"following links ({type(failed).__name__})") from failed
+    try:
+        held = os.fstat(descriptor)
+        if not stat.S_ISREG(held.st_mode):
+            return _snapshot_kind(held.st_mode, place)
+        digested = hashlib.sha256()
+        with open(descriptor, "rb", closefd=False) as reading:
+            for block in iter(lambda: reading.read(DIGEST_CHUNK), b""):
+                digested.update(block)
+        return "file:" + digested.hexdigest()
+    finally:
+        os.close(descriptor)
+
+
+def _unchanged_by_verification(tree, before):
+    """A successful rerun leaves the retained candidate exactly as found."""
+    after = _candidate_snapshot(tree)
+    added = sorted(set(after) - set(before))
+    removed = sorted(set(before) - set(after))
+    altered = sorted(one for one in set(before) & set(after)
+                     if before[one] != after[one])
+    if not (added or removed or altered):
+        return
+    # NAMED, AND BOUNDED. An operator reading this needs to know it was the
+    # verification and roughly what it touched; 149 cache paths spelled out in
+    # a durable refusal would be a wall rather than a diagnostic.
+    def few(paths):
+        return ", ".join(paths[:5]) + (f" (+{len(paths) - 5} more)"
+                                       if len(paths) > 5 else "")
+
+    parts = []
+    if added:
+        parts.append(f"added {len(added)}: {few(added)}")
+    if removed:
+        parts.append(f"removed {len(removed)}: {few(removed)}")
+    if altered:
+        parts.append(f"rewrote {len(altered)}: {few(altered)}")
+    raise _Lost(
+        f"the independent verification changed the retained candidate it was "
+        f"measuring -- {'; '.join(parts)}. A rerun's own generated artefacts "
+        f"are not proposed source changes, and a proposal whose inventory was "
+        f"computed before they appeared describes a tree that no longer "
+        f"exists")
 
 
 def _proposal_root(custody_locator):

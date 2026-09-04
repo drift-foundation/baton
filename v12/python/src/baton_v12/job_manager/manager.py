@@ -125,6 +125,20 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     boundaries.instant(now, "the sweep's instant")
     observed = _observe(store, operations, attach=attach)
     replaced = _replace(store, operations)
+    # W85500: AND THE ENGINE IS ASKED BEFORE ANYTHING IS PROJECTED.
+    #
+    # THE THIRD PASS IN FRONT OF DERIVATION, for the same reason the two above
+    # it are there: the runtime axis is state this tick can already know is
+    # stale. A start attaches a runtime and records it, and nothing asked the
+    # engine about that runtime again -- the successful ending is the only
+    # other caller of the reconciliation, and an exceptional stage never
+    # reaches it because it owes no act. So a worker that faulted and exited
+    # was projected `running` for as long as anybody looked.
+    #
+    # BEFORE `stage_states`, NOT AFTER. What a stage owes and what a status
+    # says are both derived from that projection, so refreshing afterwards
+    # would report this tick's decisions from last tick's runtime truth.
+    refreshed = _refresh(store, operations)
     held = projection.stage_states(store, operations)
     acts = _adopt(store, operations, held)
     if acts:
@@ -152,7 +166,8 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
                                                                   operations))
     return documents.sweep_report(observed_at=now, recovered=recovered,
                                   observed=observed, replaced=replaced,
-                                  acts=acts, started=started, spoken=spoken)
+                                  acts=acts, started=started, spoken=spoken,
+                                  refreshed=refreshed)
 
 
 def _converse(store, operations, held):
@@ -348,6 +363,84 @@ def _observe(store, operations, *, attach):
         {events.OFFER_STATE_KIND: lambda event: apply_offer_state(store,
                                                                   event)},
         quiescent=(lambda: store._connection.in_transaction,))
+
+
+def _refresh(store, operations):
+    """Ask the engine about every live attempt, one stage at a time.
+
+    ONE STAGE'S FAILURE IS ONE STAGE'S. The acceptance says plainly that a
+    faulted stage must not stop another from being observed or progressed, so
+    a typed refusal is contained here and reported against the stage that
+    raised it. An escaping refusal would make one damaged attempt stop the
+    whole sweep from projecting anything -- which is the shape of the defect
+    this Work exists to correct, arriving by a different road.
+
+    TWO CONDITIONS AND NO MORE, which is re-review 2026-09-04T19:08:40Z [P1].
+    Containment is for MALFORMED EVIDENCE a deployment answered with, and for
+    the operational failure a deployment itself names as "the engine could not
+    be reached". A defect in somebody's code is neither, and it must not be
+    converted into report data: `serve` keeps only the last tick's report, so
+    a defect contained on an earlier tick is raised nowhere, recorded nowhere,
+    and gone as soon as one tick succeeds. It escapes to whoever is running
+    the loop instead, where it can be seen and fixed.
+
+    ONLY A LIVE EPISODE. A stage whose episode is over has identities that
+    belong to a finished attempt; asking the engine about them would refresh
+    somebody else's runtime into this stage's row.
+
+    NOTHING IS WRITTEN HERE. The reconciliation the deployment performs writes
+    its own answer under its own identity, exactly as `launch` and `dispatch`
+    do, so a second Job-store receipt would be a second account of a fact its
+    owner already holds.
+    """
+    refreshed = []
+    for stage in submission.stage_rows(store):
+        live = episodes.live_of(store, stage["stage_id"])
+        if live is None:
+            continue
+        attempt = episodes.attempting(stage, live)
+        members = {"stage_id": stage["stage_id"], "episode": live["episode"],
+                   "attempt_id": live["attempt_id"]}
+        try:
+            answer = operations.refresh_runtime(attempt)
+        except ContractRefusal as refusal:
+            # THE CATEGORY AND THE CODE AND NOTHING ELSE. A refusal's prose is
+            # composed from values this deployment read, and some of those come
+            # from a worker; a sweep report is read by whoever watches the
+            # service and is not a place to publish them.
+            refreshed.append(documents.stage_refresh(
+                **members, state=None,
+                detail={"category": refusal.category, "code": refusal.code}))
+            continue
+        except delegation.RefreshUnavailable as unreachable:
+            # AN ENGINE THAT COULD NOT BE ASKED IS NOT A RUNTIME THAT IS GONE.
+            # Review 2026-09-04T14-27-54Z [P1]: only typed refusals were
+            # contained, so a socket, a pipe or a missing binary aborted the
+            # whole sweep before the first projection -- suppressing an
+            # exchange terminal that was readable on disk the whole time.
+            #
+            # THE DEPLOYMENT DECIDES WHAT COUNTS, which is re-review
+            # 2026-09-04T19:08:40Z [P1]. This used to catch `OSError` here and
+            # then catch `Exception` after it, so every unexpected defect
+            # became report data that `serve` overwrote on the next tick. Only
+            # the deployment knows which of ITS failures mean the engine could
+            # not be reached -- a missing binary and a runner that timed out
+            # are the same operational fact and are not the same Python type --
+            # so it names them, and this pass contains exactly what it named.
+            #
+            # NOTHING IS RECORDED FROM THIS. The runtime axis keeps whatever it
+            # last knew; what this reports is that the question could not be
+            # put, which is the honest difference between "gone" and "unasked".
+            refreshed.append(documents.stage_refresh(
+                **members, state=None,
+                detail={"category": "uncertain", "code": "engine-unreachable",
+                        "error": unreachable.engine_error}))
+            continue
+        refreshed.append(documents.stage_refresh(
+            **members,
+            state=("not-asked" if answer is None
+                   else answer["execution_runtime"])))
+    return refreshed
 
 
 def _live_episodes(store):

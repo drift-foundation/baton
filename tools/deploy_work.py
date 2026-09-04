@@ -101,6 +101,7 @@ SOURCE_BRIDGE = os.path.join(REPO, "tools", "acp-baton-bridge")
 SOURCE_SHARED_GATE = (
 	"tools/codex-event-bridge/src/codex_baton_bridge.mjs",
 	"tools/codex-event-bridge/src/config.mjs",
+	"tools/codex-event-bridge/src/quarantine_store.mjs",
 	# finding-deployed-exec-policy-helper: the shipped dispatcher
 	# template tells the operator to generate the exact execution-policy
 	# rules with this module, and d46ab1e shipped that instruction

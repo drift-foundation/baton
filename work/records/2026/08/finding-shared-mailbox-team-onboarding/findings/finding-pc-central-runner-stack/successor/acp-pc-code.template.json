@@ -7,6 +7,9 @@
     "role": "impl",
     "waitTimeoutSeconds": 60
   },
+  "runtime": {
+    "actionOwner": "pc.slaw"
+  },
   "agent": {
     "command": "/home/sl/.config/baton/acp/pc.code/policy/launch-agent-sandboxed.sh",
     "args": [],

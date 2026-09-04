@@ -2042,6 +2042,25 @@ later M4 hardening and does not gate the current dogfood finish line. Its Job
 uses a descriptive title; generic label `v12` is the future campaign organizer
 rather than a title prefix.
 
+### Temporary v11 title prefixes — confirmed 2026-09-04
+
+The sentence immediately above is SUPERSEDED only while v12 development is
+coordinated through the protocol-11 authority. That authority has no generic
+Work-label field: its `label` operation relates a Thread to a Work and cannot
+classify Work. Every NEW Baton-repository Work created there therefore starts
+with `V11:` when it targets the current v11 product or runner stack, or `V12:`
+when it targets v12. A genuinely cross-version compatibility item may use
+`V11/V12:`.
+
+This is temporary presentation metadata, not lasting protocol vocabulary. V12
+Work labels replace it: `v11` or `v12` becomes the filterable campaign marker
+and v12-native Work returns to clean descriptive titles. Existing v11 ledger
+titles are immutable and are not recreated merely to add a prefix, because
+that would fragment their Threads, Events, dependencies, containment and
+history. The 2026-09-04 open-graph audit found 36 open Baton Works: 35 target
+v12 and W85873 targets v11. Their legacy titles remain historical; successors
+and newly decomposed Work use the temporary prefix.
+
 ## Bounded Job migration follows accepted dogfood — confirmed 2026-08-31
 
 Closing W38956 satisfying is the trigger for the campaign's next objective:

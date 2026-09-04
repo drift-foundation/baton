@@ -88,6 +88,28 @@ def _submit(taken, clock, stream):
 
 
 def _status(taken, clock, stream):
+    # W85500 review 2026-09-04T14-27-54Z [P1]: AN EXPLICIT REQUEST IS NEVER
+    # SILENTLY DOWNGRADED.
+    #
+    # `--observe` reconstructs this attempt's launch and exchange files, and
+    # `launch.adopt` needs the workspace group the CONTROL STORE holds -- so
+    # there is nothing an observation factory can read without one. The earlier
+    # form returned `Unobserved()` before it looked at the operand at all, so
+    # an operator who asked for observation got a successful run, `exchange:
+    # null`, and no indication whatever that the request had not been
+    # performed. That is the same shape as the defect this Work exists to
+    # correct: a surface reporting an absence it never went to look for.
+    #
+    # REFUSED RATHER THAN QUIETLY HONOURED SOME OTHER WAY. The operand names a
+    # deployment factory; making it work without a control store would mean
+    # inventing a second composition nobody reviewed.
+    if taken.observe is not None and taken.control is None:
+        raise SystemExit(
+            "--observe reconstructs this attempt's durable launch and "
+            "exchange files and needs --control to do it: the workspace group "
+            "it adopts against lives in the Worker Manager control store. "
+            "Rerun with --control, or drop --observe and accept "
+            "`exchange: null`, which means nobody looked.")
     with _job_store(taken, clock) as store:
         if taken.control is None:
             # NO CONTROL STORE IS A LEGITIMATE ANSWER, and the projection
@@ -97,8 +119,99 @@ def _status(taken, clock, stream):
                          stream)
         with ControlStore.open(taken.control, incarnation=taken.incarnation,
                                clock=clock) as control:
-            return _emit(status(store, _ReadOnly(control),
-                                observed_at=clock()), stream)
+            if taken.observe is None:
+                return _emit(status(store, _ReadOnly(control),
+                                    observed_at=clock()), stream)
+            # W85500: THE DURABLE EXCHANGE READER, AND NOTHING ELSE.
+            #
+            # `_ReadOnly` always answered `exchange: null` because it had no
+            # way to look, and the terminal a worker wrote was therefore
+            # invisible to the one command an operator runs. The file is on
+            # disk; the reader was never supplied.
+            #
+            # THE FACTORY IS RELEASED WHATEVER HAPPENS, exactly as `serve`
+            # releases its own. An observation factory opens far less than a
+            # serving one, but "far less" is not "nothing" and this tool does
+            # not go looking for what it was.
+            observed = _observation_from(taken.observe, store, control)
+            try:
+                return _emit(status(store, _Observing(control, observed),
+                                    observed_at=clock()), stream)
+            finally:
+                _release(observed, stream)
+
+
+class _Observing:
+    """`_ReadOnly` plus ONE durable-file read, and still no act.
+
+    W85500. THE ONE THING IT ADDS is the exchange observation, which is a read
+    of files a worker wrote and this manager's launch delivery named. It
+    remains read-only in the sense that matters: it issues no offer, takes no
+    claim, applies no canonical ending, and -- the one this Work had to be
+    careful about -- performs NO RUNTIME REFRESH.
+
+    WHY THE RUNTIME AXIS IS DELIBERATELY LEFT STALE HERE. Refreshing it means
+    `reconcile_runtime`, which RECORDS what it saw; a status command that did
+    that would be a read that mutates the control store. So the runtime axis
+    in a status document is exactly as fresh as the serving loop that last
+    advanced the store, and a store nobody is advancing reports what nobody
+    advanced. That is the honest answer, and it is why this class inherits
+    `refresh_runtime` answering `None` rather than being given a capability.
+    """
+
+    canonical = True
+
+    def __init__(self, control, observed):
+        self._operations = ManagerOperations(
+            control, None, mint_bearer=_refuses, deliver_bearer=_refuses,
+            observe_exchange=_exchange_read(observed))
+
+    def canonical_operation(self, act, offer_id):
+        return self._operations.canonical_operation(act, offer_id)
+
+    def receipt_of(self, operation_id):
+        return self._operations.receipt_of(operation_id)
+
+    def observe(self, stage):
+        return self._operations.observe(stage)
+
+    def refresh_runtime(self, stage):
+        """Never. See the class docstring: this one would WRITE."""
+        return None
+
+
+def _exchange_read(observed):
+    """The one member an observation factory is allowed to contribute.
+
+    Taken by NAME from the object rather than accepting the object itself as a
+    capability: a factory that also carried a dispatch or an ending would hand
+    those to `ManagerOperations` if the whole object were passed through, and
+    the point of this composition is that it cannot.
+    """
+    read = getattr(observed, "observe_exchange", None)
+    if read is None:
+        raise SystemExit(
+            "--observe names a factory whose object has no observe_exchange; "
+            "an observation surface that cannot read the exchange is the "
+            "default this operand exists to replace")
+    return read
+
+
+def _observation_from(name, store, control):
+    """Import exactly the observation factory the operator named.
+
+    Separate from `_operations_from` because the two are different authorities
+    and reusing one name for both would let a `status --observe` be handed a
+    serving factory -- which opens an Authority session and carries mint,
+    dispatch, ending and pass capabilities that a read must not hold.
+    """
+    if ":" not in name:
+        raise SystemExit(
+            f"--observe names an observation factory as module:attribute; "
+            f"this is {name!r}")
+    where, _, attribute = name.partition(":")
+    factory = getattr(importlib.import_module(where), attribute)
+    return factory(store, control)
 
 
 class _ReadOnly:
@@ -274,6 +387,17 @@ def main(argv, *, clock=None, stream=None):
                               "driving another Job store it refuses rather "
                               "than projecting that store's offers as these "
                               "Jobs'")
+    reading.add_argument("--observe", default=None,
+                         help="an observation-only deployment factory as "
+                              "module:attribute, which reconstructs this "
+                              "attempt's durable launch and exchange files so "
+                              "the projection can report a worker's terminal; "
+                              "without it the exchange is reported as null, "
+                              "which is 'nobody looked' rather than 'nothing "
+                              "happened'. It opens no Authority and carries "
+                              "no act, and it does not refresh the runtime "
+                              "axis -- that is the serving loop's, because "
+                              "reconciling records what it saw")
     reading.set_defaults(run=_status)
 
     serving = commands.add_parser(

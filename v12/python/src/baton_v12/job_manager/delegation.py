@@ -64,7 +64,8 @@ from ..worker_manager import (attempt_activity_of, attempt_runtime_of,
 from ..worker_manager.events import publish_offer_states
 
 __all__ = ["CANONICAL_OPERATIONS", "INTENT_OPERANDS", "OBSERVATION_MEMBERS",
-           "OPERATIONS", "ManagerOperations", "Unobserved",
+           "OPERATIONS", "REFRESH_STATES", "ManagerOperations",
+           "RefreshUnavailable", "Unobserved",
            "canonical_operation", "check_binding", "observation_of",
            "stage_intent", "unobserved"]
 
@@ -90,7 +91,24 @@ INTENT_OPERANDS = ("offer_id", "work_id", "runtime_attempt_id",
 # than discovered from whatever the caller happened to pass.
 OPERATIONS = ("canonical", "canonical_operation", "receipt_of", "recover",
               "attach", "drain", "admit", "claim", "launch", "dispatch",
-              "conclude", "observe")
+              "conclude", "observe", "refresh_runtime")
+
+# W85500: `refresh_runtime` IS A SERVING ACT AND NOT A READ, which is why it
+# is here rather than folded into `observe`.
+#
+# `observe` answers what the control store RECORDS. Once a start attaches a
+# runtime, nothing asked the engine about that runtime again: the ordinary
+# sweep read the persisted row, and on the fault path the successful ending --
+# the only other caller of `reconcile_runtime` -- is correctly never reached,
+# because an exceptional stage owes no act. So a container that exited stayed
+# projected as `running` indefinitely.
+#
+# IT RECORDS, so a status surface must not hold it. `reconcile_runtime` writes
+# the observed runtime state to the control store; a read-only status that
+# called it would be a read that mutates. Runtime freshness in a standalone
+# status comes from the serving loop that preceded it, and a store nobody is
+# advancing is exactly as stale as "nobody looked" -- which is the honest
+# answer rather than a write.
 
 # W76207: `launch` is the THIRD act, and it is deliberately not a fourth
 # receipt. `admit` and `claim` are the two acts this control plane journals in
@@ -347,7 +365,8 @@ class ManagerOperations:
 
     __slots__ = ("control", "port", "events", "_mint_bearer",
                  "_deliver_bearer", "_start_runtime", "_observe_exchange",
-                 "_dispatch_exchange", "_conclude_attempt")
+                 "_dispatch_exchange", "_conclude_attempt",
+                 "_refresh_runtime")
 
     # THE CANONICAL STORE IS OPEN. A status document says so, because a
     # projection assembled without the manager can only report what was
@@ -357,7 +376,8 @@ class ManagerOperations:
 
     def __init__(self, control, port, *, mint_bearer, deliver_bearer,
                  events=None, start_runtime=None, observe_exchange=None,
-                 dispatch_exchange=None, conclude_attempt=None):
+                 dispatch_exchange=None, conclude_attempt=None,
+                 refresh_runtime=None):
         self.control = control
         self.port = port
         # THE TRANSPORT IS OURS BY DEFAULT AND SUPPLIABLE ON PURPOSE. One
@@ -406,6 +426,14 @@ class ManagerOperations:
                                   else boundaries.capability(
                                       conclude_attempt,
                                       "the deployment's attempt ending"))
+        # W85500: OPTIONAL FOR THE SAME REASON THE RUNTIME START IS. A control
+        # plane that never starts a container has no runtime to refresh, and
+        # one that supplies no refresh says so by omission -- the sweep then
+        # reports `not-asked` rather than pretending it looked.
+        self._refresh_runtime = (None if refresh_runtime is None
+                                 else boundaries.capability(
+                                     refresh_runtime,
+                                     "the deployment's runtime refresh"))
 
     def canonical_operation(self, act, offer_id):
         return canonical_operation(act, offer_id)
@@ -529,6 +557,33 @@ class ManagerOperations:
                 f"reports work it can never begin")
         return self._start_runtime(stage, job)
 
+    def refresh_runtime(self, stage):
+        """Ask the ENGINE what this attempt's attached runtime is now.
+
+        W85500. The whole defect this answers is that nothing did. A start
+        attaches a runtime and records it; every ordinary sweep afterwards
+        reads that recorded row, and the only other caller of the Worker
+        Manager's reconciliation is the successful ending -- which an
+        exceptional stage never reaches, correctly, because it owes no act. So
+        a worker that wrote a faulted terminal and exited stayed projected
+        `running` for as long as anybody looked.
+
+        TWO AXES, TWO CALLS, AND THAT IS THE RULING. Runtime truth and
+        exchange truth are separate: this must not manufacture quiescence for
+        a stage whose worker faulted, and a malformed exchange must not stop
+        the engine being asked. The sweep calls both and lets neither suppress
+        the other.
+
+        A DEPLOYMENT THAT SUPPLIED NONE ANSWERS `None`, which the sweep reports
+        as `not-asked`. That is the same shape the exchange read uses for
+        "nobody looked", and for the same reason: a control plane with no
+        engine is a real deployment, and silence about a runtime is not the
+        same claim as a runtime that is gone.
+        """
+        if self._refresh_runtime is None:
+            return None
+        return _refreshed(self._refresh_runtime(stage), stage)
+
     def dispatch(self, stage, job):
         """Publish THE ONE command sequence for a started, idle runtime.
 
@@ -627,6 +682,86 @@ class ManagerOperations:
                              if self._observe_exchange is not None else None)}
 
 
+# WHAT A REFRESH MAY ANSWER, closed. Review 2026-09-04T14-27-54Z [P1]: the
+# manager took whatever came back and called `.get` on it, so a deployment
+# answering a scalar aborted the whole sweep with `AttributeError` before the
+# first projection -- suppressing an independently readable exchange terminal
+# and stopping every other stage.
+#
+# THE VALUES ARE THE WORKER MANAGER'S OWN AXIS, spelled here rather than
+# imported, for the reason every other closed set in this leaf is spelled: this
+# is the set THIS build will accept from a deployment, and a value that appears
+# in the axis later is a value somebody decided to accept here too.
+REFRESH_STATES = ("not-started", "running", "quiescent", "uncertain",
+                  "destroyed")
+
+
+class RefreshUnavailable(Exception):
+    """The engine could not be ASKED about this attempt's runtime.
+
+    W85500 review 2026-09-04T19:08:40Z [P1]. The manager used to catch
+    `Exception` around the refresh and turn everything it caught into a
+    per-tick report detail. `serve` keeps only the LAST tick's report, so an
+    implementation defect caught on an earlier tick was neither raised nor
+    recorded anywhere and vanished on the next successful tick -- a blanket
+    catch that loses defects, which is what the previous review prohibited in
+    as many words.
+
+    SO THE DEPLOYMENT NAMES ITS OWN EXPECTED FAILURE instead. A deployment
+    knows which of its failures mean "the engine could not be reached": a
+    missing binary, a dead socket, a broken pipe, a runner that timed out. It
+    translates those -- and only those -- into this condition, and the manager
+    contains exactly this condition and `ContractRefusal`. Anything else is a
+    defect in somebody's code and escapes to whoever is running the loop.
+
+    IT CARRIES A TYPE NAME AND NOT A MESSAGE. The type is this process's read
+    of an in-process object; an engine's message is composed from bytes a
+    worker or a daemon wrote, and a sweep report is read by whoever watches the
+    service.
+    """
+
+    def __init__(self, cause):
+        super().__init__(f"the engine could not be asked about this runtime: "
+                         f"{type(cause).__name__}")
+        self.engine_error = type(cause).__name__
+
+
+def _refreshed(answer, stage):
+    """One deployment's refresh answer, OWNED before anything reads it.
+
+    `None` is "nothing to ask about", which is the ordinary answer for an
+    attempt that never attached a runtime. Anything else is an EXACT built-in
+    document carrying exactly the one member this leaf reads, whose value is in
+    the closed axis above. Everything else is malformed evidence and says so.
+
+    THE OWNER IS `boundaries.document` RATHER THAN A HAND-WRITTEN CHECK, and
+    review 2026-09-04T19:08:40Z [P1] is why. `isinstance(answer, dict)` plus
+    `.get` is not a closed contract: it accepted `{"execution_runtime":
+    "quiescent", "unexpected": 1}` and silently discarded the member nobody
+    recognised, and it accepted a `dict` SUBCLASS -- so a `.get` override ran
+    caller code inside the validation boundary and propagated its own
+    exception out of it. The repository already owns this property in one
+    place, which takes a fresh built-in copy (no subclass, no live reference,
+    no behaviour) and requires exactly the named members.
+    """
+    if answer is None:
+        return None
+    taken = boundaries.document(
+        answer,
+        f"the deployment's runtime refresh for stage "
+        f"{name_value(stage['stage_id'])}",
+        required=("execution_runtime",))
+    state = taken["execution_runtime"]
+    if state not in REFRESH_STATES:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the deployment's runtime refresh for stage "
+            f"{name_value(stage['stage_id'])} answered execution_runtime "
+            f"{name_value(state)}; this control plane reads one of "
+            f"{', '.join(REFRESH_STATES)} and projects nothing it cannot name")
+    return taken
+
+
 class Unobserved:
     """The read-only surface for a caller holding no manager control store.
 
@@ -676,6 +811,18 @@ class Unobserved:
 
     def observe(self, stage):
         return unobserved()
+
+    def refresh_runtime(self, stage):
+        """Nobody looked, and this surface is not going to.
+
+        W85500: `None` rather than a refusal, because this is the one member
+        whose absence is an ordinary posture rather than a missing capability
+        -- and because a status surface asking an engine would be a read that
+        WRITES the answer to the control store. The serving loop is what keeps
+        the runtime axis fresh; a store nobody is advancing is exactly as stale
+        as this says it is.
+        """
+        return None
 
     @staticmethod
     def _refuse(what):

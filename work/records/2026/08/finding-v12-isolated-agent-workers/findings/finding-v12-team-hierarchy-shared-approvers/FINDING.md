@@ -57,6 +57,23 @@ either topology.
 - Organizational ancestry never implies Work containment, dependency,
   scheduling order, repository ancestry, or filesystem access.
 
+## Cross-team manager clarification — confirmed 2026-09-04
+
+V12 must let one principal act as a team manager for several explicitly scoped
+teams without creating or selecting a separate `<team>.member` identity for
+each team. The manager has one authenticated identity, session, inbox,
+capacity view, and audit history. A deployment grants that principal the
+desired management roles or capabilities over one organizational node or
+subtree; it may grant approval, recovery, configuration, dispatch, or a
+smaller deployment-defined set without changing the principal's identity.
+
+Each authorized operation still records the one principal, the effective team
+or scope, the exercised grant, and its provenance. Cross-team management does
+not make Work ownership, repositories, routes, or worker identities global,
+and it does not grant authority outside the configured scope. `team manager`
+is the operator-facing concept; it is not an alias-generation scheme and does
+not require one durable identity per managed team.
+
 ## Historical open design questions — resolved 2026-08-25
 
 **Superseded by the confirmed M6 baseline below.** These questions are
