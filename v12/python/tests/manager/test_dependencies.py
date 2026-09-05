@@ -386,6 +386,25 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # calls, which is exactly what makes the same call answer the same
         # thing every time it is repeated.
         "offer", "queue", "offer_ids",
+        # W71917: the BOUNDARY's two object identities, and the pinned copy
+        # a restart compares against.
+        #
+        # `source` and `workspace` are each the `(device, inode)` pair this
+        # manager read from the filesystem when it nominated the source and
+        # allocated the workspace; `pinned` is those two pairs handed back to
+        # the adoption gate from durable storage. All three are values the
+        # caller supplies and none is traversal state: they carry no position,
+        # no cursor and no memory between calls, and the gate answers the same
+        # thing every time it is given the same pairs. (`source` is already
+        # declared above for the delivery family and is not repeated here.)
+        #
+        # SUPERSEDED: `device` and `inode` were declared here as two separate
+        # whole numbers, when the pin recorded the SOURCE alone. W71917's
+        # third review found that the workspace had only a pathname, so the
+        # pin now takes both roots and takes each as one pair -- half an
+        # object identity compares against nothing, and two loose numbers per
+        # root is four operands that can be passed in the wrong order.
+        "workspace", "pinned",
         # the control store
         "path", "incarnation", "clock", "operation_id", "kind", "signature",
         "action", "operands", "refusal", "sealed",
@@ -717,6 +736,34 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         #                  attempt.
         "network", "interactive", "program", "channel_port", "operations",
         "operation_ids",
+        # W71917: THE SOURCE/WORKSPACE BOUNDARY'S THREE, and each is a claim
+        # made deliberately rather than a name that arrived with a function:
+        #
+        #   `capacity`          what one assignment DECLARES its writable
+        #                       workspace needs. A deployment decision with
+        #                       no default -- the same kind of value as the
+        #                       workspace group and the workspace store beside
+        #                       it -- and not a count this module keeps. It
+        #                       was `quota` until W71917 ruled the name had to
+        #                       match the mechanism: the value is proved
+        #                       against the filesystem at admission and
+        #                       applied to nothing while a runtime runs.
+        #   `boundary`          the composed source/workspace topology, as one
+        #                       typed capability. It crosses for the reason
+        #                       `delivery` and `workspace_group` already do:
+        #                       what the manager passes is a thing it made and
+        #                       proved, never data describing one.
+        #   `source_delivered`  the same capability where `run_vector` takes
+        #                       it, named in the `*_delivered` family the
+        #                       credential, launch and exchange mounts already
+        #                       use, because a vector is composed out of what
+        #                       a delivery ANSWERED rather than out of the
+        #                       delivery itself.
+        #
+        # None is traversal state: the boundary keeps no cursor and no
+        # position, and composing it twice over the same operands answers the
+        # same topology both times.
+        "capacity", "boundary", "source_delivered",
         # `workspace_storage` WAS DECLARED HERE AND IS GONE AGAIN, which is
         # worth a line rather than a silent deletion. W36540's eighth round
         # added it as a capability operand of the custody mint; its ninth

@@ -1,0 +1,35 @@
+# WHAT THE `v12` BUILD CONTEXT SENDS, and it is an ALLOWLIST on purpose.
+#
+# W71917 widened `Dockerfile.claude`'s context from `v12/worker` to `v12`,
+# because the image now needs the distribution's `source_profiles` package
+# beside the worker modules and a context cannot reach above itself. That is
+# correct and it has three consequences this file answers.
+#
+# FIRST, AND THE ONE THAT ACTUALLY BIT: a context is TARRED AS IT IS READ, and
+# `v12/python` is a directory the test suite writes into while it runs. A
+# whole-tree run builds this image while other cases are creating and removing
+# temporary trees under that path, and the build failed there while passing
+# every time it was run on its own. A denylist cannot fix that — it would have
+# to name every transient thing a suite might make — so this excludes
+# EVERYTHING and re-includes exactly the two directories the recipe copies.
+# Nothing else can appear in the context, so nothing else can change under it.
+#
+# SECOND, COST. The old context was four files; the whole distribution is
+# nominally in this one and only two directories are ever copied from it.
+#
+# THIRD, byte-code caches must not travel. W85497 is the record of what they
+# cost — a verifier that created 149 cache paths inflated a proposal past
+# reviewability — and a cache built by the host's interpreter landing in an
+# image with a different one is a second copy of that mistake, made at build
+# time instead of at run time.
+#
+# ORDER IS THE MECHANISM: later patterns win, so the re-includes come before
+# the cache exclusions that carve into them.
+*
+!worker
+!python/src/baton_v12/source_profiles
+
+# Not even inside the two directories above.
+**/__pycache__
+**/*.pyc
+**/*.pyo

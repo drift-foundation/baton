@@ -915,6 +915,16 @@ COVERED_ELSEWHERE = {
     ("attempts.py", "observe_activity", "attempts"):
         "a proved non-negative count and this manager's own instant; no "
         "caller text and no observed content reaches either column",
+    # W71917: the BOUNDARY's two OBJECT identities. Four whole numbers this
+    # manager read from the filesystem when it nominated the source and
+    # allocated the workspace -- a device and an inode for each root. None is
+    # composed by a caller, none is text, and nothing about either tree's
+    # CONTENTS reaches any column: the manager measures no contents, which is
+    # the distinction the finding pins.
+    ("attempts.py", "pin_boundary_identity", "attempts"):
+        "four proved non-negative numbers this manager read from the "
+        "filesystem; no caller text and nothing about either root's contents "
+        "reaches any column",
     ("attempts.py", "record_attempt", "attempts"):
         "written inside the journalled record act",
     ("attempts.py", "activate_assignment", "attempts"):
@@ -1125,6 +1135,16 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
                         "it proved and an instant it took from the store's "
                         "own clock; nothing the observed child produced is "
                         "carried, held or returned",
+    "pin_boundary_identity": "writes the devices and inodes this manager "
+                             "itself read when it nominated the source and "
+                             "allocated the workspace, so a later incarnation "
+                             "can refuse either root replaced while no "
+                             "manager was watching; it opens nothing inside "
+                             "either and carries no content identity",
+    "boundary_identity_of": "projects those two pairs off the attempt row; "
+                            "there is no operand to construct from and "
+                            "nothing about either root's contents is "
+                            "reachable from any value",
     "attempt_runtime_of": "projects four runtime axes off the attempt row "
                           "plus the assignment document activation fixed, so "
                           "a recovery can branch on durable manager state and "

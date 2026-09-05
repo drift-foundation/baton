@@ -65,7 +65,7 @@ from ..contracts import ContractRefusal, check_no_durable_secret
 from ..contracts.pod import own
 from ..contracts.errors import name_value
 from . import (boundaries, credentials, documents, exchange, launch,
-               sealing, workspaces)
+               sealing, source_boundary, workspaces)
 
 __all__ = ["ENGINES", "EnginePort", "LABEL_PREFIX", "LABEL_CONTEXT",
            "MAX_DIAGNOSTIC",
@@ -191,8 +191,17 @@ RESTRICTIONS = (
     ("--cpus", "2"),
     # `/tmp` and `/dev/shm` exist because ordinary tools need them, and both are
     # small, private and non-executable.
-    ("--tmpfs", "/tmp:rw,noexec,nosuid,nodev,size=64m"),
-    ("--tmpfs", "/dev/shm:rw,noexec,nosuid,nodev,size=16m"),
+    #
+    # W71917: THE BOUND IS COMPOSED FROM ITS ONE OWNER rather than spelled
+    # again here. `source_boundary` states these sizes because it also states
+    # the declared workspace capacity's floor against them -- the rule that
+    # the ruled non-scratch uses cannot have fitted in scratch is only
+    # checkable if both numbers come from one place. The composed strings are byte-identical to
+    # the ones this table carried literally; what changed is that a future
+    # change to either bound can no longer move one and leave the other.
+) + tuple(
+    ("--tmpfs", f"{target}:rw,noexec,nosuid,nodev,size={one >> 20}m")
+    for target, one in source_boundary.SCRATCH_MOUNTS
 )
 
 # THE POSTURE'S OWN ROOTS. Ruled 2026-08-25, and it replaces a denylist.
@@ -915,9 +924,117 @@ def _exchange_mounts(exchange_delivered):
     return tuple(composed)
 
 
+def _source_mount(source_delivered, assigned, roots):
+    """W71917: THE NOMINATED SOURCE, read-only, ON TOP OF the input root.
+
+    A SEPARATE OWNER FROM `_mounts`, and the separation is the same one
+    `_credential_mounts` was given. `_mounts` admits a source only because this
+    manager CREATED the root it lives under; a nominated source is by
+    definition material this manager did not create and did not read, so it can
+    never satisfy that rule and must not be made to. What authorizes it instead
+    is the typed capability: `source_boundary.compose_source_boundary` proved
+    the directory, proved it is outside this manager's own roots in both
+    directions, and established the mountpoint this lands on.
+
+    NESTING IS REQUIRED HERE AND REFUSED EVERYWHERE ELSE, which is worth
+    saying out loud because it inverts the rule the other three families are
+    under. A credential, launch or exchange target nested inside an assignment
+    mount is an accident -- two deliveries and nobody deciding which the worker
+    reads. This one is the DESIGN: the mountpoint is an empty directory this
+    manager created inside the input root precisely so the bind lands there, and
+    the input root is read-only, so the deeper mount is the only thing at that
+    path a worker can see and neither bind is writable.
+
+    So the proof is the inverse: the target must be strictly inside a
+    NON-WRITABLE assignment mount. A nominated source landing inside the
+    writable workspace would be a read-only tree the worker could reach around
+    by writing its parent, and one landing under no assignment mount at all
+    would be a bind onto the image filesystem.
+
+    AND THE BOUNDARY MUST BE THIS ASSIGNMENT'S, which the target rules alone
+    cannot decide. W71917's second review [P1]: a boundary genuinely composed
+    against attempt A was accepted by a start vector carrying attempt B's
+    genuinely allocated roots, and because B's workspace was the directory
+    nominated for A, the same host directory reached the container writable at
+    `/output` and read-only at `/input/source`. Every rule above passed --
+    the target is the constant, it is inside a read-only assignment mount,
+    the capability is typed and this manager minted it -- because none of them
+    asks WHOSE assignment it was proved over. A capability is provenance about
+    one attempt, so the roots it was proved against are compared here against
+    the roots this start is composing, and the read-only claim stops being
+    conditional on two callers agreeing.
+    """
+    if source_delivered is None:
+        return ()
+    if type(source_delivered) is not source_boundary.SourceBoundary:
+        _denied(f"a nominated source delivery is the boundary this manager "
+                f"composed; this is {name_value(source_delivered)}")
+    workspace = os.path.realpath(roots["workspace"])
+    if source_delivered.workspace != workspace:
+        _denied(f"the nominated source boundary was proved over the workspace "
+                f"{name_value(source_delivered.workspace)} and this start "
+                f"composes {name_value(workspace)}; a boundary belongs to the "
+                f"one assignment it was proved for, and another attempt's "
+                f"roots would bind a source nobody proved against them")
+    mountpoint = os.path.join(os.path.realpath(roots["inputs"]),
+                              source_boundary.SOURCE_NAME)
+    if source_delivered.mountpoint != mountpoint:
+        _denied(f"the nominated source boundary lands on "
+                f"{name_value(source_delivered.mountpoint)} and this start's "
+                f"input root establishes {name_value(mountpoint)}; the "
+                f"mountpoint is a directory this manager created inside one "
+                f"assignment's input root and is not another assignment's to "
+                f"bind over")
+    triples = source_boundary.boundary_mounts(source_delivered)
+    composed = []
+    for one in triples:
+        if one[2] is not False:
+            # UNREACHABLE FROM `boundary_mounts`, WHICH IS WHY IT IS HERE.
+            # This family composes exactly the read-only half; the writable
+            # workspace reaches the argv through `mounts`, where the posture
+            # rules already decide writability. A capability answering
+            # otherwise is a capability that changed underneath us.
+            continue
+        source = canonical_source(one[0], "a nominated source")
+        target = canonical_target(one[1], "a nominated source target")
+        if target != source_boundary.SOURCE_TARGET:
+            _denied(f"a nominated source lands on {name_value(target)}; the "
+                    f"worker reads its Work at "
+                    f"{name_value(source_boundary.SOURCE_TARGET)}, which is a "
+                    f"constant of this contract rather than an operand")
+        if not os.path.isdir(source):
+            _refuse(f"a nominated source names {name_value(source)}, which is "
+                    f"not a directory; the Work a worker is given is one tree "
+                    f"at one path", code="path")
+        # EQUAL FIRST, CONTAINING SECOND, and the order matters because
+        # `_within` here answers True for both. An assignment mount already AT
+        # this target would be hidden by a second bind on the same path -- the
+        # duplicate-target rule the other families are under -- while one
+        # merely CONTAINING it is the arrangement this family exists to
+        # compose. Folding them together would read a collision as the design.
+        for _source, taken, _writable in assigned:
+            if taken == target:
+                _denied(f"a nominated source lands on {name_value(target)}, "
+                        f"which this assignment already mounts at exactly "
+                        f"that path; the second bind would hide the first and "
+                        f"neither this manager nor the engine says which the "
+                        f"worker reads")
+        over = [taken for _source, taken, writable in assigned
+                if not writable and taken != target and _within(target, taken)]
+        if not over:
+            _denied(f"a nominated source lands on {name_value(target)}, which "
+                    f"is inside no read-only mount of this assignment; the "
+                    f"mountpoint is a directory this manager established "
+                    f"inside the input root, and a bind anywhere else would "
+                    f"land on the image filesystem or under something the "
+                    f"worker may write")
+        composed.append((source, target, False))
+    return tuple(composed)
+
+
 def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                mounts=(), credentials_delivered=(), launch_delivered=None,
-               exchange_delivered=None,
+               exchange_delivered=None, source_delivered=None,
                name, workspace_group=None, network=NETWORK_NONE,
                interactive=False):
     """The closed argv that STARTS one runtime, restrictions and all.
@@ -1088,6 +1205,30 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                         f"{name_value(target)}, which this start already "
                         f"mounts; the worker would read one of the two and "
                         f"neither this manager nor the engine says which")
+        argv += ["--mount",
+                 f"type=bind,source={source},target={target},"
+                 f"readonly={'false' if writable else 'true'}"]
+    # W71917: THE NOMINATED SOURCE, composed LAST of every family so the mount
+    # it lands inside is already in the argv, and always read-only. It is the
+    # one bind whose source this manager did not create, which is exactly why
+    # it is the one bind that is never writable and never a caller's path: what
+    # crosses is the typed boundary capability, and `_source_mount` derives
+    # both halves from it.
+    for source, target, writable in _source_mount(source_delivered, assigned,
+                                                  roots):
+        for taken in ([one[1] for one in
+                       _credential_mounts(credentials_delivered)]
+                      + ([_launch_mount(launch_delivered)[1]]
+                         if launch_delivered is not None else [])
+                      + [one[1] for one in
+                         _exchange_mounts(exchange_delivered)]):
+            if taken == target or _within(target, taken) \
+                    or _within(taken, target):
+                _denied(f"a nominated source lands on "
+                        f"{name_value(target)}, which this start already "
+                        f"mounts as {name_value(taken)}; the worker would "
+                        f"read one of the two and neither this manager nor "
+                        f"the engine says which")
         argv += ["--mount",
                  f"type=bind,source={source},target={target},"
                  f"readonly={'false' if writable else 'true'}"]
@@ -1471,6 +1612,7 @@ class OciAdapter:
                  posture, mounts=(), outputs=(), input_manifest_digest=None,
                  credential_delivery=None, credential_home=None,
                  credential_orphan=None, launch_delivery=None,
+                 source_delivery=None,
                  workspace_group=None, network=NETWORK_NONE,
                  interactive=False):
         self.engine = _engine(engine)
@@ -1580,6 +1722,30 @@ class OciAdapter:
             _refuse(f"a launch delivery is one this manager materialized; "
                     f"this is {name_value(launch_delivery)}")
         self.launch_delivery = launch_delivery
+        # W71917: THE COMPOSED SOURCE BOUNDARY, owned at construction for the
+        # reason every other delivery here is: it is assignment-scoped and
+        # fixed, and a per-call operand would make "which tree is this
+        # assignment's Work" an argument.
+        #
+        # A CAPABILITY AND NEVER A PATH, on the rule the launch and credential
+        # deliveries are already under. A path would be a caller-selected
+        # locator, and the whole content of this boundary is that the directory
+        # was proved -- unaliased, outside this manager's own storage, and
+        # pinned by inode -- before anything could be pointed at it.
+        #
+        # `None` IS THE ORDINARY CONSENT AND PRE-W71917 SHAPE. A consent
+        # container mounts nothing, and an execution adapter composed without
+        # one starts exactly the argv it started before this Work existed --
+        # which is what keeps this an addition rather than a migration.
+        if source_delivery is not None \
+                and type(source_delivery) is not source_boundary.SourceBoundary:
+            _refuse(f"a source delivery is one this manager composed and "
+                    f"proved; this is {name_value(source_delivery)}")
+        if source_delivery is not None and posture != "execution":
+            _denied(f"a {posture} container mounts nothing and is given no "
+                    f"nominated source; a Work tree delivered to a container "
+                    f"with no assignment is a grant with no object")
+        self.source_delivery = source_delivery
         # W33936: DEPLOYMENT CONFIGURATION, held like the resolved identity
         # and the assignment roots -- assignment-scoped, fixed, and proved
         # when the adapter is built rather than at every call.  `None` is a
@@ -1868,6 +2034,7 @@ class OciAdapter:
                     if self.launch_delivery is not None
                     and self.launch_delivery.exchange is not None
                     else None),
+                source_delivered=self.source_delivery,
                 name=_runtime_name(taken["operation_id"]),
                 workspace_group=self.workspace_group,
                 network=self.network, interactive=self.interactive)

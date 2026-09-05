@@ -1072,6 +1072,141 @@ NOT_AN_ENTRY = {
 # Every one still needs a witness: a declared owner with nothing exercising it
 # is a claim, not a boundary.
 STATED_OWNERS = {
+    # -- W71917: the source/workspace boundary -------------------------------
+    #
+    # THREE SHAPES, AND EACH IS A DIFFERENT REASON. None of them is a caller
+    # handing this manager data to read.
+    #
+    # 1. THE MINTED CAPABILITIES. `NominatedSource`, `SourceBoundary` and
+    #    `WorkspaceCapacity` are constructed only by this module's own proofs
+    #    -- `nominate_source`, `compose_source_boundary`,
+    #    `adopt_source_boundary`, `workspace_capacity` -- each of which refuses
+    #    a caller-minted instance through the `_MINT` token before any member
+    #    is read. What crosses at these constructors is this module's own
+    #    answer about material it has already validated, so a boundary here
+    #    would be revalidating a value nobody outside supplied.
+    ("caller", "source_boundary.py:NominatedSource.__init__", "_minted"):
+        "the mint token, compared by identity against this module's own "
+        "`_MINT`; a caller reaching this constructor is refused before any "
+        "member is read",
+    ("caller", "source_boundary.py:NominatedSource.__init__", "place"):
+        "already proved by `nominate_source`, which is the only minter",
+    ("caller", "source_boundary.py:NominatedSource.__init__", "device"):
+        "read from a descriptor by `nominate_source`, never from a caller",
+    ("caller", "source_boundary.py:NominatedSource.__init__", "inode"):
+        "the same",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "_minted"):
+        "the mint token, compared by identity against this module's own "
+        "`_MINT`; a caller reaching this constructor is refused before any "
+        "member is read",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "source"):
+        "the `NominatedSource` this module proved and minted",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "workspace"):
+        "this module's own `os.path.realpath` of a root `workspaces` minted",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "mountpoint"):
+        "the directory `source_mountpoint` established inside the proved "
+        "input root",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "capacity"):
+        "the `WorkspaceCapacity` this module minted and proved against the "
+        "filesystem",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "device"):
+        "read from a descriptor by `nominate_source`, never from a caller",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "inode"):
+        "the same",
+    ("caller", "source_boundary.py:SourceBoundary.__init__",
+     "workspace_device"):
+        "read from a descriptor by `_object_of`, never from a caller",
+    ("caller", "source_boundary.py:SourceBoundary.__init__",
+     "workspace_inode"): "the same",
+    ("caller", "source_boundary.py:WorkspaceCapacity.__init__", "_minted"):
+        "the mint token, compared by identity against this module's own "
+        "`_MINT`; a caller reaching this constructor is refused before any "
+        "member is read",
+    ("caller", "source_boundary.py:WorkspaceCapacity.__init__", "max_bytes"):
+        "held to this build's floor and ceiling by `workspace_capacity`, "
+        "which is the only minter",
+    # 2. THE TYPED CAPABILITIES A CALLER HANDS BACK. Each is an EXACT type
+    #    check against a class only this build mints, made before any member is
+    #    read -- which is the same rule `refuse_runtime_preparation` is under
+    #    for its own closed refusal type. A boundary-layer rule cannot express
+    #    "this is the object I made"; identity is the whole point.
+    ("caller", "source_boundary.py:compose_source_boundary", "source"):
+        "an exact type check against the `NominatedSource` this module mints, "
+        "before any member is read",
+    ("caller", "source_boundary.py:compose_source_boundary", "roots"):
+        "an exact type check against `workspaces.AllocatedRoots`, which only "
+        "`assignment_workspace` and `adopted_assignment_workspace` mint and "
+        "which carry their own proof of each root",
+    ("caller", "source_boundary.py:compose_source_boundary", "capacity"):
+        "an exact type check against the `WorkspaceCapacity` this module "
+        "mints",
+    ("caller", "source_boundary.py:compose_source_boundary", "roots.inputs"):
+        "a member of the minted `AllocatedRoots`, proved where it was "
+        "allocated; reading it again here would revalidate this manager's own "
+        "answer",
+    ("caller", "source_boundary.py:compose_source_boundary",
+     "roots.workspace"): "the same",
+    ("caller", "source_boundary.py:adopt_source_boundary", "boundary"):
+        "an exact type check against the `SourceBoundary` this module mints",
+    ("caller", "source_boundary.py:adopt_source_boundary", "roots"):
+        "an exact type check against `workspaces.AllocatedRoots`",
+    ("caller", "source_boundary.py:adopt_source_boundary", "roots.inputs"):
+        "a member of the minted `AllocatedRoots`, proved where it was "
+        "allocated",
+    ("caller", "source_boundary.py:adopt_source_boundary", "roots.workspace"):
+        "the same",
+    ("caller", "source_boundary.py:adopt_source_boundary", "pinned"):
+        "shaped by `_pinned_pairs`, which refuses anything that is not the "
+        "two `(device, inode)` pairs an earlier incarnation proved -- and "
+        "refuses it before either is compared, because half an identity "
+        "compares against nothing",
+    ("caller", "source_boundary.py:boundary_mounts", "boundary"):
+        "an exact type check against the `SourceBoundary` this module mints",
+    ("caller", "source_boundary.py:workspace_capacity", "max_bytes"):
+        "one positive whole number, then this build's own floor and ceiling; "
+        "the rule is a range rather than a shape, so it is stated where the "
+        "range is",
+    # 3. THE DIAGNOSTIC NOUN, BOUNDED BY `label_of` AT EACH PUBLIC DOOR.
+    #
+    #    `what` names the thing a refusal is about. It reaches no decision and
+    #    no durable record -- but it DOES reach a message, and all three of
+    #    these are exported operations, so what bounds it cannot be a fact
+    #    about this package's own call sites.
+    #
+    #    SUPERSEDED: these three read "a literal at every call site; it decides
+    #    nothing and is never persisted". W71917's sixth review showed the
+    #    first clause is a statement about this package and not about what an
+    #    external caller may hand in, and that two of the three then
+    #    interpolated the object directly -- so a value whose `__format__`
+    #    raised escaped as a `RuntimeError` rather than as this build's closed
+    #    refusal. `label_of` is the rule now, at each door, which is what
+    #    `check_disk_backed` already did.
+    ("caller", "source_boundary.py:check_disk_backed", "what"):
+        "bounded by `contracts.errors.label_of` before it can reach a "
+        "message; it decides nothing and is never persisted",
+    ("caller", "workspaces.py:mount_table", "what"):
+        "the same, at this operation's own door",
+    ("caller", "workspaces.py:mount_points", "what"):
+        "the same, at this operation's own door",
+    # -- W71917: the durable boundary identity -------------------------------
+    ("caller", "attempts.py:pin_boundary_identity", "attempt_id"):
+        "forwarded to `_require_attempt`, which owns the identity and proves "
+        "the row exists before anything is written",
+    ("caller", "attempts.py:boundary_identity_of", "attempt_id"):
+        "the same",
+    ("caller", "attempts.py:pin_boundary_identity", "source"):
+        "the `(device, inode)` pair this manager itself read from a "
+        "descriptor: unpacked, and each half held to a non-negative whole "
+        "number before the write. Not a shape a caller composes -- a boundary "
+        "rule would describe the pair without saying it is a filesystem "
+        "reading",
+    ("caller", "attempts.py:pin_boundary_identity", "workspace"): "the same",
+    # -- W71917: the composed boundary reaching the adapter ------------------
+    ("caller", "oci.py:OciAdapter.__init__", "source_delivery"):
+        "an exact type check against the `SourceBoundary` this build mints, "
+        "made at construction beside the posture rule that only an execution "
+        "runtime may carry one; the HELD capability is then what every start "
+        "composes its binds from",
     # -- W76207: the failed preparation this manager records -----------------
     #
     # The operand is this package's OWN closed type rather than caller data, so
@@ -1763,6 +1898,21 @@ NO_PROBE = {
         "the rule; the contract still owns it for any later reader",
     ("adopted", "attempts.py:_attempts", "attempts.assignment_generation"):
         "the same: a generation column SQLite will not let a writer spoil",
+    # W71917: THE FOUR OBJECT-IDENTITY COLUMNS, for the same reason and in the
+    # same words. A device number and an inode number are `count` columns in a
+    # STRICT table, so SQLite refuses the value a corruption probe would have
+    # to write, and the probe would be proving a boundary no writer can drive.
+    # Declared at `attempts.py:_attempts` alone because that is the site the
+    # inventory attributes their crossing to -- the same correction
+    # `runtime_attempt_id` records above.
+    ("adopted", "attempts.py:_attempts", "attempts.source_device"):
+        "a STRICT INTEGER column; SQLite refuses the value a probe would need",
+    ("adopted", "attempts.py:_attempts", "attempts.source_inode"):
+        "the same: an inode number SQLite will not let a writer spoil",
+    ("adopted", "attempts.py:_attempts", "attempts.workspace_device"):
+        "the same: a device number SQLite will not let a writer spoil",
+    ("adopted", "attempts.py:_attempts", "attempts.workspace_inode"):
+        "the same: an inode number SQLite will not let a writer spoil",
     # W35557: THE ATTEMPT TABLE'S LOOKUP KEY, at each of the three sites that
     # adopt a row from it. Every one of them selects
     # `WHERE runtime_attempt_id = ?`, so a spoiled value is not a malformed row
@@ -1812,6 +1962,15 @@ NO_PROBE = {
 }
 
 DELEGATED = {
+    # -- W71917: the worker's profile word, bounded in one place -------------
+    #
+    # `source_consumption` composes the manifest extension and `declared_profile`
+    # reads one back; both hand the word to `_profile`, which bounds it as text
+    # and deliberately compares it against no list. Owning it at both callers
+    # would be two spellings of one rule -- and the rule is the reason this
+    # manager stays Git-agnostic, so it is written once.
+    ("caller", "source_boundary.py:source_consumption", "profile"):
+        ("source_boundary.py:_profile", "caller:profile"),
     # -- W6632: the constrained OCI adapter core -----------------------------
     #
     # Every public vector and the adapter itself share the same private owners,
@@ -4168,7 +4327,11 @@ class BoundaryCase(unittest.TestCase):
                # W61599: the liveness projection travels with the row like
                # every other column; a document missing it is not a persisted
                # attempt.
-               "activity_bytes": None, "activity_at": None}
+               "activity_bytes": None, "activity_at": None,
+               # W71917: and so does the nominated source's object identity,
+               # for the same reason.
+               "source_device": None, "source_inode": None,
+               "workspace_device": None, "workspace_inode": None}
         for axis in schema.ATTEMPT_AXES:
             row[axis] = next(iter(schema.ATTEMPT_COLUMNS[axis].allowed))
 
@@ -4521,7 +4684,9 @@ class BoundaryCase(unittest.TestCase):
                "assignment_grant": "direct",
                "assignment_policy_generation": 1,
                "runtime_id": None, "observation_seq": 0, "observed_at": None,
-               "activity_bytes": None, "activity_at": None}
+               "activity_bytes": None, "activity_at": None,
+               "source_device": None, "source_inode": None,
+               "workspace_device": None, "workspace_inode": None}
         for axis in schema.ATTEMPT_AXES:
             row[axis] = next(iter(schema.ATTEMPT_COLUMNS[axis].allowed))
 
@@ -6458,7 +6623,83 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 **self.interrogation_probes(), **self.oci_probes(),
                 **self.intake_probes(), **self.sealing_probes(),
                 **self.credential_probes(), **self.launch_probes(),
+                **self.source_boundary_probes(),
                 **self.worker_entry_probes()}
+
+    def source_boundary_probes(self):
+        """One probe per (entry, label) W71917's source/workspace boundary
+        added.
+
+        NOTHING HERE TOUCHES A FILESYSTEM, and that is part of what is
+        asserted: every one of these owners runs before the path it was given
+        is opened, resolved or measured, so a delivery whose operands this
+        module cannot read is refused with no descriptor taken and no
+        mountpoint created.
+
+        THE MINTED CAPABILITIES ARE NOT PROBED HERE and they are not missing:
+        `NominatedSource`, `SourceBoundary` and `WorkspaceCapacity` are
+        `STATED_OWNERS`, because what they check is the identity of an object
+        this module made rather than the shape of a value a caller sent, and a
+        probe asserting a boundary label there would be asserting the wrong
+        thing.
+        """
+        from baton_v12.worker_manager import source_boundary as sb
+
+        def at(site, subject):
+            return ("caller", f"source_boundary.py:{site}", subject)
+
+        def declaring(consumption):
+            """One source descriptor, spoiled at exactly one level.
+
+            The five `declared_profile` entries are five ORIGINS of one
+            crossing -- the descriptor, its `consumption`, and each member the
+            declaration must carry -- so each gets its own driver reaching the
+            same owner from its own level. A missing member is what a required
+            member's rule refuses; a non-document is what the document rule
+            refuses.
+            """
+            return lambda: sb.declared_profile({"consumption": consumption})
+
+        whole = {"delivery": sb.DELIVERY, "workspace": sb.BACKING,
+                 "profile": "generic"}
+
+        def without(member):
+            return declaring({sb.CONSUMPTION_KEY:
+                              {name: value for name, value in whole.items()
+                               if name != member}})
+
+        return {
+            (at("check_disk_backed", "place"), "a workspace path"): (
+                "a workspace path", lambda: sb.check_disk_backed(7)),
+            (at("filesystem_of", "place"), "a filesystem path"): (
+                "a filesystem path", lambda: sb.filesystem_of(7)),
+            (at("nominate_source", "place"), "a nominated source directory"): (
+                "a nominated source directory", lambda: sb.nominate_source(7)),
+            (at("source_mountpoint", "inputs"), "an assignment inputs root"): (
+                "an assignment inputs root", lambda: sb.source_mountpoint(7)),
+            (at("source_consumption", "profile"),
+             "a source consumption profile"): (
+                "a source consumption profile",
+                lambda: sb.source_consumption(7)),
+            # THE DESCRIPTOR, ITS EXTENSION, AND EACH DECLARED MEMBER.
+            (at("declared_profile", "source"),
+             "a source boundary declaration"): (
+                "a source boundary declaration",
+                declaring({sb.CONSUMPTION_KEY: 7})),
+            (at("declared_profile", "source.consumption"),
+             "a source boundary declaration"): (
+                "a source boundary declaration",
+                declaring({sb.CONSUMPTION_KEY: ["not", "a", "document"]})),
+            (at("declared_profile", "source.consumption.delivery"),
+             "a source boundary declaration"): (
+                "a source boundary declaration", without("delivery")),
+            (at("declared_profile", "source.consumption.workspace"),
+             "a source boundary declaration"): (
+                "a source boundary declaration", without("workspace")),
+            (at("declared_profile", "source.consumption.profile"),
+             "a source boundary declaration"): (
+                "a source boundary declaration", without("profile")),
+        }
 
     def event_probes(self):
         """W73629: the three owned entries of the offer-state publisher.
@@ -6631,6 +6872,80 @@ class EveryProbeProvesItArrived(BoundaryCase):
 # label, so it is exercised rather than probed -- and the mapping is checked both
 # ways, so a rule with no witness and a witness naming no rule both fail.
 WITNESSES = {
+    # -- W71917: the source/workspace boundary -------------------------------
+    ("caller", "source_boundary.py:NominatedSource.__init__", "_minted"):
+        "test_a_nominated_source_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:NominatedSource.__init__", "place"):
+        "test_a_nominated_source_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:NominatedSource.__init__", "device"):
+        "test_a_nominated_source_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:NominatedSource.__init__", "inode"):
+        "test_a_nominated_source_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "_minted"):
+        "test_a_source_boundary_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "source"):
+        "test_a_source_boundary_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "workspace"):
+        "test_a_source_boundary_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "mountpoint"):
+        "test_a_source_boundary_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "capacity"):
+        "test_a_source_boundary_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "device"):
+        "test_a_source_boundary_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:SourceBoundary.__init__", "inode"):
+        "test_a_source_boundary_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:SourceBoundary.__init__",
+     "workspace_device"):
+        "test_a_source_boundary_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:SourceBoundary.__init__",
+     "workspace_inode"):
+        "test_a_source_boundary_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:WorkspaceCapacity.__init__", "_minted"):
+        "test_a_declared_capacity_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:WorkspaceCapacity.__init__", "max_bytes"):
+        "test_a_declared_capacity_a_caller_minted_is_refused",
+    ("caller", "source_boundary.py:compose_source_boundary", "source"):
+        "test_a_composition_takes_only_capabilities_this_build_minted",
+    ("caller", "source_boundary.py:compose_source_boundary", "roots"):
+        "test_a_composition_takes_only_capabilities_this_build_minted",
+    ("caller", "source_boundary.py:compose_source_boundary", "capacity"):
+        "test_a_composition_takes_only_capabilities_this_build_minted",
+    ("caller", "source_boundary.py:compose_source_boundary", "roots.inputs"):
+        "test_a_composition_takes_only_capabilities_this_build_minted",
+    ("caller", "source_boundary.py:compose_source_boundary",
+     "roots.workspace"):
+        "test_a_composition_takes_only_capabilities_this_build_minted",
+    ("caller", "source_boundary.py:adopt_source_boundary", "boundary"):
+        "test_an_adoption_takes_only_capabilities_this_build_minted",
+    ("caller", "source_boundary.py:adopt_source_boundary", "roots"):
+        "test_an_adoption_takes_only_capabilities_this_build_minted",
+    ("caller", "source_boundary.py:adopt_source_boundary", "roots.inputs"):
+        "test_an_adoption_takes_only_capabilities_this_build_minted",
+    ("caller", "source_boundary.py:adopt_source_boundary", "roots.workspace"):
+        "test_an_adoption_takes_only_capabilities_this_build_minted",
+    ("caller", "source_boundary.py:adopt_source_boundary", "pinned"):
+        "test_a_pinned_identity_is_the_two_pairs_an_incarnation_proved",
+    ("caller", "source_boundary.py:boundary_mounts", "boundary"):
+        "test_the_runtime_binds_come_from_a_boundary_this_build_composed",
+    ("caller", "source_boundary.py:workspace_capacity", "max_bytes"):
+        "test_a_declared_capacity_is_held_to_this_builds_floor_and_ceiling",
+    ("caller", "source_boundary.py:check_disk_backed", "what"):
+        "test_a_diagnostic_noun_names_the_subject_and_decides_nothing",
+    ("caller", "workspaces.py:mount_table", "what"):
+        "test_a_diagnostic_noun_names_the_subject_and_decides_nothing",
+    ("caller", "workspaces.py:mount_points", "what"):
+        "test_a_diagnostic_noun_names_the_subject_and_decides_nothing",
+    ("caller", "attempts.py:pin_boundary_identity", "attempt_id"):
+        "test_a_boundary_pin_proves_the_attempt_row_before_anything_else",
+    ("caller", "attempts.py:boundary_identity_of", "attempt_id"):
+        "test_a_boundary_pin_proves_the_attempt_row_before_anything_else",
+    ("caller", "attempts.py:pin_boundary_identity", "source"):
+        "test_a_pinned_pair_is_two_non_negative_whole_numbers",
+    ("caller", "attempts.py:pin_boundary_identity", "workspace"):
+        "test_a_pinned_pair_is_two_non_negative_whole_numbers",
+    ("caller", "oci.py:OciAdapter.__init__", "source_delivery"):
+        "test_a_source_delivery_is_owned_at_the_constructor_it_is_given_to",
     # -- W76207: the failed preparation this manager records -----------------
     ("caller", "attempts.py:refuse_runtime_preparation", "refusal"):
         "test_a_preparation_refusal_is_this_packages_own_closed_type",
@@ -7047,6 +7362,305 @@ class EveryStatedOwnerHasAWitness(BoundaryCase):
 
 class StatedRules(BoundaryCase):
     """The witnesses themselves. Each exercises one stated rule."""
+
+    # -- W71917's source/workspace boundary ----------------------------------
+
+    def disk_root(self):
+        """A DISK-BACKED root, because this boundary refuses a memory one.
+
+        `BoundaryCase`'s own root is `tempfile`'s, which is a tmpfs on this
+        host -- and a workspace there is refused for the right reason by
+        `check_disk_backed`, which would make these witnesses fail for the
+        environment instead of exercising the rules they name.
+        """
+        from . import disk_roots
+        if getattr(self, "_disk_root", None) is None:
+            self._disk_root = disk_roots.disk_backed_under(self)
+        return self._disk_root
+
+    def nominated(self, name="nominated"):
+        """One real directory this build may nominate, under the case's own
+        root."""
+        from baton_v12.worker_manager import source_boundary as sb
+        place = os.path.join(os.path.realpath(self.disk_root()), name)
+        os.makedirs(place, exist_ok=True)
+        return place, sb.nominate_source(place)
+
+    def test_a_nominated_source_a_caller_minted_is_refused(self):
+        """The stated rule for all four of this constructor's operands.
+
+        None of them is caller data, and the reason is one fact: a caller
+        cannot reach this constructor at all. What proves the members are
+        already owned is that the ONE minter reads them off a descriptor it
+        opened itself.
+        """
+        from baton_v12.worker_manager import source_boundary as sb
+        with self.assertRaises(ContractRefusal) as caught:
+            sb.NominatedSource("/srv/source", 1, 2)
+        self.assertEqual(caught.exception.category, "policy")
+        place, held = self.nominated()
+        found = os.lstat(place)
+        self.assertEqual((held.place, held.device, held.inode),
+                         (place, found.st_dev, found.st_ino))
+
+    def test_a_source_boundary_a_caller_minted_is_refused(self):
+        from baton_v12.worker_manager import source_boundary as sb
+        with self.assertRaises(ContractRefusal) as caught:
+            sb.SourceBoundary(None, "/w", "/m", None, 1, 1, 2, 2)
+        self.assertEqual(caught.exception.category, "policy")
+
+    def test_a_declared_capacity_a_caller_minted_is_refused(self):
+        from baton_v12.worker_manager import source_boundary as sb
+        with self.assertRaises(ContractRefusal) as caught:
+            sb.WorkspaceCapacity(1 << 30)
+        self.assertEqual(caught.exception.category, "policy")
+
+    def allocated(self, attempt="attempt-w71917"):
+        """This build's own assignment roots, minted by `workspaces`."""
+        from baton_v12.worker_manager import workspaces
+        storage = os.path.join(os.path.realpath(self.disk_root()),
+                               "workspace-store")
+        os.makedirs(storage, exist_ok=True)
+        workspaces.configure_workspace_storage(self.store, storage)
+        return storage, workspaces.assignment_workspace(
+            self.configured_group(), storage, attempt)
+
+    def test_a_composition_takes_only_capabilities_this_build_minted(self):
+        """An EXACT type check at each of the three, before any member is read.
+
+        `roots.inputs` and `roots.workspace` are witnessed by the same rule:
+        they are members of a capability only `workspaces` mints, so a plain
+        mapping carrying the same two paths is refused before either is used.
+        """
+        from baton_v12.worker_manager import source_boundary as sb
+        _place, source = self.nominated()
+        _storage, roots = self.allocated()
+        capacity = sb.workspace_capacity(sb.MIN_WORKSPACE_BYTES + 1)
+        for operands in ((_place, roots, capacity),
+                         (source, dict(roots), capacity),
+                         (source, roots, {"max_bytes": 1 << 30})):
+            with self.subTest(operands=type(operands[0]).__name__):
+                with self.assertRaises(ContractRefusal) as caught:
+                    sb.compose_source_boundary(*operands)
+                self.assertEqual(caught.exception.category, "policy")
+
+    def test_an_adoption_takes_only_capabilities_this_build_minted(self):
+        from baton_v12.worker_manager import source_boundary as sb
+        _place, source = self.nominated()
+        _storage, roots = self.allocated()
+        capacity = sb.workspace_capacity(sb.MIN_WORKSPACE_BYTES + 1)
+        boundary = sb.compose_source_boundary(source, roots, capacity)
+        for operands in (({"source": source}, roots),
+                         (boundary, dict(roots))):
+            with self.subTest(operands=type(operands[0]).__name__):
+                with self.assertRaises(ContractRefusal) as caught:
+                    sb.adopt_source_boundary(*operands)
+                self.assertEqual(caught.exception.category, "policy")
+
+    def test_a_pinned_identity_is_the_two_pairs_an_incarnation_proved(self):
+        """Half an identity compares against nothing, so it is refused rather
+        than treated as absent."""
+        from baton_v12.worker_manager import source_boundary as sb
+        _place, source = self.nominated()
+        _storage, roots = self.allocated()
+        capacity = sb.workspace_capacity(sb.MIN_WORKSPACE_BYTES + 1)
+        boundary = sb.compose_source_boundary(source, roots, capacity)
+        for pinned in ((1, 2), "1,2", ((1,), (2, 3)), (("a", "b"), (1, 2))):
+            with self.subTest(pinned=pinned):
+                with self.assertRaises(ContractRefusal) as caught:
+                    sb.adopt_source_boundary(boundary, roots, pinned=pinned)
+                self.assertEqual(caught.exception.category, "policy")
+
+    def test_the_runtime_binds_come_from_a_boundary_this_build_composed(self):
+        from baton_v12.worker_manager import source_boundary as sb
+        for offered in (None, {"source": "/srv", "workspace": "/out"}):
+            with self.subTest(offered=type(offered).__name__):
+                with self.assertRaises(ContractRefusal) as caught:
+                    sb.boundary_mounts(offered)
+                self.assertEqual(caught.exception.category, "policy")
+
+    def test_a_declared_capacity_is_held_to_this_builds_floor_and_ceiling(self):
+        """A range rather than a shape, which is why it is stated here."""
+        from baton_v12.worker_manager import source_boundary as sb
+        for value in (None, True, 0, -1, "many",
+                      sb.MIN_WORKSPACE_BYTES,
+                      sb.MAX_WORKSPACE_BYTES + 1):
+            with self.subTest(max_bytes=value):
+                with self.assertRaises(ContractRefusal):
+                    sb.workspace_capacity(value)
+        self.assertEqual(
+            sb.workspace_capacity(sb.MIN_WORKSPACE_BYTES + 1).max_bytes,
+            sb.MIN_WORKSPACE_BYTES + 1)
+
+    def test_a_diagnostic_noun_names_the_subject_and_decides_nothing(self):
+        """The noun is bounded at each PUBLIC door, driven with caller data.
+
+        SUPERSEDED AND INVERTED, and it is worth recording why. This case used
+        to walk the two modules' syntax and require every `what=` argument to
+        be a literal. That is a fact about this package's own call sites and
+        says nothing about what an external caller may hand to three EXPORTED
+        operations -- and W71917's sixth review showed the difference was real:
+        an object whose `__format__` raised escaped `mount_table` and
+        `mount_points` as a `RuntimeError`, because the refusal interpolated it
+        directly. A source scan cannot establish what a caller may supply, and
+        this is the shape of mistake that check itself was about.
+
+        So each door is DRIVEN, on its own documented refusal path, with values
+        no call site in this package would ever pass: a hostile object whose
+        formatting, `str` and `repr` all raise, a lone surrogate that would
+        become a `UnicodeEncodeError` the moment anything logged it, and a
+        label far past the bound. Every one must arrive as this build's own
+        closed refusal.
+        """
+        from unittest import mock as _mock
+        from baton_v12.worker_manager import source_boundary, workspaces
+
+        class Hostile:
+            """Everything a message might reach for, and each of them raises."""
+
+            def __format__(self, specification):
+                raise RuntimeError("caller formatting executed")
+
+            def __str__(self):
+                raise RuntimeError("caller str executed")
+
+            def __repr__(self):
+                raise RuntimeError("caller repr executed")
+
+        hostile = [Hostile(), SURROGATE, "n" * 10_000, 7, None]
+        with _mock.patch.object(workspaces, "MOUNTINFO",
+                                os.path.join(self.root, "there-is-no-table")):
+            for noun in hostile:
+                for door in (workspaces.mount_table, workspaces.mount_points):
+                    with self.subTest(door=door.__name__,
+                                      noun=type(noun).__name__):
+                        with self.assertRaises(ContractRefusal) as caught:
+                            door(what=noun)
+                        self.assertEqual(caught.exception.category, "integrity")
+        # AND THE THIRD DOOR, on ITS documented refusal path. The filesystem
+        # answer is fixed because this case is about the noun and not about
+        # mount detection -- what must not depend on the host is whether a
+        # caller's value can escape.
+        with _mock.patch.object(source_boundary, "filesystem_of",
+                                return_value="tmpfs"):
+            for noun in hostile:
+                with self.subTest(door="check_disk_backed",
+                                  noun=type(noun).__name__):
+                    with self.assertRaises(ContractRefusal) as caught:
+                        source_boundary.check_disk_backed(self.root, what=noun)
+                    self.assertEqual(caught.exception.category, "policy")
+
+    # -- W71917's durable boundary identity ----------------------------------
+
+    def test_a_boundary_pin_proves_the_attempt_row_before_anything_else(self):
+        """Forwarded to `_require_attempt`: an attempt that is not there is
+        refused before any identity is read or written."""
+        from baton_v12.worker_manager import attempts
+        for attempt_id in ("no-such-attempt", 7, ""):
+            with self.subTest(attempt_id=attempt_id):
+                with self.assertRaises(ContractRefusal):
+                    attempts.boundary_identity_of(self.store, attempt_id)
+                with self.assertRaises(ContractRefusal):
+                    attempts.pin_boundary_identity(
+                        self.store, attempt_id=attempt_id, source=(1, 2),
+                        workspace=(3, 4))
+
+    def test_a_pinned_pair_is_two_non_negative_whole_numbers(self):
+        from baton_v12.worker_manager import attempts
+        worker_manager.record_attempt(
+            self.store, attempt_id="attempt-1", adapter_name="acp",
+            adapter_digest="sha256:" + "a" * 64, profile_digest=PROFILE,
+            policy_digest="sha256:" + "d" * 64)
+        for source, workspace in (((1,), (3, 4)), ("12", (3, 4)),
+                                  ((1, 2), None), ((1, 2), (3, -4)),
+                                  ((1, 2), (True, 4)), ((1.5, 2), (3, 4))):
+            with self.subTest(source=source, workspace=workspace):
+                with self.assertRaises(ContractRefusal) as caught:
+                    attempts.pin_boundary_identity(
+                        self.store, attempt_id="attempt-1", source=source,
+                        workspace=workspace)
+                self.assertEqual(caught.exception.category, "integrity")
+        self.assertIsNone(attempts.boundary_identity_of(self.store,
+                                                        "attempt-1"))
+
+    # -- W71917's composed boundary reaching the adapter ---------------------
+
+    def test_a_source_delivery_is_owned_at_the_constructor_it_is_given_to(self):
+        """The CONSTRUCTOR's own rule, and then the held value reaching a
+        start.
+
+        W71917's sixth review [P1]: the first version of this witness called
+        `run_vector` directly, which owns `source_delivered` -- a different
+        entry at a different site. It never built an adapter, so it could not
+        have exercised the constructor rule it was registered against, nor the
+        forwarding the stated reason claims.
+
+        Both halves are here. The constructor refuses anything that is not the
+        boundary this build mints, and refuses a real one on a posture that
+        mounts nothing; and an adapter built with a CROSS-WIRED boundary --
+        genuinely composed, over another assignment's roots -- refuses at its
+        start, which is only reachable if the value the constructor HELD is the
+        value the binds were composed from.
+        """
+        from baton_v12.worker_manager import oci, source_boundary as sb
+
+        from baton_v12.worker_manager import launch
+
+        # A REAL BOUNDARY OVER ONE ASSIGNMENT'S ROOTS, and a DIFFERENT
+        # assignment's real roots for the adapter -- which is the cross-wire
+        # the forwarding half is proved with.
+        _place, source = self.nominated("cross-wired")
+        storage, proved = self.allocated("attempt-w71917-proved")
+        boundary = sb.compose_source_boundary(
+            source, proved, sb.workspace_capacity(sb.MIN_WORKSPACE_BYTES + 1))
+        from baton_v12.worker_manager import workspaces as _workspaces
+        # THE ADAPTER'S OWN ATTEMPT IS THE ONE ITS LABELS NAME. A start whose
+        # labels, launch document and roots disagreed would refuse for that
+        # instead, which is the vacuous-probe shape this file exists to
+        # prevent.
+        held = _workspaces.assignment_workspace(self.configured_group(),
+                                                storage, "attempt-1")
+
+        def built(**spoiled):
+            operands = dict(identity=dict(self.OCI_IDENTITY),
+                            assignment_roots=held,
+                            posture="execution",
+                            workspace_group=self.configured_group())
+            operands.update(spoiled)
+            return oci.OciAdapter(
+                "docker",
+                # AN EMPTY LISTING, which is what "nothing already carries
+                # these labels" looks like to this adapter -- the duplicate
+                # check runs before the vector and a malformed answer would
+                # refuse there instead.
+                lambda argv: {"status": 0, "stdout": "", "stderr": ""},
+                **operands)
+
+        for offered in ({"source": "/srv/source"}, "/srv/source", 7):
+            with self.subTest(offered=type(offered).__name__):
+                with self.assertRaises(ContractRefusal) as caught:
+                    built(source_delivery=offered)
+                self.assertIn("this manager composed and proved",
+                              caught.exception.message)
+        # A REAL BOUNDARY IS STILL REFUSED ON A POSTURE THAT MOUNTS NOTHING.
+        with self.assertRaises(ContractRefusal) as caught:
+            built(source_delivery=boundary, posture="consent")
+        self.assertEqual(caught.exception.category, "policy")
+        # ... AND IS HELD AS ITSELF, then composed from at the start, where
+        # this adapter's OWN roots are not the ones it was proved over. The
+        # launch document is supplied because `start` requires one before it
+        # reaches any vector; without it this would refuse for that instead,
+        # which is the vacuous-probe shape this file exists to prevent.
+        delivery = launch.materialize(
+            os.path.join(self.disk_root(), "launch-home"),
+            attempt_id="attempt-1", session="session-w71917",
+            contract="witness the held delivery", role="implementer")
+        adapter = built(source_delivery=boundary, launch_delivery=delivery)
+        self.assertIs(adapter.source_delivery, boundary)
+        with self.assertRaises(ContractRefusal) as caught:
+            adapter.start({"labels": dict(self.OCI_LABELS),
+                           "operation_id": "operation-w71917-witness"})
+        self.assertIn("proved over the workspace", caught.exception.message)
 
     # -- W76207's recorded preparation failure -------------------------------
 

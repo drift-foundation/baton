@@ -25,7 +25,20 @@
    read-only independent review -> either exact-checkpoint acceptance,
    same-line correction from that checkpoint, or terminal rejection. Keep
    review outputs separately writable, keep every prior checkpoint resolvable,
-   and never transfer a verdict to a later revision.
+   and never transfer a verdict to a later revision. A checkpoint is the
+   immutable artifact named by an ordinary handoff, never a lifecycle status.
+   Internal provider-turn boundaries keep the assignment `working` and may
+   persist progress without freezing a review checkpoint. A handoff may send
+   the frozen checkpoint to review/approval or reassign the same line to
+   another vendor/model/profile/session, fencing the old writer before
+   attaching the new one.
+   The Worker Manager owns the attempt and supervised processes across those
+   turns. It must claim before provider/tool launch, fence every operation by
+   assignment generation, refuse checkpoint/completion while a child is live,
+   and never let a resumed stale session act from remembered ownership.
+   Require a conforming agent to await every started command and test before
+   voluntarily returning; treat surviving work as defensive containment for
+   misbehavior or provider/transport loss, not a normal background-work API.
 5. [pending] Compose provider-backed line/checkpoint custody with disposable
    assignment roots. Ordinary attempt cleanup must remove only attempt-owned
    roots and must not delete or retarget the development line or checkpoints.
@@ -40,8 +53,15 @@
    checkpoints; stale or operand-mismatched verdict refusal; Authority/Work
    identity isolation; exact-operation replay; crash recovery before and after
    freeze, writer revoke/grant, verdict, and correction reopen; attempt cleanup
-   preserving the line; and integration refusing intermediate, rejected,
-   unreviewed, or later-than-accepted checkpoints.
+   preserving the line; multi-turn `working` continuation without false
+   failure, release, or checkpoint status; same-session continuation when
+   supported; provider-turn return while a supervised child continues;
+   completion refusal while that child is live; durable file-based control,
+   progress, logs, output, and terminal evidence across manager restart; exact
+   labeled-container reconciliation; stale-generation execution refusal;
+   deliberate cross-model handoff with prior-writer fencing; and integration
+   refusing intermediate, rejected, unreviewed, or later-than-accepted
+   checkpoints.
 7. [pending verification] Run the provider's focused tests, new review-cycle
    tests, Authority and Job/Worker Manager contract suites, schema/contract
    regeneration checks if touched, the full v12 Python suite, and repository

@@ -82,7 +82,30 @@ STORE_KIND = "baton.v12.python.worker-manager"
 # container. The two columns are diagnostic and carry no content: M61707 keeps
 # them out of every decision, so nothing that was authorized under schema 13 is
 # authorized differently under 14.
-SCHEMA_VERSION = 14
+#
+# 15 ADDS THE NOMINATED SOURCE'S OBJECT IDENTITY (W71917). Two nullable
+# diagnostic-shaped columns that one gate reads: a restarted manager compares
+# the source it re-nominates against the object an earlier incarnation proved,
+# and refuses a directory replaced while it was down. Nothing authorized under
+# 14 is authorized differently under 15; what changes is that one refusal
+# survives a restart instead of being forgotten with the process.
+#
+# 16 ADDS THE WRITABLE WORKSPACE'S OBJECT IDENTITY (W71917), and it is a
+# separate version rather than an amendment to 15 because a 15 store cannot
+# answer the question. 15 pinned the nominated SOURCE and left the workspace
+# with only its pathname, so a real directory created at that pathname was
+# adopted with nothing to compare it against -- and the workspace is the root
+# an assignment's answer is collected out of. The two new columns are the
+# same shape and the same non-content rule as 15's, and the table's CHECK ties
+# all four together so no row can hold one root's object and not the other's.
+# Nothing authorized under 15 is authorized differently under 16; what changes
+# is that the second refusal survives a restart too.
+#
+# THERE IS NO MIGRATION, and that is this store's standing contract rather than
+# an omission here: `ControlStore` refuses a database at another schema because
+# it "does not guess across versions". This finding's rollout boundary already
+# requires fresh Job and control stores for production acceptance.
+SCHEMA_VERSION = 16
 
 TABLES = ("meta", "operations", "offers", "attempts", "observations",
           "profiles", "agent_sessions", "posture_slots", "manifests",
@@ -413,6 +436,41 @@ CREATE TABLE attempts (
     -- is freshness about nothing.
     activity_bytes         INTEGER,
     activity_at            TEXT,
+    -- W71917: THE NOMINATED SOURCE'S OBJECT IDENTITY, AND NOTHING ABOUT ITS
+    -- CONTENTS.
+    --
+    -- The device and inode this manager itself observed when it nominated the
+    -- source directory. Recording them is what lets a SECOND INCARNATION
+    -- refuse a source that was replaced while the manager was down: within one
+    -- incarnation the composed boundary holds these in memory and the adoption
+    -- gate compares against them, and across a restart there was previously
+    -- nothing to compare against, so a directory unlinked and recreated at the
+    -- same path was re-nominated and accepted.
+    --
+    -- THIS IS NOT A CONTENT IDENTITY and the distinction is pinned in the
+    -- finding. It costs no walk, no read, no hash and no enumeration; it is
+    -- the manager remembering which OBJECT a path named, which it already
+    -- looked at. What is inside the tree remains something this manager never
+    -- measures, and a worker that needs to know which revision it received
+    -- still verifies that itself against its own declared base.
+    --
+    -- TOGETHER OR NOT AT ALL, like the pairs above: half an object identity
+    -- compares against nothing.
+    source_device          INTEGER,
+    source_inode           INTEGER,
+    -- W71917 THIRD REVIEW [P1]: THE WRITABLE ROOT IS AN OBJECT TOO.
+    --
+    -- The pair above made a replaced SOURCE visible across a restart while the
+    -- workspace still had only a pathname, so a real directory created at that
+    -- pathname was adopted without anything comparing it against the one this
+    -- manager took custody of. That is the half a worker's answer is collected
+    -- out of, and the acceptance clause names both.
+    --
+    -- The same non-content rule applies: this manager observed which OBJECT
+    -- its own `assignment_workspace` answered, and recording it costs no walk
+    -- and no read.
+    workspace_device       INTEGER,
+    workspace_inode        INTEGER,
     consent_runtime        TEXT NOT NULL DEFAULT 'not-started' CHECK (
         consent_runtime IN ('not-started', 'running', 'quiescent',
                             'uncertain', 'destroyed')),
@@ -446,6 +504,22 @@ CREATE TABLE attempts (
     CHECK ((activity_bytes IS NULL AND activity_at IS NULL)
         OR (activity_bytes IS NOT NULL AND activity_bytes >= 0
             AND activity_at IS NOT NULL)),
+    -- W71917: HALF AN OBJECT IDENTITY COMPARES AGAINST NOTHING, so the pair
+    -- travels together for the reason the pair above does -- and non-negative,
+    -- because a device or inode number is not a signed quantity and a writer
+    -- that put one there would be recording something it did not read.
+    CHECK ((source_device IS NULL AND source_inode IS NULL)
+        OR (source_device IS NOT NULL AND source_device >= 0
+            AND source_inode IS NOT NULL AND source_inode >= 0)),
+    -- AND THE FOUR TRAVEL TOGETHER, not two pairs that may disagree about
+    -- whether this attempt has an identity: the boundary proves both roots in
+    -- one act, so a row holding one object and not the other is a row no
+    -- writer here can produce.
+    CHECK ((workspace_device IS NULL AND workspace_inode IS NULL
+            AND source_device IS NULL)
+        OR (workspace_device IS NOT NULL AND workspace_device >= 0
+            AND workspace_inode IS NOT NULL AND workspace_inode >= 0
+            AND source_device IS NOT NULL)),
     CHECK (
         (work_id IS NULL AND authority_uuid IS NULL
          AND assignment_participant IS NULL AND assignment_generation IS NULL
@@ -961,6 +1035,13 @@ ATTEMPT_COLUMNS = {
     # W61599: the liveness projection, absent until something is observed.
     "activity_bytes": Column("count", nullable=True),
     "activity_at": Column("instant", nullable=True),
+    # W71917: the nominated source's object identity. `count` because both are
+    # whole non-negative numbers this manager read from the filesystem, and
+    # nullable because an attempt has neither until its boundary is composed.
+    "source_device": Column("count", nullable=True),
+    "source_inode": Column("count", nullable=True),
+    "workspace_device": Column("count", nullable=True),
+    "workspace_inode": Column("count", nullable=True),
 }
 
 # The axis columns, added by the same vocabulary the DDL constrains. Written

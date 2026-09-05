@@ -163,7 +163,8 @@ import re
 
 from baton_v12.contracts import ContractRefusal, check_no_durable_secret
 from baton_v12.contracts import validate_fragment as _validate_fragment
-from baton_v12.worker_manager import workspaces
+from baton_v12 import source_profiles
+from baton_v12.worker_manager import source_boundary, workspaces
 from baton_v12.worker_manager.oci import _network as _engine_network
 from baton_v12.worker_manager.authority_port import SESSION_OPERATIONS
 
@@ -726,6 +727,28 @@ def held_task(document, *, what="the frozen task"):
         raise OperatorRefusal(
             f"{what} names source_root {document['source_root']!r} and this "
             f"deployment stages exactly {SOURCE_TARGET!r}")
+    # W71917 SECOND REVIEW [P1]: THE TWO NEW MEMBERS WERE ADMITTED AND NEVER
+    # ASKED ABOUT. `/2` added them to the closed set above, so a document
+    # carrying `source_profile=7` and `declared_base=[]` passed this read
+    # unchanged and was refused inside the container instead -- which is the
+    # one thing this operator's read exists to prevent.
+    #
+    # ASKED OF THE PROFILE PACKAGE, WHICH OWNS ALL THREE ANSWERS. The profile
+    # vocabulary, the base revision's grammar and the PAIRING -- a
+    # version-control profile with no base, a generic profile with one -- are
+    # `checkout_plan`'s rules, and a copy of them here would be a second
+    # definition drifting from the first. The two container paths are the
+    # manager's own constants, which is what makes this the same question the
+    # worker will ask.
+    try:
+        source_profiles.checkout_plan(source_boundary.SOURCE_TARGET,
+                                      source_boundary.WORKSPACE_TARGET,
+                                      profile=document["source_profile"],
+                                      declared=document["declared_base"])
+    except source_profiles.ProfileRefusal as refusal:
+        raise OperatorRefusal(
+            f"{what} carries a source_profile and declared_base this "
+            f"deployment cannot stage: {refusal}") from None
     return document
 
 
@@ -734,9 +757,17 @@ def held_task(document, *, what="the frozen task"):
 # the way in; `v12/worker/claude_agent.py` holds the same closed set at the
 # receiving end, which is the both-ends rule this campaign applies to every
 # crossing.
-_TASK_SCHEMA = "baton.dogfood-task/1"
+#
+# W71917 MOVED IT TO `/2`, and this copy moves with it. The receiving end
+# gained `source_profile` and `declared_base` because the worker now turns its
+# read-only mount into a checkout itself; this end holds the same closed set so
+# a document from the other generation is still refused on the way in rather
+# than at a failed provider attempt. That both-ends agreement is what
+# `test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS`
+# measures, and it is why this constant is not left behind.
+_TASK_SCHEMA = "baton.dogfood-task/2"
 _TASK_MEMBERS = ("schema", "task_id", "instructions", "verification",
-                 "source_root")
+                 "source_root", "source_profile", "declared_base")
 _TASK_ID = re.compile(r"\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}\Z")
 
 

@@ -100,11 +100,20 @@ class TheArcRunsAgainstARealDaemon(unittest.TestCase):
                 capture_output=True, timeout=300))
         built = subprocess.run(
             [ENGINE, "build", "-f", str(WORKER / "Dockerfile.claude"),
-             "-t", cls.image, str(WORKER)],
+             # W71917: THE CONTEXT IS `v12`, because the recipe now
+             # copies the distribution's profile package beside the
+             # worker modules and a context cannot reach above itself.
+             "-t", cls.image, str(WORKER.parent)],
             capture_output=True, timeout=2400)
+        # W71917: BOTH STREAMS, because the legacy builder writes its steps
+        # AND its failures to STDOUT. Showing only stderr reported a build
+        # failure as the daemon's `DEPRECATED: The legacy builder...` banner
+        # and nothing else, which named neither the step that failed nor why --
+        # a diagnostic that turns a real failure into an unreadable one.
         assert built.returncode == 0, (
-            f"the dogfood image did not build: "
-            f"{built.stderr.decode('utf-8', 'replace')[-2000:]}")
+            f"the dogfood image did not build (exit {built.returncode})\n"
+            f"stdout: {built.stdout.decode('utf-8', 'replace')[-3000:]}\n"
+            f"stderr: {built.stderr.decode('utf-8', 'replace')[-2000:]}")
         found = subprocess.run(
             [ENGINE, "image", "inspect", cls.image, "--format", "{{.Id}}"],
             capture_output=True, timeout=120)
@@ -126,11 +135,16 @@ class TheArcRunsAgainstARealDaemon(unittest.TestCase):
             writing.write("print('the staged harness')\n")
         self.task_path = os.path.join(self.home, "task.json")
         with open(self.task_path, "w", encoding="utf-8") as writing:
-            json.dump({"schema": "baton.dogfood-task/1",
+            # W71917 moved the workload contract to `/2`. This staged tree is
+            # an ordinary directory read in place, so the profile is `generic`
+            # and no base is declared.
+            json.dump({"schema": "baton.dogfood-task/2",
                        "task_id": "w39358-real-docker-dry-run",
                        "instructions": "This dry run authorizes no provider.",
                        "verification": ["python3", "harness.py"],
-                       "source_root": "source"}, writing)
+                       "source_root": "source",
+                       "source_profile": "generic",
+                       "declared_base": None}, writing)
 
     def remove_everything(self):
         """Remove what this case made, and SURFACE one that survived."""

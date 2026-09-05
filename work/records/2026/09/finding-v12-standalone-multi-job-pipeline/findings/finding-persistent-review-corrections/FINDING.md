@@ -168,6 +168,79 @@ writable; host mode bits alone are insufficient if both roles can still reach
 one mutable tree. The provider revalidation resolves this concrete mechanism,
 not the identity and transition requirements above.
 
+## Long-running assignment checkpoint ruling — 2026-09-04
+
+V12 assignments are not bounded by one model or transport turn. A useful run
+may last hours and cross any number of provider turns. Ending one such turn
+after a successful checkpoint is not assignment failure, claim orphaning, or
+implicit release. Protocol 11 retains its existing turn-settlement and exact-
+release recovery behavior; this ruling adds no v11 mechanism.
+
+`checkpoint` is a first-class immutable handoff artifact, not a lifecycle
+status. Freezing one atomically records the assignment generation,
+development line and revision, workspace/candidate identity, completed
+progress, durable logs and outputs, and current verification evidence. An
+exact replay is idempotent; operand changes under the same operation or
+checkpoint identity refuse. The ordinary implementation-to-review handoff
+revokes the writer, freezes the checkpoint, and names it as the review input.
+The same handoff boundary may deliberately reassign continuation to another
+vendor, model, profile, or fresh session after the old writer is fenced.
+
+A provider turn ending during a long run is not itself a handoff and creates
+no new Work status. The assignment remains `working`; the manager persists
+ordinary progress and schedules another provider turn against the same
+workspace and preferred session. A run may cross any number of those internal
+turns before it freezes a checkpoint for review, approval, or reassignment.
+
+Review and approval always name the frozen checkpoint they observed. A
+decision may resume the preferred worker, assign a different worker, request
+another correction, or make the checkpoint integration-eligible. None of
+those choices requires cloning/restaging the candidate, committing it to the
+canonical repository, discarding prior logs, or inventing a new Work. Every
+checkpoint remains audit-resolvable after later revisions exist.
+
+## Turn and process ownership ruling — 2026-09-05
+
+The Worker Manager, not one ACP/app-server turn, owns the assignment attempt,
+its container, and every supervised process. A provider turn is a replaceable
+communication exchange inside that attempt. Its return, timeout, transport
+loss, or provider failure cannot by itself release the assignment, declare the
+Job complete, or destroy work that the manager still records as running.
+
+The manager obtains the durable claim before it launches the provider or
+admits any tool execution. Every later command, progress event, result, and
+checkpoint is fenced by the current assignment generation. A resumed session
+that remembers an earlier claim cannot act under a released or superseded
+generation; context affinity never overrides canonical ownership.
+
+Agent communication and observation use durable files under the attempt's
+manager-owned roots. Input, control messages, progress, logs, output, and
+terminal evidence do not depend on a live stdin/stdout pipe. The manager may
+tail those files, but neither the manager process nor one provider transport
+must remain alive for the container to preserve them.
+
+A provider response may end while supervised tools continue. In that case the
+attempt remains `working`, the manager continues to own and observe those
+processes, and a later provider turn may resume after their durable outcome is
+available. Completion, checkpoint handoff, or writer release refuses while a
+tracked child remains live. Untracked background work is a worker-contract
+violation, not a reason to pretend the attempt finished.
+
+That containment is not permission for ordinary agent behavior. An agent must
+await every command it starts, especially tests, before voluntarily ending its
+turn. Internal multi-turn continuation exists for provider/context boundaries,
+not as a way to abandon a running tool and report progress early. Agent
+compliance is nevertheless never the safety proof: transport loss, provider
+failure, or a misbehaving model can still return with children alive, and the
+supervisor must contain that case mechanically.
+
+On restart the manager reconciles its durable attempt state with containers
+identified by exact manager-owned labels and republishes idempotent state
+events. It does not infer completion from its own prior death or blindly adopt
+an unrelated process. A stopped or wedged runtime leaves its output available
+but untrusted until shutdown is proved; policy or an operator then chooses
+review, retry, reassignment, or discard.
+
 ## Acceptance
 
 - The manager creates or adopts one durable development-line identity per
@@ -186,6 +259,21 @@ not the identity and transition requirements above.
   canonical target mutation.
 - Restart at implementation-to-review and review-to-correction boundaries
   resumes the owed stage idempotently and preserves every checkpoint/verdict.
+- A multi-hour assignment crosses multiple provider turns while remaining
+  `working`, without false failure, release, or a new checkpoint status. Its
+  ordinary handoff can freeze a checkpoint for review/approval or transfer the
+  same line to another model after fencing the prior writer.
+- Provider/tool launch is impossible before the durable claim; stale session
+  generations cannot execute. Provider-turn return does not kill or complete
+  manager-owned work, and checkpoint/completion refuses while a supervised
+  child remains live.
+- A conforming agent waits for every tool and test it started before returning.
+  A deliberately abandoned background task is reported as contract failure;
+  the same quiescence fence still contains an accidental or provider-caused
+  early return.
+- Manager restart reconciles exact labeled containers and durable file-based
+  progress, logs, outputs, and terminal evidence without depending on a
+  surviving stdin/stdout connection.
 - Only the final accepted checkpoint becomes integration-eligible;
   intermediate/rejected checkpoints cannot enter the integration queue.
 

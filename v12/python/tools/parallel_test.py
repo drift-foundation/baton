@@ -218,7 +218,35 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     # temporary root per case; the OCI boundary is a recording
                     # callable, so no daemon, image, credential or network is
                     # shared or reached.
-                    "tests.tools.test_single_worker")
+                    "tests.tools.test_single_worker",
+                    # W71917's source/workspace boundary. PARALLEL: every case
+                    # owns one temporary root holding its own nominated source,
+                    # workspace store and control store, and the module-level
+                    # patches it makes -- `os.lstat`, `os.statvfs`,
+                    # `workspaces.mount_table`, `source_boundary.MOUNTINFO` --
+                    # are process state, which a fresh shard interpreter does
+                    # not share. It reads `/proc/self/mountinfo`, which is this
+                    # process's own view and not a shared artefact, and the one
+                    # case that would create a mount namespace is gated on an
+                    # actual `unshare` capability probe and skips without it.
+                    # No daemon, image, container, credential or shared name.
+                    "tests.manager.test_source_boundary",
+                    # W61984's quiescent-assignment finalization. PARALLEL: a
+                    # disposable control store under this suite's own temporary
+                    # directory, an injected fake session, and no agent call,
+                    # runtime-stop call, daemon, image or container -- the
+                    # module exists precisely because finalization takes
+                    # neither capability. The restart case reopens THIS case's
+                    # own store file.
+                    #
+                    # REGISTERED BY W71917 AND NOT OWNED BY IT. This module was
+                    # added at `fda9cf6` without a registry entry, so the
+                    # completeness gate refused the whole runner for every
+                    # caller until now -- which is the gate working, and is
+                    # also why the broad sweep could not be run at all. The
+                    # classification above is read off the suite's own fixture;
+                    # W61984's record owns the module.
+                    "tests.tools.test_quiescent_assignment_finalization")
 
 # ONE AT A TIME, IN THIS ORDER, AND NEVER BESIDE THE PARALLEL PHASE.
 #

@@ -42,12 +42,14 @@ from baton_v12.worker_manager import (AuthorityPort, DISPOSITIONS,
                                       configured_workspace_group,
                                       decide_retention, label_context,
                                       load_manifest, observe,
+                                      pin_boundary_identity,
                                       reconcile_runtime, record_attempt,
                                       refuse_runtime_preparation,
                                       request_freeze, request_intake,
-                                      request_runtime_start, retain_manifest)
+                                      request_runtime_start, retain_manifest,
+                                      boundary_identity_of)
 from baton_v12.worker_manager import (credentials, exchange, launch,
-                                      workspaces)
+                                      source_boundary, workspaces)
 from baton_v12.worker_manager.oci import ENGINES, EnginePort, OciAdapter
 
 from tools.user_credentials import SourceRefusal, UserCredentialSources
@@ -73,7 +75,37 @@ CONFIG_ENV = "BATON_V12_SINGLE_WORKER_CONFIG"
 # no fallback and no default for any of them -- a deployment that could end an
 # attempt without saying where the result goes would be choosing a destination
 # nobody named.
-CONFIG_SCHEMA = "baton.v12.single-worker-deployment/3"
+#
+# W71917: SCHEMA `/4`, AND THE SOURCE MEMBER MEANS SOMETHING ELSE NOW.
+#
+# `/3`'s `input_source` was an ALREADY-STAGED directory this deployment
+# measured and COPIED into the input root. `/4` replaces it with
+# `nominated_source`: a directory this deployment validates and MOUNTS
+# read-only, and never walks, copies, snapshots, enumerates or hashes.
+#
+# THE MEMBER IS RENAMED RATHER THAN REDEFINED, and that is the point of doing
+# it at a version boundary. The two mean different things about the same host
+# path -- one is material this manager took custody of, the other is material
+# it agreed not to touch -- and a member that quietly changed meaning under one
+# name is exactly how a deployment ends up believing a copy happened. A `/3`
+# document naming `input_source` is refused by the member set below rather than
+# read as a nomination.
+#
+# `workspace_capacity` ARRIVES WITH IT because the two are one decision. Once
+# the source is not copied in, the writable workspace is the only place a
+# checkout, a build cache, test artifacts, the output and the logs can live --
+# so how large it needs to be stops being incidental and becomes something the
+# deployment has to say. There is no default: a size inherited from whatever
+# the host happened to have is not a deployment's decision.
+#
+# IT DECLARES A NEED AND DOES NOT IMPOSE A CEILING, and W71917 rules that the
+# member says so. This factory proves the workspace's filesystem currently has
+# the declared bytes free before it starts anything; the bind it then composes
+# is ordinary and writable, so a worker can fill that filesystem afterwards.
+# Naming the member `workspace_quota` over that mechanism is the defect the
+# run7 review found, and a deployment reading its own configuration is exactly
+# who the wrong name misleads.
+CONFIG_SCHEMA = "baton.v12.single-worker-deployment/4"
 MAX_CONFIG_BYTES = 1024 * 1024
 
 # W81115: THE TWO NAMES THE CERTIFIED WORKLOAD FIXES, mirrored here rather than
@@ -98,7 +130,8 @@ _MEMBERS = (
     "adapter_name", "adapter_digest", "engine", "image_digest", "network",
     "workspace_storage", "workspace_group", "launch_home",
     "credential_home", "credential_sources", "credential_slots",
-    "credential_profile", "input_source", "input_manifest", "task_document",
+    "credential_profile", "nominated_source", "workspace_capacity",
+    "input_manifest", "task_document",
     "launch_contract", "launch_role", "review_route",
     "retention_policy_digest", "retention_disposition")
 _DIGEST = re.compile(r"\Asha256:[0-9a-f]{64}\Z")
@@ -187,7 +220,7 @@ def _held(document):
         _refuse(f"a single-worker configuration says {given['schema']!r}; "
                 f"this deployment reads {CONFIG_SCHEMA!r}")
     for member in ("authority_store", "workspace_storage", "launch_home",
-                   "credential_home", "input_source", "task_document"):
+                   "credential_home", "nominated_source", "task_document"):
         given[member] = _path(given[member], f"the configuration's {member}")
     if given["credential_sources"] is not None:
         given["credential_sources"] = _path(
@@ -266,6 +299,25 @@ def _held(document):
                 f"{manifest['sources'][0]['destination']!r} and the certified "
                 f"workload reads exactly {SOURCE_DESTINATION!r}",
                 category="policy", code="denied")
+    # W71917: THE SOURCE IS NOMINATED, NOT STAGED, and the descriptor beside
+    # it has to say so. `declared_profile` refuses a descriptor carrying no
+    # boundary declaration, which is what a `/3` manifest for a COPIED source
+    # is -- so a deployment that moved its configuration to `/4` and left its
+    # frozen manifest describing a staging is refused here rather than
+    # delivering a mount the manifest does not describe. The profile it
+    # answers is bounded opaque text; this deployment carries it and reads
+    # nothing into it, exactly as the manager does.
+    given["source_profile"] = source_boundary.declared_profile(
+        manifest["sources"][0])
+    # AND THE NOMINATION IS PROVED BEFORE THE AUTHORITY IS OPENED, which is
+    # where every other static check in this preflight already happens: a
+    # source that is a link, is not a directory, or has a linked ancestor is a
+    # configuration mistake, and finding it here means no attempt root exists
+    # to leave partial. What it costs is one `lstat` and one `fstat` whatever
+    # is inside the tree.
+    given["source_nomination"] = source_boundary.nominate_source(
+        given["nominated_source"])
+    given["workspace_capacity"] = _capacity(given["workspace_capacity"])
     given["task_bytes"] = _task_bytes(given["task_document"],
                                       manifest["human_contract"])
     if type(given["credential_slots"]) is not list:
@@ -281,11 +333,85 @@ def _held(document):
                            contract=given["launch_contract"],
                            role=given["launch_role"],
                            transport=exchange.EXCHANGE_TRANSPORT)
-    measured = workspaces.directory_manifest(given["input_source"])
-    if measured != manifest["sources"][0]["content_manifest"]:
-        _refuse("the configured bootstrap source does not match the input "
-                "manifest's content identity", code="digest")
+    # W71917 RETIRED THE MEASUREMENT THAT STOOD HERE, and its absence is the
+    # Work rather than a dropped check.
+    #
+    # `/3` called `workspaces.directory_manifest(input_source)` and compared it
+    # with the manifest's declared `contentManifest`. That is a full no-follow
+    # walk of the nominated tree -- every file opened, read whole and digested
+    # -- performed by a manager that is ruled not to walk, copy, snapshot,
+    # enumerate or hash the source at all. It also could not have kept its
+    # promise: the tree it measured was measured before the container started,
+    # and nothing bound the bytes the engine later mounted to the bytes this
+    # walk read.
+    #
+    # WHAT REPLACES IT IS NOT A WEAKER VERSION OF IT. The declared
+    # `contentManifest` for a nominated destination describes the empty
+    # MOUNTPOINT this manager stages, which is a statement this manager can
+    # keep; `_source_manifest` below holds the configuration to exactly that,
+    # so a manifest still claiming to have measured somebody else's tree is
+    # refused. Which revision the material actually is, is the worker's
+    # question, answered against the base its own profile declares -- and it is
+    # answered inside the container, over the tree that is really mounted.
+    _source_manifest(manifest["sources"][0])
     return given
+
+
+# The `contentManifest` of an empty tree, which is what this deployment stages
+# at a nominated destination. Written as the four members rather than measured,
+# because measuring an empty directory this deployment created to compare
+# against a constant would be a walk performed to learn something already
+# known.
+EMPTY_TREE_DIGEST = digest([])
+
+
+def _source_manifest(source):
+    """Hold a nominated source descriptor to the empty tree it really stages.
+
+    W71917. A nominated source is MOUNTED, so what this deployment puts in the
+    input root at that destination is an empty mountpoint -- and the frozen
+    manifest's `contentManifest` for it must describe exactly that. A manifest
+    declaring 353 entries and eleven megabytes at a destination this manager
+    stages nothing into is not a smaller mistake than a wrong digest: it is
+    the whole staged-versus-nominated confusion, written into the document a
+    result is later measured against.
+
+    THIS IS NOT A MEASUREMENT OF THE NOMINATED TREE and cannot become one. It
+    reads four numbers out of the configuration and compares them with
+    constants; nothing under the nominated path is opened, and the check costs
+    the same whatever is behind the mount.
+    """
+    content = source["content_manifest"]
+    expected = {"entries": [], "entry_count": 0, "total_bytes": 0,
+                "tree_digest": EMPTY_TREE_DIGEST}
+    if content != expected:
+        _refuse("the bootstrap input manifest declares content at a NOMINATED "
+                "source destination; this deployment mounts that directory "
+                "read-only and stages an empty mountpoint, so the declared "
+                "contentManifest is the empty tree's or it describes material "
+                "nobody staged", code="digest")
+    return content
+
+
+def _capacity(capacity):
+    """The deployment's declared workspace capacity, owned then composed.
+
+    ONE MEMBER AND NO MORE, read here so the refusal names the configuration
+    member a deployment can fix, and then handed to the manager's own
+    `workspace_capacity` -- which is what holds it to the floor above bounded
+    scratch and to this build's ceiling. One rule, at its owner.
+
+    THE ENTRY COUNT IS GONE RATHER THAN CARRIED, because W71917 rules that this
+    document may not declare what nothing applies. `max_entries` was validated
+    here, passed down, and then reached no mount, no runtime and no sweep; a
+    deployment that set it was answering a question this delivery never asked.
+    A closed member set makes the removal a refusal rather than a silent
+    ignore, which is the point of removing it from the set rather than merely
+    from the docstring.
+    """
+    given = _document(capacity, "the configuration's workspace_capacity",
+                      ("max_bytes",))
+    return source_boundary.workspace_capacity(given["max_bytes"])
 
 
 def _task_bytes(place, contract):
@@ -515,6 +641,50 @@ class _AuthoritySession:
         return self._session.pass_work(*arguments)
 
 
+def _more_than_the_mountpoint(inputs, boundary):
+    """Whether an uncomposed input root holds anything this deployment did not
+    just establish.
+
+    W71917 MADE "EMPTY" THE WRONG QUESTION. Before this Work, a root with no
+    protocol pair and any entry at all was partial, and the test was one
+    `os.listdir`. The boundary is now composed BEFORE the root is frozen --
+    it has to be, because freezing closes the directory the mountpoint lives
+    in -- so the ordinary pre-composition state is a root holding exactly one
+    entry: the empty mountpoint. A rule that called that partial would refuse
+    every first composition.
+
+    SO THE QUESTION IS "ANYTHING ELSE", and the mountpoint is excluded by the
+    name the composed boundary answers rather than by a constant, so a root
+    holding a directory called `source` that this composition did not
+    establish is not quietly forgiven.
+
+    AND THE MOUNTPOINT ITSELF IS PROVED WITHOUT ENUMERATING IT. A directory on
+    another filesystem than its parent is a live bind, and reading it would be
+    reading the nominated source -- the one thing this deployment does not do.
+    That case is refused on the DEVICE, before anything is listed. Only once
+    it is provably this manager's own directory is it peeked at, and then for
+    one entry rather than a walk: leftovers from the retired copied bootstrap
+    are material whose provenance this composition cannot prove, and adopting
+    them is exactly what the partial-root rule exists to stop.
+    """
+    for name in os.listdir(inputs):
+        if name != os.path.basename(boundary.mountpoint):
+            return True
+    place = boundary.mountpoint
+    if not os.path.isdir(place):
+        return True
+    if os.lstat(place).st_dev != os.lstat(inputs).st_dev:
+        # A LIVE BIND, and this is where it is refused rather than read. It is
+        # not an ordinary state -- the engine binds inside the container's own
+        # mount namespace -- so a host-side one is somebody else's mount over
+        # this manager's mountpoint.
+        return True
+    with os.scandir(place) as reading:
+        for _entry in reading:
+            return True
+    return False
+
+
 class _SingleWorker:
     """The launch capability; it receives no Authority bootstrap or path."""
 
@@ -615,14 +785,14 @@ class _SingleWorker:
                         code="operation-collision")
         return row
 
-    def _input(self, roots, assignment):
+    def _input(self, roots, assignment, boundary):
         given = self.given
         manifest = given["input_manifest"]
         try:
             held_input, held_assignment = workspaces.read_input_root(
                 roots["inputs"])
         except ContractRefusal:
-            if os.listdir(roots["inputs"]):
+            if _more_than_the_mountpoint(roots["inputs"], boundary):
                 # Review 2026-09-03T17:23:00Z [P1]: this raised
                 # `refused/path`, which is not one of §9's closed pairs -- so
                 # the one branch that finds incomplete material rejected its
@@ -642,15 +812,23 @@ class _SingleWorker:
             # between leaves a partial root the next process refuses above
             # rather than repairs.
             self._published_task(roots["inputs"])
-            source = manifest["sources"][0]
-            target = os.path.join(roots["inputs"], source["destination"])
-            copied = workspaces.copied_manifest(
-                given["input_source"], target,
-                max_entries=source["content_manifest"]["entry_count"],
-                max_bytes=source["content_manifest"]["total_bytes"])
-            if copied != source["content_manifest"]:
-                _refuse("the staged bootstrap source changed after preflight",
-                        code="digest")
+            # W71917: THE MOUNTPOINT, NOT A COPY. What stood here walked the
+            # nominated tree a second time and wrote every file into the input
+            # root -- the ordinary copied bootstrap this Work retires. The
+            # boundary was already composed before this method was reached, so
+            # the empty directory the engine binds over exists; nothing is read
+            # from the nominated source and nothing is written into the root
+            # except the two protocol documents and the task.
+            #
+            # THE DESTINATION IS STILL PINNED, by the same rule the preflight
+            # pins it with: the certified workload reads exactly one relative
+            # path, and a manifest naming another would compose a root the
+            # worker cannot use.
+            if manifest["sources"][0]["destination"] \
+                    != os.path.basename(boundary.mountpoint):
+                _refuse("the bootstrap input manifest stages its source "
+                        "somewhere other than the mountpoint this deployment "
+                        "established")
             workspaces.compose_input_root(
                 roots["inputs"], manifest, assignment,
                 assignment=dict(assignment["assignment_ref"]),
@@ -795,7 +973,7 @@ class _SingleWorker:
                     "document", category="refused", code="precondition")
         return place
 
-    def _adapter(self, roots, delivery, orphan, launched):
+    def _adapter(self, roots, delivery, orphan, launched, boundary=None):
         given = self.given
         manifest = given["input_manifest"]
         return OciAdapter(
@@ -805,10 +983,22 @@ class _SingleWorker:
                       "policy_digest": given["policy_digest"],
                       "adapter_digest": given["adapter_digest"]},
             assignment_roots=roots, posture="execution",
+            # THE TWO ROOTS THIS MANAGER CREATED, unchanged by W71917. The
+            # input root is still read-only at `/input` and the workspace
+            # still writable at `/output`; what the nominated source adds is a
+            # THIRD bind, composed by `oci` out of the typed boundary below
+            # rather than named here, because a source this deployment could
+            # name as a path would be the caller-selected locator the proof
+            # exists to remove.
             mounts=[{"source": roots["inputs"], "target": "/input",
                      "writable": False},
                     {"source": roots["workspace"], "target": "/output",
                      "writable": True}],
+            # W71917: `None` FOR THE ADAPTERS THAT ONLY IDENTIFY OR RECOVER.
+            # `_naming` and `_recovered` build an adapter to ask the engine
+            # what is already there; neither starts anything, so neither needs
+            # -- or should hold -- a delivery over somebody else's tree.
+            source_delivery=boundary,
             outputs=[dict(one) for one in manifest["outputs"]],
             input_manifest_digest=manifest["manifest_digest"],
             credential_delivery=delivery,
@@ -1020,9 +1210,47 @@ class _SingleWorker:
         roots = workspaces.assignment_workspace(
             self.group, given["workspace_storage"], attempt_id)
         self.checkpoint("workspace")
+        # W71917: THE BOUNDARY IS COMPOSED BEFORE THE INPUT ROOT IS FROZEN,
+        # and the order is the content. `compose_source_boundary` establishes
+        # the empty mountpoint inside `inputs`, and `compose_input_root` closes
+        # that directory read-only when it finishes -- so a boundary composed
+        # afterwards would have nowhere to put the mountpoint, and a deployment
+        # that created it later would be writing into evidence a claim was
+        # already made against.
+        #
+        # IT ALSO PROVES THE WORKSPACE HERE, which is before anything exists to
+        # undo: a workspace on a memory filesystem, or one whose storage cannot
+        # currently meet the declared capacity, is a preparation refusal with
+        # no container started rather than a worker discovering it halfway
+        # through a turn.
+        boundary = source_boundary.compose_source_boundary(
+            given["source_nomination"], roots, given["workspace_capacity"])
+        # W71917: AND THE OBJECT IT PROVED IS PINNED DURABLY, immediately.
+        #
+        # The composition above pins the source's (device, inode) IN MEMORY,
+        # which is enough for this incarnation and nothing at all for the next
+        # one: a restarted manager recomposes the boundary from configuration,
+        # so the pre-start comparison would compare a fresh reading with
+        # itself. Run7 review [P1] is exactly that hole -- a directory replaced
+        # while the manager was down is re-nominated and accepted.
+        #
+        # WRITE-ONCE, AND AN EXACT REPEAT IS NOT A WRITE, so every later
+        # incarnation reaching this line for the same attempt either re-observes
+        # the same object or is refused here rather than silently re-pinning
+        # the replacement over the evidence that would have caught it.
+        pin_boundary_identity(
+            self.control, attempt_id=attempt_id,
+            source=(boundary.device, boundary.inode),
+            # W71917 THIRD REVIEW [P1]: BOTH ROOTS. The source was pinned and
+            # the workspace was not, so a real directory created at the
+            # workspace's pathname was adopted with nothing to compare it
+            # against -- and the workspace is the half this assignment's answer
+            # is collected out of.
+            workspace=(boundary.workspace_device, boundary.workspace_inode))
+        self.checkpoint("boundary")
         assignment = _assignment_manifest(given, row, attempt_id,
                                           stage["offer_id"])
-        manifest = self._input(roots, assignment)
+        manifest = self._input(roots, assignment, boundary)
         self.checkpoint("input")
         retain_manifest(self.control, manifest, "inputManifest")
         self.checkpoint("manifest")
@@ -1035,7 +1263,31 @@ class _SingleWorker:
         try:
             delivery, orphan = self._credential(attempt_id, state, roots)
             self.checkpoint("credential")
-            adapter = self._adapter(roots, delivery, orphan, launched)
+            # W71917: RE-PROVED IMMEDIATELY BEFORE THE START, and this is the
+            # gate the ruling asks for. Everything between composition and here
+            # -- the input root, the retained manifest, the launch document,
+            # the credential delivery -- takes time a host is free to change
+            # things in, and the two paths this delivery rests on are the two
+            # a change would be worst at. A source re-pointed at another tree
+            # resolves to the same characters and a different inode; a
+            # workspace replaced with a link or moved aside is no longer the
+            # one this manager holds custody of. Both refuse here, with no
+            # runtime started.
+            #
+            # A RESTART REACHES THIS LINE THROUGH THE SAME PATH, which is why
+            # there is one gate rather than two: `assignment_workspace`
+            # answered the adopted roots, the boundary was composed over them
+            # again, and this proves the topology a second incarnation is about
+            # to start over is the one it just proved.
+            boundary = source_boundary.adopt_source_boundary(
+                boundary, roots,
+                # READ UNCONDITIONALLY. A caller that has a pinned identity and
+                # does not pass it gets the weaker in-memory gate, which after a
+                # restart compares a fresh reading with another fresh reading.
+                pinned=boundary_identity_of(self.control, attempt_id))
+            self.checkpoint("adopted-boundary")
+            adapter = self._adapter(roots, delivery, orphan, launched,
+                                    boundary)
             if fresh:
                 answer = request_runtime_start(
                     self.control, adapter, attempt_id=attempt_id,

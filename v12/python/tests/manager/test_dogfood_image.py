@@ -71,11 +71,20 @@ class TheDogfoodImageIsBuiltAndProbed(unittest.TestCase):
                 capture_output=True, timeout=300))
         built = subprocess.run(
             [ENGINE, "build", "-f", str(WORKER / "Dockerfile.claude"),
-             "-t", cls.image, str(WORKER)],
+             # W71917: THE CONTEXT IS `v12`, because the recipe now
+             # copies the distribution's profile package beside the
+             # worker modules and a context cannot reach above itself.
+             "-t", cls.image, str(WORKER.parent)],
             capture_output=True, timeout=2400)
+        # W71917: BOTH STREAMS, because the legacy builder writes its steps
+        # AND its failures to STDOUT. Showing only stderr reported a build
+        # failure as the daemon's `DEPRECATED: The legacy builder...` banner
+        # and nothing else, which named neither the step that failed nor why --
+        # a diagnostic that turns a real failure into an unreadable one.
         assert built.returncode == 0, (
-            f"the dogfood image did not build: "
-            f"{built.stderr.decode('utf-8', 'replace')[-2000:]}")
+            f"the dogfood image did not build (exit {built.returncode})\n"
+            f"stdout: {built.stdout.decode('utf-8', 'replace')[-3000:]}\n"
+            f"stderr: {built.stderr.decode('utf-8', 'replace')[-2000:]}")
 
     def ran(self, *argv, entrypoint="/bin/sh"):
         """One throwaway container, `--network none` and no credential root.

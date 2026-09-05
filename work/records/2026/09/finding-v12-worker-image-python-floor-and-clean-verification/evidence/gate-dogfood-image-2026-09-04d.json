@@ -1,0 +1,59 @@
+{
+  "candidate_image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+  "declared_floor": ">=3.13",
+  "facts": {
+    "adapter_digest": "sha256:516d350e3ca367b61fd33520cbfe3de4d69dbe9dee0da0a6553bd37c3349b60c",
+    "adapter_matches_current_source": true,
+    "baseline_added_entries": [],
+    "baseline_commit": "389cdd4edc29a6cdea78291c02adae89253629a2",
+    "baseline_compile_status": 0,
+    "baseline_entries": 168,
+    "baseline_files": 154,
+    "baseline_source": "git archive of the named commit, extracted fresh; never a copy of the dirty working tree",
+    "baseline_unchanged": true,
+    "cache_entries_in_candidate": [],
+    "claude_probe_status": 0,
+    "claude_version": "2.1.247 (Claude Code)",
+    "debian_version": "13",
+    "entrypoint": [
+      "python3",
+      "/opt/baton/dogfood_entry.py"
+    ],
+    "environment": [
+      "NODE_NO_WARNINGS=1",
+      "NODE_VERSION=22.23.2",
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "PYTHONHASHSEED=0",
+      "PYTHONPATH=/opt/baton",
+      "PYTHONUNBUFFERED=1",
+      "YARN_VERSION=1.22.22"
+    ],
+    "gate_cases": 16,
+    "gate_elapsed_seconds": 1.979,
+    "gate_message_seq": 87704,
+    "gate_reporter": "baton.slaw",
+    "invalid_file_names_the_error": true,
+    "invalid_file_names_the_file": true,
+    "invalid_file_status": 1,
+    "manager_import_refused": true,
+    "provider_environment_present": false,
+    "python3_interpreters": [
+      "/usr/bin/python3.13"
+    ],
+    "python_probe_status": 0,
+    "python_version": "3.13.5",
+    "uid_gid": [
+      "65532",
+      "65532"
+    ],
+    "user": "65532:65532"
+  },
+  "gate": "passed",
+  "meets_python_floor": true,
+  "schema": "baton.w85497.image-gate/4",
+  "selection": "NOT SELECTED. Building and passing this gate produce a review candidate only. The owning record selects a validated immutable digest after independent review, and only that recorded selection permits a fresh ordinary W71917 attempt.",
+  "status": "candidate",
+  "supersedes": "gate-dogfood-image-2026-09-04c.json, whose image predates the descriptor-bound verifier-root correction required by review-2026-09-04T18-59-48Z",
+  "work": "2b077949-W85497"
+}

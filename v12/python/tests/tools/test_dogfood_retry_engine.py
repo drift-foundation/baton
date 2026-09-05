@@ -226,11 +226,16 @@ class ThePublicRetrySettlesAgainstARealEngine(W.Lifecycle):
             writing.write("print('the staged harness')\n")
         task = os.path.join(self.home, "task.json")
         with open(task, "w", encoding="utf-8") as writing:
-            json.dump({"schema": "baton.dogfood-task/1",
+            # W71917 moved the workload contract to `/2`. This staged tree is
+            # an ordinary directory read in place, so the profile is `generic`
+            # and no base is declared.
+            json.dump({"schema": "baton.dogfood-task/2",
                        "task_id": "w39358-public-retry",
                        "instructions": "Do the bounded thing.",
                        "verification": ["python3", "harness.py"],
-                       "source_root": "source"}, writing)
+                       "source_root": "source",
+                       "source_profile": "generic",
+                       "declared_base": None}, writing)
 
         policies = {one: "sha256:" + f"{index}" * 64
                     for index, one in enumerate(

@@ -33,6 +33,13 @@ import unittest
 
 WORKER = (pathlib.Path(__file__).resolve().parents[3] / "worker")
 sys.path.insert(0, str(WORKER))
+# W71917: AND THE PROFILE PACKAGE, UNDER THE NAME THE IMAGE GIVES IT.
+# `Dockerfile.claude` copies `src/baton_v12/source_profiles` to
+# `/opt/baton/source_profiles`, so inside the container it is a
+# top-level package and `claude_agent` imports it as one. Putting its
+# parent directory here reproduces that layout rather than relaxing the
+# rule that this module can never spell `baton_v12`.
+sys.path.insert(0, str(WORKER.parent / "python" / "src" / "baton_v12"))
 shutil.rmtree(WORKER / "__pycache__", ignore_errors=True)
 
 import claude_agent                                          # noqa: E402
@@ -45,11 +52,18 @@ DECLARED = [{"name": "proposal", "type": "directory-result",
                              "link_policy": "forbid",
                              "validator_digest": None}}]
 
-TASK = {"schema": "baton.dogfood-task/1",
+# W71917 bumped this contract to `/2` and added the two members below. The
+# generic profile is what this suite's staged trees are: an ordinary directory
+# read in place, with no version-control fact declared about it -- which is
+# also why `declared_base` is null here, since a generic profile carrying one
+# is refused by the profile package itself.
+TASK = {"schema": "baton.dogfood-task/2",
         "task_id": "w39364-ping-pong-coverage",
         "instructions": "Add focused unit coverage for _observed_readable.",
         "verification": ["python3", "harness.py"],
-        "source_root": "source"}
+        "source_root": "source",
+        "source_profile": "generic",
+        "declared_base": None}
 
 
 class AdapterCase(unittest.TestCase):
@@ -555,10 +569,22 @@ class TheProviderArgvAndEnvironmentAreClosed(AdapterCase):
                           "XDG_CACHE_HOME"])
         self.assertNotIn("ANTHROPIC_API_KEY", options["env"])
 
-    def test_the_provider_runs_in_the_private_copy_and_not_the_source(self):
+    def test_the_provider_runs_in_the_workspace_copy_and_not_the_source(self):
+        """W71917 MOVED THE COPY, AND NOT THE RULE.
+
+        The provider still edits a private copy and never the mounted source;
+        what changed is where that copy lives. It used to be under the 64 MiB
+        tmpfs, which is the ceiling this Work exists to remove, and it is now
+        in the manager-created disk-backed workspace. The second assertion --
+        never the source -- is the one that was always the point and it is
+        unchanged.
+        """
         _argv, options = self.spoken()
-        self.assertTrue(options["cwd"].startswith(self.scratch), options)
+        self.assertTrue(options["cwd"].startswith(self.outputs), options)
         self.assertNotEqual(options["cwd"], self.source)
+        # AND NOT ON THE TMPFS, stated rather than implied: a copy that drifted
+        # back to scratch would still satisfy "not the source".
+        self.assertFalse(options["cwd"].startswith(self.scratch), options)
 
     def test_the_turn_is_bounded(self):
         _argv, options = self.spoken()
@@ -1651,7 +1677,12 @@ class TheFrozenTaskIsAClosedDocument(AdapterCase):
         self.refuses(None, "no readable")
 
     def test_a_task_from_another_generation_refuses(self):
-        self.refuses(dict(TASK, schema="baton.dogfood-task/2"),
+        # THE NEIGHBOURING GENERATION, whichever way it lies. This named `/2`
+        # while the contract was `/1`; W71917 moved the contract to `/2`, so
+        # the document from another generation is now `/1` -- the same test,
+        # against a version this reader must still refuse rather than
+        # downgrade to.
+        self.refuses(dict(TASK, schema="baton.dogfood-task/1"),
                      "another generation")
 
     def test_an_extra_member_refuses(self):
@@ -1808,11 +1839,39 @@ class TheRecipeIsInspectableWithoutADaemon(unittest.TestCase):
         self.assertIn("main(agent=ClaudeAgent())", entry)
 
     def test_the_reviewed_worker_and_its_frozen_contract_travel(self):
-        for copied in ("COPY baton_worker.py /opt/baton/baton_worker.py",
-                       "COPY claude_agent.py /opt/baton/claude_agent.py",
-                       "COPY worker-control-1.0.schema.json "
-                       "/opt/baton/worker-control-1.0.schema.json"):
+        """W71917 widened the build context to `v12`, so every source path in
+        the recipe is spelled from there. What travels is unchanged."""
+        for copied in ("COPY worker/baton_worker.py /opt/baton/baton_worker.py",
+                       "COPY worker/claude_agent.py /opt/baton/claude_agent.py",
+                       "COPY worker/worker-control-1.0.schema.json \\"):
             self.assertIn(copied, self.lines)
+
+    def test_the_program_the_git_profile_names_is_installed(self):
+        """W71917: an image carrying the plan and not the program composes a
+        vector it cannot run.
+
+        Measured before it was written: the image built without this and
+        `command -v git` answered nothing, so the Git profile's clone, detach
+        and rev-parse steps would each have failed at the first one. The
+        manager stays Git-agnostic and runs none of them, which is exactly why
+        the program has to be HERE.
+        """
+        installs = [one for one in self.lines if "apt-get install" in one]
+        self.assertEqual(len(installs), 1, self.lines)
+        self.assertIn(" git ", installs[0])
+
+    def test_the_profile_package_travels_under_its_own_name(self):
+        """W71917: the worker's half of the source boundary has to be IN the
+        image, and it arrives without creating a `baton_v12` namespace there.
+
+        `claude_agent` imports it as a top-level package, which is the same
+        name this line lands it under; an image that copied it to
+        `/opt/baton/baton_v12/source_profiles` would be one `mkdir` away from
+        the namespace the case below refuses.
+        """
+        self.assertIn(
+            "COPY python/src/baton_v12/source_profiles /opt/baton/"
+            "source_profiles", self.lines)
 
     def test_the_fixed_non_root_identity_matches_the_adapters_restriction(
             self):
@@ -1835,10 +1894,80 @@ class TheRecipeIsInspectableWithoutADaemon(unittest.TestCase):
         for line in self.lines:
             self.assertNotIn("BATON_WORKER_", line)
 
-    def test_nothing_from_the_manager_is_copied_in(self):
+    def copies(self):
+        """Every COPY in the recipe as (sources, destination).
+
+        CONTINUATIONS ARE JOINED FIRST. W71917 second review [P2]: the recipe
+        carries one COPY split across two physical lines, and reading the
+        lines separately made its last token a backslash -- so its destination
+        was never asserted and its continuation was not a COPY at all and was
+        skipped. A recipe check that a line break can silently switch off is
+        not a check.
+        """
+        joined = []
         for line in self.lines:
-            if line.startswith("COPY"):
-                self.assertNotIn("baton_v12", line)
+            if joined and joined[-1].endswith("\\"):
+                joined[-1] = joined[-1][:-1].rstrip() + " " + line
+                continue
+            joined.append(line)
+        found = []
+        for line in joined:
+            if not line.startswith("COPY "):
+                continue
+            words = [one for one in line.split()[1:]
+                     if not one.startswith("--")]
+            self.assertGreaterEqual(len(words), 2, line)
+            found.append((words[:-1], words[-1]))
+        self.assertTrue(found)
+        return found
+
+    def test_nothing_from_the_manager_is_copied_in(self):
+        """The rule is about the MANAGER, and W71917 made that distinction
+        load-bearing rather than incidental.
+
+        This used to refuse the string `baton_v12` anywhere in a COPY, which
+        was exact while nothing from that tree travelled at all. The profile
+        package now does, and it is not the manager: it imports nothing from
+        `baton_v12` and `baton_v12.worker_manager` imports nothing from it,
+        which `tests/manager/test_source_boundary` holds in both directions.
+
+        AN ALLOWLIST, NOT AN APPROXIMATION OF ONE. W71917 second review [P2]:
+        the first correction named three manager directories, which is a
+        denylist that a COPY of `attempts.py`, `offers.py` or any other module
+        would have walked straight through while still violating the property
+        this case states. The distribution has exactly ONE path the image is
+        permitted to take, so that path is named and everything else under
+        `baton_v12` is refused whatever it is called.
+        """
+        for sources, destination in self.copies():
+            for source in sources:
+                if "baton_v12" not in source:
+                    continue
+                self.assertEqual(source, "python/src/baton_v12/source_profiles",
+                                 "the image copies material out of the "
+                                 "manager's distribution that is not the "
+                                 "profile package")
+            # NOTHING LANDS UNDER THAT NAME. The source path may name the
+            # distribution's layout; the destination may not create it, or the
+            # worker could `import baton_v12` and hold the manager's
+            # capabilities.
+            self.assertNotIn("baton_v12", destination)
+
+    def test_every_copy_lands_where_the_image_keeps_its_own_material(self):
+        """The destination half, asked of EVERY COPY including the split one.
+
+        This is the case the continuation defect hid: the worker-control
+        schema's COPY is the one whose destination went unasserted, and a
+        destination nobody checks is a path the recipe can move without a test
+        noticing.
+        """
+        for _sources, destination in self.copies():
+            self.assertTrue(destination.startswith("/opt/baton/"), destination)
+        self.assertIn(
+            (["worker/worker-control-1.0.schema.json"],
+             "/opt/baton/worker-control-1.0.schema.json"),
+            [(sources, destination) for sources, destination in self.copies()],
+            "the split COPY was not joined, so its destination is unasserted")
 
 
 if __name__ == "__main__":

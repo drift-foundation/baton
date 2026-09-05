@@ -110,9 +110,43 @@ SOURCE_ROOT = "source"
 # document from another generation is refused by an equality test rather than
 # by parsing a version member and deciding what to do about it -- the same rule
 # the launch document is under.
-TASK_SCHEMA = "baton.dogfood-task/1"
+TASK_SCHEMA = "baton.dogfood-task/2"
 TASK_MEMBERS = ("schema", "task_id", "instructions", "verification",
-                "source_root")
+                "source_root", "source_profile", "declared_base")
+
+# W71917: THE PROFILE PACKAGE, UNDER WHICHEVER NAME IT ARRIVED.
+#
+# `Dockerfile.claude` copies `source_profiles` in as a TOP-LEVEL package, not
+# as `baton_v12.source_profiles`, and that is the image's pinned rule being
+# kept rather than bent: nothing from `baton_v12` travels, because a worker
+# that can import the manager is a worker one bug away from holding the
+# manager's capabilities. The profile package is not the manager -- it imports
+# nothing from `baton_v12`, and `baton_v12.worker_manager` imports nothing from
+# it, which `tests/manager/test_source_boundary` holds both ways -- so it
+# travels under its own name and the `baton_v12` namespace still does not exist
+# in the image.
+#
+# ONE SPELLING, AND `baton_v12` IS NOT IT. An import naming that package --
+# even in a fallback for the distribution's own test run -- would be this
+# module able to spell the manager's namespace, which is the property
+# `test_this_module_imports_nothing_from_the_manager` holds as a fact about
+# this source rather than as a comment. The suites that drive this module put
+# the package's directory on `sys.path` under this same top-level name, which
+# is reproducing the image's layout rather than relaxing the rule.
+import source_profiles as _profiles
+
+# Where the checkout and the editable copy live. BOTH ARE IN THE WORKSPACE,
+# which is W71917's whole subject: the workspace is disk-backed and the tmpfs
+# is 64 MiB, so a real build or test pass cannot happen anywhere else.
+CANDIDATE_NAME = "candidate"
+
+# Version-control metadata, skipped by the copy and by the diff.
+#
+# NOT AN INFERENCE ABOUT THE TREE. This is applied only when the assignment
+# DECLARED the git profile, so no tree is examined to decide whether it looks
+# version-controlled; a generic profile carrying a directory of this name is
+# ordinary material and is copied and diffed like any other.
+VCS_METADATA = ".git"
 
 # The private scratch root. `/tmp` is the adapter's tmpfs: `rw,noexec,nosuid,
 # nodev,size=64m`, private to this container and gone when it ends.
@@ -219,6 +253,13 @@ PROVIDER_SECONDS = 3600
 # because it is the WORKLOAD's command rather than the provider's, and the two
 # have nothing to do with each other.
 VERIFICATION_SECONDS = 900
+
+# How long ONE source-checkout step is given. W71917. Bounded separately again,
+# and smaller than either of the two above: a local clone from a mounted
+# directory is seconds of disk copying with no network in the container and
+# nothing to wait on, so a step still running after this is wedged rather than
+# busy.
+CHECKOUT_SECONDS = 900
 
 # -- what this adapter writes ------------------------------------------------
 
@@ -333,9 +374,28 @@ class ClaudeAgent:
         proposal = os.path.join(OUTPUT_ROOT, one["path"])
         task = _task()
         scratch = self._scratch()
-        candidate = os.path.join(scratch, CANDIDATE)
+        # W71917: THE PLAN RUNS, AND IT RUNS IN THE WORKSPACE.
+        #
+        # What this replaces: the source mount was copied into a directory
+        # under the 64 MiB tmpfs and the profile was never consulted at all.
+        # Run7 review [P0] -- the profile package composed plans that no
+        # component executed, so the ruled read-only-source-to-workspace
+        # transition did not happen and a real build could not fit anywhere.
+        #
+        # `OUTPUT_ROOT` IS THE WORKSPACE. The manager binds one disk-backed
+        # manager-created workspace there; the tmpfs keeps only the child
+        # ephemera roots below, which is what bounded scratch is for.
         source = os.path.join(INPUT_ROOT, task["source_root"])
-        copied = _copy_tree(source, candidate)
+        plan = self._checkout(task, source)
+        baseline = plan["source_root"]
+        # WHAT THE PROVIDER EDITS IS A COPY OF THE BASELINE, so the diff has
+        # something unmodified to be a diff against. Both live in the
+        # workspace: an editable tree on the tmpfs is the ceiling this Work
+        # exists to remove.
+        candidate = os.path.join(OUTPUT_ROOT, CANDIDATE_NAME)
+        skip = VCS_METADATA if plan["profile"] == _profiles.GIT_PROFILE \
+            else None
+        copied = _copy_tree(baseline, candidate, skip=skip)
         # W85497 review 2026-09-04T14:44:23Z: every predictable child root is
         # created EXCLUSIVELY before the provider runs. The provider owns the
         # candidate turn and must not get a window in which an absent verifier
@@ -359,7 +419,11 @@ class ClaudeAgent:
             # exited 0 and changed nothing produced no candidate, and one that
             # exited non-zero after editing left something an operator still
             # has to see.
-            patch, measured = _diff(source, candidate, written)
+            # AGAINST THE BASELINE, WHICH IS WHAT THE COPY WAS MADE FROM.
+            # For a git profile that is the checkout at the DECLARED BASE, so
+            # the patch is against the revision the assignment named rather
+            # than against whatever the mount happened to be on.
+            patch, measured = _diff(baseline, candidate, written, skip=skip)
             verification = (self._verify(
                 task, candidate, verification_environment,
                 verification_directories)
@@ -407,13 +471,78 @@ class ClaudeAgent:
 
     # -- the private half ----------------------------------------------------
 
+    def _checkout(self, task, source):
+        """Turn the read-only mount into somewhere this worker may work.
+
+        W71917. THE PLAN IS COMPOSED ELSEWHERE AND RUN HERE, which is the
+        separation the profile package exists for: it never starts a process
+        and imports no capability to, and this is the party that owns the
+        failure of every command it named.
+
+        EVERY STEP'S OUTPUT IS COMPARED WHEN THE PLAN SAYS SO. Run7 review
+        [P1]: exit status alone cannot express "the worktree is at this exact
+        commit", because the command that reports which commit it is on
+        succeeds whatever the answer. A step carrying an expectation is
+        checked against it, and a mismatch is a refusal rather than a
+        disposition -- a worker that edited the wrong revision and said so
+        afterwards would already have written the wrong patch.
+        """
+        try:
+            plan = _profiles.checkout_plan(
+                source, OUTPUT_ROOT, profile=task["source_profile"],
+                declared=task["declared_base"])
+        except _profiles.ProfileRefusal as refusal:
+            raise TaskRefusal(
+                f"this assignment's source profile cannot be planned: "
+                f"{refusal}") from None
+        for step in plan["steps"]:
+            argv = list(step["argv"])
+            try:
+                answer = self._run(argv, capture_output=True, text=True,
+                                   timeout=CHECKOUT_SECONDS)
+            except OSError as failure:
+                raise TaskRefusal(
+                    f"the source checkout could not run {argv[0]!r} "
+                    f"({type(failure).__name__})") from None
+            except subprocess.TimeoutExpired:
+                raise TaskRefusal(
+                    f"the source checkout step {argv[0]!r} did not finish "
+                    f"within {CHECKOUT_SECONDS} seconds") from None
+            if answer.returncode != 0:
+                # THE STEP'S OWN OUTPUT IS NOT REPRODUCED. It is composed from
+                # a tree this worker was handed, which is the same reason
+                # `verification.txt` carries no child output.
+                raise TaskRefusal(
+                    f"the source checkout step {argv[0]!r} failed with "
+                    f"status {answer.returncode}")
+            expect = step["expect_stdout"]
+            if expect is not None \
+                    and (answer.stdout or "").strip() != expect:
+                raise TaskRefusal(
+                    "the checkout is not at the base this assignment "
+                    "declared; the source that was mounted contains that "
+                    "commit or the step would have failed, so what differs "
+                    "is which revision the worktree ended up on")
+        return plan
+
     def _scratch(self):
         """One bounded private directory under the tmpfs, mode 0700.
 
-        Under `/tmp` rather than under the workspace on purpose: the workspace
-        is the host-visible output bind, and an editable copy left there would
-        be material the manager has to collect and reason about. The tmpfs is
-        private, non-executable and destroyed with the container.
+        WHAT IS STILL HERE, AND WHAT MOVED. The child ephemera roots below --
+        the byte-code cache, the temporary directory and the cache home -- stay
+        on the tmpfs: they are private, non-executable, and are meant to be
+        destroyed with the container.
+
+        THE EDITABLE TREE NO LONGER DOES, and the superseded reason is worth
+        keeping because it reads as a rule. It said the workspace was "the
+        host-visible output bind, and an editable copy left there would be
+        material the manager has to collect and reason about". Collection is by
+        DECLARATION, not by presence: `output._compare_declared` refuses an
+        undeclared path outright -- "an undeclared path is never collected
+        merely because the agent wrote there" -- so a checkout and a candidate
+        beside the declared proposal are workspace material that goes away with
+        the workspace. What the old placement did cost was real: the tmpfs is
+        64 MiB, which is W71917's whole subject.
         """
         if self._home is not None:
             return self._home
@@ -1151,6 +1280,31 @@ def _task(place=None):
             f"{place} carries a verification that is a non-empty list of "
             f"words; a command this adapter has to assemble from a string is "
             f"a shell, and there is no shell here")
+    # W71917: THE PROFILE AND ITS BASE, READ HERE AND NOWHERE ELSE.
+    #
+    # The manager carries a profile word through the input manifest as opaque
+    # text for its own boundary composition and compares it against nothing;
+    # this is the party that consumes the word, so this is the party that says
+    # what the values are. `_task_bytes` on the host deliberately does not
+    # parse this document for the same reason -- one contract, one reader.
+    #
+    # THE PAIRING IS THE PROFILE PACKAGE'S RULE, not a second copy of it:
+    # `checkout_plan` refuses a git profile with no base and a generic profile
+    # WITH one, so the pairing is validated where it is defined. What is
+    # checked here is only that the two members are the shapes this document
+    # may carry, which is this reader's job.
+    if document["source_profile"] not in _profiles.PROFILES:
+        raise TaskRefusal(
+            f"{place} names source_profile "
+            f"{document['source_profile']!r} and this workload consumes "
+            f"{' and '.join(_profiles.PROFILES)}")
+    declared = document["declared_base"]
+    if declared is not None:
+        try:
+            _profiles.check_declared_base(declared)
+        except _profiles.ProfileRefusal as refusal:
+            raise TaskRefusal(f"{place} carries a declared_base this "
+                              f"workload cannot use: {refusal}") from None
     return document
 
 
@@ -1329,19 +1483,30 @@ def _bounded(entries, total, what):
             f"{MAX_SOURCE_ENTRIES} entries / {MAX_SOURCE_BYTES} bytes")
 
 
-def _copy_tree(source, into):
-    """The staged tree, copied into private scratch, bounded and no-follow.
+def _copy_tree(source, into, *, skip=None):
+    """The baseline tree, copied into the workspace, bounded and no-follow.
 
     REGULAR FILES AND DIRECTORIES ONLY. A link in the staged tree is a way for
     the copy to reach outside it, and the manager already refuses one at
     delivery -- this is the second party proving it rather than assuming the
     first did.
+
+    W71917: `skip` NAMES ONE DIRECTORY THIS COPY DOES NOT DESCEND, and it is
+    passed in rather than decided here. The only caller passes the
+    version-control metadata directory, and only when the assignment DECLARED
+    the git profile -- so nothing is inferred from what a tree looks like, and
+    a generic profile's directory of the same name is ordinary material. A
+    checkout's object store is not part of the candidate: copying it would put
+    tens of thousands of entries through the bound below and describe every one
+    of them in a patch nobody asked for.
     """
     if not os.path.isdir(source):
         raise TaskRefusal(f"this assignment stages no source tree at {source}")
     what = "the staged source"
     entries, total, copied = 0, 0, 0
     for base, directories, files in os.walk(source, followlinks=False):
+        if skip is not None and skip in directories:
+            directories.remove(skip)
         for name in directories:
             if os.path.islink(os.path.join(base, name)):
                 raise TaskRefusal(
@@ -1372,7 +1537,7 @@ def _copy_tree(source, into):
     return copied
 
 
-def _diff(source, candidate, written):
+def _diff(source, candidate, written, *, skip=None):
     """Which paths the provider changed, the unified diff, AND what was read.
 
     W39357 review (2026-08-29T22:51:53Z) [P1]: this measured the candidate and
@@ -1407,7 +1572,11 @@ def _diff(source, candidate, written):
             original or [], after,
             fromfile=f"a/{relative}" if original is not None else "/dev/null",
             tofile=f"b/{relative}"))
-    for base, _directories, files in os.walk(source, followlinks=False):
+    for base, directories, files in os.walk(source, followlinks=False):
+        # THE SAME DIRECTORY THE COPY SKIPPED. Walking it here would report
+        # every object file as a deletion, because the candidate never had one.
+        if skip is not None and skip in directories:
+            directories.remove(skip)
         for name in files:
             relative = os.path.relpath(os.path.join(base, name), source)
             if relative in written:

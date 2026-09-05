@@ -102,11 +102,101 @@ __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
            "WorkspaceStorage", "check_workspace_storage",
            "configure_workspace_storage", "configured_workspace_storage",
            "MAX_BYTES", "MAX_DEPTH", "READ_ONLY_DIR", "READ_ONLY_FILE",
+           "MOUNTINFO", "mount_table", "mount_points",
            "assignment_workspace", "compose_input_root", "copied_manifest",
            "adopted_assignment_workspace",
            "directory_manifest", "discard_execution_roots", "discard_tree",
            "discard_workspace",
            "read_input_root"]
+
+# THE KERNEL'S OWN MOUNT TABLE, read rather than inferred.
+#
+# W71917 run7 review [P0]: cleanup decided "this is a mount" by comparing
+# `st_dev` with the tree's root, and a bind mount from the SAME filesystem
+# keeps the bound directory's device number. A source bind-mounted from the
+# same disk therefore passed that test and its contents were walked and
+# unlinked -- the data-loss path the nominated-source boundary exists to make
+# impossible.
+#
+# There is no portable device-number answer to "is this a mount point": the
+# kernel's identity for a mount is its mount ID, and `os.stat` does not expose
+# one. `/proc/self/mountinfo` does, and it is the same file
+# `source_boundary.filesystem_of` already reads to say what a path is stored
+# on -- so the reader lives HERE, in the lower module, and that one imports it
+# rather than the two keeping separate copies of the escape rules.
+MOUNTINFO = "/proc/self/mountinfo"
+
+_ESCAPES = (("\\040", " "), ("\\011", "\t"), ("\\012", "\n"),
+            ("\\134", "\\"))
+
+
+def _unescaped(field):
+    # THE BACKSLASH LAST, deliberately. Decoding it first would let a literal
+    # `\134040` -- a backslash followed by the four characters `0`, `4`, `0` --
+    # become `\040` and then a space, which is a path this build made up.
+    for written, meant in _ESCAPES[:-1]:
+        field = field.replace(written, meant)
+    return field.replace(*_ESCAPES[-1])
+
+
+def mount_table(*, what="this manager's mount boundary"):
+    """Every live mount as `(point, filesystem_type)`, from the kernel.
+
+    REFUSES RATHER THAN GUESSES. A build that cannot read the table cannot say
+    whether a directory it is about to walk is somebody else's mount, and the
+    answer this question protects is a recursive delete. An unreadable table is
+    therefore a refusal at the caller, never an empty set treated as "no mounts
+    here" -- which is exactly the reading that would restore the defect.
+
+    The mount point is field five of the part BEFORE the ` - ` separator, whose
+    position varies with the number of optional fields; the type is the first
+    field after it. Splitting on the separator is how the kernel documents the
+    format and is why this does not index by column.
+
+    `what` IS A PUBLIC OPERAND AND IS BOUNDED BEFORE IT CAN REACH A MESSAGE.
+    W71917's sixth review [P1]: this is an exported operation, so "every call
+    site in this package passes a literal" is a fact about this package and not
+    about what a caller may hand it -- and the refusal below interpolated the
+    object directly, so a value whose `__format__` raised escaped as a
+    `RuntimeError` instead of the closed refusal this build promises. It is
+    `label_of`'d here, which is exactly what `source_boundary.check_disk_backed`
+    already does with the same noun.
+    """
+    what = label_of(what)
+    try:
+        with open(MOUNTINFO, "r", encoding="utf-8") as reading:
+            raw = reading.read()
+    except OSError as failure:
+        _refuse(f"this build cannot read {name_value(MOUNTINFO)} "
+                f"({type(failure).__name__}), so it cannot say which "
+                f"directories are mounts; {what} is not decided by guessing")
+    found = []
+    for line in raw.splitlines():
+        separated = line.split(" - ", 1)
+        if len(separated) != 2:
+            continue
+        before = separated[0].split(" ")
+        after = separated[1].split(" ")
+        if len(before) < 5 or not after:
+            continue
+        found.append((_unescaped(before[4]), after[0]))
+    return found
+
+
+def mount_points(*, what="this manager's mount boundary"):
+    """The resolved mount points alone, as a set ready to compare against.
+
+    RESOLVED, because the walk compares real paths: a mount point reached
+    through a symbolic link is the same mount, and a set keyed on the kernel's
+    spelling would miss it.
+
+    ITS OWN DOOR OWNS ITS OWN NOUN. This forwards to `mount_table`, which
+    bounds it again -- and that is not a redundancy worth removing: this is a
+    separate exported operation, so a caller reaching it is at a boundary of
+    its own, and `label_of` is idempotent over an already-bounded label.
+    """
+    what = label_of(what)
+    return {os.path.realpath(point) for point, _kind in mount_table(what=what)}
 
 # THE TWO MANAGER-AUTHORED PROTOCOL DOCUMENTS, at the names the contract fixes
 # (§7.0). A path a manifest could vary is a path a runtime can be pointed at
@@ -2042,9 +2132,99 @@ def _thaw(place):
 
 
 def _remove(place):
-    """A depth-first removal that never follows a link out of the tree."""
-    for current, directories, files in os.walk(place, topdown=False,
-                                               followlinks=False):
+    """A depth-first removal that never follows a link OR A MOUNT out of the
+    tree.
+
+    W71917 ADDED THE SECOND HALF, and it is a new hazard rather than an old
+    one nobody noticed. Until this Work every directory under an assignment
+    root was material this manager created, so "never follow a link" was the
+    whole of "never leave the tree". The nominated-source boundary puts an
+    empty MOUNTPOINT inside the input root on purpose, and a mountpoint is not
+    a symbolic link: `followlinks=False` does not stop a walk descending
+    through one, and the material on the other side belongs to whoever
+    nominated it.
+
+    In the ordinary arc there is nothing to descend into -- the bind lives in
+    the container's own mount namespace and the host-side directory stays
+    empty, so cleanup removes an empty directory and this check never fires.
+    It exists for the case that is not ordinary: a host-side bind an operator
+    or a future profile established, still live when an ending runs. Deleting
+    somebody else's Work tree is not a failure this manager may discover
+    afterwards, so it is refused before an entry inside it is touched.
+
+    CHECKED TOP-DOWN, BEFORE ANY DESCENT, AND BEFORE ANY REMOVAL AT ALL.
+
+    The superseded reasoning is recorded because it was WRONG and its wrongness
+    is the whole of this correction. It said: "checked per directory, inside
+    the existing walk, and the bottom-up order is what makes one pass enough --
+    a directory is always visited before its parent, so a foreign mount is
+    refused while every entry it holds is still there." That is true of a
+    mount's own entries and false of everything below them. `os.walk` with
+    `topdown=False` yields a mount's SUBDIRECTORIES before the mount itself, so
+    a mount containing one directory had that directory emptied first and the
+    refusal arrived after the data was gone. The second W71917 review
+    reproduced exactly that.
+
+    So the walk is now TOP-DOWN, which is the order in which a mount can be
+    recognised before anything under it is reached, and removal happens in a
+    second pass over the directories the first one ADMITTED. A refusal
+    anywhere therefore precedes every unlink rather than merely preceding the
+    unlinks in one subtree. What is buffered between the passes is the
+    directory paths and not their contents, and the second pass lists each
+    admitted directory again -- one extra listing per directory, against a
+    guarantee that no foreign entry is ever removed.
+
+    THE TABLE DECIDES, NOT THE DEVICE NUMBER. W71917 run7 review [P0]: this
+    compared `st_dev` against the tree's root and nothing else, and a bind
+    mount from the SAME filesystem keeps the bound directory's device number --
+    so a source bind-mounted from the same disk passed the test and its
+    contents were walked and unlinked. `st_dev` answers "is this another
+    filesystem", which is a different question from "is this a mount", and only
+    the second one is the one being asked. The kernel's own table answers it;
+    the device comparison is KEPT beside it because it needs no `/proc` and
+    still catches a cross-device mount if the table is ever the thing that is
+    wrong.
+    """
+    try:
+        base = os.lstat(place).st_dev
+    except OSError as failure:
+        _refuse(f"the tree at {name_value(place)} could not be measured "
+                f"before removal ({type(failure).__name__})")
+    # READ ONCE, BEFORE ANYTHING IS UNLINKED. A table re-read per directory
+    # would be a window: a mount established mid-walk would be absent from the
+    # reading that mattered. Reading first also means an unreadable table
+    # refuses the cleanup before it has removed a single entry.
+    mounted = mount_points(what=f"removal of the tree {name_value(place)}")
+    admitted = []
+    for current, _directories, _files in os.walk(place, topdown=True,
+                                                 followlinks=False):
+        # REFUSED BEFORE THE WALK DESCENDS. `topdown=True` yields a directory
+        # before its children, and a refusal here ends the whole cleanup, so a
+        # mount is recognised while everything under it is still untouched and
+        # unvisited.
+        if os.lstat(current).st_dev != base:
+            _denied(f"{name_value(current)} is on another filesystem than the "
+                    f"tree {name_value(place)} this manager is removing, so "
+                    f"it is a mount rather than material this manager "
+                    f"created. Cleanup removes only what this manager made; "
+                    f"the material behind a nominated source belongs to "
+                    f"whoever nominated it and is never this manager's to "
+                    f"delete.")
+        if os.path.realpath(current) in mounted:
+            _denied(f"{name_value(current)} is a mount point in this "
+                    f"process's own mount table, so it is somebody else's "
+                    f"material reached through a directory this manager made. "
+                    f"A bind mount from the same filesystem keeps the bound "
+                    f"directory's device number, so the device comparison "
+                    f"above cannot see it. Cleanup removes only what this "
+                    f"manager created; what is behind a mount belongs to "
+                    f"whoever mounted it and is never this manager's to "
+                    f"delete.")
+        admitted.append(current)
+    # DEEPEST FIRST, OVER THE ADMITTED DIRECTORIES ONLY. Reversing a top-down
+    # order puts every child before its parent, which is what `rmdir` needs,
+    # and by now the whole tree has already passed the boundary above.
+    for current in reversed(admitted):
         # THAWED ONCE, BEFORE ANYTHING IN IT IS REMOVED.  Unlinking a file and
         # removing a subdirectory are both writes to THIS directory, so the
         # thaw belongs here rather than inside the file loop -- W33935
@@ -2052,19 +2232,32 @@ def _remove(place):
         # directories never reached that loop and `rmdir` on its children was
         # denied by the home's own mode.
         _thaw(current)
-        for name in files:
-            _unlink(os.path.join(current, name), current)
-        for name in directories:
-            child = os.path.join(current, name)
-            if os.path.islink(child):
+        for child, is_directory in _entries(current):
+            if is_directory:
+                # Already emptied: it came earlier in this reversed order.
+                _thaw(child)
+                _unlink(child, current, directory=True)
+            else:
                 _unlink(child, current)
-                continue
-            # The child was already thawed when the walk visited it; this is
-            # the one it could not have reached, a directory that is empty.
-            _thaw(child)
-            _unlink(child, current, directory=True)
     _thaw(place)
     os.rmdir(place)
+
+
+def _entries(place):
+    """This directory's children as (path, is_directory) pairs.
+
+    A SYMBOLIC LINK IS NEVER A DIRECTORY HERE, whatever it points at, which is
+    the same rule the walk above is under: what removal does to a link is
+    unlink it, and following one to decide would be leaving the tree to answer
+    a question about an entry inside it.
+    """
+    try:
+        with os.scandir(place) as reading:
+            return [(entry.path, entry.is_dir(follow_symlinks=False))
+                    for entry in reading]
+    except OSError as failure:
+        _refuse(f"the directory {name_value(place)} could not be read before "
+                f"removal ({type(failure).__name__})")
 
 
 def _unlink(child, parent, *, directory=False):

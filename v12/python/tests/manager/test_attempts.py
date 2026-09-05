@@ -22,7 +22,9 @@ import baton_v12.worker_manager as worker_manager
 from baton_v12.contracts import ContractRefusal
 from baton_v12.worker_manager import (AuthorityPort, ControlStore, TRANSITIONS,
                                       accept_offer, activate_assignment,
-                                      certify_profile, issue_offer, observe,
+                                      boundary_identity_of, certify_profile,
+                                      issue_offer, observe,
+                                      pin_boundary_identity,
                                       reconcile_runtime, record_attempt,
                                       request_cancellation,
                                       request_runtime_start, runtime_lane,
@@ -744,6 +746,136 @@ class WhatOnlyAnotherWriterCanCause(AttemptCase):
         self.assertIsInstance(outcome, ContractRefusal)
         self.assertEqual((outcome.category, outcome.code),
                          ("runtime-observation", "state-regression"))
+
+
+class TheBoundaryIdentityIsPinnedOnce(AttemptCase):
+    """W71917: the durable custody evidence, and what makes it evidence.
+
+    The pin records which OBJECTS this attempt's nominated source and its
+    writable workspace were, so a later incarnation can refuse a directory
+    replaced while no manager was watching. That refusal is only as good as
+    the write-once property behind it: an identity a second writer can replace
+    is one a replacement can install and then satisfy the gate with.
+    """
+
+    SOURCE = (11, 111)
+    WORKSPACE = (22, 222)
+
+    def test_the_first_pin_is_recorded_and_read_back(self):
+        self.recorded()
+        answer = pin_boundary_identity(self.store, attempt_id=ATTEMPT,
+                                       source=self.SOURCE,
+                                       workspace=self.WORKSPACE)
+        self.assertEqual(answer, (self.SOURCE, self.WORKSPACE))
+        self.assertEqual(boundary_identity_of(self.store, ATTEMPT),
+                         (self.SOURCE, self.WORKSPACE))
+
+    def test_an_exact_repeat_is_not_a_write(self):
+        """Every later incarnation composes over the same roots and reaches
+        this line again; re-observing the same objects is the ordinary case."""
+        self.recorded()
+        pin_boundary_identity(self.store, attempt_id=ATTEMPT,
+                              source=self.SOURCE, workspace=self.WORKSPACE)
+        again = pin_boundary_identity(self.store, attempt_id=ATTEMPT,
+                                      source=self.SOURCE,
+                                      workspace=self.WORKSPACE)
+        self.assertEqual(again, (self.SOURCE, self.WORKSPACE))
+        self.assertEqual(boundary_identity_of(self.store, ATTEMPT),
+                         (self.SOURCE, self.WORKSPACE))
+
+    def test_a_different_identity_refuses_rather_than_re_pinning(self):
+        self.recorded()
+        pin_boundary_identity(self.store, attempt_id=ATTEMPT,
+                              source=self.SOURCE, workspace=self.WORKSPACE)
+        for source, workspace in ((self.SOURCE, (33, 333)),
+                                  ((33, 333), self.WORKSPACE)):
+            with self.subTest(source=source, workspace=workspace):
+                with self.assertRaises(ContractRefusal) as caught:
+                    pin_boundary_identity(self.store, attempt_id=ATTEMPT,
+                                          source=source, workspace=workspace)
+                self.assertEqual(
+                    (caught.exception.category, caught.exception.code),
+                    ("refused", "operation-collision"))
+        # AND THE EVIDENCE IS UNTOUCHED, which is the whole reason to refuse.
+        self.assertEqual(boundary_identity_of(self.store, ATTEMPT),
+                         (self.SOURCE, self.WORKSPACE))
+
+    def test_two_first_pins_cannot_both_succeed(self):
+        """W71917 fourth review [P1]: the read and the write were two
+        autocommit transactions.
+
+        `ControlStore` opens SQLite with `isolation_level=None`, so a read that
+        answered "nothing pinned yet" and an unconditional `UPDATE` had a
+        window between them. Two manager connections both observed absence,
+        both were told they had pinned, and the later write replaced the
+        earlier evidence -- at exactly the boundary this evidence exists for,
+        two incarnations composing on opposite sides of a replacement.
+
+        THE SCHEDULE IS FORCED RATHER THAN HOPED FOR. Both callers are held at
+        the absence observation by a barrier, which is the interleaving the
+        reviewer drove by hand. Against the corrected code the second caller
+        never reaches that barrier at all -- it is waiting on the write lock
+        the first one took BEFORE reading -- so the barrier breaks on its own
+        timeout and the case still completes; against the superseded code both
+        arrive, both write, and both are told they were first.
+        """
+        self.recorded()
+        rendezvous = threading.Barrier(2, timeout=1)
+        held = attempts_module.boundary_identity_of
+
+        def after_the_absence_read(store, attempt_id):
+            answer = held(store, attempt_id)
+            if answer is None:
+                try:
+                    rendezvous.wait()
+                except threading.BrokenBarrierError:
+                    pass
+            return answer
+
+        outcomes = queue.Queue()
+
+        def pin(incarnation, source, workspace):
+            # OPENED IN THE THREAD THAT USES IT. A SQLite connection belongs to
+            # the thread that made it, and this case is about two REAL manager
+            # connections rather than two callers sharing one.
+            store = ControlStore.open(self.path, incarnation=incarnation,
+                                      clock=lambda: NOW)
+            try:
+                outcomes.put(pin_boundary_identity(
+                    store, attempt_id=ATTEMPT, source=source,
+                    workspace=workspace))
+            except BaseException as failure:
+                outcomes.put(failure)
+            finally:
+                store.close()
+
+        pinning = [("manager-2", (1, 11), (2, 22)),
+                   ("manager-3", (3, 33), (4, 44))]
+        with mock.patch.object(attempts_module, "boundary_identity_of",
+                               side_effect=after_the_absence_read):
+            threads = [threading.Thread(target=pin, args=one)
+                       for one in pinning]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join(20)
+        for thread in threads:
+            self.assertFalse(thread.is_alive())
+        answers = [outcomes.get_nowait(), outcomes.get_nowait()]
+        refused = [one for one in answers if isinstance(one, ContractRefusal)]
+        pinned = [one for one in answers
+                  if not isinstance(one, BaseException)]
+        self.assertEqual(len(pinned), 1, answers)
+        self.assertEqual(len(refused), 1, answers)
+        self.assertEqual((refused[0].category, refused[0].code),
+                         ("refused", "operation-collision"))
+        # THE STORED VALUE IS THE ONE THAT SUCCEEDED, read on a connection
+        # neither writer used: an answer that agreed with itself while the row
+        # held the other identity would be the same defect one layer along.
+        beside = ControlStore.open(self.path, incarnation="manager-4",
+                                   clock=lambda: NOW)
+        self.addCleanup(beside.close)
+        self.assertEqual(held(beside, ATTEMPT), pinned[0])
 
 
 class TheRuntimeIsStartedOnceAndReconciled(AttemptCase):

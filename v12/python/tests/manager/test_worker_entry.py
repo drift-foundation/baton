@@ -32,6 +32,13 @@ import unittest
 
 WORKER = (pathlib.Path(__file__).resolve().parents[3] / "worker")
 sys.path.insert(0, str(WORKER))
+# W71917: AND THE PROFILE PACKAGE, UNDER THE NAME THE IMAGE GIVES IT.
+# `Dockerfile.claude` copies `src/baton_v12/source_profiles` to
+# `/opt/baton/source_profiles`, so inside the container it is a
+# top-level package and `claude_agent` imports it as one. Putting its
+# parent directory here reproduces that layout rather than relaxing the
+# rule that this module can never spell `baton_v12`.
+sys.path.insert(0, str(WORKER.parent / "python" / "src" / "baton_v12"))
 # THE BYTECODE CACHE GOES BEFORE THE IMPORT, for the reason
 # `test_worker_image` gives at the same line: the worker directory is COPIED
 # into the image, and a `__pycache__` this suite created would travel with it.

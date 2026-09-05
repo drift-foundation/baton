@@ -20,11 +20,11 @@ The bearer exists for the immediate offer-accept call and is then discarded;
 credentials are read lazily from the invoking user's private source registry.
 
 The configuration is one JSON object with schema
-`baton.v12.single-worker-deployment/3` and exactly these members:
+`baton.v12.single-worker-deployment/4` and exactly these members:
 
 | Member | Required value |
 |---|---|
-| `schema` | `baton.v12.single-worker-deployment/3` |
+| `schema` | `baton.v12.single-worker-deployment/4` |
 | `authority_store`, `authority_uuid` | Absolute Authority store path and its exact 32-character UUID |
 | `participant`, `principal` | The one endpoint and the principal Authority resolves it to |
 | `profile_name`, `profile_digest` | The one certified implementation runtime profile |
@@ -35,7 +35,9 @@ The configuration is one JSON object with schema
 | `launch_home`, `credential_home` | Absolute persistent launch state and manager-private credential homes |
 | `credential_sources` | Absolute private user registry described below; the public production factory refuses `null` |
 | `credential_slots`, `credential_profile` | Closed logical slot names and the trusted provider/reference mapping for them |
-| `input_source`, `input_manifest` | Absolute already-staged source directory and its complete frozen `inputManifest` document, whose one source destination is exactly `source` |
+| `nominated_source` | Absolute source directory, mounted read-only and never copied, walked or hashed — see "The source/workspace boundary" below |
+| `workspace_capacity` | `{"max_bytes": …}`, the capacity this assignment declares its writable workspace needs, proved against the filesystem's free bytes before launch and enforced on nothing afterwards; must exceed the runtime's whole bounded scratch |
+| `input_manifest` | The complete frozen `inputManifest` document, whose one source destination is exactly `source`, whose `content_manifest` for it is the empty tree, and whose `consumption` declares `baton.source-boundary/1` |
 | `task_document` | Absolute path to the frozen JSON workload document this profile's input manifest declares as its `human_contract` artifact |
 | `launch_contract`, `launch_role` | The immutable worker launch contract and `implementation` role |
 | `review_route` | The Route an answered, frozen, collected candidate's assignment is passed to |
@@ -47,14 +49,33 @@ compatible reading of the old one. `/2` added the frozen task, without which
 the certified worker refuses its input root before doing any provider work.
 `/3` adds the three members the ending needs — a deployment that could freeze,
 collect and retain a result without saying where the Work goes would be
-choosing a destination nobody named.
+choosing a destination nobody named. `/4` (W71917) replaces `input_source`
+with `nominated_source` and adds `workspace_capacity`.
+
+**`/4` renames the source member rather than redefining it, and the rename is
+the point.** `input_source` named an already-staged directory this deployment
+MEASURED and COPIED into the input root. `nominated_source` names a directory
+it validates and MOUNTS read-only and never reads. Those are different
+statements about the same host path — one is material the manager took custody
+of, the other is material it agreed not to touch — and a member that quietly
+changed meaning under one name is how a deployment ends up believing a copy
+happened. A `/3` document naming `input_source` is refused by the closed member
+set, not read as a nomination.
 
 Unknown or missing members refuse. Before an offer exists, the factory checks
 the complete input manifest, relates its Authority, assignment contract,
-policy, profile and image to the configured values, measures `input_source`,
-validates the credential mapping and OCI posture, opens Authority against the
-expected UUID, and proves the configured participant resolves to the
-configured principal and Work.
+policy, profile and image to the configured values, validates the nominated
+source and the declared workspace capacity, validates the credential mapping and
+OCI posture, opens Authority against the expected UUID, and proves the
+configured participant resolves to the configured principal and Work.
+
+It no longer measures the source. `/3` walked the whole nominated tree here
+with `workspaces.directory_manifest` and compared the result against the
+manifest's declared content — a full open-read-and-digest of every file,
+performed by a manager that is ruled not to walk, copy, snapshot, enumerate or
+hash the source at all. It could not have kept its promise either: the tree it
+measured was the tree before the container started, and nothing bound those
+bytes to the ones the engine later mounted.
 
 ### The workload document, and why it is configuration rather than payload
 
@@ -400,6 +421,187 @@ bounded cleanup, and its whole account becomes this attempt's recorded
 preparation failure. The stage is
 `exceptional` and is not asked again, with the host left exactly as the
 recovery left it for an operator to look at.
+
+## The source/workspace boundary (W71917)
+
+A production runtime receives exactly two trees of its own, and they are
+different kinds of thing.
+
+**One nominated source, mounted read-only at `/input/source`.** The manager
+validates the directory the deployment nominates — absolute, canonical, its
+own unaliased directory, not a symbolic link, with no linked ancestor, and
+outside the manager's own workspace storage in both directions — and pins the
+device and inode that validation saw. It then establishes an empty mountpoint
+for it inside the assignment's input root and binds the nominated directory
+over that mountpoint, read-only. Read-only is not a parameter: a worker that
+could rewrite the Work it was given could answer about the rewrite.
+
+**One manager-created, manager-custodied, disk-backed workspace, mounted
+writable at `/output`.** This is the same assignment-private workspace the
+manager already allocated, adopted into the configured workspace group, with
+the attempt's result root inside it — with two things now proved before a
+runtime starts: that it is on real storage, and that its filesystem currently
+holds the declared capacity.
+
+### What the ordinary local path does not do
+
+It does not walk, copy, snapshot, enumerate, hash or Git-process the nominated
+source. Validating it costs one `lstat` and one `fstat` whatever is inside it,
+so a repository with a million objects and an empty directory are the same
+act. Nothing under the nominated path is opened; the one directory descriptor
+the proof takes is closed without a single directory read.
+
+This retires the ordinary copied-source bootstrap. Snapshot providers that a
+caller explicitly asks for are unaffected — the dogfood operator still stages
+and snapshots exactly as it did, because that is a copy somebody requested.
+
+### The manager is Git-agnostic
+
+The input manifest's source descriptor declares the boundary in its
+`consumption` extension, under `baton.source-boundary/1`:
+
+    "consumption": {
+      "baton.source-boundary/1": {
+        "delivery": "nominated-mount",
+        "workspace": "disk",
+        "profile": "git"
+      }
+    }
+
+`delivery` and `workspace` are the manager's own words and it validates both.
+`profile` is **bounded opaque text the manager never interprets** — it does not
+compare it against a list, and it never probes the nominated tree to infer one.
+A descriptor carrying no declaration is a *staged* source whose content the
+manager measured, and mounting over one is refused rather than silently
+allowed.
+
+What the profile word means lives in `baton_v12.source_profiles`, which the
+manager does not import:
+
+- **`git`** — the worker clones from the read-only mount into a `checkout`
+  directory inside its own writable workspace, and then verifies the base
+  revision the assignment declared. The clone is composed with
+  `--no-hardlinks --no-local`, which is not optional: `git clone` from a path
+  on the same filesystem hardlinks its object files, so without it the
+  workspace's objects would be the very inodes of the read-only mount. The
+  verification is `git -C <checkout> rev-parse --verify <base>^{commit}` —
+  a question about the worker's own copy, asked after the clone. Abbreviated
+  base revisions are refused rather than expanded, because expanding one asks
+  the repository which object to verify.
+- **`generic`** — the mount *is* the source root, read in place. No clone, no
+  inference, and nothing copied into the workspace; the workspace is for what
+  the worker produces. A generic profile that names a base revision is
+  refused, because its author believed a verification would happen that this
+  profile never performs.
+
+### Scratch is bounded; the workspace capacity is declared and proved
+
+The runtime gets bounded private scratch — `/tmp` at 64 MiB and `/dev/shm` at
+16 MiB, both `noexec,nosuid,nodev` — and nothing the assignment owes may rely
+on it. **Checkout, build/cache, test artifacts, output and logs go to the
+disk-backed workspace.**
+
+That rule is enforced twice rather than documented once:
+
+- `check_disk_backed` refuses a workspace on `tmpfs`, `ramfs` or `devtmpfs`,
+  read from the kernel's own `/proc/self/mountinfo` rather than inferred. A
+  memory filesystem answers "how much room is left" perfectly reassuringly,
+  which is exactly why free space is the wrong question to ask it.
+- `workspace_capacity` refuses a declared `max_bytes` that is **not strictly
+  greater than the whole scratch bound** (64 MiB + 16 MiB = 83,886,080 bytes).
+  A workspace that would have fitted in the scratch beside it establishes
+  nothing about the five uses that must not rely on scratch; at the floor plus
+  one byte, `/tmp` cannot hold the workspace even in principle.
+
+The declared capacity is also checked against the filesystem: a declaration
+the storage cannot currently meet is refused before a runtime starts, rather
+than discovered by a worker halfway through writing an output.
+
+#### The workspace bound is admission evidence, not a running limit
+
+**Scratch is bounded by the kernel. The workspace is not bounded at all.**
+`/tmp` and `/dev/shm` are tmpfs mounts carrying a size, and a worker that
+fills one is stopped by the filesystem. `/output` is an ordinary writable bind
+mount, and this deployment applies no byte or entry ceiling over it while a
+runtime is running: `workspace_capacity` is checked at admission, `_capacity`
+proves the backing filesystem has that many bytes free at that instant, and
+nothing measures the workspace afterwards.
+
+So, stated rather than implied: **a worker can fill the workspace's backing
+filesystem after it has been admitted.** Size the storage behind
+`workspace_storage` for that, and do not put it on a filesystem whose
+exhaustion would take something else down with it.
+
+The check is also **not a reservation**. Two assignments admitted against the
+same filesystem each prove the whole declaration separately, so admitting both
+does not prove the filesystem can hold both.
+
+W71917 ruled this the MVP contract deliberately. A live ceiling over a bind
+mount needs project quotas on the backing filesystem, a per-attempt loopback
+image, or a storage driver whose size option this deployment can set — each of
+which needs privilege or host configuration the rootless launch was built
+without. True live byte and entry ceilings are separate, parked v12 hardening.
+An earlier draft of this section called the value a quota and declared a
+`max_entries` beside it that reached no mount, no runtime and no sweep; both
+are gone, because a limit's name over no mechanism is worse than the honest
+weaker contract.
+
+### Restart, and what refuses before a start
+
+Restart adopts the exact manager-owned workspace: the roots are re-proved as
+this attempt's own real directories at their own paths under the configured
+store, the boundary is composed over them again, and the existing mountpoint
+is adopted rather than created a second time.
+
+Immediately before the engine is called — on a first run and on a restart
+alike — the boundary is re-proved against what is on disk. These refuse there,
+with nothing started:
+
+- a nominated source that has become a symbolic link, acquired a linked
+  ancestor, stopped being a directory, or vanished;
+- a nominated source **replaced** since it was proved: the path resolves to
+  the same characters and a different inode, which is what the pinned identity
+  is for;
+- a workspace that moved, was replaced by a link, or is no longer a directory
+  of its own;
+- a workspace **replaced** since it was proved, including by another real
+  directory at the same pathname: like the source, it carries the device and
+  inode this manager observed when it allocated it, and a runtime started over
+  a replacement would write its answer into material the manager never took
+  custody of;
+- a source mountpoint replaced by a link or by anything the manager did not
+  establish;
+- a foreign workspace root — including a home whose entry is a link to another
+  attempt's workspace, which is still inside manager storage and is still not
+  this attempt's.
+
+Both roots are proved once more after adoption, immediately before the runtime
+binds are derived, which is the last boundary this manager owns. The engine
+then resolves each bind source pathname itself, and **that final interval is
+not closed**: it is an accepted residual on a trusted host, ruled deliberately
+rather than overlooked. Closing it would mean handing the engine an object
+rather than a pathname, which needs a daemon that can reach this manager's own
+namespace and would make the recorded mount source meaningless after the
+manager exits — so the restart comparison below would have to change with it.
+
+What that means for an operator: the deployment's trust boundary includes
+whoever can write the parent directories of `nominated_source` and
+`workspace_storage` between the manager's last proof and the engine's start.
+
+What a restart deliberately does **not** claim: that the material behind the
+nominated path is the material an earlier incarnation saw. The manager holds
+no content identity for it, because it is ruled not to take one. A worker that
+needs to know which revision it received verifies that itself, inside the
+container, over the tree that is really mounted.
+
+### Cleanup never removes what the manager did not create
+
+A mountpoint is not a symbolic link, so a removal walk with `followlinks=False`
+would descend straight through a live one. Cleanup therefore refuses any
+directory on a different filesystem than the tree it is removing, before an
+entry inside it is touched. In the ordinary arc this never fires — the bind
+lives in the container's own mount namespace and the host-side directory stays
+empty — and it is there for the case that is not ordinary.
 
 ## Provisioning the workspace group
 

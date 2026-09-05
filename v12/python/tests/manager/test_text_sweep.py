@@ -342,6 +342,15 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
             "observe_activity": (
                 (store,), dict(attempt_id="attempt-1", bytes_observed=0),
                 ["attempt_id"]),
+            # W71917: the boundary's two object identities, and their read.
+            # The attempt id is the only TEXT either takes -- a device and an
+            # inode are whole numbers this manager read from the filesystem,
+            # and are proved on their own where they are validated.
+            "pin_boundary_identity": (
+                (store,), dict(attempt_id="attempt-1", source=(0, 0),
+                               workspace=(0, 1)),
+                ["attempt_id"]),
+            "boundary_identity_of": ((store, "attempt-1"), {}, [1]),
             "label_context": ((store, "attempt-1"), {}, [1]),
             "request_freeze": (
                 (store, port, _NoAdapter()),

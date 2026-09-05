@@ -76,8 +76,22 @@ RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_VERSION}" \
 # toolchain, no package manager state, no network client -- cannot hold here:
 # a provider-backed worker IS a network client, and that is the whole point of
 # the milestone. What is kept from the rule is that nothing else is added.
+#
+# W71917 ADDS `git`, AND IT IS NOT AN EXCEPTION TO THAT RULE BUT AN INSTANCE
+# OF IT. The Git source profile's plan is `git clone`, `git checkout --detach`
+# and `git rev-parse`, run BY THIS WORKER inside this container -- that is the
+# whole point of the profile living outside the manager, which stays
+# Git-agnostic and runs none of them. An image that carried the profile package
+# and not the program it names would compose a plan it cannot execute, which is
+# the run7 defect one layer down: a capability that exists everywhere except
+# where it runs. Measured rather than assumed -- the image was built and
+# `command -v git` answered nothing.
+#
+# It is a version-control client and not a network one for the traffic that
+# matters here: the clone's source is the read-only bind mount, and the
+# container's ordinary launch has no route to a remote.
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y ca-certificates python3 \
+    && apt-get install --no-install-recommends -y ca-certificates git python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # THE WORKER, UNMODIFIED, AND ITS FROZEN CONTRACT AS DATA.
@@ -91,10 +105,34 @@ RUN apt-get update \
 # NOTHING FROM `baton_v12` IS COPIED IN, exactly as in the reference image: a
 # worker that could import the manager is a worker one bug away from holding
 # the manager's capabilities.
-COPY baton_worker.py /opt/baton/baton_worker.py
-COPY claude_agent.py /opt/baton/claude_agent.py
-COPY dogfood_entry.py /opt/baton/dogfood_entry.py
-COPY worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+# W71917: THE BUILD CONTEXT IS `v12`, NOT `v12/worker`, and every path below
+# is spelled from there. The image needs material from two sibling directories
+# now -- this one and the distribution's profile package -- and a context
+# cannot reach above itself. The reference `Dockerfile` keeps the narrower
+# `v12/worker` context on purpose: it ships no profile package and widening it
+# would grant a reach it has no use for.
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/claude_agent.py /opt/baton/claude_agent.py
+COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
+COPY worker/worker-control-1.0.schema.json \
+     /opt/baton/worker-control-1.0.schema.json
+
+# W71917: THE SOURCE PROFILES TRAVEL, AND THE RULE ABOVE IS KEPT INTACT.
+#
+# The paragraph above says nothing from `baton_v12` is copied in, because a
+# worker that could import the manager is a worker one bug away from holding
+# the manager's capabilities. That rule is about the MANAGER, and this package
+# is not it: `baton_v12.source_profiles` imports nothing from `baton_v12`, and
+# `baton_v12.worker_manager` imports nothing from it -- a separation
+# `tests/manager/test_source_boundary` holds in both directions rather than
+# leaving to a docstring.
+#
+# So it is copied to a TOP-LEVEL name and no `baton_v12` package directory is
+# created here. The image still has no way to spell `baton_v12.worker_manager`,
+# which is the property that paragraph is protecting; what it gains is the
+# vocabulary for turning its read-only mount into a checkout, which is the
+# worker's own half of the boundary and has always been meant to run here.
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
 
 # `scripted_agent.py` DELIBERATELY DOES NOT TRAVEL, and the reason is history
 # worth keeping rather than an absence nobody has to explain.

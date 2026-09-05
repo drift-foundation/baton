@@ -50,6 +50,7 @@ __all__ = ["TRANSITIONS", "AXES", "CONTEXT_COLUMNS",
            "start_failure_operation_id", "record_attempt",
            "observe", "activate_assignment", "label_context",
            "attempt_activity_of", "observe_activity",
+           "pin_boundary_identity", "boundary_identity_of",
            "request_runtime_start",
            "reconcile_runtime", "request_cancellation",
            "finalize_quiescent_assignment"]
@@ -489,6 +490,151 @@ def observe_activity(store, *, attempt_id, bytes_observed):
         raise
     connection.execute(f"RELEASE {mark}")
     return attempt_activity_of(store, attempt_id)
+
+
+def pin_boundary_identity(store, *, attempt_id, source, workspace):
+    """Record the OBJECTS this attempt's two boundary roots were.
+
+    W71917. The devices and inodes this manager itself observed when it
+    nominated the source and allocated the workspace. Within one incarnation
+    the composed boundary holds them in memory and the adoption gate compares
+    against them; this is what makes the same comparison possible after a
+    RESTART, when the boundary is recomposed from configuration and there
+    would otherwise be nothing to compare against. A directory unlinked and
+    recreated at the same path resolves to the same characters and a different
+    inode, and a manager that forgot the first one would start a runtime over
+    material nobody nominated.
+
+    BOTH ROOTS, IN ONE ACT, and W71917's third review is why. This recorded
+    only the source, so a real directory put at the WORKSPACE's pathname was
+    adopted with nothing to compare it against -- and that is the writable
+    half, the one an assignment's answer is collected out of. The boundary
+    proves the two together because the properties that matter are relations
+    between them; recording them apart would allow a row that had proved one.
+
+    NOT A CONTENT IDENTITY, and the finding pins the distinction. This is a
+    fact about which OBJECT a path named, already looked at by the nomination
+    that admitted it; it costs no walk, no read, no hash and no enumeration,
+    and what is inside the tree remains something this manager never measures.
+
+    WRITE-ONCE, AND AN EXACT REPEAT IS NOT A WRITE. The identity of an
+    attempt's roots is fixed when that attempt's boundary is composed -- every
+    later incarnation composes over the SAME attempt roots, so it re-observes
+    the same objects or it is looking at a replacement, and a replacement must
+    refuse rather than overwrite the evidence that would have caught it.
+
+    AND WRITE-ONCE IS DECIDED UNDER THE WRITE LOCK, which W71917's fourth
+    review found it was not. `ControlStore` opens SQLite with
+    `isolation_level=None`, so a read followed by an unconditional `UPDATE` is
+    TWO autocommit transactions with a window between them: the reviewer drove
+    two real store connections through the absence read before either wrote,
+    and both were told they had pinned while the second silently replaced the
+    first. That is the exact concurrency this evidence exists for -- two
+    incarnations composing on opposite sides of a directory replacement -- so
+    the mechanism was false precisely where it mattered.
+
+    The lock decides now, exactly as it does for a journalled act and for
+    `manifests.retain_manifest`: `BEGIN IMMEDIATE` before the read, the
+    replay/collision decision inside it, and the `UPDATE` carrying its own
+    all-four-columns-still-NULL predicate. The predicate is not redundant with
+    the lock. It is what makes the write REFUSE rather than clobber if the row
+    were ever reached by a path that did not hold this transaction, and a
+    `rowcount` other than one is that fault arriving as a refusal instead of
+    as a silent overwrite.
+    """
+    _require_attempt(store, attempt_id)
+    taken = {}
+    for name, pair in (("source", source), ("workspace", workspace)):
+        try:
+            device, inode = pair
+        except (TypeError, ValueError):
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"a {name} object identity is the `(device, inode)` pair this "
+                f"manager read from the filesystem; this is "
+                f"{name_value(pair)}") from None
+        for value, what in ((device, f"a {name} device number"),
+                            (inode, f"a {name} inode number")):
+            if type(value) is not int or type(value) is bool or value < 0:
+                raise ContractRefusal(
+                    "integrity", "schema",
+                    f"{what} is a whole number this manager read from the "
+                    f"filesystem; this is {name_value(value)}")
+        taken[name] = (device, inode)
+    minted = (taken["source"], taken["workspace"])
+    connection = store._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        held = boundary_identity_of(store, attempt_id)
+        if held is None:
+            written = connection.execute(
+                "UPDATE attempts SET source_device = ?, source_inode = ?, "
+                "workspace_device = ?, workspace_inode = ? "
+                "WHERE runtime_attempt_id = ? "
+                "AND source_device IS NULL AND source_inode IS NULL "
+                "AND workspace_device IS NULL AND workspace_inode IS NULL",
+                (minted[0][0], minted[0][1], minted[1][0], minted[1][1],
+                 attempt_id)).rowcount
+            if written != 1:
+                raise ContractRefusal(
+                    "integrity", "conflict",
+                    f"attempt {name_value(attempt_id)} read no pinned "
+                    f"boundary identity and then matched no unpinned row to "
+                    f"write; the row was pinned by a writer this transaction "
+                    f"does not see, and a pin that cannot prove it was the "
+                    f"first refuses rather than replacing durable custody "
+                    f"evidence")
+    except BaseException:
+        _rollback(connection)
+        raise
+    if held is not None:
+        # NOTHING WAS WRITTEN, so this ends the transaction rather than
+        # committing one. The decision was still made inside it, which is the
+        # point: a collision observed outside the lock is a collision another
+        # writer can resolve differently a microsecond later.
+        _rollback(connection)
+        if held == minted:
+            return held
+        raise ContractRefusal(
+            "refused", "operation-collision",
+            f"attempt {name_value(attempt_id)} already pinned its boundary as "
+            f"source device {held[0][0]} inode {held[0][1]} and workspace "
+            f"device {held[1][0]} inode {held[1][1]}, and this reports source "
+            f"device {minted[0][0]} inode {minted[0][1]} and workspace device "
+            f"{minted[1][0]} inode {minted[1][1]}; a root that became another "
+            f"object is refused rather than re-pinned, because re-pinning it "
+            f"would erase the evidence that catches the replacement")
+    connection.execute("COMMIT")
+    return minted
+
+
+def _rollback(connection):
+    """End the transaction, and never turn a refusal into a fault.
+
+    `manifests.retain_manifest`'s handler, at its second site. A rollback that
+    raises would replace the refusal the caller needs to see with an error
+    about the transaction that was being unwound to deliver it.
+    """
+    try:
+        connection.execute("ROLLBACK")
+    except Exception:
+        pass
+
+
+def boundary_identity_of(store, attempt_id):
+    """The pinned source and workspace `(device, inode)` pairs, or `None`.
+
+    ABSENCE IS AN ANSWER and it is the ordinary one before a boundary has been
+    composed. It is NOT a licence to skip the comparison afterwards: the
+    caller that composes the boundary pins immediately, so a later incarnation
+    reading `None` for an attempt that already has roots is a store that lost
+    something rather than an attempt that never had it.
+    """
+    found = _require_attempt(store, attempt_id)
+    if found["source_device"] is None or found["source_inode"] is None:
+        return None
+    return ((found["source_device"], found["source_inode"]),
+            (found["workspace_device"], found["workspace_inode"]))
 
 
 def _require_attempt(store, attempt_id):

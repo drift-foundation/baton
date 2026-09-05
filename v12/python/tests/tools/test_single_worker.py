@@ -8,11 +8,33 @@ engine boundary replaced with a recording process capability.
 import copy
 import json
 import os
+import pathlib
+import shutil
 import stat
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest import mock
+
+# THE IMAGE'S OWN MODULES, ON THIS SUITE'S OWN PATH.
+#
+# W71917: this suite drives the real `baton_worker` at `serve_exchange` in two
+# of its classes, and it did so RELYING ON A SIDE EFFECT -- `test_claude_agent`
+# inserts the worker directory at module scope, and a single-process discovery
+# run happens to import that module first. That is invisible to the canonical
+# discovery gate and false under the parallel runner, whose shards are one
+# TestCase class in a fresh interpreter: fifteen cases here errored with
+# `ModuleNotFoundError: No module named 'baton_worker'` the first time the
+# corrected gate could run at all.
+#
+# The dependency belongs to whoever imports it, so it is declared here in the
+# same shape the three sibling suites already use. It is not W71917's defect;
+# it is W81857's `worked()` helper reaching the image's module, and this Work
+# is simply the first thing that made the sharded gate runnable.
+WORKER = (pathlib.Path(__file__).resolve().parents[3] / "worker")
+if str(WORKER) not in sys.path:
+    sys.path.insert(0, str(WORKER))
 
 from baton_v12.authority import Authority
 from baton_v12.contracts import (ContractRefusal, digest, digest_of_bytes,
@@ -26,7 +48,8 @@ from baton_v12.worker_manager import (ControlStore,
                                       certify_profile, claimed_offers_for)
 from baton_v12.worker_manager import documents as worker_documents
 
-from tests.manager import input_roots
+from baton_v12.worker_manager import source_boundary
+from tests.manager import disk_roots, input_roots
 from tests.job_manager import fixtures
 from tools import single_worker
 from tools.user_credentials import SourceRefusal
@@ -89,10 +112,12 @@ class Engine:
 
 class SingleWorkerCase(unittest.TestCase):
     def setUp(self):
-        self._temporary = tempfile.TemporaryDirectory(
-            prefix="v12-single-worker-")
-        self.addCleanup(self._temporary.cleanup)
-        self.root = self._temporary.name
+        # W71917: A DISK-BACKED ROOT, because the boundary this composition
+        # now crosses refuses a workspace on a memory filesystem. On a host
+        # whose `/tmp` is a tmpfs, `TemporaryDirectory` answered a directory
+        # `compose_source_boundary` correctly declines, so every case here
+        # would have proved the refusal instead of the delivery.
+        self.root = disk_roots.disk_backed_under(self)
         self.authority_path = os.path.join(self.root, "authority.sqlite3")
         self.job_path = os.path.join(self.root, "jobs.sqlite3")
         self.control_path = os.path.join(self.root, "control.sqlite3")
@@ -130,10 +155,16 @@ class SingleWorkerCase(unittest.TestCase):
         # manifest's human-contract artifact, and the source lands at the one
         # destination the workload stages.
         self.task_document = os.path.join(self.root, "task.json")
+        # W71917 bumped the workload contract to `/2` and added the profile
+        # and its declared base. This deployment's fixture nominates an
+        # ordinary directory, so the profile is `generic` and no base is
+        # declared -- a generic profile carrying one is refused by the profile
+        # package itself.
         self.task_bytes = json.dumps(
-            {"schema": "baton.dogfood-task/1", "task_id": "w81115-bootstrap",
+            {"schema": "baton.dogfood-task/2", "task_id": "w81115-bootstrap",
              "instructions": "write one bounded proposal",
              "source_root": "source",
+             "source_profile": "generic", "declared_base": None,
              "verification": ["python3", "-c", "raise SystemExit(0)"]},
             sort_keys=True).encode("utf-8")
         with open(self.task_document, "wb") as writing:
@@ -147,8 +178,25 @@ class SingleWorkerCase(unittest.TestCase):
             "bytes": len(self.task_bytes),
             "content_digest": digest_of_bytes(self.task_bytes),
             "locator": "artifact://contracts/w81115-task-1"}
-        self.manifest["sources"][0]["content_manifest"] = (
-            single_worker.workspaces.directory_manifest(self.source))
+        # W71917: THE EMPTY MOUNTPOINT'S MANIFEST, NOT THE SOURCE'S.
+        #
+        # This used to call `directory_manifest(self.source)` -- the full
+        # no-follow walk of the nominated tree that the ordinary copied
+        # bootstrap performed and this Work retires. What the deployment now
+        # stages at that destination is an empty directory for the read-only
+        # bind to land on, so the empty tree is what the frozen manifest
+        # declares, and `_source_manifest` holds a configuration to exactly
+        # that.
+        self.manifest["sources"][0]["content_manifest"] = {
+            "entries": [], "entry_count": 0, "total_bytes": 0,
+            "tree_digest": single_worker.EMPTY_TREE_DIGEST}
+        # AND THE DESCRIPTOR DECLARES THE BOUNDARY. A source descriptor with
+        # no declaration is a STAGED source whose content the manager measured;
+        # mounting over one would deliver material its manifest does not
+        # describe, and `declared_profile` refuses it.
+        self.source_profile = "generic"
+        self.manifest["sources"][0]["consumption"] = (
+            source_boundary.source_consumption(self.source_profile))
         self.manifest.pop("manifest_digest")
         self.manifest["manifest_digest"] = digest(self.manifest)
         self.config = {
@@ -174,7 +222,17 @@ class SingleWorkerCase(unittest.TestCase):
             "credential_profile": {
                 "api": {"provider": "fixture",
                         "reference": "fixture/one"}},
-            "input_source": self.source,
+            "nominated_source": self.source,
+            # W71917: EXPLICIT, AND ABOVE THE BOUNDED SCRATCH. The floor is
+            # `source_boundary.MIN_WORKSPACE_BYTES` -- the whole of the
+            # runtime's private `/tmp` and `/dev/shm` -- because a workspace
+            # that would have fitted in scratch establishes nothing about the
+            # five uses that must not rely on it. ONE MEMBER: the entry count
+            # that stood beside it reached no mount and no runtime, and the
+            # ruling is that this document may not declare what nothing
+            # applies.
+            "workspace_capacity": {
+                "max_bytes": source_boundary.MIN_WORKSPACE_BYTES + 1},
             "input_manifest": self.manifest,
             "task_document": self.task_document,
             "launch_contract": "v12-assignment-1",
@@ -371,6 +429,20 @@ class TheProductionCompositionIsRestartSafe(SingleWorkerCase):
     def test_restart_after_workspace_allocation(self):
         self.crash_and_restart("workspace")
 
+    # W71917: THE TWO NEW BOUNDARIES A CRASH CAN LAND BETWEEN. `boundary` is
+    # after the source is proved and the empty mountpoint established and
+    # before the input root is frozen; `adopted-boundary` is after the
+    # pre-start re-proof and before the engine is called. A restart from
+    # either has to adopt the SAME manager-owned workspace and the same
+    # mountpoint rather than allocate a second one, which is what
+    # `crash_and_restart` asserts by requiring exactly one start and one
+    # claimed offer.
+    def test_restart_after_the_source_boundary_is_composed(self):
+        self.crash_and_restart("boundary")
+
+    def test_restart_after_the_boundary_is_adopted_for_the_start(self):
+        self.crash_and_restart("adopted-boundary")
+
     def test_restart_after_input_composition(self):
         self.crash_and_restart("input")
 
@@ -541,12 +613,18 @@ class TheConfigurationBoundaryIsClosed(SingleWorkerCase):
         There is no fallback on purpose: a `/1` document names no task, and a
         deployment that started anyway would start the certified worker over a
         root it refuses before it does any provider work.
+
+        W71917 MOVED THIS TO `/4` AND THE RULE IS UNCHANGED, which is why the
+        case is amended rather than replaced. `/4` renames the source member
+        and adds the workspace quota; a `/2` document is still refused by
+        equality, and what the message must name is the version this build
+        actually reads.
         """
         carrying = dict(self.config,
                         schema="baton.v12.single-worker-deployment/2")
         held = self.refused(carrying, "superseded-schema")
         self.assertEqual(held.code, "schema")
-        self.assertIn("single-worker-deployment/3", held.message)
+        self.assertIn("single-worker-deployment/4", held.message)
 
     def test_a_configuration_without_a_task_document_is_refused(self):
         carrying = dict(self.config)
@@ -653,18 +731,102 @@ class TheConfigurationBoundaryIsClosed(SingleWorkerCase):
                                           self.secret)
         self.assertEqual(caught.exception.code, "schema")
 
-    def test_the_source_identity_is_proved_before_authority_is_opened(self):
+    def test_a_changed_nominated_source_is_not_a_configuration_refusal(self):
+        """W71917 REPLACED THE CHECK THAT STOOD HERE, and the replacement is
+        the Work rather than a dropped obligation.
+
+        `/3` measured `input_source` with `workspaces.directory_manifest` and
+        compared it against the manifest's declared content -- a full
+        no-follow walk that opened, read and digested every file in the
+        nominated tree, performed by a manager ruled not to walk, copy,
+        snapshot, enumerate or hash it. This proves the walk is gone: the
+        content changes and the deployment is constructed, because the content
+        was never this manager's to have an opinion about.
+
+        WHAT IS NOT WEAKENED is proved by the case below it. The declaration
+        the deployment CAN keep -- that it stages an empty mountpoint at that
+        destination -- is still held, and still with the `digest` code the
+        retired comparison used, so a manifest describing measured material at
+        a nominated destination is refused before an offer exists.
+        """
         with open(os.path.join(self.source, "worker-task.txt"), "a",
                   encoding="utf-8") as writing:
             writing.write("changed\n")
         job, control = self.stores("changed-source")
+        operations = single_worker.operations_from(
+            self.config, job, control, engine_run=Engine(),
+            credential_provider=lambda *_: self.secret)
+        self.assertEqual(claimed_offers_for(control, "no-attempt"), [])
+        operations.close()
+
+    def test_a_manifest_claiming_measured_content_is_refused(self):
+        sources = copy.deepcopy(self.manifest["sources"])
+        sources[0]["content_manifest"] = (
+            single_worker.workspaces.directory_manifest(self.source))
+        held = self.refused(self.resealed(sources=sources), "measured-source")
+        self.assertEqual((held.category, held.code), ("integrity", "digest"))
+
+    def test_a_source_that_does_not_declare_the_boundary_is_refused(self):
+        """A staged descriptor is not a nominated one, and mounting over it
+        would deliver material the manifest does not describe."""
+        sources = copy.deepcopy(self.manifest["sources"])
+        sources[0]["consumption"] = {"baton.directory/1": {"layout": "flat"}}
+        held = self.refused(self.resealed(sources=sources), "undeclared")
+        self.assertEqual((held.category, held.code), ("integrity", "schema"))
+
+    def test_a_nominated_source_that_is_a_link_is_refused(self):
+        """A link at the nominated name is a source somebody else chose, and
+        it is refused before the Authority is opened."""
+        linked = os.path.join(self.root, "linked-source")
+        os.symlink(self.source, linked)
+        job, control = self.stores("linked-source")
         with self.assertRaises(ContractRefusal) as caught:
-            single_worker.operations_from(self.config, job, control,
+            single_worker.operations_from(dict(self.config,
+                                               nominated_source=linked),
+                                          job, control, engine_run=Engine(),
+                                          credential_provider=lambda *_:
+                                          self.secret)
+        self.assertEqual(caught.exception.code, "path")
+        self.assertEqual(claimed_offers_for(control, "no-attempt"), [])
+
+    def test_a_workspace_capacity_inside_the_scratch_bound_is_refused(self):
+        """The deterministic form of "the ruled uses must not rely on tmpfs".
+
+        A workspace declared no larger than the private scratch beside it is
+        one whose whole contents would have fitted in memory, so nothing about
+        the delivery would distinguish a disk-backed checkout from one that
+        happened to live in `/tmp`.
+        """
+        job, control = self.stores("small-capacity")
+        carrying = dict(self.config, workspace_capacity={
+            "max_bytes": source_boundary.MIN_WORKSPACE_BYTES})
+        with self.assertRaises(ContractRefusal) as caught:
+            single_worker.operations_from(carrying, job, control,
                                           engine_run=Engine(),
                                           credential_provider=lambda *_:
                                           self.secret)
-        self.assertEqual(caught.exception.code, "digest")
-        self.assertEqual(claimed_offers_for(control, "no-attempt"), [])
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("policy", "denied"))
+
+    def test_a_workspace_capacity_declaring_an_entry_ceiling_is_refused(self):
+        """The closed member set is what makes the removal a refusal.
+
+        W71917's approved ruling removes `max_entries` because it reached no
+        mount, no runtime and no sweep. A deployment that still declares it is
+        answering a question this delivery never asks, and a document read
+        with an ignored member would let it believe an entry ceiling applies.
+        """
+        job, control = self.stores("entry-ceiling")
+        carrying = dict(self.config, workspace_capacity={
+            "max_bytes": source_boundary.MIN_WORKSPACE_BYTES + 1,
+            "max_entries": 2000})
+        with self.assertRaises(ContractRefusal) as caught:
+            single_worker.operations_from(carrying, job, control,
+                                          engine_run=Engine(),
+                                          credential_provider=lambda *_:
+                                          self.secret)
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertIn("max_entries", caught.exception.message)
 
 
 class TheWorkloadDocumentIsDeliveredWithTheProtocolPair(SingleWorkerCase):
@@ -1073,6 +1235,30 @@ class TheCertifiedWorkerReachesTheDeliveredTask(SingleWorkerCase):
         from claude_agent import ClaudeAgent
 
         inputs = self.composed_root()
+        # W71917: THE CONTAINER'S VIEW OF THE BIND, staged here because this
+        # process has no mount namespace.
+        #
+        # The manager composes `inputs/source` as an EMPTY mountpoint on
+        # purpose -- nothing is walked, copied or hashed -- and the runtime
+        # binds the nominated directory over it. Inside the container the
+        # worker sees the nominated tree at that path, so what is modelled
+        # here is that view and not the host's. Copying the nominated source's
+        # own bytes in is the closest this suite can get without the privilege
+        # to mount, and it is the read-only side of the transition under test;
+        # the WRITABLE side -- the checkout and candidate landing in the
+        # workspace rather than on the tmpfs -- is real and is asserted below.
+        mountpoint = os.path.join(inputs, single_worker.SOURCE_DESTINATION)
+        self.assertEqual(os.listdir(mountpoint), [],
+                         "the manager staged material into the mountpoint")
+        os.chmod(inputs, 0o700)
+        os.chmod(mountpoint, 0o700)
+        for base, _directories, files in os.walk(self.source):
+            for name in files:
+                full = os.path.join(base, name)
+                landing = os.path.join(
+                    mountpoint, os.path.relpath(full, self.source))
+                os.makedirs(os.path.dirname(landing), exist_ok=True)
+                shutil.copyfile(full, landing)
         # THE WORKLOAD'S OWN CONSTANTS, held against this deployment's copies.
         # The image cannot import this package and this package cannot import
         # the image, so the two fixed names exist twice; this is where they
@@ -1123,6 +1309,24 @@ class TheCertifiedWorkerReachesTheDeliveredTask(SingleWorkerCase):
         self.assertTrue(
             any(held["instructions"] in one for one in spoke[0]),
             "the provider was not given the delivered task's instructions")
+        # W71917: AND THE WORK HAPPENED IN THE WORKSPACE, not on the tmpfs.
+        #
+        # This is the transition the run7 candidate composed plans for and
+        # never performed. The editable copy is under the writable workspace
+        # bind, it is NOT under the private scratch, and the read-only mount
+        # still holds exactly what it held before the turn.
+        candidate = os.path.join(outputs, claude_agent.CANDIDATE_NAME)
+        self.assertTrue(os.path.isdir(candidate),
+                        f"no candidate in the workspace: {os.listdir(outputs)}")
+        self.assertFalse(os.path.exists(os.path.join(
+            scratch, claude_agent.CANDIDATE_NAME)),
+            "the editable copy is still being made on the tmpfs")
+        self.assertEqual(
+            sorted(os.listdir(candidate)), sorted(os.listdir(mountpoint)),
+            "the workspace copy is not the mounted source's content")
+        self.assertEqual(sorted(os.listdir(mountpoint)),
+                         sorted(os.listdir(self.source)),
+                         "the turn modified the read-only source")
 
 
 class PreparationCase(SingleWorkerCase):
@@ -1265,10 +1469,23 @@ class APreparationFailureEndsInTheOwnersJournal(PreparationCase):
         with open(os.path.join(inputs, "half-copied.txt"), "w",
                   encoding="utf-8") as writing:
             writing.write("material with no protocol pair\n")
+        # W71917: THE BRANCH NOW NEEDS A COMPOSED BOUNDARY, because "partial"
+        # is no longer "not empty" -- the empty mountpoint is the ordinary
+        # pre-composition state. The roots and the boundary are obtained the
+        # way production obtains them, so what this drives is still the branch
+        # rather than a spelling: `half-copied.txt` is an entry that is NOT the
+        # mountpoint, which is exactly what the rule refuses.
+        worker = operations._worker
+        roots = single_worker.workspaces.assignment_workspace(
+            worker.group, self.storage, stage["attempt_id"])
+        boundary = source_boundary.compose_source_boundary(
+            worker.given["source_nomination"], roots,
+            worker.given["workspace_capacity"])
         with self.assertRaises(ContractRefusal) as caught:
-            operations._worker._input(
-                {"inputs": inputs},
-                {"assignment_ref": {}, "runtime_attempt_id": "unused"})
+            worker._input(
+                roots,
+                {"assignment_ref": {}, "runtime_attempt_id": "unused"},
+                boundary)
         self.assertEqual((caught.exception.category, caught.exception.code),
                          ("integrity", "path"))
         operations.close()
@@ -2606,9 +2823,19 @@ class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
         # the environment exactly as the documented command does. Written
         # OUTSIDE the tree this case digests, so staging it is not itself the
         # change being measured.
-        place = os.path.join(self._temporary.name, "..", "observe-config.json")
-        place = os.path.abspath(place)
-        self.addCleanup(lambda: os.path.exists(place) and os.unlink(place))
+        #
+        # W71917: A SECOND DISK-BACKED DIRECTORY, named rather than derived.
+        # This used to reach the parent of a `TemporaryDirectory` this case no
+        # longer owns; the root it digests is now allocated by
+        # `disk_roots.disk_backed_under`, and pointing at ITS parent would
+        # write into whichever shared directory that helper chose. A separate
+        # allocation is outside the digested root by construction and goes
+        # away with the case.
+        place = os.path.join(disk_roots.disk_backed_under(self),
+                             "observe-config.json")
+        self.assertFalse(os.path.abspath(place).startswith(
+            os.path.abspath(self.root) + os.sep),
+            "the configuration must be written outside the digested root")
         with open(place, "w", encoding="utf-8") as writing:
             json.dump(self.config, writing)
 

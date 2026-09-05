@@ -518,11 +518,17 @@ class PassingSession:
                 "assignment": dict(operands["expect"])}
 
 
-TASK = {"schema": "baton.dogfood-task/1",
+# W71917 moved the workload contract to `/2` and added the profile and its
+# declared base. This suite's staged trees are ordinary directories read in
+# place, so the profile is `generic` and no base is declared -- a generic
+# profile carrying one is refused by the profile package itself.
+TASK = {"schema": "baton.dogfood-task/2",
         "task_id": "w39364-ping-pong-coverage",
         "instructions": "Add focused unit coverage for _observed_readable.",
         "verification": ["python3", "harness.py"],
-        "source_root": "source"}
+        "source_root": "source",
+        "source_profile": "generic",
+        "declared_base": None}
 
 
 class OperatorCase(unittest.TestCase):
@@ -1544,7 +1550,9 @@ class TheFrozenTaskIsReadOnTheWayIn(OperatorCase):
         self.assertIn("no readable frozen task", str(caught.exception))
 
     def test_a_task_from_another_generation_is_refused(self):
-        self.refuses(dict(TASK, schema="baton.dogfood-task/2"),
+        # W71917 moved the contract to `/2`, so the neighbouring generation
+        # this end must still refuse is `/1`.
+        self.refuses(dict(TASK, schema="baton.dogfood-task/1"),
                      "this deployment stages")
 
     def test_an_extra_member_is_refused(self):
@@ -1796,7 +1804,7 @@ class ThePreflightRunsBeforeAnythingIsStaged(OperatorCase):
 
     def test_a_task_from_another_generation_is_refused_here_too(self):
         self.refuses("this deployment stages",
-                     task=dict(TASK, schema="baton.dogfood-task/2"))
+                     task=dict(TASK, schema="baton.dogfood-task/1"))
 
     def test_a_held_task_cannot_be_mutated_between_its_two_reads(self):
         """`frozen_task` answers an ordinary writable dict. Preflight must
@@ -1914,6 +1922,14 @@ class TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS(unittest.TestCase):
 
     def worker(self):
         import importlib.util
+        import sys
+        # W71917: THE IMAGE'S LAYOUT, REPRODUCED. `claude_agent` imports the
+        # profile package as a TOP-LEVEL name because `Dockerfile.claude`
+        # copies it to `/opt/baton/source_profiles`; loading the module by file
+        # location here has to offer it under that same name.
+        profiles = (pathlib_worker().parent / "python" / "src" / "baton_v12")
+        if str(profiles) not in sys.path:
+            sys.path.insert(0, str(profiles))
         place = (pathlib_worker() / "claude_agent.py")
         spec = importlib.util.spec_from_file_location("claude_agent", place)
         module = importlib.util.module_from_spec(spec)
@@ -1999,6 +2015,95 @@ class TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS(unittest.TestCase):
         # case exists because those were once confused.
         with self.assertRaises(worker.TaskRefusal):
             worker._task(place)
+
+
+    def received(self, worker, document):
+        """The receiver's ACTUAL predicate, over a document on disk.
+
+        The way `_task` is really reached, which is the distinction this whole
+        class exists to keep: a constant compared against a constant is not a
+        predicate asked of a value.
+        """
+        import shutil
+        import tempfile
+
+        home = tempfile.mkdtemp(prefix="v12-w71917-receiver-")
+        self.addCleanup(shutil.rmtree, home, True)
+        place = os.path.join(home, worker.TASK_DOCUMENT)
+        with open(place, "w", encoding="utf-8") as handle:
+            json.dump(document, handle)
+        return place
+
+    def test_both_ends_refuse_the_new_members_malformed(self):
+        """W71917 second review [P1]: `/2` added two members to the closed set
+        and nothing asked about their VALUES.
+
+        The member tuple and the schema matched at both ends -- which is what
+        the constants cases above compare -- while the operator returned
+        `source_profile=7, declared_base=[]` unchanged and the container
+        refused it. That is the refusal this operator's read exists to move
+        earlier, arriving exactly where it was not supposed to.
+
+        Each case is one malformed shape asked of BOTH ends. The receiver is
+        reached through `_task` over a real document, never through a copy of
+        its pattern.
+        """
+        worker = self.worker()
+        for member, value in (("source_profile", 7),
+                              ("source_profile", None),
+                              ("source_profile", "svn"),
+                              ("declared_base", []),
+                              ("declared_base", "ABCDEF" * 6 + "abcd"),
+                              ("declared_base", "abc123")):
+            with self.subTest(member=member, value=value):
+                malformed = dict(TASK, **{member: value})
+                if member == "declared_base":
+                    # A BASE IS A VERSION-CONTROL FACT, so a malformed one is
+                    # only reachable under the profile that consumes it; the
+                    # generic profile refuses any base at all, which is the
+                    # pairing case below.
+                    malformed["source_profile"] = "git"
+                with self.assertRaises(OperatorRefusal):
+                    dogfood_operator.held_task(malformed)
+                with self.assertRaises(worker.TaskRefusal):
+                    worker._task(self.received(worker, malformed))
+
+    def test_both_ends_refuse_a_profile_and_base_that_do_not_pair(self):
+        """The rule neither end spells: it belongs to the profile package.
+
+        A generic profile carrying a base revision is an assignment whose
+        author believed a verification would happen, and a version-control
+        profile without one is a checkout nobody can check. Both ends ask
+        `checkout_plan`, so both refuse, and neither holds a second copy of
+        the rule to drift from.
+        """
+        worker = self.worker()
+        for profile, declared in (("generic", "a" * 40), ("git", None)):
+            with self.subTest(profile=profile, declared=declared):
+                unpaired = dict(TASK, source_profile=profile,
+                                declared_base=declared)
+                with self.assertRaises(OperatorRefusal):
+                    dogfood_operator.held_task(unpaired)
+                # THE RECEIVER REFUSES IT AT THE CHECKOUT, which is where the
+                # pairing lives; `_task` admits the shapes and `checkout_plan`
+                # decides the pair, so this asks the package the receiver asks.
+                with self.assertRaises(worker._profiles.ProfileRefusal):
+                    worker._profiles.checkout_plan(
+                        "/input/source", "/output", profile=profile,
+                        declared=declared)
+
+    def test_both_ends_accept_the_same_well_formed_pairs(self):
+        """The negative cases above prove nothing on their own if everything
+        is refused."""
+        worker = self.worker()
+        for profile, declared in (("generic", None), ("git", "b" * 40),
+                                  ("git", "c" * 64)):
+            with self.subTest(profile=profile, declared=declared):
+                paired = dict(TASK, source_profile=profile,
+                              declared_base=declared)
+                self.assertEqual(dogfood_operator.held_task(paired), paired)
+                self.assertEqual(
+                    worker._task(self.received(worker, paired)), paired)
 
 
 def pathlib_worker():
