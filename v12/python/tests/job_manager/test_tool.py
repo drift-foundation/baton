@@ -32,10 +32,12 @@ from baton_v12.job_manager import TICK_SECONDS, serve, submit   # noqa: E402
 from tools.job_manager import main                              # noqa: E402
 
 if __package__:
-    from .fixtures import (LATER, NOW, FakeOperations, JobManagerCase, job,
+    from .fixtures import (LATER, NOW, UUID, FakeOperations, JobManagerCase,
+                           job,
                            submission)
 else:
-    from fixtures import (LATER, NOW, FakeOperations, JobManagerCase, job,
+    from fixtures import (LATER, NOW, UUID, FakeOperations, JobManagerCase,
+                          job,
                           submission)
 
 
@@ -58,6 +60,7 @@ class Submitting(ToolCase):
 
     def test_submitting_a_document_records_the_pipeline(self):
         answer = self.run_tool("--store", self.job_path,
+                               "--authority-uuid", UUID,
                                "--incarnation", "jobs-1",
                                "submit", "--document", self.document())
         self.assertEqual(answer["submission_id"], "sub-1")
@@ -67,10 +70,12 @@ class Submitting(ToolCase):
 
     def test_resubmitting_through_the_tool_replays(self):
         first = self.run_tool("--store", self.job_path,
+                              "--authority-uuid", UUID,
                               "--incarnation", "jobs-1",
                               "submit", "--document", self.document())
         self.instants.append(LATER)
         second = self.run_tool("--store", self.job_path,
+                               "--authority-uuid", UUID,
                                "--incarnation", "jobs-2",
                                "submit", "--document", self.document())
         self.assertEqual(first, second)
@@ -78,7 +83,8 @@ class Submitting(ToolCase):
     def test_an_invalid_document_refuses_rather_than_recording_half(self):
         path = self.document(submission(jobs=[job(terminal_policy="auto")]))
         with self.assertRaises(ContractRefusal):
-            self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+            self.run_tool("--store", self.job_path, "--authority-uuid", UUID,
+                          "--incarnation", "jobs-1",
                           "submit", "--document", path)
 
     def test_a_store_path_is_required_rather_than_defaulted(self):
@@ -146,9 +152,11 @@ def refusing(job_store, control_store):
 class Reading(ToolCase):
 
     def test_status_without_a_control_store_reports_nobody_looked(self):
-        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+        self.run_tool("--store", self.job_path, "--authority-uuid", UUID,
+                      "--incarnation", "jobs-1",
                       "submit", "--document", self.document())
         answer = self.run_tool("--store", self.job_path,
+                               "--authority-uuid", UUID,
                                "--incarnation", "jobs-1", "status")
         self.assertFalse(answer["canonical"])
         self.assertEqual(answer["schema"], "baton.v12.job-status/3")
@@ -157,9 +165,11 @@ class Reading(ToolCase):
 
     def test_status_with_a_control_store_observes_it(self):
         self.control().close()
-        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+        self.run_tool("--store", self.job_path, "--authority-uuid", UUID,
+                      "--incarnation", "jobs-1",
                       "submit", "--document", self.document())
         answer = self.run_tool("--store", self.job_path,
+                               "--authority-uuid", UUID,
                                "--incarnation", "jobs-1", "status",
                                "--control", self.control_path)
         self.assertTrue(answer["canonical"])
@@ -177,9 +187,11 @@ class Reading(ToolCase):
         answered before.
         """
         self.control().close()
-        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+        self.run_tool("--store", self.job_path, "--authority-uuid", UUID,
+                      "--incarnation", "jobs-1",
                       "submit", "--document", self.document())
         answer = self.run_tool("--store", self.job_path,
+                               "--authority-uuid", UUID,
                                "--incarnation", "jobs-1", "status",
                                "--control", self.control_path)
         for job in answer["jobs"]:
@@ -198,10 +210,12 @@ class Reading(ToolCase):
         `tests.tools.test_single_worker`, against a real faulted terminal.
         """
         self.control().close()
-        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+        self.run_tool("--store", self.job_path, "--authority-uuid", UUID,
+                      "--incarnation", "jobs-1",
                       "submit", "--document", self.document())
         answer = self.run_tool(
-            "--store", self.job_path, "--incarnation", "jobs-1", "status",
+            "--store", self.job_path, "--authority-uuid", UUID,
+            "--incarnation", "jobs-1", "status",
             "--control", self.control_path,
             "--observe", "tests.job_manager.test_tool:observing")
         self.assertTrue(answer["canonical"])
@@ -245,10 +259,13 @@ class Reading(ToolCase):
 
     def test_an_operand_that_is_not_module_attribute_is_refused(self):
         self.control().close()
-        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+        self.run_tool("--store", self.job_path, "--authority-uuid", UUID,
+                      "--incarnation", "jobs-1",
                       "submit", "--document", self.document())
         with self.assertRaises(SystemExit) as caught:
-            self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+            self.run_tool("--store", self.job_path,
+                          "--authority-uuid", UUID,
+                          "--incarnation", "jobs-1",
                           "status", "--control", self.control_path,
                           "--observe", "not-a-factory")
         self.assertIn("module:attribute", str(caught.exception))
@@ -262,10 +279,12 @@ class Reading(ToolCase):
         document instead of exiting.
         """
         self.control().close()
-        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+        self.run_tool("--store", self.job_path, "--authority-uuid", UUID,
+                      "--incarnation", "jobs-1",
                       "submit", "--document", self.document())
         answer = self.run_tool(
-            "--store", self.job_path, "--incarnation", "jobs-1", "status",
+            "--store", self.job_path, "--authority-uuid", UUID,
+            "--incarnation", "jobs-1", "status",
             "--control", self.control_path,
             "--observe", "tests.job_manager.test_tool:refusing")
         self.assertTrue(answer["canonical"])
@@ -282,13 +301,16 @@ class Reading(ToolCase):
         null`, and no indication the request had not been performed -- which is
         the same shape as the defect this Work exists to correct.
         """
-        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+        self.run_tool("--store", self.job_path, "--authority-uuid", UUID,
+                      "--incarnation", "jobs-1",
                       "submit", "--document", self.document())
         # THE MODULE-LEVEL RECORD IS CLEARED HERE, because it is shared by
         # every case that resolves a factory and this one asserts an ABSENCE.
         _OBSERVING.update(closed=0, asked=[])
         with self.assertRaises(SystemExit) as caught:
-            self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+            self.run_tool("--store", self.job_path,
+                          "--authority-uuid", UUID,
+                          "--incarnation", "jobs-1",
                           "status",
                           "--observe", "tests.job_manager.test_tool:observing")
         self.assertIn("--control", str(caught.exception))
@@ -309,9 +331,11 @@ class Reading(ToolCase):
     def test_the_tool_and_the_package_answer_the_same_document(self):
         from baton_v12.job_manager import Unobserved, status
 
-        self.run_tool("--store", self.job_path, "--incarnation", "jobs-1",
+        self.run_tool("--store", self.job_path, "--authority-uuid", UUID,
+                      "--incarnation", "jobs-1",
                       "submit", "--document", self.document())
         through_tool = self.run_tool("--store", self.job_path,
+                                     "--authority-uuid", UUID,
                                      "--incarnation", "jobs-1", "status")
         store = self.store()
         self.assertEqual(through_tool,
@@ -452,7 +476,8 @@ class TheFactoryHandleIsReleased(ToolCase):
 
     def serve_with(self, attribute):
         return self.run_tool(
-            "--store", self.job_path, "--incarnation", "jobs-1", "serve",
+            "--store", self.job_path, "--authority-uuid", UUID,
+                          "--incarnation", "jobs-1", "serve",
             "--control", self.control_path, "--once",
             # THIS MODULE, BY THE NAME IT IS ACTUALLY RUNNING UNDER. Naming
             # it literally imported a SECOND copy under discovery -- the

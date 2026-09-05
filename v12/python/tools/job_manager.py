@@ -64,8 +64,17 @@ def _utc_clock():
 
 
 def _job_store(taken, clock):
-    return JobStore.open(taken.store, incarnation=taken.incarnation,
-                         clock=clock)
+    """The one place every command opens its Job store.
+
+    W83781: AND THE AUTHORITY BINDING IS THREADED THROUGH IT, for all three
+    commands. It is a stable public identity rather than a capability, so
+    `submit` and read-only `status` still construct no Authority, open no
+    Authority store and hold no session -- they name the Authority their Job
+    store belongs to, and a store that says it belongs to another one refuses
+    without being touched.
+    """
+    return JobStore.open(taken.store, authority_uuid=taken.authority_uuid,
+                         incarnation=taken.incarnation, clock=clock)
 
 
 def _read(path):
@@ -370,6 +379,17 @@ def main(argv, *, clock=None, stream=None):
     parser.add_argument("--incarnation", required=True,
                         help="this process's incarnation, which is what "
                              "restart recovery distinguishes managers by")
+    # W83781: REQUIRED ON EVERY COMMAND, and deliberately not defaulted. Every
+    # episode identity this store ever opens is derived in this Authority's
+    # namespace; a default would be one operator's store deriving identities
+    # in a namespace nobody chose, which is the collision this operand exists
+    # to remove.
+    parser.add_argument("--authority-uuid", required=True,
+                        help="the 32-lowercase-hex Authority this Job store "
+                             "belongs to; it namespaces every episode "
+                             "identity the store derives, is persisted on "
+                             "first open, and a later open naming another one "
+                             "refuses without changing the store")
     commands = parser.add_subparsers(dest="command", required=True)
 
     submitting = commands.add_parser(

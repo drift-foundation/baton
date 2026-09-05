@@ -20,10 +20,10 @@ from baton_v12.job_manager import (episodes_of, job_rows, jobs_of, live_of,
 from baton_v12.job_manager.episodes import identities
 
 if __package__:
-    from .fixtures import (NOW, WORK_A, WORK_B, JobManagerCase, job,
+    from .fixtures import (NOW, UUID, WORK_A, WORK_B, JobManagerCase, job,
                            submission)
 else:
-    from fixtures import (NOW, WORK_A, WORK_B, JobManagerCase, job,
+    from fixtures import (NOW, UUID, WORK_A, WORK_B, JobManagerCase, job,
                           submission)
 
 
@@ -71,14 +71,14 @@ class Recording(JobManagerCase):
         self.assertEqual(len(held), 1)
         self.assertEqual(held[0]["episode"], 1)
         self.assertEqual((held[0]["offer_id"], held[0]["attempt_id"]),
-                         identities("job-a/implementation", 1))
+                         identities(UUID, "job-a/implementation", 1))
         self.assertIsNone(held[0]["ended_state"])
         self.assertEqual(live_of(store, "job-a/implementation")["episode"], 1)
 
     def test_new_episode_identities_fit_the_worker_contract(self):
         grammar = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
-        first = identities("job-a/implementation", 1)
-        second = identities("job-a/implementation", 2)
+        first = identities(UUID, "job-a/implementation", 1)
+        second = identities(UUID, "job-a/implementation", 2)
         self.assertNotEqual(first, second)
         for identity in first + second:
             self.assertLessEqual(len(identity), 160)
@@ -221,6 +221,66 @@ class Persistence(JobManagerCase):
                 "VALUES ('other', 'job-a', 9, 'implementation', "
                 "'w', 'p', 'd', '[]')")
 
+class IdentitiesAreNamespacedByAuthority(JobManagerCase):
+    """W83781 — the measured collision, and what stops it.
 
-if __name__ == "__main__":
+    Two independent authorities ran a stage with the same local name and
+    derived the same offer and attempt. Those identities reach an OCI engine,
+    where they select a container; the adapter refused to adopt the stranger's
+    container because its immutable `authority_uuid` label disagreed, which is
+    the fail-closed behaviour that must survive this correction untouched. What
+    changes is the namespace the identity is derived in.
+    """
+
+    OTHER = "1" * 31 + "b"
+
+    def test_the_same_authority_replays_byte_for_byte(self):
+        for episode in (1, 2, 7):
+            with self.subTest(episode=episode):
+                self.assertEqual(
+                    identities(UUID, "job-a/implementation", episode),
+                    identities(UUID, "job-a/implementation", episode))
+
+    def test_two_authorities_never_derive_one_identity(self):
+        """The reproduction, as a case: same stage, same episode, two
+        authorities."""
+        mine = identities(UUID, "job-a/implementation", 1)
+        theirs = identities(self.OTHER, "job-a/implementation", 1)
+        self.assertNotEqual(mine, theirs)
+        self.assertNotEqual(mine[0], theirs[0])
+        self.assertNotEqual(mine[1], theirs[1])
+
+    def test_the_offer_and_attempt_still_share_one_digest(self):
+        offer_id, attempt_id = identities(UUID, "job-a/implementation", 1)
+        self.assertEqual(offer_id[len("offer-"):],
+                         attempt_id[len("attempt-"):])
+        self.assertTrue(offer_id.startswith("offer-"))
+        self.assertTrue(attempt_id.startswith("attempt-"))
+
+    def test_the_namespace_is_not_a_deployment_local_surrogate(self):
+        """Nothing about the process, the path or the clock may enter it.
+
+        A database path collides across hosts, an incarnation changes every
+        restart so a retry would stop replaying, and a clock or a random value
+        is not a namespace at all. Only an explicit stable Authority identity
+        satisfies both halves.
+        """
+        first = self.store(incarnation="jobs-1")
+        submit(first, submission(jobs=[job("job-a")]))
+        held = stages_of(first, "job-a")[0]
+        first.close()
+        again = self.store(incarnation="jobs-99")
+        self.assertEqual(
+            identities(UUID, "job-a/implementation", 1)[0],
+            episodes_of(again, "job-a/implementation")[0]["offer_id"],
+            "changing only the incarnation changes no identity")
+        del held
+
+    def test_a_malformed_authority_refuses_the_derivation(self):
+        for spoiled in (None, "", UUID.upper(), UUID[:-1], 7):
+            with self.subTest(authority_uuid=spoiled):
+                with self.assertRaises(ContractRefusal):
+                    identities(spoiled, "job-a/implementation", 1)
+
+if __name__ == "__main__":  # pragma: no cover
     unittest.main()

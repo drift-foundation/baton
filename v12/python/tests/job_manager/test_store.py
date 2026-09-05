@@ -16,14 +16,16 @@ import unittest
 
 from baton_v12.contracts import ContractRefusal
 from baton_v12.job_manager import (SCHEMA_VERSION, STORE_KIND, JobStore,
+                                   episodes,
                                    episodes_of, job_signature, live_of,
                                    owed_acts, stage_rows, status)
+from baton_v12.job_manager.episodes import identities
 from baton_v12.worker_manager import ControlStore
 
 if __package__:
-    from .fixtures import NOW, JobManagerCase
+    from .fixtures import NOW, UUID, JobManagerCase
 else:
-    from fixtures import NOW, JobManagerCase
+    from fixtures import NOW, UUID, JobManagerCase
 
 
 class Ownership(JobManagerCase):
@@ -59,7 +61,7 @@ class Ownership(JobManagerCase):
         with open(self.control_path, "rb") as handle:
             before = handle.read()
         with self.assertRaises(ContractRefusal) as caught:
-            JobStore.open(self.control_path, incarnation="jobs-1",
+            JobStore.open(self.control_path, authority_uuid=UUID, incarnation="jobs-1",
                           clock=self.clock)
         self.assertEqual((caught.exception.category, caught.exception.code),
                          ("integrity", "schema"))
@@ -83,7 +85,7 @@ class Ownership(JobManagerCase):
         with open(path, "rb") as handle:
             before = handle.read()
         with self.assertRaises(ContractRefusal):
-            JobStore.open(path, incarnation="jobs-1", clock=self.clock)
+            JobStore.open(path, authority_uuid=UUID, incarnation="jobs-1", clock=self.clock)
         with open(path, "rb") as handle:
             self.assertEqual(handle.read(), before)
 
@@ -93,26 +95,26 @@ class Ownership(JobManagerCase):
             "UPDATE meta SET value = '99' WHERE key = 'schema_version'")
         store.close()
         with self.assertRaises(ContractRefusal) as caught:
-            JobStore.open(self.job_path, incarnation="jobs-1",
+            JobStore.open(self.job_path, authority_uuid=UUID, incarnation="jobs-1",
                           clock=self.clock)
         self.assertIn("does not guess across versions",
                       caught.exception.message)
 
     def test_an_unnamed_path_is_refused_rather_than_defaulted(self):
         with self.assertRaises(ContractRefusal) as caught:
-            JobStore.open("", incarnation="jobs-1", clock=self.clock)
+            JobStore.open("", authority_uuid=UUID, incarnation="jobs-1", clock=self.clock)
         self.assertEqual(caught.exception.code, "path")
 
     def test_an_instance_names_its_incarnation(self):
         with self.assertRaises(ContractRefusal):
-            JobStore.open(self.job_path, incarnation="", clock=self.clock)
+            JobStore.open(self.job_path, authority_uuid=UUID, incarnation="", clock=self.clock)
 
     def test_a_clock_that_cannot_answer_is_found_at_open(self):
         def broken():
             return "not-an-instant"
 
         with self.assertRaises(ContractRefusal):
-            JobStore.open(self.job_path, incarnation="jobs-1", clock=broken)
+            JobStore.open(self.job_path, authority_uuid=UUID, incarnation="jobs-1", clock=broken)
 
 
 class Journal(JobManagerCase):
@@ -380,6 +382,314 @@ class MigratingFromSchemaOne(JobManagerCase):
                 "SELECT key, value FROM meta").fetchall())["schema_version"],
             str(SCHEMA_VERSION))
 
+class TheStoreIsBoundToOneAuthority(JobManagerCase):
+    """W83781 — the namespace every episode identity is derived in.
 
-if __name__ == "__main__":
+    `stage_id` and `episode` are both LOCAL to one Job store, so deriving an
+    OCI attempt identity from them alone made two independent authorities
+    produce the same identity for the same local stage name. A fresh authority
+    was measured deriving an attempt already held by a retained container
+    belonging to a different Authority and a different Work; the adapter
+    refused to adopt it, correctly, and that refusal is not the defect.
+
+    The correction is a store-level BINDING rather than a capability: what is
+    persisted is a stable public identity, and holding it grants no session,
+    no Authority store and no mutation surface.
+    """
+
+    OTHER = "1" * 31 + "b"
+
+    def opened(self, authority_uuid=UUID, incarnation="jobs-1"):
+        store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                              incarnation=incarnation, clock=self.clock)
+        self.addCleanup(store.close)
+        return store
+
+    def test_a_new_store_persists_the_authority_it_was_opened_under(self):
+        store = self.opened()
+        self.assertEqual(store.authority_uuid, UUID)
+        held = store._connection.execute(
+            "SELECT value FROM meta WHERE key = 'authority_uuid'").fetchone()
+        self.assertEqual(held["value"], UUID)
+
+    def test_the_same_authority_reopens_the_store(self):
+        self.opened().close()
+        self.assertEqual(self.opened(incarnation="jobs-2").authority_uuid,
+                         UUID)
+
+    def bytes_of(self):
+        with open(self.job_path, "rb") as reading:
+            return reading.read()
+
+    def test_another_authority_refuses_and_changes_nothing(self):
+        self.opened().close()
+        before = self.bytes_of()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.opened(authority_uuid=self.OTHER, incarnation="jobs-2")
+        self.assertEqual(caught.exception.code, "precondition")
+        self.assertEqual(self.bytes_of(), before,
+                         "a refused open leaves the store byte-for-byte")
+
+    def test_a_malformed_authority_refuses_before_the_path_exists(self):
+        for spoiled in (None, "", 7, UUID.upper(), UUID[:-1], UUID + "0",
+                        "g" * 32, " " + UUID[1:]):
+            with self.subTest(authority_uuid=spoiled):
+                with self.assertRaises(ContractRefusal):
+                    JobStore.open(self.job_path, authority_uuid=spoiled,
+                                  incarnation="jobs-1", clock=self.clock)
+                self.assertFalse(os.path.exists(self.job_path),
+                                 "the path is not created by a refused open")
+
+    def test_the_binding_is_the_authoritys_own_rule_and_not_a_second_one(self):
+        """The vocabulary is imported rather than restated.
+
+        A looser spelling living in the Job manager is exactly the drift the
+        finding forbids, so this holds the store's refusal to the Authority
+        package's own predicate rather than to a copy of its grammar.
+        """
+        from baton_v12.authority.identity import check_authority_uuid
+        from baton_v12.job_manager.schema import check_authority
+
+        self.assertEqual(check_authority_uuid(UUID), UUID)
+        self.assertEqual(check_authority(UUID, what="a binding"), UUID)
+        # THE RULE IS THEIRS AND THE REFUSAL IS OURS. A caller of this package
+        # catches `ContractRefusal` everywhere else, so a boundary that
+        # sometimes raised the Authority's own exception would be one every
+        # caller had to special-case.
+        with self.assertRaises(ContractRefusal):
+            check_authority(UUID.upper(), what="a binding")
+
+
+class MigratingPinsTheAuthorityWithoutRenamingAnything(MigratingFromSchemaOne):
+    """W83781 — the compatibility obligation the namespace inherits.
+
+    Episode identity is persisted EVIDENCE, not a value readers recompute.
+    Worker Manager journal keys and Job receipts already reference the exact
+    offer and attempt strings a store recorded, so a migration that renamed
+    one would orphan the reconciliation that names it. The namespace decides
+    what a NEW episode is called and nothing else.
+    """
+
+    OTHER = "1" * 31 + "b"
+
+    def opened(self, authority_uuid=UUID, incarnation="jobs-1"):
+        store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                              incarnation=incarnation, clock=self.clock)
+        self.addCleanup(store.close)
+        return store
+
+    def bytes_of(self):
+        with open(self.job_path, "rb") as reading:
+            return reading.read()
+
+    def write_schema_2(self):
+        """A store at the version immediately before the binding existed."""
+        self.write_schema_1()
+        held = JobStore.open(self.job_path, authority_uuid=UUID,
+                             incarnation="jobs-2", clock=self.clock)
+        held.close()
+        connection = sqlite3.connect(self.job_path, isolation_level=None)
+        self.addCleanup(connection.close)
+        connection.execute("UPDATE meta SET value = '2' WHERE key = ?",
+                           ("schema_version",))
+        connection.execute("DELETE FROM meta WHERE key = 'authority_uuid'")
+        connection.close()
+
+    def test_a_schema_two_store_is_pinned_by_the_migration(self):
+        self.write_schema_2()
+        store = self.store()
+        recorded = dict(store._connection.execute(
+            "SELECT key, value FROM meta").fetchall())
+        self.assertEqual(recorded["schema_version"], str(SCHEMA_VERSION))
+        self.assertEqual(recorded["authority_uuid"], UUID)
+
+    def test_a_migrated_store_keeps_every_identity_and_receipt(self):
+        for write in (self.write_schema_1, self.write_schema_2):
+            with self.subTest(from_schema=write.__name__):
+                self.setUp()
+                write()
+                store = self.store()
+                held = episodes_of(store, "job-a/implementation")
+                self.assertEqual(
+                    (held[0]["offer_id"], held[0]["attempt_id"]),
+                    ("offer:job-a/implementation",
+                     "attempt:job-a/implementation"),
+                    "a migrated episode keeps the identity its journal names")
+                self.assertEqual(
+                    [row["operation_id"] for row in store._connection.execute(
+                        "SELECT operation_id FROM receipts")],
+                    ["offer.issue:offer:job-a/implementation"])
+
+    def test_the_namespace_applies_only_after_the_migration(self):
+        """An episode opened AFTER the pin is namespaced; episode 1 is not.
+
+        That asymmetry is the whole compatibility rule stated as one case: a
+        legacy episode keeps the name its journal already references, and the
+        replacement it is eventually given is derived in the Authority the
+        store is now bound to.
+        """
+        self.write_schema_2()
+        store = self.store()
+        held = episodes_of(store, "job-a/implementation")[0]
+        self.assertNotEqual(held["offer_id"],
+                            identities(UUID, "job-a/implementation", 1)[0])
+        # ENDED THROUGH ITS OWN OWNER, not by handing `open_next` a dict that
+        # merely says so: the partial unique index allows one live episode per
+        # stage, and it is right to refuse a replacement while the first one is
+        # still live.
+        ended = episodes.end_episode(store, held,
+                                     "abandoned-after-restart", 1)
+        fresh = episodes.open_next(store, "job-a/implementation", ended)
+        self.assertEqual(
+            (fresh["offer_id"], fresh["attempt_id"]),
+            identities(UUID, "job-a/implementation", 2))
+
+    def test_a_migration_under_another_authority_pins_that_one(self):
+        """The binding is the OPENER's, because a legacy store carries none.
+
+        There is nothing in a schema-1 or schema-2 store that says which
+        Authority it belonged to, so the migration cannot discover it and must
+        be told. What it must not do is guess one.
+        """
+        self.write_schema_2()
+        store = JobStore.open(self.job_path, authority_uuid=self.OTHER,
+                              incarnation="jobs-3", clock=self.clock)
+        self.addCleanup(store.close)
+        self.assertEqual(store.authority_uuid, self.OTHER)
+        store.close()
+        with self.assertRaises(ContractRefusal):
+            JobStore.open(self.job_path, authority_uuid=UUID,
+                          incarnation="jobs-4", clock=self.clock)
+    def test_a_failed_migration_rolls_the_uuid_and_the_version_back(self):
+        """W83781 review [P1]: the promised atomicity, exercised.
+
+        The finding requires a failed migration to roll the binding and the
+        version stamp back TOGETHER, so no store is ever left carrying one
+        without the other. That is a claim about the public open boundary, not
+        about how the transaction reads, so this fails the migration and then
+        asks what the store is.
+
+        WHERE THE FAILURE GOES IS THE WHOLE CASE. Review 2026-09-04T09-22-40Z
+        [P1]: this used to raise from `_statements`, which `_migrate` calls
+        BEFORE it has advanced the version or inserted the binding -- so it
+        proved only that an exception just after `BEGIN IMMEDIATE` changes
+        nothing, and would have passed an implementation that stamped either
+        value outside this transaction. The hook now raises only once BOTH
+        durable values are readable on the migration connection and the COMMIT
+        has not run, which is the only moment at which "they roll back
+        together" is a statement about anything.
+        """
+        from unittest import mock
+
+        self.write_schema_2()
+        before = self.bytes_of()
+        saw = []
+        real = JobStore._objects
+
+        def once_both_stamps_are_visible(connection):
+            recorded = dict(connection.execute(
+                "SELECT key, value FROM meta").fetchall())
+            if (recorded.get("schema_version") == str(SCHEMA_VERSION)
+                    and recorded.get("authority_uuid") == UUID):
+                saw.append(recorded)
+                raise RuntimeError("migration interrupted after both stamps")
+            return real(connection)
+
+        with mock.patch.object(JobStore, "_objects",
+                               staticmethod(once_both_stamps_are_visible)):
+            with self.assertRaises(RuntimeError):
+                JobStore.open(self.job_path, authority_uuid=UUID,
+                              incarnation="jobs-broken", clock=self.clock)
+        self.assertEqual(len(saw), 1,
+                         "the failure was injected once, inside the migration")
+        self.assertEqual(saw[0]["schema_version"], str(SCHEMA_VERSION))
+        self.assertEqual(saw[0]["authority_uuid"], UUID)
+        self.assertEqual(self.bytes_of(), before,
+                         "an interrupted migration leaves the store as found")
+        connection = sqlite3.connect(self.job_path, isolation_level=None)
+        self.addCleanup(connection.close)
+        recorded = dict(connection.execute(
+            "SELECT key, value FROM meta").fetchall())
+        self.assertEqual(recorded["schema_version"], "2",
+                         "the version stamp is not advanced")
+        self.assertNotIn("authority_uuid", recorded,
+                         "and no binding survives the rollback")
+        connection.close()
+        # AND THE STORE IS STILL MIGRATABLE, which is the half a rollback
+        # exists for: nothing about the failure poisoned it.
+        store = self.opened(incarnation="jobs-after")
+        self.assertEqual(store.authority_uuid, UUID)
+        self.assertEqual(
+            episodes_of(store, "job-a/implementation")[0]["offer_id"],
+            "offer:job-a/implementation")
+
+    def test_a_stale_opener_cannot_rebind_the_winners_authority(self):
+        """W83781 review [P0], deterministically.
+
+        Two openers both observe schema 2 before either holds the write lock.
+        The first migrates and records its Authority. The second then acquires
+        the lock still believing the store is at 2 -- and must not write: the
+        winner's episodes are in the winner's namespace, and rebinding would
+        derive every future episode in a namespace the existing rows were
+        never in.
+        """
+        self.write_schema_2()
+        first = sqlite3.connect(self.job_path, isolation_level=None)
+        self.addCleanup(first.close)
+        first.row_factory = sqlite3.Row
+        second = sqlite3.connect(self.job_path, isolation_level=None)
+        self.addCleanup(second.close)
+        second.row_factory = sqlite3.Row
+        # BOTH READ THE VERSION BEFORE EITHER MIGRATES, which is exactly the
+        # window `_adopt` opens between its own read and `_migrate`'s lock.
+        stale = JobStore._validate(
+            {row["key"]: row["value"] for row in
+             first.execute("SELECT key, value FROM meta")}, self.job_path)
+        self.assertEqual(stale, 2)
+        JobStore._migrate(first, stale, self.job_path, UUID)
+        # THE WINNER'S FINISHED STORE, BYTE FOR BYTE. Review
+        # 2026-09-04T09-22-40Z [P2]: the original P0 asked the loser to be
+        # unable to change the winner's UUID, version, identities OR BYTES,
+        # and only the first three were measured. The already-current store
+        # covered by the wrong-UUID open above is a different path -- it never
+        # enters the stale migration that caused the defect.
+        won = self.bytes_of()
+        JobStore._migrate(second, stale, self.job_path, self.OTHER)
+        self.assertEqual(self.bytes_of(), won,
+                         "the loser's migration writes nothing at all")
+        recorded = dict(second.execute(
+            "SELECT key, value FROM meta").fetchall())
+        self.assertEqual(recorded["authority_uuid"], UUID,
+                         "the loser does not replace the winner's binding")
+        self.assertEqual(recorded["schema_version"], str(SCHEMA_VERSION))
+        # AND THE LOSER IS THEN REFUSED AT THE BOUNDARY THAT DECIDES IT.
+        with self.assertRaises(ContractRefusal) as caught:
+            self.opened(authority_uuid=self.OTHER, incarnation="jobs-loser")
+        self.assertEqual(caught.exception.code, "precondition")
+        held = self.opened(incarnation="jobs-winner")
+        self.assertEqual(
+            episodes_of(held, "job-a/implementation")[0]["offer_id"],
+            "offer:job-a/implementation")
+
+    def test_a_corrupt_binding_is_malformed_evidence_not_another_authority(
+            self):
+        """W83781 review [P2]: the store's own evidence, owned before use.
+
+        `boundaries.text` says a value is storable text. It does not say it is
+        an Authority, so a corrupt row read back as one sent an operator
+        looking for the Authority it names -- which does not exist.
+        """
+        self.opened().close()
+        connection = sqlite3.connect(self.job_path, isolation_level=None)
+        self.addCleanup(connection.close)
+        connection.execute("UPDATE meta SET value = ? WHERE key = ?",
+                           ("not-an-authority", "authority_uuid"))
+        connection.close()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.opened(incarnation="jobs-corrupt")
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
+
+
+if __name__ == "__main__":  # pragma: no cover
     unittest.main()

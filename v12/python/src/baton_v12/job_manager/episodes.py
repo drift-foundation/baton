@@ -56,7 +56,7 @@ def end_operation_id(stage_id, episode):
     return f"{END_KIND}:{stage_id}:{episode}"
 
 
-def identities(stage_id, episode):
+def identities(authority_uuid, stage_id, episode):
     """The offer and attempt ids one new episode is opened with.
 
     THE ROW PRESERVES OLD IDENTITIES; THIS DERIVATION DOES NOT REWRITE THEM.
@@ -64,16 +64,40 @@ def identities(stage_id, episode):
     each stage into episode 1, so its journal references remain exact. New
     episodes need identities the worker contract can actually carry: stage ids
     contain `/`, while its bounded `opaqueId` grammar deliberately does not.
-    A canonical digest of stage plus episode keeps the derivation stable and
-    bounded without interpreting either value as path or protocol syntax.
+    A canonical digest keeps the derivation stable and bounded without
+    interpreting any value as path or protocol syntax.
+
+    W83781: AND THE DIGEST IS TAKEN IN AN AUTHORITY'S NAMESPACE, because
+    without one it was not a namespace at all. `stage_id` and `episode` are
+    both LOCAL to one Job store, so two independent authorities running a
+    stage with the same local name derived the same offer and attempt -- and a
+    fresh authority's first episode was measured deriving
+    `attempt-1851504c...`, already held by a retained container belonging to a
+    different Authority and a different Work. The adapter refused to adopt
+    that container, correctly and fail-closed, and that refusal is not the
+    defect: the defect is handing the adapter an identity that two strangers
+    can both produce.
+
+    THE NAMESPACE IS AN EXPLICIT STABLE IDENTITY AND NOTHING ELSE. Not the
+    database path, the process incarnation, the hostname, the clock or a retry
+    counter -- every one of those is either deployment-local (so two hosts
+    collide again) or unstable (so a retry stops replaying). The Authority UUID
+    is globally unique, is already the label an OCI runtime carries, and is
+    persisted on the store precisely so both episode-opening paths derive from
+    the same value.
+
+    REPLAY IS UNCHANGED WITHIN ONE AUTHORITY. The same triple gives the same
+    pair every time, so a restart still finds the identity it committed under.
     """
+    schema.check_authority(authority_uuid, what="an episode's Authority")
     boundaries.identity(stage_id, "a stage id")
     if type(episode) is not int or episode < 1:
         raise ContractRefusal(
             "integrity", "schema",
             f"a stage episode is a whole number from 1; this is "
             f"{name_value(episode)}")
-    identity = digest({"stage_id": stage_id, "episode": episode})[
+    identity = digest({"authority_uuid": authority_uuid,
+                       "stage_id": stage_id, "episode": episode})[
         len("sha256:"):]
     return f"offer-{identity}", f"attempt-{identity}"
 
@@ -171,8 +195,15 @@ def open_first(connection, store, stage_id, recorded_at):
     its first episode are recorded by one submission, and a store holding the
     stage without the episode would be a stage nothing could ever admit. It
     takes the caller's connection for exactly that reason.
+
+    W83781: THE NAMESPACE COMES FROM THE ALREADY-OPEN STORE, and both
+    episode-opening paths take it from the same place. This one runs inside
+    `submit`, before any deployment operations factory exists, so a namespace
+    threaded through the production factory would arrive too late for episode
+    1 and the two paths would be deriving from different inputs -- which is a
+    second way for one stage's identities to disagree with themselves.
     """
-    offer_id, attempt_id = identities(stage_id, 1)
+    offer_id, attempt_id = identities(store.authority_uuid, stage_id, 1)
     connection.execute(
         "INSERT INTO episodes (stage_id, episode, offer_id, attempt_id, "
         "opened_at, incarnation) VALUES (?, ?, ?, ?, ?, ?)",
@@ -201,7 +232,7 @@ def open_next(store, stage_id, ended):
             f"{name_value(ended['stage_id'])} has not ended; a replacement is "
             f"owed by an ending and never by a live attempt")
     episode = ended["episode"] + 1
-    offer_id, attempt_id = identities(stage_id, episode)
+    offer_id, attempt_id = identities(store.authority_uuid, stage_id, episode)
     operands = {"stage_id": stage_id, "episode": episode,
                 "offer_id": offer_id, "attempt_id": attempt_id,
                 "replaces": ended["ended_state"]}

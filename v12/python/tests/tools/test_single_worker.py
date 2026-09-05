@@ -196,7 +196,12 @@ class SingleWorkerCase(unittest.TestCase):
                     profile_digest=fixtures.PROFILE)])])
 
     def stores(self, incarnation):
-        job = JobStore.open(self.job_path, incarnation=incarnation,
+        # W83781: the store's Authority binding is the same one this
+        # deployment's configuration names, which is the ordinary production
+        # shape. `TheAuthorityBindingIsProvedBeforeAnythingIsConfigured`
+        # is where they deliberately disagree.
+        job = JobStore.open(self.job_path, authority_uuid=AUTHORITY_UUID,
+                            incarnation=incarnation,
                             clock=lambda: fixtures.NOW)
         control = ControlStore.open(self.control_path,
                                     incarnation=incarnation,
@@ -2620,6 +2625,7 @@ class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
         with mock.patch.dict(os.environ,
                              {single_worker.CONFIG_ENV: place}, clear=False):
             code = tool(["--store", self.job_path,
+                         "--authority-uuid", AUTHORITY_UUID,
                          "--incarnation", "observing-1",
                          "status", "--control", self.control_path,
                          "--observe",
@@ -2833,3 +2839,76 @@ class TheAnsweredEndingRunsThroughTheRealOwners(SingleWorkerCase):
         os.chmod(place, 0o644)
         with open(place, "w", encoding="utf-8") as writing:
             json.dump(document, writing)
+
+
+class TheAuthorityBindingIsProvedBeforeAnythingIsConfigured(SingleWorkerCase):
+    """W83781 — a Job store bound elsewhere is refused before any side effect.
+
+    `operations_from` used to `del job_store` with a note that this deployment
+    needed no private Job-store read. That was true while a Job store knew
+    nothing about which Authority it belonged to. It no longer is: the store's
+    episode identities are derived in its Authority's namespace and the
+    containers those identities name carry that Authority as an immutable
+    label, so a store bound to one Authority driven by a configuration naming
+    another would start runtimes labelled for an Authority its own identities
+    were never derived in.
+
+    THE ORDERING IS THE CORRECTION. Everything after that comparison WRITES --
+    the workspace group and storage are configured on the control store, a
+    profile is certified, storage is allocated, an Authority is opened -- so a
+    mismatch found later would leave this deployment half-configured against a
+    store it must not touch at all.
+    """
+
+    OTHER = "1" * 31 + "b"
+
+    def foreign_store(self):
+        job = JobStore.open(os.path.join(self.root, "foreign.sqlite3"),
+                            authority_uuid=self.OTHER, incarnation="foreign",
+                            clock=lambda: fixtures.NOW)
+        self.addCleanup(job.close)
+        return job
+
+    def test_a_store_bound_to_another_authority_refuses(self):
+        engine = Engine()
+        control = ControlStore.open(self.control_path, incarnation="mismatch",
+                                    clock=lambda: fixtures.NOW)
+        self.addCleanup(control.close)
+        with self.assertRaises(ContractRefusal) as caught:
+            single_worker.operations_from(
+                self.config, self.foreign_store(), control,
+                engine_run=engine,
+                credential_provider=lambda *_: self.secret,
+                clock=lambda: fixtures.NOW)
+        self.assertEqual(caught.exception.code, "operation-collision")
+
+    def test_the_refusal_leaves_the_control_store_unconfigured(self):
+        """Nothing durable happened, which is the half a later check loses.
+
+        The workspace group is the first thing `operations_from` would have
+        written, so its absence is the evidence that the comparison really did
+        come before every side effect.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        control = ControlStore.open(self.control_path, incarnation="mismatch",
+                                    clock=lambda: fixtures.NOW)
+        self.addCleanup(control.close)
+        with self.assertRaises(ContractRefusal):
+            single_worker.operations_from(
+                self.config, self.foreign_store(), control,
+                engine_run=engine,
+                credential_provider=lambda *_: self.secret,
+                clock=lambda: fixtures.NOW)
+        with self.assertRaises(ContractRefusal):
+            workspaces.configured_workspace_group(control)
+        self.assertEqual(engine.vectors, [],
+                         "no engine call is made on the refused path")
+
+    def test_the_matching_store_still_composes(self):
+        engine = Engine()
+        job, control = self.stores("matching")
+        operations = self.operations(job, control, engine)
+        self.assertEqual(job.authority_uuid, self.config["authority_uuid"])
+        operations.close()

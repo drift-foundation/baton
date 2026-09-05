@@ -190,9 +190,16 @@ class JobManagerCase(unittest.TestCase):
     def clock(self):
         return self.instants[-1]
 
-    def store(self, incarnation="jobs-1"):
-        store = JobStore.open(self.job_path, incarnation=incarnation,
-                              clock=self.clock)
+    def store(self, incarnation="jobs-1", authority_uuid=UUID):
+        """This case's Job store, bound to this case's Authority.
+
+        W83781 made the binding required: it is the namespace every episode
+        identity is derived in. `UUID` is the same authority the fake session
+        answers for, so a case that wants two independent authorities names
+        the second one explicitly.
+        """
+        store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                              incarnation=incarnation, clock=self.clock)
         self.addCleanup(store.close)
         return store
 
@@ -337,7 +344,7 @@ class FakeOperations:
         if records:
             from baton_v12.job_manager.episodes import identities
 
-            _offer_id, attempt_id = identities(stage_id, 1)
+            _offer_id, attempt_id = identities(UUID, stage_id, 1)
             self.recorded_failures[stage_id] = {
                 "attempt_id": attempt_id, "expect": None,
                 "start_operation_id": f"runtime.start:{stage_id}",
@@ -540,7 +547,7 @@ class FakeOperations:
         if held["claimed_by"] is True:
             from baton_v12.job_manager.episodes import identities
 
-            held["claimed_by"] = identities(stage_id, 1)[0]
+            held["claimed_by"] = identities(UUID, stage_id, 1)[0]
         self.observations[stage_id] = held
 
     def frozen(self, stage_id, disposition, artifacts=None,
@@ -568,7 +575,7 @@ class FakeOperations:
         """
         from baton_v12.job_manager.episodes import identities
 
-        _offer_id, attempt_id = identities(stage_id, 1)
+        _offer_id, attempt_id = identities(UUID, stage_id, 1)
         held = self.observations.get(stage_id) or {}
         self.observed(stage_id, claimed_by=True,
                       exchange=held.get("exchange"),

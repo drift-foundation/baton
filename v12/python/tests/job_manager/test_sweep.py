@@ -22,10 +22,10 @@ from baton_v12.job_manager import (JobStore, RefreshUnavailable, owed_acts,
 from baton_v12.job_manager.episodes import identities
 
 if __package__:
-    from .fixtures import (LATER, NOW, FakeOperations, JobManagerCase, job,
+    from .fixtures import (LATER, NOW, UUID, FakeOperations, JobManagerCase, job,
                            stage, submission)
 else:
-    from fixtures import (LATER, NOW, FakeOperations, JobManagerCase, job,
+    from fixtures import (LATER, NOW, UUID, FakeOperations, JobManagerCase, job,
                           stage, submission)
 
 
@@ -136,8 +136,7 @@ class Delegation(SweepCase):
         held = receipts_of(self.jobs, "job-a/implementation", 1)
         self.assertEqual(sorted(held), ["admit"])
         self.assertEqual(held["admit"]["operation_id"],
-                         "offer.issue:" + identities(
-                             "job-a/implementation", 1)[0])
+                         "offer.issue:" + identities(UUID, "job-a/implementation", 1)[0])
         self.assertEqual(held["admit"]["state"], "performed")
         self.assertEqual(held["admit"]["incarnation"], "jobs-1")
 
@@ -538,17 +537,15 @@ class Persistence(SweepCase):
     def test_the_owed_act_survives_the_process_that_derived_it(self):
         self.submit()
         self.jobs.close()
-        resumed = JobStore.open(self.job_path, incarnation="jobs-2",
+        resumed = JobStore.open(self.job_path, authority_uuid=UUID, incarnation="jobs-2",
                                 clock=self.clock)
         self.addCleanup(resumed.close)
         self.assertEqual([one["act"] for one in owed_acts(resumed, self.acts)],
                          ["admit", "admit"])
         self.assertEqual([one["operation_id"]
                           for one in owed_acts(resumed, self.acts)],
-                         ["offer.issue:" + identities(
-                             "job-a/implementation", 1)[0],
-                          "offer.issue:" + identities(
-                              "job-b/implementation", 1)[0]])
+                         ["offer.issue:" + identities(UUID, "job-a/implementation", 1)[0],
+                          "offer.issue:" + identities(UUID, "job-b/implementation", 1)[0]])
 
 
 if __name__ == "__main__":

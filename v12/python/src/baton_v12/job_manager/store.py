@@ -34,13 +34,23 @@ from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
 from ..worker_manager.store import revive_refusal, seal_refusal
 from . import schema
-from .schema import MIGRATIONS, SCHEMA, SCHEMA_VERSION, STORE_KIND
+from .schema import (MIGRATIONS, SCHEMA, SCHEMA_VERSION, STORE_KIND,
+                     check_authority)
 
 __all__ = ["JobStore", "job_signature"]
 
 _BUSY_TIMEOUT_MS = 5000
 _META_STORE_KIND = "store_kind"
 _META_SCHEMA_VERSION = "schema_version"
+# W83781: WHICH AUTHORITY THIS STORE BELONGS TO, persisted once and immutable.
+#
+# It is a BINDING and not a capability. The Authority, the Worker Manager
+# control store and this one remain separate files with separate owners; what
+# is recorded here is a stable public identity, and holding it grants no
+# session, no store path and no mutation surface. `submit` and read-only
+# `status` learn exactly this and nothing else, which is what lets them keep
+# constructing no Authority at all.
+_META_AUTHORITY_UUID = "authority_uuid"
 
 _SIGNATURE_MEMBERS = ("kind", "operands")
 
@@ -93,20 +103,36 @@ def _recorded(value):
 class JobStore:
     """One Job manager's handle on one Job store."""
 
-    def __init__(self, connection, *, incarnation, clock):
+    def __init__(self, connection, *, authority_uuid, incarnation, clock):
         self._connection = connection
+        self.authority_uuid = authority_uuid
         self.incarnation = incarnation
         self._clock = clock
 
     # -- opening -------------------------------------------------------------
 
     @classmethod
-    def open(cls, path, *, incarnation, clock):
+    def open(cls, path, *, authority_uuid, incarnation, clock):
         """Open a Job store this build owns, or refuse without changing it.
 
         Every failure closes the handle. A refused open that leaked one would
         hold a lock on a store this build has just said it must not touch.
+
+        W83781: THE AUTHORITY UUID IS REQUIRED AND IS PROVED FIRST, before the
+        path is opened at all. It is the namespace every new episode identity
+        is derived from, so a store opened without one would derive identities
+        that are unique only within itself -- which is the collision this Work
+        exists to remove, arriving one layer earlier.
+
+        THE RULE IS THE AUTHORITY PACKAGE'S OWN, imported rather than restated.
+        `check_authority_uuid` is a PREDICATE and not a capability: it opens
+        nothing, reads nothing and grants nothing, and a second looser spelling
+        of "32 lowercase hex" living here is exactly the drift the finding
+        forbids. What this leaf still does not have is any Authority session,
+        store or mutation surface, which is the separation that matters.
         """
+        check_authority(authority_uuid,
+                        what="the Job store's Authority binding")
         if type(path) is not str or path == "":
             raise ContractRefusal(
                 "integrity", "path",
@@ -126,10 +152,11 @@ class JobStore:
             connection.execute(f"PRAGMA busy_timeout = {_BUSY_TIMEOUT_MS}")
             connection.row_factory = sqlite3.Row
             if cls._objects(connection):
-                cls._adopt(connection, path)
+                cls._adopt(connection, path, authority_uuid)
             else:
-                cls._initialize(connection)
-            store = cls(connection, incarnation=incarnation, clock=clock)
+                cls._initialize(connection, authority_uuid)
+            store = cls(connection, authority_uuid=authority_uuid,
+                        incarnation=incarnation, clock=clock)
             # Proved after the store exists and INSIDE this handler, so a
             # clock that cannot stamp a row is found at open rather than at
             # the first journalled act -- and the connection is still closed.
@@ -148,7 +175,7 @@ class JobStore:
             "SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'")]
 
     @classmethod
-    def _adopt(cls, connection, path):
+    def _adopt(cls, connection, path, authority_uuid):
         """Decide a NON-EMPTY database: ours, or refused untouched.
 
         The mere NAME `meta` is not permission to read `key, value` out of it:
@@ -174,8 +201,82 @@ class JobStore:
                 f"Job manager cannot read "
                 f"({name_value(type(failure).__name__)}), so it is not a Job "
                 f"store this build owns. Nothing was changed") from None
-        cls._migrate(connection, cls._validate(recorded, path), path)
+        cls._migrate(connection, cls._validate(recorded, path), path,
+                     authority_uuid)
+        cls._bound(connection, path, authority_uuid)
         connection.execute("PRAGMA foreign_keys = ON")
+
+    @staticmethod
+    def _bound(connection, path, authority_uuid):
+        """Prove the store's recorded Authority is the one this open names.
+
+        W83781. A Job store belongs to ONE Authority for its whole life: its
+        episode identities are derived in that Authority's namespace, and the
+        containers those identities name carry it as an immutable label. So an
+        open under a different UUID is not a store this caller may use -- it is
+        somebody else's pipeline, and adopting it would derive future episodes
+        in a namespace the existing rows were never in.
+
+        THE REFUSAL CHANGES NOTHING. The migration above has already committed
+        or rolled back on its own, so a wrong UUID leaves the database exactly
+        as it was found -- which is what makes "refused untouched" a fact a
+        reader can rely on rather than a hope.
+        """
+        row = connection.execute("SELECT value FROM meta WHERE key = ?",
+                                 (_META_AUTHORITY_UUID,)).fetchone()
+        recorded = None if row is None else boundaries.text(
+            row["value"], "a persisted Authority binding")
+        # W83781 review [P1]: THE PERSISTED VALUE IS OWNED AS AN AUTHORITY
+        # BEFORE IT IS COMPARED AS ONE. `boundaries.text` says it is storable
+        # text; it does not say it is an Authority. Without this a corrupt
+        # schema-3 row reads as a valid store belonging to somebody else --
+        # `refused/precondition`, which sends an operator to look for the
+        # other Authority -- when what it actually is, is this store's own
+        # evidence being malformed.
+        if recorded is not None:
+            check_authority(
+                recorded,
+                what=f"the Authority binding recorded at {name_value(path)}")
+        if recorded is None:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the Job store at {name_value(path)} records no Authority "
+                f"binding; this build stamps one when it creates or migrates a "
+                f"store, so a store without one is state this build cannot "
+                f"account for. Nothing was changed")
+        if recorded != authority_uuid:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"the Job store at {name_value(path)} belongs to Authority "
+                f"{name_value(recorded)} and this open names "
+                f"{name_value(authority_uuid)}; a store's episode identities "
+                f"are derived in its Authority's namespace, so opening it "
+                f"under another one would derive future episodes in a "
+                f"namespace its existing rows were never in. Nothing was "
+                f"changed")
+
+    @classmethod
+    def _recorded_version(cls, connection, path):
+        """The schema version this store is at RIGHT NOW, owned on the way in.
+
+        W83781 review [P0]. The version `_adopt` read is a fact about a moment
+        before any lock was held; this is the one a migration may act on.
+        """
+        row = connection.execute("SELECT value FROM meta WHERE key = ?",
+                                 (_META_SCHEMA_VERSION,)).fetchone()
+        recorded = None if row is None else boundaries.text(
+            row["value"], "a persisted meta value")
+        if recorded == str(SCHEMA_VERSION):
+            return SCHEMA_VERSION
+        for known in sorted(MIGRATIONS):
+            if recorded == str(known):
+                return known
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the Job store at {name_value(path)} is schema "
+            f"{name_value(recorded)} under the migration lock; this build is "
+            f"{SCHEMA_VERSION} and carries no migration from that version. "
+            f"Nothing was changed")
 
     @staticmethod
     def _path_of(connection):
@@ -185,7 +286,7 @@ class JobStore:
         return ""
 
     @classmethod
-    def _initialize(cls, connection):
+    def _initialize(cls, connection, authority_uuid):
         """Create the schema, or ADOPT the store another opener just created.
 
         Emptiness observed before the write lock answers the common case; the
@@ -197,7 +298,8 @@ class JobStore:
         try:
             if cls._objects(connection):
                 connection.execute("ROLLBACK")
-                cls._adopt(connection, cls._path_of(connection))
+                cls._adopt(connection, cls._path_of(connection),
+                           authority_uuid)
                 return
             # NOT `executescript`: it issues a COMMIT before it runs, which
             # would end the transaction this DDL has to be atomic inside.
@@ -209,6 +311,13 @@ class JobStore:
             connection.execute(
                 "INSERT INTO meta (key, value) VALUES (?, ?)",
                 (_META_SCHEMA_VERSION, str(SCHEMA_VERSION)))
+            # W83781: THE BINDING IS WRITTEN IN THE SAME TRANSACTION as the
+            # kind and the version. A store that existed for even one instant
+            # without knowing its Authority is a store something could open
+            # and derive an identity from first.
+            connection.execute(
+                "INSERT INTO meta (key, value) VALUES (?, ?)",
+                (_META_AUTHORITY_UUID, authority_uuid))
             connection.execute("COMMIT")
         except BaseException:
             try:
@@ -254,7 +363,7 @@ class JobStore:
             f"versions. Nothing was changed")
 
     @classmethod
-    def _migrate(cls, connection, version, path):
+    def _migrate(cls, connection, version, path, authority_uuid):
         """Carry an older store forward, WHOLE, in one transaction.
 
         A persisted submission is a pipeline somebody is running. Refusing it
@@ -274,7 +383,30 @@ class JobStore:
             return
         connection.execute("BEGIN IMMEDIATE")
         try:
-            at = version
+            # W83781 review 2026-09-04T09-07-42Z [P0]: THE VERSION IS RE-READ
+            # UNDER THE LOCK, because the one this was called with is a
+            # pre-lock observation.
+            #
+            # `_adopt` reads the version before this function asks for a write
+            # lock, so two openers can both see schema 2. The first migrates
+            # and records its Authority; the second then acquires the lock
+            # still believing the store is at 2, runs the step again, and
+            # rebinds. The winner's episodes stay in the winner's namespace
+            # while every future episode is derived in the loser's -- the
+            # cross-authority split this binding exists to prevent, produced
+            # by the binding's own migration.
+            #
+            # WHAT THE LOCK IS FOR is deciding from state nobody else can be
+            # changing. Everything below now derives from this read.
+            at = cls._recorded_version(connection, path)
+            if at == SCHEMA_VERSION:
+                # SOMEBODY ELSE FINISHED IT. There is nothing to migrate and
+                # nothing to write: the binding is already whatever the winner
+                # recorded, and `_bound` is what decides whether this opener
+                # may use it. A waiter that wrote here would be replacing an
+                # immutable value it did not establish.
+                connection.execute("COMMIT")
+                return
             while at != SCHEMA_VERSION:
                 for statement in _statements(MIGRATIONS[at]):
                     connection.execute(statement)
@@ -282,6 +414,30 @@ class JobStore:
                 connection.execute(
                     "UPDATE meta SET value = ? WHERE key = ?",
                     (str(at), _META_SCHEMA_VERSION))
+                if at == SCHEMA_VERSION:
+                    # W83781: THE BINDING IS STAMPED WITH THE VERSION THAT
+                    # REQUIRES IT, inside this same transaction. A failure
+                    # anywhere below rolls the UUID and the version stamp back
+                    # together, so there is no half-migrated store carrying one
+                    # without the other for the next open to have to recognise.
+                    #
+                    # AND NO EXISTING EPISODE IS TOUCHED. The namespace changes
+                    # what a NEW episode is called; every offer and attempt
+                    # already recorded stays exactly as it is, because Worker
+                    # Manager journal keys and Job receipts already reference
+                    # those strings and renaming one would orphan them.
+                    #
+                    # A PLAIN `INSERT`, NOT `INSERT OR REPLACE`. Review [P0]:
+                    # replacement semantics are wrong for a value that is
+                    # immutable once written -- the whole point of the binding
+                    # is that nothing rebinds it. If a row is somehow already
+                    # there the primary key refuses and this transaction rolls
+                    # back, which is the correct answer to "somebody else got
+                    # here first" and is the answer the re-read above already
+                    # gives on every ordinary path.
+                    connection.execute(
+                        "INSERT INTO meta (key, value) VALUES (?, ?)",
+                        (_META_AUTHORITY_UUID, authority_uuid))
             # THE FINISHED SHAPE IS PROVED BEFORE THE COMMIT, not assumed from
             # having run the statements. A migration that produced a store
             # this build cannot own is a migration whose next act would be

@@ -81,6 +81,18 @@ class Engine:
         return {"status": 0, "stdout": "", "stderr": ""}
 
 
+class _Answering(Engine):
+    """A recording engine that answers from the vector rather than a script."""
+
+    def __init__(self, answering):
+        super().__init__()
+        self._answering = answering
+
+    def __call__(self, argv):
+        self.vectors.append(list(argv))
+        return self._answering(list(argv))
+
+
 def answer(status=0, stdout="", stderr=""):
     return {"status": status, "stdout": stdout, "stderr": stderr}
 
@@ -653,25 +665,40 @@ class Adapting(Configured):
                 pass
         self._home.cleanup()
 
-    def launched(self):
+    def launched(self, attempt_id="attempt-1"):
         """One materialized launch document, authored by the manager.
 
         Per adapter rather than per attempt: a refused start DISCARDS the
         delivery, so handing a second adapter the same one would hand it a
         document the first tore down.
+
+        The attempt is an operand because a start labels the runtime for one
+        attempt and carries that attempt's launch document; a case about a
+        DIFFERENT attempt's start needs the matching delivery or it measures
+        the adapter's one-delivery-one-attempt refusal instead of its subject.
         """
         self._launches += 1
         home = os.path.join(self.home, f"launch-{self._launches}")
         os.makedirs(home, exist_ok=True)
         return launch.materialize(
-            home, attempt_id="attempt-1", session="session-attempt-1",
+            home, attempt_id=attempt_id, session=f"session-{attempt_id}",
             contract="exercise the constrained OCI adapter",
             role="implementer")
 
     def adapter(self, *answers, engine="docker", identity=None, roots=None,
                 launch_delivery=False, workspace_group=_UNSET,
-                network=_UNSET, interactive=_UNSET):
-        self.engine = Engine(answers)
+                network=_UNSET, interactive=_UNSET, answering=None):
+        """One adapter over a recording engine.
+
+        `answering` replaces the scripted answer list with a CALLABLE over the
+        vector, for the one case that needs the engine to behave like an
+        engine rather than replay a fixed sequence: W83781's fresh-attempt
+        start has to be handed a daemon that is still holding another
+        Authority's container and honours the attempt-id selector, because a
+        start against an empty engine would prove nothing about selection.
+        """
+        self.engine = Engine(answers) if answering is None \
+            else _Answering(answering)
         # W38956's two start operands. `_UNSET` means "do not name it", which
         # is a DIFFERENT request from naming its default -- the whole property
         # under test is that an adapter which names neither composes exactly
@@ -1089,6 +1116,78 @@ class OneDeliveryCarriesOneResolvedIdentity(Adapting):
                     adapter.list({"labels": dict(LABELS)})
                 self.assertIn("one delivery carries one identity",
                               caught.exception.message)
+
+    def test_a_foreign_authoritys_container_is_refused_and_stays_refused(self):
+        """W83781, the negative control that must NOT change.
+
+        This is the behaviour that was correct while the identity derivation
+        was not: a fresh authority derived the same attempt id, the engine
+        returned the retained container, and this comparison refused to adopt
+        it because its immutable `authority_uuid` names somebody else. The
+        namespace correction removes the collision; it does not relax this,
+        and a build that started selecting containers by attempt id alone
+        would have made the collision silent instead of fixing it.
+        """
+        stale = dict(LABELS, authority_uuid="26050b09a89ab20c0a0e631723fce6c0")
+        adapter = self.adapter(answer(stdout=listing(labels=stale)))
+        with self.assertRaises(ContractRefusal) as caught:
+            adapter.list({"labels": dict(LABELS)})
+        self.assertIn("one delivery carries one identity",
+                      caught.exception.message)
+
+    def test_a_namespaced_attempt_reaches_exactly_one_run(self):
+        """The correction's own half, driven THROUGH `start`.
+
+        Review 2026-09-04T09-07-42Z [P1]: the first version of this case
+        derived two distinct attempts and proved only that `list` answered
+        `[]`. Its own docstring said a start proceeds, and it never called
+        `start` -- so it asserted the premise and skipped the acceptance.
+
+        The engine double below RETAINS the old Authority's container and
+        honours the attempt-id selector, which is what makes the answer mean
+        something: the fresh attempt is not handed an empty engine, it is
+        handed one that is still holding somebody else's runtime and simply
+        does not match on the name it asks about.
+        """
+        from baton_v12.job_manager.episodes import identities
+
+        mine = identities("e0cccafbe81ae8072de8e24b45091283",
+                          "job-a/implementation", 1)[1]
+        theirs = identities("26050b09a89ab20c0a0e631723fce6c0",
+                            "job-a/implementation", 1)[1]
+        self.assertNotEqual(mine, theirs)
+        stranger = dict(LABELS,
+                        authority_uuid="26050b09a89ab20c0a0e631723fce6c0",
+                        runtime_attempt_id=theirs)
+        retained = json.dumps({
+            "ID": "runtime-retained", "Image": IMAGE,
+            "Labels": ",".join(f"{LABEL_PREFIX}{name}={stranger[name]}"
+                               for name in documents.RUNTIME_LABELS)})
+
+        def engine(argv):
+            if argv[1] == "ps":
+                # THE SELECTOR IS HONOURED, as a real engine honours it: the
+                # retained row is returned only to a caller asking for the
+                # attempt it actually carries.
+                asked = [one for one in argv
+                         if one.startswith(f"{LABEL_PREFIX}"
+                                           "runtime_attempt_id=")]
+                wanted = asked[0].split("=", 1)[1] if asked else None
+                return {"status": 0, "stderr": "",
+                        "stdout": retained if wanted == theirs else ""}
+            if argv[1] == "run":
+                return {"status": 0, "stderr": "", "stdout": "runtime-fresh\n"}
+            return {"status": 0, "stderr": "", "stdout": ""}
+
+        adapter = self.adapter(answering=engine,
+                               launch_delivery=self.launched(mine))
+        started = adapter.start({"labels": dict(LABELS,
+                                                runtime_attempt_id=mine),
+                                 "operation_id": "runtime.start:w83781"})
+        self.assertEqual(started["runtime_id"], "runtime-fresh")
+        runs = [vector for vector in self.engine.vectors
+                if "run" in vector]
+        self.assertEqual(len(runs), 1, self.engine.vectors)
 
     def test_a_contradictory_candidate_stops_a_start_before_the_engine_creates(
             self):

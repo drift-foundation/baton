@@ -53,7 +53,7 @@ class RealComposition(JobManagerCase):
     def restart(self, incarnation="jobs-2"):
         """A new Job manager incarnation over the same two stores."""
         self.jobs.close()
-        self.jobs = JobStore.open(self.job_path, incarnation=incarnation,
+        self.jobs = JobStore.open(self.job_path, authority_uuid=UUID, incarnation=incarnation,
                                   clock=self.clock)
         self.addCleanup(self.jobs.close)
         return self.jobs
@@ -239,7 +239,8 @@ class OneControlStoreAndTwoJobStores(JobManagerCase):
         """A second Job store, sharing nothing with the first but the control
         store and, where a case wants the collision, a Job identity."""
         store = JobStore.open(os.path.join(self.root, "jobs-b.sqlite3"),
-                              incarnation="jobs-b", clock=self.clock)
+                              authority_uuid=UUID, incarnation="jobs-b",
+                              clock=self.clock)
         self.addCleanup(store.close)
         submit(store, submission(submission_id="sub-2", jobs=jobs))
         return store

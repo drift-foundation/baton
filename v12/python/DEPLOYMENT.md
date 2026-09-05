@@ -209,12 +209,14 @@ Use a fresh incarnation value for every manager process start:
     cd /opt/baton/v12/python
     PYTHONPATH=src:. python3 -m tools.job_manager \
       --store /var/lib/baton/v12/jobs.sqlite3 \
+      --authority-uuid 0123456789abcdef0123456789abcdef \
       --incarnation submit-20260903-01 \
       submit --document /etc/baton/bootstrap-job.json
 
     BATON_V12_SINGLE_WORKER_CONFIG=/etc/baton/single-worker.json \
     PYTHONPATH=src:. python3 -m tools.job_manager \
       --store /var/lib/baton/v12/jobs.sqlite3 \
+      --authority-uuid 0123456789abcdef0123456789abcdef \
       --incarnation manager-20260903-01 \
       serve --control /var/lib/baton/v12/worker-control.sqlite3 \
       --operations tools.single_worker:factory --interval 5
@@ -224,6 +226,7 @@ factory capability:
 
     PYTHONPATH=src:. python3 -m tools.job_manager \
       --store /var/lib/baton/v12/jobs.sqlite3 \
+      --authority-uuid 0123456789abcdef0123456789abcdef \
       --incarnation status-20260903-01 \
       status --control /var/lib/baton/v12/worker-control.sqlite3
 
@@ -276,6 +279,7 @@ an observation factory changes exactly that one thing:
     BATON_V12_SINGLE_WORKER_CONFIG=/etc/baton/single-worker.json \
     PYTHONPATH=src:. python3 -m tools.job_manager \
       --store /var/lib/baton/v12/jobs.sqlite3 \
+      --authority-uuid 0123456789abcdef0123456789abcdef \
       --incarnation status-20260903-01 \
       status --control /var/lib/baton/v12/worker-control.sqlite3 \
       --observe tools.single_worker:observing_factory
@@ -305,6 +309,40 @@ Authority pass, no cleanup, no replacement attempt, no second command and no
 second provider turn. The two axes stay separate — observing that a container
 exited never manufactures the quiescence a successful ending requires, and an
 unreadable exchange never stops the engine being asked.
+
+### The Authority a Job store belongs to
+
+`--authority-uuid` is required on all three commands and is the 32-lowercase-hex
+Authority the Job store belongs to. It is persisted on the store's first open
+and is immutable: a later open naming a different Authority refuses without
+changing a byte, and an existing schema-1 or schema-2 store is pinned to the
+supplied Authority in the same transaction that stamps the new schema version.
+
+**It namespaces every episode identity the store derives.** Offer and attempt
+identities are the names an OCI runtime is labelled and selected by. They used
+to be derived from the stage id and the episode number alone — both local to
+one Job store — so two independent Job Managers running a stage with the same
+local name derived the *same* attempt identity, and a fresh Authority's very
+first episode was measured colliding with a retained container belonging to
+another Authority entirely. The adapter refused to adopt that container, which
+is correct and unchanged; what was wrong was handing it an identity two
+strangers could both produce.
+
+It is a binding, not a capability. `submit` and read-only `status` learn only
+this stable public identity: neither opens an Authority, holds a session, or
+gains any mutation surface. The production `serve` factory additionally
+compares the store's recorded Authority with its configuration's
+`authority_uuid` **before** it configures the workspace group or storage,
+certifies a profile, allocates anything, or opens the Authority — a mismatch is
+a fail-closed deployment error with no partial control-store configuration.
+
+Existing episodes are never renamed. Migration preserves every recorded offer,
+attempt, receipt and operation byte, because Worker Manager journal keys and
+Job receipts already reference those strings; the namespace decides what a
+*new* episode is called. An already-recorded unnamespaced episode can still
+meet a retained container from another Authority and will still fail closed, so
+production acceptance of this correction uses fresh Job and control stores
+rather than claiming that reopening an old store repairs its identities.
 
 After a crash, run the same `serve` command with a new incarnation and the same
 durable paths and configuration. The manager adopts the accepted claim,

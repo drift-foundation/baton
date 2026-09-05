@@ -1593,13 +1593,41 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                     credential_provider=None, clock=None, checkpoint=None):
     """Build the exact manager operations from one already-read document.
 
-    ``job_store`` is accepted because every factory has the same public shape;
-    this deployment needs no private Job-store read and deliberately drops it.
-    The two injectable capabilities are for focused verification.  The public
-    ``factory`` supplies the real subprocess runner and private source reader.
+    ``job_store`` is accepted because every factory has the same public shape.
+    W83781 gave it one thing this deployment must read: the Authority the
+    store is bound to, which is compared with the configured Authority before
+    any durable side effect.  The two injectable capabilities are for focused
+    verification.  The public ``factory`` supplies the real subprocess runner
+    and private source reader.
     """
-    del job_store
     given = _held(document)
+    # W83781: THE JOB STORE'S AUTHORITY BINDING IS COMPARED FIRST, before this
+    # deployment configures anything.
+    #
+    # `job_store` used to be deleted here with a note that this deployment
+    # needs no private Job-store read. That was true when a Job store knew
+    # nothing about which Authority it belonged to; it is not true now. The
+    # store's episode identities are derived in its Authority's namespace and
+    # the containers those identities name carry that Authority as an
+    # immutable label -- so a Job store bound to one Authority driven by a
+    # configuration naming another would start runtimes labelled for an
+    # Authority its own identities were never derived in.
+    #
+    # BEFORE ANY DURABLE SIDE EFFECT, and the ordering is the whole
+    # correction. Everything below this line writes: the workspace group and
+    # storage are configured on the control store, a profile is certified,
+    # storage is allocated and an Authority is opened. A mismatch found after
+    # any of those would have left this deployment half-configured against a
+    # store it must not touch at all.
+    held = getattr(job_store, "authority_uuid", None)
+    if held != given["authority_uuid"]:
+        _refuse(f"this Job store is bound to Authority {held!r} and this "
+                f"configuration names {given['authority_uuid']!r}; a store's "
+                f"episode identities are derived in its own Authority's "
+                f"namespace, so driving it from another one would start "
+                f"runtimes labelled for an Authority those identities were "
+                f"never derived in", category="refused",
+                code="operation-collision")
     provider = credential_provider
     if provider is None:
         if given["credential_sources"] is None:
@@ -1718,6 +1746,22 @@ class _Observation:
         # this Work rather than integrated over it, so a candidate here must
         # not depend on it. The binding belongs to that Work's boundary and
         # is its to enforce, in `operations_from` and in the store itself.
+        #
+        # W83781 IS NOW INTEGRATED OVER W85500, WHICH SUPERSEDES THE ORDERING
+        # SENTENCE ABOVE AND NOT THE DECISION. The check still stays out, for
+        # a reason that is now measurable rather than provisional:
+        # `JobStore.open` REQUIRES the Authority operand and refuses a store
+        # bound to another one without touching it, so by the time a store
+        # reaches this factory its binding has already been proved against
+        # what the operator named. What `operations_from` compares is a second
+        # question -- the CONFIGURATION's Authority against the store's -- and
+        # it compares it because everything after that line WRITES. This one
+        # reads. A configuration naming another Authority reaches another
+        # Authority's launch home, where this store's namespaced attempt ids
+        # do not exist, so the answer is `exchange: null` rather than a
+        # stranger's terminal. Refusing here as well is a design decision that
+        # belongs to a pinned ruling and an independent review, not to a
+        # rebase.
         del job_store
         self.given = given
         self.control = control_store

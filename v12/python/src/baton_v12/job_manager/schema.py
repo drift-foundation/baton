@@ -18,21 +18,62 @@ would be the shadow lifecycle this leaf was told not to build -- so the state
 an operator reads is DERIVED at projection time and is stored nowhere.
 """
 
+from ..contracts import ContractRefusal
 from ..worker_manager.boundaries import Column
 
 __all__ = ["EPISODE_COLUMNS", "MIGRATIONS", "SCHEMA", "SCHEMA_VERSION",
+           "check_authority",
            "STORE_KIND", "TABLES", "JOB_COLUMNS", "OPERATION_COLUMNS",
            "OPERATION_STATES", "RECEIPT_COLUMNS", "RECEIPT_STATES",
            "STAGE_COLUMNS", "SUBMISSION_COLUMNS"]
 
 STORE_KIND = "baton.v12.python.job-manager"
 
+
+def check_authority(value, *, what):
+    """The Authority UUID rule, REUSED and answered in this leaf's vocabulary.
+
+    W83781. Two things have to be true at once and they pull in opposite
+    directions. The RULE must be the Authority package's own -- a second,
+    looser spelling of "32 lowercase hex" living in the Job manager is exactly
+    the drift the finding forbids, and it is the kind that stays invisible
+    until two components disagree about one identity. But the REFUSAL a caller
+    of this package catches must be this package's, because everything else
+    here raises `ContractRefusal` and a boundary that sometimes raises
+    somebody else's exception is a boundary callers have to special-case.
+
+    So the predicate is imported and the refusal is translated. Nothing is
+    re-implemented and nothing leaks: `check_authority_uuid` opens no store,
+    holds no session and grants nothing -- it is a rule, not a capability, and
+    importing a rule is not importing an Authority.
+    """
+    from ..authority.errors import Refusal
+    from ..authority.identity import check_authority_uuid
+
+    try:
+        return check_authority_uuid(value, what=what)
+    except Refusal as refused:
+        raise ContractRefusal("integrity", "schema", str(refused)) from None
+
 # Two. W73629 added the stage EPISODE, because one restart can end a stage's
 # offer without ending the stage: the manager abandons an offer whose bearer it
 # cannot account for, and the stage then needs a fresh offer and a fresh
 # attempt while the abandoned one stays auditable. Schema 1 had one derived
 # offer and one derived attempt per stage and no room to say that.
-SCHEMA_VERSION = 2
+# Three. W83781 bound the store to ONE AUTHORITY. Episode identities were
+# derived from the stage id and the episode number alone -- both local to one
+# Job store -- so two independent authorities running the same local stage name
+# derived the same OCI attempt identity, and a fresh authority's first episode
+# collided with a retained container belonging to somebody else entirely. The
+# namespace has to come from somewhere globally unique, and the only such thing
+# a Job store legitimately knows is which Authority it belongs to.
+#
+# THE STEP ADDS NO TABLE, and that is the whole point of doing it as a schema
+# version anyway: what changes is a REQUIRED meta row, so a schema-2 store
+# opened by this build must be pinned to an Authority in the same transaction
+# that stamps the version, and a store that predates the pin must not be read
+# as though it had one.
+SCHEMA_VERSION = 3
 
 TABLES = ("meta", "operations", "submissions", "jobs", "stages", "episodes",
           "receipts")
@@ -167,7 +208,14 @@ CREATE TABLE receipts (
 # the identities its own row already held, so a migrated store's canonical
 # operation ids are unchanged and its receipts still reconcile against the
 # manager journal rows they already named.
+# THE 2 -> 3 STEP IS DELIBERATELY EMPTY DDL. Its whole content is the Authority
+# binding, which is a value the OPENER supplies rather than anything derivable
+# from the store -- so it is written by `_migrate` inside the same transaction
+# that stamps the version, and there is no statement here to write it with.
+# An entry that does not exist is a version this build refuses to migrate, so
+# the key has to be present even though its text is empty.
 MIGRATIONS = {
+    2: "",
     1: """
 CREATE TABLE episodes (
   stage_id TEXT NOT NULL REFERENCES stages(stage_id),

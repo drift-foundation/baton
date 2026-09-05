@@ -54,8 +54,8 @@ else:
                           submission)
 
 STAGE = "job-a/implementation"
-FIRST_OFFER, FIRST_ATTEMPT = identities(STAGE, 1)
-SECOND_OFFER, _SECOND_ATTEMPT = identities(STAGE, 2)
+FIRST_OFFER, FIRST_ATTEMPT = identities(UUID, STAGE, 1)
+SECOND_OFFER, _SECOND_ATTEMPT = identities(UUID, STAGE, 2)
 ABANDONED = "abandoned-after-restart"
 
 
@@ -90,7 +90,7 @@ class TheRealRestart(JobManagerCase):
         what it answered.
         """
         self.jobs.close()
-        self.jobs = JobStore.open(self.job_path, incarnation="jobs-2",
+        self.jobs = JobStore.open(self.job_path, authority_uuid=UUID, incarnation="jobs-2",
                                   clock=self.clock)
         self.addCleanup(self.jobs.close)
         self.acts = ManagerOperations(
@@ -301,7 +301,7 @@ class AClaimedStageGatesItsSuccessor(JobManagerCase):
                      work_ref={"authority_uuid": UUID, "work_id": WORK_A})
         for incarnation in ("manager-2", "manager-3"):
             self.jobs.close()
-            self.jobs = JobStore.open(self.job_path, incarnation=incarnation,
+            self.jobs = JobStore.open(self.job_path, authority_uuid=UUID, incarnation=incarnation,
                                       clock=self.clock)
             self.addCleanup(self.jobs.close)
             self.acts = ManagerOperations(
@@ -554,7 +554,7 @@ class OneReplacementPerEnding(JobManagerCase):
         sweep(self.jobs, self.acts, now=SOON, attach=True)
 
     def test_a_second_manager_replays_the_replacement_it_did_not_open(self):
-        other = JobStore.open(self.job_path, incarnation="jobs-b",
+        other = JobStore.open(self.job_path, authority_uuid=UUID, incarnation="jobs-b",
                               clock=self.clock)
         self.addCleanup(other.close)
         report = sweep(other, self.acts, now=SOON)

@@ -164,7 +164,7 @@ class TheLaunchSurvivesTheClaimCrashWindow(JobManagerCase):
             "DELETE FROM operations WHERE operation_id LIKE '%:claim'")
         self.started.clear()
         self.session.calls.clear()
-        resumed = JobStore.open(self.job_path, incarnation="jobs-2",
+        resumed = JobStore.open(self.job_path, authority_uuid=UUID, incarnation="jobs-2",
                                 clock=self.clock)
         self.addCleanup(resumed.close)
         report = sweep(resumed, self.acts, now=SOON)
@@ -189,7 +189,7 @@ class TheLaunchSurvivesTheClaimCrashWindow(JobManagerCase):
                      work_ref={"authority_uuid": UUID, "work_id": WORK_A})
         sweep(self.jobs, self.acts, now=NOW)
         self.started.clear()
-        resumed = JobStore.open(self.job_path, incarnation="jobs-3",
+        resumed = JobStore.open(self.job_path, authority_uuid=UUID, incarnation="jobs-3",
                                 clock=self.clock)
         self.addCleanup(resumed.close)
         reconcile(resumed, self.acts, now=SOON)

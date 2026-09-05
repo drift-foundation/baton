@@ -18,10 +18,10 @@ from baton_v12.job_manager import (STAGE_STATES, STATUS_SCHEMA, Unobserved,
 from baton_v12.job_manager.episodes import identities
 
 if __package__:
-    from .fixtures import (LATER, NOW, FakeOperations, JobManagerCase, job,
+    from .fixtures import (LATER, NOW, UUID, FakeOperations, JobManagerCase, job,
                            stage, submission)
 else:
-    from fixtures import (LATER, NOW, FakeOperations, JobManagerCase, job,
+    from fixtures import (LATER, NOW, UUID, FakeOperations, JobManagerCase, job,
                           stage, submission)
 
 
@@ -126,7 +126,7 @@ class States(StatusCase):
             stage("integration")])]))
         for stage_id in ("job-a/implementation", "job-a/review",
                          "job-a/integration"):
-            _offer_id, attempt_id = identities(stage_id, 1)
+            _offer_id, attempt_id = identities(UUID, stage_id, 1)
             self.acts.observed(stage_id, claimed_by=True,
                                runtime={"attempt_id": attempt_id,
                                         "runtime_id": "runtime-1",
@@ -147,7 +147,7 @@ class States(StatusCase):
 
     def test_an_uncertain_runtime_is_exceptional_and_never_running(self):
         submit(self.jobs, submission(jobs=[job("job-a")]))
-        _offer_id, attempt_id = identities("job-a/implementation", 1)
+        _offer_id, attempt_id = identities(UUID, "job-a/implementation", 1)
         self.acts.observed(
             "job-a/implementation", claimed_by=True,
             runtime={"attempt_id": attempt_id, "runtime_id": "runtime-1",
@@ -222,7 +222,7 @@ class Locators(StatusCase):
 
     def test_a_running_stage_reports_its_runtime_identity_and_activity(self):
         submit(self.jobs, submission(jobs=[job("job-a")]))
-        _offer_id, attempt_id = identities("job-a/implementation", 1)
+        _offer_id, attempt_id = identities(UUID, "job-a/implementation", 1)
         self.acts.observed(
             "job-a/implementation", claimed_by=True,
             runtime={"attempt_id": attempt_id,
@@ -266,8 +266,7 @@ class Locators(StatusCase):
                               "job-a/implementation")
         self.assertEqual([one["act"] for one in found["receipts"]], ["admit"])
         self.assertEqual(found["receipts"][0]["operation_id"],
-                         "offer.issue:" + identities(
-                             "job-a/implementation", 1)[0])
+                         "offer.issue:" + identities(UUID, "job-a/implementation", 1)[0])
         self.assertEqual(found["receipts"][0]["detail"]["canonical_state"],
                          "committed")
 
