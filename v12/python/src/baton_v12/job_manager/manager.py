@@ -31,7 +31,7 @@ from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from ..worker_manager import events
-from . import delegation, documents, episodes, projection, submission
+from . import delegation, documents, episodes, projection, scheduler, submission
 from .store import job_signature
 
 __all__ = ["TICK_SECONDS", "reconcile", "serve", "sweep"]
@@ -124,6 +124,7 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     """
     boundaries.instant(now, "the sweep's instant")
     observed = _observe(store, operations, attach=attach)
+    scheduler.reconcile_allocations(store)
     replaced = _replace(store, operations)
     # W85500: AND THE ENGINE IS ASKED BEFORE ANYTHING IS PROJECTED.
     #
@@ -140,6 +141,7 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # would report this tick's decisions from last tick's runtime truth.
     refreshed = _refresh(store, operations)
     held = projection.stage_states(store, operations)
+    scheduler.reconcile_allocations(store, held)
     acts = _adopt(store, operations, held)
     if acts:
         # The receipts changed underneath the derivation, so what is owed is

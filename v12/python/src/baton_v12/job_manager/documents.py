@@ -94,7 +94,9 @@ SUBMISSION_SCHEMA = "baton.v12.job-submission/1"
 # against /2 would see a started container it used to be told was working, and
 # the version is in the name so that reader is told rather than left to find
 # out.
-STATUS_SCHEMA = "baton.v12.job-status/3"
+# W71877 moved this to /4. A stage now reports its scheduler allocation
+# history beside the Worker Manager's assignment and runtime identities.
+STATUS_SCHEMA = "baton.v12.job-status/4"
 
 # The three stages this milestone's vertical slice has. They are a CLOSED
 # vocabulary rather than free text because the projection below maps each one
@@ -469,7 +471,8 @@ CONTRACTS = {
     # from an exchange that has been looked at and carries no command.
     "stage.status": (("stage_id", "job_id", "kind", "state", "work_id",
                       "profile_name", "profile_digest", "episode", "offer_id",
-                      "attempt_id", "episodes", "gates", "receipts",
+                      "attempt_id", "episodes", "allocation", "allocations",
+                      "gates", "receipts",
                       "runtime", "exchange", "artifacts"), ()),
     "job.status": (("job_id", "submission_id", "input_digest",
                     "policy_digest", "test_scope", "terminal_policy",

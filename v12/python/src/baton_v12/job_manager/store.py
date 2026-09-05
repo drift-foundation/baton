@@ -26,6 +26,7 @@ not another store's, however identical the serialization looks.
 """
 
 import json
+import re
 import sqlite3
 
 from ..contracts import (ContractRefusal, canonical_text,
@@ -53,6 +54,61 @@ _META_SCHEMA_VERSION = "schema_version"
 _META_AUTHORITY_UUID = "authority_uuid"
 
 _SIGNATURE_MEMBERS = ("kind", "operands")
+
+
+_PUNCTUATION = re.compile(r"([(),])")
+# `--` to end of line. This schema's string literals are single-quoted and
+# carry no `--`, so there is nothing for it to eat but a comment.
+_COMMENT = re.compile(r"--[^\n]*")
+
+
+def _definition(sql):
+    """One SQL definition, compared by its content rather than its spelling.
+
+    WHITESPACE AND IDENTIFIER QUOTING ONLY. A renamed table's stored header is
+    `CREATE TABLE "stages"` where an install's is `CREATE TABLE stages`, and
+    the two are the same table; everything else -- columns, CHECK expressions,
+    partial-index predicates -- is content and must match.
+
+    Punctuation is spaced out before the collapse, because `meta (key TEXT` and
+    `meta ( key TEXT` are one table written by two hands -- an installed schema
+    and a hand-written historical fixture -- and a comparison that called those
+    different would refuse a store for its typography.
+
+    Double quotes are SQLite's IDENTIFIER quoting; string literals in this
+    schema use single quotes, which are left exactly as they are, so a CHECK's
+    vocabulary is compared as itself.
+    """
+    # COMMENTS GO FIRST, and while the newlines are still there to end them.
+    # SQLite stores the definition verbatim, so `SCHEMA`'s explanation of the
+    # all-three-or-none ending CHECK is part of `episodes`' recorded text and
+    # `MIGRATIONS[1]`'s copy of the same table has no comment at all.
+    bare = _COMMENT.sub("", sql or "")
+    spaced = _PUNCTUATION.sub(r" \1 ", bare.replace('"', ""))
+    return " ".join(spaced.split())
+
+
+def _created_name(statement):
+    """The object one `CREATE` statement makes, or `None`.
+
+    The 3 -> 4 step only creates, which is what lets the schema-3 expectation
+    be a subtraction. A step that ALTERED an existing table would make that
+    subtraction wrong, so an unrecognised leading verb is refused here rather
+    than silently contributing nothing.
+    """
+    words = statement.split()
+    if not words:
+        return None
+    if words[0].upper() != "CREATE":
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the 3 -> 4 migration performs {name_value(words[0])}; this "
+            f"build derives schema 3 by subtracting what that step CREATES, "
+            f"and a step that changes an existing object cannot be subtracted")
+    rest = [word for word in words[1:]
+            if word.upper() not in ("TABLE", "INDEX", "UNIQUE", "VIEW",
+                                    "TRIGGER", "IF", "NOT", "EXISTS")]
+    return rest[0].split("(")[0] if rest else None
 
 
 def _statements(script):
@@ -201,10 +257,97 @@ class JobStore:
                 f"Job manager cannot read "
                 f"({name_value(type(failure).__name__)}), so it is not a Job "
                 f"store this build owns. Nothing was changed") from None
-        cls._migrate(connection, cls._validate(recorded, path), path,
-                     authority_uuid)
+        version = cls._validate(recorded, path)
+        # Schema 3 introduced the immutable Authority binding.  A schema-3
+        # store that has lost or changed it is malformed evidence and must be
+        # refused before the scheduler's 3 -> 4 migration changes anything.
+        if version >= 3:
+            cls._bound(connection, path, authority_uuid)
+        cls._migrate(connection, version, path, authority_uuid)
         cls._bound(connection, path, authority_uuid)
         connection.execute("PRAGMA foreign_keys = ON")
+
+    @classmethod
+    def _exactly_schema_three(cls, connection, path):
+        """Refuse a store whose objects are not the whole of schema 3.
+
+        DERIVED, NOT LISTED. The expected shape is this build's own v4 schema
+        minus exactly what the 3 -> 4 step creates, both read from
+        `schema.py`. A second hand-written list of schema-3 objects would be a
+        copy to drift from, and drift is the whole class of defect this check
+        exists for.
+
+        COMPARED BY THE WHOLE DEFINITION, which is a correction. The first
+        version of this check compared columns, foreign keys and index column
+        lists through pragmas, and W71877's second correction review showed
+        what that misses: an index recreated with the same name, uniqueness
+        and columns but the OPPOSITE partial predicate --
+        `WHERE ended_state IS NOT NULL` in place of `IS NULL` -- migrated
+        cleanly, and that predicate is the whole of what
+        `episodes_one_live_per_stage` enforces. Table `CHECK` constraints were
+        outside it for the same reason. Neither is expressible in a pragma, and
+        both are in `sqlite_schema.sql`, so the definition is what is compared.
+
+        TWO SPELLINGS OF ONE SCHEMA ARE STILL BOTH LEGITIMATE, and that is
+        what `_definition` exists for rather than a weaker comparison.
+        `MIGRATIONS[1]` builds `stages` and `receipts` as `stages_2` and
+        `receipts_2` and renames them, and SQLite rewrites the stored header as
+        `CREATE TABLE "stages"` -- quoted, where an install writes it bare.
+        The bodies are identical. So identifier quoting and whitespace are
+        normalised away and everything else -- every column, every constraint,
+        every predicate -- must match exactly.
+        """
+        expected = cls._schema_three_shape()
+        found = cls._schema_shape(connection)
+        missing = sorted(set(expected) - set(found))
+        added = sorted(set(found) - set(expected))
+        changed = sorted(name for name in set(expected) & set(found)
+                         if expected[name] != found[name])
+        if missing or added or changed:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the Job store at {name_value(path)} says it is schema 3 and "
+                f"its objects are not schema 3's"
+                + (f"; missing {', '.join(missing)}" if missing else "")
+                + (f"; unexpected {', '.join(added)}" if added else "")
+                + (f"; changed {', '.join(changed)}" if changed else "")
+                + ". Nothing was changed")
+
+    @classmethod
+    def _schema_three_shape(cls):
+        """This build's v4 shape, less the objects 3 -> 4 creates.
+
+        Built in a THROWAWAY IN-MEMORY DATABASE rather than parsed out of the
+        DDL text: what a store must match is what SQLite makes of these
+        statements, and the only reader that agrees with SQLite is SQLite.
+        """
+        beside = sqlite3.connect(":memory:")
+        try:
+            beside.row_factory = sqlite3.Row
+            for statement in _statements(SCHEMA):
+                beside.execute(statement)
+            whole = cls._schema_shape(beside)
+        finally:
+            beside.close()
+        added = set()
+        for statement in _statements(MIGRATIONS[3]):
+            name = _created_name(statement)
+            if name is not None:
+                added.add(name)
+        return {name: shape for name, shape in whole.items()
+                if name not in added}
+
+    @staticmethod
+    def _schema_shape(connection):
+        """One database's objects, each as its whole normalised definition.
+
+        The type travels with it so a table replaced by a view of the same
+        name is a difference rather than a coincidence.
+        """
+        return {row["name"]: (row["type"], _definition(row["sql"]))
+                for row in connection.execute(
+                    "SELECT name, type, sql FROM sqlite_master "
+                    "WHERE name NOT LIKE 'sqlite_%'")}
 
     @staticmethod
     def _bound(connection, path, authority_uuid):
@@ -408,13 +551,25 @@ class JobStore:
                 connection.execute("COMMIT")
                 return
             while at != SCHEMA_VERSION:
+                if at == 3:
+                    # W71877 review [P1]: THE WHOLE PRIOR SHAPE IS PROVED
+                    # BEFORE THE STEP THAT DEPENDS ON IT, under this same lock.
+                    #
+                    # The finished-shape check below asks only that the v4
+                    # TABLE NAMES exist afterwards. That says nothing about the
+                    # store this migration started from -- the reviewer stamped
+                    # a store as schema 3 with `episodes_one_live_per_stage`
+                    # removed and it opened as schema 4 with the missing index
+                    # still missing. A version stamp is a claim; the objects
+                    # are the evidence.
+                    cls._exactly_schema_three(connection, path)
                 for statement in _statements(MIGRATIONS[at]):
                     connection.execute(statement)
                 at += 1
                 connection.execute(
                     "UPDATE meta SET value = ? WHERE key = ?",
                     (str(at), _META_SCHEMA_VERSION))
-                if at == SCHEMA_VERSION:
+                if at == 3:
                     # W83781: THE BINDING IS STAMPED WITH THE VERSION THAT
                     # REQUIRES IT, inside this same transaction. A failure
                     # anywhere below rolls the UUID and the version stamp back

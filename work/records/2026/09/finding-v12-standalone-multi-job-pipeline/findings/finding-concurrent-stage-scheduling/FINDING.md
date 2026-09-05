@@ -707,3 +707,110 @@ W71877 persists only the lane and logical worker. W71918 introduces the durable
 provider-neutral `AgentSession` identity and its correction/review continuity
 relations. W71877 neither exposes nor creates a placeholder session boundary
 for W71918.
+
+## Implementer revalidation after the authority-binding migration — 2026-09-05
+
+The committed baseline now uses Job-store schema 3 for W83781's required
+Authority binding. This supersedes only the schema number in “Operator
+acceptance of decision 3”: the scheduler relations advance the current store
+through one transactional **3 -> 4** migration. A valid schema-1 store advances
+transitively through the existing 1 -> 2 and 2 -> 3 steps before the scheduler
+step. The accepted preservation, complete-prior-schema validation, rollback,
+and empty-initial-relations rules are unchanged.
+
+## Independent implementation review — changes requested 2026-09-05
+
+Review `review-2026-09-05T11-17-00Z.md` binds proposal
+`sha256:c65246632153bd23dd2ebbe991d70c7f7a5fa28df8d3338bc8d7b33c8d8796b5`
+and records seven corrections required before integration. The candidate's
+focused happy path passes, but it does not yet fail closed at every accepted
+identity, migration, allocation, settlement and replay boundary.
+
+The correction must: re-resolve canonical principals for the active generation
+AND every live prior generation before routing any operation; refuse every
+stage-specific operation without its exact allocation instead of selecting the
+first worker; retain or quarantine capacity after an admission refusal until
+canonical no-assignment evidence permits release; validate the complete schema
+3 object set before migration; represent a later reactivation of an old pool
+variant as a new active generation; preserve operation-signature collision
+checks on already-moved allocations; and exercise the accepted four-principal
+claim/run and alias-collapse fake rather than only reserving Job-store rows.
+
+The retained reproduction is `repro-2026-09-05T11-17-00Z.py`. Its five cases
+all pass against the reviewed proposal, demonstrating the current unwanted
+behaviour. No production or test correction was made during review.
+
+## Independent correction review — changes requested 2026-09-05
+
+Review `review-2026-09-05T11-57-43Z.md` examined the correction handoff named
+by working-tree content digest `ac11dbae795611c9a033919da11cdebb64f84e4a578b10c4bece2706fd5bb93d`.
+All 18 member bytes and modes matched its manifest before review history was
+appended, and six prior behavioral defects are materially corrected.
+
+The complete-prior-schema rule remains open: the shape comparison omits partial
+index predicates and table CHECK constraints. The retained
+`repro-2026-09-05T11-56-00Z.py` gives the critical live-episode index its
+opposite predicate and shows that the store still migrates. The four-principal
+fixture now proves composed claims, but still does not prove launch/run, routes
+its alias negative around the pooled scheduler, and does not prove the failed
+slot's settlement. Finally, the handoff is a hash list over a mutable shared
+checkout rather than the immutable base/candidate/patch proposal required for
+independent reconstruction and integration.
+
+Correct those two acceptance boundaries and publish a new sealed proposal. The
+`ac11dbae...` digest is not approved and must not be reused after the dossier
+and candidate bytes change.
+
+## Independent correction review — custody-only changes requested 2026-09-05
+
+Review `review-2026-09-05T12-16-39Z.md` binds proposal
+`sha256:d4cfef928b18500138d1f6a84de10cf86aca15200dcc91b2f0001058b2df02d4`.
+All three prior content findings are corrected, the package reconstructs
+exactly from base `6532e6f`, 333 focused Job Manager tests pass, the retained
+predicate reproduction passes, and a clean reconstruction restores the
+disk-backed single-worker suite to 92/92.
+
+Content is accepted for the next custody check, but the proposal is not yet
+approved for integration: its files are `0444` while the package root and all
+proposal/base/candidate directories are owner-writable `0775`. Those
+directories permit replacing read-only members, unlike the established `0555`
+custody shape of the previous proposal. Freeze the directory hierarchy without
+changing any evidence byte, then return the same digest for final review.
+
+## Independent custody recheck — path-set correction required 2026-09-05
+
+Review `review-2026-09-05T12-22-21Z.md` verifies that all 43 package
+directories are now `0555`, all 40 evidence files remain `0444`, and every
+`d4cfef92...` proposal/member digest is unchanged. Custody is corrected and
+the prior content acceptance stands.
+
+The sealed proposal nevertheless cannot be routed to integration because it
+names FINDING, PLAN and PROGRESS as import targets. The mandatory review has
+since advanced the live FINDING and PLAN. Keeping those bytes makes the
+integrator refuse target drift; restoring and importing the sealed snapshots
+deletes later chronological findings and current plan state. Reseal the same
+accepted fifteen production/test/runner members without the dossier paths, and
+preserve this whole record as excluded evidence outside the import.
+
+## Final independent proposal approval — 2026-09-05
+
+Review `review-2026-09-05T12-30-04Z.md` approves immutable proposal
+`sha256:ae076df913c4170d2e89fc0b9930b406508c1295ad4cfc4f9cd0c5a28e61eb16`
+at base `6532e6ff2f966ea6c6612326f3b0c5450026c63b`. Its exact 15-member
+production/test/runner boundary is byte-identical to the content-accepted
+`d4cfef92...` proposal, excludes all dossier material, recomputes every digest,
+reconstructs exactly, and passes 333 focused Job Manager plus 92 disk-backed
+single-worker tests. Its read-only custody is complete.
+
+The approved proposal is ready for operator target preflight, not direct import
+into the currently dirty shared tree. Restore its 13 modified targets to exact
+base bytes and its 2 added targets to absence while preserving this entire
+dossier and all unrelated concurrent work. Only then route it to the distinct
+integrator for exact 15-member import. Any drift requires a new review.
+
+### Routing-label correction — 2026-09-05
+
+Review `review-2026-09-05T12-31-47Z.md` corrects only the endpoint spelling in
+the final review: the registered distinct integrator participant is
+`baton.merge`, not the role-derived label `baton.integ`. The approval and every
+preflight condition remain unchanged.

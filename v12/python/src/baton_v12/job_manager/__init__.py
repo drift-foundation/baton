@@ -19,7 +19,6 @@ claimed or a runtime is up.
 
 WHAT IS DELIBERATELY ABSENT, so a reader can tell a boundary from a gap:
 
-  worker-pool selection and runtime profiles instantiated per worker  W71877
   read-only source mounts and disk-backed workspaces                  W71917
   immutable review checkpoints and same-line correction cycles        W71918
   serialized integration of an approved proposal                      W71878
@@ -30,6 +29,13 @@ projected honestly -- `claimed`, `running`, `reviewing`, `integrating` -- and
 this control plane owes nothing further on it. It also performs NO Git
 operation, walks or copies no source tree, opens no container, and takes no
 review or integration decision.
+
+W71877 adds the durable worker pool beside that existing control plane. It
+records immutable pool generations, virtual implementation/review workers,
+principal-aware allocation and lane affinity, reserves before an offer, and
+releases or quarantines only from canonical lifecycle evidence. It still owns
+no provider session: the Worker Manager retains attempts and runtimes, while
+W71918 owns provider-neutral cross-assignment session continuity.
 
 AND IT IS HOST-SIDE PYTHON, one process, three stores kept apart: the
 authority's, the Worker Manager's control store, and this leaf's Job store.
@@ -52,25 +58,34 @@ from .manager import (TICK_SECONDS, apply_offer_state, reconcile, serve,
 from .projection import (ACT_OUTCOMES, owed_acts, receipt_rows, receipts_of,
                          replaceable, status)
 from .schema import SCHEMA_VERSION, STORE_KIND, TABLES
+from .scheduler import (ALLOCATION_STATES, LANES, POOL_SCHEMA,
+                        SEPARATION_CLASSES, PooledManagerOperations,
+                        activate_pool, active_generation, allocation_of,
+                        allocation_rows, own_pool, pool_workers,
+                        reconcile_allocations, release, require_recovery,
+                        reserve)
 from .store import JobStore, job_signature
 from .submission import (job_of, job_rows, jobs_of, stage_rows, stages_of,
                          submission_of, submission_rows, submit)
 
-__all__ = ["ACTS", "ACT_OUTCOMES", "CANONICAL_OPERATIONS", "EPISODE_ENDINGS",
+__all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS", "EPISODE_ENDINGS",
            "INTENT_OPERANDS",
            "OBSERVATION_MEMBERS", "OPERATIONS", "REPLACEABLE_ENDINGS",
-           "SCHEMA_VERSION",
+           "LANES", "POOL_SCHEMA", "PooledManagerOperations", "SCHEMA_VERSION",
+           "SEPARATION_CLASSES",
            "STAGE_KINDS", "STAGE_STATES", "STATUS_SCHEMA", "STORE_KIND",
            "SUBMISSION_SCHEMA", "TABLES", "TERMINAL_POLICIES",
            "TERMINAL_STAGE_STATES", "TICK_SECONDS", "JobStore",
            "ManagerOperations", "RefreshUnavailable", "Unobserved",
-           "apply_offer_state",
+           "activate_pool", "active_generation", "allocation_of",
+           "allocation_rows", "apply_offer_state",
            "attempting", "canonical_operation",
            "check_binding", "episode_by_offer", "episode_of", "episodes_of",
            "job_of", "job_rows", "job_signature", "jobs_of", "live_of",
            "observation_of", "owed_acts", "owned_submission",
-           "read_submission", "receipt_rows",
-           "receipts_of", "reconcile", "replaceable",
+           "own_pool", "pool_workers", "read_submission", "receipt_rows",
+           "receipts_of", "reconcile", "reconcile_allocations", "release",
+           "replaceable", "require_recovery",
            "serve", "stage_id", "stage_intent", "stage_rows", "stages_of",
-           "status", "submission_of", "submission_rows",
+           "reserve", "status", "submission_of", "submission_rows",
            "submission_signature", "submit", "sweep"]

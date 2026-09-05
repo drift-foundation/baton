@@ -21,7 +21,8 @@ an operator reads is DERIVED at projection time and is stored nowhere.
 from ..contracts import ContractRefusal
 from ..worker_manager.boundaries import Column
 
-__all__ = ["EPISODE_COLUMNS", "MIGRATIONS", "SCHEMA", "SCHEMA_VERSION",
+__all__ = ["ALLOCATION_COLUMNS", "AFFINITY_COLUMNS", "EPISODE_COLUMNS",
+           "GENERATION_COLUMNS", "MIGRATIONS", "POOL_WORKER_COLUMNS", "SCHEMA", "SCHEMA_VERSION",
            "check_authority",
            "STORE_KIND", "TABLES", "JOB_COLUMNS", "OPERATION_COLUMNS",
            "OPERATION_STATES", "RECEIPT_COLUMNS", "RECEIPT_STATES",
@@ -67,16 +68,22 @@ def check_authority(value, *, what):
 # collided with a retained container belonging to somebody else entirely. The
 # namespace has to come from somewhere globally unique, and the only such thing
 # a Job store legitimately knows is which Authority it belongs to.
+# Four. W71877 added immutable worker-pool generations, durable virtual workers,
+# per-stage-episode allocations and lane-scoped soft affinity. These relations
+# reserve canonical-principal capacity transactionally before any offer side
+# effect while leaving the offer, claim, runtime and cleanup lifecycles with the
+# Worker Manager.
 #
-# THE STEP ADDS NO TABLE, and that is the whole point of doing it as a schema
+# THE 2 -> 3 STEP ADDS NO TABLE, and that is the whole point of doing it as a schema
 # version anyway: what changes is a REQUIRED meta row, so a schema-2 store
 # opened by this build must be pinned to an Authority in the same transaction
 # that stamps the version, and a store that predates the pin must not be read
 # as though it had one.
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 TABLES = ("meta", "operations", "submissions", "jobs", "stages", "episodes",
-          "receipts")
+          "receipts", "pool_generations", "pool_workers",
+          "stage_allocations", "worker_affinity")
 
 OPERATION_STATES = ("committed", "refused")
 
@@ -197,6 +204,79 @@ CREATE TABLE receipts (
   PRIMARY KEY (stage_id, episode, act),
   FOREIGN KEY (stage_id, episode) REFERENCES episodes(stage_id, episode)
 );
+
+CREATE TABLE pool_generations (
+  generation INTEGER PRIMARY KEY CHECK (generation >= 1),
+  variant TEXT NOT NULL,
+  separation_class TEXT NOT NULL,
+  document TEXT NOT NULL,
+  -- NOT UNIQUE; see the note in SCHEMA.  W71877 review [P2].
+  digest TEXT NOT NULL,
+  activated_at TEXT NOT NULL
+);
+
+CREATE TABLE pool_workers (
+  generation INTEGER NOT NULL REFERENCES pool_generations(generation),
+  worker_id TEXT NOT NULL,
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'review')),
+  participant TEXT NOT NULL,
+  canonical_principal TEXT NOT NULL,
+  profile_name TEXT NOT NULL,
+  profile_digest TEXT NOT NULL,
+  eligible_kinds TEXT NOT NULL,
+  PRIMARY KEY (generation, worker_id),
+  UNIQUE (generation, participant),
+  UNIQUE (generation, worker_id, lane, participant, canonical_principal)
+);
+
+CREATE TABLE stage_allocations (
+  assignment_id TEXT PRIMARY KEY,
+  stage_id TEXT NOT NULL,
+  episode INTEGER NOT NULL,
+  generation INTEGER NOT NULL,
+  worker_id TEXT NOT NULL,
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'review')),
+  participant TEXT NOT NULL,
+  canonical_principal TEXT NOT NULL,
+  preferred_worker_id TEXT,
+  selection_outcome TEXT NOT NULL CHECK (selection_outcome IN
+    ('initial', 'preferred', 'fallback')),
+  allocation_state TEXT NOT NULL CHECK (allocation_state IN
+    ('reserved', 'recovery-required', 'released')),
+  reserved_at TEXT NOT NULL,
+  recovery_required_at TEXT,
+  released_at TEXT,
+  release_reason TEXT,
+  FOREIGN KEY (stage_id, episode) REFERENCES episodes(stage_id, episode),
+  FOREIGN KEY (generation, worker_id, lane, participant, canonical_principal)
+    REFERENCES pool_workers(generation, worker_id, lane, participant,
+                            canonical_principal),
+  CHECK ((allocation_state = 'reserved' AND recovery_required_at IS NULL
+          AND released_at IS NULL AND release_reason IS NULL)
+      OR (allocation_state = 'recovery-required'
+          AND recovery_required_at IS NOT NULL AND released_at IS NULL
+          AND release_reason IS NULL)
+      OR (allocation_state = 'released' AND released_at IS NOT NULL
+          AND release_reason IS NOT NULL))
+);
+
+CREATE UNIQUE INDEX allocations_one_live_per_worker
+  ON stage_allocations(worker_id)
+  WHERE allocation_state IN ('reserved', 'recovery-required');
+CREATE UNIQUE INDEX allocations_one_live_per_principal
+  ON stage_allocations(canonical_principal)
+  WHERE allocation_state IN ('reserved', 'recovery-required');
+CREATE UNIQUE INDEX allocations_one_live_per_stage_episode
+  ON stage_allocations(stage_id, episode)
+  WHERE allocation_state IN ('reserved', 'recovery-required');
+
+CREATE TABLE worker_affinity (
+  development_line TEXT NOT NULL,
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'review')),
+  worker_id TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  PRIMARY KEY (development_line, lane)
+);
 """
 
 # version already recorded -> the statements that carry it to the next one.
@@ -215,6 +295,83 @@ CREATE TABLE receipts (
 # An entry that does not exist is a version this build refuses to migrate, so
 # the key has to be present even though its text is empty.
 MIGRATIONS = {
+    3: """
+CREATE TABLE pool_generations (
+  generation INTEGER PRIMARY KEY CHECK (generation >= 1),
+  variant TEXT NOT NULL,
+  separation_class TEXT NOT NULL,
+  document TEXT NOT NULL,
+  -- NOT UNIQUE, and W71877's review [P2] is why.  The digest identifies the
+  -- immutable CONFIGURATION, not the activation act: an operator returning
+  -- deliberately to a historical variant is choosing that configuration for
+  -- NEW work, which is a new generation.  A unique digest made the second
+  -- activation answer the first generation while a later one stayed active,
+  -- which is the opposite of what the ruling asks for.  Exact retry is still
+  -- effectively-once, through the journalled operation identity rather than
+  -- through a column.
+  digest TEXT NOT NULL,
+  activated_at TEXT NOT NULL
+);
+CREATE TABLE pool_workers (
+  generation INTEGER NOT NULL REFERENCES pool_generations(generation),
+  worker_id TEXT NOT NULL,
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'review')),
+  participant TEXT NOT NULL,
+  canonical_principal TEXT NOT NULL,
+  profile_name TEXT NOT NULL,
+  profile_digest TEXT NOT NULL,
+  eligible_kinds TEXT NOT NULL,
+  PRIMARY KEY (generation, worker_id),
+  UNIQUE (generation, participant),
+  UNIQUE (generation, worker_id, lane, participant, canonical_principal)
+);
+CREATE TABLE stage_allocations (
+  assignment_id TEXT PRIMARY KEY,
+  stage_id TEXT NOT NULL,
+  episode INTEGER NOT NULL,
+  generation INTEGER NOT NULL,
+  worker_id TEXT NOT NULL,
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'review')),
+  participant TEXT NOT NULL,
+  canonical_principal TEXT NOT NULL,
+  preferred_worker_id TEXT,
+  selection_outcome TEXT NOT NULL CHECK (selection_outcome IN
+    ('initial', 'preferred', 'fallback')),
+  allocation_state TEXT NOT NULL CHECK (allocation_state IN
+    ('reserved', 'recovery-required', 'released')),
+  reserved_at TEXT NOT NULL,
+  recovery_required_at TEXT,
+  released_at TEXT,
+  release_reason TEXT,
+  FOREIGN KEY (stage_id, episode) REFERENCES episodes(stage_id, episode),
+  FOREIGN KEY (generation, worker_id, lane, participant, canonical_principal)
+    REFERENCES pool_workers(generation, worker_id, lane, participant,
+                            canonical_principal),
+  CHECK ((allocation_state = 'reserved' AND recovery_required_at IS NULL
+          AND released_at IS NULL AND release_reason IS NULL)
+      OR (allocation_state = 'recovery-required'
+          AND recovery_required_at IS NOT NULL AND released_at IS NULL
+          AND release_reason IS NULL)
+      OR (allocation_state = 'released' AND released_at IS NOT NULL
+          AND release_reason IS NOT NULL))
+);
+CREATE UNIQUE INDEX allocations_one_live_per_worker
+  ON stage_allocations(worker_id)
+  WHERE allocation_state IN ('reserved', 'recovery-required');
+CREATE UNIQUE INDEX allocations_one_live_per_principal
+  ON stage_allocations(canonical_principal)
+  WHERE allocation_state IN ('reserved', 'recovery-required');
+CREATE UNIQUE INDEX allocations_one_live_per_stage_episode
+  ON stage_allocations(stage_id, episode)
+  WHERE allocation_state IN ('reserved', 'recovery-required');
+CREATE TABLE worker_affinity (
+  development_line TEXT NOT NULL,
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'review')),
+  worker_id TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  PRIMARY KEY (development_line, lane)
+);
+""",
     2: "",
     1: """
 CREATE TABLE episodes (
@@ -355,4 +512,35 @@ RECEIPT_COLUMNS = {
     "detail": Column("json"),
     "recorded_at": Column("instant"),
     "incarnation": Column("text"),
+}
+
+GENERATION_COLUMNS = {
+    "generation": Column("count"), "variant": Column("text"),
+    "separation_class": Column("text"), "document": Column("json"),
+    "digest": Column("text"), "activated_at": Column("instant"),
+}
+
+POOL_WORKER_COLUMNS = {
+    "generation": Column("count"), "worker_id": Column("identity"),
+    "lane": Column("text"), "participant": Column("text"),
+    "canonical_principal": Column("text"), "profile_name": Column("text"),
+    "profile_digest": Column("text"), "eligible_kinds": Column("json"),
+}
+
+ALLOCATION_COLUMNS = {
+    "assignment_id": Column("identity"), "stage_id": Column("identity"),
+    "episode": Column("count"), "generation": Column("count"),
+    "worker_id": Column("identity"), "lane": Column("text"),
+    "participant": Column("text"), "canonical_principal": Column("text"),
+    "preferred_worker_id": Column("identity", nullable=True),
+    "selection_outcome": Column("text"), "allocation_state": Column("text"),
+    "reserved_at": Column("instant"),
+    "recovery_required_at": Column("instant", nullable=True),
+    "released_at": Column("instant", nullable=True),
+    "release_reason": Column("text", nullable=True),
+}
+
+AFFINITY_COLUMNS = {
+    "development_line": Column("text"), "lane": Column("text"),
+    "worker_id": Column("identity"), "recorded_at": Column("instant"),
 }

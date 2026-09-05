@@ -26,7 +26,7 @@ nothing produced.
 import json
 
 from ..worker_manager import boundaries
-from . import delegation, documents, episodes, schema, submission
+from . import delegation, documents, episodes, scheduler, schema, submission
 
 __all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "owed_acts",
            "owed_exchange", "receipt_rows", "receipts_of", "replaceable",
@@ -351,6 +351,10 @@ def stage_states(store, operations, stages=None):
             "receipts": (receipts_of(store, stage_id, live["episode"])
                          if live is not None else {})}
         held[stage_id]["state"] = _observed_state(held[stage_id])
+        if held[stage_id]["state"] is None and live is not None \
+                and scheduler.allocation_refusal_of(
+                    store, live["attempt_id"]) is not None:
+            held[stage_id]["state"] = "exceptional"
     for entry in held.values():
         if entry["state"] is not None:
             continue
@@ -467,7 +471,7 @@ def status(store, operations, *, observed_at):
         stages = []
         for row in submission.stages_of(store, job["job_id"]):
             entry = held[row["stage_id"]]
-            stages.append(_stage_status(entry, held))
+            stages.append(_stage_status(store, entry, held))
         jobs.append(documents.job_status(
             job_id=job["job_id"], submission_id=job["submission_id"],
             input_digest=job["input_digest"],
@@ -484,12 +488,15 @@ def status(store, operations, *, observed_at):
         canonical=operations.canonical, jobs=jobs)
 
 
-def _stage_status(entry, held):
+def _stage_status(store, entry, held):
     stage = entry["stage"]
     live = entry["episode"]
     observed = entry["observed"]
     frozen = observed.get("output")
     runtime = observed.get("runtime")
+    allocations = scheduler.allocation_rows(store, stage["stage_id"])
+    allocation = (scheduler.allocation_of(store, live["attempt_id"])
+                  if live is not None else None)
     return documents.stage_status(
         stage_id=stage["stage_id"], job_id=stage["job_id"],
         kind=stage["kind"], state=entry["state"], work_id=stage["work_id"],
@@ -507,6 +514,7 @@ def _stage_status(entry, held):
         # happened to it rather than only where it got to.
         episodes=[documents.stage_episode(**record)
                   for record in entry["history"]],
+        allocation=allocation, allocations=allocations,
         gates=gates_of(stage, held),
         receipts=[documents.receipt(
             stage_id=record["stage_id"], episode=record["episode"],

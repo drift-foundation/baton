@@ -224,7 +224,7 @@ class AStartedContainerIsNotWorkInProgress(ExchangeCase):
     def test_the_status_schema_says_the_vocabulary_moved(self):
         self.assertEqual(status(self.jobs, self.acts,
                                 observed_at=NOW)["schema"],
-                         "baton.v12.job-status/3")
+                         "baton.v12.job-status/4")
 
 
 class AReaderWithNoExchangeStillTellsTheTruth(ExchangeCase):

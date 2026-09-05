@@ -490,6 +490,10 @@ class MigratingPinsTheAuthorityWithoutRenamingAnything(MigratingFromSchemaOne):
         held.close()
         connection = sqlite3.connect(self.job_path, isolation_level=None)
         self.addCleanup(connection.close)
+        connection.execute("DROP TABLE worker_affinity")
+        connection.execute("DROP TABLE stage_allocations")
+        connection.execute("DROP TABLE pool_workers")
+        connection.execute("DROP TABLE pool_generations")
         connection.execute("UPDATE meta SET value = '2' WHERE key = ?",
                            ("schema_version",))
         connection.execute("DELETE FROM meta WHERE key = 'authority_uuid'")

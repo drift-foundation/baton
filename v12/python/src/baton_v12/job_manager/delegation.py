@@ -9,7 +9,7 @@ parallel account of offers, claims, attempts, runtimes or outputs.
 TWO ACTS, AND WHY ONLY TWO. `admit` issues the offer that authorizes one stage
 and `claim` takes the claim the accepted offer froze. Both are control-plane
 acts that need nothing this leaf was told not to own. Starting a runtime needs
-a delivered workspace and a runtime adapter (W71917, W71877); freezing an
+a delivered workspace and a runtime adapter (W71917); freezing an
 output, deciding a verdict and importing a proposal need review and
 integration policy (W71918, W71878). Those operations exist and are not called
 from here, because calling them would mean inventing the operands their owners
@@ -232,11 +232,15 @@ def check_binding(operations, stage, job):
     record = operations.receipt_of(operation_id)
     if record is None:
         return None
-    wanted = stage_intent(stage, job)
+    binding_intent = getattr(operations, "binding_intent", None)
+    wanted = (stage_intent(stage, job) if binding_intent is None
+              else binding_intent(stage, job))
     held = _operands(record, operation_id)
     differing = ["{0} {1} rather than {2}".format(
         name, name_value(held.get(name)), name_value(wanted[name]))
-        for name in INTENT_OPERANDS if held.get(name) != wanted[name]]
+        for name in tuple(INTENT_OPERANDS) + (("participant",)
+                                              if "participant" in wanted else ())
+        if held.get(name) != wanted[name]]
     if differing:
         raise ContractRefusal(
             "refused", "operation-collision",
@@ -438,6 +442,9 @@ class ManagerOperations:
     def canonical_operation(self, act, offer_id):
         return canonical_operation(act, offer_id)
 
+    def binding_intent(self, stage, job):
+        return stage_intent(stage, job)
+
     def receipt_of(self, operation_id):
         """The manager's own journal row for one operation, or absence.
 
@@ -521,8 +528,7 @@ class ManagerOperations:
         The sweep leaves the act owed and asks again, rather than recording a
         receipt for something that did not happen.
         """
-        submit_claim(self.control, self.port, offer_id=stage["offer_id"])
-        return None
+        return submit_claim(self.control, self.port, offer_id=stage["offer_id"])
 
     def launch(self, stage, job):
         """Drive ONE claimed stage into a live worker, through the deployment.

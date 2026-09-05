@@ -1,0 +1,22 @@
+# W71877 candidate manifest
+# base 6532e6ff2f966ea6c6612326f3b0c5450026c63b
+# paths 18
+# content-digest sha256:ac11dbae795611c9a033919da11cdebb64f84e4a578b10c4bece2706fd5bb93d
+664 sha256:6788337afc267f3026425773cd72639fb77f10ddad9998409c10211cf3442e78  v12/python/DEPLOYMENT.md
+664 sha256:c20b2ed9f208c65dfde16ffe68d4bafd1d7b8d95eec847d5d6d080779f533557  v12/python/src/baton_v12/job_manager/__init__.py
+664 sha256:8bee111d72fa9c417223bbb54c130a0fc4da100773a4609c38a6c66b4f0f27e0  v12/python/src/baton_v12/job_manager/delegation.py
+664 sha256:4c21b0881dadd4d6009305c8175897f9405b76f3b9252bc121e421fb1b6f90b2  v12/python/src/baton_v12/job_manager/documents.py
+664 sha256:9b1341a98ff468647f037f0d68c7057495d8cdcae2d97e43786bb52a6ff073a9  v12/python/src/baton_v12/job_manager/manager.py
+664 sha256:50c7c8b81f6f3be22d80e74252fb5877960bf16e3071762ba3d20a0e55aadef6  v12/python/src/baton_v12/job_manager/projection.py
+664 sha256:fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457  v12/python/src/baton_v12/job_manager/scheduler.py
+664 sha256:1c291ddf1cd62a989fb1bd66a64a5a794ddddeb26fb92731f9ee08ddbf5915e8  v12/python/src/baton_v12/job_manager/schema.py
+664 sha256:6b0ad4ee0b375f8bf7a918d0a16b83044fe1ed221a564296e5cae48d68523c07  v12/python/src/baton_v12/job_manager/store.py
+664 sha256:439a21f71a859bd4aa00092aa6bc8018d6c614825acd0a886c1e0853f91fc434  v12/python/tests/job_manager/fixtures.py
+664 sha256:729c348f53ab52c90f3cc8e93b1b414801cf196d91e356efa9d563c01c0fae8b  v12/python/tests/job_manager/test_exchange.py
+664 sha256:b1069afd132e25f1f393abfea7b9b2faebd9cae1a891723fd38f2ba1b9fdca72  v12/python/tests/job_manager/test_scheduling.py
+664 sha256:74f0c77a51a86791edd095bf641d26c767b25cd4120b222125a0362dc492d322  v12/python/tests/job_manager/test_store.py
+664 sha256:366e7a295fe86953ca6770b49d0250f80abb12282c66b5ccc2086e7e075ca4dc  v12/python/tests/job_manager/test_tool.py
+644 sha256:7d9addbe4df3844462b406d710051b81f65f7e4a1aa55b338f49591db96f842f  v12/python/tools/parallel_test.py
+664 sha256:f15e51c04a581665d63a269c6d3d546a5462452829cdc22af452d46880c115bd  work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-concurrent-stage-scheduling/FINDING.md
+664 sha256:222cff65eb7440d6cdc91fc94653a0f77d0ac35142a580c15a9a55d0960758a8  work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-concurrent-stage-scheduling/PLAN.md
+664 sha256:971ee9c94bea7c4c03f595b637d7606703575659f85c949e0f94a3a27eafbe89  work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-concurrent-stage-scheduling/PROGRESS.md

@@ -7,6 +7,72 @@ Manager: `tools.single_worker:factory`. It is intentionally one worker, one
 implementation Work, one profile and one image. Worker selection, capacity,
 review and integration belong to later Work and are not hidden defaults here.
 
+## Attaching a concurrent worker pool
+
+W71877 adds the scheduler library boundary used by the next deployment
+factory. Trusted deployment first resolves every configured participant with
+the Authority API/bootstrap face, then calls `activate_pool(job_store,
+pool_document, resolved_principals)`. The scheduler never derives a principal
+from an endpoint spelling and never adds a principal read to a restricted
+Authority session. It persists and revalidates the resolved association on
+reattachment.
+
+The pool document is closed and versioned:
+
+```json
+{
+  "schema": "baton.v12.worker-pool/1",
+  "variant": "primary",
+  "separation_class": "provider-diverse",
+  "workers": [
+    {
+      "worker_id": "impl-a",
+      "lane": "implementation",
+      "participant": "baton.impl-a",
+      "profile_name": "reference",
+      "profile_digest": "sha256:...",
+      "eligible_kinds": ["implementation"]
+    },
+    {
+      "worker_id": "review-a",
+      "lane": "review",
+      "participant": "baton.review-a",
+      "profile_name": "reviewer",
+      "profile_digest": "sha256:...",
+      "eligible_kinds": ["review"]
+    }
+  ]
+}
+```
+
+`PooledManagerOperations(job_store, operations_by_generation_worker)` composes
+participant-bound Worker Manager operations keyed by `(generation, worker_id)`.
+Supply every worker in the active generation plus workers from earlier
+generations that still have reserved or recovery-required allocations; this is
+what lets an explicit pool change affect new offers without reinterpreting live
+work. A real first acceptance deployment declares two implementation workers
+and two review workers resolving to four distinct canonical principals. The
+general library permits a smaller pool and preserves aliases as explicit
+configuration, but its partial unique indexes ensure aliases of one principal
+contribute one live capacity rather than several.
+
+Pool variants are immutable generations. Activating a different document
+affects only new stage offers; existing allocations keep their original
+generation. `provider-diverse`, `same-provider/different-model`, and
+`same-provider/same-model-fresh-context` are operator-declared audit classes,
+not values inferred from free-text profile metadata. Status schema
+`baton.v12.job-status/4` reports allocation generation, variant, class, lane,
+worker, participant, principal, exact profile, assignment, and runtime
+identity without exposing or inventing an AgentSession.
+
+Ordinary sweeps call `reconcile_allocations` from canonical offer, runtime, and
+cleanup evidence. A quarantined `recovery-required` allocation continues to
+consume capacity until an operator has positive recovery evidence and calls
+`release(job_store, assignment_id, reason)`; elapsed time and silence never
+release it.
+
+## Single-worker configuration
+
 Create a new Job store for this first runnable bootstrap. Stores populated by a
 pre-W76207 build retain their already-recorded episode identities for audit and
 restart integrity; those old identities predate the worker contract's bounded
@@ -175,10 +241,10 @@ remain W61599's; this deployment creates no `result/logs` sink.
 
 ### Status says what is actually happening
 
-Status is now `baton.v12.job-status/3`, and a stage carries its canonical
-exchange projection beside its runtime. A runtime identity alone is no longer
-rendered as active work — that was the defect. The vocabulary gained three
-words:
+Status is now `baton.v12.job-status/4`. A stage carries its canonical exchange
+projection beside its runtime, plus the current scheduler allocation and its
+append-only allocation history. A runtime identity alone is no longer rendered
+as active work — that was the defect. The vocabulary gained three words:
 
 | State | What it means |
 |---|---|

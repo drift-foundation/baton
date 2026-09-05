@@ -34,8 +34,8 @@ WORK_B = "0000000a-W2"
 WORK_C = "0000000a-W3"
 
 
-def decision(participant=WHO):
-    return {"endpoint": participant, "principal": PRINCIPAL,
+def decision(participant=WHO, principal=PRINCIPAL):
+    return {"endpoint": participant, "principal": principal,
             "effective_scope": SCOPE, "role": ROUTE, "grant": "direct",
             "policy_generation": 1}
 
@@ -43,15 +43,18 @@ def decision(participant=WHO):
 class FakeSession:
     """Exactly the seven members the port names, and a record of every call."""
 
-    def __init__(self, participant=WHO):
+    def __init__(self, participant=WHO, *, principal=PRINCIPAL,
+                 claim_slots=None):
         self.participant = participant
+        self.principal = principal
+        self.claim_slots = claim_slots
         self.calls = []
         self.work = {}
         self.claim_answer = {
             "assignment": {"work_ref": {"authority_uuid": UUID,
                                         "work_id": WORK_A},
                            "participant": participant, "generation": 1},
-            "claim_event": 1, "decision": decision(participant)}
+            "claim_event": 1, "decision": decision(participant, principal)}
         self.settle_answer = {"kind": "live", "record": None}
 
     def open_work(self, work_id):
@@ -83,6 +86,13 @@ class FakeSession:
         self.calls.append(("claim", dict(operands)))
         if isinstance(self.claim_answer, BaseException):
             raise self.claim_answer
+        if self.claim_slots is not None:
+            held = self.claim_slots.get(self.principal)
+            if held is not None and held != operands["work_id"]:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    "a principal holds one active claim across every endpoint")
+            self.claim_slots[self.principal] = operands["work_id"]
         answer = dict(self.claim_answer)
         assignment = dict(answer["assignment"])
         assignment["work_ref"] = {"authority_uuid": UUID,
