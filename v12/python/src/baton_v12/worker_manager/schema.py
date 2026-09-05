@@ -40,7 +40,11 @@ __all__ = ["STORE_KIND", "SCHEMA_VERSION", "SCHEMA", "TABLES",
            # worth keeping: this module has no gate comparing what it defines
            # to what it declares, so the omission was invisible.
            "CUSTODY", "RETENTION_DISPOSITIONS", "INTAKE_COLUMNS",
-           "INTAKE_ARTIFACT_COLUMNS", "RETENTION_COLUMNS"]
+           "INTAKE_ARTIFACT_COLUMNS", "RETENTION_COLUMNS",
+           "REVIEW_LINE_COLUMNS", "LINE_WRITER_COLUMNS",
+           "LINE_CHECKPOINT_COLUMNS", "REVIEW_ATTACHMENT_COLUMNS",
+           "CHECKPOINT_VERDICT_COLUMNS", "INTEGRATION_ELIGIBILITY_COLUMNS",
+           "LINE_PROGRESS_COLUMNS"]
 
 STORE_KIND = "baton.v12.python.worker-manager"
 
@@ -105,12 +109,19 @@ STORE_KIND = "baton.v12.python.worker-manager"
 # an omission here: `ControlStore` refuses a database at another schema because
 # it "does not guess across versions". This finding's rollout boundary already
 # requires fresh Job and control stores for production acceptance.
-SCHEMA_VERSION = 16
+# 18 ADDS THE REVIEW-CYCLE OWNER (W71918). A durable Authority-and-Work line,
+# its writer grants, immutable checkpoint evidence, read-only review
+# attachments, exact-checkpoint verdicts and integration eligibility cannot be
+# reconstructed from a schema-16 attempt after the fact. The standing fresh-
+# store boundary therefore applies unchanged.
+SCHEMA_VERSION = 18
 
 TABLES = ("meta", "operations", "offers", "attempts", "observations",
           "profiles", "agent_sessions", "posture_slots", "manifests",
           "outputs", "output_artifacts", "interrogations", "intakes",
-          "intake_artifacts", "retentions", "runtime_lanes")
+          "intake_artifacts", "retentions", "runtime_lanes", "review_lines",
+          "line_writers", "line_checkpoints", "review_attachments",
+          "checkpoint_verdicts", "integration_eligibility", "line_progress")
 
 # THE TWO OPERATOR INTERROGATIONS, and they are two because v11's `poke`
 # conflated two facts: whether the adapter and session can be OBSERVED now,
@@ -895,6 +906,161 @@ CREATE TABLE interrogations (
 
 CREATE INDEX interrogations_by_session
     ON interrogations (runtime_attempt_id, posture, session_epoch);
+
+-- W71918: ONE DURABLE PRIVATE DEVELOPMENT LINE PER AUTHORITY AND WORK.
+-- The checkout is outside every assignment home. Attempts can mount it only
+-- through a generation-fenced writer or review attachment recorded below.
+CREATE TABLE review_lines (
+    line_id             TEXT PRIMARY KEY,
+    authority_uuid      TEXT NOT NULL,
+    work_id             TEXT NOT NULL,
+    profile_name        TEXT NOT NULL,
+    declared_base       TEXT NOT NULL,
+    source_path         TEXT NOT NULL,
+    source_device       INTEGER NOT NULL CHECK (source_device >= 0),
+    source_inode        INTEGER NOT NULL CHECK (source_inode >= 0),
+    line_path           TEXT NOT NULL UNIQUE,
+    line_device         INTEGER CHECK (line_device >= 0),
+    line_inode          INTEGER CHECK (line_inode >= 0),
+    state               TEXT NOT NULL CHECK (state IN
+        ('materializing', 'idle', 'writing', 'freezing', 'review-ready', 'reviewing',
+         'correction-ready', 'accepted', 'rejected')),
+    revision            INTEGER NOT NULL CHECK (revision >= 0),
+    current_checkpoint_id TEXT,
+    created_at          TEXT NOT NULL,
+    UNIQUE (authority_uuid, work_id),
+    CHECK ((revision = 0 AND current_checkpoint_id IS NULL)
+        OR (revision > 0 AND current_checkpoint_id IS NOT NULL)),
+    CHECK ((state = 'materializing' AND line_device IS NULL AND line_inode IS NULL)
+        OR (state != 'materializing' AND line_device IS NOT NULL
+            AND line_inode IS NOT NULL))
+) STRICT;
+
+-- Append-only writer grants. Revocation ends a grant but never deletes it;
+-- the partial index is the durable sole-writer mutex across processes.
+CREATE TABLE line_writers (
+    writer_id             TEXT PRIMARY KEY,
+    line_id               TEXT NOT NULL REFERENCES review_lines(line_id),
+    runtime_attempt_id    TEXT NOT NULL REFERENCES attempts(runtime_attempt_id),
+    assignment_generation INTEGER NOT NULL CHECK (assignment_generation >= 1),
+    worker_id             TEXT NOT NULL,
+    participant           TEXT NOT NULL,
+    principal             TEXT NOT NULL,
+    based_checkpoint_id   TEXT REFERENCES line_checkpoints(checkpoint_id),
+    state                 TEXT NOT NULL CHECK (state IN ('active', 'revoked')),
+    granted_at            TEXT NOT NULL,
+    revoked_at            TEXT,
+    revocation_reason     TEXT,
+    UNIQUE (runtime_attempt_id, assignment_generation),
+    CHECK ((state = 'active' AND revoked_at IS NULL
+            AND revocation_reason IS NULL)
+        OR (state = 'revoked' AND revoked_at IS NOT NULL
+            AND revocation_reason IS NOT NULL))
+) STRICT;
+CREATE UNIQUE INDEX line_one_active_writer
+    ON line_writers(line_id) WHERE state = 'active';
+
+-- Preparing is the durable crash window: the writable database grant is
+-- revoked, while its Authority fence or the profile-specific immutable
+-- reference may still need replay.
+CREATE TABLE line_checkpoints (
+    checkpoint_id       TEXT PRIMARY KEY,
+    writer_id           TEXT NOT NULL UNIQUE REFERENCES line_writers(writer_id),
+    line_id             TEXT NOT NULL REFERENCES review_lines(line_id),
+    revision            INTEGER NOT NULL CHECK (revision >= 1),
+    profile_name        TEXT NOT NULL,
+    state               TEXT NOT NULL CHECK (state IN ('preparing', 'frozen')),
+    evidence            TEXT,
+    checkpoint_digest   TEXT,
+    base_object         TEXT,
+    head_object         TEXT,
+    tree_object         TEXT,
+    path_set_digest     TEXT,
+    reference_name      TEXT,
+    fence               TEXT,
+    fence_digest        TEXT,
+    prepared_at         TEXT NOT NULL,
+    frozen_at           TEXT,
+    UNIQUE (line_id, revision),
+    CHECK ((state = 'preparing' AND evidence IS NULL
+            AND checkpoint_digest IS NULL AND head_object IS NULL
+            AND base_object IS NULL AND tree_object IS NULL
+            AND path_set_digest IS NULL AND reference_name IS NULL
+            AND frozen_at IS NULL)
+        OR (state = 'frozen' AND evidence IS NOT NULL
+            AND checkpoint_digest IS NOT NULL AND base_object IS NOT NULL
+            AND head_object IS NOT NULL AND tree_object IS NOT NULL
+            AND path_set_digest IS NOT NULL AND reference_name IS NOT NULL
+            AND fence IS NOT NULL AND fence_digest IS NOT NULL
+            AND frozen_at IS NOT NULL)),
+    CHECK ((fence IS NULL AND fence_digest IS NULL)
+        OR (fence IS NOT NULL AND fence_digest IS NOT NULL))
+) STRICT;
+
+CREATE TABLE review_attachments (
+    attachment_id        TEXT PRIMARY KEY,
+    line_id              TEXT NOT NULL REFERENCES review_lines(line_id),
+    checkpoint_id        TEXT NOT NULL REFERENCES line_checkpoints(checkpoint_id),
+    runtime_attempt_id   TEXT NOT NULL REFERENCES attempts(runtime_attempt_id),
+    assignment_generation INTEGER NOT NULL CHECK (assignment_generation >= 1),
+    reviewer_worker_id   TEXT NOT NULL,
+    reviewer_participant TEXT NOT NULL,
+    reviewer_principal   TEXT NOT NULL,
+    state                TEXT NOT NULL CHECK (state IN ('active', 'ended')),
+    attached_at          TEXT NOT NULL,
+    ended_at             TEXT,
+    UNIQUE (runtime_attempt_id, assignment_generation),
+    CHECK ((state = 'active' AND ended_at IS NULL)
+        OR (state = 'ended' AND ended_at IS NOT NULL))
+) STRICT;
+CREATE UNIQUE INDEX line_one_active_review
+    ON review_attachments(line_id) WHERE state = 'active';
+
+CREATE TABLE checkpoint_verdicts (
+    verdict_id            TEXT PRIMARY KEY,
+    line_id               TEXT NOT NULL REFERENCES review_lines(line_id),
+    checkpoint_id         TEXT NOT NULL UNIQUE REFERENCES line_checkpoints(checkpoint_id),
+    attachment_id         TEXT NOT NULL UNIQUE REFERENCES review_attachments(attachment_id),
+    authority_uuid        TEXT NOT NULL,
+    work_id               TEXT NOT NULL,
+    review_assignment_generation INTEGER NOT NULL CHECK
+        (review_assignment_generation >= 1),
+    reviewer_worker_id    TEXT NOT NULL,
+    reviewer_participant  TEXT NOT NULL,
+    reviewer_principal    TEXT NOT NULL,
+    disposition           TEXT NOT NULL CHECK
+        (disposition IN ('accepted', 'changes-requested', 'rejected')),
+    checkpoint_digest     TEXT NOT NULL,
+    revision              INTEGER NOT NULL CHECK (revision >= 1),
+    base_object           TEXT NOT NULL,
+    head_object           TEXT NOT NULL,
+    tree_object           TEXT NOT NULL,
+    path_set_digest       TEXT NOT NULL,
+    review_result         TEXT NOT NULL,
+    review_result_digest  TEXT NOT NULL,
+    review_fence          TEXT NOT NULL,
+    review_fence_digest   TEXT NOT NULL,
+    recorded_at           TEXT NOT NULL
+) STRICT;
+
+CREATE TABLE integration_eligibility (
+    checkpoint_id       TEXT PRIMARY KEY REFERENCES line_checkpoints(checkpoint_id),
+    line_id             TEXT NOT NULL UNIQUE REFERENCES review_lines(line_id),
+    verdict_id          TEXT NOT NULL UNIQUE REFERENCES checkpoint_verdicts(verdict_id),
+    eligible_at         TEXT NOT NULL
+) STRICT;
+
+-- Provider turns can append progress while one writer grant stays active.
+-- They do not create checkpoints or alter the line lifecycle.
+CREATE TABLE line_progress (
+    writer_id           TEXT NOT NULL REFERENCES line_writers(writer_id),
+    sequence            INTEGER NOT NULL CHECK (sequence >= 1),
+    assignment_generation INTEGER NOT NULL CHECK (assignment_generation >= 1),
+    progress_digest     TEXT NOT NULL,
+    document            TEXT NOT NULL,
+    recorded_at         TEXT NOT NULL,
+    PRIMARY KEY (writer_id, sequence)
+) STRICT;
 """
 
 
@@ -1192,4 +1358,104 @@ OUTPUT_ARTIFACT_COLUMNS = {
     "bytes": Column("count"),
     "content_digest": Column("text"),
     "locator": Column("text"),
+}
+
+REVIEW_LINE_COLUMNS = {
+    "line_id": Column("identity"), "authority_uuid": Column("text"),
+    "work_id": Column("identity"), "profile_name": Column("text"),
+    "declared_base": Column("text"), "source_path": Column("text"),
+    "source_device": Column("count"), "source_inode": Column("count"),
+    "line_path": Column("text"),
+    "line_device": Column("count", nullable=True),
+    "line_inode": Column("count", nullable=True),
+    "state": Column("text", allowed=("materializing", "idle", "writing", "freezing",
+                                      "review-ready", "reviewing",
+                                      "correction-ready", "accepted",
+                                      "rejected")),
+    "revision": Column("count"),
+    "current_checkpoint_id": Column("identity", nullable=True),
+    "created_at": Column("instant"),
+}
+
+LINE_WRITER_COLUMNS = {
+    "writer_id": Column("identity"), "line_id": Column("identity"),
+    "runtime_attempt_id": Column("identity"),
+    "assignment_generation": Column("count"),
+    "worker_id": Column("identity"), "participant": Column("text"),
+    "principal": Column("text"),
+    "based_checkpoint_id": Column("identity", nullable=True),
+    "state": Column("text", allowed=("active", "revoked")),
+    "granted_at": Column("instant"),
+    "revoked_at": Column("instant", nullable=True),
+    "revocation_reason": Column("text", nullable=True),
+}
+
+LINE_CHECKPOINT_COLUMNS = {
+    "checkpoint_id": Column("identity"), "writer_id": Column("identity"),
+    "line_id": Column("identity"),
+    "revision": Column("count"), "profile_name": Column("text"),
+    "state": Column("text", allowed=("preparing", "frozen")),
+    "evidence": Column("json", nullable=True,
+                       members=("base", "head", "path_set_digest", "paths",
+                                "profile", "reference", "tree")),
+    "checkpoint_digest": Column("text", nullable=True),
+    "base_object": Column("text", nullable=True),
+    "head_object": Column("text", nullable=True),
+    "tree_object": Column("text", nullable=True),
+    "path_set_digest": Column("text", nullable=True),
+    "reference_name": Column("text", nullable=True),
+    "fence": Column("json", nullable=True, members=("intent", "fenced")),
+    "fence_digest": Column("text", nullable=True),
+    "prepared_at": Column("instant"),
+    "frozen_at": Column("instant", nullable=True),
+}
+
+REVIEW_ATTACHMENT_COLUMNS = {
+    "attachment_id": Column("identity"), "line_id": Column("identity"),
+    "checkpoint_id": Column("identity"),
+    "runtime_attempt_id": Column("identity"),
+    "assignment_generation": Column("count"),
+    "reviewer_worker_id": Column("identity"),
+    "reviewer_participant": Column("text"),
+    "reviewer_principal": Column("text"),
+    "state": Column("text", allowed=("active", "ended")),
+    "attached_at": Column("instant"),
+    "ended_at": Column("instant", nullable=True),
+}
+
+CHECKPOINT_VERDICT_COLUMNS = {
+    "verdict_id": Column("identity"), "line_id": Column("identity"),
+    "checkpoint_id": Column("identity"),
+    "attachment_id": Column("identity"), "authority_uuid": Column("text"),
+    "work_id": Column("identity"),
+    "review_assignment_generation": Column("count"),
+    "reviewer_worker_id": Column("identity"),
+    "reviewer_participant": Column("text"),
+    "reviewer_principal": Column("text"),
+    "disposition": Column("text", allowed=("accepted",
+                                             "changes-requested",
+                                             "rejected")),
+    "checkpoint_digest": Column("text"), "revision": Column("count"),
+    "base_object": Column("text"), "head_object": Column("text"),
+    "tree_object": Column("text"), "path_set_digest": Column("text"),
+    "review_result": Column("json", members=("attempt_id", "result_id",
+                                               "disposition", "manifest_digest",
+                                               "freeze_operation_id", "frozen_at",
+                                               "artifacts")),
+    "review_result_digest": Column("text"),
+    "review_fence": Column("json", members=("intent", "fenced")),
+    "review_fence_digest": Column("text"),
+    "recorded_at": Column("instant"),
+}
+
+INTEGRATION_ELIGIBILITY_COLUMNS = {
+    "checkpoint_id": Column("identity"), "line_id": Column("identity"),
+    "verdict_id": Column("identity"), "eligible_at": Column("instant"),
+}
+
+LINE_PROGRESS_COLUMNS = {
+    "writer_id": Column("identity"), "sequence": Column("count"),
+    "assignment_generation": Column("count"),
+    "progress_digest": Column("text"), "document": Column("json"),
+    "recorded_at": Column("instant"),
 }

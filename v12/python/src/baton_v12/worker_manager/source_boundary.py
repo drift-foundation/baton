@@ -86,7 +86,8 @@ __all__ = ["SOURCE_NAME", "SOURCE_TARGET", "WORKSPACE_TARGET",
            "MAX_PROFILE", "MIN_WORKSPACE_BYTES", "MAX_WORKSPACE_BYTES",
            "NominatedSource", "WorkspaceCapacity", "SourceBoundary",
            "adopt_source_boundary", "boundary_mounts", "check_disk_backed",
-           "compose_source_boundary", "declared_profile", "filesystem_of",
+           "compose_runtime_storage_boundary", "compose_source_boundary",
+           "declared_profile", "filesystem_of",
            "nominate_source", "source_consumption", "source_mountpoint",
            "workspace_capacity"]
 
@@ -508,13 +509,13 @@ class SourceBoundary:
     """
 
     __slots__ = ("source", "workspace", "mountpoint", "capacity", "device",
-                 "inode", "workspace_device", "workspace_inode")
+                 "inode", "workspace_device", "workspace_inode", "_guard")
 
     def __init__(self, source, workspace, mountpoint, capacity, device, inode,
-                 workspace_device, workspace_inode, _minted=None):
+                 workspace_device, workspace_inode, guard=None, _minted=None):
         if _minted is not _MINT:
             _denied("a source boundary is answered by "
-                    "`compose_source_boundary` or `adopt_source_boundary`; a "
+                    "a manager composition or adoption boundary; a "
                     "boundary a caller can mint is a topology a caller chose")
         object.__setattr__(self, "source", source)
         object.__setattr__(self, "workspace", workspace)
@@ -529,6 +530,7 @@ class SourceBoundary:
         # the WRITABLE one, where the worker's answer is collected from.
         object.__setattr__(self, "workspace_device", workspace_device)
         object.__setattr__(self, "workspace_inode", workspace_inode)
+        object.__setattr__(self, "_guard", guard)
 
     def __setattr__(self, name, value):
         _refuse("a composed source boundary is immutable", code="schema")
@@ -599,6 +601,32 @@ def compose_source_boundary(source, roots, capacity):
     Both are the aliasing `oci._mounts` refuses between mount sources, asked
     one layer earlier so it is a preparation refusal rather than a start one.
     """
+    if type(capacity) is not WorkspaceCapacity:
+        _denied(f"a source boundary is composed under a declared workspace "
+                f"capacity; this is {name_value(capacity)}")
+    if type(roots) is workspaces.AllocatedRoots and roots._grant_required:
+        _denied("lifecycle-granted roots cannot be recomposed without their "
+                "revocable live grant")
+    return _compose_boundary(source, roots, capacity)
+
+
+def compose_runtime_storage_boundary(source, roots):
+    """Compose the same mount custody over deployment-supplied storage.
+
+    Persistent review lines deliberately have no predictive free-space gate.
+    Their runtime environment supplies storage just as it supplies CPU and
+    memory; concrete allocation, mount and write failures belong to the one
+    affected attempt. Object, topology and disk-backed-storage proofs remain
+    unchanged, while no point-in-time availability reading is performed.
+    """
+    guard = roots._grant if type(roots) is workspaces.AllocatedRoots else None
+    if guard is None or not roots._grant_required:
+        _denied("a runtime storage boundary requires roots carrying the "
+                "lifecycle owner's live grant")
+    return _compose_boundary(source, roots, None, guard)
+
+
+def _compose_boundary(source, roots, capacity, guard=None):
     if type(source) is not NominatedSource:
         _denied(f"a source boundary is composed over a nominated source this "
                 f"manager proved; this is {name_value(source)}")
@@ -606,9 +634,6 @@ def compose_source_boundary(source, roots, capacity):
         _denied(f"a source boundary is composed over the roots this manager "
                 f"allocated for one assignment, which carry their own "
                 f"provenance; this is {name_value(roots)}")
-    if type(capacity) is not WorkspaceCapacity:
-        _denied(f"a source boundary is composed under a declared workspace "
-                f"capacity; this is {name_value(capacity)}")
     workspace = os.path.realpath(roots["workspace"])
     inputs = os.path.realpath(roots["inputs"])
     for name, held in (("workspace", workspace), ("inputs", inputs)):
@@ -621,11 +646,12 @@ def compose_source_boundary(source, roots, capacity):
                     f"writabilities, and neither this manager nor the engine "
                     f"says which one a path inside the container reaches")
     check_disk_backed(workspace)
-    _capacity(workspace, capacity)
+    if capacity is not None:
+        _capacity(workspace, capacity)
     held = _object_of(workspace, "this assignment's writable workspace")
     return SourceBoundary(source, workspace, source_mountpoint(inputs),
                           capacity, source.device, source.inode,
-                          held[0], held[1], _MINT)
+                          held[0], held[1], guard, _MINT)
 
 
 def adopt_source_boundary(boundary, roots, *, pinned=None):
@@ -681,6 +707,7 @@ def adopt_source_boundary(boundary, roots, *, pinned=None):
     if type(boundary) is not SourceBoundary:
         _denied(f"an adopted boundary is one this manager composed; this is "
                 f"{name_value(boundary)}")
+    _live_guard(boundary)
     if type(roots) is not workspaces.AllocatedRoots:
         _denied(f"a source boundary is adopted against the roots this manager "
                 f"allocated for one assignment; this is {name_value(roots)}")
@@ -732,7 +759,8 @@ def adopt_source_boundary(boundary, roots, *, pinned=None):
                     f"no manager was watching, and this manager's custody of "
                     f"it is what the whole delivery rests on")
     check_disk_backed(workspace)
-    _capacity(workspace, boundary.capacity)
+    if boundary.capacity is not None:
+        _capacity(workspace, boundary.capacity)
     inputs = os.path.realpath(roots["inputs"])
     place = os.path.join(inputs, SOURCE_NAME)
     if place != boundary.mountpoint:
@@ -742,9 +770,10 @@ def adopt_source_boundary(boundary, roots, *, pinned=None):
         _refuse(f"the source mountpoint {name_value(place)} is not a "
                 f"directory of its own; the engine would bind the nominated "
                 f"source over something this manager did not establish")
+    _live_guard(boundary)
     return SourceBoundary(source, workspace, place, boundary.capacity,
                           source.device, source.inode, held[0], held[1],
-                          _MINT)
+                          boundary._guard, _MINT)
 
 
 def boundary_mounts(boundary):
@@ -785,6 +814,7 @@ def boundary_mounts(boundary):
     if type(boundary) is not SourceBoundary:
         _denied(f"the runtime binds are derived from a boundary this manager "
                 f"composed; this is {name_value(boundary)}")
+    _live_guard(boundary)
     proved = nominate_source(boundary.source.place)
     if (proved.device, proved.inode) != (boundary.device, boundary.inode):
         _refuse(f"the nominated source {name_value(boundary.source.place)} is "
@@ -803,8 +833,14 @@ def boundary_mounts(boundary):
                 f"{boundary.workspace_inode}; the path was re-pointed after "
                 f"the boundary was adopted, and a worker would answer into a "
                 f"directory this manager never took custody of")
+    _live_guard(boundary)
     return ((boundary.source.place, SOURCE_TARGET, False),
             (boundary.workspace, WORKSPACE_TARGET, True))
+
+
+def _live_guard(boundary):
+    if boundary._guard is not None and boundary._guard() is not True:
+        _denied("the runtime storage boundary's live grant was revoked")
 
 
 def _pinned_pairs(pinned):

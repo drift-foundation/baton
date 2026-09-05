@@ -56,6 +56,7 @@ fact and IS provable now; it recovers a posture and satisfies no runtime gate.
 from .authority_port import (AuthorityPort, SESSION_MEMBERS,
                              SESSION_OPERATIONS)
 from .attempts import (AXES, TRANSITIONS, activate_assignment,
+                       assignment_of,
                        attempt_activity_of,
                        attempt_preparation_failure_of, attempt_runtime_of,
                        attempt_start_failure_of,
@@ -109,6 +110,11 @@ from .schema import (CUSTODY, DISPOSITIONS, OUTPUT_STATUSES, OUTPUT_TYPES,
                      SLOT_OCCUPANCY, STORE_KIND, TABLES)
 from .store import (ControlStore, manager_signature, revive_refusal,
                     seal_refusal)
+from .review_cycles import (attach_review, audit_checkpoint, checkpoint_of,
+                            create_line, freeze_checkpoint, grant_writer,
+                            integration_checkpoint, line_of, record_progress,
+                            line_status, record_verdict, review_boundary,
+                            writer_boundary, writer_of)
 
 # W39356 review [P2] asked this to be decided explicitly rather than left
 # ambiguous, so it is decided and written down here.
@@ -138,6 +144,11 @@ from .store import (ControlStore, manager_signature, revive_refusal,
 # builders and the record readers stay internal, because an ending authorized
 # by a record a caller could compose is not authorized by anything.
 __all__ = ["CUSTODY", "KEEPS_MATERIAL", "LANE_PARTS", "abandon_attempt",
+           "assignment_of", "attach_review", "audit_checkpoint",
+           "checkpoint_of", "create_line", "freeze_checkpoint",
+           "grant_writer", "integration_checkpoint", "line_of",
+           "line_status", "record_progress", "record_verdict",
+           "review_boundary", "writer_boundary", "writer_of",
            "WorkspaceGroup", "configure_workspace_group",
            "configured_workspace_group",
            "RETENTION_DISPOSITIONS",

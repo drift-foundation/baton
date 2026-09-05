@@ -32,6 +32,7 @@ import baton_v12.worker_manager as worker_manager
 from baton_v12.contracts import ContractRefusal
 from baton_v12.worker_manager import (AuthorityPort, ControlStore,
                                       certify_profile)
+from baton_v12.worker_manager.source_boundary import nominate_source
 
 from .test_offers import (FakeSession, PROFILE, UUID, WHO, WORK,
                           fake_claim_signature)
@@ -69,6 +70,7 @@ class _NoAgent:
     def cancel(self, operands):
         return None
 
+
     def observe_session(self, reference):
         return {"kind": "absent", "provider_session_id": "provider-1"}
 
@@ -91,6 +93,19 @@ class _NoAgent:
         return {"kind": "absent", "provider_session_id": "provider-1"}
 
 
+class _ReviewProfile:
+    name = "test-profile"
+
+    def materialize(self, source, repository, declared_base):
+        return None
+
+    def freeze(self, repository, **operands):
+        return None
+
+    def validate(self, repository, evidence, *, current=False):
+        return None
+
+
 class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
 
     def setUp(self):
@@ -111,6 +126,11 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
         file's business.
         """
         store, port = self.store, self.port
+        review_source = os.path.join(self._root.name, "review-source")
+        review_storage = os.path.join(self._root.name, "review-storage")
+        os.makedirs(review_source, exist_ok=True)
+        os.makedirs(review_storage, exist_ok=True)
+        review_profile = _ReviewProfile()
         return {
             "certify_profile": (
                 (store, "runtime", "reference", PROFILE),
@@ -447,6 +467,51 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
             "SESSION_SUCCESSORS": None,
             "SLOT_OCCUPANCY": None,
             "TERMINAL_SESSION_STATES": None,
+            # -- W71918: persistent review lines and checkpoints ----------
+            "assignment_of": ((store, "attempt-1"), {}, [1]),
+            "line_of": ((store, "line-1"), {}, [1]),
+            "writer_of": ((store, "writer-1"), {}, [1]),
+            "checkpoint_of": ((store, "checkpoint-1"), {}, [1]),
+            "create_line": (
+                (store,), dict(source=nominate_source(review_source),
+                               declared_base="a" * 40, profile=review_profile,
+                               authority_uuid=UUID, work_id=WORK),
+                ["declared_base", "authority_uuid", "work_id"]),
+            "grant_writer": (
+                (store,), dict(line_id="line-1", attempt_id="attempt-1",
+                               generation=1, worker_id="worker-1",
+                               profile=review_profile),
+                ["line_id", "attempt_id", "worker_id"]),
+            "record_progress": (
+                (store,), dict(writer_id="writer-1", generation=1, sequence=1,
+                               document={}), ["writer_id"]),
+            "freeze_checkpoint": (
+                (store,), dict(writer_id="writer-1", generation=1,
+                               profile=review_profile, port=port), ["writer_id"]),
+            "attach_review": (
+                (store,), dict(checkpoint_id="checkpoint-1",
+                               attempt_id="attempt-1", generation=1,
+                               reviewer_worker_id="reviewer-1",
+                               profile=review_profile),
+                ["checkpoint_id", "attempt_id", "reviewer_worker_id"]),
+            "record_verdict": (
+                (store,), dict(attachment_id="attachment-1",
+                               disposition="accepted", profile=review_profile,
+                               port=port),
+                ["attachment_id", "disposition"]),
+            "integration_checkpoint": ((store, "line-1"), {}, [1]),
+            "audit_checkpoint": (
+                (store, "checkpoint-1", review_profile), {}, [1]),
+            "line_status": (
+                (store, "line-1", lambda path: {"bytes": 0, "entries": 0}),
+                {}, [1]),
+            "writer_boundary": (
+                (store,), dict(writer_id="writer-1", generation=1),
+                ["writer_id"]),
+            "review_boundary": (
+                (store,), dict(attachment_id="attachment-1",
+                               profile=review_profile),
+                ["attachment_id"]),
             "manager_signature": (("offer.issue", {}), {}, []),
             "seal_refusal": (
                 (ContractRefusal("policy", "retention", "why", durable=True),),

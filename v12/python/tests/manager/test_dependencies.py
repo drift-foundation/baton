@@ -764,6 +764,15 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # position, and composing it twice over the same operands answers the
         # same topology both times.
         "capacity", "boundary", "source_delivered",
+        # W71918: identities and fences of the persistent review-cycle owner.
+        # These are supplied durable operands, not manager traversal state:
+        # line/checkpoint/writer/attachment select the exact persisted object;
+        # generations and worker identities establish attachment fences and
+        # reviewer independence; revision inputs name the requested act.
+        "line_id", "writer_id", "checkpoint_id", "attachment_id",
+        "declared_base", "generation", "worker_id", "based_checkpoint_id",
+        "sequence", "reviewer_worker_id",
+        "storage_usage",
         # `workspace_storage` WAS DECLARED HERE AND IS GONE AGAIN, which is
         # worth a line rather than a silent deletion. W36540's eighth round
         # added it as a capability operand of the custody mint; its ninth

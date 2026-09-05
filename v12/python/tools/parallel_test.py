@@ -247,7 +247,16 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     # also why the broad sweep could not be run at all. The
                     # classification above is read off the suite's own fixture;
                     # W61984's record owns the module.
-                    "tests.tools.test_quiescent_assignment_finalization")
+                    "tests.tools.test_quiescent_assignment_finalization",
+                    # W71918's checkpoint profile and persistent review-cycle
+                    # suites. PARALLEL: each case owns disposable source,
+                    # checkout, workspace-storage and control-store roots. The
+                    # profile suite's real Git case uses only its private
+                    # repository; the review-cycle suite uses in-process fake
+                    # profiles and authority ports. Neither reaches a daemon,
+                    # image, container, credential, network, or shared name.
+                    "tests.manager.test_checkpoint_profiles",
+                    "tests.manager.test_review_cycles")
 
 # ONE AT A TIME, IN THIS ORDER, AND NEVER BESIDE THE PARALLEL PHASE.
 #

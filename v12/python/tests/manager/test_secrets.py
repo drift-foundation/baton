@@ -925,6 +925,32 @@ COVERED_ELSEWHERE = {
         "four proved non-negative numbers this manager read from the "
         "filesystem; no caller text and nothing about either root's contents "
         "reaches any column",
+    # W71918: every free durable operand reaches a manager signature before
+    # these journalled writes. The preparing checkpoint transaction is the
+    # exception in mechanics, not coverage: its values are manager-derived
+    # identities, closed profile name, revision, and manager clock. Profile
+    # evidence reaches only the later journalled finalization.
+    ("review_cycles.py", "create_line", "review_lines"):
+        "the immutable line operands cross the prepare-signature secret guard "
+        "before the recoverable row and later ride the create operation signature",
+    ("review_cycles.py", "grant_writer", "line_writers"):
+        "the attachment fence and identities ride the writer-grant signature",
+    ("review_cycles.py", "grant_writer", "review_lines"): "the same",
+    ("review_cycles.py", "record_progress", "line_progress"):
+        "the progress document rides the progress operation signature",
+    ("review_cycles.py", "freeze_checkpoint", "line_writers"):
+        "preparation writes manager-derived identities, a closed reason and clock",
+    ("review_cycles.py", "freeze_checkpoint", "line_checkpoints"): "the same",
+    ("review_cycles.py", "freeze_checkpoint", "review_lines"): "the same",
+    ("review_cycles.py", "attach_review", "review_attachments"):
+        "the exact review fence and identities ride the attachment signature",
+    ("review_cycles.py", "attach_review", "review_lines"): "the same",
+    ("review_cycles.py", "record_verdict", "checkpoint_verdicts"):
+        "the full checkpoint evidence and disposition ride the verdict signature",
+    ("review_cycles.py", "record_verdict", "integration_eligibility"):
+        "the same accepted-checkpoint act writes eligibility",
+    ("review_cycles.py", "record_verdict", "review_attachments"): "the same",
+    ("review_cycles.py", "record_verdict", "review_lines"): "the same",
     ("attempts.py", "record_attempt", "attempts"):
         "written inside the journalled record act",
     ("attempts.py", "activate_assignment", "attempts"):
@@ -1145,6 +1171,25 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
                             "there is no operand to construct from and "
                             "nothing about either root's contents is "
                             "reachable from any value",
+    # W71918. Mutations return the manager journal's owned closed result;
+    # readers return rows walked at their receiving boundary; mount helpers
+    # return manager-minted local capabilities. No function below composes an
+    # unchecked caller string into a new portable artefact.
+    "assignment_of": "projects the activated assignment and authorization identity",
+    "line_of": "returns one adopted row walked at the receiving boundary",
+    "writer_of": "the same, for a writer grant",
+    "checkpoint_of": "the same, decoding evidence only after row ownership",
+    "create_line": "answers the journalled closed line creation result",
+    "grant_writer": "answers the journalled closed writer-grant result",
+    "record_progress": "answers the journalled closed progress receipt",
+    "freeze_checkpoint": "answers the journalled exact checkpoint evidence",
+    "attach_review": "answers the journalled closed review attachment",
+    "record_verdict": "answers the journalled full evidence-bound verdict",
+    "integration_checkpoint": "returns walked accepted-checkpoint evidence",
+    "audit_checkpoint": "returns evidence revalidated by the injected profile",
+    "line_status": "returns walked line state and a closed numeric storage reading",
+    "writer_boundary": "returns manager-minted local roots and mount capabilities",
+    "review_boundary": "the same, with a read-only source boundary",
     "attempt_runtime_of": "projects four runtime axes off the attempt row "
                           "plus the assignment document activation fixed, so "
                           "a recovery can branch on durable manager state and "

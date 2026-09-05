@@ -104,7 +104,7 @@ __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
            "MAX_BYTES", "MAX_DEPTH", "READ_ONLY_DIR", "READ_ONLY_FILE",
            "MOUNTINFO", "mount_table", "mount_points",
            "assignment_workspace", "compose_input_root", "copied_manifest",
-           "adopted_assignment_workspace",
+           "adopted_assignment_workspace", "line_assignment_workspace",
            "directory_manifest", "discard_execution_roots", "discard_tree",
            "discard_workspace",
            "read_input_root"]
@@ -859,6 +859,17 @@ def adopt_workspace_group(roots, gid):
 
 ROOT_NAMES = ("inputs", "workspace")
 HOME_ENTRIES = ("credential-state", "credentials", "custody") + ROOT_NAMES
+_REVIEW_LINE_HOME = ".baton-review-lines"
+
+
+def _assignment_identity(assignment_id):
+    boundaries.identity(assignment_id, "an assignment identity")
+    if (assignment_id in (".", "..") or "/" in assignment_id
+            or "\x00" in assignment_id):
+        _denied("an assignment identity is one path component and cannot traverse")
+    if assignment_id == _REVIEW_LINE_HOME:
+        _denied("the review-line custody namespace is never an assignment home")
+    return assignment_id
 
 
 def _refuse(message, code="path"):
@@ -1276,7 +1287,7 @@ def assignment_workspace(workspace_group, storage, assignment_id):
     an explicit owner. Private ephemeral space is generic runtime capacity, not
     protocol vocabulary this manager provisions.
     """
-    boundaries.identity(assignment_id, "an assignment identity")
+    _assignment_identity(assignment_id)
     # W33936 review [P0] then [P1]: THE GROUP IS THE DEPLOYMENT'S, AND THIS
     # FUNCTION READS IT RATHER THAN BEING TOLD IT.
     #
@@ -1457,9 +1468,10 @@ class AllocatedRoots:
     argument type rather than quietly succeeding.
     """
 
-    __slots__ = ("_members",)
+    __slots__ = ("_members", "_grant", "_grant_required")
 
-    def __init__(self, made, _minted=None):
+    def __init__(self, made, _minted=None, _grant=None,
+                 _grant_required=False):
         if _minted is not _MINT:
             _denied("allocated roots are answered by `assignment_workspace` "
                     "and are not constructed; roots a caller can mint are "
@@ -1482,6 +1494,8 @@ class AllocatedRoots:
         # makes the complaint false at its own site as well; it is not what the
         # guarantee rests on.
         object.__setattr__(self, "_members", MappingProxyType(dict(made)))
+        object.__setattr__(self, "_grant", _grant)
+        object.__setattr__(self, "_grant_required", _grant_required)
 
     # -- the read half of the mapping protocol, and only the read half ------
     #
@@ -1857,7 +1871,7 @@ def discard_workspace(storage, assignment_id):
     delete anything outside the storage root it was given -- the containment
     check runs before the removal and not after.
     """
-    boundaries.identity(assignment_id, "an assignment identity")
+    _assignment_identity(assignment_id)
     root = _real(storage, "the manager's workspace storage")
     home = os.path.join(root, assignment_id)
     if not os.path.exists(home):
@@ -1887,7 +1901,7 @@ def adopted_assignment_workspace(storage, assignment_id):
     attempt whose roots are gone: that is not a state an ending can be
     performed over.
     """
-    boundaries.identity(assignment_id, "an assignment identity")
+    _assignment_identity(assignment_id)
     root = _real(storage, "the manager's workspace storage")
     home = os.path.join(root, assignment_id)
     _proved_own(home, root, assignment_id, "home")
@@ -1895,6 +1909,49 @@ def adopted_assignment_workspace(storage, assignment_id):
         {name: _proved_own(os.path.join(home, name), root, assignment_id,
                            name)
          for name in ROOT_NAMES}, _MINT)
+
+
+def line_assignment_workspace(storage, assignment_id, place, pinned):
+    """Pair an attempt's inputs with its persistent line as the output root.
+
+    The review lifecycle authorizes the writer. This lower boundary proves the
+    persistent root remains the recorded object in the manager's reserved
+    namespace and mints the same roots capability the launch path consumes.
+    Ordinary assignment cleanup still targets only the assignment home.
+    """
+    roots = adopted_assignment_workspace(storage, assignment_id)
+    root = _real(storage, "the manager's workspace storage")
+    reserved = os.path.join(root, _REVIEW_LINE_HOME)
+    boundaries.text(place, "a persistent development-line path")
+    if (os.path.islink(place) or not os.path.isdir(place)
+            or os.path.realpath(place) != place
+            or not place.startswith(reserved + os.sep)):
+        _denied("the writable line is its own directory in the reserved manager namespace")
+    try:
+        device, inode = pinned
+    except (TypeError, ValueError):
+        _denied("a persistent line pin is one device-and-inode pair")
+    held = os.stat(place, follow_symlinks=False)
+    if (type(device) is not int or type(device) is bool
+            or type(inode) is not int or type(inode) is bool
+            or (held.st_dev, held.st_ino) != (device, inode)):
+        _denied("the writable line no longer has its persisted object identity")
+    return AllocatedRoots({"inputs": roots["inputs"],
+                           "workspace": place}, _MINT,
+                          _grant_required=True)
+
+
+def _granted_roots(roots, grant):
+    """Bind manager-owned roots to one live lifecycle grant.
+
+    Private because the lifecycle owner, not a runtime caller, supplies this
+    revocable capability. Runtime-storage boundary composition refuses roots
+    without it, so recomposing a returned path pair cannot discard revocation.
+    """
+    if type(roots) is not AllocatedRoots:
+        _denied("a live grant binds roots this manager allocated")
+    boundaries.capability(grant, "an assignment roots live grant")
+    return AllocatedRoots(dict(roots), _MINT, grant, True)
 
 
 def discard_execution_roots(storage, assignment_id):
@@ -1928,7 +1985,7 @@ def discard_execution_roots(storage, assignment_id):
       relative to that descriptor rather than to a name something else can
       move.
     """
-    boundaries.identity(assignment_id, "an assignment identity")
+    _assignment_identity(assignment_id)
     root = _real(storage, "the manager's workspace storage")
     home = os.path.join(root, assignment_id)
     if not os.path.lexists(home):

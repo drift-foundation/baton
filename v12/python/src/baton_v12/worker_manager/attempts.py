@@ -53,7 +53,7 @@ __all__ = ["TRANSITIONS", "AXES", "CONTEXT_COLUMNS",
            "pin_boundary_identity", "boundary_identity_of",
            "request_runtime_start",
            "reconcile_runtime", "request_cancellation",
-           "finalize_quiescent_assignment"]
+           "finalize_quiescent_assignment", "assignment_of"]
 
 
 def _frozen(moves):
@@ -643,6 +643,22 @@ def _require_attempt(store, attempt_id):
         raise ContractRefusal("refused", "precondition",
                               f"no runtime attempt {name_value(attempt_id)}")
     return attempt
+
+
+def assignment_of(store, attempt_id):
+    """The durable assignment and authorization identity fixed to an attempt."""
+    attempt = _require_attempt(store, attempt_id)
+    if attempt["assignment_generation"] is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} has not activated an assignment")
+    return {"runtime_attempt_id": attempt["runtime_attempt_id"],
+            "authority_uuid": attempt["authority_uuid"],
+            "work_id": attempt["work_id"],
+            "participant": attempt["assignment_participant"],
+            "generation": attempt["assignment_generation"],
+            "principal": attempt["assignment_principal"],
+            "effective_scope": attempt["assignment_scope"]}
 
 
 def _fixed_assignment(attempt):

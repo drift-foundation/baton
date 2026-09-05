@@ -54,7 +54,8 @@ from baton_v12.contracts import digest as _contracts_digest
 from baton_v12.worker_manager import (AuthorityPort, ControlStore, boundaries,
                                       certify_profile, documents, schema)
 
-from baton_v12.worker_manager import attempts, lanes, workspaces
+from baton_v12.worker_manager import (attempts, lanes, review_cycles,
+                                      source_boundary, workspaces)
 
 from .test_handshake import acp_profile
 from .test_output import (AUTHORITY, COMPLETION, JOB, POLICY, OutputCase)
@@ -1072,6 +1073,58 @@ NOT_AN_ENTRY = {
 # Every one still needs a witness: a declared owner with nothing exercising it
 # is a claim, not a boundary.
 STATED_OWNERS = {
+    # -- W71918: typed aggregates and manager-owned presence reads ----------
+    # A checkpoint profile and nominated source are nominal capabilities, not
+    # caller documents. Their methods/mint are checked before use. Assignment
+    # projections have already crossed and been owned in attempts.py; consuming
+    # those owned members is not a second receiving boundary.
+    ("caller", "review_cycles.py:create_line", "profile"):
+        "an injected profile aggregate whose named capabilities are typed before use",
+    ("caller", "review_cycles.py:grant_writer", "profile"):
+        "an injected profile aggregate whose validate capability is typed before use",
+    ("caller", "review_cycles.py:create_line", "source"):
+        "identity against the manager-minted NominatedSource exact type",
+    ("caller", "review_cycles.py:attach_review", "profile"):
+        "an injected profile aggregate whose validate capability is typed before use",
+    ("caller", "review_cycles.py:freeze_checkpoint", "profile"):
+        "the same, for freeze and validate",
+    ("caller", "review_cycles.py:record_verdict", "profile"): "the same",
+    ("caller", "review_cycles.py:audit_checkpoint", "profile"): "the same",
+    ("caller", "review_cycles.py:review_boundary", "profile"):
+        "an injected profile aggregate whose validate capability is typed before use",
+    ("caller", "review_cycles.py:record_verdict", "disposition"):
+        "compared against the closed review disposition vocabulary before use",
+    ("caller", "review_cycles.py:record_progress", "document"):
+        "canonicalized before it reaches either the signature or durable row",
+    ("adopted", "review_cycles.py:create_line", "review_lines"):
+        "the complete row is forwarded through line_of's canonical row decoder",
+    ("adopted", "review_cycles.py:attach_review", "line_writers"):
+        "a SELECT 1 existence answer; no row member crosses into this manager",
+    ("adopted", "review_cycles.py:review_boundary", "line_writers"): "the same",
+    ("caller", "workspaces.py:line_assignment_workspace", "pinned"):
+        "the exact two-integer object identity compared with the filesystem stat",
+    ("caller", "workspaces.py:line_assignment_workspace", "assignment_id"):
+        "forwarded to adopted_assignment_workspace's assignment owner",
+    ("caller", "workspaces.py:line_assignment_workspace", "storage"):
+        "forwarded to adopted_assignment_workspace's canonical storage proof",
+    ("caller", "source_boundary.py:compose_runtime_storage_boundary", "source"):
+        "forwarded to the shared exact NominatedSource type check",
+    ("caller", "source_boundary.py:compose_runtime_storage_boundary", "roots"):
+        "forwarded to the shared exact AllocatedRoots type check",
+    ("caller", "source_boundary.py:compose_runtime_storage_boundary", "roots.inputs"):
+        "forwarded to the shared input-root topology proof",
+    ("caller", "source_boundary.py:compose_runtime_storage_boundary", "roots.workspace"):
+        "forwarded to the shared disk-backed workspace object proof",
+    # Assignment facts returned by assignment_of are already-owned adopted
+    # attempt-row values. Each consumer compares them; none is caller input.
+    **{("caller", f"review_cycles.py:{site}", f"answer.{member}"):
+       "an already-owned activated-attempt projection from assignment_of"
+       for site in ("grant_writer", "attach_review")
+       for member in ("authority_uuid", "work_id", "generation",
+                      "participant", "principal")},
+    **{("caller", "review_cycles.py:writer_boundary", f"answer.{member}"):
+       "an already-owned activated-attempt projection from assignment_of"
+       for member in ("authority_uuid", "work_id", "generation")},
     # -- W71917: the source/workspace boundary -------------------------------
     #
     # THREE SHAPES, AND EACH IS A DIFFERENT REASON. None of them is a caller
@@ -1107,8 +1160,8 @@ STATED_OWNERS = {
         "the directory `source_mountpoint` established inside the proved "
         "input root",
     ("caller", "source_boundary.py:SourceBoundary.__init__", "capacity"):
-        "the `WorkspaceCapacity` this module minted and proved against the "
-        "filesystem",
+        "either the `WorkspaceCapacity` this module minted and proved or its "
+        "own `None` marker for runtime-supplied review-line storage",
     ("caller", "source_boundary.py:SourceBoundary.__init__", "device"):
         "read from a descriptor by `nominate_source`, never from a caller",
     ("caller", "source_boundary.py:SourceBoundary.__init__", "inode"):
@@ -1884,6 +1937,33 @@ CONSTRUCTED_BY = {
 # Written down rather than skipped silently: an entry with no probe should be a
 # decision somebody made, and it is checked to be a real, owned entry.
 NO_PROBE = {
+    # W71918: strict integer columns and lookup keys of the review-cycle rows.
+    # The former cannot be spoiled past SQLite's type wall; changing the latter
+    # makes the exact-id query return absence instead of adopting a bad row.
+    **{("adopted", site, subject): reason
+       for site, subject, reason in (
+           ("review_cycles.py:line_of", "review_lines.line_id",
+            "the exact lookup key; spoiling it makes the row unfindable"),
+           ("review_cycles.py:checkpoint_of", "line_checkpoints.checkpoint_id",
+            "the exact lookup key; spoiling it makes the row unfindable"),
+           ("review_cycles.py:integration_checkpoint",
+            "integration_eligibility.line_id",
+            "the exact lookup key; spoiling it makes the row unfindable"),
+           ("review_cycles.py:line_of", "review_lines.source_device",
+            "a STRICT INTEGER column; SQLite refuses the probe value"),
+           ("review_cycles.py:line_of", "review_lines.source_inode", "the same"),
+           ("review_cycles.py:line_of", "review_lines.line_device", "the same"),
+           ("review_cycles.py:line_of", "review_lines.line_inode", "the same"),
+           ("review_cycles.py:line_of", "review_lines.revision", "the same"),
+           ("review_cycles.py:writer_of", "line_writers.assignment_generation",
+            "a STRICT INTEGER column; SQLite refuses the probe value"),
+           ("review_cycles.py:checkpoint_of", "line_checkpoints.revision", "the same"),
+           ("review_cycles.py:_attachment_row", "review_attachments.assignment_generation",
+            "a STRICT INTEGER column; SQLite refuses the probe value"),
+           ("review_cycles.py:integration_checkpoint",
+            "checkpoint_verdicts.review_assignment_generation", "the same"),
+           ("review_cycles.py:integration_checkpoint",
+            "checkpoint_verdicts.revision", "the same"))},
     ("adopted", "offers.py:_offers", "offers.claim_generation"):
         "a STRICT INTEGER column; SQLite refuses the value a probe would need",
     ("adopted", "posture_slots.py:_slot_row", "posture_slots.session_epoch"):
@@ -1962,6 +2042,35 @@ NO_PROBE = {
 }
 
 DELEGATED = {
+    # -- W71918: public lifecycle operations share their exact private owners.
+    ("caller", "review_cycles.py:grant_writer", "line_id"):
+        ("review_cycles.py:line_of", "caller:line_id"),
+    ("caller", "review_cycles.py:grant_writer", "attempt_id"):
+        ("attempts.py:_attempt_row", "caller:attempt_id"),
+    ("caller", "review_cycles.py:grant_writer", "generation"):
+        ("review_cycles.py:_same_assignment", "caller:generation"),
+    ("caller", "review_cycles.py:freeze_checkpoint", "writer_id"):
+        ("review_cycles.py:writer_of", "caller:writer_id"),
+    ("caller", "review_cycles.py:attach_review", "checkpoint_id"):
+        ("review_cycles.py:checkpoint_of", "caller:checkpoint_id"),
+    ("caller", "review_cycles.py:attach_review", "attempt_id"):
+        ("attempts.py:_attempt_row", "caller:attempt_id"),
+    ("caller", "review_cycles.py:attach_review", "generation"):
+        ("review_cycles.py:_same_assignment", "caller:generation"),
+    ("caller", "review_cycles.py:record_progress", "writer_id"):
+        ("review_cycles.py:writer_of", "caller:writer_id"),
+    ("caller", "review_cycles.py:record_verdict", "attachment_id"):
+        ("review_cycles.py:_attachment", "caller:attachment_id"),
+    ("caller", "review_cycles.py:audit_checkpoint", "checkpoint_id"):
+        ("review_cycles.py:checkpoint_of", "caller:checkpoint_id"),
+    ("caller", "review_cycles.py:integration_checkpoint", "line_id"):
+        ("review_cycles.py:line_of", "caller:line_id"),
+    ("caller", "review_cycles.py:line_status", "line_id"):
+        ("review_cycles.py:line_of", "caller:line_id"),
+    ("caller", "review_cycles.py:writer_boundary", "writer_id"):
+        ("review_cycles.py:writer_of", "caller:writer_id"),
+    ("caller", "review_cycles.py:review_boundary", "attachment_id"):
+        ("review_cycles.py:_attachment", "caller:attachment_id"),
     # -- W71917: the worker's profile word, bounded in one place -------------
     #
     # `source_consumption` composes the manifest extension and `declared_profile`
@@ -6624,7 +6733,457 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 **self.intake_probes(), **self.sealing_probes(),
                 **self.credential_probes(), **self.launch_probes(),
                 **self.source_boundary_probes(),
+                **self.review_cycle_probes(),
                 **self.worker_entry_probes()}
+
+    def review_cycle_world(self):
+        """Minimal coherent rows for W71918's adopted-boundary probes."""
+        source = os.path.join(self.root, "review-source")
+        storage = os.path.join(self.root, "review-storage")
+        line_home = os.path.join(storage, review_cycles.LINE_HOME, "line-probe")
+        line_path = os.path.join(line_home, "checkout")
+        os.makedirs(source)
+        os.makedirs(line_path)
+        source_stat = os.stat(source)
+        line_stat = os.stat(line_path)
+        evidence = {"profile": "probe", "base": "a" * 40,
+                    "head": "b" * 40, "tree": "c" * 40,
+                    "paths": ["candidate.txt"],
+                    "path_set_digest": _contracts_digest(["candidate.txt"]),
+                    "reference": "checkpoint/line-probe/1"}
+        checkpoint_digest = _contracts_digest(evidence)
+        connection = self.store._connection
+        self.review_attempt()
+        self.review_attempt("review-attempt", 1, "baton.review",
+                            "review-principal")
+        connection.execute(
+            "UPDATE attempts SET runtime_id = 'runtime-' || runtime_attempt_id, "
+            "execution_runtime = 'quiescent', worker_disposition = 'completed' "
+            "WHERE runtime_attempt_id IN ('writer-attempt', 'review-attempt')")
+
+        class Port:
+            def __init__(self, participant):
+                self.participant = participant
+
+            def cancel(self, expect, operation_id, reason, work_id,
+                       authority_uuid):
+                return {"operation_id": operation_id, "status": "fenced"}
+
+        writer_fence = attempts.finalize_quiescent_assignment(
+            self.store, Port("baton.impl"), attempt_id="writer-attempt",
+            reason="probe writer completed")
+        review_fence = attempts.finalize_quiescent_assignment(
+            self.store, Port("baton.review"), attempt_id="review-attempt",
+            reason="probe review completed")
+        connection.execute(
+            "UPDATE attempts SET output = 'frozen', verification = 'passed' "
+            "WHERE runtime_attempt_id = 'review-attempt'")
+        connection.execute(
+            "INSERT INTO outputs VALUES ('review-attempt', 'review-result', "
+            "'completed', ?, 'review-freeze', ?)",
+            ("sha256:" + "d" * 64, NOW))
+        for name in ("findings", "logs"):
+            connection.execute(
+                "INSERT INTO output_artifacts VALUES ('review-attempt', ?, ?, "
+                "'text/plain', 1, ?, ?)",
+                (name, "artifact-" + name, "sha256:" + "e" * 64,
+                 "custody/review/" + name))
+        review_result = worker_manager.frozen_output_of(
+            self.store, "review-attempt")
+        connection.execute(
+            "INSERT INTO review_lines VALUES (?, ?, ?, 'probe', ?, ?, ?, ?, ?, "
+            "?, ?, 'accepted', 1, 'checkpoint-probe', ?)",
+            ("line-probe", UUID, WORK, "a" * 40, source,
+             source_stat.st_dev, source_stat.st_ino, line_path,
+             line_stat.st_dev, line_stat.st_ino, NOW))
+        connection.execute(
+            "INSERT INTO line_writers VALUES ('writer-probe', 'line-probe', "
+            "'writer-attempt', 1, 'worker-probe', 'baton.impl', "
+            "'principal-probe', NULL, 'revoked', ?, ?, 'checkpoint')",
+            (NOW, NOW))
+        connection.execute(
+            "INSERT INTO line_checkpoints (checkpoint_id, writer_id, line_id, "
+            "revision, profile_name, state, evidence, checkpoint_digest, "
+            "base_object, head_object, tree_object, path_set_digest, "
+            "reference_name, fence, fence_digest, prepared_at, frozen_at) "
+            "VALUES ('checkpoint-probe', 'writer-probe', 'line-probe', 1, "
+            "'probe', 'frozen', ?, ?, ?, ?, ?, ?, 'checkpoint/line-probe/1', "
+            "?, ?, ?, ?)",
+            (json.dumps(evidence, sort_keys=True, separators=(",", ":")),
+             checkpoint_digest, evidence["base"], evidence["head"],
+             evidence["tree"], evidence["path_set_digest"],
+             json.dumps(writer_fence, sort_keys=True, separators=(",", ":")),
+             _contracts_digest(writer_fence), NOW, NOW))
+        connection.execute(
+            "INSERT INTO review_attachments VALUES ('attachment-probe', "
+            "'line-probe', 'checkpoint-probe', 'review-attempt', 1, "
+            "'review-worker', 'baton.review', 'review-principal', 'ended', ?, ?)",
+            (NOW, NOW))
+        connection.execute(
+            "INSERT INTO checkpoint_verdicts (verdict_id, line_id, checkpoint_id, "
+            "attachment_id, authority_uuid, work_id, review_assignment_generation, "
+            "reviewer_worker_id, reviewer_participant, reviewer_principal, "
+            "disposition, checkpoint_digest, revision, base_object, head_object, "
+            "tree_object, path_set_digest, review_result, review_result_digest, "
+            "review_fence, review_fence_digest, recorded_at) VALUES "
+            "('verdict-probe', 'line-probe', 'checkpoint-probe', "
+            "'attachment-probe', ?, ?, 1, 'review-worker', 'baton.review', "
+            "'review-principal', 'accepted', ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (UUID, WORK, checkpoint_digest, evidence["base"], evidence["head"],
+             evidence["tree"], evidence["path_set_digest"],
+             json.dumps(review_result, sort_keys=True, separators=(",", ":")),
+             _contracts_digest(review_result),
+             json.dumps(review_fence, sort_keys=True, separators=(",", ":")),
+             _contracts_digest(review_fence), NOW))
+        connection.execute(
+            "INSERT INTO integration_eligibility VALUES ('checkpoint-probe', "
+            "'line-probe', 'verdict-probe', ?)", (NOW,))
+        return {"source": source, "storage": storage,
+                "line_path": line_path, "evidence": evidence}
+
+    @staticmethod
+    def review_profile():
+        class Profile:
+            name = "probe"
+
+            def materialize(self, source, repository, declared_base):
+                if not os.path.exists(repository):
+                    os.mkdir(repository)
+                return {"profile": self.name, "base": declared_base,
+                        "head": declared_base}
+
+            def freeze(self, repository, **operands):
+                return {"profile": self.name, "base": "a" * 40,
+                        "head": "b" * 40, "tree": "c" * 40,
+                        "paths": ["candidate.txt"],
+                        "path_set_digest": _contracts_digest(["candidate.txt"]),
+                        "reference": "checkpoint/line-probe/1"}
+
+            def validate(self, repository, evidence, **operands):
+                return dict(evidence)
+        return Profile()
+
+    @staticmethod
+    def review_port(participant):
+        class Port:
+            def __init__(self):
+                self.participant = participant
+
+            def cancel(self, expect, operation_id, reason, work_id,
+                       authority_uuid):
+                return {"operation_id": operation_id, "status": "fenced"}
+        return Port()
+
+    def review_attempt(self, attempt_id="writer-attempt", generation=1,
+                       participant="baton.impl", principal="principal-probe"):
+        self.store._connection.execute(
+            "INSERT INTO attempts (runtime_attempt_id, adapter_name, "
+            "adapter_digest, profile_digest, created_at, work_id, authority_uuid, "
+            "assignment_participant, assignment_generation, "
+            "assignment_claim_event_seq, assignment_principal, assignment_scope, "
+            "assignment_role, assignment_grant, assignment_policy_generation) "
+            "VALUES (?, 'adapter', 'digest', 'profile', ?, ?, ?, ?, ?, 1, ?, "
+            "'scope', 'role', 'grant', 1)",
+            (attempt_id, NOW, WORK, UUID, participant, generation, principal))
+
+    def spoiling_review_row(self, site, table, column):
+        def run():
+            self.review_cycle_world()
+            actual = "evidence" if column.startswith("evidence.") else column
+            contract = {"review_lines": schema.REVIEW_LINE_COLUMNS,
+                        "line_writers": schema.LINE_WRITER_COLUMNS,
+                        "line_checkpoints": schema.LINE_CHECKPOINT_COLUMNS,
+                        "review_attachments": schema.REVIEW_ATTACHMENT_COLUMNS,
+                        "checkpoint_verdicts":
+                            schema.CHECKPOINT_VERDICT_COLUMNS,
+                        "integration_eligibility":
+                            schema.INTEGRATION_ELIGIBILITY_COLUMNS}[table][actual]
+            self.corrupt(f"UPDATE {table} SET {actual} = ?",
+                         self.SPOILED[contract.kind])
+            profile = self.review_profile()
+            if site == "line_of":
+                review_cycles.line_of(self.store, "line-probe")
+            elif site == "writer_of":
+                review_cycles.writer_of(self.store, "writer-probe")
+            elif site == "checkpoint_of":
+                review_cycles.checkpoint_of(self.store, "checkpoint-probe")
+            elif site == "_attachment_row":
+                review_cycles.record_verdict(
+                    self.store, attachment_id="attachment-probe",
+                    disposition="accepted", profile=profile,
+                    port=self.review_port("baton.review"))
+            elif site == "freeze_checkpoint":
+                review_cycles.freeze_checkpoint(
+                    self.store, writer_id="writer-probe", generation=1,
+                    profile=profile, port=self.review_port("baton.impl"))
+            elif site == "integration_checkpoint":
+                review_cycles.integration_checkpoint(self.store, "line-probe")
+        return run
+
+    def spoiling_create_line(self, column):
+        def run():
+            source = os.path.join(self.root, "create-source")
+            storage = os.path.join(self.root, "create-storage")
+            os.mkdir(source)
+            os.mkdir(storage)
+            workspaces.configure_workspace_storage(self.store, storage)
+            profile = self.review_profile()
+            nominated = source_boundary.nominate_source(source)
+            created = review_cycles.create_line(
+                self.store, source=nominated,
+                declared_base="a" * 40, profile=profile,
+                authority_uuid=UUID, work_id=WORK)
+            contract = schema.REVIEW_LINE_COLUMNS[column]
+            self.corrupt(f"UPDATE review_lines SET {column} = ?",
+                         self.SPOILED[contract.kind])
+            review_cycles.create_line(
+                self.store, source=nominated,
+                declared_base="a" * 40, profile=profile,
+                authority_uuid=UUID, work_id=WORK)
+            return created
+        return run
+
+    def review_cycle_probes(self):
+        """Derived row probes and focused caller probes for W71918."""
+        entries = receiving_entries()
+        found = {}
+        tables = (
+            ("line_of", "review_lines", schema.REVIEW_LINE_COLUMNS,
+             "a persisted development line"),
+            ("writer_of", "line_writers", schema.LINE_WRITER_COLUMNS,
+             "a persisted line writer"),
+            ("checkpoint_of", "line_checkpoints", schema.LINE_CHECKPOINT_COLUMNS,
+             "a persisted line checkpoint"),
+            ("_attachment_row", "review_attachments",
+             schema.REVIEW_ATTACHMENT_COLUMNS, "a persisted review attachment"),
+            ("integration_checkpoint", "integration_eligibility",
+             schema.INTEGRATION_ELIGIBILITY_COLUMNS,
+             "persisted integration eligibility"),
+            ("integration_checkpoint", "checkpoint_verdicts",
+             schema.CHECKPOINT_VERDICT_COLUMNS,
+             "a persisted checkpoint verdict"),
+        )
+        for site, table, columns, label in tables:
+            subjects = [(name, f"{table}.{name}") for name in columns]
+            if table == "line_checkpoints":
+                subjects.extend((f"evidence.{name}",
+                                f"line_checkpoints.evidence.{name}")
+                                for name in ("base", "head",
+                                             "path_set_digest", "profile",
+                                             "reference", "tree"))
+            for column, subject in subjects:
+                entry = ("adopted", f"review_cycles.py:{site}", subject)
+                if (entry in entries and entry not in NO_PROBE
+                        and not self.owned_by_sqlite(columns[
+                            "evidence" if column.startswith("evidence.")
+                            else column])):
+                    found[(entry, label)] = (
+                        label, self.spoiling_review_row(site, table, column))
+            envelope = ("adopted", f"review_cycles.py:{site}", table)
+            if envelope in entries:
+                first = {"review_lines": "authority_uuid",
+                         "line_writers": "participant",
+                         "line_checkpoints": "profile_name",
+                         "review_attachments": "reviewer_participant",
+                         "checkpoint_verdicts": "reviewer_participant",
+                         "integration_eligibility": "verdict_id"}[table]
+                found[(envelope, label)] = (
+                    label, self.spoiling_review_row(site, table, first))
+        for column in ("declared_base", "line_path", "profile_name",
+                       "source_path"):
+            entry = ("adopted", "review_cycles.py:create_line",
+                     f"review_lines.{column}")
+            if entry in entries:
+                found[(entry, "a persisted development line")] = (
+                    "a persisted development line",
+                    self.spoiling_create_line(column))
+        for column in ("checkpoint_id",):
+            entry = ("adopted", "review_cycles.py:freeze_checkpoint",
+                     f"line_checkpoints.{column}")
+            if entry in entries:
+                found[(entry, "a persisted line checkpoint identity")] = (
+                    "a persisted line checkpoint identity",
+                    self.spoiling_review_row(
+                        "freeze_checkpoint", "line_checkpoints", column))
+        envelope = ("adopted", "review_cycles.py:freeze_checkpoint",
+                    "line_checkpoints")
+        if envelope in entries:
+            found[(envelope, "a persisted line checkpoint identity")] = (
+                "a persisted line checkpoint identity",
+                self.spoiling_review_row(
+                    "freeze_checkpoint", "line_checkpoints", "checkpoint_id"))
+        phantom = ("adopted", "review_cycles.py:checkpoint_of",
+                   "line_checkpoints.runtime_attempt_id")
+        if phantom in entries:
+            found[(phantom, "a persisted line checkpoint")] = (
+                "a persisted line checkpoint",
+                self.spoiling_review_row(
+                    "checkpoint_of", "line_checkpoints", "fence"))
+
+        def at(site, subject):
+            return ("caller", f"review_cycles.py:{site}", subject)
+
+        def creating(**spoiled):
+            def run():
+                source = os.path.join(self.root, "caller-source")
+                storage = os.path.join(self.root, "caller-storage")
+                os.mkdir(source)
+                os.mkdir(storage)
+                workspaces.configure_workspace_storage(self.store, storage)
+                operands = {"source": source_boundary.nominate_source(source),
+                            "declared_base": "a" * 40,
+                            "profile": self.review_profile(),
+                            "authority_uuid": UUID, "work_id": WORK}
+                operands.update(spoiled)
+                review_cycles.create_line(self.store, **operands)
+            return run
+
+        def attached(**spoiled):
+            def run():
+                self.review_cycle_world()
+                self.review_attempt("review-probe", 2, "baton.review",
+                                    "review-principal-2")
+                operands = {"checkpoint_id": "checkpoint-probe",
+                            "attempt_id": "review-probe", "generation": 2,
+                            "reviewer_worker_id": "review-worker-2",
+                            "profile": self.review_profile()}
+                operands.update(spoiled)
+                review_cycles.attach_review(self.store, **operands)
+            return run
+
+        def granted(**spoiled):
+            def run():
+                self.review_cycle_world()
+                self.store._connection.execute(
+                    "UPDATE review_lines SET state = 'correction-ready' "
+                    "WHERE line_id = 'line-probe'")
+                operands = {"line_id": "line-probe",
+                            "attempt_id": "writer-attempt", "generation": 1,
+                            "worker_id": "new-worker",
+                            "profile": self.review_profile(),
+                            "based_checkpoint_id": "checkpoint-probe"}
+                operands.update(spoiled)
+                review_cycles.grant_writer(self.store, **operands)
+            return run
+
+        def line_place():
+            roots = workspaces.assignment_workspace(
+                self.configured_group(), self.root, "attempt-line-probe")
+            del roots
+            workspaces.line_assignment_workspace(
+                self.root, "attempt-line-probe", SURROGATE, (0, 0))
+
+        direct = {
+            (at("line_of", "line_id"), "a development line identity"):
+                lambda: review_cycles.line_of(self.store, SURROGATE),
+            (at("writer_of", "writer_id"), "a line writer identity"):
+                lambda: review_cycles.writer_of(self.store, SURROGATE),
+            (at("checkpoint_of", "checkpoint_id"), "a line checkpoint identity"):
+                lambda: review_cycles.checkpoint_of(self.store, SURROGATE),
+            (at("integration_checkpoint", "line_id"),
+             "a development line identity"):
+                lambda: review_cycles.integration_checkpoint(self.store, SURROGATE),
+            (at("line_status", "line_id"), "a development line identity"):
+                lambda: review_cycles.line_status(
+                    self.store, SURROGATE, lambda path: {"bytes": 0, "entries": 0}),
+            (at("line_status", "storage_usage"),
+             "the deployment's development-line storage meter"):
+                lambda: review_cycles.line_status(self.store, "line-probe", 7),
+            (at("freeze_checkpoint", "generation"),
+             "a checkpoint assignment generation"):
+                lambda: review_cycles.freeze_checkpoint(
+                    self.store, writer_id="writer", generation=SURROGATE,
+                    profile=self.review_profile(),
+                    port=self.review_port("baton.impl")),
+            (at("freeze_checkpoint", "writer_id"), "a line writer identity"):
+                lambda: review_cycles.freeze_checkpoint(
+                    self.store, writer_id=SURROGATE, generation=1,
+                    profile=self.review_profile(),
+                    port=self.review_port("baton.impl")),
+            (at("attach_review", "checkpoint_id"),
+             "a line checkpoint identity"):
+                lambda: review_cycles.attach_review(
+                    self.store, checkpoint_id=SURROGATE, attempt_id="attempt",
+                    generation=1, reviewer_worker_id="worker",
+                    profile=self.review_profile()),
+            (at("attach_review", "reviewer_worker_id"),
+             "a reviewer worker identity"):
+                lambda: review_cycles.attach_review(
+                    self.store, checkpoint_id="checkpoint", attempt_id="attempt",
+                    generation=1, reviewer_worker_id=SURROGATE,
+                    profile=self.review_profile()),
+            (at("audit_checkpoint", "checkpoint_id"),
+             "a line checkpoint identity"):
+                lambda: review_cycles.audit_checkpoint(
+                    self.store, SURROGATE, self.review_profile()),
+            (at("record_progress", "generation"),
+             "a progress assignment generation"):
+                lambda: review_cycles.record_progress(
+                    self.store, writer_id="writer", generation=SURROGATE,
+                    sequence=1, document={}),
+            (at("record_progress", "sequence"), "a progress sequence"):
+                lambda: review_cycles.record_progress(
+                    self.store, writer_id="writer", generation=1,
+                    sequence=SURROGATE, document={}),
+            (at("record_progress", "writer_id"), "a line writer identity"):
+                lambda: review_cycles.record_progress(
+                    self.store, writer_id=SURROGATE, generation=1,
+                    sequence=1, document={}),
+            (at("record_verdict", "attachment_id"),
+             "a review attachment identity"):
+                lambda: review_cycles.record_verdict(
+                    self.store, attachment_id=SURROGATE,
+                    disposition="accepted", profile=self.review_profile(),
+                    port=self.review_port("baton.review")),
+            (at("review_boundary", "attachment_id"),
+             "a review attachment identity"):
+                lambda: review_cycles.review_boundary(
+                    self.store, attachment_id=SURROGATE,
+                    profile=self.review_profile()),
+            (at("writer_boundary", "generation"), "an assignment generation"):
+                lambda: review_cycles.writer_boundary(
+                    self.store, writer_id="writer", generation=SURROGATE),
+            (at("writer_boundary", "writer_id"), "a line writer identity"):
+                lambda: review_cycles.writer_boundary(
+                    self.store, writer_id=SURROGATE, generation=1),
+            (at("create_line", "authority_uuid"), "a line's authority UUID"):
+                creating(authority_uuid=SURROGATE),
+            (at("create_line", "work_id"), "a line's Work identity"):
+                creating(work_id=SURROGATE),
+            (at("create_line", "declared_base"), "a line's declared base"):
+                creating(declared_base=SURROGATE),
+            (at("grant_writer", "line_id"), "a development line identity"):
+                lambda: review_cycles.grant_writer(
+                    self.store, line_id=SURROGATE, attempt_id="attempt",
+                    generation=1, worker_id="worker",
+                    profile=self.review_profile()),
+            (at("grant_writer", "worker_id"), "a writer worker identity"):
+                lambda: review_cycles.grant_writer(
+                    self.store, line_id="line", attempt_id="attempt",
+                    generation=1, worker_id=SURROGATE,
+                    profile=self.review_profile()),
+            (at("grant_writer", "based_checkpoint_id"),
+             "a based checkpoint identity"):
+                lambda: review_cycles.grant_writer(
+                    self.store, line_id="line", attempt_id="attempt",
+                    generation=1, worker_id="worker",
+                    profile=self.review_profile(),
+                    based_checkpoint_id=SURROGATE),
+            (at("grant_writer", "attempt_id"), "a runtime attempt id"):
+                granted(attempt_id=SURROGATE),
+            (at("grant_writer", "generation"), "an assignment generation"):
+                granted(generation=SURROGATE),
+            (at("attach_review", "attempt_id"), "a runtime attempt id"):
+                attached(attempt_id=SURROGATE),
+            (at("attach_review", "generation"), "an assignment generation"):
+                attached(generation=SURROGATE),
+            (("caller", "workspaces.py:line_assignment_workspace", "place"),
+             "a persistent development-line path"): line_place,
+        }
+        for key, value in direct.items():
+            if key[0] in entries:
+                found[key] = (key[1], value)
+        return found
 
     def source_boundary_probes(self):
         """One probe per (entry, label) W71917's source/workspace boundary
@@ -7346,6 +7905,16 @@ WITNESSES = {
         "test_a_published_offer_row_is_owned_where_it_leaves_the_table",
 }
 
+# W71918's stated owners are exercised together because they are the three
+# nominal aggregates and already-owned projections of one lifecycle seam.
+WITNESSES.update({
+    entry: "test_review_cycle_stated_owners"
+    for entry in STATED_OWNERS
+    if ("review_cycles.py" in entry[1]
+        or entry[1] in ("workspaces.py:line_assignment_workspace",
+                        "source_boundary.py:compose_runtime_storage_boundary"))
+})
+
 
 class EveryStatedOwnerHasAWitness(BoundaryCase):
     """A stated owner is a claim until something exercises it."""
@@ -7362,6 +7931,15 @@ class EveryStatedOwnerHasAWitness(BoundaryCase):
 
 class StatedRules(BoundaryCase):
     """The witnesses themselves. Each exercises one stated rule."""
+
+    def test_review_cycle_stated_owners(self):
+        """The aggregate owners are live and the focused lifecycle suite runs."""
+        from .test_review_cycles import ReviewCycles
+        suite = unittest.defaultTestLoader.loadTestsFromTestCase(ReviewCycles)
+        result = unittest.TestResult()
+        suite.run(result)
+        self.assertEqual(result.errors, [])
+        self.assertEqual(result.failures, [])
 
     # -- W71917's source/workspace boundary ----------------------------------
 

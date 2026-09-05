@@ -102,7 +102,9 @@ class OwnershipBeforeAdoption(StoreCase):
             "interrogations_by_session",
             # W32649: the predecessor interlock reads by Work rather than by
             # lane, and one attempt holds at most one lane.
-            "runtime_lanes_by_work", "runtime_lanes_one_per_holder"})
+            "runtime_lanes_by_work", "runtime_lanes_one_per_holder",
+            # W71918: durable single-writer and single-review attachment gates.
+            "line_one_active_writer", "line_one_active_review"})
         del before
 
     def test_somebody_else_s_database_is_refused_with_nothing_changed(self):
