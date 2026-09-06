@@ -1549,10 +1549,10 @@ class Console:
 		self.search_limit = 100
 		self.search_saved: tuple | None = None
 		self.detail_return = "table"
-		# W33 R1: a timer tick only OWES a consumption — the cycle is
-		# spent by the SUCCESSFUL scheduled canonical read that
-		# follows, never by the tick alone (a failed read spends
-		# nothing the operator never saw).
+		# W33 R1: a successful timer probe only OWES a consumption — a
+		# successful table-shaped paint spends the cycle, while another
+		# completed view retires the token without touching its invisible
+		# cue. A failed probe or required projection spends nothing.
 		self.tick_owed = False
 
 		self.command: str | None = None  # the `:` command-bar buffer
@@ -1623,16 +1623,25 @@ class Console:
 		self.batch_confirm = False
 		self.batch_status = ""
 		# W5: the projection CACHE. Ordinary keystrokes operate on
-		# cached data and never query the authority; the configured
-		# timer tick (and an explicit mutation's own refresh) are the
-		# only invalidations. Navigation to a NEW context fetches on
+		# cached data and never query the authority; a timer observation
+		# of changed state (and an explicit mutation's own refresh) are
+		# the only invalidations. Navigation to a NEW context fetches on
 		# miss — displaying a view the cache has never held is not a
 		# poll.
 		self._cache: dict = {}
+		# W102477: the oldest canonical snapshot represented anywhere in
+		# the current cache generation. Timer deadlines compare the cheap
+		# authority sequence against this floor: if they match, every
+		# cached answer is still current; if they differ, one invalidation
+		# refreshes the generation. Keeping the floor (rather than merely
+		# the newest loader's token) also catches a commit interleaved
+		# between two cache misses in one render.
+		self._cache_seq: int | None = None
 		# The ONE refresh scheduler (pinned): timer expiry and a
-		# successful local mutation are two PRODUCERS of the same
-		# refresh request; the cache accessor consumes it, and pending
-		# requests coalesce — a due flag, not two behaviors.
+		# successful changed-state observation or local mutation are
+		# PRODUCERS of the same refresh request; the cache accessor
+		# consumes it, and pending requests coalesce — a due flag, not
+		# two behaviors.
 		self.refresh_due = False
 		# W5: the id-stable selection anchor — a background refresh
 		# must never move the cursor to a different Work merely
@@ -1965,8 +1974,7 @@ class Console:
 	# -- data: cached canonical reads (W5) --------------------------------
 
 	def schedule_refresh(self) -> None:
-		"""Producer side of the ONE refresh path — timer expiry and
-		successful local mutations both land here; requests coalesce."""
+		"""Producer side of the ONE refresh path; requests coalesce."""
 		self.refresh_due = True
 
 	def _cached(self, key, loader):
@@ -1974,22 +1982,37 @@ class Console:
 		# once before the next canonical read.
 		if self.refresh_due:
 			self._cache.clear()
+			self._cache_seq = None
 			self.refresh_due = False
 		if key not in self._cache:
-			self._cache[key] = loader()
+			loaded = loader()
+			self._cache[key] = loaded
+			if isinstance(loaded, dict) and \
+					isinstance(loaded.get("snapshot_seq"), int):
+				sequence = loaded["snapshot_seq"]
+				self._cache_seq = sequence if self._cache_seq is None \
+					else min(self._cache_seq, sequence)
 		return self._cache[key]
 
 	def tick(self) -> None:
-		"""The timer tick — a PRODUCER on the one refresh path: the
-		next paint re-reads. Read-only; no seen mark, no transition,
-		no cursor decision lives here. W33 R1: the tick only marks a
-		consumption as OWED — the phase-change countdown is spent by
-		the successful scheduled canonical read that follows, so a
-		failed read spends nothing, keystrokes/redraws/resize/mutation
-		refreshes spend nothing, and a coalesced timer+mutation
-		refresh spends exactly one."""
+		"""Observe freshness at one timer deadline and owe one repaint.
+
+		W102477: the cheap global sequence read replaces unconditional
+		full-cache invalidation. Unchanged state keeps the canonical cache
+		while the deadline render still updates client-derived cells;
+		changed or not-yet-observed state schedules exactly one refresh.
+		A failed observation reaches neither assignment, so it invalidates
+		nothing and owes no phase-cue cycle.
+
+		W33 R1: a successful observation only marks a consumption as OWED.
+		The following successful table-shaped paint spends it, after any
+		required projection succeeds. Failed projection, keystroke/redraw,
+		resize, and mutation-only refreshes spend nothing. A completed
+		non-table render retires the token without changing the cue."""
+		sequence = self.store.last_seq()
+		if self._cache_seq is None or sequence != self._cache_seq:
+			self.schedule_refresh()
 		self.tick_owed = True
-		self.schedule_refresh()
 
 
 	def _window(self) -> dict:
@@ -2055,15 +2078,16 @@ class Console:
 	def search_rows(self) -> list[dict]:
 		"""W336: the search window flows through the SAME countdown and
 		observation boundary as the main table — the accepted search
-		through the SAME cache/refresh path the table uses — the timer tick invalidates, keystrokes serve from
-		cache, and the id anchor keeps selection stable. W6 R1: paging
+		through the SAME cache/refresh path the table uses — changed-state
+		timer probes invalidate, keystrokes serve from cache, and the id
+		anchor keeps selection stable. W6 R1: paging
 		operates on the console's EFFECTIVE visible universe — while
 		closed Work is hidden and no explicit status filter overrides
 		it, the search itself constrains to status=open, so hidden
 		closed matches can never consume a page or distort its counts;
 		exposing closed rows (z) or filtering status=closed lifts the
 		constraint. JSON's canonical all-status result is untouched."""
-		owed = self.refresh_due and self.tick_owed
+		owed = self.tick_owed
 		effective = dict(self.work_filter or {})
 		if not self.show_closed and "status" not in effective:
 			effective["status"] = "open"
@@ -2107,7 +2131,7 @@ class Console:
 		awaiting you, so honouring either would let a view state the
 		operator set for a different question silently hide Work this
 		page exists to surface."""
-		owed = self.refresh_due and self.tick_owed
+		owed = self.tick_owed
 		window = self._cached(
 			("mine", self.mine_after),
 			lambda: projection.actionable_work(
@@ -2125,9 +2149,10 @@ class Console:
 		"""W336: the ONE countdown boundary. Every table-shaped window
 		— the main/re-rooted tree AND search, through the full render()
 		path and key paths alike — spends the phase-blink cycle here,
-		and only for the successful scheduled read that `owed`
-		witnessed. Failed reads never reach this call; mutation-only
-		refreshes and keystroke repaints arrive with owed False."""
+		and only for the successful timer probe that `owed` witnesses.
+		A required projection that fails never reaches this call;
+		mutation-only refreshes and keystroke repaints arrive with owed
+		False."""
 		if not owed:
 			return
 		self.phase_blink = {work_id: remaining - 1
@@ -2136,14 +2161,26 @@ class Console:
 		                    if remaining > 1}
 		self.tick_owed = False
 
+	def _retire_unspent_tick(self) -> None:
+		"""Retire a successful timer render that showed no phase cue.
+
+		Table-shaped views spend the owed cycle at their successful row
+		boundary above. Teams, Inbox, detail, links, and pokes have no cue
+		to show, so a completed render retires the token without changing
+		the invisible countdown. Calling this only after `_render_bar`
+		also means a failed non-table projection or terminal paint retains
+		the token for the next successful render rather than charging unseen
+		work."""
+		self.tick_owed = False
+
 	def rows(self) -> list[dict]:
 		# W33 R1: consumption is bound to the SUCCESSFUL scheduled
-		# canonical read. A pending tick (tick_owed) plus a due
-		# refresh means THIS fetch is that read — if it raises,
-		# nothing below runs and no cycle is spent; a coalesced
-		# timer+mutation refresh spends exactly one; a mutation-only
-		# refresh (no owed tick) spends none.
-		owed = self.refresh_due and self.tick_owed
+		# paint. A pending tick may retain a valid cached projection or
+		# require a fresh one — either way, if the table-shaped paint
+		# succeeds it spends one cycle. A required projection that raises
+		# never reaches the spend; a mutation-only refresh (no owed tick)
+		# spends none.
+		owed = self.tick_owed
 		rows = self.view()[0]
 		self._spend_owed_cycle(owed)
 		self._observe_phases(rows)
@@ -2605,6 +2642,7 @@ class Console:
 			else:
 				self._render_inbox(screen, height, width)
 			self._render_bar(screen, height, width)
+			self._retire_unspent_tick()
 			return
 		if self.mode == "table":
 			# W336: the LIVE render path drains the countdown too — the
@@ -2717,6 +2755,8 @@ class Console:
 			self._render_table(screen, height, width, rows,
 			                   top=table_top, trails=trails, mine=True)
 		self._render_bar(screen, height, width)
+		if self.mode not in ("table", "search", "mine"):
+			self._retire_unspent_tick()
 
 	# -- W25: the Inbox tab ----------------------------------------------
 
@@ -7292,8 +7332,9 @@ def run(screen, store: Authority, viewer_team: str, viewer_member: str,
         config_path: str | None = None, refresh: float = 2.0,
         work_filter: dict | None = None) -> None:
 	"""W5: `refresh` seconds (default 2, positive, configurable via
-	`tui refresh=`) is the ONE background trigger for fresh canonical
-	reads — getch times out, the cache drops, the screen repaints.
+	`tui refresh=`) is the ONE background freshness cadence — getch
+	blocks until the deadline, a cheap sequence probe conditionally
+	invalidates stale canonical data, and the screen always repaints.
 	Ordinary keystrokes operate on the cached projection."""
 	import time
 	curses.curs_set(0)

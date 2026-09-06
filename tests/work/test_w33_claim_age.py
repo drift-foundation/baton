@@ -285,6 +285,9 @@ def test_a_failed_scheduled_refresh_does_not_consume_the_cue(world,
 		raise RuntimeError("authority unavailable")
 
 	monkeypatch.setattr(pj, "tree", unavailable)
+	# A changed sequence requires the projection. Without this external
+	# commit the cheap timer probe correctly retains the cached tree.
+	make(world, title="forces changed-state projection")
 	console.tick()
 	with pytest.raises(RuntimeError, match="authority unavailable"):
 		console.rows()

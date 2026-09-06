@@ -41,6 +41,23 @@ BLINK_ROW = re.compile(
 	r"W\d+\b")
 
 
+class Screen:
+	def getmaxyx(self):
+		return 24, 110
+
+	def erase(self):
+		pass
+
+	def refresh(self):
+		pass
+
+	def move(self, *_args):
+		pass
+
+	def addnstr(self, *_args):
+		pass
+
+
 @pytest.fixture()
 def world(tmp_path):
 	config, database = fx.build_instance(
@@ -116,4 +133,39 @@ def test_search_windows_share_the_countdown_boundary(world):
 	console.tick()
 	console.search_rows()
 	assert world["work"] not in console.phase_blink
+	store.close()
+
+
+def test_a_non_table_timer_render_cannot_charge_a_later_key_repaint(world):
+	"""A successful Teams timer render retires its token without touching
+	an invisible cue; returning to Jobs by key cannot spend that old cycle."""
+	store = bw.Authority(world["database"])
+	console = Console(store, "lang", "ada",
+	                  config_path=world["config"])
+	console.rows()                          # cold baseline
+	tr.claim_work(store, world["work"], actor_team="lang",
+	             actor="ada")
+	console.schedule_refresh()
+	console.rows()                          # observe: arms 3
+	assert console.phase_blink[world["work"]] == 3
+
+	console.handle(ord("]"))               # key render on Teams
+	console.render(Screen())
+	assert console.tab == "teams"
+	assert console.phase_blink[world["work"]] == 3
+
+	console.tick()                          # successful unchanged deadline
+	console.render(Screen())
+	assert console.phase_blink[world["work"]] == 3
+	assert console.tick_owed is False
+
+	console.handle(ord("["))               # later key render on Jobs
+	console.render(Screen())
+	assert console.tab == "jobs"
+	assert console.phase_blink[world["work"]] == 3, \
+		"a key repaint spent the Teams timer cycle"
+
+	console.tick()                          # next Jobs deadline spends one
+	console.render(Screen())
+	assert console.phase_blink[world["work"]] == 2
 	store.close()

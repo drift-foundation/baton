@@ -1,9 +1,10 @@
 """W5: configurable timer-based automatic refresh (same-schema iteration).
 
 The configured timer (default 2s, `tui --refresh SECONDS`, positive) is the
-ONE background trigger for fresh canonical reads. Ordinary keystrokes operate
-on the cached projection and never query the authority. A refresh is
-read-only: no seen mark, no transition, and the selection anchors to the
+ONE background freshness cadence. Ordinary keystrokes operate on the cached
+projection and never query the authority. Each deadline performs one cheap
+sequence observation and repaints; only changed state reprojects. A refresh
+is read-only: no seen mark, no transition, and the selection anchors to the
 Work id — rows changing never moves the cursor to a different Work.
 """
 
@@ -71,8 +72,9 @@ def _drive_with_refresh(world, script, refresh, **kw):
 
 def test_the_timer_is_the_one_background_trigger(world, tmp_path):
 	"""In-process: paint once; keystrokes on the unchanged view hit the
-	cache (zero authority reads); tick() is what re-reads; an external
-	Work appears after tick and the anchored selection survives."""
+	cache (zero projection reads); tick() observes freshness; an external
+	Work appears after one changed-state projection, while later unchanged
+	deadlines keep using that cached answer."""
 	from baton_work.tui.app import Console
 	from baton_work import projection as pj_mod
 
@@ -116,23 +118,47 @@ def test_the_timer_is_the_one_background_trigger(world, tmp_path):
 		           for row in rows), "a keystroke saw fresh data"
 		assert calls["n"] == 0
 
-		# ...the TICK is a producer on the one refresh path.
+		# ...the TICK observes the changed sequence and produces one
+		# refresh on the shared invalidation path.
 		console.tick()
 		rows = console.rows()
 		assert calls["n"] == 1
 		assert any(row["title"] == "appeared externally"
 		           for row in rows), "the tick did not refresh"
 
-		# Pending requests COALESCE (pinned): several producers before
-		# one consumption re-read exactly once.
+		# Repeated unchanged deadlines repaint from the cache. They do not
+		# turn the cheap freshness cadence back into tree projections.
 		console.tick()
 		console.tick()
 		console.tick()
 		console.rows()
-		assert calls["n"] == 2, \
-			"coalesced refresh requests re-read more than once"
+		assert calls["n"] == 1, \
+			"unchanged timer deadlines reprojected the tree"
 	finally:
 		pj_mod.tree = real_tree
+	store.close()
+
+
+def test_a_failed_freshness_observation_changes_no_refresh_or_cue(world,
+		monkeypatch):
+	"""A failed cheap probe cannot invalidate cached data or spend a phase
+	cue: neither outcome was successfully observed or painted."""
+	from baton_work.tui.app import Console
+
+	store = bw.Authority(world["database"])
+	console = Console(store, "lang", "grace")
+	console.rows()
+	console.phase_blink = {world["first"]["work_id"]: 3}
+
+	def unavailable():
+		raise RuntimeError("freshness unavailable")
+
+	monkeypatch.setattr(store, "last_seq", unavailable)
+	with pytest.raises(RuntimeError, match="freshness unavailable"):
+		console.tick()
+	assert console.refresh_due is False
+	assert console.tick_owed is False
+	assert console.phase_blink == {world["first"]["work_id"]: 3}
 	store.close()
 
 
