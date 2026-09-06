@@ -256,7 +256,20 @@ PARALLEL_MODULES = ("tests.authority.test_assignment",
                     # profiles and authority ports. Neither reaches a daemon,
                     # image, container, credential, network, or shared name.
                     "tests.manager.test_checkpoint_profiles",
-                    "tests.manager.test_review_cycles")
+                    "tests.manager.test_review_cycles",
+                    # W71878's target-global integration coordinator.
+                    # PARALLEL: every case owns one coordinator database under
+                    # its own temporary root, and the store is the ONLY thing
+                    # any case touches -- no Git, no working tree, no
+                    # Authority session, no daemon, image, container,
+                    # credential, network or shared name, because the module
+                    # under test is the seam that owns none of those.
+                    #
+                    # The cases that use two connections -- the threaded
+                    # grant race, and the interleaving that proves one proof
+                    # observes one snapshot -- open both against THEIR OWN
+                    # database file inside the case, and close both there.
+                    "tests.integration.test_coordinator")
 
 # ONE AT A TIME, IN THIS ORDER, AND NEVER BESIDE THE PARALLEL PHASE.
 #

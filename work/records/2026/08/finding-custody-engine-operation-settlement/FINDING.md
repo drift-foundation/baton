@@ -200,3 +200,60 @@ The earlier coordination direction to add a W43974-on-W44342 dependency is
 and passes after the authorized W43974 stopgap assertion update. That green
 baseline does not close W44342: the daemon-side regression asserts that the
 stopgap reports `UNRESOLVED`, not that the engine operation settled.
+
+## 2026-09-05 — lifecycle ruling: inert launch and file-gated activation
+
+The durable engine-operation provider proposed above is **superseded as the
+default next solution**. It remains a possible later resource-reconciliation
+component, but v12 does not need to prove that Docker's create operation
+settled before it can prevent an ambiguously launched container from doing
+useful work.
+
+Each worker attempt receives a unique identity and persistent manager-owned
+exchange directory before the container is launched. The container controller
+starts inert: it cannot start the agent or perform the assignment merely
+because the container exists. Its minimal lifecycle is:
+
+```text
+check -> ready -> work -> cleanup -> quiescent -> manager destroy
+```
+
+- `check` is an optional, profile- or Job-declared warm-up entry point. It may
+  verify dependencies, runtime or OS versions, mounts, credentials, network,
+  compilers, memory or storage. An observation gates readiness only when the
+  accepted contract declares a requirement; v12 does not grow a universal
+  preflight checklist.
+- Successful warm-up atomically publishes `ready.json`; refusal atomically
+  publishes a structured not-ready result. Neither record authorizes work.
+- After observing readiness, the manager durably records and atomically
+  publishes the activation grant for the exact attempt and assignment
+  generation. The controller validates it, atomically acknowledges the claim,
+  and only then enters `work`. An offer deadline governs acceptance; once
+  accepted on time, expiry of the original offer does not revoke the active
+  assignment.
+- `cleanup` is an optional worker entry point for flushing results and logs and
+  stopping descendants. It publishes positive quiescence when complete.
+  Destroying the runtime is a manager action. Manager-custodied logs, output
+  and workspace evidence are retained independently of container destruction.
+
+These entry points are stable places to attach behavior, not a requirement to
+implement a general hook framework. An unsupported optional entry point is a
+no-op. `prepare` is not a worker hook because attempt-directory and container
+provisioning happen on the host before the worker exists. Generic `pause` is
+also not promised: an arbitrary agent may be between safe boundaries.
+`checkpoint-requested` and `stop-requested` may be advisory work-phase
+messages; resumption is valid only from an explicit checkpoint produced by a
+runtime profile that declares that capability.
+
+This changes the consequence of Docker ambiguity. A late container that never
+receives the exact activation remains inert and may self-expire while waiting.
+A container that did start can announce itself through the durable exchange
+even when the launching client lost Docker's response. A manager restart
+reconstructs ready, activated, claimed and terminal state from its durable
+store and exchange files rather than from client stdout. An uncooperative
+runtime may still leave an engine resource to identify and destroy, but it
+cannot become a competing assignment writer without a valid activation.
+
+The existing `UNRESOLVED` stopgap remains the implemented behavior until this
+lifecycle is delivered. The lifecycle is follow-up hardening after the first
+standalone v12 pipeline proof, not a new gate on that proof.
