@@ -31,6 +31,112 @@ def world(tmp_path_factory):
 	return cast["config_path"], cast
 
 
+def _quick_filter_world(tmp_path):
+	import json
+
+	import baton_work as bw
+	from baton_work import lifecycle as lc
+	from baton_work import transitions as tr
+
+	config_path = str(tmp_path / "baton.json")
+	with open(config_path, "w") as handle:
+		json.dump(fixtures.config_document(
+			{"lang": {"members": {"ada": ["dev"]}, "kinds": ["bug"]}}),
+			handle, indent=2, sort_keys=True)
+	result = lc.init_from_config(config_path, participant="lang.ada")
+	store = bw.Authority(result["database"])
+
+	def created(title):
+		return tr.create_work(
+			store, team="lang", kind="bug", title=title,
+			origin="external-report", classification="suspected-defect",
+			author="ada", body=title)["work_id"]
+
+	early = created("early work")
+	parked = created("parked work")
+	tr.set_phase(store, parked, actor_team="lang", actor="ada",
+	             phase="parked", reason="deferred deliberately")
+	late = created("late work")
+	closed = created("closed work")
+	tr.close_work(store, closed, actor_team="lang", actor="ada",
+	              rationale="finished", outcome="satisfying")
+	store.close()
+	return config_path, {"early": early, "parked": parked, "late": late,
+	                     "closed": closed}
+
+
+def test_the_quick_filter_is_legible_reversible_and_cancellable(tmp_path):
+	path, _work = _quick_filter_world(tmp_path)
+	text, status, steps = ptyharness.drive(path, "lang.ada", [
+		(b"", 0.4), (b"f", 0.3), (b"\x1b", 0.3),
+		(b"f", 0.3), (b"p", 0.4), (b"f", 0.3), (b"p", 0.4),
+		(b"qy", 0.4),
+	])
+	initial = ptyharness.replay(steps[0])
+	chooser = ptyharness.replay(steps[1])
+	cancelled = ptyharness.replay(steps[2])
+	hidden = ptyharness.replay(steps[4])
+	hidden_chooser = ptyharness.replay(steps[5])
+	restored = ptyharness.replay(steps[6])
+	assert any("parked work" in line for line in initial)
+	assert "[p] Parked: shown" in chooser[-1]
+	assert any("parked work" in line for line in cancelled)
+	assert not any("Hide:parked" in line for line in cancelled)
+	assert not any("parked work" in line for line in hidden)
+	assert any("Hide:parked" in line for line in hidden)
+	assert any("hide: parked" in line for line in hidden)
+	assert "[p] Parked: hidden" in hidden_chooser[-1]
+	assert any("parked work" in line for line in restored)
+	assert not any("Hide:parked" in line for line in restored)
+	assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+
+
+def test_the_quick_filter_repairs_selection_and_survives_refresh(tmp_path):
+	from baton_work import lifecycle as lc
+	from baton_work.tui import app
+
+	path, work = _quick_filter_world(tmp_path)
+	store = lc.open_bound(path)
+	console = app.Console(store, "lang", "ada", config_path=path)
+	rows, hidden = console.table_rows()
+	assert [row["id"] for row in rows] == [
+		work["early"], work["parked"], work["late"]]
+	assert hidden == 1
+	console.cursor = 1
+	console.selected_id = work["parked"]
+	before = store.last_seq()
+
+	console.handle(ord("f"))
+	assert console.quick_filter_open
+	console.handle(27)
+	assert not console.quick_filter_open and not console.hide_parked
+	assert console.selected_id == work["parked"]
+
+	console.handle(ord("f"))
+	console.handle(ord("p"))
+	rows, hidden = console.table_rows()
+	assert [row["id"] for row in rows] == [work["early"], work["late"]]
+	assert console.selected_id == work["late"]
+	assert hidden == 1
+	console.tick()
+	assert work["parked"] not in {
+		row["id"] for row in console.table_rows()[0]}
+
+	console.handle(ord("z"))
+	rows, hidden = console.table_rows()
+	assert [row["id"] for row in rows] == [
+		work["early"], work["late"], work["closed"]]
+	assert hidden == 0
+	console.handle(ord("f"))
+	console.handle(ord("p"))
+	rows, hidden = console.table_rows()
+	assert [row["id"] for row in rows] == [
+		work["early"], work["parked"], work["late"], work["closed"]]
+	assert hidden == 0
+	assert store.last_seq() == before
+	store.close()
+
+
 def test_the_console_opens_on_the_top_level_table_and_exits(world):
 	path, cast = world
 	text, status, _steps = ptyharness.drive(path, "lang.ada", [(b"qy", 0.4)])
@@ -374,11 +480,10 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 
 	# The focused view: contract revision on the open work; outcome and
 	# rationale on the closed one.
-	# W7: `the gate` is a ready unclaimed blocker and now leads the
-	# pool, so `j` reaches `stays open` — the revised Work this
-	# assertion has always been about.
+	# Stable display order keeps `stays open`, the earliest live Work,
+	# selected even though `the gate` is the ready unclaimed blocker.
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"j\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
+		(b"\r", 0.5), (b"o", 0.5), (b"qy", 0.4)])
 	focused = "\n".join(ptyharness.replay(steps[1]))
 	assert "contract rev r1" in focused, focused[:400]
 	# W78: the focused row names the GATE, not the condition kind —
@@ -386,7 +491,7 @@ def test_the_focused_facts_and_collapse_come_from_the_projection(tmp_path):
 	assert re.search(r"wait W\d+", focused), \
 		f"the displayed gate is not stated: {focused[:400]}"
 	text, status, steps = ptyharness.drive(config_path, "lang.ada", [
-		(b"z", 0.4), (b"jj", 0.3), (b"\r", 0.5), (b"o", 0.5),
+		(b"z", 0.4), (b"j", 0.3), (b"\r", 0.5), (b"o", 0.5),
 		(b"qy", 0.4)])
 	closed_view = "\n".join(ptyharness.replay(steps[3]))
 	assert "closed satisfying — delivered before the checkpoint" \

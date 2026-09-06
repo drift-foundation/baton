@@ -1,4 +1,4 @@
-"""W7: Work that is holding another agent goes first in its own pool.
+"""W7 dispatch preference and W103313's stable human Work ordering.
 
 `work/records/2026/08/finding-blocker-effective-priority/`, the
 first-cut ruling of 2026-08-18. The live stall it comes from: W5
@@ -16,7 +16,8 @@ The confirmed rule is deliberately narrow and binary:
 3. binary only — no cross-pool promotion, no weighted fan-out, no
    transitive scoring, no second priority axis;
 4. stable creation order tie-breaks inside each group;
-5. the SAME ordering drives human Work lists and participant readiness;
+5. blocker-first ordering drives machine readiness only; human lists keep
+   stable priority/creation order;
 6. claimed, blocked or parked Work is never preempted or made claimable.
 
 The broader effective-priority model in the finding stays deferred, and
@@ -40,6 +41,7 @@ import baton_work as bw                                       # noqa: E402
 from baton_work import lifecycle as lc                        # noqa: E402
 from baton_work import projection as pj                       # noqa: E402
 from baton_work import transitions as tr                      # noqa: E402
+from baton_work.tui.app import Console                        # noqa: E402
 import fixtures as fx                                         # noqa: E402
 
 
@@ -96,16 +98,15 @@ def wake_titles(world, member="ada"):
 
 # -- the rule ----------------------------------------------------------------
 
-def test_a_blocker_sorts_ahead_of_free_standing_work_in_its_pool(world):
-	"""The live stall, reduced. `free` was created first and would lead
-	on creation order alone; `blocker` is holding `consumer`, so it goes
-	first — which is the whole operational statement."""
+def test_a_blocker_does_not_move_human_rows_in_its_pool(world):
+	"""The blocker fact affects dispatch without reshuffling the board."""
 	free = make(world, "free-standing")
 	consumer = make(world, "consumer")
 	blocker = make(world, "the blocker")
 	gate(world, consumer, blocker)
 
-	assert titles(world) == ["the blocker", "free-standing", "consumer"]
+	assert titles(world) == ["free-standing", "consumer", "the blocker"]
+	assert wake_titles(world) == ["the blocker", "free-standing"]
 	assert row(world, blocker)["blocking"] is True
 	assert row(world, free)["blocking"] is False
 	# the consumer is gated, so it is not a candidate for the preference
@@ -147,9 +148,8 @@ def test_there_is_no_cross_pool_promotion(world):
 	assert other_low
 
 
-def test_the_preference_orders_only_within_one_pool(world):
-	"""Rule 2 from the other side: two blockers and two free-standing
-	Works across two pools interleave pool-first, blocker-second."""
+def test_display_priority_pools_keep_creation_order(world):
+	"""Explicit priority groups peers; transient blocking does not."""
 	consumer = make(world, "consumer")
 	high_free = make(world, "high free", priority="high")
 	high_blocker = make(world, "high blocker", priority="high")
@@ -158,15 +158,13 @@ def test_the_preference_orders_only_within_one_pool(world):
 	gate(world, consumer, high_blocker)
 	gate(world, consumer, normal_blocker)
 
-	assert titles(world) == ["high blocker", "high free", "normal blocker",
-	                         "consumer", "normal free"]
+	assert titles(world) == ["high free", "high blocker", "consumer",
+	                         "normal free", "normal blocker"]
 	assert high_free and normal_free
 
 
-def test_creation_order_tie_breaks_inside_each_group(world):
-	"""Rule 4. Two blockers keep their permanent order, and so do two
-	free-standing rows; the preference splits the pool into exactly two
-	stable groups and nothing more."""
+def test_creation_order_stably_orders_one_display_pool(world):
+	"""Blocking changes facts, never otherwise equal siblings' positions."""
 	consumer = make(world, "consumer")
 	free_one = make(world, "free one")
 	blocker_one = make(world, "blocker one")
@@ -175,24 +173,19 @@ def test_creation_order_tie_breaks_inside_each_group(world):
 	gate(world, consumer, blocker_one)
 	gate(world, consumer, blocker_two)
 
-	# `consumer` was created before either free-standing row, so it
-	# leads the non-blocking group: the tie-break is permanent creation
-	# order, not "everything the reader thinks of as free-standing".
-	assert titles(world) == ["blocker one", "blocker two", "consumer",
-	                         "free one", "free two"]
+	assert titles(world) == ["consumer", "free one", "blocker one",
+	                         "free two", "blocker two"]
 	assert free_one and free_two
 
 
 # -- the preference appears and disappears with the edge ---------------------
 
-def test_removing_the_edge_removes_the_preference_immediately(world):
-	"""Rule 4 of the proposed model, retained by the first cut: nothing
-	is rewritten, the predicate simply stops being true. No automatic
-	operation touches the blocker."""
+def test_removing_the_edge_changes_the_fact_not_the_display_position(world):
 	consumer = make(world, "consumer")
 	blocker = make(world, "the blocker")
 	gate(world, consumer, blocker)
-	assert titles(world)[0] == "the blocker"
+	assert titles(world) == ["consumer", "the blocker"]
+	assert wake_titles(world)[0] == "the blocker"
 
 	tr.remove_dependency(world["store"], consumer, blocker,
 	                     actor_team="lang", actor="ada",
@@ -233,7 +226,7 @@ def test_a_claimed_blocker_takes_no_preference(world):
 	free = make(world, "free-standing")
 	blocker = make(world, "the blocker")
 	gate(world, consumer, blocker)
-	assert titles(world)[0] == "the blocker"
+	assert titles(world) == ["consumer", "free-standing", "the blocker"]
 
 	tr.claim_work(world["store"], blocker, actor_team="lang", actor="bee")
 	assert row(world, blocker)["blocking"] is False
@@ -268,7 +261,8 @@ def test_a_blocker_that_is_itself_gated_takes_no_preference(world):
 	assert row(world, middle)["blocking"] is False, \
 		"a gated blocker was advertised as pickable"
 	assert row(world, deep)["blocking"] is True
-	assert titles(world) == ["deep", "consumer", "middle"]
+	assert titles(world) == ["consumer", "middle", "deep"]
+	assert wake_titles(world)[0] == "deep"
 
 
 def test_the_ordering_makes_nothing_claimable_that_was_not(world):
@@ -278,7 +272,8 @@ def test_the_ordering_makes_nothing_claimable_that_was_not(world):
 	consumer = make(world, "consumer")
 	blocker = make(world, "the blocker")
 	gate(world, consumer, blocker)
-	assert titles(world)[0] == "the blocker"
+	assert titles(world) == ["consumer", "the blocker"]
+	assert wake_titles(world)[0] == "the blocker"
 
 	# the gated consumer is still not claimable
 	with pytest.raises(bw.WorkError):
@@ -291,12 +286,10 @@ def test_the_ordering_makes_nothing_claimable_that_was_not(world):
 		              actor="bee")
 
 
-# -- rule 5: one ordering for humans and agents ------------------------------
+# -- W103313: separate stable display and blocker-first dispatch -------------
 
-def test_readiness_and_the_work_lists_name_the_same_next_work(world):
-	"""Rule 5, which is the whole reason the order fragment is shared
-	rather than repeated. An agent polling `wait` and an operator
-	reading the board must be told the same thing."""
+def test_readiness_keeps_its_blocker_preference_while_the_board_stays_stable(
+		world):
 	free = make(world, "free-standing")
 	consumer = make(world, "consumer")
 	blocker = make(world, "the blocker")
@@ -305,9 +298,8 @@ def test_readiness_and_the_work_lists_name_the_same_next_work(world):
 	board = [title for title in titles(world)]
 	woken = wake_titles(world)
 	assert woken[0] == "the blocker"
-	# the wake set is a SUBSET of the board (gated Work never wakes),
-	# and the two agree wherever they overlap
-	assert woken == [title for title in board if title in set(woken)]
+	assert board == ["free-standing", "consumer", "the blocker"]
+	assert woken == ["the blocker", "free-standing"]
 	assert free
 
 
@@ -323,7 +315,7 @@ def test_children_and_tree_levels_order_identically(world):
 
 	kids = [entry["title"] for entry in pj.children(
 		world["store"], parent, viewer_team="lang", viewer_member="ada")]
-	assert kids == ["child blocker", "child free", "child consumer"]
+	assert kids == ["child free", "child consumer", "child blocker"]
 
 	window = pj.tree(world["store"], viewer_team="lang",
 	                 viewer_member="ada")["rows"]
@@ -382,24 +374,21 @@ def test_the_projection_version_names_the_ordering_contract(world):
 
 
 def test_one_predicate_serves_every_surface(world):
-	"""There is exactly ONE blocker definition. A second copy is how
-	the human board and the agent's wake set start disagreeing, which
-	is the failure this finding is about."""
+	"""One blocker definition feeds dispatch and the published row fact."""
 	import inspect
 	source = inspect.getsource(pj)
 	assert source.count("EXISTS (SELECT 1 FROM edges JOIN work AS blocked") \
 		== 1, "the blocker predicate is written more than once"
-	assert source.count("WORK_ORDER = (") == 1
-	# and every Work-list statement uses it rather than its own spelling
-	assert "ORDER BY CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 " \
-		"ELSE 2 END, created_seq" not in source, \
-		"an ordering surface kept its own pre-W7 order fragment"
+	assert source.count("DISPLAY_WORK_ORDER = ") == 1
+	assert source.count("DISPATCH_WORK_ORDER = (") == 1
+	assert "_BLOCKING_RANK" not in pj.DISPLAY_WORK_ORDER
+	assert "order_blocking" in pj.DISPATCH_WORK_ORDER_KEY
 
 
 # -- the rendered board -------------------------------------------------------
 
-def test_the_drawn_table_leads_with_the_blocker(tmp_path):
-	"""`identical TUI and readiness order`, asserted on a REAL screen.
+def test_the_drawn_table_keeps_creation_order(tmp_path):
+	"""The real screen carries the projection's stable display order.
 
 	The first cut argued this was structural — the console has no sort
 	of its own, so it renders whatever order the projection returns —
@@ -409,10 +398,8 @@ def test_the_drawn_table_leads_with_the_blocker(tmp_path):
 	does not. The two existing TUI tests that broke when this ordering
 	landed were indirect evidence; this is the direct kind.
 
-	If the board and the wake set could ever disagree about what to do
-	next, that disagreement is the whole defect this Work exists to
-	remove — so it is worth one test that a human's screen is the thing
-	being asserted."""
+	W103313 deliberately separates this human order from blocker-first
+	dispatch, so the runtime transition cannot move rows under the cursor."""
 	import pty as _pty
 	if not hasattr(_pty, "fork"):
 		pytest.skip("no pty")
@@ -422,9 +409,8 @@ def test_the_drawn_table_leads_with_the_blocker(tmp_path):
 		str(tmp_path), {"lang": {"members": {"ada": ["dev"]},
 		                        "kinds": ["bug"]}})
 	store = bw.Authority(database)
-	# `zeta-consumer` and `alpha-free` are both created BEFORE the
-	# blocker, so creation order alone would put the blocker last. Only
-	# the preference can move it to the top.
+	# Both ordinary rows are created before the blocker, so a transient
+	# blocker preference would visibly move the newest row to the top.
 	consumer = tr.create_work(store, team="lang", kind="bug",
 	                          title="zeta-consumer",
 	                          origin="external-report",
@@ -445,7 +431,7 @@ def test_the_drawn_table_leads_with_the_blocker(tmp_path):
 	board = [row["title"] for row in pj.home(
 		store, viewer_team="lang", viewer_member="ada")["rows"]]
 	store.close()
-	assert board == ["omega-blocker", "zeta-consumer", "alpha-free"], board
+	assert board == ["zeta-consumer", "alpha-free", "omega-blocker"], board
 
 	text, status, steps = ptyharness.drive(config, "lang.ada", [
 		(b"", 0.6), (b"qy", 0.4)])
@@ -457,5 +443,31 @@ def test_the_drawn_table_leads_with_the_blocker(tmp_path):
 		f"the drawn table did not carry the projected order: {drawn}"
 	at = {title: next(index for index, line in enumerate(screen)
 	                  if title in line) for title in board}
-	assert at["omega-blocker"] < at["zeta-consumer"] < at["alpha-free"], \
-		f"the blocker is not at the top of the drawn board: {at}"
+	assert at["zeta-consumer"] < at["alpha-free"] < at["omega-blocker"], \
+		f"the drawn board did not retain creation order: {at}"
+
+
+class _Screen:
+	def addnstr(self, *_args):
+		pass
+
+
+def test_tui_refresh_keeps_the_selected_earlier_sibling_in_place(world):
+	"""The reported W103076/W103077 transition through the render seam."""
+	earlier = make(world, "earlier sibling")
+	later = make(world, "later sibling")
+	consumer = make(world, "consumer")
+	view = Console(world["store"], "lang", "ada",
+	               config_path=world["config"])
+	assert [entry["id"] for entry in view.rows()] == [earlier, later, consumer]
+	view.selected_id, view.cursor = earlier, 0
+
+	tr.claim_work(world["store"], earlier, actor_team="lang", actor="ada")
+	gate(world, consumer, later)
+	view.schedule_refresh()
+	rows = view.rows()
+	view._render_table(_Screen(), 24, 120, rows)
+
+	assert [entry["id"] for entry in rows] == [earlier, later, consumer]
+	assert (view.selected_id, view.cursor) == (earlier, 0)
+	assert wake_titles(world, member="bee")[0] == "later sibling"

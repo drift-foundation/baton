@@ -191,6 +191,12 @@ POKE_FETCH = 500
 # cycle's order, from one list, so they cannot disagree.
 TABS = ("jobs", "teams", "inbox")
 
+# W103596: the client-local Jobs filter chooser. The ordered option list owns
+# both presentation and key recognition so another approved toggle can extend
+# one chooser rather than adding another modal grammar. This Work implements
+# only parked visibility.
+QUICK_FILTER_OPTIONS = (("p", "Parked"),)
+
 # W2938: the compact Teams-cell vocabulary for the participant pickup
 # obligation. `late` rather than `overdue` because the column is four
 # cells wide and this is a table; member detail spells out the full
@@ -1593,6 +1599,10 @@ class Console:
 		self.seeded_say: str | None = None
 		# W9: the one-row exit confirmation — q asks, y answers.
 		self.confirm_exit = False
+		# W103596: one client-local chooser and its one approved toggle.
+		# Neither survives this Console nor reaches a projection operand.
+		self.quick_filter_open = False
+		self.hide_parked = False
 		# W17: the poke view's own selection, anchored on the poke's
 		# stable sequence so a background refresh cannot move the
 		# operator onto a different question. `poke_choice` holds the
@@ -2070,7 +2080,7 @@ class Console:
 		ordinary row is, because from the operator's hands it is an
 		ordinary row. The elision lines are not here at all — the keys
 		never see a line that is not a Work."""
-		visible, hidden = self.visible_rows(self.rows())
+		visible, hidden = self.job_visible_rows(self.rows())
 		stream = tree_stream(visible, self.trails())
 		return ([entry["row"] for entry in stream
 		         if entry["kind"] == "work"], hidden)
@@ -2224,6 +2234,18 @@ class Console:
 			return rows, 0
 		visible = [row for row in rows if row["status"] == "open"]
 		return visible, len(rows) - len(visible)
+
+	def job_visible_rows(self, rows: list[dict]) -> tuple[list[dict], int]:
+		"""Apply client-only quick reductions to the Jobs table.
+
+		The canonical projection and closed-row contract remain unchanged.
+		Parked hiding is deliberately last and local: search, readiness, JSON,
+		and the authority never receive or infer this state.
+		"""
+		visible, hidden_closed = self.visible_rows(rows)
+		if self.hide_parked:
+			visible = [row for row in visible if row["phase"] != "parked"]
+		return visible, hidden_closed
 
 	def thread_rows(self) -> list[dict]:
 		"""ONE bounded page of the focused Work's thread SET from the
@@ -2576,8 +2598,13 @@ class Console:
 		"""W5's header disclosure, or empty. ONE definition, because the
 		top-level header and every drilled header owe the operator the
 		same fact and must not be able to disagree about when."""
-		return f"Filter:{len(self.work_filter)}" \
-			if self.work_filter and self.tab == "jobs" else ""
+		if self.tab != "jobs":
+			return ""
+		parts = ([f"Filter:{len(self.work_filter)}"]
+		         if self.work_filter else [])
+		if self.mode == "table" and self.hide_parked:
+			parts.append("Hide:parked")
+		return " ".join(parts)
 
 	def _render_breadcrumb(self, screen, width: int) -> None:
 		"""The drilled location row: the complete path, then the right
@@ -2750,6 +2777,15 @@ class Console:
 				if len(clauses) > width - 1:
 					clauses = clauses[:max(0, width - 2)] + "…"
 				screen.addnstr(table_top, 0, clauses, width - 1,
+				               curses.A_DIM)
+				table_top += 1
+			if self.hide_parked:
+				# The quick reduction is independent of the projection filter
+				# above and therefore gets its own explicit disclosure.
+				quick = "hide: parked (f changes)"
+				if len(quick) > width - 1:
+					quick = quick[:max(0, width - 2)] + "…"
+				screen.addnstr(table_top, 0, quick, width - 1,
 				               curses.A_DIM)
 				table_top += 1
 			self._render_table(screen, height, width, rows,
@@ -3412,6 +3448,13 @@ class Console:
 			screen.addnstr(height - 1, 0,
 			               f"Answer poke {self.poke_choice} — state? "
 			               f"{offer} · Esc cancel", width - 1)
+		elif self.quick_filter_open:
+			state = "hidden" if self.hide_parked else "shown"
+			options = " · ".join(
+				f"[{key}] {label}: {state}"
+				for key, label in QUICK_FILTER_OPTIONS)
+			screen.addnstr(height - 1, 0,
+			               f"Filters · {options} · Esc cancel", width - 1)
 		elif self.batch is not None:
 			caret = self._render_batch(screen, height, width)
 		elif self.search_input is not None:
@@ -3643,7 +3686,9 @@ class Console:
 		# dependency cue is scoped the same way, and is ONE whole
 		# optional responsive field: when it alone breaks the fit it is
 		# omitted entirely (never clipped); `[d] deps` stays available.
-		visible, hidden = self.visible_rows(rows)
+		visible, hidden = (self.job_visible_rows(rows)
+		                   if self.mode == "table"
+		                   else self.visible_rows(rows))
 		# W6814: the physical display stream — the ordinary rows plus,
 		# under each anchor, one non-selectable elision line and the
 		# active Work this window hides beneath it. `selectable` is what
@@ -3708,17 +3753,7 @@ class Console:
 		# W5: the selection anchors to the WORK ID, not the index — a
 		# background refresh that inserts or removes rows never moves
 		# the cursor to a different Work.
-		if self.selected_id is not None:
-			for index, row in enumerate(selectable):
-				if row["id"] == self.selected_id:
-					self.cursor = index
-					break
-			else:
-				self.cursor = min(self.cursor,
-				                  max(0, len(selectable) - 1))
-		if selectable:
-			self.selected_id = \
-				selectable[min(self.cursor, len(selectable) - 1)]["id"]
+		self._repair_table_selection(selectable)
 		# The hidden-count footer is part of the collapse CONTRACT: when
 		# closed rows are hidden, one line is RESERVED for naming them —
 		# a full page of open rows may never make the collapse silent.
@@ -3831,8 +3866,23 @@ class Console:
 				# off the screen at exactly the width where it was
 				# ruled to be present.
 				"Enter drill · u unfold · c claim · z closed · "
-				"[d] deps · m mine · Esc back · : command · q quit",
+				"[d] deps · m mine · f filters · Esc back · : command · q quit",
 				width - 1)
+
+	def _repair_table_selection(self, rows: list[dict]) -> None:
+		"""Keep the selected identity on one visible Jobs row."""
+		if self.selected_id is not None:
+			for index, row in enumerate(rows):
+				if row["id"] == self.selected_id:
+					self.cursor = index
+					break
+			else:
+				self.cursor = min(self.cursor, max(0, len(rows) - 1))
+		if rows:
+			self.selected_id = rows[min(self.cursor, len(rows) - 1)]["id"]
+		else:
+			self.cursor = 0
+			self.selected_id = None
 
 	def _thread_autoselect(self) -> None:
 		"""The ruled default across EVERY bounded page of the detail
@@ -5842,6 +5892,25 @@ class Console:
 				                   "explanation")
 		return True
 
+	def _quick_filter_key(self, key: int) -> bool:
+		"""Answer the client-local Jobs filter chooser."""
+		if key == 27:
+			self.quick_filter_open = False
+			return True
+		for shortcut, label in QUICK_FILTER_OPTIONS:
+			if key != ord(shortcut):
+				continue
+			# Parked is the only approved option. The ordered chooser owns
+			# recognition, while this state remains an explicit local fact.
+			self.hide_parked = not self.hide_parked
+			self.quick_filter_open = False
+			rows, _hidden = self.table_rows()
+			self._repair_table_selection(rows)
+			self.status = (f"{label.lower()} Work hidden" if self.hide_parked
+			               else f"{label.lower()} Work shown")
+			return True
+		return True
+
 	def _handle_inbox(self, key: int) -> bool:
 		"""The Inbox tab's keys. Selection is view state; every action
 		runs a public verb and none of them infers authority."""
@@ -6583,6 +6652,9 @@ class Console:
 		if self.poke_choice is not None:
 			self.status = ""
 			return self._poke_choice_key(key)
+		if self.quick_filter_open:
+			self.status = ""
+			return self._quick_filter_key(key)
 		if key == ord("q"):
 			self.confirm_exit = True
 			return True
@@ -6715,6 +6787,8 @@ class Console:
 			# and opens from an empty table — the whole point is the
 			# Work this window is NOT showing.
 			self._open_mine()
+		elif key == ord("f"):
+			self.quick_filter_open = True
 		elif key == ord("z"):
 			self.show_closed = not self.show_closed
 			shown, _hidden = self.table_rows()

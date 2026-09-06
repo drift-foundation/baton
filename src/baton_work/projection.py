@@ -381,28 +381,30 @@ _BLOCKING_PREDICATE = (
 	"ON blocked.id = edges.work "
 	"WHERE edges.blocker = work.id AND blocked.status='open')")
 
-# The two rank expressions the canonical ordering is BUILT FROM, named
-# once. W26328 needs the same ranks as SELECTED VALUES so a continuation
-# can name a place in this order (see `WORK_ORDER_KEY`), and a second
-# hand-written copy of the CASE arms would be a second definition of the
-# canonical order to keep honest.
+# The rank expressions the two Work orderings are built from, named once.
+# Human structure and machine dispatch deliberately share explicit priority
+# and stable creation order; only dispatch carries the transient blocker rank.
 _PRIORITY_RANK = ("CASE priority WHEN 'high' THEN 0 "
                   "WHEN 'normal' THEN 1 ELSE 2 END")
 _BLOCKING_RANK = f"CASE WHEN {_BLOCKING_PREDICATE} THEN 0 ELSE 1 END"
 
-# The canonical Work ordering. Explicit priority is the PRIMARY pool and
-# is never rewritten or inherited (rule 1); the blocker preference orders
-# only WITHIN one pool (rule 2); stable creation order is the final
-# tie-break (rule 4). Every human Work list and the participant readiness
-# projection sort by exactly this, which is rule 5.
-WORK_ORDER = (f"ORDER BY {_PRIORITY_RANK}, {_BLOCKING_RANK}, created_seq")
+# W103313: HUMAN DISPLAY IS STRUCTURAL AND STABLE. Runtime and scheduling
+# facts must not move visible siblings underneath an operator's cursor.
+# Explicit priority is the only deliberate peer preference; creation sequence
+# and durable identity then make the order total.
+DISPLAY_WORK_ORDER = f"ORDER BY {_PRIORITY_RANK}, created_seq, id"
+
+# MACHINE DISPATCH RETAINS W7. Ready unclaimed blockers lead their explicit
+# priority pool, then creation order decides otherwise equal candidates.
+DISPATCH_WORK_ORDER = (
+	f"ORDER BY {_PRIORITY_RANK}, {_BLOCKING_RANK}, created_seq")
 
 # W26328: the canonical position of a row, as COLUMNS. A keyset
 # continuation names the last position returned rather than how many rows
 # preceded it, so an earlier row removed between pages cannot shift the
 # rows after it out of view.
-WORK_ORDER_KEY = (f"{_PRIORITY_RANK} AS order_priority, "
-                  f"{_BLOCKING_RANK} AS order_blocking")
+DISPATCH_WORK_ORDER_KEY = (f"{_PRIORITY_RANK} AS order_priority, "
+                           f"{_BLOCKING_RANK} AS order_blocking")
 
 # W26328: the canonical order made TOTAL. A keyset continuation compares
 # positions, so the order it walks has to decide EVERY pair -- two rows the
@@ -412,9 +414,9 @@ WORK_ORDER_KEY = (f"{_PRIORITY_RANK} AS order_priority, "
 # of how ids happen to be spelled, not of the ordering, and the cursor
 # depends on the ordering -- so the identity is named as the final tie-break
 # and the requirement stops being a coincidence. It is never consulted where
-# `WORK_ORDER` decides, so this refines the canonical order and cannot
+# `DISPATCH_WORK_ORDER` decides, so this refines the dispatch order and cannot
 # reorder it.
-WORK_ORDER_TOTAL = f"{WORK_ORDER}, id"
+DISPATCH_WORK_ORDER_TOTAL = f"{DISPATCH_WORK_ORDER}, id"
 
 
 def _blocking(row: dict, open_dependents: int) -> bool:
@@ -723,7 +725,7 @@ def home(store: Authority, *, viewer_team: str, viewer_member: str,
 	try:
 		rows = store.conn.execute(
 			"SELECT * FROM work WHERE parent IS NULL AND team=? "
-			+ WORK_ORDER, (viewer_team,)).fetchall()
+			+ DISPLAY_WORK_ORDER, (viewer_team,)).fetchall()
 		ids = [row["id"] for row in rows]
 		first = _first_open_blockers(store, ids)
 		claimed = _claimed_ats(store, ids)
@@ -850,7 +852,7 @@ def children(store: Authority, work_id: str, *, viewer_team: str,
 	with _read_snapshot(store):
 		_work(store, work_id)
 		rows = store.conn.execute(
-			"SELECT * FROM work WHERE parent=? " + WORK_ORDER,
+			"SELECT * FROM work WHERE parent=? " + DISPLAY_WORK_ORDER,
 			(work_id,)).fetchall()
 		ids = [row["id"] for row in rows]
 		first = _first_open_blockers(store, ids)
@@ -911,7 +913,7 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 			# below orders identically WITHOUT leaving its parent.
 			bases = [dict(row) for row in store.conn.execute(
 				"SELECT * FROM work WHERE parent IS NULL AND team=? "
-				+ WORK_ORDER, (viewer_team,))]
+				+ DISPLAY_WORK_ORDER, (viewer_team,))]
 		else:
 			bases = [_work(store, root)]
 		# W39 R1: gather the WHOLE window first, then one batched
@@ -919,7 +921,7 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		# issues a per-row selector query.
 		# W3: sibling groups order identically at every level WITHOUT
 		# leaving their parent.
-		order = WORK_ORDER
+		order = DISPLAY_WORK_ORDER
 
 		def children_by_parent(parent_ids):
 			"""One ordered statement for a WHOLE level, grouped by
@@ -993,7 +995,7 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 		within = {base["id"] for base in bases}
 		parents, rank, seen_under = {}, {}, {}
 		for entry in store.conn.execute(
-				"SELECT * FROM work WHERE team=? " + WORK_ORDER,
+				"SELECT * FROM work WHERE team=? " + DISPLAY_WORK_ORDER,
 				(viewer_team,)):
 			parents[entry["id"]] = entry["parent"]
 			# The sibling's place in its parent's group, from the SAME
@@ -1003,7 +1005,7 @@ def tree(store: Authority, root: str | None = None, *, viewer_team: str,
 			rank[entry["id"]] = (at,)
 			seen_under[entry["parent"]] = at + 1
 		hidden = _hidden_claims(store, viewer_team, painted, within, parents,
-		                        WORK_ORDER)
+		                        DISPLAY_WORK_ORDER)
 		trail_rows = {}
 		if hidden:
 			# One batched read for ALL trail endpoints, the same no-N+1
@@ -1789,7 +1791,7 @@ def _cursor_bound(store, since) -> None:
 		return
 	wanted = since["position"]
 	row = store.conn.execute(
-		f"SELECT id, created_seq, {WORK_ORDER_KEY} FROM work WHERE id=?",
+		f"SELECT id, created_seq, {DISPATCH_WORK_ORDER_KEY} FROM work WHERE id=?",
 		(wanted[3],)).fetchone()
 	if row is None or _position(row) != wanted:
 		raise WorkError(
@@ -2991,7 +2993,7 @@ def participant_actions(store: Authority, *, viewer_team: str,
 		# Eligibility is unchanged: this reorders the wake set and
 		# admits nothing to it.
 		for row in store.conn.execute(
-				"SELECT * FROM work WHERE status='open' " + WORK_ORDER):
+				"SELECT * FROM work WHERE status='open' " + DISPATCH_WORK_ORDER):
 			if row["handler_team"] is not None:
 				if (row["handler_team"], row["handler_member"]) != 						(viewer_team, viewer_member):
 					continue
@@ -3651,7 +3653,7 @@ def _first_actionable(store: Authority, team: str, member: str):
 	for row in store.conn.execute(
 			"SELECT * FROM work WHERE status='open' AND handler_team IS "
 			"NULL AND ready=1 AND phase NOT IN ('block','parked') "
-			"AND route_team=? " + WORK_ORDER, (team,)):
+			"AND route_team=? " + DISPATCH_WORK_ORDER, (team,)):
 		resolution = _endpoint_struct(store, row["route_team"],
 		                              row["route_kind"],
 		                              _selected_route(dict(row)))
@@ -5058,7 +5060,7 @@ def actionable_work(store: Authority, *, viewer_team: str, viewer_member: str,
     or rerouted -- pulls every later row one place forward and the next page
     begins one row too late. The Work that moved across the boundary is then
     in no page at all, which defeats the one promise this verb exists to
-    keep. A keyset over `WORK_ORDER_TOTAL` asks "after THIS position"
+    keep. A keyset over `DISPATCH_WORK_ORDER_TOTAL` asks "after THIS position"
     instead: removals before it change nothing, and an insertion before it is
     already behind the cursor, so it cannot repeat a row a page returned.
 
@@ -5079,10 +5081,11 @@ def actionable_work(store: Authority, *, viewer_team: str, viewer_member: str,
         claimable = _claimable(store, viewer_team, viewer_member)
         page, remaining = [], False
         for row in store.conn.execute(
-                f"SELECT *, {WORK_ORDER_KEY} FROM work "
+                f"SELECT *, {DISPATCH_WORK_ORDER_KEY} FROM work "
                 "WHERE status='open' AND ready=1 "
                 "AND phase='queued' AND handler_team IS NULL "
-                "AND route_team=? " + WORK_ORDER_TOTAL, (viewer_team,)):
+                "AND route_team=? " + DISPATCH_WORK_ORDER_TOTAL,
+                (viewer_team,)):
             if row["id"] not in claimable:
                 continue
             if since is not None and _position(row) <= since["position"]:
