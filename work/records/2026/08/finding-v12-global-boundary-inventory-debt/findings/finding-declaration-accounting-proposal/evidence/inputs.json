@@ -1,0 +1,104 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "constraint": "Proposal only: prove source-call identity and actual propagated ownership; no blanket exception or aggregate test edit.",
+  "failed_stimuli": [],
+  "missing_probes": [],
+  "module": null,
+  "orphan_calls": [],
+  "orphan_probes": [],
+  "scope_type": "proposal",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "symbolic_declarations": [
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "document",
+      "{what}'s Work reference"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "document",
+      "{what}'s identity"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "generation",
+      "{what}'s generation"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "identity",
+      "{what}'s Work id"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "identity",
+      "{what}'s authority"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "text",
+      "{what}'s participant"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "document",
+      "{what}'s decision"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s decided role"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s decision endpoint"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s effective scope"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s principal"
+    ],
+    [
+      "exchange.py:_instant",
+      "instant",
+      "a worker document's {name}"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "document",
+      "a {provider} teardown ending"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "text",
+      "a {provider} teardown ending's state"
+    ],
+    [
+      "oci.py:OciAdapter._bound_orphan",
+      "identity",
+      "{what} runtime attempt id"
+    ],
+    [
+      "oci.py:OciAdapter._removed",
+      "identity",
+      "{what} runtime id"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "capability",
+      "a checkpoint profile's {method} capability"
+    ]
+  ],
+  "unowned": [],
+  "work": "W116962"
+}

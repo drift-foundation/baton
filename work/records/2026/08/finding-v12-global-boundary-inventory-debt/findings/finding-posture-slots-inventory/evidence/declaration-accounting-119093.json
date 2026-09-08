@@ -1,0 +1,62 @@
+{
+  "added_rows": [
+    [
+      "posture_slots.py:_occupy_slot",
+      "identity",
+      "a runtime attempt id"
+    ]
+  ],
+  "current_orphan_calls": [
+    [
+      "posture_slots.py:_occupy_slot",
+      "identity",
+      "a runtime attempt id"
+    ],
+    [
+      "posture_slots.py:_occupy_slot",
+      "instant",
+      "a slot movement instant"
+    ],
+    [
+      "posture_slots.py:_release_slot_in",
+      "instant",
+      "a slot movement instant"
+    ],
+    [
+      "posture_slots.py:_require_slot_recovery_in",
+      "instant",
+      "a slot movement instant"
+    ]
+  ],
+  "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory",
+  "module": "posture_slots",
+  "prior_inputs_sha256": "93f2267fb2c910f47d3850c39d2f0e0aef045022e5c2c5af631e458a9699dc9e",
+  "prior_orphan_calls": [
+    [
+      "posture_slots.py:_occupy_slot",
+      "instant",
+      "a slot movement instant"
+    ],
+    [
+      "posture_slots.py:_release_slot_in",
+      "instant",
+      "a slot movement instant"
+    ],
+    [
+      "posture_slots.py:_require_slot_recovery_in",
+      "instant",
+      "a slot movement instant"
+    ]
+  ],
+  "removed_rows": [],
+  "runtime_sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/posture_slots.py",
+  "state": "live accounting revalidated; independent implementation acceptance pending",
+  "unchanged_input_counts": {
+    "failed_stimuli": 0,
+    "missing_probes": 0,
+    "orphan_probes": 0,
+    "unowned": 0
+  },
+  "work": "W117022"
+}

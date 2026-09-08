@@ -1,0 +1,37 @@
+{
+  "census_entries": 1365,
+  "claim": 116824,
+  "elapsed_seconds": 0.0025775330141186714,
+  "hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "4cf7eae8df2bc75c99a6ab980d273526f23a4b82b09f3cd476a1a19a29da5c5d",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-adopted-helper-origins/review-2026-09-08T05-11-49Z.md": "a168593d7e8c66c09f04082278bcc84718a6d72d33c47abf4552dc917172f722",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/JOINED-RESULT.md": "4b99c3e8c9b6f19b7bcca109398c3fb533b93320e684fd09429760078fec713d",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/audit.json": "aaa7767249fd0292c75a6fa93cbe2779745b0fee9901c7c630792495abdd7a09",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json": "0fc0e0df321b22a46c24729c367efbc374c54d8e75653925e3fce5675e3c0342",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/review-2026-09-08T06-04-00Z.md": "4fe26db46e97fb5254a772f9e64e5f36ac09a929a2c67d488c797fb4e0ac067b"
+  },
+  "orphan_rows": 72,
+  "prior_manifest_verified": true,
+  "separate_worker_entry_rows": [
+    [
+      "worker_entry.py:converse",
+      "identity",
+      "a worker-entry operation identity"
+    ]
+  ],
+  "symbolic_provider_rows": [
+    [
+      "intake.py:_provider_ending",
+      "document",
+      "a {provider} teardown ending"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "text",
+      "a {provider} teardown ending's state"
+    ]
+  ],
+  "test_or_discovery_execution": false,
+  "unowned_rows": 183,
+  "work": "W116031"
+}

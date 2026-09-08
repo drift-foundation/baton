@@ -1,0 +1,11 @@
+{
+  "work": "W117174",
+  "claim": 119093,
+  "owner_approval_event": 118950,
+  "owner_request": 117235,
+  "target": "v12/python/tests/manager/test_boundary_inventory.py",
+  "base_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "applied_sha256": "830496b44569e7a88c29771577d616f94b52bcd3066c48f6fa338aab24a30d04",
+  "mode_before": "0o644",
+  "mode_after": "0o644"
+}

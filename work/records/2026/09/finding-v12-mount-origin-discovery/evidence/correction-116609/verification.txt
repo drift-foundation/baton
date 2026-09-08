@@ -1,0 +1,72 @@
+W116520 claim116609. cwd v12/python; PYTHONPATH=src python3 -m unittest.
+Question and cumulative30s budget pinned before execution in PLAN/PROGRESS.
+Baseline command: tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_clearing_an_external_or_local_alias_preserves_the_other_path
+Focused command: tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements
+Broader command: tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+
+mount609baseline
+FF
+======================================================================
+FAIL: test_clearing_an_external_or_local_alias_preserves_the_other_path (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_clearing_an_external_or_local_alias_preserves_the_other_path) (first='landing', second='other')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11797, in test_clearing_an_external_or_local_alias_preserves_the_other_path
+                    self.assertEqual(self.entries(f'''
+                    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+        landing = []
+        ^^^^^^^^^^^^
+    ...<6 lines>...
+        _view(landing[0])
+        ^^^^^^^^^^^^^^^^^
+    '''), self.expected())
+    ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+('caller', 'sample.py:public', 'adapter.mounts.writable')
+('caller', 'sample.py:public', 'adapter.mounts.target')
+('caller', 'sample.py:public', 'adapter.mounts.source')
+
+======================================================================
+FAIL: test_clearing_an_external_or_local_alias_preserves_the_other_path (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_clearing_an_external_or_local_alias_preserves_the_other_path) (first='other', second='landing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11797, in test_clearing_an_external_or_local_alias_preserves_the_other_path
+                    self.assertEqual(self.entries(f'''
+                    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+        landing = []
+        ^^^^^^^^^^^^
+    ...<6 lines>...
+        _view(landing[0])
+        ^^^^^^^^^^^^^^^^^
+    '''), self.expected())
+    ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+('caller', 'sample.py:public', 'adapter.mounts.writable')
+('caller', 'sample.py:public', 'adapter.mounts.target')
+('caller', 'sample.py:public', 'adapter.mounts.source')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+FAILED (failures=2)
+
+mount609focused
+.............
+----------------------------------------------------------------------
+Ran 13 tests in 0.417s
+
+OK
+
+mount609broader
+................................
+mount609broaderEnd
+.................
+----------------------------------------------------------------------
+Ran 49 tests in 7.801s
+
+OK
+
+Cumulative unittest execution 0.003+0.417+7.801=8.221s <30s.
+Baseline two external/local branch orders fail, two-local-list control passes.
+Final focused13 + broader49 =62 pass. git diff --check exit0.
+AST comparison:26 accepted predecessor classes unchanged; all prior methods in the mount class unchanged. Three additive methods.
+

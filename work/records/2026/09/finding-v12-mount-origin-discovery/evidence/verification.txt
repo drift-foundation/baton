@@ -1,0 +1,27 @@
+W116520 claim116530 verification, cwd v12/python, PYTHONPATH=src. Question/budget30s pinned before execution.
+
+Initial new mount class:
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 0.413s
+
+OK
+
+Initial prior helper/cache/check8 group:
+.................................................
+----------------------------------------------------------------------
+Ran 49 tests in 7.654s
+
+OK
+
+Reassignment invalidation and definite-clear correction added after inspection; loop-target witness added; no prior assertion changed.
+
+Final command:
+PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+...........................................................
+----------------------------------------------------------------------
+Ran 59 tests in 7.744s
+
+OK
+
+59 pass. Cumulative measured15.811s <30s. All accepted-baseline top-level classes AST-identical; new mount class10 methods. git diff --check exit0, no output. No runtime/catalog/probe changes, daemon or aggregate suite. Provider and corrected census remain W116523/W116058.

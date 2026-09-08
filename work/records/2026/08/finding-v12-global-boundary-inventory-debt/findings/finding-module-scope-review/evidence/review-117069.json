@@ -1,0 +1,39 @@
+{
+  "work": "W116952",
+  "claim": 117069,
+  "packet_sha256": "c285003e8718e219cf6503829fc4015c832e407ca44f1ccd7a08da53d85840fd",
+  "packet_files_verified": 91,
+  "work_bindings": 21,
+  "serial_edges_verified": 20,
+  "owner_approved_modules": [
+    "lanes",
+    "review_cycles",
+    "intake",
+    "authority_port",
+    "interrogation",
+    "sessions",
+    "attempts",
+    "workspaces",
+    "oci",
+    "handshake",
+    "documents",
+    "credentials",
+    "exchange",
+    "launch",
+    "source_boundary",
+    "custody",
+    "posture_slots"
+  ],
+  "partition_counts": {
+    "unowned": 183,
+    "orphan_calls": 72,
+    "missing_probes": 153,
+    "orphan_probes": 51,
+    "failed_stimuli": 4
+  },
+  "existing_orphan_scopes_verified": 51,
+  "runtime_hashes_match": true,
+  "all_module_findings_and_plans_match_reviewed_template": true,
+  "probe_execution": false,
+  "elapsed_seconds": 0.0062501110369339585
+}

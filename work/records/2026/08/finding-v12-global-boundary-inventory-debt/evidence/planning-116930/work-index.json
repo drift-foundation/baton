@@ -1,0 +1,191 @@
+[
+  {
+    "id": "W116952",
+    "module": null,
+    "type": "review",
+    "slug": "module-scope-review",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-module-scope-review",
+    "title": "Review the concrete B3 inventory module scopes and serial sequence",
+    "previous": null
+  },
+  {
+    "id": "W116962",
+    "module": null,
+    "type": "proposal",
+    "slug": "declaration-accounting-proposal",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-declaration-accounting-proposal",
+    "title": "Prepare exact accounting for contextual helper declarations",
+    "previous": "W116952"
+  },
+  {
+    "id": "W116972",
+    "module": "lanes",
+    "type": "module",
+    "slug": "lanes-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-lanes-inventory",
+    "title": "Complete lanes receiving-boundary inventory coverage",
+    "previous": "W116962"
+  },
+  {
+    "id": "W116975",
+    "module": "review_cycles",
+    "type": "module",
+    "slug": "review-cycles-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory",
+    "title": "Complete review_cycles receiving-boundary inventory coverage",
+    "previous": "W116972"
+  },
+  {
+    "id": "W116977",
+    "module": "intake",
+    "type": "module",
+    "slug": "intake-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory",
+    "title": "Complete intake receiving-boundary inventory coverage",
+    "previous": "W116975"
+  },
+  {
+    "id": "W116979",
+    "module": "authority_port",
+    "type": "module",
+    "slug": "authority-port-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory",
+    "title": "Complete authority_port receiving-boundary inventory coverage",
+    "previous": "W116977"
+  },
+  {
+    "id": "W116981",
+    "module": "interrogation",
+    "type": "module",
+    "slug": "interrogation-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory",
+    "title": "Complete interrogation receiving-boundary inventory coverage",
+    "previous": "W116979"
+  },
+  {
+    "id": "W116987",
+    "module": "sessions",
+    "type": "module",
+    "slug": "sessions-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory",
+    "title": "Complete sessions receiving-boundary inventory coverage",
+    "previous": "W116981"
+  },
+  {
+    "id": "W116992",
+    "module": "attempts",
+    "type": "module",
+    "slug": "attempts-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory",
+    "title": "Complete attempts receiving-boundary inventory coverage",
+    "previous": "W116987"
+  },
+  {
+    "id": "W116995",
+    "module": "workspaces",
+    "type": "module",
+    "slug": "workspaces-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory",
+    "title": "Complete workspaces receiving-boundary inventory coverage",
+    "previous": "W116992"
+  },
+  {
+    "id": "W116997",
+    "module": "oci",
+    "type": "module",
+    "slug": "oci-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-oci-inventory",
+    "title": "Complete oci receiving-boundary inventory coverage",
+    "previous": "W116995"
+  },
+  {
+    "id": "W116999",
+    "module": "handshake",
+    "type": "module",
+    "slug": "handshake-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-handshake-inventory",
+    "title": "Complete handshake receiving-boundary inventory coverage",
+    "previous": "W116997"
+  },
+  {
+    "id": "W117002",
+    "module": "documents",
+    "type": "module",
+    "slug": "documents-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-documents-inventory",
+    "title": "Complete documents receiving-boundary inventory coverage",
+    "previous": "W116999"
+  },
+  {
+    "id": "W117004",
+    "module": "credentials",
+    "type": "module",
+    "slug": "credentials-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-credentials-inventory",
+    "title": "Complete credentials receiving-boundary inventory coverage",
+    "previous": "W117002"
+  },
+  {
+    "id": "W117006",
+    "module": "exchange",
+    "type": "module",
+    "slug": "exchange-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-exchange-inventory",
+    "title": "Complete exchange receiving-boundary inventory coverage",
+    "previous": "W117004"
+  },
+  {
+    "id": "W117008",
+    "module": "launch",
+    "type": "module",
+    "slug": "launch-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-launch-inventory",
+    "title": "Complete launch receiving-boundary inventory coverage",
+    "previous": "W117006"
+  },
+  {
+    "id": "W117017",
+    "module": "source_boundary",
+    "type": "module",
+    "slug": "source-boundary-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-source-boundary-inventory",
+    "title": "Complete source_boundary receiving-boundary inventory coverage",
+    "previous": "W117008"
+  },
+  {
+    "id": "W117020",
+    "module": "custody",
+    "type": "module",
+    "slug": "custody-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-custody-inventory",
+    "title": "Complete custody receiving-boundary inventory coverage",
+    "previous": "W117017"
+  },
+  {
+    "id": "W117022",
+    "module": "posture_slots",
+    "type": "module",
+    "slug": "posture-slots-inventory",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory",
+    "title": "Complete posture_slots receiving-boundary inventory coverage",
+    "previous": "W117020"
+  },
+  {
+    "id": "W117024",
+    "module": null,
+    "type": "proposal",
+    "slug": "output-fixture-scope",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-output-fixture-scope",
+    "title": "Prepare bounded output attempt-key fixture scope",
+    "previous": "W117022"
+  },
+  {
+    "id": "W117026",
+    "module": null,
+    "type": "followup",
+    "slug": "worker-entry-inventory-followup",
+    "path": "work/records/2026/09/finding-v12-worker-entry-inventory-followup",
+    "title": "Resolve the surviving worker-entry operation-identity inventory delta",
+    "previous": "W117024"
+  }
+]

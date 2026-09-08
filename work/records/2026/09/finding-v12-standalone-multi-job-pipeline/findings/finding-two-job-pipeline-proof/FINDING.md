@@ -198,3 +198,54 @@ denied by the sandbox's read-only external ledger access; approved execution of
 the same standalone command succeeded at115572. No raw-store workaround or
 duplicate consumer was used. The existing managed tuner readiness path owns
 pickup; this prompt neither launches a second context nor claims its Work.
+
+## 2026-09-08 — integrator model decides permitted change scope
+
+Confirmed owner decision, recorded by baton.prompt: Slawomir does not want to
+spend substantial time on mechanical change-scope enforcement at this stage.
+For W71830/W71879, rely on the integrator model to decide whether the whole
+candidate falls within the permitted scope, using the accepted task/scope and
+frozen independent review evidence already supplied to it.
+
+This explicitly declines and supersedes the prompt's preceding proposal to
+require a new deterministic file-and-operation allowlist before target writes.
+No such mechanism, generalized semantic checker or additional enforcement
+framework becomes a prerequisite of this demonstration. This also supersedes
+any interpretation of W115604's placement research that such a mechanism must
+be developed to close the milestone. Existing candidate identity, independent
+review, target preflight and observed-result checks remain in force.
+
+W115604 now only records this selected boundary and the smallest feasible
+model-based refusal scenario using existing capabilities. The model receives
+the whole candidate and permitted scope and is instructed to refuse before
+importing a change it judges unauthorized. Retain the model decision and actual
+target observations as evidence; do not claim mechanical prevention or a
+universal guarantee from the model instruction. The already agreed successful
+imports, independent review/correction and failure-containment objectives
+remain. Do not fabricate acceptance or approved bytes for a negative fixture.
+If the exact existing companion-refusal scenario cannot fit those objectives,
+return that concrete acceptance conflict to the owner rather than designing a
+new enforcement subsystem or silently expanding the proof.
+
+## 2026-09-08 — multi-Job placement recommendation, W115599
+
+Reviewer claim118998 confirms the current factory still has one worker per role
+and one configured line while W103083 actively owns its one-Job assembly work.
+review-2026-09-08T12-29-16Z.md recommends a separate successor provider under
+W103068 after assembly acceptance, split into multi-worker configuration and
+per-Job line/binding results. This is Proposed, awaiting owner placement; no
+claim scope, live gate, runtime authority or proof requirement changed. The
+companion-refusal decision remains separately tracked by W115604.
+
+## 2026-09-08 — minimal companion evidence conflict, W115604
+
+Reviewer claim119026 follows the selected integrator-model boundary in M119018;
+no mechanical enforcement prerequisite is proposed. Current admission requires
+genuine accepted evidence, while the known negative component fixture is
+synthetic and deterministically refuses to held/import-incomplete. It cannot
+silently stand for an automatically admitted independently approved live
+companion. review-2026-09-08T12-33-00Z.md states that exact conflict and asks
+whether the owner accepts the existing component refusal as separately labelled
+evidence alongside the actual A/B/C demonstration. This is Proposed, not a
+waiver or changed proof assertion. No live model/no-write guarantee is claimed;
+successful imports and all other agreed objectives remain required.

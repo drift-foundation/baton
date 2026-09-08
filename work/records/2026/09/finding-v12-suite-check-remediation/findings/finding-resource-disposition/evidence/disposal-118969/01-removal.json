@@ -1,0 +1,11 @@
+{
+  "index": 0,
+  "phase": "removal",
+  "id": "395d0a8f58dd436d76bf2c7c26ea4eaace084b394a3f48938a51e1c51d168baf",
+  "command": "docker rm 395d0a8f58dd436d76bf2c7c26ea4eaace084b394a3f48938a51e1c51d168baf",
+  "chunk_id": "75879d",
+  "wall_time_seconds": 0,
+  "exit_code": 1,
+  "original_token_count": 23,
+  "output": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock\n"
+}

@@ -1,0 +1,252 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [
+    [
+      [
+        "adopted",
+        "attempts.py:_attempts",
+        "attempts.activity_bytes"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:record_attempt",
+        "image_digest"
+      ],
+      "{what}, when it is given,"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:record_attempt",
+        "input_digest"
+      ],
+      "{what}, when it is given,"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:record_attempt",
+        "policy_digest"
+      ],
+      "{what}, when it is given,"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:record_attempt",
+        "toolchain_digest"
+      ],
+      "{what}, when it is given,"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:request_cancellation",
+        "reason"
+      ],
+      "{what}, when it is given,"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:request_runtime_start",
+        "adapter.mounts.source"
+      ],
+      "the runtime adapter's start"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:request_runtime_start",
+        "adapter.mounts.target"
+      ],
+      "the runtime adapter's start"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:request_runtime_start",
+        "adapter.mounts.writable"
+      ],
+      "the runtime adapter's start"
+    ]
+  ],
+  "module": "attempts",
+  "orphan_calls": [
+    [
+      "attempts.py:_committed_record",
+      "document",
+      "a committed ending record"
+    ],
+    [
+      "attempts.py:_plan_agrees",
+      "document",
+      "a declared runtime mount"
+    ]
+  ],
+  "orphan_probes": [
+    [
+      [
+        "caller",
+        "attempts.py:_committed_record",
+        "committed"
+      ],
+      "a committed ending record"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:record_attempt",
+        "image_digest"
+      ],
+      ", when it is given,"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:record_attempt",
+        "input_digest"
+      ],
+      ", when it is given,"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:record_attempt",
+        "policy_digest"
+      ],
+      ", when it is given,"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:record_attempt",
+        "toolchain_digest"
+      ],
+      ", when it is given,"
+    ],
+    [
+      [
+        "caller",
+        "attempts.py:request_cancellation",
+        "reason"
+      ],
+      ", when it is given,"
+    ]
+  ],
+  "runtime_sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/attempts.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "adopted",
+      "attempts.py:_decide",
+      "observations.next"
+    ],
+    [
+      "adopted",
+      "attempts.py:_next_source_seq",
+      "observations.next"
+    ],
+    [
+      "caller",
+      "attempts.py:assignment_of",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:attempt_activity_of",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:attempt_runtime_of",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:attempt_start_failure_of",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:authorize_input_root",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:authorize_input_root",
+      "inputs"
+    ],
+    [
+      "caller",
+      "attempts.py:label_context",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:observe_activity",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:observe_activity",
+      "bytes_observed"
+    ],
+    [
+      "caller",
+      "attempts.py:request_runtime_start",
+      "inputs"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.assignment_generation"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.assignment_participant"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.authority_uuid"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.profile_digest"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.work_id"
+    ],
+    [
+      "injected",
+      "attempts.py:_observed",
+      "adapter.observe"
+    ]
+  ],
+  "work": "W116992"
+}

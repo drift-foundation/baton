@@ -1,0 +1,671 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of"
+      ],
+      "the live assignment's identity"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of.generation"
+      ],
+      "the live assignment's generation"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of.participant"
+      ],
+      "the live assignment's participant"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of.work_ref"
+      ],
+      "the live assignment's Work reference"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of.work_ref.authority_uuid"
+      ],
+      "the live assignment's authority"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of.work_ref.work_id"
+      ],
+      "the live assignment's Work id"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment"
+      ],
+      "the fenced assignment's identity"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment.generation"
+      ],
+      "the fenced assignment's generation"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment.participant"
+      ],
+      "the fenced assignment's participant"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment.work_ref"
+      ],
+      "the fenced assignment's Work reference"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment.work_ref.authority_uuid"
+      ],
+      "the fenced assignment's authority"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment.work_ref.work_id"
+      ],
+      "the fenced assignment's Work id"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment"
+      ],
+      "the claim answer's identity"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment.generation"
+      ],
+      "the claim answer's generation"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment.participant"
+      ],
+      "the claim answer's participant"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment.work_ref"
+      ],
+      "the claim answer's Work reference"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment.work_ref.authority_uuid"
+      ],
+      "the claim answer's authority"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment.work_ref.work_id"
+      ],
+      "the claim answer's Work id"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.decision"
+      ],
+      "the claim answer's decision"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.decision.effective_scope"
+      ],
+      "the claim answer's effective scope"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.decision.endpoint"
+      ],
+      "the claim answer's decision endpoint"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.decision.principal"
+      ],
+      "the claim answer's principal"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.decision.role"
+      ],
+      "the claim answer's decided role"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment"
+      ],
+      "the committed claim's identity"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment.generation"
+      ],
+      "the committed claim's generation"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment.participant"
+      ],
+      "the committed claim's participant"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment.work_ref"
+      ],
+      "the committed claim's Work reference"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment.work_ref.authority_uuid"
+      ],
+      "the committed claim's authority"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment.work_ref.work_id"
+      ],
+      "the committed claim's Work id"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.decision"
+      ],
+      "the committed claim's decision"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.decision.effective_scope"
+      ],
+      "the committed claim's effective scope"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.decision.endpoint"
+      ],
+      "the committed claim's decision endpoint"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.decision.principal"
+      ],
+      "the committed claim's principal"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.decision.role"
+      ],
+      "the committed claim's decided role"
+    ]
+  ],
+  "module": "authority_port",
+  "orphan_calls": [
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "document",
+      "{what}'s Work reference"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "document",
+      "{what}'s identity"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "generation",
+      "{what}'s generation"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "identity",
+      "{what}'s Work id"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "identity",
+      "{what}'s authority"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "text",
+      "{what}'s participant"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "document",
+      "{what}'s decision"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s decided role"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s decision endpoint"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s effective scope"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s principal"
+    ]
+  ],
+  "orphan_probes": [
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of"
+      ],
+      "'s identity"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of.generation"
+      ],
+      "'s generation"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of.participant"
+      ],
+      "'s participant"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of.work_ref"
+      ],
+      "'s Work reference"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of.work_ref.authority_uuid"
+      ],
+      "'s authority"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.assignment_of",
+        "assignment_of.work_ref.work_id"
+      ],
+      "'s Work id"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment"
+      ],
+      "'s identity"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment.generation"
+      ],
+      "'s generation"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment.participant"
+      ],
+      "'s participant"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment.work_ref"
+      ],
+      "'s Work reference"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment.work_ref.authority_uuid"
+      ],
+      "'s authority"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.cancel",
+        "cancel.assignment.work_ref.work_id"
+      ],
+      "'s Work id"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment"
+      ],
+      "'s identity"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment.generation"
+      ],
+      "'s generation"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment.participant"
+      ],
+      "'s participant"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment.work_ref"
+      ],
+      "'s Work reference"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment.work_ref.authority_uuid"
+      ],
+      "'s authority"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.assignment.work_ref.work_id"
+      ],
+      "'s Work id"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.decision"
+      ],
+      "'s decision"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.decision.effective_scope"
+      ],
+      "'s effective scope"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.decision.endpoint"
+      ],
+      "'s decision endpoint"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.decision.principal"
+      ],
+      "'s principal"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.claim",
+        "claim.decision.role"
+      ],
+      "'s decided role"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment"
+      ],
+      "'s identity"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment.generation"
+      ],
+      "'s generation"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment.participant"
+      ],
+      "'s participant"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment.work_ref"
+      ],
+      "'s Work reference"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment.work_ref.authority_uuid"
+      ],
+      "'s authority"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.assignment.work_ref.work_id"
+      ],
+      "'s Work id"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.decision"
+      ],
+      "'s decision"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.decision.effective_scope"
+      ],
+      "'s effective scope"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.decision.endpoint"
+      ],
+      "'s decision endpoint"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.decision.principal"
+      ],
+      "'s principal"
+    ],
+    [
+      [
+        "injected",
+        "authority_port.py:AuthorityPort.settle_operation",
+        "settle_operation.result.decision.role"
+      ],
+      "'s decided role"
+    ]
+  ],
+  "runtime_sha256": "ae68d53a97498deb50d8d932547d7bf2a4436735d0b84b41d86b870a8918e79d",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/authority_port.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "caller",
+      "authority_port.py:AuthorityPort.claim",
+      "role"
+    ],
+    [
+      "caller",
+      "authority_port.py:AuthorityPort.claim",
+      "scope"
+    ],
+    [
+      "caller",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "role"
+    ],
+    [
+      "caller",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "scope"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.claim_event"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.decision.grant"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.decision.policy_generation"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.claim_event"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.decision.grant"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.decision.policy_generation"
+    ]
+  ],
+  "work": "W116979"
+}

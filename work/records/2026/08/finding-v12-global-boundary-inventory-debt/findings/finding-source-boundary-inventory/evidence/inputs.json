@@ -1,0 +1,24 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [],
+  "module": "source_boundary",
+  "orphan_calls": [],
+  "orphan_probes": [],
+  "runtime_sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/source_boundary.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "caller",
+      "source_boundary.py:SourceBoundary.__init__",
+      "guard"
+    ]
+  ],
+  "work": "W117017"
+}

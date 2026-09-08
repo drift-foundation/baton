@@ -1,0 +1,39 @@
+{
+  "all_three_aliases_directly_verified": true,
+  "audited_at": "2026-09-08T04:24:00.628904+00:00",
+  "container_count": 32,
+  "disposal_executed": false,
+  "exact_tag_commands": 1,
+  "exit_codes": {
+    "1": 1,
+    "137": 31
+  },
+  "hashes": {
+    "DISPOSITION.md": "478934820ded248457dfd5f2c028a2da4cd9912976debd51a22a7e085c057cff",
+    "evidence/current-containers.json": "b8ad42729ee4b340d5f8caa2c19a4a2f20c5979185f3fb70984d4c2814be0872",
+    "evidence/inspection-command.txt": "a3be2ee43d988c1841fb82de138da9d054e70a67ac90a2478bac62b2a833642b",
+    "evidence/proposed-removal-commands.txt": "1966c8d57607ed2fb929f122fb4331f89e4d457cac4619facbc25d203356ffde",
+    "evidence/review-116180-live.json": "51bc4408efe6a32d71d0ea5134578d4853473dd8ee78da594f74b56c6aa6dbbf"
+  },
+  "manager_lifecycle_observed": false,
+  "same_baseline_ids_and_common_metadata": true,
+  "same_candidate_all_selected_metadata": true,
+  "same_listing_ids": true,
+  "shared_image": "sha256:db9f397171153338ce068b46a7c9ab48c79b80d9f1ad1db4c149541a5eb8199b",
+  "states": {
+    "exited": 32
+  },
+  "unique_exact_container_commands": 32,
+  "work_groups": {
+    "214bb17b-W52821": 1,
+    "26050b09-W71917": 1,
+    "2bdb4a5d-W51487": 1,
+    "36d545af-W71917": 1,
+    "43c55d4b-W6636": 23,
+    "61984a06-W61984": 1,
+    "a3393700-W33937": 1,
+    "d00004d5-W51487": 1,
+    "f6f92f75-W71917": 1,
+    "unlabelled": 1
+  }
+}

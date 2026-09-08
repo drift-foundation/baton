@@ -1,0 +1,24 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [],
+  "module": "worker_entry",
+  "orphan_calls": [
+    [
+      "worker_entry.py:converse",
+      "identity",
+      "a worker-entry operation identity"
+    ]
+  ],
+  "orphan_probes": [],
+  "runtime_sha256": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/worker_entry.py",
+  "scope_type": "followup",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [],
+  "work": "W117026"
+}

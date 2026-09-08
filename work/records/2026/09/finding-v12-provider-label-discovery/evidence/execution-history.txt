@@ -1,0 +1,141 @@
+W116523 claim116653 full execution history. Detailed initial/final broader results in initial-verification.txt and verification.txt; immutable initial/current census JSON.
+
+provider653focused
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 0.439s
+
+OK
+
+provider653broader
+
+provider653broaderEnd
+{
+  "elapsed_seconds": 8.617306313011795,
+  "tests_run": 64,
+  "failures": [
+    "tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_member_reassignment_is_finite_and_applies_each_assignment_once",
+    "tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_recursive_member_expansion_ends_at_recursive_reentry",
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared",
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator"
+  ],
+  "errors": [],
+  "entry_count": 1357,
+  "unowned_by_module": {
+    "attempts.py": 20,
+    "authority_port.py": 10,
+    "credentials.py": 3,
+    "documents.py": 26,
+    "exchange.py": 10,
+    "handshake.py": 14,
+    "intake.py": 12,
+    "interrogation.py": 4,
+    "lanes.py": 7,
+    "launch.py": 8,
+    "oci.py": 22,
+    "review_cycles.py": 4,
+    "sessions.py": 9,
+    "source_boundary.py": 1,
+    "workspaces.py": 33
+  },
+  "orphan_by_module": {
+    "attempts.py": 2,
+    "authority_port.py": 11,
+    "custody.py": 1,
+    "exchange.py": 2,
+    "intake.py": 29,
+    "interrogation.py": 1,
+    "lanes.py": 2,
+    "oci.py": 13,
+    "posture_slots.py": 3,
+    "review_cycles.py": 20,
+    "worker_entry.py": 1,
+    "workspaces.py": 3
+  },
+  "candidate_sha256": "4794b9fa01b729c73f7b8d001ec5e245a1f89208bf373efef114c12a4eea0138"
+}
+
+provider653focusedFinal
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/usr/lib/python3.13/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+    ~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/main.py", line 103, in __init__
+    self.parseArgs(argv)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/unittest/main.py", line 142, in parseArgs
+    self.createTests()
+    ~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/main.py", line 153, in createTests
+    self.test = self.testLoader.loadTestsFromNames(self.testNames,
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+                                                   self.module)
+                                                   ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/loader.py", line 207, in loadTestsFromNames
+    suites = [self.loadTestsFromName(name, module) for name in names]
+              ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 1194
+    if origin is not None and origin.startswith("session:"):
+    ^^
+IndentationError: expected an indented block after 'for' statement on line 1193
+
+provider653focusedFinalFixed
+........
+provider653focusedFinalEnd
+.......
+----------------------------------------------------------------------
+Ran 15 tests in 1.224s
+
+OK
+
+provider653broaderFinal
+
+provider653broaderFinalEnd
+{
+  "elapsed_seconds": 9.076344443950802,
+  "tests_run": 64,
+  "failures": [
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared",
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator"
+  ],
+  "errors": [],
+  "entry_count": 1365,
+  "unowned_by_module": {
+    "attempts.py": 20,
+    "authority_port.py": 10,
+    "credentials.py": 3,
+    "documents.py": 26,
+    "exchange.py": 10,
+    "handshake.py": 14,
+    "intake.py": 12,
+    "interrogation.py": 4,
+    "lanes.py": 7,
+    "launch.py": 8,
+    "oci.py": 22,
+    "review_cycles.py": 4,
+    "sessions.py": 9,
+    "source_boundary.py": 1,
+    "workspaces.py": 33
+  },
+  "orphan_by_module": {
+    "attempts.py": 2,
+    "authority_port.py": 11,
+    "custody.py": 1,
+    "exchange.py": 2,
+    "intake.py": 13,
+    "interrogation.py": 1,
+    "lanes.py": 2,
+    "oci.py": 13,
+    "posture_slots.py": 3,
+    "review_cycles.py": 20,
+    "worker_entry.py": 1,
+    "workspaces.py": 3
+  },
+  "candidate_sha256": "4cf7eae8df2bc75c99a6ab980d273526f23a4b82b09f3cd476a1a19a29da5c5d"
+}
+
+Final15 provider methods +62 accepted/helper/mount/cache/check8 pass; original6/7 fail and remain open. Cumulative measured0.439+8.617+1.224+9.076=19.356s within30s (plus immediate syntax-load refusal). First subprocess failures were missing module-path in runner and corrected by cwd/environment; no assertion was changed. Transient indentation error while replacing nested member-read loops was corrected before final checks. git diff --check exit0.

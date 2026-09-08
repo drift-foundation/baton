@@ -1,0 +1,72 @@
+{
+  "added_rows": [
+    [
+      "attempts.py:_identified_within",
+      "identity",
+      "a runtime attempt id"
+    ],
+    [
+      "attempts.py:_reconciled",
+      "identity",
+      "a runtime attempt id"
+    ],
+    [
+      "attempts.py:reconcile_runtime",
+      "identity",
+      "a runtime attempt id"
+    ]
+  ],
+  "current_orphan_calls": [
+    [
+      "attempts.py:_committed_record",
+      "document",
+      "a committed ending record"
+    ],
+    [
+      "attempts.py:_identified_within",
+      "identity",
+      "a runtime attempt id"
+    ],
+    [
+      "attempts.py:_plan_agrees",
+      "document",
+      "a declared runtime mount"
+    ],
+    [
+      "attempts.py:_reconciled",
+      "identity",
+      "a runtime attempt id"
+    ],
+    [
+      "attempts.py:reconcile_runtime",
+      "identity",
+      "a runtime attempt id"
+    ]
+  ],
+  "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory",
+  "module": "attempts",
+  "prior_inputs_sha256": "1fa0233614d3c54f3ac443ed4b740f55b9856335ff7cdc5017d221c8203016d8",
+  "prior_orphan_calls": [
+    [
+      "attempts.py:_committed_record",
+      "document",
+      "a committed ending record"
+    ],
+    [
+      "attempts.py:_plan_agrees",
+      "document",
+      "a declared runtime mount"
+    ]
+  ],
+  "removed_rows": [],
+  "runtime_sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/attempts.py",
+  "state": "live accounting revalidated; independent implementation acceptance pending",
+  "unchanged_input_counts": {
+    "failed_stimuli": 0,
+    "missing_probes": 9,
+    "orphan_probes": 6,
+    "unowned": 20
+  },
+  "work": "W116992"
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "entry": [
+      "caller",
+      "attempts.py:_committed_record",
+      "committed"
+    ],
+    "existing_catalog_label": "a committed ending record",
+    "currently_unmatched_discovery_labels": [],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "attempts.py:record_attempt",
+      "image_digest"
+    ],
+    "existing_catalog_label": ", when it is given,",
+    "currently_unmatched_discovery_labels": [
+      "{what}, when it is given,"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "attempts.py:record_attempt",
+      "input_digest"
+    ],
+    "existing_catalog_label": ", when it is given,",
+    "currently_unmatched_discovery_labels": [
+      "{what}, when it is given,"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "attempts.py:record_attempt",
+      "policy_digest"
+    ],
+    "existing_catalog_label": ", when it is given,",
+    "currently_unmatched_discovery_labels": [
+      "{what}, when it is given,"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "attempts.py:record_attempt",
+      "toolchain_digest"
+    ],
+    "existing_catalog_label": ", when it is given,",
+    "currently_unmatched_discovery_labels": [
+      "{what}, when it is given,"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "attempts.py:request_cancellation",
+      "reason"
+    ],
+    "existing_catalog_label": ", when it is given,",
+    "currently_unmatched_discovery_labels": [
+      "{what}, when it is given,"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  }
+]

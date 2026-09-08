@@ -1,0 +1,15 @@
+--- before/v12/python/tests/tools/test_parallel_runner.py
++++ candidate/v12/python/tests/tools/test_parallel_runner.py
+@@ -323,7 +323,11 @@
+                           # drives the documented commands over real
+                           # containers.
+                           "tests.tools.test_dogfood_retry_engine",
+-                          "tests.manager.test_private_line_access_engine"))
++                          "tests.manager.test_private_line_access_engine",
++                          # Conservative serial registrations; parallel safety
++                          # of these composed fixtures is not yet certified.
++                          "tests.integration.test_driver",
++                          "tests.job_manager.test_review_driver"))
+         for module in SERIAL_MODULES:
+             with self.subTest(module=module):
+                 self.assertNotIn(module, PARALLEL_MODULES)

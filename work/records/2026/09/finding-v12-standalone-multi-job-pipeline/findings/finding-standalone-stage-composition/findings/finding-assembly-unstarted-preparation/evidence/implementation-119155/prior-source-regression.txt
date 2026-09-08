@@ -1,0 +1,101 @@
+test_a_fresh_port_prepares_that_delivery_and_then_starts_it (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it)
+W103083 review 2026-09-08T12:41:47Z [P1], and the whole of W119113. ... ERROR
+test_a_runtime_this_execution_did_not_start_is_still_held (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held)
+The hold this correction must not spend: a started attempt is NOT ... ok
+test_a_second_tick_in_the_same_execution_starts_nothing_again (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again)
+The same-execution case: this port holds the marker it made, so the ... ok
+test_an_interrupted_first_admission_leaves_a_never_started_delivery (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_interrupted_first_admission_leaves_a_never_started_delivery)
+The predecessor state this correction is about, measured rather ... ok
+test_an_ordinary_first_tick_prepares_and_starts_exactly_once (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once)
+The valid initial case: nothing is published yet, so this is the ... ok
+test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick)
+Absent or unpublished: neither invents an assignment. ... ok
+test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)
+The namespaces are materialized before the container, so a delivery ... FAIL
+test_a_deployment_without_exactly_one_producer_refuses (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_deployment_without_exactly_one_producer_refuses) ... ok
+test_a_later_tick_refreshes_before_it_continues (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues)
+Owner ruling M115946: refresh FIRST, then the port's own marker. ... ok
+test_a_lost_marker_falls_through_to_admission (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission)
+A fresh serving incarnation holds no marker, so the driver's own ... ok
+test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here)
+The other side of that branch, which is why it IS a branch. ... ok
+test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits) ... ok
+test_the_published_reader_adopts_a_real_delivery_with_the_group (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_published_reader_adopts_a_real_delivery_with_the_group)
+W103083 review 2026-09-08T04:06:54Z [P1], proved through the REAL ... ok
+test_the_requirement_is_derived_from_the_configured_task (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_requirement_is_derived_from_the_configured_task)
+Not from what the worker REPORTED: from the task bytes this ... ok
+test_a_job_naming_another_producers_input_refuses (tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage.test_a_job_naming_another_producers_input_refuses)
+M115946's correspondence check, over the factory's own operands: a ... ok
+test_a_producer_task_naming_no_verification_refuses (tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage.test_a_producer_task_naming_no_verification_refuses)
+An integration is admitted behind an ordinary test run and never ... ok
+test_replacing_the_task_document_after_construction_changes_nothing (tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage.test_replacing_the_task_document_after_construction_changes_nothing)
+The bytes were read once at configuration, no-follow and bounded. ... ok
+test_the_composed_integration_derives_its_requirement_from_it (tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage.test_the_composed_integration_derives_its_requirement_from_it)
+The held form is consumed AS IT STANDS: re-validating it through ... ok
+test_the_factory_holds_the_group_a_real_delivery_is_adopted_with (tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage.test_the_factory_holds_the_group_a_real_delivery_is_adopted_with)
+The manager's nominal `WorkspaceGroup`, proved by adopting a really ... ok
+
+======================================================================
+ERROR: test_a_fresh_port_prepares_that_delivery_and_then_starts_it (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it)
+W103083 review 2026-09-08T12:41:47Z [P1], and the whole of W119113.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1453, in test_a_fresh_port_prepares_that_delivery_and_then_starts_it
+    answer, admit, keep = self.tick(port)
+                          ~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1367, in tick
+    answer = held.run(self.case.stage(), {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 915, in run
+    return admit_accepted(
+        deployment.integration, control, deployment.jobs,
+        deployment.authority, *sessions, self.port, **operands)
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1246, in _execute_mock_call
+    return self._mock_wraps(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1140, in admit_accepted
+    port.run(delivery, assignment)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 541, in run
+    _refuse(f"attempt {name_value(attempt_id)} has no credential "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"delivery from this execution's own preparation; the "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"bearer is minted before admission takes a lease and a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"start is never the place to find out it cannot be",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="refused", code="precondition")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 94, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'integrator-attempt' has no credential delivery from this execution's own preparation; the bearer is minted before admission takes a lease and a start is never the place to find out it cannot be
+
+======================================================================
+FAIL: test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)
+The namespaces are materialized before the container, so a delivery
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1242, in test_a_delivery_with_no_started_runtime_is_not_refreshed
+    self.assertEqual(calls, [("observed", "attempt-1"),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             ("prepare", "attempt-1")])
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('observed', 'attempt-1')] != [('observed', 'attempt-1'), ('prepare', 'attempt-1')]
+
+Second list contains 1 additional elements.
+First extra element 1:
+('prepare', 'attempt-1')
+
+- [('observed', 'attempt-1')]
++ [('observed', 'attempt-1'), ('prepare', 'attempt-1')]
+
+----------------------------------------------------------------------
+Ran 19 tests in 1.474s
+
+FAILED (failures=1, errors=1)

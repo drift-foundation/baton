@@ -1,5 +1,25 @@
 # Plan
 
+## Current delivery scheduling — owner confirmed 2026-09-08
+
+Keep ready critical-path implementation and review ahead of suite remediation.
+W119113 preparation -> W119114 one-Job lifecycle/custody proof -> W103083 joined
+acceptance is the current assembly sequence. Prepare the approved W115599
+multi-Job successor and pin W115604's approved evidence adjustment during
+implementation; execute the successor after assembly acceptance, then complete
+composition acceptance, freeze and W71879/W71830 demonstration acceptance.
+High is retained for these prerequisites. The separate repair program's High
+items and post-demonstration W103525 certification become Normal; existing Low
+items stay Low. This supersedes equal-priority repair scheduling. Independent
+review and required checks remain; do not interrupt held claims or add a new
+full-suite campaign. Priorities must survive handoffs and child creation.
+
+Current W115604 decision, 2026-09-08: use the integrator model's judgement over
+the whole candidate, permitted scope and frozen review. The owner declined the
+new mechanical file/operation allowlist proposed by prompt. Narrow planning to
+the minimal existing-capability scenario; no new enforcement subsystem or
+extended research prerequisite. See the proof record's newest FINDING ruling.
+
 ## Owner attention — 2026-09-08, snapshot115755
 
 The critical-path chain alone is not the complete owner agenda. Tuner returned

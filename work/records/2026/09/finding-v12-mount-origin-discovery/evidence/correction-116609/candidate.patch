@@ -1,0 +1,67 @@
+--- before.py
++++ candidate.py
+@@ -808,7 +808,10 @@
+         def merge(self, states):
+             origins.clear()
+             for name in set().union(*(state.keys() for state in states)):
+-                joined = _join_origins(state.get(name) for state in states)
++                # A missing local-list identity is an unknown alternative,
++                # not evidence that the known candidate is a definite alias.
++                missing = "unknown-list" if isinstance(name, tuple) and name[0] == "collection" else None
++                joined = _join_origins(state.get(name, missing) for state in states)
+                 if joined is not None:
+                     origins[name] = joined
+ 
+@@ -895,7 +898,7 @@
+             for key, identity in list(origins.items()):
+                 if not isinstance(key, tuple) or key[0] != "collection":
+                     continue
+-                if not (_origin_values(collection) & _origin_values(identity)):
++                if not ((_origin_values(collection) & _origin_values(identity)) - {"unknown-list"}):
+                     continue
+                 name = key[1]
+                 if method == "clear" and name != piece.func.value.id and (len(_origin_values(collection)) != 1 or identity != collection):
+@@ -11791,6 +11794,43 @@
+     _view(landing[0])
+ '''), set())
+ 
++    def test_clearing_an_external_or_local_alias_preserves_the_other_path(self):
++        for first, second in (("landing", "other"), ("other", "landing"), ("landing", "[]")):
++            with self.subTest(first=first, second=second):
++                self.assertEqual(self.entries(f'''
++    landing = []
++    for mount in getattr(adapter, "mounts", None):
++        landing.append(mount)
++    alias = {first}
++    if supplied:
++        alias = {second}
++    alias.clear()
++    _view(landing[0])
++'''), self.expected())
++
++    def test_clearing_an_unconditional_external_alias_preserves_the_local_list(self):
++        self.assertEqual(self.entries('''
++    landing = []
++    for mount in getattr(adapter, "mounts", None):
++        landing.append(mount)
++    alias = other
++    alias.clear()
++    _view(landing[0])
++'''), self.expected())
++
++    def test_uncertain_unrelated_list_identities_do_not_share_append(self):
++        self.assertEqual(self.entries('''
++    first = []
++    second = []
++    if supplied:
++        first = other
++    if supplied:
++        second = supplied
++    for mount in getattr(adapter, "mounts", None):
++        first.append(mount)
++    _view(second[0])
++'''), {("caller", "sample.py:public", f"supplied.{member}") for member in ("source", "target", "writable")})
++
+     def test_loop_target_rebinding_cannot_keep_an_old_list_identity(self):
+         self.assertEqual(self.entries('''
+     landing = []

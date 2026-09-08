@@ -321,3 +321,120 @@ be observed without manufacturing an ordinary worker-exchange terminal. The
 one-Job lifecycle and mandatory intake/retention/cleanup/custody proof stay here.
 Existing five-path scope remains unchanged. Serial shared registry ownership:
 W110774 completes its additive parallel_test.py entry before this Work edits it.
+
+## 2026-09-08 — proposed disposition of obligation115920
+
+Author: baton.prompt, decision support pending Slawomir's response to115920.
+This entry supplies concrete recommendations, not an enacted owner approval.
+
+1. Derive required_tests from the configured implementation task and its bound
+   input manifest for the accepted checkpoint's producer, including correction
+   attempts. Supply task_id, the digest of the exact task bytes, verification
+   argv, and input_manifest_digest to both admission and normal continuation.
+   Revalidate Job/producer/input correspondence; do not derive the requirement
+   from the worker's reported test observation or accept missing/mismatched
+   configuration. The accepted driver's _owned_requirements docstring already
+   names this W103083 derivation; a new top-level configuration member is not
+   needed. Preserve the closed configuration schema and admission comparisons.
+2. W103083 owns assignment lookup via the public runtime.adopt_delivery and
+   runtime.published_assignment readers at the configured delivery home, exact
+   stage attempt and workspace group. On later mutation ticks, refresh first
+   and select continue_accepted only when the existing port's
+   may_continue(assignment, delivery) confirms the exact live marker. Reading
+   a persisted assignment grants no continuation permission. A fresh serving
+   incarnation or lost marker preserves the driver's existing restart/hold
+   behavior; absent or malformed delivery must not invent an assignment or
+   cause a duplicate start. Read-only status never refreshes or settles.
+
+Both corrections stay in the existing five-path assembly scope; W110774's
+accepted provider remains closed. Add focused coverage of requirement binding
+and mismatch refusal, same-process continuation, restart marker loss, malformed
+delivery, and read-only observation while preserving existing assertions.
+Reuse accepted provider evidence. No broad rerun is needed merely to decide
+this obligation; required verification still follows the existing work plan.
+Upon approval, the implementing claimant appends the confirmed response
+reference here and updates the plan before editing implementation.
+
+## 2026-09-08 — owner approval of obligation115920, confirmed
+
+Slawomir approved the proposed disposition above in M115946, on this Work's
+thread: derive `required_tests` from the configured producer task and its bound
+input manifest, independently of reported results; the assembly owns assignment
+lookup through the public `adopt_delivery` and `published_assignment` readers
+and uses the existing `may_continue` check after refresh; preserve restart
+holds, read-only status, the five-path scope and existing assertions, with
+focused regressions added. W110774 remains closed.
+
+Recorded by baton.claude under claim115958, which relied on that message before
+editing and appends this durable reference for the next reader. Both items are
+implemented in `tools/stage_execution.py` and covered in
+`tests/tools/test_stage_execution.py`; PROGRESS carries the account.
+
+## 2026-09-08 — independent interface correction review, claim116043
+
+**Confirmed; changes requested.** Pass116036's two approved interface changes
+do not yet work with the real assembled operands. `required_tests` sends the
+factory's already-held worker deployment through the closed raw-document
+validator and refuses its four derived members. The public delivery reader
+gets an integer gid because StageDeployment discarded the nominal group.
+A fresh published-but-never-started port then skips prepare and refuses for
+missing execution-local prepared credentials. Independent0.364s evidence
+exercises actual factory/manager/delivery/driver/port boundaries with no daemon
+or model: `evidence/review-116043/audit.json` and retained candidate snapshots.
+
+These findings supersede any implication that the two interface corrections
+are independently accepted; the owner's derivation and continuation decisions
+remain unchanged. Exact corrections and proof boundaries:
+`review-2026-09-08T04-06-54Z.md`. Preserve held producer bytes, carry the nominal
+WorkspaceGroup, and prepare idempotently before never-started admission while
+retaining no-refresh and started/uncertain restart holds. W110774 stays closed.
+
+**Proposed exact assertion disposition:** because M115946 says preserve existing
+assertions, ops must approve changing only the new never-started dispatch test's
+call-list expectation to include prepare after observed, keeping its no-refresh,
+single-admission and no-continuation assertions. Other correction coverage is
+additive within the existing five paths. No source or test was edited in review.
+
+All five hashes match the handoff;26 prior classes unchanged and seven cases
+added. Gate log retained with exact reported hash and12 unchanged historical
+diagnostics now tracked by W115824. Full lifecycle, reconstructed restart, held
+integration and mandatory W105982 custody proof remain incomplete and required.
+
+## 2026-09-08 — exact assertion approval already recorded in M118923
+
+baton.prompt re-read T103083 at snapshot118957. Slawomir's M118923 explicitly
+approves the review116043 never-started test changing its recorded calls from
+observed alone to observed then prepare, while preserving no-refresh, exactly
+one admission and no continuation. It also directs completing all three
+reviewed corrections in the existing five paths with real-factory and fresh-port
+controls; started/uncertain holds and unrelated assertions remain unchanged.
+The test spelling in that message contains a whitespace split in "refreshed";
+the named review and exact behavioral delta unambiguously identify
+TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed.
+
+This confirmed approval supersedes the pending disposition paragraph above for
+that exact change only. Claude's later asynchronous obligation118938 repeats
+the same request. It adds no scope and needs no new product ruling. The existing
+M118923 approval is the implementation authority; ops still owns answering the
+duplicate obligation. No source or PROGRESS changes were made by this entry.
+
+## 2026-09-08 — partial acceptance and mandatory split, claim119091
+
+**Confirmed:** the held/raw and nominal-group defects are corrected through
+actual factory probes. The fresh never-started retry still skips prepare and
+refuses. Review: review-2026-09-08T12-41-47Z.md; evidence/review-119091/.
+M118923 and M118986 both predate handoff119024. This explicitly supersedes
+any current claim that assertion approval is missing; no further permission
+is required for the exact already-approved change.
+
+**Confirmed scheduling decomposition under EFFECTIVE-BATON.md:** repeated
+partial handbacks leave substantial independently deliverable proof unstarted.
+W119113 owns the existing two-path never-started correction; W119114 owns the
+remaining full one-Job lifecycle/custody/restart/held proof within the original
+five paths, serially after correction acceptance. They are separately bound
+siblings at ../finding-assembly-unstarted-preparation/ and
+../finding-composed-one-job-proof/. W103083 keeps all historical evidence and
+final joined acceptance. This supersedes the plan to send another undivided
+correction-plus-proof pass through this Work. No accepted behavior, assertion
+limit, path set or runtime authority is expanded; all original capability gates
+remain mandatory, including custody. Live dependencies are recorded in Baton.

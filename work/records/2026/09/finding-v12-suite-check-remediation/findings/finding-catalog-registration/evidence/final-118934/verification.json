@@ -1,0 +1,42 @@
+{
+  "approval": "T116014/M118927",
+  "claim": 118934,
+  "hashes": {
+    "v12/python/tools/parallel_test.py": "f00fec0efebca9df1e25c025d1c9f07d350d1c79f0f0c880e673888bac884547",
+    "v12/python/tests/authority/test_catalog.py": "14ca384916dd0c175409c9af97c338f923ce73ba789f0eec68a745385904eed6",
+    "v12/python/tests/tools/test_parallel_runner.py": "690241cb9f51e1405c6d3246bd8a66620a95d4f8ecf561e8d5d4553dfd736406"
+  },
+  "results": [
+    {
+      "group": "focused",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_serial_modules_are_the_ones_that_own_an_engine"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.027785657031927258
+    },
+    {
+      "group": "modules",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_parallel_runner",
+        "tests.authority.test_catalog"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.780647261999547
+    }
+  ],
+  "prior_seconds": 12.758,
+  "this_claim_seconds": 12.808742763998453,
+  "cumulative_seconds": 25.56674276399845,
+  "budget_seconds": 30,
+  "all_passed": true,
+  "registry_and_authority_catalog_unchanged_this_claim": true
+}

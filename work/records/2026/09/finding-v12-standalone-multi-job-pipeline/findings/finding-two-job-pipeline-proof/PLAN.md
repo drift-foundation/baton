@@ -1,5 +1,14 @@
 # Plan
 
+Current scope decision, 2026-09-08: the integrator model judges whether the
+candidate changes are permitted using existing task/scope and review evidence.
+See FINDING, "integrator model decides permitted change scope". The proposed
+new mechanical file/operation allowlist is declined for this milestone.
+W115604 is narrowed to recording that boundary and a minimal existing-capability
+refusal scenario, with honest target observations. No new enforcement framework
+or extended research campaign. Surface only a concrete remaining acceptance
+conflict; preserve the successful-Job and failure-containment objectives.
+
 Parallel preparation, 2026-09-08, lightweight Work W115572: baton.tuner owns only
 TUNER-PREFLIGHT-2026-09-08.md under a separate lightweight preparation claim.
 Read PREPARATION-2026-09-08.md and the approved three-Job clarification, then
@@ -51,3 +60,12 @@ implementation, restore every component dependency required by the live proof;
 the first restored gate releases the review claim. Then reroute the blocked
 Work to implementation. Execution remains blocked until those providers are
 accepted.
+
+2026-09-08 placement/evidence decisions pending: W115599 recommends a separate
+multi-worker/per-Job binding successor after W103083 acceptance; W115604 asks
+whether the existing component refusal may serve as separately labelled
+negative evidence alongside the live A/B/C run. See reviews at12-29-16Z and
+12-33-00Z and the corresponding FINDING entries. Neither recommendation
+changes the current proof contract before an explicit owner ruling. The
+selected integrator-model scope judgement remains the current boundary;
+no mechanical enforcement subsystem is a prerequisite.

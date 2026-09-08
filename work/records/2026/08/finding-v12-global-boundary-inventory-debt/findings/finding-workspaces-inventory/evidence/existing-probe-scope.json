@@ -1,0 +1,42 @@
+[
+  {
+    "entry": [
+      "caller",
+      "workspaces.py:adopted_assignment_workspace",
+      "assignment_id"
+    ],
+    "existing_catalog_label": "an assignment identity",
+    "currently_unmatched_discovery_labels": [],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "workspaces.py:assignment_workspace",
+      "assignment_id"
+    ],
+    "existing_catalog_label": "an assignment identity",
+    "currently_unmatched_discovery_labels": [],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "workspaces.py:discard_execution_roots",
+      "assignment_id"
+    ],
+    "existing_catalog_label": "an assignment identity",
+    "currently_unmatched_discovery_labels": [],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "workspaces.py:discard_workspace",
+      "assignment_id"
+    ],
+    "existing_catalog_label": "an assignment identity",
+    "currently_unmatched_discovery_labels": [],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  }
+]

@@ -20,12 +20,15 @@ import json
 import os
 import pathlib
 import unittest
+from types import SimpleNamespace
+from unittest import mock
 
 from baton_v12.authority import MAX_SAFE_INTEGER
 from baton_v12.contracts import ContractRefusal
+from baton_v12.integration import driver
 from baton_v12.job_manager import review_driver
 
-from tools import stage_execution
+from tools import single_worker, stage_execution
 
 from tests.job_manager.fixtures import NOW, UUID, WORK_A
 from tests.job_manager.test_review_driver import DriverCase, REVIEWER, WRITER
@@ -1023,6 +1026,461 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class TheIntegrationStageConsumesTheAcceptedPort(StageCase):
+    """W103083 obligation115920, owner ruling M115946.
+
+    The requirement is DERIVED from configured material, and a later tick
+    refreshes before it asks the port's own marker whether this execution may
+    continue. Every driver call is recorded rather than performed: which
+    driver a tick chooses, and with what, is this assembly's decision, and the
+    drivers have their own suites for what they then do.
+    """
+
+    def group(self):
+        """The manager's own nominal WorkspaceGroup, not its integer.
+
+        Review 2026-09-08T04:06:54Z [P1]: the assembly held `.gid`, and the
+        public delivery readers require the group object -- so a fixture that
+        supplied an integer could not have noticed.
+        """
+        from baton_v12.worker_manager import ControlStore, workspaces
+
+        control = ControlStore.open(self.control_path,
+                                    incarnation="stage-group",
+                                    clock=lambda: NOW)
+        self.addCleanup(control.close)
+        workspaces.configure_workspace_group(control, os.getgid())
+        workspaces.configure_workspace_storage(control, self.storage)
+        return workspaces.configured_workspace_group(control)
+
+    def deployment(self, **members):
+        # THE FACTORY'S OWN HELD FORM, not the raw document. Review
+        # 2026-09-08T04:06:54Z [P1]: these cases supplied the raw
+        # configuration, so they could not see that `required_tests`
+        # re-validated a document the factory had already held.
+        given = members.pop("given", None) or stage_execution.held_configuration(
+            self.document(), checkout=self.checkout)
+        held = SimpleNamespace(
+            given=given, control=object(), jobs=object(), authority=object(),
+            integration=object(), integration_profile=given[
+                "integration_profile"],
+            integration_root=os.path.join(self.root, "integration-root"),
+            workspace_group=self.group(),
+            sessions={one: SimpleNamespace(name=one) for one in
+                      ("verification", "review", "approval", "integrator")},
+            line=lambda: {"line_id": "line-1"},
+            published_proposal=lambda accepted: "proposal-1")
+        for name, value in members.items():
+            setattr(held, name, value)
+        return held
+
+    def port(self, *, runtime_state="running", continuable=True):
+        calls = []
+
+        def observed(attempt_id, assignment):
+            calls.append(("observed", attempt_id))
+            return {"execution_runtime": runtime_state}
+
+        return SimpleNamespace(
+            calls=calls,
+            prepare=lambda stage, job: calls.append(("prepare",
+                                                     stage["attempt_id"])),
+            refresh=lambda attempt_id: calls.append(("refresh", attempt_id)),
+            observed=observed,
+            may_continue=lambda assignment, delivery=None: (
+                calls.append(("may_continue", None)) or continuable))
+
+    def driven(self, *, delivery=None, assignment=None, port=None,
+               deployment=None):
+        """One tick, with every driver and public reader recorded."""
+        held = self.deployment() if deployment is None else deployment
+        taken = self.port() if port is None else port
+        seen = {}
+        with mock.patch.object(stage_execution, "admit_accepted",
+                               side_effect=lambda *a, **k: seen.setdefault(
+                                   "admit", k) or {"outcome": "running"}
+                               ) as admit, \
+                mock.patch.object(
+                    stage_execution, "continue_accepted",
+                    side_effect=lambda *a, **k: seen.setdefault(
+                        "continue", k) or {"outcome": "running"}
+                    ) as keep, \
+                mock.patch.object(stage_execution.runtime, "adopt_delivery",
+                                  return_value=delivery), \
+                mock.patch.object(stage_execution.runtime,
+                                  "published_assignment",
+                                  return_value=assignment), \
+                mock.patch.object(stage_execution.review_cycles,
+                                  "integration_checkpoint",
+                                  return_value={"checkpoint_id": "cp-1"}):
+            answer = stage_execution.Integration(held, taken).run(
+                {"attempt_id": "attempt-1", "kind": "integration"},
+                {"job_id": "job-1"})
+        return answer, taken.calls, admit, keep, seen
+
+    # -- the derived requirement --------------------------------------------
+
+    def test_the_requirement_is_derived_from_the_configured_task(self):
+        """Not from what the worker REPORTED: from the task bytes this
+        deployment configured and the input manifest they are bound to."""
+        import hashlib
+        import json as _json
+
+        held = stage_execution.Integration(self.deployment(), self.port())
+        derived = held.required_tests()
+        given = stage_execution.held_configuration(
+            self.document(), checkout=self.checkout)["workers"][0][
+                "deployment"]
+        payload = given["task_bytes"]
+        self.assertEqual(derived, {
+            "task_id": _json.loads(payload)["task_id"],
+            "task_digest": "sha256:" + hashlib.sha256(payload).hexdigest(),
+            "argv": _json.loads(payload)["verification"],
+            "input_manifest_digest":
+                given["input_manifest"]["manifest_digest"]})
+        # AND THE ACCEPTED DRIVER'S OWN READER ADMITS IT.
+        self.assertEqual(driver._owned_requirements(derived), derived)
+
+    def test_a_deployment_without_exactly_one_producer_refuses(self):
+        given = stage_execution.held_configuration(self.document(),
+                                                   checkout=self.checkout)
+        given["workers"] = [one for one in given["workers"]
+                            if one["role"] != "implementation"]
+        held = stage_execution.Integration(
+            self.deployment(given=given), self.port())
+        with self.assertRaises(ContractRefusal) as caught:
+            held.required_tests()
+        self.assertIn("implementation workers", caught.exception.message)
+
+    def test_the_published_reader_adopts_a_real_delivery_with_the_group(self):
+        """W103083 review 2026-09-08T04:06:54Z [P1], proved through the REAL
+        public readers over a real materialized delivery rather than a mock.
+
+        The manager's nominal group adopts; the integer that used to be stored
+        in its place refuses, which is the defect this pins. An absent delivery
+        cannot show either, because `adopt_delivery` answers `None` before it
+        validates the group.
+        """
+        from baton_v12.integration import runtime as integration_runtime
+
+        group = self.group()
+        held = self.deployment(workspace_group=group)
+        os.makedirs(held.integration_root, exist_ok=True)
+        integration_runtime.materialize_delivery(
+            held.integration_root, attempt_id="attempt-1",
+            workspace_group=group)
+
+        delivery, assignment = stage_execution.Integration(
+            held, self.port())._published({"attempt_id": "attempt-1"})
+        self.assertIsNotNone(delivery)
+        # NOTHING WAS PUBLISHED INTO IT YET, and that is an ordinary answer
+        # rather than an invented assignment.
+        self.assertIsNone(assignment)
+
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.Integration(
+                self.deployment(workspace_group=group.gid),
+                self.port())._published({"attempt_id": "attempt-1"})
+        self.assertIn(str(group.gid), caught.exception.message)
+
+    # -- which driver a tick chooses ----------------------------------------
+
+    def test_the_first_tick_prepares_and_then_admits(self):
+        _, calls, admit, keep, seen = self.driven()
+        self.assertEqual(calls, [("prepare", "attempt-1")])
+        admit.assert_called_once()
+        keep.assert_not_called()
+        # THE OPERAND THAT WAS MISSING ENTIRELY travels now.
+        self.assertIn("required_tests", seen["admit"])
+        self.assertEqual(sorted(seen["admit"]["required_tests"]),
+                         ["argv", "input_manifest_digest", "task_digest",
+                          "task_id"])
+
+    def test_a_later_tick_refreshes_before_it_continues(self):
+        """Owner ruling M115946: refresh FIRST, then the port's own marker."""
+        _, calls, admit, keep, seen = self.driven(
+            delivery=object(), assignment={"attempt_id": "attempt-1"})
+        self.assertEqual(calls, [("observed", "attempt-1"),
+                                 ("refresh", "attempt-1"),
+                                 ("may_continue", None)])
+        keep.assert_called_once()
+        admit.assert_not_called()
+        self.assertIn("required_tests", seen["continue"])
+        # AND CONTINUATION IS NEVER HANDED A PORT: it cannot start anything.
+        self.assertNotIn("port", seen["continue"])
+
+    def test_a_lost_marker_falls_through_to_admission(self):
+        """A fresh serving incarnation holds no marker, so the driver's own
+        restart behaviour is what answers -- reading a persisted assignment
+        grants no continuation permission."""
+        _, calls, admit, keep, _ = self.driven(
+            delivery=object(), assignment={"attempt_id": "attempt-1"},
+            port=self.port(continuable=False))
+        self.assertEqual(calls, [("observed", "attempt-1"),
+                                 ("refresh", "attempt-1"),
+                                 ("may_continue", None)])
+        admit.assert_called_once()
+        keep.assert_not_called()
+
+    def test_a_delivery_with_no_started_runtime_is_not_refreshed(self):
+        """The namespaces are materialized before the container, so a delivery
+        can exist with no runtime behind it. That attempt is admission's to
+        re-enter, and refreshing it would ask reconciliation about a runtime
+        nobody requested.
+
+        W103083 review 2026-09-08T12:41:47Z [P1], owner approval M118923: it
+        is PREPARED before that re-entry, and this case's recorded calls are
+        the one thing that changed. Re-entering admission with no
+        execution-local credential delivery is what a reconstructed port
+        refused on, and the other three assertions here -- no refresh, exactly
+        one admission, no continuation -- are unchanged and are why the
+        preparation is the whole of the correction.
+        """
+        _, calls, admit, keep, _ = self.driven(
+            delivery=object(), assignment={"attempt_id": "attempt-1"},
+            port=self.port(runtime_state="not-started"))
+        self.assertEqual(calls, [("observed", "attempt-1"),
+                                 ("prepare", "attempt-1")])
+        admit.assert_called_once()
+        keep.assert_not_called()
+
+    def test_a_started_or_uncertain_runtime_is_never_prepared_here(self):
+        """The other side of that branch, which is why it IS a branch.
+
+        Preparation mints a bearer only for an attempt whose runtime has not
+        started; the credential custody of a runtime this execution did not
+        start belongs to that runtime. So a started or uncertain attempt with
+        no marker is refreshed and then admitted exactly as before, and the
+        hold `admit_accepted` has always owned is what answers it.
+        """
+        for state in ("running", "uncertain"):
+            with self.subTest(runtime=state):
+                _, calls, admit, keep, _ = self.driven(
+                    delivery=object(),
+                    assignment={"attempt_id": "attempt-1"},
+                    port=self.port(runtime_state=state, continuable=False))
+                self.assertEqual(calls, [("observed", "attempt-1"),
+                                         ("refresh", "attempt-1"),
+                                         ("may_continue", None)])
+                admit.assert_called_once()
+                keep.assert_not_called()
+
+    def test_a_delivery_carrying_no_assignment_is_the_first_tick(self):
+        """Absent or unpublished: neither invents an assignment."""
+        for delivery in (None, object()):
+            with self.subTest(delivery=delivery is not None):
+                _, calls, admit, keep, _ = self.driven(delivery=delivery,
+                                                       assignment=None)
+                self.assertEqual(calls, [("prepare", "attempt-1")])
+                admit.assert_called_once()
+                keep.assert_not_called()
+
+
+class AFreshPortReentersANeverStartedDelivery(unittest.TestCase):
+    """W119113: this assembly's dispatch over the REAL production port.
+
+    COMPOSED, NOT SUBCLASSED, for the reason the port suite's own fixture
+    records: a subclass re-runs every one of its parent's cases under a second
+    name. This borrows that composed world whole -- the real Worker Manager,
+    coordinator, Authority, delivery namespaces, admission and continuation
+    drivers, and the deterministic engine and provider that stand in for a
+    daemon and a model -- and asks it the one question the recorded-port cases
+    above cannot answer: what a fresh `IntegrationRuntimePort` actually does
+    when the tick finds a delivery it published and never started.
+
+    THE MEASURED DEFECT, W103083 review 2026-09-08T12:41:47Z [P1]. A first
+    admission that dies between publishing the assignment and starting the
+    runtime leaves durable namespaces, a durable assignment and a runtime the
+    manager's own axis still calls `not-started`. The next incarnation holds
+    no in-memory credential delivery, and it used to re-enter admission
+    without preparing one, so the attempt could never start again.
+    """
+
+    def setUp(self):
+        from .test_integration_worker import (
+            ATTEMPT, TheWholeIntegrationRunsThroughThisPort)
+
+        self.attempt = ATTEMPT
+        case = TheWholeIntegrationRunsThroughThisPort()
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        self.case = case
+        self.world = case.world
+
+    # -- the world, read through its own owners -----------------------------
+
+    def deployment(self):
+        """The operands `Integration.run` resolves, from the borrowed world.
+
+        Two members answer for this fixture rather than deriving: `line` and
+        `published_proposal`, whose replay of the accepted checkpoint's own
+        writer/attempt/manifest chain belongs to the composed lifecycle cases
+        and to `W119114`. Everything this class is about is the real thing --
+        the public delivery readers, the production port, both drivers, and
+        the manager's own runtime witness.
+        """
+        case, world = self.case, self.world
+        return SimpleNamespace(
+            given={"canonical_target_id": world.target,
+                   "policy_generation": world.authority.policy_generation()},
+            control=world.manager, jobs=world.jobs,
+            authority=world.authority_read, integration=world.coordinator,
+            integration_profile=case.profile,
+            integration_root=case.launch_root,
+            workspace_group=case.owner.group,
+            sessions={"verification": world.sessions["verify"],
+                      "review": world.sessions["review"],
+                      "approval": world.sessions["approve"],
+                      "integrator": world.integrator},
+            line=lambda: {"line_id": world.line_id},
+            published_proposal=lambda accepted: world.proposal_id)
+
+    def recording(self, port=None):
+        """One production port whose two acts are recorded and not replaced.
+
+        `wraps` rather than a substitute: what each call then does is the
+        port's own, and the assertions here are about which of them this
+        assembly makes.
+        """
+        held = self.case.port() if port is None else port
+        held.prepare = mock.Mock(wraps=held.prepare)
+        held.refresh = mock.Mock(wraps=held.refresh)
+        return held
+
+    def tick(self, port):
+        """One `Integration.run`, with the driver it chose recorded.
+
+        The requirement is the world's own selection. This borrowed deployment
+        carries no configured workers to derive one from, and the derivation
+        has its own real-factory cases above; substituting it here keeps this
+        boundary about dispatch and preparation.
+        """
+        held = stage_execution.Integration(self.deployment(), port)
+        with mock.patch.object(held, "required_tests",
+                               return_value=self.world.required), \
+                mock.patch.object(stage_execution, "admit_accepted",
+                                  wraps=stage_execution.admit_accepted
+                                  ) as admit, \
+                mock.patch.object(stage_execution, "continue_accepted",
+                                  wraps=stage_execution.continue_accepted
+                                  ) as keep:
+            answer = held.run(self.case.stage(), {"job_id": "job-1"})
+        return answer, admit, keep
+
+    def starts(self):
+        """How many runtimes this world's engine was asked to run."""
+        return len([one for one in self.case.engine_calls if one[1] == "run"])
+
+    def witness(self):
+        """The manager's own accepted axis for this attempt."""
+        from baton_v12.integration import runtime as integration_runtime
+
+        return integration_runtime.prior_runtime_witness(
+            self.world.manager, self.attempt)["execution_runtime"]
+
+    def interrupted(self):
+        """One first admission that dies between publication and the start."""
+        held = self.case.port()
+        held.prepare(self.case.stage(), None)
+        with mock.patch.object(
+                held, "run",
+                side_effect=ContractRefusal(
+                    "refused", "precondition",
+                    "the injected interruption before the runtime start")):
+            with self.assertRaises(ContractRefusal):
+                self.case.admit(held)
+        return held
+
+    # -- the controls, which say what an unbroken tick does ------------------
+
+    def test_an_ordinary_first_tick_prepares_and_starts_exactly_once(self):
+        """The valid initial case: nothing is published yet, so this is the
+        first tick the recorded-port cases describe, performed for real."""
+        port = self.recording()
+        answer, admit, keep = self.tick(port)
+
+        self.assertEqual(answer["outcome"], "running")
+        self.assertEqual(port.prepare.call_count, 1)
+        port.refresh.assert_not_called()
+        admit.assert_called_once()
+        keep.assert_not_called()
+        self.assertEqual(self.starts(), 1)
+        self.assertEqual(self.witness(), "running")
+
+    def test_a_second_tick_in_the_same_execution_starts_nothing_again(self):
+        """The same-execution case: this port holds the marker it made, so the
+        tick refreshes and continues, and no second runtime is asked for."""
+        port = self.recording()
+        self.tick(port)
+        answer, admit, keep = self.tick(port)
+
+        self.assertEqual(port.prepare.call_count, 1)
+        self.assertEqual(port.refresh.call_count, 1)
+        keep.assert_called_once()
+        admit.assert_not_called()
+        self.assertEqual(self.starts(), 1)
+        self.assertEqual(answer["outcome"], "running")
+
+    # -- the correction ------------------------------------------------------
+
+    def test_an_interrupted_first_admission_leaves_a_never_started_delivery(
+            self):
+        """The predecessor state this correction is about, measured rather
+        than assumed: a real published assignment over a runtime the manager's
+        own axis says was never started, and no engine start at all."""
+        from baton_v12.integration import runtime as integration_runtime
+
+        self.interrupted()
+        delivery = integration_runtime.adopt_delivery(
+            self.case.launch_root, attempt_id=self.attempt,
+            workspace_group=self.case.owner.group)
+        self.assertIsNotNone(delivery)
+        self.assertIsNotNone(
+            integration_runtime.published_assignment(delivery))
+        self.assertEqual(self.witness(), "not-started")
+        self.assertEqual(self.starts(), 0)
+
+    def test_a_fresh_port_prepares_that_delivery_and_then_starts_it(self):
+        """W103083 review 2026-09-08T12:41:47Z [P1], and the whole of W119113.
+
+        The reconstructed port receives the preparation it needs before
+        admission -- and receives it without a refresh, because reconciling an
+        attempt no start was ever requested for is a write this branch has
+        never made.
+        """
+        self.interrupted()
+        port = self.recording()
+        answer, admit, keep = self.tick(port)
+
+        self.assertEqual(answer["outcome"], "running")
+        self.assertEqual(port.prepare.call_count, 1)
+        port.refresh.assert_not_called()
+        admit.assert_called_once()
+        keep.assert_not_called()
+        # ONE START, from the incarnation that prepared it.
+        self.assertEqual(self.starts(), 1)
+        self.assertEqual(self.witness(), "running")
+
+    def test_a_runtime_this_execution_did_not_start_is_still_held(self):
+        """The hold this correction must not spend: a started attempt is NOT
+        prepared, because its credential custody belongs to the runtime that
+        holds it, and no second writer is ever run for it."""
+        self.case.started()
+        minted = len(self.case.minted)
+        self.assertEqual(self.starts(), 1)
+
+        port = self.recording()
+        answer, admit, keep = self.tick(port)
+
+        self.assertEqual(answer["outcome"], "held")
+        port.prepare.assert_not_called()
+        self.assertEqual(port.refresh.call_count, 1)
+        admit.assert_called_once()
+        keep.assert_not_called()
+        self.assertEqual(self.starts(), 1)
+        self.assertEqual(len(self.case.minted), minted)
+
+
 class ServingCase(StageCase):
     """One deployment composed the way the serving loop composes it.
 
@@ -1170,6 +1628,105 @@ class TheServingPathReachesTheAcceptedDrivers(ServingCase):
             self.serving(pool_generation=4)
         self.assertEqual(caught.exception.code, "operation-collision")
         self.assertIn("moved on", caught.exception.message)
+
+
+class TheFactorysOwnOperandsReachTheIntegrationStage(ServingCase):
+    """W119113: review 119091's independent controls, kept as ordinary tests.
+
+    Review 2026-09-08T12:41:47Z accepted the held/raw and nominal-group
+    corrections through a probe over the ACTUAL `operations_from` factory,
+    because the recorded-port cases build their deployment by hand and could
+    not have seen either defect. These ask the same questions here, so the
+    acceptance is a test this suite runs rather than only retained evidence.
+    """
+
+    def producer(self, composed):
+        """The factory's own held implementation deployment."""
+        return next(one["deployment"] for one in
+                    composed.deployment.given["workers"]
+                    if one["role"] == "implementation")
+
+    def test_the_composed_integration_derives_its_requirement_from_it(self):
+        """The held form is consumed AS IT STANDS: re-validating it through
+        the raw-document validator refused the factory's own derived members,
+        and every real integration tick stopped there."""
+        import hashlib
+
+        _job, _control, composed = self.serving()
+        held = self.producer(composed)
+        derived = composed.integrator.required_tests()
+        self.assertEqual(derived["task_digest"],
+                         "sha256:" + hashlib.sha256(
+                             held["task_bytes"]).hexdigest())
+        self.assertEqual(derived["input_manifest_digest"],
+                         held["input_manifest"]["manifest_digest"])
+        # AND THE ACCEPTED DRIVER'S OWN READER ADMITS WHAT THE FACTORY BUILT.
+        self.assertEqual(driver._owned_requirements(derived), derived)
+
+    def test_replacing_the_task_document_after_construction_changes_nothing(
+            self):
+        """The bytes were read once at configuration, no-follow and bounded.
+        A file replaced afterwards would otherwise substitute new expected
+        bytes for the producer this Job actually ran."""
+        _job, _control, composed = self.serving()
+        derived = composed.integrator.required_tests()
+        with open(self.task_document, "wb") as writing:
+            writing.write(b'{"task_id": "replaced", '
+                          b'"verification": ["a-different-command"]}')
+        self.assertEqual(composed.integrator.required_tests(), derived)
+
+    def test_a_producer_task_naming_no_verification_refuses(self):
+        """An integration is admitted behind an ordinary test run and never
+        ahead of one, so a producer configured without a command refuses."""
+        _job, _control, composed = self.serving()
+        held = self.producer(composed)
+        task = json.loads(held["task_bytes"].decode("utf-8"))
+        task.pop("verification", None)
+        held["task_bytes"] = json.dumps(task).encode("utf-8")
+        with self.assertRaises(ContractRefusal) as caught:
+            composed.integrator.required_tests()
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("names no verification command",
+                      caught.exception.message)
+
+    def test_a_job_naming_another_producers_input_refuses(self):
+        """M115946's correspondence check, over the factory's own operands: a
+        required-test selection describes the producer this Job ran."""
+        _job, _control, composed = self.serving()
+        integration = composed.integrator
+        derived = integration.required_tests()
+        # The Job this deployment's producer really ran passes.
+        self.assertIsNone(integration._correspondent(
+            {"input_digest": derived["input_manifest_digest"]}, derived))
+        with self.assertRaises(ContractRefusal) as caught:
+            integration._correspondent({"input_digest": "sha256:" + "f" * 64},
+                                       derived)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("sha256:" + "f" * 64, caught.exception.message)
+
+    def test_the_factory_holds_the_group_a_real_delivery_is_adopted_with(
+            self):
+        """The manager's nominal `WorkspaceGroup`, proved by adopting a really
+        materialized delivery at the factory's own integration root."""
+        from baton_v12.integration import runtime as integration_runtime
+        from baton_v12.worker_manager import workspaces
+
+        _job, _control, composed = self.serving()
+        group = composed.deployment.workspace_group
+        self.assertIsInstance(group, workspaces.WorkspaceGroup)
+        root = composed.deployment.integration_root
+        os.makedirs(root, exist_ok=True)
+        made = integration_runtime.materialize_delivery(
+            root, attempt_id="attempt-f", workspace_group=group)
+
+        delivery, assignment = composed.integrator._published(
+            {"attempt_id": "attempt-f"})
+        self.assertEqual(delivery.root, made.root)
+        # NOTHING WAS PUBLISHED INTO IT, which is an ordinary answer rather
+        # than an invented assignment.
+        self.assertIsNone(assignment)
 
 
 class ThePublicFactoryResolvesEveryRequiredSession(ServingCase):

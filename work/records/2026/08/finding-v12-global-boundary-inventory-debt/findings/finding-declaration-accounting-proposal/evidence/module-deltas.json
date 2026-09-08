@@ -1,0 +1,248 @@
+[
+  {
+    "added_rows": [
+      [
+        "attempts.py:_identified_within",
+        "identity",
+        "a runtime attempt id"
+      ],
+      [
+        "attempts.py:_reconciled",
+        "identity",
+        "a runtime attempt id"
+      ],
+      [
+        "attempts.py:reconcile_runtime",
+        "identity",
+        "a runtime attempt id"
+      ]
+    ],
+    "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory",
+    "module": "attempts",
+    "removed_rows": [],
+    "state": "proposal observation only; W117174 must revalidate after approved implementation",
+    "work": "W116992"
+  },
+  {
+    "added_rows": [],
+    "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory",
+    "module": "authority_port",
+    "removed_rows": [
+      [
+        "authority_port.py:AuthorityPort._assignment",
+        "document",
+        "{what}'s Work reference"
+      ],
+      [
+        "authority_port.py:AuthorityPort._assignment",
+        "document",
+        "{what}'s identity"
+      ],
+      [
+        "authority_port.py:AuthorityPort._assignment",
+        "generation",
+        "{what}'s generation"
+      ],
+      [
+        "authority_port.py:AuthorityPort._assignment",
+        "identity",
+        "{what}'s Work id"
+      ],
+      [
+        "authority_port.py:AuthorityPort._assignment",
+        "identity",
+        "{what}'s authority"
+      ],
+      [
+        "authority_port.py:AuthorityPort._assignment",
+        "text",
+        "{what}'s participant"
+      ],
+      [
+        "authority_port.py:AuthorityPort._decided",
+        "document",
+        "{what}'s decision"
+      ],
+      [
+        "authority_port.py:AuthorityPort._decided",
+        "text",
+        "{what}'s decided role"
+      ],
+      [
+        "authority_port.py:AuthorityPort._decided",
+        "text",
+        "{what}'s decision endpoint"
+      ],
+      [
+        "authority_port.py:AuthorityPort._decided",
+        "text",
+        "{what}'s effective scope"
+      ],
+      [
+        "authority_port.py:AuthorityPort._decided",
+        "text",
+        "{what}'s principal"
+      ]
+    ],
+    "state": "proposal observation only; W117174 must revalidate after approved implementation",
+    "work": "W116979"
+  },
+  {
+    "added_rows": [
+      [
+        "intake.py:_abandon_fence_operation_id",
+        "document",
+        "a persisted attempt"
+      ],
+      [
+        "intake.py:_abandon_operation_id",
+        "document",
+        "a persisted attempt"
+      ],
+      [
+        "intake.py:_abandoned_destroy_operation",
+        "document",
+        "a persisted attempt"
+      ],
+      [
+        "intake.py:_abandoned_destroy_operation",
+        "text",
+        "a retention policy digest"
+      ],
+      [
+        "intake.py:_custody_capable",
+        "capability",
+        "the runtime adapter's directory-custody act"
+      ],
+      [
+        "intake.py:abandon_attempt",
+        "document",
+        "a persisted attempt"
+      ]
+    ],
+    "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory",
+    "module": "intake",
+    "removed_rows": [
+      [
+        "intake.py:_provider_ending",
+        "document",
+        "a {provider} teardown ending"
+      ],
+      [
+        "intake.py:_provider_ending",
+        "text",
+        "a {provider} teardown ending's state"
+      ]
+    ],
+    "state": "proposal observation only; W117174 must revalidate after approved implementation",
+    "work": "W116977"
+  },
+  {
+    "added_rows": [
+      [
+        "interrogation.py:publish_inquiry_answer",
+        "injected",
+        "a published answer reference"
+      ]
+    ],
+    "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory",
+    "module": "interrogation",
+    "removed_rows": [],
+    "state": "proposal observation only; W117174 must revalidate after approved implementation",
+    "work": "W116981"
+  },
+  {
+    "added_rows": [
+      [
+        "lanes.py:_occupy_lane",
+        "identity",
+        "a runtime attempt id"
+      ],
+      [
+        "lanes.py:_release_lane",
+        "identity",
+        "a runtime attempt id"
+      ]
+    ],
+    "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-lanes-inventory",
+    "module": "lanes",
+    "removed_rows": [],
+    "state": "proposal observation only; W117174 must revalidate after approved implementation",
+    "work": "W116972"
+  },
+  {
+    "added_rows": [
+      [
+        "oci.py:OciAdapter.start",
+        "identity",
+        "a started runtime id"
+      ]
+    ],
+    "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-oci-inventory",
+    "module": "oci",
+    "removed_rows": [],
+    "state": "proposal observation only; W117174 must revalidate after approved implementation",
+    "work": "W116997"
+  },
+  {
+    "added_rows": [
+      [
+        "posture_slots.py:_occupy_slot",
+        "identity",
+        "a runtime attempt id"
+      ]
+    ],
+    "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory",
+    "module": "posture_slots",
+    "removed_rows": [],
+    "state": "proposal observation only; W117174 must revalidate after approved implementation",
+    "work": "W117022"
+  },
+  {
+    "added_rows": [
+      [
+        "review_cycles.py:integration_checkpoint",
+        "document",
+        "a persisted assignment fence"
+      ],
+      [
+        "review_cycles.py:record_verdict",
+        "document",
+        "a persisted assignment fence"
+      ]
+    ],
+    "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory",
+    "module": "review_cycles",
+    "removed_rows": [],
+    "state": "proposal observation only; W117174 must revalidate after approved implementation",
+    "work": "W116975"
+  },
+  {
+    "added_rows": [
+      [
+        "sessions.py:_request_session_quiescence",
+        "identity",
+        "a runtime attempt id"
+      ]
+    ],
+    "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory",
+    "module": "sessions",
+    "removed_rows": [],
+    "state": "proposal observation only; W117174 must revalidate after approved implementation",
+    "work": "W116987"
+  },
+  {
+    "added_rows": [
+      [
+        "workspaces.py:_assignment_identity",
+        "identity",
+        "an assignment identity"
+      ]
+    ],
+    "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory",
+    "module": "workspaces",
+    "removed_rows": [],
+    "state": "proposal observation only; W117174 must revalidate after approved implementation",
+    "work": "W116995"
+  }
+]

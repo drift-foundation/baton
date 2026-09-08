@@ -1,0 +1,439 @@
+--- before/v12/python/tests/manager/test_boundary_inventory.py
++++ candidate/v12/python/tests/manager/test_boundary_inventory.py
+@@ -509,7 +509,7 @@
+ 
+ 
+ class _OriginBindings(dict):
+-    """Final bindings plus local expression snapshots, never stored on ASTs."""
++    """Reached terminal bindings and expression snapshots, never stored on ASTs."""
+     def __init__(self, values):
+         super().__init__(values)
+         self.at = {}
+@@ -528,6 +528,8 @@
+     handed straight into a helper was tracked and the same crossing handed back
+     OUT of one was not.
+     """
++    if isinstance(origins, _OriginBindings) and id(value) not in origins.at:
++        return None
+     if isinstance(value, ast.Name):
+         return _bindings_at(origins, value).get(value.id)
+     if site is not None:
+@@ -607,8 +609,8 @@
+ 
+     `_operation_row` returns an adopted journal row and `_offer_row` an adopted
+     offer; a caller's member read on what they return is a read of that row.
+-    Resolved to a fixpoint, because helpers call helpers -- `_require_accepted`
+-    hands back what `_offer_row` handed it.
++    Dependencies are resolved before their consumer: `_require_accepted` hands
++    back what `_offer_row` handed it, regardless of declaration order.
+     """
+     found = {}
+     functions = [(site, node) for source, tree in sources
+@@ -630,24 +632,57 @@
+         for name in _local_bindings(node):
+             found[("shadow", site, name)] = True
+         imports_at(site, _scope_nodes(node))
+-    # Each pass can add a summary for a previously unresolved helper. A chain
+-    # longer than four is no reason to silently lose its origin; a recursive
+-    # cycle with no established return contributes no invented origin.
+-    for _ in range(len(functions) + 1):
+-        before = dict(found)
+-        for site, node in functions:
+-            local = _origins(node, site, found)
+-            returned = []
+-            for piece in _scope_nodes(node):
+-                if isinstance(piece, ast.Return) and piece.value is not None:
+-                    returned.append(_source(piece.value, local, site, found))
+-            origin = _join_origins(returned)
+-            if origin is not None:
+-                positional = tuple(one.arg for one in node.args.posonlyargs + node.args.args)
+-                keywords = tuple(one.arg for one in node.args.kwonlyargs)
+-                found.setdefault(site, (origin, positional, keywords))
+-        if found == before:
+-            break
++    nodes = dict(functions)
++    dependencies = {site: {_helper_site(piece.func, site, found)
++                           for piece in _scope_nodes(node)
++                           if isinstance(piece, ast.Call)} & nodes.keys()
++                    for site, node in functions}
++
++    @functools.cache
++    def reachable(site):
++        seen = set()
++        pending = list(dependencies[site])
++        while pending:
++            target = pending.pop()
++            if target not in seen:
++                seen.add(target)
++                pending.extend(dependencies[target] - seen)
++        return frozenset(seen)
++
++    def resolve(site, ancestors):
++        if site in ancestors:
++            return None
++        # Only ancestors reachable from this helper can constrain its result.
++        # Acyclic dependencies therefore share one completed cached summary.
++        return summary(site, ancestors & reachable(site))
++
++    @functools.cache
++    def summary(site, excluded):
++        class Returns:
++            def get(self, key, default=None):
++                if key in nodes:
++                    return resolve(key, excluded | {site})
++                return found.get(key, default)
++
++        returns = Returns()
++        node = nodes[site]
++        local = _origins(node, site, returns)
++        origin = _join_origins(_source(piece.value, local, site, returns)
++                               for piece in _scope_nodes(node)
++                               if isinstance(piece, ast.Return) and piece.value is not None)
++        if origin is not None:
++            positional = tuple(one.arg for one in node.args.posonlyargs + node.args.args)
++            keywords = tuple(one.arg for one in node.args.kwonlyargs)
++            return origin, positional, keywords
++        return None
++
++    # Each summary resolves every dependency along finite simple call paths.
++    # Recursive re-entry stops only that path, without freezing a partly known
++    # sibling return or imposing a depth limit on an acyclic helper chain.
++    for site, _ in functions:
++        result = resolve(site, frozenset())
++        if result is not None:
++            found[site] = result
+     return found
+ 
+ 
+@@ -738,24 +773,67 @@
+     # body's assignments precede the next statement, and reassignment uses the
+     # value before that assignment. No arbitrary chain-depth cap is involved.
+     class Assignments(ast.NodeVisitor):
++        def __init__(self):
++            self.flow = None
++            self.exceptions = None
++            self.exits = []
++
+         def visit(self, piece):
+             origins.at[id(piece)] = types.MappingProxyType(dict(origins))
++            if self.exceptions is not None and isinstance(piece, (ast.Call, ast.Attribute, ast.Subscript, ast.BinOp, ast.UnaryOp, ast.Compare, ast.Await)):
++                self.exceptions.append(dict(origins))
+             return super().visit(piece)
++
++        def block(self, statements):
++            for statement in statements:
++                if self.flow is not None:
++                    break
++                self.visit(statement)
++
++        def merge(self, states):
++            origins.clear()
++            for name in set().union(*(state.keys() for state in states)):
++                joined = _join_origins(state.get(name) for state in states)
++                if joined is not None:
++                    origins[name] = joined
++
++        def run(self, statements, initial):
++            origins.clear()
++            origins.update(initial)
++            self.flow = None
++            self.block(statements)
++            return self.flow, dict(origins)
+ 
+         def alternatives(self, branches):
+             before = dict(origins)
+-            after = []
+-            for statements in branches:
+-                origins.clear()
+-                origins.update(before)
+-                for statement in statements:
+-                    self.visit(statement)
+-                after.append(dict(origins))
+-            origins.clear()
+-            for name in set().union(*(branch.keys() for branch in after)):
+-                joined = _join_origins(branch.get(name) for branch in after)
+-                if joined is not None:
+-                    origins[name] = joined
++            outcomes = [self.run(statements, before) for statements in branches]
++            continuing = [state for flow, state in outcomes if flow is None]
++            self.merge(continuing or [state for _, state in outcomes])
++            self.flow = None if continuing else "stop"
++
++        def visit_Return(self, piece):
++            if piece.value is not None:
++                self.visit(piece.value)
++            self.exits.append(("return", dict(origins)))
++            self.flow = "return"
++
++        def visit_Raise(self, piece):
++            if piece.exc is not None:
++                self.visit(piece.exc)
++            if piece.cause is not None:
++                self.visit(piece.cause)
++            if self.exceptions is not None:
++                self.exceptions.append(dict(origins))
++            self.exits.append(("raise", dict(origins)))
++            self.flow = "raise"
++
++        def visit_Break(self, piece):
++            self.exits.append(("break", dict(origins)))
++            self.flow = "break"
++
++        def visit_Continue(self, piece):
++            self.exits.append(("continue", dict(origins)))
++            self.flow = "continue"
+ 
+         def visit_If(self, piece):
+             self.visit(piece.test)
+@@ -780,29 +858,57 @@
+             self.visit(piece.iter)
+             before = dict(origins)
+             bind(piece.target, _source(piece.iter, origins, site, returns))
+-            for statement in piece.body:
+-                self.visit(statement)
+-            after = dict(origins)
+-            origins.clear()
+-            for name in before.keys() | after.keys():
+-                joined = _join_origins((before.get(name), after.get(name)))
+-                if joined is not None:
+-                    origins[name] = joined
+-            for statement in piece.orelse:
+-                self.visit(statement)
++            self.block(piece.body)
++            states = [before]
++            if self.flow in (None, "break", "continue"):
++                states.append(dict(origins))
++            self.merge(states)
++            self.flow = None
++            self.block(piece.orelse)
+ 
+         visit_AsyncFor = visit_For
+ 
+         def visit_While(self, piece):
+             self.visit(piece.test)
+             self.alternatives(([], piece.body))
+-            for statement in piece.orelse:
+-                self.visit(statement)
++            self.block(piece.orelse)
+ 
+         def visit_Try(self, piece):
+-            self.alternatives([piece.body + piece.orelse] + [handler.body for handler in piece.handlers])
+-            for statement in piece.finalbody:
+-                self.visit(statement)
++            outer_exceptions = self.exceptions
++            self.exceptions = []
++            exit_start = len(self.exits)
++            self.block(piece.body)
++            protected = self.exceptions
++            self.exceptions = outer_exceptions
++            outcomes = []
++            if self.flow is None:
++                # Else belongs only to successful protected-body completion;
++                # exceptions there do not enter this statement's handlers.
++                self.block(piece.orelse)
++                outcomes.append((self.flow, dict(origins)))
++            if piece.handlers and protected:
++                self.merge(protected)
++                entering = dict(origins)
++                for handler in piece.handlers:
++                    outcomes.append(self.run(handler.body, entering))
++            elif outer_exceptions is not None:
++                outer_exceptions.extend(protected)
++            continuing = [state for flow, state in outcomes if flow is None]
++            ended = [state for flow, state in self.exits[exit_start:] if flow != "raise"]
++            # An exception raised by else/a handler is not handled by this
++            # try, but it still executes finally with that outcome's bindings.
++            ended += [state for flow, state in outcomes if flow is not None]
++            if not piece.handlers:
++                ended += protected
++            states = continuing + ended
++            if states:
++                self.merge(states)
++                self.flow = None
++                self.block(piece.finalbody)
++                if self.flow is None and not continuing:
++                    self.flow = "stop"
++            else:
++                self.flow = "stop"
+ 
+         visit_TryStar = visit_Try
+ 
+@@ -838,8 +944,11 @@
+         visit_Lambda = visit_FunctionDef
+ 
+     visitor = Assignments()
+-    for statement in node.body:
+-        visitor.visit(statement)
++    visitor.block(node.body)
++    # The function-level inventory includes names on exceptional/return exits
++    # as well as fallthrough. Expression consumers use their own snapshots,
++    # so this summary cannot resurrect an overwritten name at a later read.
++    visitor.merge([dict(origins)] + [state for _, state in visitor.exits])
+     return origins
+ 
+ 
+@@ -1091,7 +1200,7 @@
+ def _delegations(node, origins, helpers, *, site, returns=None, trail=()):
+     """(helper name, its parameter bindings) for each call carrying a crossing."""
+     for piece in _scope_nodes(node):
+-        if not isinstance(piece, ast.Call):
++        if not isinstance(piece, ast.Call) or isinstance(origins, _OriginBindings) and id(piece) not in origins.at:
+             continue
+         found = helpers.get(_helper_site(piece.func, site, returns))
+         if found is None or found[0] in trail or found[1] is node:
+@@ -11139,6 +11248,155 @@
+             ("adopted", "sample.py:_rows", "offers.claim_generation")})
+ 
+ 
++    def test_mixed_returns_complete_in_every_definition_order_and_transitively(self):
++        import itertools
++        fragments = [
++            '''def _choose(connection, condition):
++    if condition:
++        return connection.execute("SELECT * FROM first").fetchone()
++    return _later(connection)
++''',
++            '''def _later(connection):
++    return connection.execute("SELECT * FROM second").fetchone()
++''',
++            '''def _bridge(connection, condition):
++    return _choose(connection, condition)
++''']
++        for order in itertools.permutations(fragments):
++            with self.subTest(first=order[0].splitlines()[0]):
++                source = self.fragment("\n".join(order) + '''
++def _view(row):
++    return row["identity"]
++def public(connection, condition):
++    return _view(_bridge(connection, condition))
++''')
++                self.assertEqual(self.entries([source], "sample.py:public"), {
++                    ("adopted", "sample.py:_choose", "first.identity"),
++                    ("adopted", "sample.py:_later", "second.identity")})
++
++    def test_recursive_summaries_keep_each_reachable_base_return(self):
++        fragments = ['''def _first(row, condition):
++    if condition:
++        return row["first"]
++    return _second(row, condition)
++''', '''def _second(row, condition):
++    if condition:
++        return row["second"]
++    return _first(row, condition)
++''']
++        for order in (fragments, list(reversed(fragments))):
++            returned = _returned_origins([self.fragment("\n".join(order))])
++            for name in ("_first", "_second"):
++                self.assertEqual(returned[f"sample.py:{name}"][0], frozenset(("caller:row[first]", "caller:row[second]")))
++
++    def test_recursive_member_expansion_ends_at_recursive_reentry(self):
++        import subprocess
++        import sys
++        source = '''
++def _recursive(row, condition):
++    if condition:
++        return row["identity"]
++    return _recursive(row["child"], condition)
++'''
++        program = ("import ast, pathlib\n"
++                   "from tests.manager.test_boundary_inventory import _returned_origins\n"
++                   f"answer = _returned_origins([(pathlib.Path('sample.py'), ast.parse({source!r}))])\n"
++                   "print(answer['sample.py:_recursive'][0])\n")
++        result = subprocess.run([sys.executable, "-c", program], capture_output=True, text=True, timeout=2)
++        self.assertEqual(result.returncode, 0, result.stderr)
++        self.assertEqual(result.stdout.strip(), "caller:row[identity]")
++
++    def test_handler_sees_the_assignment_before_an_explicit_exception(self):
++        source = self.fragment('''
++def _view(row):
++    return row["identity"]
++def public(connection):
++    try:
++        row = connection.execute("SELECT * FROM offers").fetchone()
++        raise RuntimeError("after the row")
++    except RuntimeError:
++        return _view(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "offers.identity")})
++
++    def test_early_exception_cannot_borrow_an_unreachable_later_assignment(self):
++        source = self.fragment('''
++def _view(row):
++    return row["identity"]
++def public(connection):
++    try:
++        raise RuntimeError("before the row")
++        row = connection.execute("SELECT * FROM offers").fetchone()
++    except RuntimeError:
++        return _view(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), set())
++        self.assertNotIn("sample.py:public", _returned_origins([source]))
++
++    def test_handler_overwrite_is_not_resurrected_in_finally(self):
++        source = self.fragment('''
++def _view(row):
++    return row["identity"]
++def public(connection):
++    try:
++        row = connection.execute("SELECT * FROM offers").fetchone()
++        raise RuntimeError("after the row")
++    except RuntimeError:
++        row = None
++    finally:
++        _view(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), set())
++
++    def test_try_else_and_finally_keep_only_the_reaching_bindings(self):
++        source = self.fragment('''
++def _view(row):
++    return row["identity"]
++def public(connection):
++    try:
++        row = connection.execute("SELECT * FROM first").fetchone()
++    except RuntimeError:
++        row = None
++    else:
++        row = connection.execute("SELECT * FROM second").fetchone()
++    finally:
++        _view(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "second.identity")})
++
++    def test_sequential_none_assignment_before_raise_stays_unknown(self):
++        source = self.fragment('''
++def _view(row):
++    return row["identity"]
++def public(connection):
++    row = connection.execute("SELECT * FROM offers").fetchone()
++    try:
++        row = None
++        raise RuntimeError("after the overwrite")
++    except RuntimeError:
++        return _view(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), set())
++
++    def test_finally_observes_an_exception_raised_by_the_handler(self):
++        source = self.fragment('''
++def _view(row):
++    return row["identity"]
++def public(connection):
++    try:
++        raise RuntimeError("enter the handler")
++    except RuntimeError:
++        row = connection.execute("SELECT * FROM offers").fetchone()
++        raise ValueError("leave through finally")
++    finally:
++        _view(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "offers.identity")})
++
++
+ class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
+     """W54182: the inventory's discovery is pure, so it is computed once.
+ 

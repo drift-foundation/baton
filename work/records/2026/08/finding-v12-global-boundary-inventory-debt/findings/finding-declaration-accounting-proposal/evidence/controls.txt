@@ -1,0 +1,16 @@
+test_deleting_validator_preserves_independent_entry_and_missing_owner_failure (__main__.ExactCallAccounting.test_deleting_validator_preserves_independent_entry_and_missing_owner_failure) ... ok
+test_double_ownership_assertion_still_rejects_second_owner (__main__.ExactCallAccounting.test_double_ownership_assertion_still_rejects_second_owner) ... ok
+test_exact_declaration_links_to_real_adopted_owner (__main__.ExactCallAccounting.test_exact_declaration_links_to_real_adopted_owner) ... ok
+test_no_entry_claim_means_no_declaration_exemption (__main__.ExactCallAccounting.test_no_entry_claim_means_no_declaration_exemption) ... ok
+test_one_claimed_context_cannot_hide_an_unclaimed_context (__main__.ExactCallAccounting.test_one_claimed_context_cannot_hide_an_unclaimed_context) ... ok
+test_projection_keeps_existing_owner_triples (__main__.ExactCallAccounting.test_projection_keeps_existing_owner_triples) ... ok
+test_same_adopted_call_and_origin_can_be_projected_at_several_sites (__main__.ExactCallAccounting.test_same_adopted_call_and_origin_can_be_projected_at_several_sites) ... ok
+test_same_call_and_origin_with_another_label_cannot_borrow_claim (__main__.ExactCallAccounting.test_same_call_and_origin_with_another_label_cannot_borrow_claim) ... ok
+test_same_label_at_unrelated_helper_is_still_orphan (__main__.ExactCallAccounting.test_same_label_at_unrelated_helper_is_still_orphan) ... ok
+test_same_site_and_label_do_not_claim_an_unrelated_subject (__main__.ExactCallAccounting.test_same_site_and_label_do_not_claim_an_unrelated_subject) ... ok
+test_unreachable_helper_call_does_not_supply_a_link (__main__.ExactCallAccounting.test_unreachable_helper_call_does_not_supply_a_link) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.010s
+
+OK

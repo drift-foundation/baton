@@ -1,0 +1,12 @@
+{
+  "work": "W116031",
+  "claim": 116837,
+  "all_final_manifest_hashes_match": true,
+  "prior_independent_census_matches": true,
+  "candidate_sha256": "4cf7eae8df2bc75c99a6ab980d273526f23a4b82b09f3cd476a1a19a29da5c5d",
+  "entries": 1365,
+  "unowned": 183,
+  "orphans": 72,
+  "new_test_execution": false,
+  "elapsed_seconds": 0.0007051909924484789
+}

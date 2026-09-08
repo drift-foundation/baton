@@ -1,0 +1,410 @@
+[
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.assignment_of",
+      "assignment_of"
+    ],
+    "existing_catalog_label": "'s identity",
+    "currently_unmatched_discovery_labels": [
+      "the live assignment's identity"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.assignment_of",
+      "assignment_of.generation"
+    ],
+    "existing_catalog_label": "'s generation",
+    "currently_unmatched_discovery_labels": [
+      "the live assignment's generation"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.assignment_of",
+      "assignment_of.participant"
+    ],
+    "existing_catalog_label": "'s participant",
+    "currently_unmatched_discovery_labels": [
+      "the live assignment's participant"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.assignment_of",
+      "assignment_of.work_ref"
+    ],
+    "existing_catalog_label": "'s Work reference",
+    "currently_unmatched_discovery_labels": [
+      "the live assignment's Work reference"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.assignment_of",
+      "assignment_of.work_ref.authority_uuid"
+    ],
+    "existing_catalog_label": "'s authority",
+    "currently_unmatched_discovery_labels": [
+      "the live assignment's authority"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.assignment_of",
+      "assignment_of.work_ref.work_id"
+    ],
+    "existing_catalog_label": "'s Work id",
+    "currently_unmatched_discovery_labels": [
+      "the live assignment's Work id"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.cancel",
+      "cancel.assignment"
+    ],
+    "existing_catalog_label": "'s identity",
+    "currently_unmatched_discovery_labels": [
+      "the fenced assignment's identity"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.cancel",
+      "cancel.assignment.generation"
+    ],
+    "existing_catalog_label": "'s generation",
+    "currently_unmatched_discovery_labels": [
+      "the fenced assignment's generation"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.cancel",
+      "cancel.assignment.participant"
+    ],
+    "existing_catalog_label": "'s participant",
+    "currently_unmatched_discovery_labels": [
+      "the fenced assignment's participant"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.cancel",
+      "cancel.assignment.work_ref"
+    ],
+    "existing_catalog_label": "'s Work reference",
+    "currently_unmatched_discovery_labels": [
+      "the fenced assignment's Work reference"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.cancel",
+      "cancel.assignment.work_ref.authority_uuid"
+    ],
+    "existing_catalog_label": "'s authority",
+    "currently_unmatched_discovery_labels": [
+      "the fenced assignment's authority"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.cancel",
+      "cancel.assignment.work_ref.work_id"
+    ],
+    "existing_catalog_label": "'s Work id",
+    "currently_unmatched_discovery_labels": [
+      "the fenced assignment's Work id"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.assignment"
+    ],
+    "existing_catalog_label": "'s identity",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's identity"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.assignment.generation"
+    ],
+    "existing_catalog_label": "'s generation",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's generation"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.assignment.participant"
+    ],
+    "existing_catalog_label": "'s participant",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's participant"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.assignment.work_ref"
+    ],
+    "existing_catalog_label": "'s Work reference",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's Work reference"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.assignment.work_ref.authority_uuid"
+    ],
+    "existing_catalog_label": "'s authority",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's authority"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.assignment.work_ref.work_id"
+    ],
+    "existing_catalog_label": "'s Work id",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's Work id"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.decision"
+    ],
+    "existing_catalog_label": "'s decision",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's decision"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.decision.effective_scope"
+    ],
+    "existing_catalog_label": "'s effective scope",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's effective scope"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.decision.endpoint"
+    ],
+    "existing_catalog_label": "'s decision endpoint",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's decision endpoint"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.decision.principal"
+    ],
+    "existing_catalog_label": "'s principal",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's principal"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.decision.role"
+    ],
+    "existing_catalog_label": "'s decided role",
+    "currently_unmatched_discovery_labels": [
+      "the claim answer's decided role"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.assignment"
+    ],
+    "existing_catalog_label": "'s identity",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's identity"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.assignment.generation"
+    ],
+    "existing_catalog_label": "'s generation",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's generation"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.assignment.participant"
+    ],
+    "existing_catalog_label": "'s participant",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's participant"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.assignment.work_ref"
+    ],
+    "existing_catalog_label": "'s Work reference",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's Work reference"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.assignment.work_ref.authority_uuid"
+    ],
+    "existing_catalog_label": "'s authority",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's authority"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.assignment.work_ref.work_id"
+    ],
+    "existing_catalog_label": "'s Work id",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's Work id"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.decision"
+    ],
+    "existing_catalog_label": "'s decision",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's decision"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.decision.effective_scope"
+    ],
+    "existing_catalog_label": "'s effective scope",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's effective scope"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.decision.endpoint"
+    ],
+    "existing_catalog_label": "'s decision endpoint",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's decision endpoint"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.decision.principal"
+    ],
+    "existing_catalog_label": "'s principal",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's principal"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.decision.role"
+    ],
+    "existing_catalog_label": "'s decided role",
+    "currently_unmatched_discovery_labels": [
+      "the committed claim's decided role"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  }
+]

@@ -1,0 +1,78 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [
+    {
+      "entry": [
+        "adopted",
+        "lanes.py:_occupy_lane",
+        "runtime_lanes.lane_id"
+      ],
+      "fixture": "spoiling_colliding_lane",
+      "label": "a persisted runtime lane",
+      "next": "Bounded lanes B3 child; establish the real collision/adoption path before stimulus changes.",
+      "observed": "Wrong boundary: runtime lane is held by attempt none (unknown).",
+      "source_fact": "Fixture creates the derived colliding lane_id, then changes that stored key before request_runtime_start."
+    }
+  ],
+  "missing_probes": [],
+  "module": "lanes",
+  "orphan_calls": [
+    [
+      "lanes.py:_occupy_lane",
+      "text",
+      "a lane occupancy reason"
+    ],
+    [
+      "lanes.py:_release_lane",
+      "text",
+      "a lane release reason"
+    ]
+  ],
+  "orphan_probes": [],
+  "runtime_sha256": "72fa035958dbd4f1c08b4824aa4fff3fe5178f94790e550224f72fcc0c08f285",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/lanes.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.assignment_principal"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.assignment_scope"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.authority_uuid"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.work_id"
+    ],
+    [
+      "caller",
+      "lanes.py:runtime_lane",
+      "attempt_id"
+    ]
+  ],
+  "work": "W116972"
+}

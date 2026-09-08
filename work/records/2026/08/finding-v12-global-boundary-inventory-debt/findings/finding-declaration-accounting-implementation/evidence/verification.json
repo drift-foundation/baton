@@ -1,0 +1,15 @@
+{
+  "aggregate_expected_failure": true,
+  "cache_passed": 6,
+  "canonical_import": true,
+  "changed_existing_methods": [
+    "EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared"
+  ],
+  "elapsed_seconds": 11.162800405989401,
+  "exact_retained_links_and_residuals": true,
+  "focused_passed": 11,
+  "matches_reviewed_bytes": true,
+  "module_delta_scopes": 10,
+  "owner_projection_parity": true,
+  "residual_rows_assigned_once": 77
+}

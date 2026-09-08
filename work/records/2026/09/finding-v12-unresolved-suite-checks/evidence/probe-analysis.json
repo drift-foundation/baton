@@ -1,0 +1,18 @@
+{
+  "corrupt_returned_key": {
+    "category": "integrity",
+    "code": "schema",
+    "message": "a persisted line writer's writer_id is durable text; this is ''"
+  },
+  "flat_column_gap": [
+    "operation_id",
+    "settled_at"
+  ],
+  "interrogation_helper_reads": [],
+  "interrogation_of_origins": {
+    "operation_id": "caller:operation_id",
+    "row": "read:interrogation.py:_row|interrogations",
+    "store": "caller:store"
+  },
+  "uncorrupted_writer": "writer-probe"
+}

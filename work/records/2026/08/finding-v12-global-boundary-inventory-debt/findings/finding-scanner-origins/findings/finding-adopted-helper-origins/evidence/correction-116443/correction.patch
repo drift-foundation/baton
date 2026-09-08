@@ -1,0 +1,284 @@
+--- before/v12/python/tests/manager/test_boundary_inventory.py
++++ candidate/v12/python/tests/manager/test_boundary_inventory.py
+@@ -513,10 +513,14 @@
+     def __init__(self, values):
+         super().__init__(values)
+         self.at = {}
++        self.evaluating = True
++        self.returned = set()
+ 
+ 
+ def _bindings_at(origins, node):
+-    return origins.at.get(id(node), origins) if isinstance(origins, _OriginBindings) else origins
++    if isinstance(origins, _OriginBindings) and not origins.evaluating:
++        return origins.at.get(id(node), origins)
++    return origins
+ 
+ 
+ def _source(value, origins, site=None, returns=None):
+@@ -669,7 +673,7 @@
+         local = _origins(node, site, returns)
+         origin = _join_origins(_source(piece.value, local, site, returns)
+                                for piece in _scope_nodes(node)
+-                               if isinstance(piece, ast.Return) and piece.value is not None)
++                               if isinstance(piece, ast.Return) and piece.value is not None and id(piece) in local.returned)
+         if origin is not None:
+             positional = tuple(one.arg for one in node.args.posonlyargs + node.args.args)
+             keywords = tuple(one.arg for one in node.args.kwonlyargs)
+@@ -777,10 +781,14 @@
+             self.flow = None
+             self.exceptions = None
+             self.exits = []
++            self.terminal = []
+             self.loops = []
+ 
+         def visit(self, piece):
+-            origins.at[id(piece)] = types.MappingProxyType(dict(origins))
++            previous = origins.at.get(id(piece), {})
++            snapshot = {name: _join_origins((previous.get(name), origins.get(name)))
++                        for name in previous.keys() | origins.keys()}
++            origins.at[id(piece)] = types.MappingProxyType(snapshot)
+             if self.exceptions is not None and isinstance(piece, (ast.Call, ast.Attribute, ast.Subscript, ast.BinOp, ast.UnaryOp, ast.Compare, ast.Await)):
+                 self.exceptions.append(dict(origins))
+             return super().visit(piece)
+@@ -815,7 +823,8 @@
+         def visit_Return(self, piece):
+             if piece.value is not None:
+                 self.visit(piece.value)
+-            self.exits.append(("return", dict(origins)))
++            self.exits.append((("return", id(piece)), dict(origins)))
++            self.terminal.append(dict(origins))
+             self.flow = "return"
+ 
+         def visit_Raise(self, piece):
+@@ -825,17 +834,16 @@
+                 self.visit(piece.cause)
+             if self.exceptions is not None:
+                 self.exceptions.append(dict(origins))
+-            self.exits.append(("raise", dict(origins)))
++            self.exits.append((("raise", None), dict(origins)))
++            self.terminal.append(dict(origins))
+             self.flow = "raise"
+ 
+         def visit_Break(self, piece):
+-            self.exits.append(("break", dict(origins)))
+             if self.loops:
+                 self.loops[-1].append(["break", dict(origins)])
+             self.flow = "break"
+ 
+         def visit_Continue(self, piece):
+-            self.exits.append(("continue", dict(origins)))
+             if self.loops:
+                 self.loops[-1].append(["continue", dict(origins)])
+             self.flow = "continue"
+@@ -894,48 +902,64 @@
+             loop_starts = [(exits, len(exits)) for exits in self.loops]
+             self.block(piece.body)
+             protected = self.exceptions
+-            # Else/handler failures escape this try's handlers but still pass
+-            # through its finally. Keep their pre-assignment states locally.
++            body_exits = self.exits[exit_start:]
++            del self.exits[exit_start:]
+             self.exceptions = []
+             escaping = self.exceptions
+-            outcomes = []
++            normal = []
+             if self.flow is None:
+-                # Else belongs only to successful protected-body completion;
+-                # exceptions there do not enter this statement's handlers.
+                 self.block(piece.orelse)
+-                outcomes.append((self.flow, dict(origins)))
++                if self.flow is None:
++                    normal.append(dict(origins))
+             if piece.handlers and protected:
+                 self.merge(protected)
+                 entering = dict(origins)
+                 for handler in piece.handlers:
+-                    outcomes.append(self.run(handler.body, entering))
+-            elif not piece.handlers:
++                    flow, state = self.run(handler.body, entering)
++                    if flow is None:
++                        normal.append(state)
++            if not piece.handlers:
+                 escaping.extend(protected)
+             self.exceptions = outer_exceptions
+-            continuing = [state for flow, state in outcomes if flow is None]
+-            ended = [state for flow, state in self.exits[exit_start:] if flow != "raise"]
+-            # An exception raised by else/a handler is not handled by this
+-            # try, but it still executes finally with that outcome's bindings.
+-            ended += [state for flow, state in outcomes if flow is not None]
+-            states = continuing + ended + escaping
+-            if states:
++
++            # Preserve destination identity, not merely the union of states
++            # that execute finally. A return cannot become a break or normal
++            # continuation just because their paths share a finally block.
++            pending = [(destination, state) for destination, state in body_exits
++                       if destination[0] != "raise" or not piece.handlers]
++            pending += self.exits[exit_start:]
++            del self.exits[exit_start:]
++            pending += [(("normal", None), state) for state in normal]
++            pending += [(("raise", None), state) for state in escaping]
++            loop_targets = {}
++            for exits, start in loop_starts:
++                loop_targets[id(exits)] = exits
++                pending += [((kind, id(exits)), state) for kind, state in exits[start:]]
++                del exits[start:]
++            grouped = {}
++            for destination, state in pending:
++                grouped.setdefault(destination, []).append(state)
++            continuing = []
++            for destination, states in grouped.items():
+                 self.merge(states)
+                 self.flow = None
+                 self.block(piece.finalbody)
+-                # Finally may replace the bindings carried by a pending loop
+-                # exit, or override that exit with a return/raise of its own.
+-                for exits, start in loop_starts:
+-                    if self.flow is not None:
+-                        del exits[start:]
+-                    else:
+-                        for exit in exits[start:]:
+-                            exit[1] = dict(origins)
+-                if escaping and outer_exceptions is not None and self.flow != "return":
+-                    outer_exceptions.append(dict(origins))
+-                if self.flow is None and not continuing:
+-                    self.flow = "stop"
+-            else:
+-                self.flow = "stop"
++                if self.flow is not None:
++                    # Finally's own returns/raises/loop exits are already
++                    # recorded at their destinations; they replace this one.
++                    continue
++                after = dict(origins)
++                kind, target = destination
++                if kind == "normal":
++                    continuing.append(after)
++                elif kind in ("break", "continue"):
++                    loop_targets[target].append([kind, after])
++                else:
++                    self.exits.append((destination, after))
++                    if kind == "raise" and outer_exceptions is not None:
++                        outer_exceptions.append(after)
++            self.merge(continuing)
++            self.flow = None if continuing else "stop"
+ 
+         visit_TryStar = visit_Try
+ 
+@@ -975,7 +999,9 @@
+     # The function-level inventory includes names on exceptional/return exits
+     # as well as fallthrough. Expression consumers use their own snapshots,
+     # so this summary cannot resurrect an overwritten name at a later read.
+-    visitor.merge([dict(origins)] + [state for _, state in visitor.exits])
++    visitor.merge([dict(origins)] + visitor.terminal)
++    origins.returned = {target for (kind, target), _ in visitor.exits if kind == "return"}
++    origins.evaluating = False
+     return origins
+ 
+ 
+@@ -11549,6 +11575,105 @@
+             ("adopted", "sample.py:public", "second.identity")})
+ 
+ 
++    def test_finally_keeps_returning_rows_out_of_a_pending_break(self):
++        source = self.fragment('''
++def _view(row):
++    return row["identity"]
++def public(connection, supplied, condition):
++    row = None
++    for item in supplied:
++        try:
++            row = connection.execute("SELECT * FROM first").fetchone()
++            if condition:
++                break
++            row = connection.execute("SELECT * FROM second").fetchone()
++            return None
++        finally:
++            pass
++    return _view(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "first.identity")})
++        self.assertEqual(_returned_origins([source])["sample.py:public"][0], "read:sample.py:public|first[identity]")
++
++    def test_finally_observes_alternatives_without_giving_returns_a_continuation(self):
++        source = self.fragment('''
++def _inside(row):
++    return row["inside"]
++def _after(row):
++    return row["after"]
++def public(connection, condition):
++    row = None
++    try:
++        if condition:
++            row = connection.execute("SELECT * FROM first").fetchone()
++            return None
++        row = connection.execute("SELECT * FROM second").fetchone()
++    finally:
++        _inside(row)
++    return _after(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "first.inside"),
++            ("adopted", "sample.py:public", "second.inside"),
++            ("adopted", "sample.py:public", "second.after")})
++
++    def test_finally_return_overrides_a_pending_break_and_prior_return(self):
++        for ending in ("break", "return row"):
++            with self.subTest(ending=ending):
++                source = self.fragment(f'''
++def _view(row):
++    return row["identity"]
++def _produce(connection, supplied):
++    row = None
++    for item in supplied:
++        try:
++            row = connection.execute("SELECT * FROM offers").fetchone()
++            {ending}
++        finally:
++            return None
++    return row
++def public(connection, supplied):
++    return _view(_produce(connection, supplied))
++''')
++                self.assertEqual(self.entries([source], "sample.py:public"), set())
++                self.assertNotIn("sample.py:_produce", _returned_origins([source]))
++
++    def test_consumed_inner_loop_exit_cannot_resurrect_a_later_overwrite(self):
++        source = self.fragment('''
++def _view(row):
++    return row["identity"]
++def public(connection, supplied):
++    row = None
++    try:
++        for item in supplied:
++            row = connection.execute("SELECT * FROM offers").fetchone()
++            break
++        row = None
++    finally:
++        _view(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), set())
++
++    def test_escaping_exception_does_not_borrow_normal_continuation_after_finally(self):
++        source = self.fragment('''
++def _view(row):
++    return row["identity"]
++def public(connection, condition):
++    row = None
++    try:
++        if condition:
++            row = connection.execute("SELECT * FROM first").fetchone()
++            raise RuntimeError("this path cannot continue")
++        row = connection.execute("SELECT * FROM second").fetchone()
++    finally:
++        pass
++    return _view(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "second.identity")})
++
++
+ class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
+     """W54182: the inventory's discovery is pure, so it is computed once.
+ 

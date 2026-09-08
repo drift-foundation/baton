@@ -1,0 +1,154 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [
+    [
+      [
+        "adopted",
+        "sessions.py:_attempt",
+        "attempts.assignment_generation"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "adopted",
+        "sessions.py:_attempt",
+        "attempts.assignment_participant"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "adopted",
+        "sessions.py:_session_row",
+        "agent_sessions.authority_uuid"
+      ],
+      "a persisted agent session"
+    ],
+    [
+      [
+        "adopted",
+        "sessions.py:_session_row",
+        "agent_sessions.generation"
+      ],
+      "a persisted agent session"
+    ],
+    [
+      [
+        "adopted",
+        "sessions.py:_session_row",
+        "agent_sessions.participant"
+      ],
+      "a persisted agent session"
+    ],
+    [
+      [
+        "adopted",
+        "sessions.py:_session_row",
+        "agent_sessions.posture"
+      ],
+      "a persisted agent session"
+    ],
+    [
+      [
+        "adopted",
+        "sessions.py:_session_row",
+        "agent_sessions.profile_digest"
+      ],
+      "a persisted agent session"
+    ],
+    [
+      [
+        "adopted",
+        "sessions.py:_session_row",
+        "agent_sessions.runtime_attempt_id"
+      ],
+      "a persisted agent session"
+    ],
+    [
+      [
+        "adopted",
+        "sessions.py:_session_row",
+        "agent_sessions.work_id"
+      ],
+      "a persisted agent session"
+    ],
+    [
+      [
+        "caller",
+        "sessions.py:reconcile_agent_session",
+        "agent"
+      ],
+      "the agent adapter's {operation}"
+    ]
+  ],
+  "module": "sessions",
+  "orphan_calls": [],
+  "orphan_probes": [
+    [
+      [
+        "caller",
+        "sessions.py:reconcile_agent_session",
+        "agent"
+      ],
+      "the agent adapter's "
+    ]
+  ],
+  "runtime_sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/sessions.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "adopted",
+      "sessions.py:_next_epoch",
+      "agent_sessions.next"
+    ],
+    [
+      "caller",
+      "sessions.py:close_agent_session",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "sessions.py:close_agent_session",
+      "session_ref.session_epoch"
+    ],
+    [
+      "caller",
+      "sessions.py:handle_transport_loss",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "sessions.py:handle_transport_loss",
+      "session_ref.session_epoch"
+    ],
+    [
+      "caller",
+      "sessions.py:observe_session_state",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "sessions.py:observe_session_state",
+      "session_ref.provider_session_id"
+    ],
+    [
+      "caller",
+      "sessions.py:observe_session_state",
+      "session_ref.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "sessions.py:observe_session_state",
+      "session_ref.session_epoch"
+    ]
+  ],
+  "work": "W116987"
+}

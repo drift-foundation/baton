@@ -1,0 +1,263 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [
+    [
+      [
+        "adopted",
+        "interrogation.py:_row",
+        "interrogations.assignment_generation"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:_row",
+        "interrogations.assignment_participant"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:_row",
+        "interrogations.deadline_at"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:_row",
+        "interrogations.operation_id"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:_row",
+        "interrogations.requested_at"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:_row",
+        "interrogations.runtime_attempt_id"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:_row",
+        "interrogations.settled_at"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.answer"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.assignment_generation"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.assignment_participant"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.authority_uuid"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.deadline_at"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.kind"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.observation"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.operation_id"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.outcome"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.posture"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.published_at"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.requested_at"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.runtime_attempt_id"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.session_epoch"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.settled_at"
+      ],
+      "a persisted interrogation"
+    ],
+    [
+      [
+        "adopted",
+        "interrogation.py:interrogations_of",
+        "interrogations.work_id"
+      ],
+      "a persisted interrogation"
+    ]
+  ],
+  "module": "interrogation",
+  "orphan_calls": [
+    [
+      "interrogation.py:_diagnostics",
+      "text",
+      "a probe diagnostic name"
+    ]
+  ],
+  "orphan_probes": [
+    [
+      [
+        "caller",
+        "interrogation.py:inquire",
+        "agent"
+      ],
+      "the agent adapter's "
+    ],
+    [
+      [
+        "caller",
+        "interrogation.py:inquire",
+        "deadline_seconds"
+      ],
+      "an interrogation deadline"
+    ],
+    [
+      [
+        "caller",
+        "interrogation.py:probe",
+        "agent"
+      ],
+      "the agent adapter's "
+    ],
+    [
+      [
+        "caller",
+        "interrogation.py:probe",
+        "deadline_seconds"
+      ],
+      "an interrogation deadline"
+    ]
+  ],
+  "runtime_sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/interrogation.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "caller",
+      "interrogation.py:inquire",
+      "agent"
+    ],
+    [
+      "caller",
+      "interrogation.py:inquire",
+      "deadline_seconds"
+    ],
+    [
+      "caller",
+      "interrogation.py:probe",
+      "agent"
+    ],
+    [
+      "caller",
+      "interrogation.py:probe",
+      "deadline_seconds"
+    ]
+  ],
+  "work": "W116981"
+}

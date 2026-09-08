@@ -1,0 +1,171 @@
+{
+  "all_retained_cases_pass": true,
+  "baseline_class_count": 26,
+  "cases": {
+    "definite_clear": {
+      "expected": [],
+      "matches": true,
+      "observed": [],
+      "source": "\ndef _view(mount):\n    return mount[\"source\"], mount[\"target\"], mount[\"writable\"]\ndef public(adapter, other, condition):\n    landing = []\n    for mount in getattr(adapter, \"mounts\", None):\n        landing.append(mount)\n    alias = landing\n    alias.clear()\n    _view(landing[0])\n"
+    },
+    "external_clear": {
+      "expected": [
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.source"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.target"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.writable"
+        ]
+      ],
+      "matches": true,
+      "observed": [
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.source"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.target"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.writable"
+        ]
+      ],
+      "source": "\ndef _view(mount):\n    return mount[\"source\"], mount[\"target\"], mount[\"writable\"]\ndef public(adapter, other, condition):\n    landing = []\n    for mount in getattr(adapter, \"mounts\", None):\n        landing.append(mount)\n    alias = other\n    alias.clear()\n    _view(landing[0])\n"
+    },
+    "external_or_local_clear": {
+      "expected": [
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.source"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.target"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.writable"
+        ]
+      ],
+      "matches": true,
+      "observed": [
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.source"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.target"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.writable"
+        ]
+      ],
+      "source": "\ndef _view(mount):\n    return mount[\"source\"], mount[\"target\"], mount[\"writable\"]\ndef public(adapter, other, condition):\n    landing = []\n    for mount in getattr(adapter, \"mounts\", None):\n        landing.append(mount)\n    alias = landing\n    if condition:\n        alias = other\n    alias.clear()\n    _view(landing[0])\n"
+    },
+    "reversed_external_or_local_clear": {
+      "expected": [
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.source"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.target"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.writable"
+        ]
+      ],
+      "matches": true,
+      "observed": [
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.source"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.target"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.writable"
+        ]
+      ],
+      "source": "\ndef _view(mount):\n    return mount[\"source\"], mount[\"target\"], mount[\"writable\"]\ndef public(adapter, other, condition):\n    landing = []\n    for mount in getattr(adapter, \"mounts\", None):\n        landing.append(mount)\n    alias = other\n    if condition:\n        alias = landing\n    alias.clear()\n    _view(landing[0])\n"
+    },
+    "two_local_lists_clear": {
+      "expected": [
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.source"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.target"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.writable"
+        ]
+      ],
+      "matches": true,
+      "observed": [
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.source"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.target"
+        ],
+        [
+          "caller",
+          "sample.py:public",
+          "adapter.mounts.writable"
+        ]
+      ],
+      "source": "\ndef _view(mount):\n    return mount[\"source\"], mount[\"target\"], mount[\"writable\"]\ndef public(adapter, other, condition):\n    landing = []\n    for mount in getattr(adapter, \"mounts\", None):\n        landing.append(mount)\n    alias = landing\n    if condition:\n        alias = []\n    alias.clear()\n    _view(landing[0])\n"
+    }
+  },
+  "changed_baseline_classes": [],
+  "elapsed_seconds": 0.11883518798276782,
+  "hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "6903203359824d7d426a4673886a8edb9fa038548bdc3d7feb4ba3f07e9bc3b8",
+    "work/records/2026/09/finding-v12-mount-origin-discovery/evidence/before.py": "080cc29bd6ce9d4e9f80bd8433d3faa8a4b17db61abf00ff918015933e305dd9",
+    "work/records/2026/09/finding-v12-mount-origin-discovery/evidence/correction-116609/candidate.py": "6903203359824d7d426a4673886a8edb9fa038548bdc3d7feb4ba3f07e9bc3b8"
+  }
+}

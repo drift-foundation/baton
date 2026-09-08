@@ -655,7 +655,9 @@ export class EventBridge extends EventEmitter {
       // mutation can still land between the read and the turn — so
       // the agent's atomic claim remains the final authority. What it
       // removes is the misleading wake, not the refusal behind it.
-      const verdict = await this.#revalidate(state, queued.event);
+      const selection = {};
+      const verdict = await this.#revalidate(state, queued.event, selection);
+      queued = selection.entry ?? queued;
       if (verdict === "over") {
         this.#dequeue(state, queued);
         // W11910: canonical WITHDRAWAL — this dispatcher is no longer
@@ -798,7 +800,7 @@ export class EventBridge extends EventEmitter {
    *  One read rather than two: which participant holds which claim and
    *  whether this episode still exists are the same projection, and
    *  asking twice would let the two answers disagree. */
-  async #revalidate(state, event) {
+  async #revalidate(state, event, selection = null) {
     const action = event.action;
     if (!action) return "live";
     // W1224 review: the canonical read proves the episode is live for
@@ -933,6 +935,23 @@ export class EventBridge extends EventEmitter {
                   && entry.claimed === true)) {
       return "deferred";
     }
+    // W119195: eligibility is not selection. The queue remembers arrival
+    // order, while this same snapshot already carries current priority,
+    // blocker preference and tie order. Select the first unclaimed Work by
+    // exact episode identity without moving any queue entries. Only pending
+    // deliveries participate; absent or already-delivered events do not
+    // acquire a new blocking effect over this target's queue.
+    // Callers checking withdrawal alone must not change their candidate.
+    if (selection) {
+      const pending = new Map(state.queue
+        .filter((entry) => !entry.ambiguous && entry.event.action?.participant === action.participant)
+        .map((entry) => [entry.event.action.key, entry]));
+      const preferred = live.find((entry) => entry.kind === "work" && pending.has(entry.action_key));
+      selection.entry = preferred ? pending.get(preferred.action_key) : null;
+      if (selection.entry && selection.entry.event !== event) {
+        this.logger.info(`[${state.name}] selected ${preferred.action_key} ahead of ${action.key} from current canonical readiness order`);
+      }
+    }
     return "live";
   }
 
@@ -970,10 +989,12 @@ export class EventBridge extends EventEmitter {
       if (candidate === deferred) continue;
       if (candidate.ambiguous) continue;
       if (!candidate.event.action) continue;
-      const verdict = await this.#revalidate(state, candidate.event);
+      const selection = {};
+      const verdict = await this.#revalidate(state, candidate.event, selection);
       if (verdict !== "live") continue;
-      this.logger.info(`[${state.name}] ${candidate.event.action.key} passes the claim slot behind ${deferred.event.action.key}: the one-claim rule governs Work, and this action is not held by it`);
-      return candidate;
+      const passing = selection.entry ?? candidate;
+      this.logger.info(`[${state.name}] ${passing.event.action.key} passes the deferred offer ${deferred.event.action.key} under current canonical readiness`);
+      return passing;
     }
     return null;
   }

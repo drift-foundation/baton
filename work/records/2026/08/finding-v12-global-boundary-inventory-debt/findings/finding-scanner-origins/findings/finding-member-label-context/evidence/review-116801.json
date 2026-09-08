@@ -1,0 +1,35 @@
+{
+  "claim": 116801,
+  "all_retained_hashes_match": true,
+  "census_copy_identical": true,
+  "report_table_matches": true,
+  "combined_passing_tests": 62,
+  "failures": [
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared",
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator"
+  ],
+  "entries": 1365,
+  "unowned": 183,
+  "orphans": 72,
+  "symbolic_provider_orphans": [
+    [
+      "intake.py:_provider_ending",
+      "document",
+      "a {provider} teardown ending"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "text",
+      "a {provider} teardown ending's state"
+    ]
+  ],
+  "worker_entry_orphan": [
+    [
+      "worker_entry.py:converse",
+      "identity",
+      "a worker-entry operation identity"
+    ]
+  ],
+  "elapsed_seconds": 0.002250144025310874,
+  "new_test_execution": false
+}

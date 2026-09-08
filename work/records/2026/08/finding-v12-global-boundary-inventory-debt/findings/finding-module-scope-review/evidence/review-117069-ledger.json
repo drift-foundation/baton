@@ -1,0 +1,581 @@
+[
+  {
+    "id": "W116962",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:28:12Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-declaration-accounting-proposal",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116962
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116952"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W116972",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:29:05Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-lanes-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116972
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116962"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W116975",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:29:18Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116975
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116972"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W116977",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:29:27Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116977
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116975"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W116979",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:29:36Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116979
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116977"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W116981",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:29:50Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116981
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116979"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W116987",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:29:59Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116987
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116981"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W116992",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:30:06Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116992
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116987"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W116995",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:30:16Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116995
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116992"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W116997",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:30:24Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-oci-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116997
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116995"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W116999",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:30:43Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-handshake-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 116999
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116997"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W117002",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:30:55Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-documents-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 117002
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W116999"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W117004",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:31:10Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-credentials-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 117004
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W117002"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W117006",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:31:22Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-exchange-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 117006
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W117004"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W117008",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:31:33Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-launch-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 117008
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W117006"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W117017",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:31:47Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-source-boundary-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 117017
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W117008"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W117020",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:31:55Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-custody-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 117020
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W117017"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W117022",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:32:05Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 117022
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W117020"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W117024",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:32:14Z",
+      "git_provenance": null,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-output-fixture-scope",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 117024
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W117022"
+    ],
+    "parent": "2b077949-W48697",
+    "follow_up_of": null
+  },
+  {
+    "id": "W117026",
+    "binding": {
+      "actor": "baton.tuner",
+      "created_ts": "2026-09-08T06:32:22Z",
+      "git_provenance": null,
+      "path": "work/records/2026/09/finding-v12-worker-entry-inventory-followup",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 117026
+    },
+    "phase": "block",
+    "handler": null,
+    "route": {
+      "endpoint": "baton.tune",
+      "handlers": [
+        "tuner"
+      ],
+      "role": "tuner",
+      "route": "tuner"
+    },
+    "blocked_by": [
+      "2b077949-W117024"
+    ],
+    "follow_up_of": "2b077949-W39666"
+  }
+]

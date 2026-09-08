@@ -1,0 +1,431 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [
+    {
+      "entry": [
+        "adopted",
+        "intake.py:_attempt_of",
+        "attempts.runtime_attempt_id"
+      ],
+      "fixture": "spoiling_intake_attempt",
+      "label": "a persisted attempt",
+      "next": "Bounded intake B3 child; enumerate this exact stimulus before edits.",
+      "observed": "refused/precondition: no runtime attempt attempt-1",
+      "source_fact": "Fixture changes stored runtime_attempt_id, then request_intake queries attempt-1."
+    }
+  ],
+  "missing_probes": [
+    [
+      [
+        "adopted",
+        "intake.py:_attempt_of",
+        "attempts.assignment_generation"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "adopted",
+        "intake.py:retentions_of",
+        "retentions.retain_operation_id"
+      ],
+      "a persisted retention"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:abandon_attempt",
+        "adapter"
+      ],
+      "the runtime adapter's abandoned-attempt destroy"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:abandon_attempt",
+        "attempt_id"
+      ],
+      "a runtime attempt id"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:abandon_attempt",
+        "reason"
+      ],
+      "an abandonment reason"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:abandon_attempt",
+        "retention_policy_digest"
+      ],
+      "a retention policy digest"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:collect_operation",
+        "attempt.assignment_generation"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:collect_operation",
+        "attempt.assignment_participant"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:collect_operation",
+        "attempt.authority_uuid"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:collect_operation",
+        "attempt.work_id"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:intake_operation",
+        "attempt.assignment_generation"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:intake_operation",
+        "attempt.assignment_participant"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:intake_operation",
+        "attempt.authority_uuid"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "caller",
+        "intake.py:intake_operation",
+        "attempt.work_id"
+      ],
+      "a persisted attempt"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed",
+        "adapter.destroy.credentials"
+      ],
+      "a credentials teardown ending"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed",
+        "adapter.destroy.credentials.lifecycle_state"
+      ],
+      "a credentials teardown ending's state"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed",
+        "adapter.destroy.launch"
+      ],
+      "a launch teardown ending"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed",
+        "adapter.destroy.launch.lifecycle_state"
+      ],
+      "a launch teardown ending's state"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_abandoned",
+        "adapter.destroy_abandoned"
+      ],
+      "an abandoned-attempt destroy observation"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_abandoned",
+        "adapter.destroy_abandoned.credentials"
+      ],
+      "a credentials teardown ending"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_abandoned",
+        "adapter.destroy_abandoned.credentials.lifecycle_state"
+      ],
+      "a credentials teardown ending's state"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_abandoned",
+        "adapter.destroy_abandoned.launch"
+      ],
+      "a launch teardown ending"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_abandoned",
+        "adapter.destroy_abandoned.launch.lifecycle_state"
+      ],
+      "a launch teardown ending's state"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_abandoned",
+        "adapter.destroy_abandoned.runtime_id"
+      ],
+      "an observed runtime id"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_abandoned",
+        "adapter.destroy_abandoned.state"
+      ],
+      "a destroy observation's state"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_abandoned",
+        "adapter.destroy_abandoned.why"
+      ],
+      "a destroy observation's reason"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_failed_start",
+        "adapter.destroy_failed_start.credentials"
+      ],
+      "a credentials teardown ending"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_failed_start",
+        "adapter.destroy_failed_start.credentials.lifecycle_state"
+      ],
+      "a credentials teardown ending's state"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_failed_start",
+        "adapter.destroy_failed_start.launch"
+      ],
+      "a launch teardown ending"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_failed_start",
+        "adapter.destroy_failed_start.launch.lifecycle_state"
+      ],
+      "a launch teardown ending's state"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_refused_session",
+        "adapter.destroy_refused_session.credentials"
+      ],
+      "a credentials teardown ending"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_refused_session",
+        "adapter.destroy_refused_session.credentials.lifecycle_state"
+      ],
+      "a credentials teardown ending's state"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_refused_session",
+        "adapter.destroy_refused_session.launch"
+      ],
+      "a launch teardown ending"
+    ],
+    [
+      [
+        "injected",
+        "intake.py:_destroyed_refused_session",
+        "adapter.destroy_refused_session.launch.lifecycle_state"
+      ],
+      "a launch teardown ending's state"
+    ]
+  ],
+  "module": "intake",
+  "orphan_calls": [
+    [
+      "intake.py:_abandon_intent",
+      "document",
+      "a committed abandonment record"
+    ],
+    [
+      "intake.py:_abandoned_destroy_operation",
+      "text",
+      "an abandonment record digest"
+    ],
+    [
+      "intake.py:_chosen",
+      "identity",
+      "an artifact id"
+    ],
+    [
+      "intake.py:_compared",
+      "document",
+      "a collected artifact"
+    ],
+    [
+      "intake.py:_compared",
+      "identity",
+      "a collected result id"
+    ],
+    [
+      "intake.py:_compared",
+      "identity",
+      "an artifact id"
+    ],
+    [
+      "intake.py:_compared",
+      "text",
+      "a content digest"
+    ],
+    [
+      "intake.py:_compared",
+      "text",
+      "a custody locator"
+    ],
+    [
+      "intake.py:_custody_capable",
+      "text",
+      "the custodian image identity custody acts are signed with"
+    ],
+    [
+      "intake.py:_failed_start_record",
+      "document",
+      "a committed failed-start record"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "document",
+      "a {provider} teardown ending"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "text",
+      "a {provider} teardown ending's state"
+    ],
+    [
+      "intake.py:_refused_session_record",
+      "document",
+      "a committed refusal record"
+    ]
+  ],
+  "orphan_probes": [],
+  "runtime_sha256": "be9bafa313b15e3a12d443fc7f704049b504b05835812e1e41ebcf391c5e99d9",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/intake.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "caller",
+      "intake.py:authorize_refused_session_cleanup",
+      "session_ref"
+    ],
+    [
+      "caller",
+      "intake.py:authorize_refused_session_cleanup",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "intake.py:authorize_refused_session_cleanup",
+      "session_ref.provider_session_id"
+    ],
+    [
+      "caller",
+      "intake.py:authorize_refused_session_cleanup",
+      "session_ref.session_epoch"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed",
+      "adapter.destroy.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed",
+      "adapter.destroy.launch.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_abandoned",
+      "adapter.destroy_abandoned.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_abandoned",
+      "adapter.destroy_abandoned.launch.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_failed_start",
+      "adapter.destroy_failed_start.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_failed_start",
+      "adapter.destroy_failed_start.launch.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_refused_session",
+      "adapter.destroy_refused_session.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_refused_session",
+      "adapter.destroy_refused_session.launch.why"
+    ]
+  ],
+  "work": "W116977"
+}

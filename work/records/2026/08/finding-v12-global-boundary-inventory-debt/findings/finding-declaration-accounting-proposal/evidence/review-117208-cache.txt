@@ -1,0 +1,15 @@
+test_a_probe_catalog_costs_no_further_discovery (tests.manager._review117208.TheDiscoveryProjectionsAreBoundedAndImmutable.test_a_probe_catalog_costs_no_further_discovery)
+The driver builds one catalog per probe, and that has to be cheap. ... ok
+test_a_projection_answers_with_the_same_object_every_time (tests.manager._review117208.TheDiscoveryProjectionsAreBoundedAndImmutable.test_a_projection_answers_with_the_same_object_every_time) ... ok
+test_no_caller_can_poison_a_cached_derived_projection (tests.manager._review117208.TheDiscoveryProjectionsAreBoundedAndImmutable.test_no_caller_can_poison_a_cached_derived_projection)
+A shared projection is only safe if nobody can edit it. ... ok
+test_the_mutation_check_can_actually_notice (tests.manager._review117208.TheDiscoveryProjectionsAreBoundedAndImmutable.test_the_mutation_check_can_actually_notice)
+The guard above is only evidence if it can fail. ... ok
+test_the_package_is_parsed_once_however_many_projections_ask (tests.manager._review117208.TheDiscoveryProjectionsAreBoundedAndImmutable.test_the_package_is_parsed_once_however_many_projections_ask) ... ok
+test_the_shared_trees_are_never_mutated_by_a_projection (tests.manager._review117208.TheDiscoveryProjectionsAreBoundedAndImmutable.test_the_shared_trees_are_never_mutated_by_a_projection)
+The narrower invariant the source snapshot actually has. ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 10.368s
+
+OK

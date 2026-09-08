@@ -1,0 +1,134 @@
+Exact command: python3 work/records/2026/09/finding-v12-provider-label-discovery/evidence/verify.py
+Focused new14 methods already passed0.439s. Total budget30s.
+test_a_helper_cycle_terminates_without_losing_its_actual_read (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_a_helper_cycle_terminates_without_losing_its_actual_read) ... ok
+test_alternative_unknown_arm_cannot_erase_the_other_arms_read (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_alternative_unknown_arm_cannot_erase_the_other_arms_read) ... ok
+test_break_reaches_after_each_loop_and_skips_its_else (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_break_reaches_after_each_loop_and_skips_its_else) ... ok
+test_comprehension_result_keeps_its_generator_binding (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_comprehension_result_keeps_its_generator_binding) ... ok
+test_consumed_inner_loop_exit_cannot_resurrect_a_later_overwrite (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_consumed_inner_loop_exit_cannot_resurrect_a_later_overwrite) ... ok
+test_continue_reaches_loop_else_without_executing_later_body_writes (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_continue_reaches_loop_else_without_executing_later_body_writes) ... ok
+test_distinct_alternative_origins_reach_the_same_member_and_owner (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_distinct_alternative_origins_reach_the_same_member_and_owner) ... ok
+test_each_delegation_observes_its_own_statement_binding (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_each_delegation_observes_its_own_statement_binding) ... ok
+test_early_exception_cannot_borrow_an_unreachable_later_assignment (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_early_exception_cannot_borrow_an_unreachable_later_assignment) ... ok
+test_escaping_exception_does_not_borrow_normal_continuation_after_finally (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_escaping_exception_does_not_borrow_normal_continuation_after_finally) ... ok
+test_explicit_module_and_local_import_aliases_keep_the_producer (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_explicit_module_and_local_import_aliases_keep_the_producer) ... ok
+test_finally_changes_a_pending_break_before_it_reaches_after_the_loop (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_finally_changes_a_pending_break_before_it_reaches_after_the_loop) ... ok
+test_finally_keeps_returning_rows_out_of_a_pending_break (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_finally_keeps_returning_rows_out_of_a_pending_break) ... ok
+test_finally_observes_alternatives_without_giving_returns_a_continuation (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_finally_observes_alternatives_without_giving_returns_a_continuation) ... ok
+test_finally_observes_an_exception_raised_by_the_handler (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_finally_observes_an_exception_raised_by_the_handler) ... ok
+test_finally_return_overrides_a_pending_break_and_prior_return (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_finally_return_overrides_a_pending_break_and_prior_return) ... ok
+test_handler_overwrite_is_not_resurrected_in_finally (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_handler_overwrite_is_not_resurrected_in_finally) ... ok
+test_handler_sees_the_assignment_before_an_explicit_exception (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_handler_sees_the_assignment_before_an_explicit_exception) ... ok
+test_identity_return_substitutes_the_actual_argument_and_member_suffix (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_identity_return_substitutes_the_actual_argument_and_member_suffix) ... ok
+test_implicit_else_and_handler_failures_reach_finally_with_prior_binding (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_implicit_else_and_handler_failures_reach_finally_with_prior_binding) ... ok
+test_live_interrogation_and_lane_origins_keep_their_adoption_site (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_live_interrogation_and_lane_origins_keep_their_adoption_site) ... ok
+test_local_binding_shadows_module_helper_for_delegation_and_returns (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_local_binding_shadows_module_helper_for_delegation_and_returns) ... ok
+test_loop_zero_iteration_and_body_origins_are_both_possible (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_loop_zero_iteration_and_body_origins_are_both_possible) ... ok
+test_member_reassignment_is_finite_and_applies_each_assignment_once (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_member_reassignment_is_finite_and_applies_each_assignment_once) ... FAIL
+test_mixed_returns_complete_in_every_definition_order_and_transitively (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_mixed_returns_complete_in_every_definition_order_and_transitively) ... ok
+test_nested_branch_assignment_precedes_an_unbounded_length_join_chain (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_nested_branch_assignment_precedes_an_unbounded_length_join_chain) ... ok
+test_nested_break_belongs_only_to_its_nearest_loop (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_nested_break_belongs_only_to_its_nearest_loop) ... ok
+test_nested_import_cannot_replace_its_parents_module_alias (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_nested_import_cannot_replace_its_parents_module_alias) ... ok
+test_nested_return_and_delegation_do_not_become_the_parents (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_nested_return_and_delegation_do_not_become_the_parents) ... ok
+test_outer_handler_observes_bindings_after_inner_finally (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_outer_handler_observes_bindings_after_inner_finally) ... ok
+test_parameter_and_local_bindings_shadow_imported_callables (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_parameter_and_local_bindings_shadow_imported_callables) ... ok
+test_positional_keyword_and_chained_adopted_reads_keep_the_read_site (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_positional_keyword_and_chained_adopted_reads_keep_the_read_site) ... ok
+test_recursive_member_expansion_ends_at_recursive_reentry (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_recursive_member_expansion_ends_at_recursive_reentry) ... FAIL
+test_recursive_summaries_keep_each_reachable_base_return (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_recursive_summaries_keep_each_reachable_base_return) ... ok
+test_return_and_owner_use_the_binding_at_their_expression (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_return_and_owner_use_the_binding_at_their_expression) ... ok
+test_return_chains_longer_than_four_are_not_truncated (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_return_chains_longer_than_four_are_not_truncated) ... ok
+test_same_helper_name_in_another_module_cannot_supply_an_origin (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_same_helper_name_in_another_module_cannot_supply_an_origin) ... ok
+test_same_method_name_in_another_class_cannot_supply_an_origin (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_same_method_name_in_another_class_cannot_supply_an_origin) ... ok
+test_sequential_none_assignment_before_raise_stays_unknown (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_sequential_none_assignment_before_raise_stays_unknown) ... ok
+test_sequential_unknown_overwrite_removes_a_previous_read (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_sequential_unknown_overwrite_removes_a_previous_read) ... ok
+test_try_else_and_finally_keep_only_the_reaching_bindings (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_try_else_and_finally_keep_only_the_reaching_bindings) ... ok
+test_unrelated_literal_and_foreign_method_do_not_borrow_a_row (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_unrelated_literal_and_foreign_method_do_not_borrow_a_row) ... ok
+test_a_direct_list_alias_carries_the_same_appended_elements (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_a_direct_list_alias_carries_the_same_appended_elements) ... ok
+test_callable_presence_getattr_keeps_the_existing_adapter_subject (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_callable_presence_getattr_keeps_the_existing_adapter_subject) ... ok
+test_clear_and_reassignment_remove_the_old_element_origin (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_clear_and_reassignment_remove_the_old_element_origin) ... ok
+test_clearing_an_external_or_local_alias_preserves_the_other_path (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_clearing_an_external_or_local_alias_preserves_the_other_path) ... ok
+test_clearing_an_unconditional_external_alias_preserves_the_local_list (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_clearing_an_unconditional_external_alias_preserves_the_local_list) ... ok
+test_literal_mount_member_survives_direct_iteration (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_literal_mount_member_survives_direct_iteration) ... ok
+test_loop_target_rebinding_cannot_keep_an_old_list_identity (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_loop_target_rebinding_cannot_keep_an_old_list_identity) ... ok
+test_other_receiver_and_nonliteral_getattr_do_not_become_adapter_mounts (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_other_receiver_and_nonliteral_getattr_do_not_become_adapter_mounts) ... ok
+test_real_plan_reads_keep_mount_source_target_and_writable_origins (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_real_plan_reads_keep_mount_source_target_and_writable_origins) ... ok
+test_reassigned_alias_cannot_mutate_the_old_list (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_reassigned_alias_cannot_mutate_the_old_list) ... ok
+test_selected_mounts_keep_their_origin_through_append_and_index (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_selected_mounts_keep_their_origin_through_append_and_index) ... ok
+test_uncertain_unrelated_list_identities_do_not_share_append (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_uncertain_unrelated_list_identities_do_not_share_append) ... ok
+test_unknown_collection_cannot_borrow_appended_mount_origins (tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements.test_unknown_collection_cannot_borrow_appended_mount_origins) ... ok
+test_a_probe_catalog_costs_no_further_discovery (tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable.test_a_probe_catalog_costs_no_further_discovery)
+The driver builds one catalog per probe, and that has to be cheap. ... ok
+test_a_projection_answers_with_the_same_object_every_time (tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable.test_a_projection_answers_with_the_same_object_every_time) ... ok
+test_no_caller_can_poison_a_cached_derived_projection (tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable.test_no_caller_can_poison_a_cached_derived_projection)
+A shared projection is only safe if nobody can edit it. ... ok
+test_the_mutation_check_can_actually_notice (tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable.test_the_mutation_check_can_actually_notice)
+The guard above is only evidence if it can fail. ... ok
+test_the_package_is_parsed_once_however_many_projections_ask (tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable.test_the_package_is_parsed_once_however_many_projections_ask) ... ok
+test_the_shared_trees_are_never_mutated_by_a_projection (tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable.test_the_shared_trees_are_never_mutated_by_a_projection)
+The narrower invariant the source snapshot actually has. ... ok
+test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+The other direction: an owner with nothing to own is also a defect. ... FAIL
+test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator) ... FAIL
+test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+The anti-circularity check for the adopted member universe. ... ok
+
+======================================================================
+FAIL: test_member_reassignment_is_finite_and_applies_each_assignment_once (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_member_reassignment_is_finite_and_applies_each_assignment_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11238, in test_member_reassignment_is_finite_and_applies_each_assignment_once
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+    from tests.manager.test_boundary_inventory import _returned_origins
+ModuleNotFoundError: No module named 'tests.manager'
+
+
+======================================================================
+FAIL: test_recursive_member_expansion_ends_at_recursive_reentry (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_recursive_member_expansion_ends_at_recursive_reentry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11493, in test_recursive_member_expansion_ends_at_recursive_reentry
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+    from tests.manager.test_boundary_inventory import _returned_origins
+ModuleNotFoundError: No module named 'tests.manager'
+
+
+======================================================================
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+The other direction: an owner with nothing to own is also a defect.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6872, in test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attempts.py:_committed_record', 'docume[6658 chars]nt')] != []
+
+First list contains 88 additional elements.
+First extra element 0:
+('attempts.py:_committed_record', 'document', 'a committed ending record')
+
+Diff is 7246 characters long. Set self.maxDiff to None to see it. : boundary calls attributed to no entry
+
+======================================================================
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6729, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'attempts.py:_decide', 'obser[11998 chars]hy')] != []
+
+First list contains 183 additional elements.
+First extra element 0:
+('adopted', 'attempts.py:_decide', 'observations.next')
+
+Diff is 12815 characters long. Set self.maxDiff to None to see it. : receiving entries with no owner
+
+----------------------------------------------------------------------
+Ran 64 tests in 8.613s
+
+FAILED (failures=4)

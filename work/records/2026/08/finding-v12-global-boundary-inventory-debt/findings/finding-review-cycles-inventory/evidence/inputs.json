@@ -1,0 +1,227 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.attachment_id"
+      ],
+      "fixture": "spoiling_review_row",
+      "label": "a persisted review attachment",
+      "next": "Bounded review_cycles B3 child; changing attachment stimulus is outside the exact writer-only B2 authorization.",
+      "observed": "refused/precondition: no review attachment attachment-probe",
+      "source_fact": "Unchanged non-writer branch changes stored attachment_id before record_verdict queries attachment-probe."
+    }
+  ],
+  "missing_probes": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_fence.intent"
+      ],
+      "a persisted checkpoint verdict"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "a persisted assignment fence"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted assignment fence"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted line checkpoint"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "a checkpoint verdict identity"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "attempt_id"
+      ],
+      "a runtime attempt identity"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "generation"
+      ],
+      "an assignment generation"
+    ]
+  ],
+  "module": "review_cycles",
+  "orphan_calls": [
+    [
+      "review_cycles.py:_evidence",
+      "document",
+      "persisted checkpoint evidence"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "a persisted checkpoint evidence path"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's base"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's head"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's path_set_digest"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's profile"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's reference"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's tree"
+    ],
+    [
+      "review_cycles.py:_line_place",
+      "text",
+      "the manager's workspace storage"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "capability",
+      "a checkpoint profile's {method} capability"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "text",
+      "a checkpoint profile name"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "document",
+      "a frozen review artifact"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "document",
+      "a frozen review result"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review output name"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's attempt_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's freeze_operation_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's manifest_digest"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's result_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "instant",
+      "a frozen review result's frozen_at"
+    ],
+    [
+      "review_cycles.py:create_line",
+      "text",
+      "a materialized line head"
+    ]
+  ],
+  "orphan_probes": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "a persisted line checkpoint"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "persisted integration eligibility"
+    ]
+  ],
+  "runtime_sha256": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "adopted",
+      "review_cycles.py:consumption_subject",
+      "line_writers"
+    ],
+    [
+      "adopted",
+      "review_cycles.py:consumption_subject",
+      "line_writers.writer_id"
+    ],
+    [
+      "caller",
+      "review_cycles.py:review_of",
+      "attachment_id"
+    ],
+    [
+      "caller",
+      "review_cycles.py:verdict_of",
+      "verdict_id"
+    ]
+  ],
+  "work": "W116975"
+}

@@ -1,8 +1,7 @@
-"""W115824 diagnosis only: eight named non-engine checks and read-only Docker facts.
+"""W115824 diagnosis only: eight named non-engine checks.
 
-Budget: 60 seconds for tests, 30 seconds per Docker read; no build/run/delete.
-Question: do retained catalog/inventory diagnostics still hold, and when were
-the resources selected by the four residue assertions created?
+Budget: 60 seconds; no Docker or whole-suite execution.
+Question: do retained catalog/inventory diagnostics still hold?
 """
 import ast
 from collections import Counter
@@ -10,7 +9,6 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
-import subprocess
 import sys
 import unittest
 

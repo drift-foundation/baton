@@ -1,0 +1,62 @@
+{
+  "added_classes": [
+    "TheIntegrationStageConsumesTheAcceptedPort"
+  ],
+  "before_retry_runtime": "not-started",
+  "candidate_hashes": {
+    "v12/python/tests/tools/test_single_worker.py": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+    "v12/python/tests/tools/test_stage_execution.py": "28ee8acfb9e0c5be9666be9366f2373d6f3755987dc94ffac3082c1820d710e1",
+    "v12/python/tools/parallel_test.py": "61d0e0a1482a059c390fe356b5b14f1821aedbbcdec48ffc7624baf621a852d5",
+    "v12/python/tools/single_worker.py": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+    "v12/python/tools/stage_execution.py": "14b883f27483684781dc1c9c0bc07438fa6c8aad07cbc1dcf80f0f68c7741d0b"
+  },
+  "engine_run_calls": 0,
+  "factory_delivery_read": {
+    "category": "policy",
+    "code": "denied",
+    "message": "an integration result namespace is created in the deployment's configured workspace group, obtained from this manager's own record; this is 1000"
+  },
+  "factory_group_type": "int",
+  "factory_held_derived_members": [
+    "credential_resolution",
+    "source_nomination",
+    "source_profile",
+    "task_bytes"
+  ],
+  "factory_requirement": {
+    "category": "integrity",
+    "code": "schema",
+    "message": "a single-worker configuration has exactly schema, authority_store, authority_uuid, participant, principal, profile_name, profile_digest, policy_digest, adapter_name, adapter_digest, engine, image_digest, network, workspace_storage, workspace_group, launch_home, credential_home, credential_sources, credential_slots, credential_profile, nominated_source, workspace_capacity, input_manifest, task_document, launch_contract, launch_role, review_route, retention_policy_digest, retention_disposition; unexpected credential_resolution, source_nomination, source_profile, task_bytes"
+  },
+  "fresh_prepare_calls": 0,
+  "fresh_unstarted_retry": {
+    "category": "refused",
+    "code": "precondition",
+    "message": "attempt 'integrator-attempt' has no credential delivery from this execution's own preparation; the bearer is minted before admission takes a lease and a start is never the place to find out it cannot be"
+  },
+  "gate_diagnostics": [
+    "ERROR: test_every_v12_test_module_is_registered_exactly_once (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once)",
+    "FAIL: test_the_suite_is_one_gate_and_not_a_pile_of_files (tests.authority.test_catalog.TheMigrationChecklistIsRead.test_the_suite_is_one_gate_and_not_a_pile_of_files)",
+    "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:writer_of', 'line_writers.writer_id'), label='a persisted line writer')",
+    "FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)",
+    "FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)",
+    "FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)",
+    "FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)",
+    "FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)",
+    "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)",
+    "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_nothing_this_module_made_survives_it)",
+    "FAIL: test_no_container_of_this_suite_survives_it (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_no_container_of_this_suite_survives_it)",
+    "FAIL: test_only_this_run_s_image_tag_exists (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_only_this_run_s_image_tag_exists)",
+    "Ran 5089 tests in 280.494s",
+    "FAILED (failures=11, errors=1, skipped=21)"
+  ],
+  "gate_sha256": "1763653ea634bbccd51086923ae0b35123b59635e1955c6ed5e81ede8d52ad09",
+  "interrupted_first_admission": {
+    "category": "refused",
+    "code": "precondition",
+    "message": "review interruption before runtime start"
+  },
+  "nominal_group_positive": true,
+  "prior_classes_unchanged": 26,
+  "runtime_after_retry": "not-started"
+}

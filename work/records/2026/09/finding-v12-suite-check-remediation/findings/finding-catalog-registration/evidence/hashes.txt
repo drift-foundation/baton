@@ -1,0 +1,2 @@
+f00fec0efebca9df1e25c025d1c9f07d350d1c79f0f0c880e673888bac884547  v12/python/tools/parallel_test.py
+14ca384916dd0c175409c9af97c338f923ce73ba789f0eec68a745385904eed6  v12/python/tests/authority/test_catalog.py

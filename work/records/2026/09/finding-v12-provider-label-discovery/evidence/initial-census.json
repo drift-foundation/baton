@@ -1,0 +1,1920 @@
+{
+  "candidate_sha256": "4794b9fa01b729c73f7b8d001ec5e245a1f89208bf373efef114c12a4eea0138",
+  "elapsed_seconds": 8.617306313011795,
+  "entry_count": 1357,
+  "errors": [],
+  "failures": [
+    "tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_member_reassignment_is_finite_and_applies_each_assignment_once",
+    "tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_recursive_member_expansion_ends_at_recursive_reentry",
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared",
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator"
+  ],
+  "orphan_by_module": {
+    "attempts.py": 2,
+    "authority_port.py": 11,
+    "custody.py": 1,
+    "exchange.py": 2,
+    "intake.py": 29,
+    "interrogation.py": 1,
+    "lanes.py": 2,
+    "oci.py": 13,
+    "posture_slots.py": 3,
+    "review_cycles.py": 20,
+    "worker_entry.py": 1,
+    "workspaces.py": 3
+  },
+  "orphans": [
+    [
+      "attempts.py:_committed_record",
+      "document",
+      "a committed ending record"
+    ],
+    [
+      "attempts.py:_plan_agrees",
+      "document",
+      "a declared runtime mount"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "document",
+      "{what}'s Work reference"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "document",
+      "{what}'s identity"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "generation",
+      "{what}'s generation"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "identity",
+      "{what}'s Work id"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "identity",
+      "{what}'s authority"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "text",
+      "{what}'s participant"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "document",
+      "{what}'s decision"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s decided role"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s decision endpoint"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s effective scope"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s principal"
+    ],
+    [
+      "custody.py:_reconciled",
+      "identity",
+      "a listed runtime id"
+    ],
+    [
+      "exchange.py:_instant",
+      "instant",
+      "a worker document's {name}"
+    ],
+    [
+      "exchange.py:_value",
+      "text",
+      "an exchange document value"
+    ],
+    [
+      "intake.py:_abandon_intent",
+      "document",
+      "a committed abandonment record"
+    ],
+    [
+      "intake.py:_abandoned_destroy_operation",
+      "text",
+      "an abandonment record digest"
+    ],
+    [
+      "intake.py:_chosen",
+      "identity",
+      "an artifact id"
+    ],
+    [
+      "intake.py:_compared",
+      "document",
+      "a collected artifact"
+    ],
+    [
+      "intake.py:_compared",
+      "identity",
+      "a collected result id"
+    ],
+    [
+      "intake.py:_compared",
+      "identity",
+      "an artifact id"
+    ],
+    [
+      "intake.py:_compared",
+      "text",
+      "a content digest"
+    ],
+    [
+      "intake.py:_compared",
+      "text",
+      "a custody locator"
+    ],
+    [
+      "intake.py:_custody_capable",
+      "text",
+      "the custodian image identity custody acts are signed with"
+    ],
+    [
+      "intake.py:_destroyed",
+      "document",
+      "a credentials teardown ending"
+    ],
+    [
+      "intake.py:_destroyed",
+      "document",
+      "a launch teardown ending"
+    ],
+    [
+      "intake.py:_destroyed_abandoned",
+      "document",
+      "a credentials teardown ending"
+    ],
+    [
+      "intake.py:_destroyed_abandoned",
+      "document",
+      "a launch teardown ending"
+    ],
+    [
+      "intake.py:_destroyed_failed_start",
+      "document",
+      "a credentials teardown ending"
+    ],
+    [
+      "intake.py:_destroyed_failed_start",
+      "document",
+      "a launch teardown ending"
+    ],
+    [
+      "intake.py:_destroyed_refused_session",
+      "document",
+      "a credentials teardown ending"
+    ],
+    [
+      "intake.py:_destroyed_refused_session",
+      "document",
+      "a launch teardown ending"
+    ],
+    [
+      "intake.py:_failed_start_record",
+      "document",
+      "a committed failed-start record"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "document",
+      "a {provider} teardown ending"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "text",
+      "a {provider} teardown ending's state"
+    ],
+    [
+      "intake.py:_refused_session_record",
+      "document",
+      "a committed refusal record"
+    ],
+    [
+      "intake.py:abandon_attempt",
+      "document",
+      "a credentials teardown ending"
+    ],
+    [
+      "intake.py:abandon_attempt",
+      "document",
+      "a launch teardown ending"
+    ],
+    [
+      "intake.py:authorize_cleanup",
+      "document",
+      "a credentials teardown ending"
+    ],
+    [
+      "intake.py:authorize_cleanup",
+      "document",
+      "a launch teardown ending"
+    ],
+    [
+      "intake.py:authorize_failed_start_cleanup",
+      "document",
+      "a credentials teardown ending"
+    ],
+    [
+      "intake.py:authorize_failed_start_cleanup",
+      "document",
+      "a launch teardown ending"
+    ],
+    [
+      "intake.py:authorize_refused_session_cleanup",
+      "document",
+      "a credentials teardown ending"
+    ],
+    [
+      "intake.py:authorize_refused_session_cleanup",
+      "document",
+      "a launch teardown ending"
+    ],
+    [
+      "interrogation.py:_diagnostics",
+      "text",
+      "a probe diagnostic name"
+    ],
+    [
+      "lanes.py:_occupy_lane",
+      "text",
+      "a lane occupancy reason"
+    ],
+    [
+      "lanes.py:_release_lane",
+      "text",
+      "a lane release reason"
+    ],
+    [
+      "oci.py:OciAdapter._bound_orphan",
+      "identity",
+      "{what} runtime attempt id"
+    ],
+    [
+      "oci.py:OciAdapter._custodied",
+      "text",
+      "a retained artifact id"
+    ],
+    [
+      "oci.py:OciAdapter._mounts_the_authorized_root",
+      "document",
+      "a runtime mount"
+    ],
+    [
+      "oci.py:OciAdapter._quiesced",
+      "document",
+      "a seal authorization context"
+    ],
+    [
+      "oci.py:OciAdapter._removed",
+      "identity",
+      "{what} runtime id"
+    ],
+    [
+      "oci.py:OciAdapter.list",
+      "identity",
+      "a listed runtime id"
+    ],
+    [
+      "oci.py:_decoded",
+      "text",
+      "an engine document"
+    ],
+    [
+      "oci.py:_exchange_mounts",
+      "text",
+      "an exchange delivery target"
+    ],
+    [
+      "oci.py:_image_identity",
+      "text",
+      "a runtime image"
+    ],
+    [
+      "oci.py:_label_value",
+      "text",
+      "a runtime label"
+    ],
+    [
+      "oci.py:_mounts",
+      "document",
+      "a runtime mount"
+    ],
+    [
+      "oci.py:_whole",
+      "text",
+      "a generation label"
+    ],
+    [
+      "oci.py:exec_vector",
+      "text",
+      "an exec program word"
+    ],
+    [
+      "posture_slots.py:_occupy_slot",
+      "instant",
+      "a slot movement instant"
+    ],
+    [
+      "posture_slots.py:_release_slot_in",
+      "instant",
+      "a slot movement instant"
+    ],
+    [
+      "posture_slots.py:_require_slot_recovery_in",
+      "instant",
+      "a slot movement instant"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "document",
+      "persisted checkpoint evidence"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "a persisted checkpoint evidence path"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's base"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's head"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's path_set_digest"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's profile"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's reference"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's tree"
+    ],
+    [
+      "review_cycles.py:_line_place",
+      "text",
+      "the manager's workspace storage"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "capability",
+      "a checkpoint profile's {method} capability"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "text",
+      "a checkpoint profile name"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "document",
+      "a frozen review artifact"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "document",
+      "a frozen review result"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review output name"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's attempt_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's freeze_operation_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's manifest_digest"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's result_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "instant",
+      "a frozen review result's frozen_at"
+    ],
+    [
+      "review_cycles.py:create_line",
+      "text",
+      "a materialized line head"
+    ],
+    [
+      "worker_entry.py:converse",
+      "identity",
+      "a worker-entry operation identity"
+    ],
+    [
+      "workspaces.py:_committed_workspace_group",
+      "document",
+      "the committed workspace group configuration"
+    ],
+    [
+      "workspaces.py:_committed_workspace_storage",
+      "document",
+      "the committed workspace store configuration"
+    ],
+    [
+      "workspaces.py:_granted_roots",
+      "capability",
+      "an assignment roots live grant"
+    ]
+  ],
+  "provider_entries": [
+    [
+      "injected",
+      "intake.py:_destroyed",
+      "adapter.destroy.credentials.lifecycle_state"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed",
+      "adapter.destroy.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed",
+      "adapter.destroy.launch.lifecycle_state"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed",
+      "adapter.destroy.launch.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_abandoned",
+      "adapter.destroy_abandoned.credentials.lifecycle_state"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_abandoned",
+      "adapter.destroy_abandoned.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_abandoned",
+      "adapter.destroy_abandoned.launch.lifecycle_state"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_abandoned",
+      "adapter.destroy_abandoned.launch.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_failed_start",
+      "adapter.destroy_failed_start.credentials.lifecycle_state"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_failed_start",
+      "adapter.destroy_failed_start.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_failed_start",
+      "adapter.destroy_failed_start.launch.lifecycle_state"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_failed_start",
+      "adapter.destroy_failed_start.launch.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_refused_session",
+      "adapter.destroy_refused_session.credentials.lifecycle_state"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_refused_session",
+      "adapter.destroy_refused_session.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_refused_session",
+      "adapter.destroy_refused_session.launch.lifecycle_state"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_refused_session",
+      "adapter.destroy_refused_session.launch.why"
+    ]
+  ],
+  "provider_owners": {
+    "intake.py:_destroyed": [
+      [
+        "document",
+        "a credentials teardown ending",
+        "session:adapter.destroy[credentials]"
+      ],
+      [
+        "document",
+        "a destroy observation",
+        "session:adapter.destroy"
+      ],
+      [
+        "document",
+        "a launch teardown ending",
+        "session:adapter.destroy[launch]"
+      ],
+      [
+        "identity",
+        "an observed runtime id",
+        "session:adapter.destroy[runtime_id]"
+      ],
+      [
+        "text",
+        "a credentials teardown ending's state",
+        "session:adapter.destroy[credentials][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a destroy observation's reason",
+        "session:adapter.destroy[why]"
+      ],
+      [
+        "text",
+        "a destroy observation's state",
+        "session:adapter.destroy[state]"
+      ],
+      [
+        "text",
+        "a launch teardown ending's state",
+        "session:adapter.destroy[launch][lifecycle_state]"
+      ]
+    ],
+    "intake.py:_destroyed_abandoned": [
+      [
+        "document",
+        "a credentials teardown ending",
+        "session:adapter.destroy_abandoned[credentials]"
+      ],
+      [
+        "document",
+        "a launch teardown ending",
+        "session:adapter.destroy_abandoned[launch]"
+      ],
+      [
+        "document",
+        "an abandoned-attempt destroy observation",
+        "session:adapter.destroy_abandoned"
+      ],
+      [
+        "identity",
+        "an observed runtime id",
+        "session:adapter.destroy_abandoned[runtime_id]"
+      ],
+      [
+        "text",
+        "a credentials teardown ending's state",
+        "session:adapter.destroy_abandoned[credentials][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a destroy observation's reason",
+        "session:adapter.destroy_abandoned[why]"
+      ],
+      [
+        "text",
+        "a destroy observation's state",
+        "session:adapter.destroy_abandoned[state]"
+      ],
+      [
+        "text",
+        "a launch teardown ending's state",
+        "session:adapter.destroy_abandoned[launch][lifecycle_state]"
+      ]
+    ],
+    "intake.py:_destroyed_failed_start": [
+      [
+        "document",
+        "a credentials teardown ending",
+        "session:adapter.destroy_failed_start[credentials]"
+      ],
+      [
+        "document",
+        "a failed-start destroy observation",
+        "session:adapter.destroy_failed_start"
+      ],
+      [
+        "document",
+        "a launch teardown ending",
+        "session:adapter.destroy_failed_start[launch]"
+      ],
+      [
+        "identity",
+        "an observed runtime id",
+        "session:adapter.destroy_failed_start[runtime_id]"
+      ],
+      [
+        "text",
+        "a credentials teardown ending's state",
+        "session:adapter.destroy_failed_start[credentials][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a destroy observation's reason",
+        "session:adapter.destroy_failed_start[why]"
+      ],
+      [
+        "text",
+        "a destroy observation's state",
+        "session:adapter.destroy_failed_start[state]"
+      ],
+      [
+        "text",
+        "a launch teardown ending's state",
+        "session:adapter.destroy_failed_start[launch][lifecycle_state]"
+      ]
+    ],
+    "intake.py:_destroyed_refused_session": [
+      [
+        "document",
+        "a credentials teardown ending",
+        "session:adapter.destroy_refused_session[credentials]"
+      ],
+      [
+        "document",
+        "a launch teardown ending",
+        "session:adapter.destroy_refused_session[launch]"
+      ],
+      [
+        "document",
+        "a refused-session destroy observation",
+        "session:adapter.destroy_refused_session"
+      ],
+      [
+        "identity",
+        "an observed runtime id",
+        "session:adapter.destroy_refused_session[runtime_id]"
+      ],
+      [
+        "text",
+        "a credentials teardown ending's state",
+        "session:adapter.destroy_refused_session[credentials][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a destroy observation's reason",
+        "session:adapter.destroy_refused_session[why]"
+      ],
+      [
+        "text",
+        "a destroy observation's state",
+        "session:adapter.destroy_refused_session[state]"
+      ],
+      [
+        "text",
+        "a launch teardown ending's state",
+        "session:adapter.destroy_refused_session[launch][lifecycle_state]"
+      ]
+    ],
+    "intake.py:_provider_ending": [
+      [
+        "document",
+        "a {provider} teardown ending",
+        "caller:ending"
+      ],
+      [
+        "text",
+        "a {provider} teardown ending's state",
+        "caller:ending[lifecycle_state]"
+      ]
+    ],
+    "intake.py:abandon_attempt": [
+      [
+        "capability",
+        "the runtime adapter's abandoned-attempt destroy",
+        "caller:adapter"
+      ],
+      [
+        "document",
+        "a credentials teardown ending",
+        "session:adapter.destroy_abandoned[credentials]"
+      ],
+      [
+        "document",
+        "a launch teardown ending",
+        "session:adapter.destroy_abandoned[launch]"
+      ],
+      [
+        "document",
+        "a persisted attempt",
+        "read:intake.py:_attempt_of|attempts"
+      ],
+      [
+        "document",
+        "an abandoned-attempt destroy observation",
+        "session:adapter.destroy_abandoned"
+      ],
+      [
+        "identity",
+        "a runtime attempt id",
+        "caller:attempt_id"
+      ],
+      [
+        "identity",
+        "an observed runtime id",
+        "session:adapter.destroy_abandoned[runtime_id]"
+      ],
+      [
+        "row",
+        "a persisted attempt",
+        "read:intake.py:_attempt_of|attempts"
+      ],
+      [
+        "text",
+        "a credentials teardown ending's state",
+        "session:adapter.destroy_abandoned[credentials][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a destroy observation's reason",
+        "session:adapter.destroy_abandoned[why]"
+      ],
+      [
+        "text",
+        "a destroy observation's state",
+        "session:adapter.destroy_abandoned[state]"
+      ],
+      [
+        "text",
+        "a launch teardown ending's state",
+        "session:adapter.destroy_abandoned[launch][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a retention policy digest",
+        "caller:retention_policy_digest"
+      ],
+      [
+        "text",
+        "an abandonment reason",
+        "caller:reason"
+      ]
+    ],
+    "intake.py:authorize_cleanup": [
+      [
+        "capability",
+        "the runtime adapter's destroy",
+        "caller:adapter"
+      ],
+      [
+        "document",
+        "a credentials teardown ending",
+        "session:adapter.destroy[credentials]"
+      ],
+      [
+        "document",
+        "a destroy observation",
+        "session:adapter.destroy"
+      ],
+      [
+        "document",
+        "a launch teardown ending",
+        "session:adapter.destroy[launch]"
+      ],
+      [
+        "identity",
+        "a runtime attempt id",
+        "caller:attempt_id"
+      ],
+      [
+        "identity",
+        "an observed runtime id",
+        "session:adapter.destroy[runtime_id]"
+      ],
+      [
+        "row",
+        "a persisted attempt",
+        "read:intake.py:_attempt_of|attempts"
+      ],
+      [
+        "text",
+        "a credentials teardown ending's state",
+        "session:adapter.destroy[credentials][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a destroy observation's reason",
+        "session:adapter.destroy[why]"
+      ],
+      [
+        "text",
+        "a destroy observation's state",
+        "session:adapter.destroy[state]"
+      ],
+      [
+        "text",
+        "a launch teardown ending's state",
+        "session:adapter.destroy[launch][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a retention policy digest",
+        "caller:retention_policy_digest"
+      ]
+    ],
+    "intake.py:authorize_failed_start_cleanup": [
+      [
+        "capability",
+        "the runtime adapter's failed-start destroy",
+        "caller:adapter"
+      ],
+      [
+        "document",
+        "a credentials teardown ending",
+        "session:adapter.destroy_failed_start[credentials]"
+      ],
+      [
+        "document",
+        "a failed-start destroy observation",
+        "session:adapter.destroy_failed_start"
+      ],
+      [
+        "document",
+        "a launch teardown ending",
+        "session:adapter.destroy_failed_start[launch]"
+      ],
+      [
+        "identity",
+        "a runtime attempt id",
+        "caller:attempt_id"
+      ],
+      [
+        "identity",
+        "an observed runtime id",
+        "session:adapter.destroy_failed_start[runtime_id]"
+      ],
+      [
+        "row",
+        "a persisted attempt",
+        "read:intake.py:_attempt_of|attempts"
+      ],
+      [
+        "text",
+        "a credentials teardown ending's state",
+        "session:adapter.destroy_failed_start[credentials][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a destroy observation's reason",
+        "session:adapter.destroy_failed_start[why]"
+      ],
+      [
+        "text",
+        "a destroy observation's state",
+        "session:adapter.destroy_failed_start[state]"
+      ],
+      [
+        "text",
+        "a launch teardown ending's state",
+        "session:adapter.destroy_failed_start[launch][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a retention policy digest",
+        "caller:retention_policy_digest"
+      ]
+    ],
+    "intake.py:authorize_refused_session_cleanup": [
+      [
+        "capability",
+        "the runtime adapter's refused-session destroy",
+        "caller:adapter"
+      ],
+      [
+        "document",
+        "a credentials teardown ending",
+        "session:adapter.destroy_refused_session[credentials]"
+      ],
+      [
+        "document",
+        "a launch teardown ending",
+        "session:adapter.destroy_refused_session[launch]"
+      ],
+      [
+        "document",
+        "a refused-session destroy observation",
+        "session:adapter.destroy_refused_session"
+      ],
+      [
+        "identity",
+        "an observed runtime id",
+        "session:adapter.destroy_refused_session[runtime_id]"
+      ],
+      [
+        "row",
+        "a persisted attempt",
+        "read:intake.py:_attempt_of|attempts"
+      ],
+      [
+        "text",
+        "a credentials teardown ending's state",
+        "session:adapter.destroy_refused_session[credentials][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a destroy observation's reason",
+        "session:adapter.destroy_refused_session[why]"
+      ],
+      [
+        "text",
+        "a destroy observation's state",
+        "session:adapter.destroy_refused_session[state]"
+      ],
+      [
+        "text",
+        "a launch teardown ending's state",
+        "session:adapter.destroy_refused_session[launch][lifecycle_state]"
+      ],
+      [
+        "text",
+        "a retention policy digest",
+        "caller:retention_policy_digest"
+      ]
+    ]
+  },
+  "tests_run": 64,
+  "unowned": [
+    [
+      "adopted",
+      "attempts.py:_decide",
+      "observations.next"
+    ],
+    [
+      "adopted",
+      "attempts.py:_next_source_seq",
+      "observations.next"
+    ],
+    [
+      "adopted",
+      "review_cycles.py:consumption_subject",
+      "line_writers"
+    ],
+    [
+      "adopted",
+      "review_cycles.py:consumption_subject",
+      "line_writers.writer_id"
+    ],
+    [
+      "adopted",
+      "sessions.py:_next_epoch",
+      "agent_sessions.next"
+    ],
+    [
+      "adopted",
+      "workspaces.py:_configured_storage",
+      "meta"
+    ],
+    [
+      "adopted",
+      "workspaces.py:_configured_storage",
+      "meta.value"
+    ],
+    [
+      "caller",
+      "attempts.py:assignment_of",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:attempt_activity_of",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:attempt_runtime_of",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:attempt_start_failure_of",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:authorize_input_root",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:authorize_input_root",
+      "inputs"
+    ],
+    [
+      "caller",
+      "attempts.py:label_context",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:observe_activity",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:observe_activity",
+      "bytes_observed"
+    ],
+    [
+      "caller",
+      "attempts.py:request_runtime_start",
+      "inputs"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.assignment_generation"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.assignment_participant"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.authority_uuid"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.profile_digest"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "attempts.py:start_failure_operation_id",
+      "attempt.work_id"
+    ],
+    [
+      "caller",
+      "authority_port.py:AuthorityPort.claim",
+      "role"
+    ],
+    [
+      "caller",
+      "authority_port.py:AuthorityPort.claim",
+      "scope"
+    ],
+    [
+      "caller",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "role"
+    ],
+    [
+      "caller",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "scope"
+    ],
+    [
+      "caller",
+      "credentials.py:CredentialHome.adopt",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "credentials.py:CredentialHome.materialize",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "credentials.py:OrphanTeardown.__init__",
+      "homes"
+    ],
+    [
+      "caller",
+      "documents.py:abandon_intent",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:abandoned_destroy_command",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:abandonment",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:directory_custody_settled",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:failed_start_destroy_command",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:freeze_requested",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:frozen_output",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:manifest_retained",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:operation",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:output_answer",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:output_artifact",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:posture_slot",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:provider_session_adopted",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:refused_session_destroy_command",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:result_frozen",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:runtime_preparation_failed",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:runtime_start_failed",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_closed",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_observed",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_opened",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_quiescence_requested",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_reconciled",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_ref",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_unsupported_version",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:slot_moved",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:transport_lost",
+      "members"
+    ],
+    [
+      "caller",
+      "exchange.py:adopt",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "exchange.py:adopt",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "exchange.py:command_document",
+      "session"
+    ],
+    [
+      "caller",
+      "exchange.py:discard",
+      "root"
+    ],
+    [
+      "caller",
+      "exchange.py:materialize",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "exchange.py:materialize",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "exchange.py:observation",
+      "delivery"
+    ],
+    [
+      "caller",
+      "exchange.py:publish_command",
+      "delivery"
+    ],
+    [
+      "caller",
+      "exchange.py:state_document",
+      "operation"
+    ],
+    [
+      "caller",
+      "exchange.py:worker_operation_id",
+      "operation"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "adapter"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "agent"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "agent_protocol_version"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "agent_session_capabilities"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "session_ref"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "session_ref.provider_session_id"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "session_ref.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "session_ref.session_epoch"
+    ],
+    [
+      "caller",
+      "handshake.py:unsupported_version_operation_id",
+      "session_ref"
+    ],
+    [
+      "caller",
+      "handshake.py:unsupported_version_operation_id",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "handshake.py:unsupported_version_operation_id",
+      "session_ref.provider_session_id"
+    ],
+    [
+      "caller",
+      "handshake.py:unsupported_version_operation_id",
+      "session_ref.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "handshake.py:unsupported_version_operation_id",
+      "session_ref.session_epoch"
+    ],
+    [
+      "caller",
+      "intake.py:authorize_refused_session_cleanup",
+      "session_ref"
+    ],
+    [
+      "caller",
+      "intake.py:authorize_refused_session_cleanup",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "intake.py:authorize_refused_session_cleanup",
+      "session_ref.provider_session_id"
+    ],
+    [
+      "caller",
+      "intake.py:authorize_refused_session_cleanup",
+      "session_ref.session_epoch"
+    ],
+    [
+      "caller",
+      "interrogation.py:inquire",
+      "agent"
+    ],
+    [
+      "caller",
+      "interrogation.py:inquire",
+      "deadline_seconds"
+    ],
+    [
+      "caller",
+      "interrogation.py:probe",
+      "agent"
+    ],
+    [
+      "caller",
+      "interrogation.py:probe",
+      "deadline_seconds"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.assignment_principal"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.assignment_scope"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.authority_uuid"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.work_id"
+    ],
+    [
+      "caller",
+      "lanes.py:runtime_lane",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "launch.py:LaunchDelivery.__init__",
+      "delivery"
+    ],
+    [
+      "caller",
+      "launch.py:adopt",
+      "transport"
+    ],
+    [
+      "caller",
+      "launch.py:adopt",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "launch.py:launch_document",
+      "transport"
+    ],
+    [
+      "caller",
+      "launch.py:materialize",
+      "transport"
+    ],
+    [
+      "caller",
+      "launch.py:materialize",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "launch.py:members_for",
+      "document"
+    ],
+    [
+      "caller",
+      "launch.py:members_for",
+      "document.schema"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.__init__",
+      "credential_home"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.__init__",
+      "credential_orphan"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.__init__",
+      "integration_delivery"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.__init__",
+      "interactive"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.__init__",
+      "network"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.__init__",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.integration_mounts_agree",
+      "runtime_id"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.normalize_directory",
+      "assignment_id"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.normalize_directory",
+      "which"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.prove_line_consumable",
+      "assignment_id"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.prove_line_consumable",
+      "generation"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.seal",
+      "request.context"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.seal",
+      "request.context.effective_scope"
+    ],
+    [
+      "caller",
+      "oci.py:OciAdapter.seal",
+      "request.context.principal"
+    ],
+    [
+      "caller",
+      "oci.py:canonical_source",
+      "what"
+    ],
+    [
+      "caller",
+      "oci.py:canonical_target",
+      "what"
+    ],
+    [
+      "caller",
+      "oci.py:exec_vector",
+      "engine"
+    ],
+    [
+      "caller",
+      "oci.py:run_vector",
+      "exchange_delivered"
+    ],
+    [
+      "caller",
+      "oci.py:run_vector",
+      "integration_delivered"
+    ],
+    [
+      "caller",
+      "oci.py:run_vector",
+      "interactive"
+    ],
+    [
+      "caller",
+      "oci.py:run_vector",
+      "source_delivered"
+    ],
+    [
+      "caller",
+      "oci.py:run_vector",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "review_cycles.py:review_of",
+      "attachment_id"
+    ],
+    [
+      "caller",
+      "review_cycles.py:verdict_of",
+      "verdict_id"
+    ],
+    [
+      "caller",
+      "sessions.py:close_agent_session",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "sessions.py:close_agent_session",
+      "session_ref.session_epoch"
+    ],
+    [
+      "caller",
+      "sessions.py:handle_transport_loss",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "sessions.py:handle_transport_loss",
+      "session_ref.session_epoch"
+    ],
+    [
+      "caller",
+      "sessions.py:observe_session_state",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "sessions.py:observe_session_state",
+      "session_ref.provider_session_id"
+    ],
+    [
+      "caller",
+      "sessions.py:observe_session_state",
+      "session_ref.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "sessions.py:observe_session_state",
+      "session_ref.session_epoch"
+    ],
+    [
+      "caller",
+      "source_boundary.py:SourceBoundary.__init__",
+      "guard"
+    ],
+    [
+      "caller",
+      "workspaces.py:AllocatedRoots.__init__",
+      "_grant"
+    ],
+    [
+      "caller",
+      "workspaces.py:AllocatedRoots.__init__",
+      "_grant_required"
+    ],
+    [
+      "caller",
+      "workspaces.py:AllocatedRoots.__init__",
+      "_minted"
+    ],
+    [
+      "caller",
+      "workspaces.py:AllocatedRoots.__init__",
+      "made"
+    ],
+    [
+      "caller",
+      "workspaces.py:WorkspaceGroup.__init__",
+      "_minted"
+    ],
+    [
+      "caller",
+      "workspaces.py:WorkspaceGroup.__init__",
+      "gid"
+    ],
+    [
+      "caller",
+      "workspaces.py:WorkspaceStorage.__init__",
+      "_minted"
+    ],
+    [
+      "caller",
+      "workspaces.py:WorkspaceStorage.__init__",
+      "place"
+    ],
+    [
+      "caller",
+      "workspaces.py:adopt_workspace_group",
+      "gid"
+    ],
+    [
+      "caller",
+      "workspaces.py:adopt_workspace_group",
+      "roots"
+    ],
+    [
+      "caller",
+      "workspaces.py:adopt_workspace_group",
+      "roots.workspace"
+    ],
+    [
+      "caller",
+      "workspaces.py:adopted_assignment_workspace",
+      "assignment_id"
+    ],
+    [
+      "caller",
+      "workspaces.py:assignment_workspace",
+      "assignment_id"
+    ],
+    [
+      "caller",
+      "workspaces.py:assignment_workspace",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "workspaces.py:check_workspace_group",
+      "gid"
+    ],
+    [
+      "caller",
+      "workspaces.py:check_workspace_group",
+      "what"
+    ],
+    [
+      "caller",
+      "workspaces.py:check_workspace_storage",
+      "what"
+    ],
+    [
+      "caller",
+      "workspaces.py:configure_workspace_group",
+      "gid"
+    ],
+    [
+      "caller",
+      "workspaces.py:configure_workspace_storage",
+      "place"
+    ],
+    [
+      "caller",
+      "workspaces.py:copied_manifest",
+      "admits"
+    ],
+    [
+      "caller",
+      "workspaces.py:copied_manifest",
+      "into"
+    ],
+    [
+      "caller",
+      "workspaces.py:copied_manifest",
+      "max_bytes"
+    ],
+    [
+      "caller",
+      "workspaces.py:copied_manifest",
+      "max_entries"
+    ],
+    [
+      "caller",
+      "workspaces.py:copied_manifest",
+      "root"
+    ],
+    [
+      "caller",
+      "workspaces.py:discard_execution_roots",
+      "assignment_id"
+    ],
+    [
+      "caller",
+      "workspaces.py:discard_tree",
+      "place"
+    ],
+    [
+      "caller",
+      "workspaces.py:discard_workspace",
+      "assignment_id"
+    ],
+    [
+      "caller",
+      "workspaces.py:prove_workspace_group",
+      "gid"
+    ],
+    [
+      "caller",
+      "workspaces.py:prove_workspace_group",
+      "place"
+    ],
+    [
+      "caller",
+      "workspaces.py:prove_workspace_group",
+      "what"
+    ],
+    [
+      "caller",
+      "workspaces.py:read_input_root",
+      "inputs"
+    ],
+    [
+      "injected",
+      "attempts.py:_observed",
+      "adapter.observe"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.claim_event"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.decision.grant"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.claim",
+      "claim.decision.policy_generation"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.claim_event"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.decision.grant"
+    ],
+    [
+      "injected",
+      "authority_port.py:AuthorityPort.settle_operation",
+      "settle_operation.result.decision.policy_generation"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed",
+      "adapter.destroy.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed",
+      "adapter.destroy.launch.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_abandoned",
+      "adapter.destroy_abandoned.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_abandoned",
+      "adapter.destroy_abandoned.launch.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_failed_start",
+      "adapter.destroy_failed_start.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_failed_start",
+      "adapter.destroy_failed_start.launch.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_refused_session",
+      "adapter.destroy_refused_session.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_destroyed_refused_session",
+      "adapter.destroy_refused_session.launch.why"
+    ]
+  ],
+  "unowned_by_module": {
+    "attempts.py": 20,
+    "authority_port.py": 10,
+    "credentials.py": 3,
+    "documents.py": 26,
+    "exchange.py": 10,
+    "handshake.py": 14,
+    "intake.py": 12,
+    "interrogation.py": 4,
+    "lanes.py": 7,
+    "launch.py": 8,
+    "oci.py": 22,
+    "review_cycles.py": 4,
+    "sessions.py": 9,
+    "source_boundary.py": 1,
+    "workspaces.py": 33
+  }
+}

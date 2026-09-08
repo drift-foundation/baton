@@ -1,0 +1,213 @@
+{
+  "added_rows": [
+    [
+      "intake.py:_abandon_fence_operation_id",
+      "document",
+      "a persisted attempt"
+    ],
+    [
+      "intake.py:_abandon_operation_id",
+      "document",
+      "a persisted attempt"
+    ],
+    [
+      "intake.py:_abandoned_destroy_operation",
+      "document",
+      "a persisted attempt"
+    ],
+    [
+      "intake.py:_abandoned_destroy_operation",
+      "text",
+      "a retention policy digest"
+    ],
+    [
+      "intake.py:_custody_capable",
+      "capability",
+      "the runtime adapter's directory-custody act"
+    ],
+    [
+      "intake.py:abandon_attempt",
+      "document",
+      "a persisted attempt"
+    ]
+  ],
+  "current_orphan_calls": [
+    [
+      "intake.py:_abandon_fence_operation_id",
+      "document",
+      "a persisted attempt"
+    ],
+    [
+      "intake.py:_abandon_intent",
+      "document",
+      "a committed abandonment record"
+    ],
+    [
+      "intake.py:_abandon_operation_id",
+      "document",
+      "a persisted attempt"
+    ],
+    [
+      "intake.py:_abandoned_destroy_operation",
+      "document",
+      "a persisted attempt"
+    ],
+    [
+      "intake.py:_abandoned_destroy_operation",
+      "text",
+      "a retention policy digest"
+    ],
+    [
+      "intake.py:_abandoned_destroy_operation",
+      "text",
+      "an abandonment record digest"
+    ],
+    [
+      "intake.py:_chosen",
+      "identity",
+      "an artifact id"
+    ],
+    [
+      "intake.py:_compared",
+      "document",
+      "a collected artifact"
+    ],
+    [
+      "intake.py:_compared",
+      "identity",
+      "a collected result id"
+    ],
+    [
+      "intake.py:_compared",
+      "identity",
+      "an artifact id"
+    ],
+    [
+      "intake.py:_compared",
+      "text",
+      "a content digest"
+    ],
+    [
+      "intake.py:_compared",
+      "text",
+      "a custody locator"
+    ],
+    [
+      "intake.py:_custody_capable",
+      "capability",
+      "the runtime adapter's directory-custody act"
+    ],
+    [
+      "intake.py:_custody_capable",
+      "text",
+      "the custodian image identity custody acts are signed with"
+    ],
+    [
+      "intake.py:_failed_start_record",
+      "document",
+      "a committed failed-start record"
+    ],
+    [
+      "intake.py:_refused_session_record",
+      "document",
+      "a committed refusal record"
+    ],
+    [
+      "intake.py:abandon_attempt",
+      "document",
+      "a persisted attempt"
+    ]
+  ],
+  "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory",
+  "module": "intake",
+  "prior_inputs_sha256": "a3d17b796b104b0c96a0f80d9dd87b235eefc6493094dc670cf9a7c498841708",
+  "prior_orphan_calls": [
+    [
+      "intake.py:_abandon_intent",
+      "document",
+      "a committed abandonment record"
+    ],
+    [
+      "intake.py:_abandoned_destroy_operation",
+      "text",
+      "an abandonment record digest"
+    ],
+    [
+      "intake.py:_chosen",
+      "identity",
+      "an artifact id"
+    ],
+    [
+      "intake.py:_compared",
+      "document",
+      "a collected artifact"
+    ],
+    [
+      "intake.py:_compared",
+      "identity",
+      "a collected result id"
+    ],
+    [
+      "intake.py:_compared",
+      "identity",
+      "an artifact id"
+    ],
+    [
+      "intake.py:_compared",
+      "text",
+      "a content digest"
+    ],
+    [
+      "intake.py:_compared",
+      "text",
+      "a custody locator"
+    ],
+    [
+      "intake.py:_custody_capable",
+      "text",
+      "the custodian image identity custody acts are signed with"
+    ],
+    [
+      "intake.py:_failed_start_record",
+      "document",
+      "a committed failed-start record"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "document",
+      "a {provider} teardown ending"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "text",
+      "a {provider} teardown ending's state"
+    ],
+    [
+      "intake.py:_refused_session_record",
+      "document",
+      "a committed refusal record"
+    ]
+  ],
+  "removed_rows": [
+    [
+      "intake.py:_provider_ending",
+      "document",
+      "a {provider} teardown ending"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "text",
+      "a {provider} teardown ending's state"
+    ]
+  ],
+  "runtime_sha256": "be9bafa313b15e3a12d443fc7f704049b504b05835812e1e41ebcf391c5e99d9",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/intake.py",
+  "state": "live accounting revalidated; independent implementation acceptance pending",
+  "unchanged_input_counts": {
+    "failed_stimuli": 1,
+    "missing_probes": 34,
+    "orphan_probes": 0,
+    "unowned": 12
+  },
+  "work": "W116977"
+}

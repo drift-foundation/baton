@@ -1,0 +1,41 @@
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -439,7 +439,12 @@
+                   # reference worker and runs real containers through the
+                   # documented commands.
+                   "tests.tools.test_dogfood_retry_engine",
+-                  "tests.manager.test_private_line_access_engine")
++                  "tests.manager.test_private_line_access_engine",
++                  # W116014: register the two stage drivers conservatively.
++                  # Their composed fixtures have not been certified parallel;
++                  # neither module requires a live model.
++                  "tests.integration.test_driver",
++                  "tests.job_manager.test_review_driver")
+ 
+ # The two whole-universe scans from the baseline. Split one test method per
+ # shard; every other class ships as one shard.
+--- a/v12/python/tests/authority/test_catalog.py
++++ b/v12/python/tests/authority/test_catalog.py
+@@ -159,6 +159,7 @@
+                                  # the principal seam, it carries no frozen
+                                  # Node counterpart: the frozen host has no
+                                  # Work labels to port.
++                                 "test_work_label_exposure.py",
+                                  "test_work_labels.py"])
+         self.assertEqual([path.name for path in
+                           DISTRIBUTION.glob("tests/test_*.py")], [])
+--- a/v12/python/tests/tools/test_parallel_runner.py
++++ b/v12/python/tests/tools/test_parallel_runner.py
+@@ -323,7 +323,11 @@
+                           # drives the documented commands over real
+                           # containers.
+                           "tests.tools.test_dogfood_retry_engine",
+-                          "tests.manager.test_private_line_access_engine"))
++                          "tests.manager.test_private_line_access_engine",
++                          # Conservative serial registrations; parallel safety
++                          # of these composed fixtures is not yet certified.
++                          "tests.integration.test_driver",
++                          "tests.job_manager.test_review_driver"))
+         for module in SERIAL_MODULES:
+             with self.subTest(module=module):
+                 self.assertNotIn(module, PARALLEL_MODULES)

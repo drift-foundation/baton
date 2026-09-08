@@ -1,0 +1,149 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [],
+  "module": "documents",
+  "orphan_calls": [],
+  "orphan_probes": [],
+  "runtime_sha256": "3c67406e5b234d043581cb4b2d2cabb871e7e3ec9ac51a190a185f855395655f",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/documents.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "caller",
+      "documents.py:abandon_intent",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:abandoned_destroy_command",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:abandonment",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:directory_custody_settled",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:failed_start_destroy_command",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:freeze_requested",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:frozen_output",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:manifest_retained",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:operation",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:output_answer",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:output_artifact",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:posture_slot",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:provider_session_adopted",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:refused_session_destroy_command",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:result_frozen",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:runtime_preparation_failed",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:runtime_start_failed",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_closed",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_observed",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_opened",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_quiescence_requested",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_reconciled",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_ref",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:session_unsupported_version",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:slot_moved",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:transport_lost",
+      "members"
+    ]
+  ],
+  "work": "W117002"
+}

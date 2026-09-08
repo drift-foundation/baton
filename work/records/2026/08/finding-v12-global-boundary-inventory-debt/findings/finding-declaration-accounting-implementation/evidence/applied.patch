@@ -1,0 +1,309 @@
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -46,6 +46,9 @@
+ import sqlite3
+ import tempfile
+ import types
++import sys
++from typing import NamedTuple
++from unittest.mock import patch
+ import unittest
+ 
+ import baton_v12.worker_manager as worker_manager
+@@ -1426,12 +1429,109 @@
+     return frozenset(found)
+ 
+ 
++class _BoundaryOccurrence(NamedTuple):
++    call: tuple
++    site: str
++    kind: str
++    label: str
++    subject: str
++    lexical_label: str
++    propagated: bool
++
++
++def _boundary_calls(node, origins, source_site, projected_site, *, propagated=False):
++    for piece in _scope_nodes(node):
++        if not (isinstance(piece, ast.Call) and isinstance(piece.func, ast.Attribute)
++                and isinstance(piece.func.value, ast.Name) and piece.func.value.id == "boundaries"
++                and piece.func.attr in boundaries.KINDS):
++            continue
++        subject_at, label_at = POSITIONS.get(piece.func.attr, (0, 1))
++        if len(piece.args) <= label_at:
++            raise AssertionError(f"{source_site}:{piece.lineno} names no label")
++        call = (source_site, piece.lineno, piece.col_offset, piece.end_lineno, piece.end_col_offset)
++        lexical = _label(piece.args[label_at], {})
++        for context in _contexts_at(origins, piece):
++            label = _label(piece.args[label_at], context)
++            if label is None:
++                raise AssertionError(f"{source_site}:{piece.lineno} names no label")
++            for subject in _origin_values(_subject(piece.args[subject_at], context)):
++                if not propagated or subject.startswith(("session:", "read:")):
++                    yield _BoundaryOccurrence(call, projected_site, piece.func.attr, label, subject, lexical, propagated)
++
++
++@functools.cache
++def boundary_occurrences():
++    result = set()
++    returns = _helper_returns()
++    for source, tree in _sources():
++        helpers = _helpers(tree, source.name)
++        for site, node in _functions(tree, source.name):
++            origins = _origins(node, site, returns)
++            result.update(_boundary_calls(node, origins, site, site))
++            for where, helper, inside in _delegations(node, origins, helpers, site=site, returns=returns):
++                result.update(_boundary_calls(helper, inside, where, site, propagated=True))
++    return frozenset(result)
++
++
++def _boundary_claims(records, entries, delegated):
++    """Keep the existing subject matching and exact-before-covering precedence.
++
++    Select the matching occurrences themselves, not every call sharing a label.
++    """
++    by_site = {}
++    for record in records:
++        by_site.setdefault(record.site, set()).add(record)
++    result = {}
++    for entry in entries:
++        places = [(entry[1], _claims(entry))]
++        if entry in delegated:
++            places.append(delegated[entry])
++        for site, stem in places:
++            available = by_site.get(site, ())
++            selected = {r for r in available if r.subject == stem or r.subject.startswith(stem + ".")}
++            if not selected and entry[0] != "injected":
++                selected = {r for r in available if stem.startswith(r.subject + "[") or r.subject.startswith(stem + "[")}
++            for record in selected:
++                result.setdefault(record, set()).add(entry)
++    return result
++
++
++def _account_boundary_calls(records, claimed, exceptions):
++    """Resolve declarations only through exact, actually claimed propagation.
++
++    A lexical private parameter origin is a declaration template. Real local
++    read/session origins and every propagated context retain their own duty.
++    A declaration-only exemption cannot spread to another source call.
++    """
++    links = {}
++    actuals = {}
++    for record in claimed:
++        if record.propagated:
++            links.setdefault(record.call, set()).add(record)
++        if record.subject.startswith(("read:", "session:")):
++            actuals.setdefault((record.call, record.kind, record.label, record.subject), set()).add(record)
++    resolved, residual = {}, set()
++    for record in records:
++        if record in claimed or (record.site, record.kind, record.label) in exceptions:
++            continue
++        equivalent = actuals.get((record.call, record.kind, record.label, record.subject))
++        if equivalent:
++            resolved[record] = equivalent
++            continue
++        private = record.call[0].rsplit(".", 1)[-1].split(":")[-1].startswith("_")
++        if not record.propagated and private and record.subject.startswith("caller:") and record.call in links:
++            resolved[record] = links[record.call]
++        else:
++            residual.add(record)
++    return resolved, frozenset(residual)
++
++
+ # EVERY MEMOISED PROJECTION, NAMED ONCE. W54182's boundedness regression clears
+ # and counts exactly these, so a cached projection missing from this tuple is
+ # one the check cannot see -- and a cache nobody checks is how the repeated
+ # package walk came back the first time.
+ MEMOISED = (_sources, _helper_returns, _crossings, receiving_entries,
+-            columns_read, owning_validators, propagated_owners)
++            columns_read, owning_validators, propagated_owners, boundary_occurrences)
+ 
+ 
+ def _calls_in(node, origins, site, *, all_subjects=False, lexical_labels=False):
+@@ -6848,35 +6948,16 @@
+                               {(k, l) for k, l, _ in owners.get(site, ())})
+ 
+     def test_every_boundary_call_belongs_to_an_entry_or_is_declared(self):
+-        """The other direction: an owner with nothing to own is also a defect.
+-
+-        A layer call the inventory cannot attribute is either a boundary on a
+-        value nobody receives -- the double validation 4bz forbids -- or an
+-        entry the universe is failing to see. Both are worth a name.
++        """Every exact source call has an entry claim or a named exception.
++
++        Declaration templates link to actual claimed propagation of that call.
++        Repeated read/session projections share only the same call, kind, label
++        and origin. Another source call or receiving context cannot borrow it.
+         """
+-        owners = owning_validators()
+-        # BY (kind, label), not by site. A shared owner is written once and
+-        # attributed to every crossing that reaches it, so one call appears at
+-        # the helper's site and at each caller's -- and asking whether THIS copy
+-        # is claimed reports the copies as orphans. What has to be true is that
+-        # the boundary is claimed SOMEWHERE: a rule nothing owns has a label no
+-        # entry answers to, wherever it is written.
+-        claimed = set()
+-        for entry in receiving_entries():
+-            places = [(entry[1], _claims(entry))]
+-            if entry in DELEGATED:
+-                places.append(DELEGATED[entry])
+-            for site, stem in places:
+-                for label in _owned_here(site, stem,
+-                                         covering=entry[0] != "injected"):
+-                    claimed |= {(kind, label)
+-                                for kind, found, _ in owners.get(site, ())
+-                                if found == label}
+-        orphans = sorted({(site, kind, label)
+-                          for site, found in owners.items()
+-                          for kind, label, _ in found
+-                          if (kind, label) not in claimed
+-                          and (site, kind, label) not in NOT_AN_ENTRY})
++        records = boundary_occurrences()
++        claimed = _boundary_claims(records, receiving_entries(), DELEGATED)
++        _, residual = _account_boundary_calls(records, claimed, NOT_AN_ENTRY)
++        orphans = sorted({(r.site, r.kind, r.label) for r in residual})
+         self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+ 
+     def test_the_double_ownership_check_can_actually_fail(self):
+@@ -12618,3 +12699,140 @@
+         self.assertEqual(state, "accepted")
+ if __name__ == "__main__":
+     unittest.main()
++
++
++_ACCOUNTING_FRAGMENT = '''
++def _view(row, what):
++    return boundaries.text(row["state"], f"{what} state")
++def public(connection):
++    row = connection.execute("SELECT * FROM runtime_lanes").fetchone()
++    return _view(row, "owned")
++'''
++
++
++def _clear_boundary_projections():
++    for projection in MEMOISED:
++        if hasattr(projection, "cache_clear"):
++            projection.cache_clear()
++
++
++class HelperDeclarationsHaveExactAccounting(unittest.TestCase):
++    def model(self, text=_ACCOUNTING_FRAGMENT):
++        _clear_boundary_projections()
++        self.addCleanup(_clear_boundary_projections)
++        sources = ((pathlib.Path("sample.py"), ast.parse(text)),)
++        patched = patch.object(sys.modules[__name__], "_sources", lambda: sources)
++        patched.start()
++        self.addCleanup(patched.stop)
++        entries = receiving_entries()
++        records = boundary_occurrences()
++        claimed = _boundary_claims(records, entries, {})
++        return entries, records, claimed
++
++    def test_exact_declaration_links_to_real_adopted_owner(self):
++        entries, records, claimed = self.model()
++        expected = ("adopted", "sample.py:public", "runtime_lanes.state")
++        self.assertIn(expected, entries)
++        resolved, residual = _account_boundary_calls(records, claimed, {})
++        self.assertEqual(residual, frozenset())
++        self.assertEqual(len(resolved), 1)
++        declaration, actuals = next(iter(resolved.items()))
++        self.assertEqual((declaration.call, declaration.label), (("sample.py:_view", 3, 11, 3, 57), "{what} state"))
++        self.assertEqual({(r.site, r.label, r.subject) for r in actuals}, {
++            ("sample.py:public", "owned state", "read:sample.py:public|runtime_lanes[state]")})
++        self.assertTrue(all(expected in claimed[r] for r in actuals))
++
++    def test_no_entry_claim_means_no_declaration_exemption(self):
++        _, records, _ = self.model()
++        resolved, residual = _account_boundary_calls(records, {}, {})
++        self.assertEqual(resolved, {})
++        self.assertEqual(residual, records)
++
++    def test_deleting_validator_preserves_independent_entry_and_missing_owner_failure(self):
++        text = _ACCOUNTING_FRAGMENT.replace('boundaries.text(row["state"], f"{what} state")', 'row["state"]')
++        entries, records, _ = self.model(text)
++        self.assertIn(("adopted", "sample.py:public", "runtime_lanes.state"), entries)
++        self.assertEqual(records, frozenset())
++        case = EveryReceivingEntryHasOneOwner()
++        with self.assertRaisesRegex(AssertionError, "receiving entries with no owner"):
++            case.test_every_receiving_entry_has_an_owning_validator()
++
++    def test_same_label_at_unrelated_helper_is_still_orphan(self):
++        _, records, claimed = self.model(_ACCOUNTING_FRAGMENT + '''
++def _unrelated(value):
++    return boundaries.text(value, "owned state")
++''')
++        _, residual = _account_boundary_calls(records, claimed, {})
++        self.assertEqual({r.call[0] for r in residual}, {"sample.py:_unrelated"})
++        # The current global-label algorithm would lose this unrelated call.
++        old_claimed = {(r.kind, r.label) for r in claimed}
++        self.assertTrue(all((r.kind, r.label) in old_claimed for r in residual))
++
++    def test_same_site_and_label_do_not_claim_an_unrelated_subject(self):
++        text = _ACCOUNTING_FRAGMENT.replace('return _view(row, "owned")', 'boundaries.text(row["state"], "same"); boundaries.text("internal", "same")')
++        _, records, claimed = self.model(text)
++        _, residual = _account_boundary_calls(records, claimed, {})
++        found = [r for r in residual if r.site == "sample.py:public"]
++        self.assertEqual(len(found), 1)
++        self.assertEqual((found[0].label, found[0].subject), ("same", "?"))
++        same_line = [r for r in records if r.site == "sample.py:public"]
++        self.assertEqual(len({r.call[1] for r in same_line}), 1)
++        self.assertEqual(len({r.call[2] for r in same_line}), 2)
++
++    def test_one_claimed_context_cannot_hide_an_unclaimed_context(self):
++        text = _ACCOUNTING_FRAGMENT + '''
++def second(connection):
++    row = connection.execute("SELECT * FROM runtime_lanes").fetchone()
++    return _view(row, "second")
++'''
++        entries, records, _ = self.model(text)
++        claimed = _boundary_claims(records, {entry for entry in entries if entry[1] != "sample.py:second"}, {})
++        resolved, residual = _account_boundary_calls(records, claimed, {})
++        self.assertEqual(len(resolved), 1)
++        self.assertEqual({(r.site, r.label) for r in residual}, {("sample.py:second", "second state")})
++
++    def test_unreachable_helper_call_does_not_supply_a_link(self):
++        text = _ACCOUNTING_FRAGMENT.replace('return _view(row, "owned")', 'return row["state"]\n    _view(row, "owned")')
++        _, records, claimed = self.model(text)
++        resolved, residual = _account_boundary_calls(records, claimed, {})
++        self.assertEqual(resolved, {})
++        self.assertEqual({r.call[0] for r in residual}, {"sample.py:_view"})
++
++    def test_double_ownership_assertion_still_rejects_second_owner(self):
++        entries, _, _ = self.model()
++        entry = ("adopted", "sample.py:public", "runtime_lanes.state")
++        self.assertIn(entry, entries)
++        self.assertEqual(layer_labels(entry), ["owned state"])
++        with patch.object(sys.modules[__name__], "STATED_OWNERS", {entry: "independent second claim"}):
++            with self.assertRaisesRegex(AssertionError, "owned more than once"):
++                EveryReceivingEntryHasOneOwner().test_no_entry_is_owned_twice()
++
++    def test_projection_keeps_existing_owner_triples(self):
++        _, records, _ = self.model()
++        actual = {(r.site, r.kind, r.label, r.subject) for r in records}
++        expected = {(site, kind, label, subject) for site, rows in owning_validators().items() for kind, label, subject in rows}
++        self.assertEqual(actual, expected)
++
++    def test_same_adopted_call_and_origin_can_be_projected_at_several_sites(self):
++        _, records, claimed = self.model('''
++def _read(connection):
++    row = connection.execute("SELECT * FROM runtime_lanes").fetchone()
++    boundaries.text(row["state"], "a lane state")
++    return row
++def public(connection):
++    return _read(connection)
++''')
++        resolved, residual = _account_boundary_calls(records, claimed, {})
++        self.assertEqual(residual, frozenset())
++        self.assertEqual(len(resolved), 1)
++        copy, owners = next(iter(resolved.items()))
++        self.assertEqual(copy.site, "sample.py:public")
++        self.assertEqual({r.site for r in owners}, {"sample.py:_read"})
++        self.assertTrue(all((r.call, r.label, r.subject) == (copy.call, copy.label, copy.subject) for r in owners))
++
++    def test_same_call_and_origin_with_another_label_cannot_borrow_claim(self):
++        _, records, claimed = self.model()
++        owner = next(r for r in records if r.propagated)
++        other = owner._replace(label="another label")
++        _, residual = _account_boundary_calls(records | {other}, claimed, {})
++        self.assertEqual(residual, frozenset({other}))

@@ -1,0 +1,14 @@
+{
+  "candidate_sha256": "830496b44569e7a88c29771577d616f94b52bcd3066c48f6fa338aab24a30d04",
+  "live_unchanged": true,
+  "manifest_and_runtime_hashes_match": true,
+  "existing_cache_checks_passed": 6,
+  "source_origin_and_occurrence_discriminators_pass": true,
+  "owner_projection_parity": true,
+  "entries": 1365,
+  "occurrences": 697,
+  "residual_occurrences": 79,
+  "residual_rows": 77,
+  "retained_residuals_match": true,
+  "elapsed_seconds": 10.500471852952614
+}

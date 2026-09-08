@@ -1,0 +1,9 @@
+{
+  "before_sha256": "6903203359824d7d426a4673886a8edb9fa038548bdc3d7feb4ba3f07e9bc3b8",
+  "candidate_sha256": "4cf7eae8df2bc75c99a6ab980d273526f23a4b82b09f3cd476a1a19a29da5c5d",
+  "changed_baseline_classes": [
+    "_OriginBindings"
+  ],
+  "unchanged_baseline_classes": 26,
+  "added_provider_test_methods": 15
+}

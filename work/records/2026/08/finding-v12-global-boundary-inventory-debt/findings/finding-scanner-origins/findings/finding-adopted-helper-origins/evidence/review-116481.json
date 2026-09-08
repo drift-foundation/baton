@@ -1,0 +1,485 @@
+{
+  "all_retained_counterexamples_pass": true,
+  "asserted_projection_cases": 13,
+  "candidate": {
+    "branch": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.claim_generation"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[claim_generation]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "branch_reversed": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.claim_generation"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[claim_generation]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "exception_handler": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[identity]",
+        [
+          "connection"
+        ],
+        []
+      ]
+    },
+    "finally_exit_destinations": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "first.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|first[identity]",
+        [
+          "connection",
+          "supplied",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "finally_explicit_else_raise": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "first.identity"
+        ]
+      ],
+      "return": null
+    },
+    "finally_implicit_else_exception": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "first.identity"
+        ],
+        [
+          "adopted",
+          "sample.py:public",
+          "second.identity"
+        ]
+      ],
+      "return": null
+    },
+    "finally_return_fallthrough": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "second.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|second[identity]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "for_break": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[identity]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "late_return": {
+      "choose_return": [
+        [
+          "read:sample.py:_choose|first",
+          "read:sample.py:_later|second"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ],
+      "entries": [
+        [
+          "adopted",
+          "sample.py:_choose",
+          "first.identity"
+        ],
+        [
+          "adopted",
+          "sample.py:_later",
+          "second.identity"
+        ]
+      ],
+      "return": [
+        [
+          "read:sample.py:_choose|first[identity]",
+          "read:sample.py:_later|second[identity]"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "nested_import": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "producer.py:row",
+          "offers.claim_generation"
+        ]
+      ],
+      "return": [
+        "read:producer.py:row|offers[claim_generation]",
+        [
+          "connection"
+        ],
+        []
+      ]
+    },
+    "reassign": {
+      "choose_return": null,
+      "entries": [
+        [
+          "caller",
+          "sample.py:public",
+          "row.record"
+        ]
+      ],
+      "return": [
+        "caller:row[record][identity]",
+        [
+          "row"
+        ],
+        []
+      ]
+    },
+    "reordered_definitions": {
+      "choose_return": [
+        [
+          "read:sample.py:_choose|first",
+          "read:sample.py:_later|second"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ],
+      "entries": [
+        [
+          "adopted",
+          "sample.py:_choose",
+          "first.identity"
+        ],
+        [
+          "adopted",
+          "sample.py:_later",
+          "second.identity"
+        ]
+      ],
+      "return": [
+        [
+          "read:sample.py:_choose|first[identity]",
+          "read:sample.py:_later|second[identity]"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "shadow": {
+      "choose_return": null,
+      "entries": [],
+      "return": null
+    },
+    "while_break": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[identity]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    }
+  },
+  "changed_original_classes": [],
+  "elapsed_seconds": 0.3196475320146419,
+  "hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "080cc29bd6ce9d4e9f80bd8433d3faa8a4b17db61abf00ff918015933e305dd9",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-adopted-helper-origins/evidence/correction-116389/candidate.py": "cd600e9ad74ee9dc9a3072a120b04e35aebe6ee5ec376832265f965d8c3438b6",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-adopted-helper-origins/evidence/correction-116443/candidate.py": "080cc29bd6ce9d4e9f80bd8433d3faa8a4b17db61abf00ff918015933e305dd9"
+  },
+  "original_class_count": 24,
+  "prior": {
+    "exception_handler": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[identity]",
+        [
+          "connection"
+        ],
+        []
+      ]
+    },
+    "finally_exit_destinations": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "first.identity"
+        ],
+        [
+          "adopted",
+          "sample.py:public",
+          "second.identity"
+        ]
+      ],
+      "return": [
+        [
+          "read:sample.py:public|first[identity]",
+          "read:sample.py:public|second[identity]"
+        ],
+        [
+          "connection",
+          "supplied",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "finally_explicit_else_raise": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "first.identity"
+        ]
+      ],
+      "return": null
+    },
+    "finally_implicit_else_exception": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "first.identity"
+        ],
+        [
+          "adopted",
+          "sample.py:public",
+          "second.identity"
+        ]
+      ],
+      "return": null
+    },
+    "finally_return_fallthrough": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "first.identity"
+        ],
+        [
+          "adopted",
+          "sample.py:public",
+          "second.identity"
+        ]
+      ],
+      "return": [
+        [
+          "read:sample.py:public|first[identity]",
+          "read:sample.py:public|second[identity]"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "for_break": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[identity]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "late_return": {
+      "choose_return": [
+        [
+          "read:sample.py:_choose|first",
+          "read:sample.py:_later|second"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ],
+      "entries": [
+        [
+          "adopted",
+          "sample.py:_choose",
+          "first.identity"
+        ],
+        [
+          "adopted",
+          "sample.py:_later",
+          "second.identity"
+        ]
+      ],
+      "return": [
+        [
+          "read:sample.py:_choose|first[identity]",
+          "read:sample.py:_later|second[identity]"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "reordered_definitions": {
+      "choose_return": [
+        [
+          "read:sample.py:_choose|first",
+          "read:sample.py:_later|second"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ],
+      "entries": [
+        [
+          "adopted",
+          "sample.py:_choose",
+          "first.identity"
+        ],
+        [
+          "adopted",
+          "sample.py:_later",
+          "second.identity"
+        ]
+      ],
+      "return": [
+        [
+          "read:sample.py:_choose|first[identity]",
+          "read:sample.py:_later|second[identity]"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "while_break": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[identity]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    }
+  }
+}

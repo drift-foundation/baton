@@ -1,0 +1,20 @@
+{
+  "handoff_hash": "dfb793939bd76bea93e8bc10a84ca517c00ed89d68248449a63b12e512077982",
+  "verified_handoff_paths": 47,
+  "candidate_sha256": "830496b44569e7a88c29771577d616f94b52bcd3066c48f6fa338aab24a30d04",
+  "mode": "0644",
+  "runtime_hashes": 27,
+  "changed_existing_methods": [
+    "EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared"
+  ],
+  "module_appendices": 10,
+  "removed_rows": 13,
+  "added_rows": 18,
+  "residual_rows_assigned_once": 77,
+  "residual_occurrences": 79,
+  "retained_test_evidence": {
+    "focused": 11,
+    "cache": 6
+  },
+  "tests_rerun": false
+}

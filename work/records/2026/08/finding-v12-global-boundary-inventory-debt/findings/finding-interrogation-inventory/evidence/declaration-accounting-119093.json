@@ -1,0 +1,42 @@
+{
+  "added_rows": [
+    [
+      "interrogation.py:publish_inquiry_answer",
+      "injected",
+      "a published answer reference"
+    ]
+  ],
+  "current_orphan_calls": [
+    [
+      "interrogation.py:_diagnostics",
+      "text",
+      "a probe diagnostic name"
+    ],
+    [
+      "interrogation.py:publish_inquiry_answer",
+      "injected",
+      "a published answer reference"
+    ]
+  ],
+  "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory",
+  "module": "interrogation",
+  "prior_inputs_sha256": "f72d3d206d04913c701f1d3247a5ca4790a33f2591a499bb38e8b3ed2c1764e6",
+  "prior_orphan_calls": [
+    [
+      "interrogation.py:_diagnostics",
+      "text",
+      "a probe diagnostic name"
+    ]
+  ],
+  "removed_rows": [],
+  "runtime_sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/interrogation.py",
+  "state": "live accounting revalidated; independent implementation acceptance pending",
+  "unchanged_input_counts": {
+    "failed_stimuli": 0,
+    "missing_probes": 23,
+    "orphan_probes": 4,
+    "unowned": 4
+  },
+  "work": "W116981"
+}

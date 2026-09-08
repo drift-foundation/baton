@@ -1,0 +1,7 @@
+{
+  "changed_existing_assertions": [],
+  "added_tests": [
+    "TheIntegrationStageConsumesTheAcceptedPort.test_the_published_reader_adopts_a_real_delivery_with_the_group"
+  ],
+  "progress_prefix_preserved": true
+}

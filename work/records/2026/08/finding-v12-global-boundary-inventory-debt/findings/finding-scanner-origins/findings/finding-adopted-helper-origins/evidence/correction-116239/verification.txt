@@ -1,0 +1,14 @@
+Claim116239 verification. Cwd v12/python, PYTHONPATH=src. Budget30s recorded before execution.
+
+Initial branch/scope revision:19 fragment cases pass0.754s;7 cache/check8 cases pass3.495s.
+Statement-context revision:21 fragment cases pass0.939s; broader7 ran4.266s with check8 failing (six cache cases passed). Missing14 columns: accepted_at, claim_generation, claim_operation_id, claim_signature, decided_at, expires_at, incarnation, intent_digest, offer_id, settle_by, verifier, verifier_spent, work_route, work_scope. Diagnosed _offers comprehension result resolving its element against the outer pre-generator environment. No assertion changed. Resolve Name nodes using their own expression snapshot, preserving context through enclosing expressions; added an independent comprehension producer witness.
+
+Final command:
+PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+.............................
+----------------------------------------------------------------------
+Ran 29 tests in 4.932s
+
+OK
+
+All24 original test classes and prior13 added test methods AST-identical;9 new methods. git diff --check exit0, no output. No daemon or whole-suite run.

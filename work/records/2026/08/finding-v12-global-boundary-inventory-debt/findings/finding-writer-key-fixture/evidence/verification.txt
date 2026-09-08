@@ -1,0 +1,193 @@
+W116032 claim116860. Commands run from v12/python with PYTHONPATH=src.
+Budget15s cumulative pinned before execution.
+
+Baseline: python3 -m unittest tests.manager.test_boundary_inventory.TheWriterKeyProbeReachesAdoption.test_malformed_returned_identity_preserves_the_key_and_restores_the_factory
+F
+======================================================================
+FAIL: test_malformed_returned_identity_preserves_the_key_and_restores_the_factory (tests.manager.test_boundary_inventory.TheWriterKeyProbeReachesAdoption.test_malformed_returned_identity_preserves_the_key_and_restores_the_factory)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11986, in test_malformed_returned_identity_preserves_the_key_and_restores_the_factory
+    self.assertEqual((caught.exception.category, caught.exception.code), ("integrity", "schema"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('refused', 'precondition') != ('integrity', 'schema')
+
+First differing element 0:
+'refused'
+'integrity'
+
+- ('refused', 'precondition')
++ ('integrity', 'schema')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.006s
+
+FAILED (failures=1)
+
+Focused: python3 -m unittest tests.manager.test_boundary_inventory.TheWriterKeyProbeReachesAdoption
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.020s
+
+OK
+
+Original check3, once: python3 -m unittest tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary
+FFFF
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_attempt_of', 'attempts.runtime_attempt_id'), label='a persisted attempt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5460, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4159, in run
+    worker_manager.request_intake(self.store, self.port, _Collecting(),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  attempt_id="attempt-1")
+                                  ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 498, in request_intake
+    attempt = _attempt_of(store._connection, attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 228, in _attempt_of
+    raise ContractRefusal(
+        "refused", "precondition",
+        f"no runtime attempt {name_value(attempt_id)}")
+baton_v12.contracts.errors.ContractRefusal: no runtime attempt 'attempt-1'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8023, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5466, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a persisted attempt' not found in "no runtime attempt 'attempt-1'" : refused, but not at 'a persisted attempt': no runtime attempt 'attempt-1'
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes.lane_id'), label='a persisted runtime lane')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5460, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7152, in run
+    worker_manager.request_runtime_start(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, FakeAdapter(self), attempt_id=attempt_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 1504, in request_runtime_start
+    store.transact(operation_id, "runtime.start", signature, act)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/store.py", line 532, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 1495, in act
+    lanes._occupy_lane(connection, store._now(), attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      reference=reference,
+                      ^^^^^^^^^^^^^^^^^^^^
+                      reason=f"execution requested under "
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             f"{operation_id}")
+                             ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/lanes.py", line 205, in _occupy_lane
+    raise ContractRefusal(
+    ...<5 lines>...
+        f"rather than started beside the winner") from None
+baton_v12.contracts.errors.ContractRefusal: this assignment's runtime lane is held by attempt none (unknown); one execution at a time is what the lane is, and the loser of this race is refused rather than started beside the winner
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8023, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5466, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a persisted runtime lane' not found in "this assignment's runtime lane is held by attempt none (unknown); one execution at a time is what the lane is, and the loser of this race is refused rather than started beside the winner" : refused, but not at 'a persisted runtime lane': this assignment's runtime lane is held by attempt none (unknown); one execution at a time is what the lane is, and the loser of this race is refused rather than started beside the winner
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'output.py:_attempt_of', 'attempts.runtime_attempt_id'), label='a persisted attempt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5460, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4078, in run
+    sealed=self.sealed_result())
+           ~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4043, in sealed_result
+    worker_manager.freeze_operation(self.attempt_row())),
+                                    ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4026, in attempt_row
+    return {key: found[key] for key in found.keys()}
+                                       ^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'keys'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8023, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5472, in refusing
+    self.fail(f"{label}: escaped as {type(failure).__name__}: {failure}")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a persisted attempt: escaped as AttributeError: 'NoneType' object has no attribute 'keys'
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_attachment_row', 'review_attachments.attachment_id'), label='a persisted review attachment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5460, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7547, in run
+    review_cycles.record_verdict(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, attachment_id="attachment-probe",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        disposition="accepted", profile=profile,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        port=self.review_port("baton.review"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1175, in record_verdict
+    attachment = _attachment(store, attachment_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 354, in _attachment
+    return _attachment_row(store, attachment_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 346, in _attachment_row
+    raise ContractRefusal("refused", "precondition",
+                          f"no review attachment {name_value(attachment_id)}")
+baton_v12.contracts.errors.ContractRefusal: no review attachment 'attachment-probe'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8023, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5466, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a persisted review attachment' not found in "no review attachment 'attachment-probe'" : refused, but not at 'a persisted review attachment': no review attachment 'attachment-probe'
+
+----------------------------------------------------------------------
+Ran 1 test in 4.163s
+
+FAILED (failures=4)
+
+Additional exact catalog witness after original3 showed other failing subcases: python3 -m unittest tests.manager.test_boundary_inventory.TheWriterKeyProbeReachesAdoption.test_the_catalog_keeps_the_exact_writer_pair_and_reaches_adoption
+.
+----------------------------------------------------------------------
+Ran 1 test in 1.216s
+
+OK
+
+Seven targeted controls pass. Original check3 still fails four other subcases; writer pair verified present with unchanged label and real adoption refusal. Cumulative0.006+0.020+4.163+1.216=5.405s within15s. No original assertions or expected labels changed. git diff --check exit0.

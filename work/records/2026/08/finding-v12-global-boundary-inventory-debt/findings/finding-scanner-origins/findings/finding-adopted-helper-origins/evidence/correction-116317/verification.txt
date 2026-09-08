@@ -1,0 +1,45 @@
+Claim116317 verification, cwd v12/python, PYTHONPATH=src. Budget30s recorded before execution.
+
+First focused revision:
+..........E...................
+======================================================================
+ERROR: test_live_interrogation_and_lane_origins_keep_their_adoption_site (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_live_interrogation_and_lane_origins_keep_their_adoption_site)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11023, in test_live_interrogation_and_lane_origins_keep_their_adoption_site
+    self.assertEqual(origins["held"], "read:lanes.py:_occupy_lane|runtime_lanes")
+                     ~~~~~~~^^^^^^^^
+KeyError: 'held'
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.819s
+
+FAILED (errors=1)
+
+The live-lane witness requires the function inventory to retain held at an exceptional exit. Retain all reached terminal-binding states in the function-level map; individual expressions still use their own snapshots. No assertion changed.
+
+Corrected focused class:
+..............................
+----------------------------------------------------------------------
+Ran 30 tests in 0.828s
+
+OK
+
+Existing immutable/cache class and original check8:
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 4.125s
+
+OK
+
+Final new concern: exceptions raised by else/handlers still execute finally. Added outcome preservation and an independent handler-raises/finally witness before final verification.
+
+Final command:
+PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+......................................
+----------------------------------------------------------------------
+Ran 38 tests in 4.573s
+
+OK
+
+Measured cumulative test time10.345s <30s. All24 original classes and prior22 added test methods AST-identical;9 additional methods. git diff --check exit0, no output. No daemon/aggregate suite.

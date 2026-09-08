@@ -1,0 +1,34 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [],
+  "module": "posture_slots",
+  "orphan_calls": [
+    [
+      "posture_slots.py:_occupy_slot",
+      "instant",
+      "a slot movement instant"
+    ],
+    [
+      "posture_slots.py:_release_slot_in",
+      "instant",
+      "a slot movement instant"
+    ],
+    [
+      "posture_slots.py:_require_slot_recovery_in",
+      "instant",
+      "a slot movement instant"
+    ]
+  ],
+  "orphan_probes": [],
+  "runtime_sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/posture_slots.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [],
+  "work": "W117022"
+}

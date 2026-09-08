@@ -1,0 +1,35 @@
+Retained from command tool output, 2026-09-08, baton.tuner claim116063.
+Working directory: v12/python. No whole suite or daemon execution.
+
+Final focused command:
+PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 0.489s
+
+OK
+Exit status: 0
+
+Final broader discovery command:
+PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 3.170s
+
+OK
+Exit status: 0
+
+git diff --check -- v12/python/tests/manager/test_boundary_inventory.py
+No output; exit status 0.
+
+Earlier runs, preserved as correction history:
+- First new-fragment run: 8 tests,0.431s, one failure because the newly added
+  expected set omitted the real intermediate runtime_lanes.record read.
+  Corrected that witness to include the real read; next8 passed in0.474s.
+- First broader command: 7 tests,3.057s, original column check failed with
+  ['claim_generation']; six cache/immutability checks passed. Resolved the
+  actual source-local import of offers.claimed_offers_for and added the
+  ninth independent import/alias witness before the final commands above.
+
+Original check8 is passing for this candidate. Other original inventory
+checks and the12-check remediation program have not been claimed green.

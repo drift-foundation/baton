@@ -1,0 +1,57 @@
+{
+  "work": "W116032",
+  "claim": 116860,
+  "check": "EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary",
+  "candidate_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "residuals": [
+    {
+      "entry": [
+        "adopted",
+        "intake.py:_attempt_of",
+        "attempts.runtime_attempt_id"
+      ],
+      "label": "a persisted attempt",
+      "fixture": "spoiling_intake_attempt",
+      "observed": "refused/precondition: no runtime attempt attempt-1",
+      "source_fact": "Fixture changes stored runtime_attempt_id, then request_intake queries attempt-1.",
+      "next": "Bounded intake B3 child; enumerate this exact stimulus before edits."
+    },
+    {
+      "entry": [
+        "adopted",
+        "lanes.py:_occupy_lane",
+        "runtime_lanes.lane_id"
+      ],
+      "label": "a persisted runtime lane",
+      "fixture": "spoiling_colliding_lane",
+      "observed": "Wrong boundary: runtime lane is held by attempt none (unknown).",
+      "source_fact": "Fixture creates the derived colliding lane_id, then changes that stored key before request_runtime_start.",
+      "next": "Bounded lanes B3 child; establish the real collision/adoption path before stimulus changes."
+    },
+    {
+      "entry": [
+        "adopted",
+        "output.py:_attempt_of",
+        "attempts.runtime_attempt_id"
+      ],
+      "label": "a persisted attempt",
+      "fixture": "spoiling_output_attempt",
+      "observed": "Fixture AttributeError: NoneType has no attribute keys in attempt_row while preparing sealed_result.",
+      "source_fact": "Fixture changes stored runtime_attempt_id before sealed_result reads attempt-1.",
+      "next": "output.py was not enumerated in the prior B3 extension; obtain a bounded explicit output-fixture disposition before edits."
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.attachment_id"
+      ],
+      "label": "a persisted review attachment",
+      "fixture": "spoiling_review_row",
+      "observed": "refused/precondition: no review attachment attachment-probe",
+      "source_fact": "Unchanged non-writer branch changes stored attachment_id before record_verdict queries attachment-probe.",
+      "next": "Bounded review_cycles B3 child; changing attachment stimulus is outside the exact writer-only B2 authorization."
+    }
+  ],
+  "scope": "Observed failures and read-only fixture facts; no runtime defect or accepted correction for these rows is claimed."
+}

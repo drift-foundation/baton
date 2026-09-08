@@ -48,8 +48,8 @@ from baton_v12 import checkpoint_profiles
 from baton_v12.authority import MAX_SAFE_INTEGER, Authority, Refusal
 from baton_v12.contracts import ContractRefusal, digest
 from baton_v12.integration import (IntegrationStore, admit_accepted,
-                                   integration_profile, publish_candidate,
-                                   retain_proposal)
+                                   continue_accepted, integration_profile,
+                                   publish_candidate, retain_proposal, runtime)
 from baton_v12.job_manager import review_driver, scheduler
 from baton_v12.job_manager.scheduler import PooledManagerOperations
 from baton_v12.worker_manager import (assignment_of,
@@ -729,6 +729,13 @@ class StageComposition:
         return deployment.routed(stage, answered)
 
 
+# THE RUNTIME STATE THAT SAYS NO START WAS EVER REQUESTED. A delivery can
+# exist with no runtime behind it -- the namespaces are materialized before the
+# container -- and that attempt is admission's to re-enter, not a continuation's
+# to refresh.
+_UNSTARTED = "not-started"
+
+
 class Integration:
     """The accepted serialized integration, driven from the Job's own stage.
 
@@ -750,8 +757,96 @@ class Integration:
         self.deployment = deployment
         self.port = port
 
+    def required_tests(self):
+        """The required-test selection, DERIVED from configured material.
+
+        Owner ruling M115946, on this Work's obligation 115920: derive it from
+        the configured implementation task and its bound input manifest, never
+        from what the worker REPORTED. `driver._owned_requirements` already
+        names this derivation as W103083's; the deployment document stays
+        closed and gains no member for it, exactly as the integrator and
+        publisher participants are derived rather than configured.
+
+        THE PRODUCER'S OWN CONFIGURATION IS THE SOURCE, read through
+        `single_worker`'s own validator rather than re-implemented here: it
+        holds the task bytes once, no-follow and bounded, and a second reader
+        with its own opinion about that file is the duplicate deployment
+        opinion this assembly boundary exists to prevent.
+        """
+        import hashlib
+        import json as _json
+
+        named = [one for one in self.deployment.given["workers"]
+                 if one["role"] == "implementation"]
+        if len(named) != 1:
+            _refuse(f"this deployment names {len(named)} implementation "
+                    f"workers; the required-test selection is derived from "
+                    f"exactly one producer's configured task",
+                    category="refused", code="precondition")
+        # THE HELD FORM, CONSUMED AS IT STANDS. Review 2026-09-08T04:06:54Z
+        # [P1]: this re-validated the producer document through
+        # `single_worker._held`, which the factory had ALREADY applied -- and
+        # that validator correctly rejects its own derived members, so every
+        # real integration tick stopped here. The bytes were read once at
+        # configuration, no-follow and bounded; reopening the path would also
+        # let a task file replaced after configuration substitute new expected
+        # bytes, which is exactly what the held form prevents.
+        held = named[0]["deployment"]
+        payload = held.get("task_bytes")
+        manifest = held.get("input_manifest")
+        if type(payload) is not bytes or type(manifest) is not dict:
+            _refuse("the configured producer carries no held task bytes and "
+                    "input manifest; the required-test selection is derived "
+                    "from the deployment the factory validated",
+                    category="refused", code="precondition")
+        task = _json.loads(payload)
+        argv = task.get("verification")
+        if type(argv) is not list or not argv:
+            _refuse("the configured implementation task names no verification "
+                    "command; an integration is admitted behind an ordinary "
+                    "test run and never ahead of one",
+                    category="refused", code="precondition")
+        return {"task_id": task["task_id"],
+                "task_digest": "sha256:" + hashlib.sha256(payload).hexdigest(),
+                "argv": list(argv),
+                "input_manifest_digest": manifest["manifest_digest"]}
+
+    def _correspondent(self, job, requirement):
+        """The Job, the producer and the input this requirement names AGREE.
+
+        M115946 requires the correspondence check, and it is here rather than
+        inside the derivation because the derivation is about configured
+        material and this is about the Job the tick arrived for -- including a
+        correction attempt, which carries the same producer input.
+        """
+        if type(job) is not dict:
+            return
+        held = job.get("input_digest")
+        if held is not None and held != requirement["input_manifest_digest"]:
+            _refuse(f"this Job names input {held!r} and the configured "
+                    f"producer's manifest is "
+                    f"{requirement['input_manifest_digest']!r}; a required "
+                    f"test selection describes the producer this Job ran",
+                    category="refused", code="precondition")
+
+    def _published(self, stage):
+        """This attempt's delivery and the assignment it carries, or None.
+
+        THE PUBLIC READERS AND NOTHING ELSE, at the configured delivery home,
+        this stage's exact attempt and the deployment's workspace group. An
+        absent or unpublished delivery answers `None` rather than inventing an
+        assignment -- there is nothing to continue, and admission owns what
+        happens next.
+        """
+        delivery = runtime.adopt_delivery(
+            self.deployment.integration_root,
+            attempt_id=stage["attempt_id"],
+            workspace_group=self.deployment.workspace_group)
+        if delivery is None:
+            return None, None
+        return delivery, runtime.published_assignment(delivery)
+
     def run(self, stage, job):
-        del job
         deployment = self.deployment
         if self.port is None:
             # W103083: THE ONE CAPABILITY THIS BUILD DOES NOT HAVE. Every
@@ -776,19 +871,68 @@ class Integration:
                     f"integration checkpoint; an integration stage runs "
                     f"behind an accepted verdict and never ahead of one",
                     category="refused", code="precondition")
+        operands = {
+            "canonical_target_id": deployment.given["canonical_target_id"],
+            "line_id": line["line_id"],
+            "proposal_id": deployment.published_proposal(accepted),
+            "policy_generation": deployment.given["policy_generation"],
+            "profile": deployment.integration_profile,
+            "attempt_id": stage["attempt_id"],
+            "launch_root": deployment.integration_root,
+            "workspace_group": deployment.workspace_group,
+            "required_tests": self.required_tests()}
+        self._correspondent(job, operands["required_tests"])
+        sessions = (deployment.sessions["verification"],
+                    deployment.sessions["review"],
+                    deployment.sessions["approval"],
+                    deployment.sessions["integrator"])
+
+        delivery, assignment = self._published(stage)
+        if assignment is None:
+            # THE FIRST TICK FOR THIS ATTEMPT. Preparation records and
+            # activates the manager attempt and mints its private credential,
+            # and it must precede admission: `integrate_next` proves the
+            # runtime `not-started` BEFORE it asks the port to run, so an
+            # attempt prepared afterwards is prepared one call too late.
+            self.port.prepare(stage, job)
+            return admit_accepted(
+                deployment.integration, control, deployment.jobs,
+                deployment.authority, *sessions, self.port, **operands)
+
+        # A LATER TICK OVER A DELIVERY THIS DEPLOYMENT ALREADY PUBLISHED.
+        # Owner ruling M115946: refresh FIRST, then continue only when the
+        # port's own marker confirms this live execution started exactly this
+        # assignment. Reading a persisted assignment grants no permission --
+        # a fresh serving incarnation has no marker and falls through to
+        # admission, which owns the restart hold it has always owned.
+        seen = self.port.observed(stage["attempt_id"], assignment)
+        if seen["execution_runtime"] == _UNSTARTED:
+            # A PUBLISHED DELIVERY WITH NO RUNTIME BEHIND IT IS STILL A FIRST
+            # START, so it is prepared exactly like one. W103083 review
+            # 2026-09-08T12:41:47Z [P1]: an interrupted first admission leaves
+            # the namespaces and the published assignment durable while the
+            # attempt's runtime stays `not-started`, and this branch went
+            # straight to admission -- which proves the runtime `not-started`
+            # and then asks the port to run with no execution-local credential
+            # delivery to run it with. Preparation is the manager's own
+            # effectively-once act and reuses the capability this execution
+            # already prepared, so re-entering costs nothing and mints
+            # nothing twice. No refresh is reached: reconciling an attempt no
+            # start was ever requested for is the write that branch refuses.
+            self.port.prepare(stage, job)
+        else:
+            # AND A STARTED OR UNCERTAIN RUNTIME IS NOT PREPARED HERE. Its
+            # credential custody belongs to the runtime that holds it, and the
+            # hold `admit_accepted` has always owned is what answers a marker
+            # this execution does not have.
+            self.port.refresh(stage["attempt_id"])
+            if self.port.may_continue(assignment, delivery):
+                return continue_accepted(
+                    deployment.integration, control, deployment.jobs,
+                    deployment.authority, *sessions, **operands)
         return admit_accepted(
             deployment.integration, control, deployment.jobs,
-            deployment.authority, deployment.sessions["verification"],
-            deployment.sessions["review"], deployment.sessions["approval"],
-            deployment.sessions["integrator"], self.port,
-            canonical_target_id=deployment.given["canonical_target_id"],
-            line_id=line["line_id"],
-            proposal_id=deployment.published_proposal(accepted),
-            policy_generation=deployment.given["policy_generation"],
-            profile=deployment.integration_profile,
-            attempt_id=stage["attempt_id"],
-            launch_root=deployment.integration_root,
-            workspace_group=deployment.workspace_group)
+            deployment.authority, *sessions, self.port, **operands)
 
 
 class StageDeployment:
@@ -816,7 +960,13 @@ class StageDeployment:
         self.retention_policy_digest = given["retention_policy_digest"]
         self.integration_root = os.path.join(given["state_root"],
                                              INTEGRATION_HOME)
-        self.workspace_group = configured_workspace_group(control).gid
+        # THE NOMINAL GROUP, NOT ITS INTEGER. W103083 review
+        # 2026-09-08T04:06:54Z [P1]: this held `.gid`, and the public delivery
+        # readers and admission both require the `WorkspaceGroup` the manager
+        # answers -- an integer is the identifier of a group, not the proof
+        # that this manager configured it. No consumer in this five-path scope
+        # needs the integer; one that did would take `.gid` at its own call.
+        self.workspace_group = configured_workspace_group(control)
         self._roles = {one["role"]: one for one in given["workers"]}
 
     def generation_of(self, attempt_id):

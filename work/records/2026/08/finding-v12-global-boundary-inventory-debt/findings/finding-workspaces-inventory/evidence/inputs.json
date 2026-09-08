@@ -1,0 +1,274 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [
+    [
+      [
+        "adopted",
+        "workspaces.py:_configured_gid",
+        "meta"
+      ],
+      "the configured workspace group's record"
+    ],
+    [
+      [
+        "adopted",
+        "workspaces.py:_configured_gid",
+        "meta.value"
+      ],
+      "the configured workspace group's record"
+    ],
+    [
+      [
+        "caller",
+        "workspaces.py:check_workspace_storage",
+        "place"
+      ],
+      "the configured workspace store"
+    ],
+    [
+      [
+        "caller",
+        "workspaces.py:compose_input_root",
+        "assignment"
+      ],
+      "the manager's own assignment"
+    ],
+    [
+      [
+        "caller",
+        "workspaces.py:compose_input_root",
+        "runtime_attempt_id"
+      ],
+      "a runtime attempt identity"
+    ]
+  ],
+  "module": "workspaces",
+  "orphan_calls": [
+    [
+      "workspaces.py:_committed_workspace_group",
+      "document",
+      "the committed workspace group configuration"
+    ],
+    [
+      "workspaces.py:_committed_workspace_storage",
+      "document",
+      "the committed workspace store configuration"
+    ],
+    [
+      "workspaces.py:_granted_roots",
+      "capability",
+      "an assignment roots live grant"
+    ]
+  ],
+  "orphan_probes": [
+    [
+      [
+        "caller",
+        "workspaces.py:adopted_assignment_workspace",
+        "assignment_id"
+      ],
+      "an assignment identity"
+    ],
+    [
+      [
+        "caller",
+        "workspaces.py:assignment_workspace",
+        "assignment_id"
+      ],
+      "an assignment identity"
+    ],
+    [
+      [
+        "caller",
+        "workspaces.py:discard_execution_roots",
+        "assignment_id"
+      ],
+      "an assignment identity"
+    ],
+    [
+      [
+        "caller",
+        "workspaces.py:discard_workspace",
+        "assignment_id"
+      ],
+      "an assignment identity"
+    ]
+  ],
+  "runtime_sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "adopted",
+      "workspaces.py:_configured_storage",
+      "meta"
+    ],
+    [
+      "adopted",
+      "workspaces.py:_configured_storage",
+      "meta.value"
+    ],
+    [
+      "caller",
+      "workspaces.py:AllocatedRoots.__init__",
+      "_grant"
+    ],
+    [
+      "caller",
+      "workspaces.py:AllocatedRoots.__init__",
+      "_grant_required"
+    ],
+    [
+      "caller",
+      "workspaces.py:AllocatedRoots.__init__",
+      "_minted"
+    ],
+    [
+      "caller",
+      "workspaces.py:AllocatedRoots.__init__",
+      "made"
+    ],
+    [
+      "caller",
+      "workspaces.py:WorkspaceGroup.__init__",
+      "_minted"
+    ],
+    [
+      "caller",
+      "workspaces.py:WorkspaceGroup.__init__",
+      "gid"
+    ],
+    [
+      "caller",
+      "workspaces.py:WorkspaceStorage.__init__",
+      "_minted"
+    ],
+    [
+      "caller",
+      "workspaces.py:WorkspaceStorage.__init__",
+      "place"
+    ],
+    [
+      "caller",
+      "workspaces.py:adopt_workspace_group",
+      "gid"
+    ],
+    [
+      "caller",
+      "workspaces.py:adopt_workspace_group",
+      "roots"
+    ],
+    [
+      "caller",
+      "workspaces.py:adopt_workspace_group",
+      "roots.workspace"
+    ],
+    [
+      "caller",
+      "workspaces.py:adopted_assignment_workspace",
+      "assignment_id"
+    ],
+    [
+      "caller",
+      "workspaces.py:assignment_workspace",
+      "assignment_id"
+    ],
+    [
+      "caller",
+      "workspaces.py:assignment_workspace",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "workspaces.py:check_workspace_group",
+      "gid"
+    ],
+    [
+      "caller",
+      "workspaces.py:check_workspace_group",
+      "what"
+    ],
+    [
+      "caller",
+      "workspaces.py:check_workspace_storage",
+      "what"
+    ],
+    [
+      "caller",
+      "workspaces.py:configure_workspace_group",
+      "gid"
+    ],
+    [
+      "caller",
+      "workspaces.py:configure_workspace_storage",
+      "place"
+    ],
+    [
+      "caller",
+      "workspaces.py:copied_manifest",
+      "admits"
+    ],
+    [
+      "caller",
+      "workspaces.py:copied_manifest",
+      "into"
+    ],
+    [
+      "caller",
+      "workspaces.py:copied_manifest",
+      "max_bytes"
+    ],
+    [
+      "caller",
+      "workspaces.py:copied_manifest",
+      "max_entries"
+    ],
+    [
+      "caller",
+      "workspaces.py:copied_manifest",
+      "root"
+    ],
+    [
+      "caller",
+      "workspaces.py:discard_execution_roots",
+      "assignment_id"
+    ],
+    [
+      "caller",
+      "workspaces.py:discard_tree",
+      "place"
+    ],
+    [
+      "caller",
+      "workspaces.py:discard_workspace",
+      "assignment_id"
+    ],
+    [
+      "caller",
+      "workspaces.py:prove_workspace_group",
+      "gid"
+    ],
+    [
+      "caller",
+      "workspaces.py:prove_workspace_group",
+      "place"
+    ],
+    [
+      "caller",
+      "workspaces.py:prove_workspace_group",
+      "what"
+    ],
+    [
+      "caller",
+      "workspaces.py:read_input_root",
+      "inputs"
+    ]
+  ],
+  "work": "W116995"
+}

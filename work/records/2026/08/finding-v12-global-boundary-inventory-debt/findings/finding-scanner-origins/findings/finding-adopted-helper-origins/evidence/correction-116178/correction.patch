@@ -1,0 +1,251 @@
+--- reviewed/v12/python/tests/manager/test_boundary_inventory.py
++++ candidate/v12/python/tests/manager/test_boundary_inventory.py
+@@ -455,8 +455,12 @@
+         return imports.get(("import", site, name), imports.get(("import", f"{module}:*", name)))
+ 
+     if isinstance(called, ast.Name):
++        if imports.get(("shadow", site, called.id)):
++            return None
+         return imported(called.id) or f"{module}:{called.id}"
+     if isinstance(called, ast.Attribute) and isinstance(called.value, ast.Name):
++        if imports.get(("shadow", site, called.value.id)):
++            return None
+         if called.value.id in ("self", "cls") and "." in lexical:
+             return f"{module}:{lexical.rsplit('.', 1)[0]}.{called.attr}"
+         target = imported(called.value.id)
+@@ -588,6 +592,8 @@
+     for source, tree in sources:
+         imports_at(f"{source.name}:*", tree.body)
+     for site, node in functions:
++        for name in _local_bindings(node):
++            found[("shadow", site, name)] = True
+         imports_at(site, ast.walk(node))
+     # Each pass can add a summary for a previously unresolved helper. A chain
+     # longer than four is no reason to silently lose its origin; a recursive
+@@ -616,6 +622,47 @@
+     a freshly parsed package of its own.
+     """
+     return types.MappingProxyType(dict(_returned_origins(_sources())))
++
++
++def _local_bindings(node):
++    """Names that prevent a function from borrowing a module's callable.
++
++    Parameters and assignments bind locally even before an assignment executes.
++    A nested function/class body and a comprehension's targets have their own
++    scope. Imports are resolved separately, only when no competing binding exists.
++    """
++    names = set(_parameters(node)) - {"self", "cls"}
++
++    class Bindings(ast.NodeVisitor):
++        def visit_Name(self, piece):
++            if isinstance(piece.ctx, (ast.Store, ast.Del)):
++                names.add(piece.id)
++
++        def visit_FunctionDef(self, piece):
++            names.add(piece.name)
++
++        visit_AsyncFunctionDef = visit_FunctionDef
++        visit_ClassDef = visit_FunctionDef
++
++        def visit_Lambda(self, piece):
++            pass
++
++        def visit_ListComp(self, piece):
++            self.visit(piece.generators[0].iter)
++
++        visit_SetComp = visit_ListComp
++        visit_DictComp = visit_ListComp
++        visit_GeneratorExp = visit_ListComp
++
++        def visit_ExceptHandler(self, piece):
++            if piece.name is not None:
++                names.add(piece.name)
++            self.generic_visit(piece)
++
++    visitor = Bindings()
++    for statement in node.body:
++        visitor.visit(statement)
++    return names
+ 
+ 
+ def _origins(node, site, returns=None, seed=None, own_parameters=True):
+@@ -642,36 +689,72 @@
+         origins.update(seed)
+ 
+     def bind(target, origin):
+-        if origin is not None and isinstance(target, ast.Name):
+-            origins[target.id] = origin
+-
+-    # TO A FIXED POINT, because `ast.walk` is BREADTH-FIRST and a binding can
+-    # depend on one the walk has not reached yet.
+-    #
+-    # W43977 [P0]: `EnginePort.__call__` assigns `answer` inside both arms of
+-    # an `if`, then joins with `taken = boundaries.document(answer, ...)` at
+-    # the top level. Breadth-first visits the JOIN first -- `answer` has no
+-    # origin yet -- so `taken` was bound to nothing and the engine's answer,
+-    # with the `status`, `stdout` and `stderr` this manager consumes, was
+-    # invisible to the universe. One more pass would have caught that one, and
+-    # a chain one link longer would have needed another; a fixed point needs
+-    # no guess about depth.
+-    #
+-    # It terminates because origins only ever GAIN names and each name's
+-    # origin is derived from names already bound, so the map is monotone over
+-    # a finite set of local names.
+-    while True:
+-        before = dict(origins)
+-        for piece in ast.walk(node):
+-            if isinstance(piece, ast.Assign):
+-                for target in piece.targets:
+-                    bind(target, _source(piece.value, origins, site, returns))
+-            elif isinstance(piece, (ast.For, ast.AsyncFor)):
+-                bind(piece.target, _source(piece.iter, origins, site, returns))
+-            elif isinstance(piece, ast.comprehension):
+-                bind(piece.target, _source(piece.iter, origins, site, returns))
+-        if origins == before:
+-            return origins
++        if isinstance(target, ast.Name):
++            if origin is None:
++                origins.pop(target.id, None)
++            else:
++                origins[target.id] = origin
++
++    # W43977's branch-before-join requirement needs execution order, not a
++    # breadth-first fixed point. W116051 review proves that replaying `row =
++    # _record(row)` grows members forever. Visit finite syntax once: a nested
++    # body's assignments precede the next statement, and reassignment uses the
++    # value before that assignment. No arbitrary chain-depth cap is involved.
++    class Assignments(ast.NodeVisitor):
++        def visit_Assign(self, piece):
++            self.visit(piece.value)
++            origin = _source(piece.value, origins, site, returns)
++            for target in piece.targets:
++                bind(target, origin)
++
++        def visit_AnnAssign(self, piece):
++            if piece.value is not None:
++                self.visit(piece.value)
++                bind(piece.target, _source(piece.value, origins, site, returns))
++
++        def visit_NamedExpr(self, piece):
++            self.visit(piece.value)
++            bind(piece.target, _source(piece.value, origins, site, returns))
++
++        def visit_For(self, piece):
++            self.visit(piece.iter)
++            bind(piece.target, _source(piece.iter, origins, site, returns))
++            for statement in piece.body + piece.orelse:
++                self.visit(statement)
++
++        visit_AsyncFor = visit_For
++
++        def visit_comprehension(self, piece):
++            self.visit(piece.iter)
++            bind(piece.target, _source(piece.iter, origins, site, returns))
++            for condition in piece.ifs:
++                self.visit(condition)
++
++        def visit_ListComp(self, piece):
++            for generator in piece.generators:
++                self.visit(generator)
++            self.visit(piece.elt)
++
++        visit_SetComp = visit_ListComp
++        visit_GeneratorExp = visit_ListComp
++
++        def visit_DictComp(self, piece):
++            for generator in piece.generators:
++                self.visit(generator)
++            self.visit(piece.key)
++            self.visit(piece.value)
++
++        def visit_FunctionDef(self, piece):
++            pass
++
++        visit_AsyncFunctionDef = visit_FunctionDef
++        visit_ClassDef = visit_FunctionDef
++        visit_Lambda = visit_FunctionDef
++
++    visitor = Assignments()
++    for statement in node.body:
++        visitor.visit(statement)
++    return origins
+ 
+ 
+ @functools.cache
+@@ -10754,6 +10837,75 @@
+         origins = _origins(node, "lanes.py:_occupy_lane", _helper_returns())
+         self.assertEqual(origins["held"], "read:lanes.py:_occupy_lane|runtime_lanes")
+ 
++    def test_member_reassignment_is_finite_and_applies_each_assignment_once(self):
++        import subprocess
++        import sys
++        source = '''
++def _record(*, envelope):
++    return envelope["record"]
++def public(row):
++    row = _record(envelope=row)
++    return row["identity"]
++def twice(row):
++    row = alias = _record(envelope=row)
++    row = _record(envelope=alias)
++    return row["identity"]
++'''
++        program = ("import ast, json, pathlib\n"
++                   "from tests.manager.test_boundary_inventory import _returned_origins\n"
++                   f"rows = _returned_origins([(pathlib.Path('sample.py'), ast.parse({source!r}))])\n"
++                   "print(json.dumps([rows['sample.py:public'][0], rows['sample.py:twice'][0]]))\n")
++        result = subprocess.run([sys.executable, "-c", program], capture_output=True, text=True, timeout=2)
++        self.assertEqual(result.returncode, 0, result.stderr)
++        self.assertEqual(json.loads(result.stdout), ["caller:row[record][identity]", "caller:row[record][record][identity]"])
++
++    def test_nested_branch_assignment_precedes_an_unbounded_length_join_chain(self):
++        source = self.fragment('''
++def public(connection, condition):
++    if condition:
++        if condition:
++            row = connection.execute("SELECT * FROM records").fetchone()
++        else:
++            row = connection.execute("SELECT * FROM records").fetchone()
++    else:
++        row = connection.execute("SELECT * FROM records").fetchone()
++''' + "\n".join("    alias" + str(n) + " = " + ("row" if n == 0 else "alias" + str(n - 1)) for n in range(12)) + '\n    return alias11["identity"]\n')
++        self.assertEqual(_returned_origins([source])["sample.py:public"][0], "read:sample.py:public|records[identity]")
++
++    def test_parameter_and_local_bindings_shadow_imported_callables(self):
++        producer = self.fragment('''
++def row(connection):
++    return connection.execute("SELECT * FROM offers").fetchone()
++''', "producer.py")
++        for declaration, call, parameter, assignment in (
++                ("from .producer import row as read", "read(connection)", ", read", ""),
++                ("from . import producer as source", "source.row(connection)", ", source", ""),
++                ("from .producer import row as read", "read(connection)", ", supplied", "    read = supplied\n"),
++                ("from . import producer as source", "source.row(connection)", ", supplied", "    source = supplied\n")):
++            with self.subTest(call=call, assignment=assignment):
++                source = self.fragment(f'''
++{declaration}
++def _view(row):
++    return row["claim_generation"]
++def public(connection{parameter}):
++{assignment}    return _view({call})
++''')
++                self.assertEqual(self.entries([producer, source], "sample.py:public"), set())
++                self.assertNotIn("sample.py:public", _returned_origins([producer, source]))
++
++    def test_local_binding_shadows_module_helper_for_delegation_and_returns(self):
++        for parameter, assignment in ((", _view", ""), (", supplied", "    _view = supplied\n")):
++            with self.subTest(parameter=parameter):
++                source = self.fragment(f'''
++def _view(row):
++    return row["claim_generation"]
++def public(connection{parameter}):
++{assignment}    row = connection.execute("SELECT * FROM offers").fetchone()
++    return _view(row)
++''')
++                self.assertEqual(self.entries([source], "sample.py:public"), set())
++                self.assertNotIn("sample.py:public", _returned_origins([source]))
++
+ 
+ class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
+     """W54182: the inventory's discovery is pure, so it is computed once.

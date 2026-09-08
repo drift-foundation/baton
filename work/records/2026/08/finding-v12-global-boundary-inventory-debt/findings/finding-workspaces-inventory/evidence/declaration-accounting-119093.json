@@ -1,0 +1,62 @@
+{
+  "added_rows": [
+    [
+      "workspaces.py:_assignment_identity",
+      "identity",
+      "an assignment identity"
+    ]
+  ],
+  "current_orphan_calls": [
+    [
+      "workspaces.py:_assignment_identity",
+      "identity",
+      "an assignment identity"
+    ],
+    [
+      "workspaces.py:_committed_workspace_group",
+      "document",
+      "the committed workspace group configuration"
+    ],
+    [
+      "workspaces.py:_committed_workspace_storage",
+      "document",
+      "the committed workspace store configuration"
+    ],
+    [
+      "workspaces.py:_granted_roots",
+      "capability",
+      "an assignment roots live grant"
+    ]
+  ],
+  "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory",
+  "module": "workspaces",
+  "prior_inputs_sha256": "df3ee46b45d77f10f3bbf9fa1acdad868f3e5788cbf4560b1bb40179fa89368f",
+  "prior_orphan_calls": [
+    [
+      "workspaces.py:_committed_workspace_group",
+      "document",
+      "the committed workspace group configuration"
+    ],
+    [
+      "workspaces.py:_committed_workspace_storage",
+      "document",
+      "the committed workspace store configuration"
+    ],
+    [
+      "workspaces.py:_granted_roots",
+      "capability",
+      "an assignment roots live grant"
+    ]
+  ],
+  "removed_rows": [],
+  "runtime_sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+  "state": "live accounting revalidated; independent implementation acceptance pending",
+  "unchanged_input_counts": {
+    "failed_stimuli": 0,
+    "missing_probes": 5,
+    "orphan_probes": 4,
+    "unowned": 33
+  },
+  "work": "W116995"
+}

@@ -1,0 +1,122 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [
+    [
+      [
+        "adopted",
+        "handshake.py:certified_agent_session_profile",
+        "profiles.body.postures"
+      ],
+      "a retained agent-session profile"
+    ],
+    [
+      [
+        "adopted",
+        "handshake.py:certified_agent_session_profile",
+        "profiles.body.postures.declared_output"
+      ],
+      "a retained agent-session profile"
+    ],
+    [
+      [
+        "adopted",
+        "handshake.py:certified_agent_session_profile",
+        "profiles.body.postures.policy"
+      ],
+      "a retained agent-session profile"
+    ],
+    [
+      [
+        "adopted",
+        "handshake.py:certified_agent_session_profile",
+        "profiles.body.postures.workspace"
+      ],
+      "a retained agent-session profile"
+    ]
+  ],
+  "module": "handshake",
+  "orphan_calls": [],
+  "orphan_probes": [],
+  "runtime_sha256": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/handshake.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "adapter"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "agent"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "agent_protocol_version"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "agent_session_capabilities"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "session_ref"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "session_ref.provider_session_id"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "session_ref.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "handshake.py:settle_unsupported_version",
+      "session_ref.session_epoch"
+    ],
+    [
+      "caller",
+      "handshake.py:unsupported_version_operation_id",
+      "session_ref"
+    ],
+    [
+      "caller",
+      "handshake.py:unsupported_version_operation_id",
+      "session_ref.posture"
+    ],
+    [
+      "caller",
+      "handshake.py:unsupported_version_operation_id",
+      "session_ref.provider_session_id"
+    ],
+    [
+      "caller",
+      "handshake.py:unsupported_version_operation_id",
+      "session_ref.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "handshake.py:unsupported_version_operation_id",
+      "session_ref.session_epoch"
+    ]
+  ],
+  "work": "W116999"
+}

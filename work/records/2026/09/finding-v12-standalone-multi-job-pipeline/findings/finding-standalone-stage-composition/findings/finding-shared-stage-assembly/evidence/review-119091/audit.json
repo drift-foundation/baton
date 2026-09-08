@@ -1,0 +1,86 @@
+{
+  "added_classes": [],
+  "before_retry_runtime": "not-started",
+  "candidate_hashes": {
+    "v12/python/tests/tools/test_single_worker.py": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+    "v12/python/tests/tools/test_stage_execution.py": "53480a2154591dbe910be8df4869f23debb25a9b3b2b482c273c88e0afb1da20",
+    "v12/python/tools/parallel_test.py": "f00fec0efebca9df1e25c025d1c9f07d350d1c79f0f0c880e673888bac884547",
+    "v12/python/tools/single_worker.py": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+    "v12/python/tools/stage_execution.py": "dee7a1c9e20831f25d2edd1727dbd7acf767c0aa00658d76174bcd065006d3ca"
+  },
+  "changed_classes": [
+    "TheIntegrationStageConsumesTheAcceptedPort"
+  ],
+  "engine_run_calls": 0,
+  "factory_delivery_read": {
+    "returned": "(<baton_v12.integration.runtime.IntegrationDelivery object at 0x7baab056f280>, None)"
+  },
+  "factory_group_type": "WorkspaceGroup",
+  "factory_held_derived_members": [
+    "credential_resolution",
+    "source_nomination",
+    "source_profile",
+    "task_bytes"
+  ],
+  "factory_requirement": {
+    "returned": "{'task_id': 'w81115-bootstrap', 'task_digest': 'sha256:3fbf4d66cef8f267fcbf5ea3a831ce74966d927e5c7d0ab6a4ff4baf61d95d68', 'argv': ['python3', '-c', 'raise SystemExit(0)'], 'input_manifest_digest': 'sha256:303a1a8b05adda5919286ddd74bd5602e962ea51fb07246de74e6bba5d613be1'}"
+  },
+  "fresh_prepare_calls": 0,
+  "fresh_unstarted_retry": {
+    "category": "refused",
+    "code": "precondition",
+    "message": "attempt 'integrator-attempt' has no credential delivery from this execution's own preparation; the bearer is minted before admission takes a lease and a start is never the place to find out it cannot be"
+  },
+  "gate_diagnostics": [
+    "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_attempt_of', 'attempts.runtime_attempt_id'), label='a persisted attempt')",
+    "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes.lane_id'), label='a persisted runtime lane')",
+    "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'output.py:_attempt_of', 'attempts.runtime_attempt_id'), label='a persisted attempt')",
+    "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_attachment_row', 'review_attachments.attachment_id'), label='a persisted review attachment')",
+    "FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)",
+    "FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)",
+    "FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)",
+    "FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'oci.py:OciAdapter.observe', 'document.Running'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'oci.py:OciAdapter.start', 'labels.runtime_attempt_id'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.authority_uuid'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.generation'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.participant'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.principal'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.work_id'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.authority_uuid'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.generation'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.participant'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.principal'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.work_id'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.authority_uuid'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.generation'))",
+    "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.work_id'))",
+    "FAIL: test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice) (entry=('injected', 'interrogation.py:probe', 'agent.probe.diagnostics'))",
+    "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)",
+    "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_nothing_this_module_made_survives_it)",
+    "FAIL: test_no_container_of_this_suite_survives_it (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_no_container_of_this_suite_survives_it)",
+    "FAIL: test_only_this_run_s_image_tag_exists (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_only_this_run_s_image_tag_exists)",
+    "Ran 5167 tests in 275.509s",
+    "FAILED (failures=28, skipped=21)"
+  ],
+  "gate_sha256": "b4f19ea440037846d4e1a5b0abfb3a84e4a0d8da05e1e66fa01770c4fe4f70c6",
+  "interrupted_first_admission": {
+    "category": "refused",
+    "code": "precondition",
+    "message": "review interruption before runtime start"
+  },
+  "missing_verification": {
+    "category": "refused",
+    "code": "precondition",
+    "message": "the configured implementation task names no verification command; an integration is admitted behind an ordinary test run and never ahead of one"
+  },
+  "nominal_group_positive": true,
+  "prior_classes_unchanged": 26,
+  "runtime_after_retry": "not-started",
+  "task_replacement_preserves_requirement": true,
+  "wrong_job_input": {
+    "category": "refused",
+    "code": "precondition",
+    "message": "this Job names input 'sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff' and the configured producer's manifest is 'sha256:303a1a8b05adda5919286ddd74bd5602e962ea51fb07246de74e6bba5d613be1'; a required test selection describes the producer this Job ran"
+  }
+}

@@ -1,0 +1,18 @@
+Claim116389 verification. Cwd v12/python, PYTHONPATH=src. Question/scope/budget30s recorded before execution.
+
+python3 -m unittest tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual
+.....................................
+----------------------------------------------------------------------
+Ran 37 tests in 0.821s
+
+OK
+
+python3 -m unittest tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 4.074s
+
+OK
+
+Total44 pass; cumulative measured4.895s <30s. git diff --check exit0, no output.
+AST check: all24 pre-Work test classes unchanged. Among prior new-class methods only test_try_else_and_finally_keep_only_the_reaching_bindings changed, as explicitly scheduled by review-2026-09-08T04-54-22Z.md and PLAN; expected set now includes first.identity when the else assignment fails. Six new methods. No aggregate or daemon suite run.

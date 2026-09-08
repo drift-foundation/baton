@@ -1,0 +1,62 @@
+{
+  "added_rows": [
+    [
+      "lanes.py:_occupy_lane",
+      "identity",
+      "a runtime attempt id"
+    ],
+    [
+      "lanes.py:_release_lane",
+      "identity",
+      "a runtime attempt id"
+    ]
+  ],
+  "current_orphan_calls": [
+    [
+      "lanes.py:_occupy_lane",
+      "identity",
+      "a runtime attempt id"
+    ],
+    [
+      "lanes.py:_occupy_lane",
+      "text",
+      "a lane occupancy reason"
+    ],
+    [
+      "lanes.py:_release_lane",
+      "identity",
+      "a runtime attempt id"
+    ],
+    [
+      "lanes.py:_release_lane",
+      "text",
+      "a lane release reason"
+    ]
+  ],
+  "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-lanes-inventory",
+  "module": "lanes",
+  "prior_inputs_sha256": "ca883294007f8d933a8fa01ef8d10488de3a11f5f79f5e718243ef2d5bc5d7bb",
+  "prior_orphan_calls": [
+    [
+      "lanes.py:_occupy_lane",
+      "text",
+      "a lane occupancy reason"
+    ],
+    [
+      "lanes.py:_release_lane",
+      "text",
+      "a lane release reason"
+    ]
+  ],
+  "removed_rows": [],
+  "runtime_sha256": "72fa035958dbd4f1c08b4824aa4fff3fe5178f94790e550224f72fcc0c08f285",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/lanes.py",
+  "state": "live accounting revalidated; independent implementation acceptance pending",
+  "unchanged_input_counts": {
+    "failed_stimuli": 1,
+    "missing_probes": 0,
+    "orphan_probes": 0,
+    "unowned": 7
+  },
+  "work": "W116972"
+}

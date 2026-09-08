@@ -1,0 +1,222 @@
+{
+  "candidate": {
+    "branch": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.claim_generation"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[claim_generation]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "branch_reversed": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.claim_generation"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[claim_generation]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "exception_handler": {
+      "choose_return": null,
+      "entries": [],
+      "return": null
+    },
+    "late_return": {
+      "choose_return": [
+        "read:sample.py:_choose|first",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ],
+      "entries": [
+        [
+          "adopted",
+          "sample.py:_choose",
+          "first.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:_choose|first[identity]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "nested_import": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "producer.py:row",
+          "offers.claim_generation"
+        ]
+      ],
+      "return": [
+        "read:producer.py:row|offers[claim_generation]",
+        [
+          "connection"
+        ],
+        []
+      ]
+    },
+    "reassign": {
+      "choose_return": null,
+      "entries": [
+        [
+          "caller",
+          "sample.py:public",
+          "row.record"
+        ]
+      ],
+      "return": [
+        "caller:row[record][identity]",
+        [
+          "row"
+        ],
+        []
+      ]
+    },
+    "reordered_definitions": {
+      "choose_return": [
+        [
+          "read:sample.py:_choose|first",
+          "read:sample.py:_later|second"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ],
+      "entries": [
+        [
+          "adopted",
+          "sample.py:_choose",
+          "first.identity"
+        ],
+        [
+          "adopted",
+          "sample.py:_later",
+          "second.identity"
+        ]
+      ],
+      "return": [
+        [
+          "read:sample.py:_choose|first[identity]",
+          "read:sample.py:_later|second[identity]"
+        ],
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "shadow": {
+      "choose_return": null,
+      "entries": [],
+      "return": null
+    }
+  },
+  "changed_original_classes": [],
+  "elapsed_seconds": 0.30717864201869816,
+  "hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "2ea16b185a9c5eac40bb553a932c92d6e317a54ed4db1b90bd3f1346611ae9a5",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-adopted-helper-origins/evidence/correction-116178/candidate.py": "fdaeb9d086a97061dc3170d04184f8553ec2c782e709a958a7915c2475da7571",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-adopted-helper-origins/evidence/correction-116239/candidate.py": "2ea16b185a9c5eac40bb553a932c92d6e317a54ed4db1b90bd3f1346611ae9a5"
+  },
+  "original_class_count": 24,
+  "prior": {
+    "exception_handler": {
+      "choose_return": null,
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:public|offers[identity]",
+        [
+          "connection"
+        ],
+        []
+      ]
+    },
+    "late_return": {
+      "choose_return": [
+        "read:sample.py:_choose|first",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ],
+      "entries": [
+        [
+          "adopted",
+          "sample.py:_choose",
+          "first.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:_choose|first[identity]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    },
+    "reordered_definitions": {
+      "choose_return": [
+        "read:sample.py:_later|second",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ],
+      "entries": [
+        [
+          "adopted",
+          "sample.py:_later",
+          "second.identity"
+        ]
+      ],
+      "return": [
+        "read:sample.py:_later|second[identity]",
+        [
+          "connection",
+          "condition"
+        ],
+        []
+      ]
+    }
+  }
+}

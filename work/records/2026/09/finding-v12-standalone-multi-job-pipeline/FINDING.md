@@ -430,3 +430,34 @@ No automatic retry, ordinary operator transition or stack restart repairs the ru
 The final base, exact paths/documents, deployment identities, commands, metrics
 and budgets still require the existing concrete freeze and material-delta review;
 this approval is not a claim that the demonstration ran or passed.
+
+## 2026-09-08 — model judgement for permitted change scope
+
+Slawomir confirmed that this milestone should rely on the integrator model to
+judge whether candidate changes fall within the permitted scope. He declined
+spending substantial time on mechanical enforcement now. The prompt's proposed
+deterministic file-and-operation allowlist is superseded and is not a W71830
+prerequisite. Owning detail is findings/finding-two-job-pipeline-proof/FINDING.md,
+"integrator model decides permitted change scope". W115604 is narrowed to the
+selected model boundary and a minimal scenario using existing capabilities;
+retain honest observed evidence and existing identity/review/preflight checks.
+
+## 2026-09-08 — protect critical-path execution and review capacity
+
+Slawomir directed prompt to optimize the critical path after observing that
+High-priority tuner remediation competes for the single reviewer's time.
+Keep direct W71830 prerequisites High; lower the separate remediation program's
+High items to Normal, preserving existing Low items. Post-demonstration W103525
+certification also becomes Normal. This supersedes equal-High treatment of
+those activities, not their scope, evidence requirements or ultimate completion.
+At snapshot119148 the recorded sequence is W119113 preparation, W119114
+composed one-Job lifecycle/custody proof, then W103083 joined acceptance.
+The approved W115599 successor placement and W115604 evidence decision should
+be pinned and prepared while Claude executes, so multi-Job composition is ready
+after assembly acceptance. Final freeze and the actual demonstration remain
+gated on accepted capability. Preserve independent review, use focused checks,
+and do not add exhaustive certification or repeat whole suites per small fix.
+Priority is an ordering signal, not preemption: finish a bounded held review,
+then prefer ready critical-path work over repair reviews. Newly created
+noncritical repair children keep Normal priority unless an observed blocker
+justifies promotion. No lifecycle release or new implementation authority follows.

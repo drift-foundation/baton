@@ -1,0 +1,253 @@
+--- before/v12/python/tests/manager/test_boundary_inventory.py
++++ candidate/v12/python/tests/manager/test_boundary_inventory.py
+@@ -777,6 +777,7 @@
+             self.flow = None
+             self.exceptions = None
+             self.exits = []
++            self.loops = []
+ 
+         def visit(self, piece):
+             origins.at[id(piece)] = types.MappingProxyType(dict(origins))
+@@ -829,10 +830,14 @@
+ 
+         def visit_Break(self, piece):
+             self.exits.append(("break", dict(origins)))
++            if self.loops:
++                self.loops[-1].append(["break", dict(origins)])
+             self.flow = "break"
+ 
+         def visit_Continue(self, piece):
+             self.exits.append(("continue", dict(origins)))
++            if self.loops:
++                self.loops[-1].append(["continue", dict(origins)])
+             self.flow = "continue"
+ 
+         def visit_If(self, piece):
+@@ -858,28 +863,41 @@
+             self.visit(piece.iter)
+             before = dict(origins)
+             bind(piece.target, _source(piece.iter, origins, site, returns))
++            self.loop(piece, before)
++
++        visit_AsyncFor = visit_For
++
++        def visit_While(self, piece):
++            self.visit(piece.test)
++            self.loop(piece, dict(origins))
++
++        def loop(self, piece, before):
++            self.loops.append([])
+             self.block(piece.body)
+-            states = [before]
+-            if self.flow in (None, "break", "continue"):
+-                states.append(dict(origins))
+-            self.merge(states)
++            exits = self.loops.pop()
++            exhausted = [before] + [state for flow, state in exits if flow == "continue"]
++            if self.flow is None:
++                exhausted.append(dict(origins))
++            self.merge(exhausted)
+             self.flow = None
+             self.block(piece.orelse)
+-
+-        visit_AsyncFor = visit_For
+-
+-        def visit_While(self, piece):
+-            self.visit(piece.test)
+-            self.alternatives(([], piece.body))
+-            self.block(piece.orelse)
++            after = [state for flow, state in exits if flow == "break"]
++            if self.flow is None:
++                after.append(dict(origins))
++            self.merge(after)
++            self.flow = None if after else "stop"
+ 
+         def visit_Try(self, piece):
+             outer_exceptions = self.exceptions
+             self.exceptions = []
+             exit_start = len(self.exits)
++            loop_starts = [(exits, len(exits)) for exits in self.loops]
+             self.block(piece.body)
+             protected = self.exceptions
+-            self.exceptions = outer_exceptions
++            # Else/handler failures escape this try's handlers but still pass
++            # through its finally. Keep their pre-assignment states locally.
++            self.exceptions = []
++            escaping = self.exceptions
+             outcomes = []
+             if self.flow is None:
+                 # Else belongs only to successful protected-body completion;
+@@ -891,20 +909,29 @@
+                 entering = dict(origins)
+                 for handler in piece.handlers:
+                     outcomes.append(self.run(handler.body, entering))
+-            elif outer_exceptions is not None:
+-                outer_exceptions.extend(protected)
++            elif not piece.handlers:
++                escaping.extend(protected)
++            self.exceptions = outer_exceptions
+             continuing = [state for flow, state in outcomes if flow is None]
+             ended = [state for flow, state in self.exits[exit_start:] if flow != "raise"]
+             # An exception raised by else/a handler is not handled by this
+             # try, but it still executes finally with that outcome's bindings.
+             ended += [state for flow, state in outcomes if flow is not None]
+-            if not piece.handlers:
+-                ended += protected
+-            states = continuing + ended
++            states = continuing + ended + escaping
+             if states:
+                 self.merge(states)
+                 self.flow = None
+                 self.block(piece.finalbody)
++                # Finally may replace the bindings carried by a pending loop
++                # exit, or override that exit with a return/raise of its own.
++                for exits, start in loop_starts:
++                    if self.flow is not None:
++                        del exits[start:]
++                    else:
++                        for exit in exits[start:]:
++                            exit[1] = dict(origins)
++                if escaping and outer_exceptions is not None and self.flow != "return":
++                    outer_exceptions.append(dict(origins))
+                 if self.flow is None and not continuing:
+                     self.flow = "stop"
+             else:
+@@ -11364,6 +11391,7 @@
+         _view(row)
+ ''')
+         self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "first.identity"),
+             ("adopted", "sample.py:public", "second.identity")})
+ 
+     def test_sequential_none_assignment_before_raise_stays_unknown(self):
+@@ -11395,6 +11423,130 @@
+ ''')
+         self.assertEqual(self.entries([source], "sample.py:public"), {
+             ("adopted", "sample.py:public", "offers.identity")})
++
++
++    def test_break_reaches_after_each_loop_and_skips_its_else(self):
++        for loop in ("while condition", "for item in supplied"):
++            with self.subTest(loop=loop):
++                source = self.fragment(f'''
++def _after(row):
++    return row["after"]
++def _otherwise(row):
++    return row["otherwise"]
++def public(connection, condition, supplied):
++    row = None
++    {loop}:
++        if condition:
++            row = connection.execute("SELECT * FROM offers").fetchone()
++            break
++        row = None
++    else:
++        _otherwise(row)
++        row = None
++    return _after(row)
++''')
++                self.assertEqual(self.entries([source], "sample.py:public"), {
++                    ("adopted", "sample.py:public", "offers.after")})
++
++    def test_continue_reaches_loop_else_without_executing_later_body_writes(self):
++        for loop in ("while condition", "for item in supplied"):
++            with self.subTest(loop=loop):
++                source = self.fragment(f'''
++def _view(row):
++    return row["identity"]
++def public(connection, condition, supplied):
++    row = None
++    {loop}:
++        row = connection.execute("SELECT * FROM offers").fetchone()
++        continue
++        row = None
++    else:
++        return _view(row)
++''')
++                self.assertEqual(self.entries([source], "sample.py:public"), {
++                    ("adopted", "sample.py:public", "offers.identity")})
++
++    def test_nested_break_belongs_only_to_its_nearest_loop(self):
++        source = self.fragment('''
++def _inner(row):
++    return row["inner"]
++def _outer(row):
++    return row["outer"]
++def public(connection, supplied, condition):
++    row = None
++    for item in supplied:
++        while condition:
++            row = connection.execute("SELECT * FROM offers").fetchone()
++            break
++        _inner(row)
++        row = None
++        break
++    return _outer(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "offers.inner")})
++
++    def test_finally_changes_a_pending_break_before_it_reaches_after_the_loop(self):
++        for loop in ("while condition", "for item in supplied"):
++            with self.subTest(loop=loop):
++                source = self.fragment(f'''
++def _view(row):
++    return row["identity"]
++def public(connection, condition, supplied):
++    row = None
++    {loop}:
++        try:
++            row = connection.execute("SELECT * FROM offers").fetchone()
++            break
++        finally:
++            row = None
++    return _view(row)
++''')
++                self.assertEqual(self.entries([source], "sample.py:public"), set())
++
++    def test_implicit_else_and_handler_failures_reach_finally_with_prior_binding(self):
++        for protected, arm in (("pass", "else"), ("raise RuntimeError()", "except RuntimeError")):
++            with self.subTest(arm=arm):
++                alternative = "    except RuntimeError:\n        _wrong(row)\n" if arm == "else" else ""
++                source = self.fragment(f'''
++def _view(row):
++    return row["identity"]
++def _wrong(row):
++    return row["wrong_handler"]
++def public(connection):
++    row = connection.execute("SELECT * FROM first").fetchone()
++    try:
++        {protected}
++{alternative}    {arm}:
++        row = connection.execute("SELECT * FROM second").fetchone()
++    finally:
++        _view(row)
++''')
++                self.assertEqual(self.entries([source], "sample.py:public"), {
++                    ("adopted", "sample.py:public", "first.identity"),
++                    ("adopted", "sample.py:public", "second.identity")})
++
++    def test_outer_handler_observes_bindings_after_inner_finally(self):
++        source = self.fragment('''
++def _view(row):
++    return row["identity"]
++def public(connection, operation):
++    row = connection.execute("SELECT * FROM first").fetchone()
++    held = connection.execute("SELECT * FROM second").fetchone()
++    try:
++        try:
++            pass
++        except RuntimeError:
++            pass
++        else:
++            operation()
++        finally:
++            row = held
++    except RuntimeError:
++        return _view(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "second.identity")})
+ 
+ 
+ class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):

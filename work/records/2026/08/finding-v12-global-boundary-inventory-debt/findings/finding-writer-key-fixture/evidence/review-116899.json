@@ -1,0 +1,26 @@
+{
+  "candidate_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "cases": {
+    "malformed": {
+      "passed": true,
+      "returned_stored_key": "writer-probe",
+      "factory_restored": true,
+      "refusal": "a persisted line writer's writer_id is durable text; this is ''"
+    },
+    "valid": {
+      "passed": true,
+      "returned_stored_key": "writer-probe",
+      "factory_restored": true,
+      "refusal": null
+    },
+    "factory_exception": {
+      "passed": true,
+      "returned_stored_key": "writer-probe",
+      "factory_restored": true,
+      "refusal": null
+    }
+  },
+  "changed_existing_method": "EveryProbeProvesItArrived.spoiling_review_row",
+  "all_other_existing_top_level_functions_and_classes_unchanged": true,
+  "elapsed_seconds": 0.2803875009994954
+}

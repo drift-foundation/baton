@@ -1,0 +1,10 @@
+{
+  "base_sha256": "4cf7eae8df2bc75c99a6ab980d273526f23a4b82b09f3cd476a1a19a29da5c5d",
+  "candidate_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "changed_existing_methods": [
+    "spoiling_review_row"
+  ],
+  "unchanged_top_level_functions": 41,
+  "unchanged_other_classes": 27,
+  "new_test_methods": 7
+}

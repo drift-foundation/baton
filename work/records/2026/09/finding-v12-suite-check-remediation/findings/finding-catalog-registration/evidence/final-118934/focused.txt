@@ -1,0 +1,6 @@
+test_the_serial_modules_are_the_ones_that_own_an_engine (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_serial_modules_are_the_ones_that_own_an_engine) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK

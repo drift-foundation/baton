@@ -1,0 +1,72 @@
+{
+  "accepted_chain_matches": true,
+  "claim": 116776,
+  "copied_census_sha256": "0fc0e0df321b22a46c24729c367efbc374c54d8e75653925e3fce5675e3c0342",
+  "elapsed_seconds": 0.002860098029486835,
+  "entry_count": 1365,
+  "failures": [
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared",
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator"
+  ],
+  "hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "4cf7eae8df2bc75c99a6ab980d273526f23a4b82b09f3cd476a1a19a29da5c5d",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-adopted-helper-origins/evidence/correction-116443/candidate.py": "080cc29bd6ce9d4e9f80bd8433d3faa8a4b17db61abf00ff918015933e305dd9",
+    "work/records/2026/09/finding-v12-mount-origin-discovery/evidence/before.py": "080cc29bd6ce9d4e9f80bd8433d3faa8a4b17db61abf00ff918015933e305dd9",
+    "work/records/2026/09/finding-v12-mount-origin-discovery/evidence/correction-116609/candidate.py": "6903203359824d7d426a4673886a8edb9fa038548bdc3d7feb4ba3f07e9bc3b8",
+    "work/records/2026/09/finding-v12-mount-origin-discovery/review-2026-09-08T05-35-09Z.md": "6940e75143378259c4ebd28dcb9c147691bcdfb352e0a2c0e15645859ba75b2e",
+    "work/records/2026/09/finding-v12-provider-label-discovery/evidence/before.py": "6903203359824d7d426a4673886a8edb9fa038548bdc3d7feb4ba3f07e9bc3b8",
+    "work/records/2026/09/finding-v12-provider-label-discovery/evidence/candidate.py": "4cf7eae8df2bc75c99a6ab980d273526f23a4b82b09f3cd476a1a19a29da5c5d",
+    "work/records/2026/09/finding-v12-provider-label-discovery/evidence/census.json": "0fc0e0df321b22a46c24729c367efbc374c54d8e75653925e3fce5675e3c0342",
+    "work/records/2026/09/finding-v12-provider-label-discovery/evidence/execution-history.txt": "29039c1ec31280e4d9a6902eff30ddce306b1f5de659791452b3d5d52bf35ead",
+    "work/records/2026/09/finding-v12-provider-label-discovery/evidence/review-116730.json": "83f2c39ae984987a909946a7374da2cbb34558b63de8c2ed973643283d69d183",
+    "work/records/2026/09/finding-v12-provider-label-discovery/evidence/verification.txt": "b204adea7d99ae8f09937659e2ccbbb5ca2b86bed96b7743dee74e424427ca13",
+    "work/records/2026/09/finding-v12-provider-label-discovery/review-2026-09-08T05-56-46Z.md": "c15898d9e38bf35526e116e791496711b6492d597226870f500905768c7b9219"
+  },
+  "new_test_execution": false,
+  "orphan_by_module": {
+    "attempts.py": 2,
+    "authority_port.py": 11,
+    "custody.py": 1,
+    "exchange.py": 2,
+    "intake.py": 13,
+    "interrogation.py": 1,
+    "lanes.py": 2,
+    "oci.py": 13,
+    "posture_slots.py": 3,
+    "review_cycles.py": 20,
+    "worker_entry.py": 1,
+    "workspaces.py": 3
+  },
+  "orphan_count": 72,
+  "symbolic_provider_orphans": [
+    [
+      "intake.py:_provider_ending",
+      "document",
+      "a {provider} teardown ending"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "text",
+      "a {provider} teardown ending's state"
+    ]
+  ],
+  "unowned_by_module": {
+    "attempts.py": 20,
+    "authority_port.py": 10,
+    "credentials.py": 3,
+    "documents.py": 26,
+    "exchange.py": 10,
+    "handshake.py": 14,
+    "intake.py": 12,
+    "interrogation.py": 4,
+    "lanes.py": 7,
+    "launch.py": 8,
+    "oci.py": 22,
+    "review_cycles.py": 4,
+    "sessions.py": 9,
+    "source_boundary.py": 1,
+    "workspaces.py": 33
+  },
+  "unowned_count": 183,
+  "work": "W116058"
+}

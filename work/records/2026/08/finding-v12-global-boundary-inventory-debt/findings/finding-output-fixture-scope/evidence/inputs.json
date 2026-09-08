@@ -1,0 +1,40 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [
+    {
+      "entry": [
+        "adopted",
+        "output.py:_attempt_of",
+        "attempts.runtime_attempt_id"
+      ],
+      "fixture": "spoiling_output_attempt",
+      "label": "a persisted attempt",
+      "next": "output.py was not enumerated in the prior B3 extension; obtain a bounded explicit output-fixture disposition before edits.",
+      "observed": "Fixture AttributeError: NoneType has no attribute keys in attempt_row while preparing sealed_result.",
+      "source_fact": "Fixture changes stored runtime_attempt_id before sealed_result reads attempt-1."
+    }
+  ],
+  "missing_probes": [
+    [
+      [
+        "adopted",
+        "output.py:_attempt_of",
+        "attempts.assignment_generation"
+      ],
+      "a persisted attempt"
+    ]
+  ],
+  "module": "output",
+  "orphan_calls": [],
+  "orphan_probes": [],
+  "runtime_sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/output.py",
+  "scope_type": "proposal",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [],
+  "work": "W117024"
+}

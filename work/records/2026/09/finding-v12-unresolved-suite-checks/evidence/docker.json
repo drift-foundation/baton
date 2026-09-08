@@ -363,6 +363,7 @@
       "baton-w81857-exchange:2"
     ]
   },
-  "tags": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock\n",
+  "tag_listing_exit_code": 1,
+  "tag_listing_error": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock\n",
   "limits": "Read-only standalone Docker calls. No environment, logs, commands, credentials or mount source paths retained. Nested Docker subprocess denied; no escalation."
 }

@@ -1,0 +1,198 @@
+--- before/v12/python/tests/manager/test_boundary_inventory.py
++++ candidate/v12/python/tests/manager/test_boundary_inventory.py
+@@ -551,11 +551,16 @@
+         return f"session:{bound}"
+     if isinstance(value, ast.Call) and isinstance(value.func, ast.Name) \
+             and value.func.id == "getattr" and value.args:
++        origin = _source(value.args[0], origins, site, returns)
++        if len(value.args) > 1 and isinstance(value.args[1], ast.Constant) and value.args[1].value == "mounts":
++            # This declared data member supplies the per-mount documents,
++            # unlike a callable-presence check on an adapter seam method.
++            return _extend_origin(origin, "[mounts]")
+         # `getattr(adapter, "start", None)` IS the adapter, one member in. A
+         # capability typed by the method it must supply is still that
+         # capability's operand being owned, and an inventory that stopped here
+         # would call the owner an orphan and the parameter unowned.
+-        return _source(value.args[0], origins, site, returns)
++        return origin
+     if isinstance(value, ast.Call) and isinstance(value.func, ast.Attribute):
+         if isinstance(value.func.value, ast.Name):
+             if value.func.value.id in PORTS:
+@@ -766,6 +771,7 @@
+ 
+     def bind(target, origin):
+         if isinstance(target, ast.Name):
++            origins.pop(("collection", target.id), None)
+             if origin is None:
+                 origins.pop(target.id, None)
+             else:
+@@ -855,8 +861,52 @@
+         def visit_Assign(self, piece):
+             self.visit(piece.value)
+             origin = _source(piece.value, origins, site, returns)
++            collection = None
++            if isinstance(piece.value, ast.List) and not piece.value.elts:
++                collection = f"list:{site}:{piece.lineno}:{piece.col_offset}"
++            elif isinstance(piece.value, ast.Name):
++                collection = origins.get(("collection", piece.value.id))
+             for target in piece.targets:
+                 bind(target, origin)
++                if isinstance(target, ast.Name):
++                    key = ("collection", target.id)
++                    if collection is None:
++                        origins.pop(key, None)
++                    else:
++                        origins[key] = collection
++
++        def visit_Call(self, piece):
++            self.generic_visit(piece)
++            if not isinstance(piece.func, ast.Attribute) or not isinstance(piece.func.value, ast.Name):
++                return
++            collection = origins.get(("collection", piece.func.value.id))
++            if collection is None or piece.keywords:
++                return
++            method = piece.func.attr
++            if method == "append" and len(piece.args) == 1:
++                element = _source(piece.args[0], origins, site, returns)
++            elif method == "clear" and not piece.args:
++                element = None
++            else:
++                return
++            # Only proved local-list aliases share this mutation. A caller's
++            # append method, copied list, or reassigned variable supplies no
++            # evidence that it mutates this collection.
++            for key, identity in list(origins.items()):
++                if not isinstance(key, tuple) or key[0] != "collection":
++                    continue
++                if not (_origin_values(collection) & _origin_values(identity)):
++                    continue
++                name = key[1]
++                if method == "clear" and name != piece.func.value.id and (len(_origin_values(collection)) != 1 or identity != collection):
++                    # A may-alias is not proof that this other list was the
++                    # one cleared. The receiver itself is always cleared.
++                    continue
++                value = _join_origins((origins.get(name), element)) if method == "append" else None
++                if value is None:
++                    origins.pop(name, None)
++                else:
++                    origins[name] = value
+ 
+         def visit_AnnAssign(self, piece):
+             if piece.value is not None:
+@@ -11674,6 +11724,116 @@
+             ("adopted", "sample.py:public", "second.identity")})
+ 
+ 
++class DeclaredMountOriginsStayWithTheirElements(unittest.TestCase):
++    def entries(self, body):
++        source = pathlib.Path("sample.py")
++        tree = ast.parse('''
++def _view(mount):
++    return mount["source"], mount["target"], mount["writable"]
++def public(adapter, other, supplied):
++''' + body)
++        returned = _returned_origins([(source, tree)])
++        node = dict(_functions(tree, source.name))["sample.py:public"]
++        local = _origins(node, "sample.py:public", returned)
++        return _through_helpers({}, "sample.py:public", node, local, _helpers(tree, source.name), returns=returned)
++
++    def expected(self, receiver="adapter"):
++        return {("caller", "sample.py:public", f"{receiver}.mounts.{member}") for member in ("source", "target", "writable")}
++
++    def test_literal_mount_member_survives_direct_iteration(self):
++        self.assertEqual(self.entries('''
++    plan = getattr(adapter, "mounts", None)
++    for mount in plan:
++        _view(mount)
++'''), self.expected())
++
++    def test_selected_mounts_keep_their_origin_through_append_and_index(self):
++        self.assertEqual(self.entries('''
++    plan = getattr(adapter, "mounts", None)
++    landing = []
++    for mount in plan:
++        one = boundaries.document(mount, "a mount")
++        if one:
++            landing.append(one)
++    if landing:
++        _view(landing[0])
++'''), self.expected())
++
++    def test_a_direct_list_alias_carries_the_same_appended_elements(self):
++        self.assertEqual(self.entries('''
++    landing = []
++    alias = landing
++    for mount in getattr(adapter, "mounts", None):
++        alias.append(mount)
++    _view(landing[0])
++'''), self.expected())
++
++    def test_clear_and_reassignment_remove_the_old_element_origin(self):
++        for change in ("landing.clear()", "alias.clear()", "landing = []", "landing = supplied"):
++            with self.subTest(change=change):
++                self.assertEqual(self.entries(f'''
++    landing = []
++    alias = landing
++    for mount in getattr(adapter, "mounts", None):
++        landing.append(mount)
++    {change}
++    _view(landing[0])
++'''), set() if change != "landing = supplied" else {
++                    ("caller", "sample.py:public", f"supplied.{member}") for member in ("source", "target", "writable")})
++
++    def test_reassigned_alias_cannot_mutate_the_old_list(self):
++        self.assertEqual(self.entries('''
++    landing = []
++    alias = landing
++    alias = []
++    for mount in getattr(adapter, "mounts", None):
++        alias.append(mount)
++    _view(landing[0])
++'''), set())
++
++    def test_loop_target_rebinding_cannot_keep_an_old_list_identity(self):
++        self.assertEqual(self.entries('''
++    landing = []
++    for landing in getattr(adapter, "mounts", None):
++        landing.append(other)
++        _view(landing[0])
++'''), self.expected())
++
++    def test_unknown_collection_cannot_borrow_appended_mount_origins(self):
++        self.assertEqual(self.entries('''
++    for mount in getattr(adapter, "mounts", None):
++        supplied.append(mount)
++    _view(supplied[0])
++'''), {("caller", "sample.py:public", f"supplied.{member}") for member in ("source", "target", "writable")})
++
++    def test_other_receiver_and_nonliteral_getattr_do_not_become_adapter_mounts(self):
++        self.assertEqual(self.entries('''
++    for mount in getattr(other, "mounts", None):
++        _view(mount)
++'''), self.expected("other"))
++        self.assertEqual(self.entries('''
++    for mount in getattr(adapter, supplied, None):
++        _view(mount)
++'''), {("caller", "sample.py:public", f"adapter.{member}") for member in ("source", "target", "writable")})
++
++    def test_callable_presence_getattr_keeps_the_existing_adapter_subject(self):
++        expression = ast.parse('getattr(adapter, "start", None)', mode="eval").body
++        self.assertEqual(_source(expression, {"adapter": "caller:adapter"}), "caller:adapter")
++
++    def test_real_plan_reads_keep_mount_source_target_and_writable_origins(self):
++        source, tree = next((source, tree) for source, tree in _sources() if source.name == "attempts.py")
++        node = dict(_functions(tree, source.name))["attempts.py:_plan_agrees"]
++        returned = _helper_returns()
++        local = _origins(node, "attempts.py:_plan_agrees", returned)
++        seen = set()
++        for piece in _scope_nodes(node):
++            if _member_read(piece) is not None:
++                seen.update(_origin_values(_source(piece, local, "attempts.py:_plan_agrees", returned)))
++        for member in ("source", "target", "writable"):
++            self.assertIn(f"caller:adapter[mounts][{member}]", seen)
++        self.assertEqual(local["landing"], "caller:adapter[mounts]")
++
++
+ class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
+     """W54182: the inventory's discovery is pure, so it is computed once.
+ 

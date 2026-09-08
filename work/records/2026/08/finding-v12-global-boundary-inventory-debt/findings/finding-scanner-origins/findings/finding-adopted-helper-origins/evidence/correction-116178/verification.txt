@@ -1,0 +1,19 @@
+Correction claim116178 verification, cwd v12/python, PYTHONPATH=src.
+Question/budget pinned before execution in PROGRESS.md.
+
+python3 -m unittest tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual
+.............
+----------------------------------------------------------------------
+Ran 13 tests in 0.610s
+
+OK
+
+python3 -m unittest tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 2.931s
+
+OK
+
+git diff --check: exit0, no output.
+AST checks: all24 original classes and all prior9 new test methods unchanged.

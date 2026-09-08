@@ -1,0 +1,42 @@
+[
+  {
+    "entry": [
+      "caller",
+      "interrogation.py:inquire",
+      "agent"
+    ],
+    "existing_catalog_label": "the agent adapter's ",
+    "currently_unmatched_discovery_labels": [],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "interrogation.py:inquire",
+      "deadline_seconds"
+    ],
+    "existing_catalog_label": "an interrogation deadline",
+    "currently_unmatched_discovery_labels": [],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "interrogation.py:probe",
+      "agent"
+    ],
+    "existing_catalog_label": "the agent adapter's ",
+    "currently_unmatched_discovery_labels": [],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "caller",
+      "interrogation.py:probe",
+      "deadline_seconds"
+    ],
+    "existing_catalog_label": "an interrogation deadline",
+    "currently_unmatched_discovery_labels": [],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  }
+]

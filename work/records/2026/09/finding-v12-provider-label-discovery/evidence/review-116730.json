@@ -1,0 +1,143 @@
+{
+  "candidate_sha256": "4cf7eae8df2bc75c99a6ab980d273526f23a4b82b09f3cd476a1a19a29da5c5d",
+  "cases": {
+    "nested_keyword_pair": {
+      "passed": true,
+      "actual": [
+        [
+          "document",
+          "ending credentials",
+          "session:destroy[credentials]"
+        ],
+        [
+          "document",
+          "ending launch",
+          "session:destroy[launch]"
+        ]
+      ],
+      "expected": [
+        [
+          "document",
+          "ending credentials",
+          "session:destroy[credentials]"
+        ],
+        [
+          "document",
+          "ending launch",
+          "session:destroy[launch]"
+        ]
+      ]
+    },
+    "actual_cross_pair": {
+      "passed": true,
+      "actual": [
+        [
+          "document",
+          "ending credentials",
+          "session:destroy[launch]"
+        ],
+        [
+          "document",
+          "ending launch",
+          "session:destroy[launch]"
+        ]
+      ],
+      "expected": [
+        [
+          "document",
+          "ending credentials",
+          "session:destroy[launch]"
+        ],
+        [
+          "document",
+          "ending launch",
+          "session:destroy[launch]"
+        ]
+      ]
+    },
+    "nested_direct_pair": {
+      "passed": true,
+      "actual": [
+        [
+          "text",
+          "credentials:state",
+          "session:destroy[credentials][state]"
+        ],
+        [
+          "text",
+          "credentials:why",
+          "session:destroy[credentials][why]"
+        ],
+        [
+          "text",
+          "launch:state",
+          "session:destroy[launch][state]"
+        ],
+        [
+          "text",
+          "launch:why",
+          "session:destroy[launch][why]"
+        ]
+      ],
+      "expected": [
+        [
+          "text",
+          "credentials:state",
+          "session:destroy[credentials][state]"
+        ],
+        [
+          "text",
+          "credentials:why",
+          "session:destroy[credentials][why]"
+        ],
+        [
+          "text",
+          "launch:state",
+          "session:destroy[launch][state]"
+        ],
+        [
+          "text",
+          "launch:why",
+          "session:destroy[launch][why]"
+        ]
+      ]
+    },
+    "unknown_explicit": {
+      "passed": true,
+      "actual": [
+        [
+          "document",
+          "ending {caption}",
+          "session:destroy"
+        ]
+      ],
+      "expected": [
+        [
+          "document",
+          "ending {caption}",
+          "session:destroy"
+        ]
+      ]
+    }
+  },
+  "changed_baseline_classes": [
+    "_OriginBindings"
+  ],
+  "unchanged_baseline_classes": 26,
+  "census_entries": 1365,
+  "unowned": 183,
+  "orphans": 72,
+  "symbolic_provider_orphans": [
+    [
+      "intake.py:_provider_ending",
+      "document",
+      "a {provider} teardown ending"
+    ],
+    [
+      "intake.py:_provider_ending",
+      "text",
+      "a {provider} teardown ending's state"
+    ]
+  ],
+  "elapsed_seconds": 0.25873668101849034
+}

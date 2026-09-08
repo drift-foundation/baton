@@ -1,0 +1,37 @@
+{
+  "added_classes": [
+    "AFreshPortReentersANeverStartedDelivery",
+    "TheFactorysOwnOperandsReachTheIntegrationStage"
+  ],
+  "added_methods_in_TheIntegrationStageConsumesTheAcceptedPort": [
+    "test_a_started_or_uncertain_runtime_is_never_prepared_here"
+  ],
+  "candidate_sha256": {
+    "tests/tools/test_single_worker.py": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+    "tests/tools/test_stage_execution.py": "44dd0d4ccef341f4d33e41560a46fef4987b37fd8dc2d64f812e9b8884534b54",
+    "tools/parallel_test.py": "f00fec0efebca9df1e25c025d1c9f07d350d1c79f0f0c880e673888bac884547",
+    "tools/single_worker.py": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+    "tools/stage_execution.py": "db280363bf8e1f7bc534a25dd163275a87aad3a21d784d330801823ce9f3cb60"
+  },
+  "changed_classes": [
+    "TheIntegrationStageConsumesTheAcceptedPort"
+  ],
+  "changed_methods_in_TheIntegrationStageConsumesTheAcceptedPort": [
+    "test_a_delivery_with_no_started_runtime_is_not_refreshed"
+  ],
+  "prior_classes_unchanged": 26,
+  "removed_classes": [],
+  "removed_methods_in_TheIntegrationStageConsumesTheAcceptedPort": [],
+  "reviewed_119091_sha256": {
+    "tests/tools/test_single_worker.py": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+    "tests/tools/test_stage_execution.py": "53480a2154591dbe910be8df4869f23debb25a9b3b2b482c273c88e0afb1da20",
+    "tools/parallel_test.py": "f00fec0efebca9df1e25c025d1c9f07d350d1c79f0f0c880e673888bac884547",
+    "tools/single_worker.py": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+    "tools/stage_execution.py": "dee7a1c9e20831f25d2edd1727dbd7acf767c0aa00658d76174bcd065006d3ca"
+  },
+  "unchanged_since_review": [
+    "tools/single_worker.py",
+    "tools/parallel_test.py",
+    "tests/tools/test_single_worker.py"
+  ]
+}

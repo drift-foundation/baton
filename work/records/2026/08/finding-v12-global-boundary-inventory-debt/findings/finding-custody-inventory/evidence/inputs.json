@@ -1,0 +1,24 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [],
+  "module": "custody",
+  "orphan_calls": [
+    [
+      "custody.py:_reconciled",
+      "identity",
+      "a listed runtime id"
+    ]
+  ],
+  "orphan_probes": [],
+  "runtime_sha256": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/custody.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [],
+  "work": "W117020"
+}

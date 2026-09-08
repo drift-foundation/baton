@@ -1,0 +1,12 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "candidate_sha256": "51c8f02b273af4b74d1cba7d3d82b54374b27a1ea2e7cc57ca61621924221f73",
+  "changed_existing_classes": [
+    "EveryReceivingEntryHasOneOwner"
+  ],
+  "changed_existing_methods": [
+    "test_every_boundary_call_belongs_to_an_entry_or_is_declared"
+  ],
+  "live_unchanged": true,
+  "candidate_compiles": true
+}

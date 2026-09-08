@@ -1,0 +1,653 @@
+--- before/v12/python/tests/manager/test_boundary_inventory.py
++++ candidate/v12/python/tests/manager/test_boundary_inventory.py
+@@ -442,6 +442,46 @@
+     if "FROM" not in words:
+         raise AssertionError(f"a SELECT with no FROM: {text!r}")
+     return words[words.index("FROM") + 1]
++
++
++def _helper_site(called, site, imports=None):
++    """Resolve local functions and self methods without borrowing a namesake."""
++    if site is None:
++        return None
++    module, lexical = site.split(":", 1)
++    imports = imports or {}
++
++    def imported(name):
++        return imports.get(("import", site, name), imports.get(("import", f"{module}:*", name)))
++
++    if isinstance(called, ast.Name):
++        if imports.get(("shadow", site, called.id)):
++            return None
++        return imported(called.id) or f"{module}:{called.id}"
++    if isinstance(called, ast.Attribute) and isinstance(called.value, ast.Name):
++        if imports.get(("shadow", site, called.value.id)):
++            return None
++        if called.value.id in ("self", "cls") and "." in lexical:
++            return f"{module}:{lexical.rsplit('.', 1)[0]}.{called.attr}"
++        target = imported(called.value.id)
++        if target is not None and target.endswith(":"):
++            return target + called.attr
++        # A qualified call requires a real import, never a guessed module or
++        # another object's same-named method.
++    return None
++
++
++def _argument_bindings(call, positional, keywords):
++    """Actual expressions for named parameters, including keyword-only ones."""
++    positional = tuple(positional)
++    if isinstance(call.func, ast.Attribute) and positional[:1] in (("self",), ("cls",)):
++        positional = positional[1:]
++    bound = dict(zip(positional, call.args))
++    allowed = set(positional) | set(keywords)
++    for one in call.keywords:
++        if one.arg in allowed:
++            bound[one.arg] = one.value
++    return bound
+ 
+ 
+ def _source(value, origins, site=None, returns=None):
+@@ -511,14 +551,19 @@
+             if found is not None:
+                 return found
+     if isinstance(value, ast.Call) and returns is not None:
+-        called = value.func
+-        name = (called.attr if isinstance(called, ast.Attribute)
+-                else getattr(called, "id", None))
+-        if name in returns:
+-            # A private helper that HANDS BACK a crossing hands back the
+-            # crossing. `row = self._operation_row(...)` is the journal row, and
+-            # a member read on it is a member of the adopted row.
+-            return returns[name]
++        summary = returns.get(_helper_site(value.func, site, returns))
++        if summary is not None:
++            origin, positional, keywords = summary
++            if not origin.startswith("caller:"):
++                return origin
++            # Identity helpers return THEIR argument, not a fresh caller
++            # named `row`. Preserve any member suffix on that argument.
++            parameter, bracket, suffix = origin[len("caller:"):].partition("[")
++            actual = _argument_bindings(value, positional, keywords).get(parameter)
++            if actual is not None:
++                contextual = _source(actual, origins, site, returns)
++                if contextual is not None:
++                    return contextual + (bracket + suffix if bracket else "")
+     return None
+ 
+ 
+@@ -531,17 +576,39 @@
+     hands back what `_offer_row` handed it.
+     """
+     found = {}
+-    for _ in range(4):
++    functions = [(site, node) for source, tree in sources
++                 for site, node in _functions(tree, source.name)]
++    modules = {source.name for source, _ in sources}
++
++    def imports_at(site, nodes):
++        for piece in nodes:
++            if not isinstance(piece, ast.ImportFrom) or piece.level != 1:
++                continue
++            for alias in piece.names:
++                module = (piece.module or alias.name) + ".py"
++                if module in modules and alias.name != "*":
++                    found[("import", site, alias.asname or alias.name)] = module + ":" + (alias.name if piece.module else "")
++
++    for source, tree in sources:
++        imports_at(f"{source.name}:*", tree.body)
++    for site, node in functions:
++        for name in _local_bindings(node):
++            found[("shadow", site, name)] = True
++        imports_at(site, ast.walk(node))
++    # Each pass can add a summary for a previously unresolved helper. A chain
++    # longer than four is no reason to silently lose its origin; a recursive
++    # cycle with no established return contributes no invented origin.
++    for _ in range(len(functions) + 1):
+         before = dict(found)
+-        for source, tree in sources:
+-            for site, node in _functions(tree, source.name):
+-                local = _origins(node, site, found)
+-                for piece in ast.walk(node):
+-                    if isinstance(piece, ast.Return) \
+-                            and piece.value is not None:
+-                        origin = _source(piece.value, local, site, found)
+-                        if origin is not None:
+-                            found.setdefault(node.name, origin)
++        for site, node in functions:
++            local = _origins(node, site, found)
++            for piece in ast.walk(node):
++                if isinstance(piece, ast.Return) and piece.value is not None:
++                    origin = _source(piece.value, local, site, found)
++                    if origin is not None:
++                        positional = tuple(one.arg for one in node.args.posonlyargs + node.args.args)
++                        keywords = tuple(one.arg for one in node.args.kwonlyargs)
++                        found.setdefault(site, (origin, positional, keywords))
+         if found == before:
+             break
+     return found
+@@ -555,6 +622,47 @@
+     a freshly parsed package of its own.
+     """
+     return types.MappingProxyType(dict(_returned_origins(_sources())))
++
++
++def _local_bindings(node):
++    """Names that prevent a function from borrowing a module's callable.
++
++    Parameters and assignments bind locally even before an assignment executes.
++    A nested function/class body and a comprehension's targets have their own
++    scope. Imports are resolved separately, only when no competing binding exists.
++    """
++    names = set(_parameters(node)) - {"self", "cls"}
++
++    class Bindings(ast.NodeVisitor):
++        def visit_Name(self, piece):
++            if isinstance(piece.ctx, (ast.Store, ast.Del)):
++                names.add(piece.id)
++
++        def visit_FunctionDef(self, piece):
++            names.add(piece.name)
++
++        visit_AsyncFunctionDef = visit_FunctionDef
++        visit_ClassDef = visit_FunctionDef
++
++        def visit_Lambda(self, piece):
++            pass
++
++        def visit_ListComp(self, piece):
++            self.visit(piece.generators[0].iter)
++
++        visit_SetComp = visit_ListComp
++        visit_DictComp = visit_ListComp
++        visit_GeneratorExp = visit_ListComp
++
++        def visit_ExceptHandler(self, piece):
++            if piece.name is not None:
++                names.add(piece.name)
++            self.generic_visit(piece)
++
++    visitor = Bindings()
++    for statement in node.body:
++        visitor.visit(statement)
++    return names
+ 
+ 
+ def _origins(node, site, returns=None, seed=None, own_parameters=True):
+@@ -581,36 +689,72 @@
+         origins.update(seed)
+ 
+     def bind(target, origin):
+-        if origin is not None and isinstance(target, ast.Name):
+-            origins[target.id] = origin
+-
+-    # TO A FIXED POINT, because `ast.walk` is BREADTH-FIRST and a binding can
+-    # depend on one the walk has not reached yet.
+-    #
+-    # W43977 [P0]: `EnginePort.__call__` assigns `answer` inside both arms of
+-    # an `if`, then joins with `taken = boundaries.document(answer, ...)` at
+-    # the top level. Breadth-first visits the JOIN first -- `answer` has no
+-    # origin yet -- so `taken` was bound to nothing and the engine's answer,
+-    # with the `status`, `stdout` and `stderr` this manager consumes, was
+-    # invisible to the universe. One more pass would have caught that one, and
+-    # a chain one link longer would have needed another; a fixed point needs
+-    # no guess about depth.
+-    #
+-    # It terminates because origins only ever GAIN names and each name's
+-    # origin is derived from names already bound, so the map is monotone over
+-    # a finite set of local names.
+-    while True:
+-        before = dict(origins)
+-        for piece in ast.walk(node):
+-            if isinstance(piece, ast.Assign):
+-                for target in piece.targets:
+-                    bind(target, _source(piece.value, origins, site, returns))
+-            elif isinstance(piece, (ast.For, ast.AsyncFor)):
+-                bind(piece.target, _source(piece.iter, origins, site, returns))
+-            elif isinstance(piece, ast.comprehension):
+-                bind(piece.target, _source(piece.iter, origins, site, returns))
+-        if origins == before:
+-            return origins
++        if isinstance(target, ast.Name):
++            if origin is None:
++                origins.pop(target.id, None)
++            else:
++                origins[target.id] = origin
++
++    # W43977's branch-before-join requirement needs execution order, not a
++    # breadth-first fixed point. W116051 review proves that replaying `row =
++    # _record(row)` grows members forever. Visit finite syntax once: a nested
++    # body's assignments precede the next statement, and reassignment uses the
++    # value before that assignment. No arbitrary chain-depth cap is involved.
++    class Assignments(ast.NodeVisitor):
++        def visit_Assign(self, piece):
++            self.visit(piece.value)
++            origin = _source(piece.value, origins, site, returns)
++            for target in piece.targets:
++                bind(target, origin)
++
++        def visit_AnnAssign(self, piece):
++            if piece.value is not None:
++                self.visit(piece.value)
++                bind(piece.target, _source(piece.value, origins, site, returns))
++
++        def visit_NamedExpr(self, piece):
++            self.visit(piece.value)
++            bind(piece.target, _source(piece.value, origins, site, returns))
++
++        def visit_For(self, piece):
++            self.visit(piece.iter)
++            bind(piece.target, _source(piece.iter, origins, site, returns))
++            for statement in piece.body + piece.orelse:
++                self.visit(statement)
++
++        visit_AsyncFor = visit_For
++
++        def visit_comprehension(self, piece):
++            self.visit(piece.iter)
++            bind(piece.target, _source(piece.iter, origins, site, returns))
++            for condition in piece.ifs:
++                self.visit(condition)
++
++        def visit_ListComp(self, piece):
++            for generator in piece.generators:
++                self.visit(generator)
++            self.visit(piece.elt)
++
++        visit_SetComp = visit_ListComp
++        visit_GeneratorExp = visit_ListComp
++
++        def visit_DictComp(self, piece):
++            for generator in piece.generators:
++                self.visit(generator)
++            self.visit(piece.key)
++            self.visit(piece.value)
++
++        def visit_FunctionDef(self, piece):
++            pass
++
++        visit_AsyncFunctionDef = visit_FunctionDef
++        visit_ClassDef = visit_FunctionDef
++        visit_Lambda = visit_FunctionDef
++
++    visitor = Assignments()
++    for statement in node.body:
++        visitor.visit(statement)
++    return origins
+ 
+ 
+ @functools.cache
+@@ -676,7 +820,7 @@
+             # crossing owned and its members invisible. The entry stays at the
+             # CALLER's site, because that is where the value entered.
+             found |= _through_helpers(crossings, site, node, origins,
+-                                      helpers)
++                                      helpers, returns=returns)
+     return frozenset(found)
+ 
+ 
+@@ -786,53 +930,33 @@
+ 
+ 
+ def _helpers(tree, module):
+-    """This module's own private functions, by name, with their lexical sites."""
++    """This module's own private functions, keyed by their lexical sites."""
+     found = {}
+     for site, node in _functions(tree, module):
+         if node.name.startswith("_"):
+-            found[node.name] = (site, node)
++            found[site] = (site, node)
+     return found
+ 
+ 
+-def _through_helpers(crossings, site, node, origins, helpers):
++def _through_helpers(crossings, site, node, origins, helpers, returns=None):
+     """Member reads a private helper performs on a document handed to it."""
+     found = set()
+-    for piece in ast.walk(node):
+-        if not isinstance(piece, ast.Call):
+-            continue
+-        called = piece.func
+-        name = (called.attr if isinstance(called, ast.Attribute)
+-                else getattr(called, "id", None))
+-        entry = helpers.get(name)
+-        if entry is None or entry[1] is node:
+-            continue
+-        helper = entry[1]
+-        parameters = _parameters(helper)
+-        if isinstance(called, ast.Attribute):
+-            parameters = parameters[1:]          # `self`
+-        for position, argument in enumerate(piece.args):
+-            origin = _origins_of(argument, origins)
+-            if origin is None or position >= len(parameters):
++    for where, helper, inside in _delegations(node, origins, helpers, site=site, returns=returns):
++        for step in ast.walk(helper):
++            read = _member_read(step)
++            if read is None:
+                 continue
+-            inside = _origins(helper, site,
+-                              seed={parameters[position]: origin},
+-                              own_parameters=False)
+-            for step in ast.walk(helper):
+-                read = _member_read(step)
+-                if read is None:
+-                    continue
+-                found_origin = _origins_of(read[0], inside)
+-                if found_origin is None:
+-                    continue
+-                if found_origin.startswith("session:"):
+-                    subject = _dotted(found_origin, read[1])
+-                    found.add(("injected",
+-                               _crossing_of(crossings, subject), subject))
+-                elif found_origin.startswith("caller:") \
+-                        and not node.name.startswith("_"):
+-                    found.add(("caller", site,
+-                               _dotted_read(found_origin[len("caller:"):],
+-                                            read[1])))
++            found_origin = _source(read[0], inside, where, returns)
++            if found_origin is None:
++                continue
++            if found_origin.startswith("session:"):
++                subject = _dotted(found_origin, read[1])
++                found.add(("injected", _crossing_of(crossings, subject), subject))
++            elif found_origin.startswith("read:"):
++                read_site, table = found_origin[len("read:"):].split("|", 1)
++                found.add(("adopted", read_site, _dotted_read(table, read[1])))
++            elif found_origin.startswith("caller:") and not node.name.startswith("_"):
++                found.add(("caller", site, _dotted_read(found_origin[len("caller:"):], read[1])))
+     return found
+ 
+ 
+@@ -856,7 +980,7 @@
+         returns = _returns
+         for site, node in _functions(tree, source.name):
+             origins = _origins(node, site, returns)
+-            for _, helper, inside in _delegations(node, origins, helpers):
++            for _, helper, inside in _delegations(node, origins, helpers, site=site, returns=returns):
+                 for found in _calls_in(helper, inside, site):
+                     owners.setdefault(site, set()).add(found)
+             for piece in ast.walk(node):
+@@ -881,29 +1005,26 @@
+         {site: frozenset(found) for site, found in owners.items()})
+ 
+ 
+-def _delegations(node, origins, helpers):
++def _delegations(node, origins, helpers, *, site, returns=None, trail=()):
+     """(helper name, its parameter bindings) for each call carrying a crossing."""
+     for piece in ast.walk(node):
+         if not isinstance(piece, ast.Call):
+             continue
+-        called = piece.func
+-        name = (called.attr if isinstance(called, ast.Attribute)
+-                else getattr(called, "id", None))
+-        found = helpers.get(name)
+-        if found is None or found[1] is node:
++        found = helpers.get(_helper_site(piece.func, site, returns))
++        if found is None or found[0] in trail or found[1] is node:
+             continue
+         where, helper = found
+-        parameters = _parameters(helper)
+-        if isinstance(called, ast.Attribute):
+-            parameters = parameters[1:]
++        positional = tuple(one.arg for one in helper.args.posonlyargs + helper.args.args)
++        keywords = tuple(one.arg for one in helper.args.kwonlyargs)
+         inside = {}
+-        for position, argument in enumerate(piece.args):
+-            origin = _origins_of(argument, origins)
+-            if origin is not None and position < len(parameters):
+-                inside[parameters[position]] = origin
++        for parameter, argument in _argument_bindings(piece, positional, keywords).items():
++            origin = _source(argument, origins, site, returns)
++            if origin is not None:
++                inside[parameter] = origin
+         if inside:
+-            yield (where, helper,
+-                   _origins(helper, where, seed=inside, own_parameters=False))
++            local = _origins(helper, where, returns, seed=inside, own_parameters=False)
++            yield (where, helper, local)
++            yield from _delegations(helper, local, helpers, site=where, returns=returns, trail=trail + (site, where))
+ 
+ 
+ @functools.cache
+@@ -921,7 +1042,7 @@
+         returns = _returns
+         for site, node in _functions(tree, source.name):
+             origins = _origins(node, site, returns)
+-            for where, helper, inside in _delegations(node, origins, helpers):
++            for where, helper, inside in _delegations(node, origins, helpers, site=site, returns=returns):
+                 for kind, label, _ in _calls_in(helper, inside, site):
+                     found.add((where, kind, label))
+     return frozenset(found)
+@@ -10559,6 +10680,233 @@
+                 self.assertNotIn(entry, NO_PROBE)
+ 
+ 
++class AdoptedHelperOriginsAreContextual(unittest.TestCase):
++    """Small independent sources name expected entries, not scanner output."""
++
++    def fragment(self, text, name="sample.py"):
++        return pathlib.Path(name), ast.parse(text)
++
++    def entries(self, sources, site):
++        returned = _returned_origins(sources)
++        source, tree = next((source, tree) for source, tree in sources if site.startswith(source.name + ":"))
++        node = dict(_functions(tree, source.name))[site]
++        origins = _origins(node, site, returned)
++        return _through_helpers({}, site, node, origins, _helpers(tree, source.name), returns=returned)
++
++    def test_positional_keyword_and_chained_adopted_reads_keep_the_read_site(self):
++        for call in ("_view(row)", "_view(row=row)", "_bridge(row=row)"):
++            with self.subTest(call=call):
++                source = self.fragment(f'''
++def _row(connection):
++    return connection.execute("SELECT * FROM interrogations").fetchone()
++def _bridge(*, row):
++    return _view(row=row)
++def _view(row):
++    return row["operation_id"], row.get("settled_at")
++def public(connection):
++    row = _row(connection)
++    return {call}
++''')
++                self.assertEqual(self.entries([source], "sample.py:public"), {
++                    ("adopted", "sample.py:_row", "interrogations.operation_id"),
++                    ("adopted", "sample.py:_row", "interrogations.settled_at")})
++
++    def test_identity_return_substitutes_the_actual_argument_and_member_suffix(self):
++        source = self.fragment('''
++def _identity(row):
++    return row
++def _record(*, envelope):
++    return envelope["record"]
++def _view(row):
++    return row["lane_id"]
++def public(connection):
++    held = connection.execute("SELECT * FROM runtime_lanes").fetchone()
++    held = _identity(held)
++    _view(held)
++    _view(_record(envelope=held))
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "runtime_lanes.lane_id"),
++            ("adopted", "sample.py:public", "runtime_lanes.record"),
++            ("adopted", "sample.py:public", "runtime_lanes.record.lane_id")})
++
++    def test_same_helper_name_in_another_module_cannot_supply_an_origin(self):
++        sources = [self.fragment(f'''
++def _row(connection):
++    return connection.execute("SELECT * FROM {table}").fetchone()
++def _view(row):
++    return row["identity"]
++def public(connection):
++    return _view(_row(connection))
++''', module) for module, table in (("alpha.py", "first"), ("beta.py", "second"))]
++        for module, table in (("alpha.py", "first"), ("beta.py", "second")):
++            self.assertEqual(self.entries(sources, f"{module}:public"), {
++                ("adopted", f"{module}:_row", f"{table}.identity")})
++
++    def test_same_method_name_in_another_class_cannot_supply_an_origin(self):
++        source = self.fragment('''
++class First:
++    def _row(self, connection):
++        return connection.execute("SELECT * FROM first").fetchone()
++    def _view(self, row):
++        return row["identity"]
++    def public(self, connection):
++        return self._view(self._row(connection))
++class Second:
++    def _row(self, connection):
++        return connection.execute("SELECT * FROM second").fetchone()
++    def _view(self, *, row):
++        return row["other"]
++    def public(self, connection):
++        return self._view(row=self._row(connection))
++''')
++        self.assertEqual(self.entries([source], "sample.py:First.public"), {
++            ("adopted", "sample.py:First._row", "first.identity")})
++        self.assertEqual(self.entries([source], "sample.py:Second.public"), {
++            ("adopted", "sample.py:Second._row", "second.other")})
++
++    def test_explicit_module_and_local_import_aliases_keep_the_producer(self):
++        producer = self.fragment('''
++def row(connection):
++    return connection.execute("SELECT * FROM offers").fetchone()
++''', "producer.py")
++        for call, declaration in (("read(connection)", "from .producer import row as read"),
++                                  ("source.row(connection)", "from . import producer as source")):
++            with self.subTest(call=call):
++                consumer = self.fragment(f'''
++{declaration}
++def _local(connection):
++    from .producer import row as local_read
++    return local_read(connection)
++def _view(row):
++    return row["claim_generation"]
++def public(connection):
++    _view({call})
++    _view(_local(connection))
++''')
++                self.assertEqual(self.entries([producer, consumer], "sample.py:public"), {
++                    ("adopted", "producer.py:row", "offers.claim_generation")})
++
++    def test_unrelated_literal_and_foreign_method_do_not_borrow_a_row(self):
++        source = self.fragment('''
++def _identity(row):
++    return row
++def _view(row):
++    return row["identity"]
++def public(connection):
++    held = connection.execute("SELECT * FROM records").fetchone()
++    _view(_identity({}))
++    unrelated._view(held)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), set())
++
++    def test_a_helper_cycle_terminates_without_losing_its_actual_read(self):
++        source = self.fragment('''
++def _first(row):
++    _second(row)
++def _second(row):
++    _first(row)
++    return row["identity"]
++def public(connection):
++    row = connection.execute("SELECT * FROM records").fetchone()
++    _first(row)
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:public", "records.identity")})
++
++    def test_return_chains_longer_than_four_are_not_truncated(self):
++        chain = "\n".join(f"def _step{number}(connection):\n    return _step{number + 1}(connection)" for number in range(6))
++        source = self.fragment(chain + '''
++def _step6(connection):
++    return connection.execute("SELECT * FROM records").fetchone()
++def _view(row):
++    return row["identity"]
++def public(connection):
++    _view(_step0(connection))
++''')
++        self.assertEqual(self.entries([source], "sample.py:public"), {
++            ("adopted", "sample.py:_step6", "records.identity")})
++
++    def test_live_interrogation_and_lane_origins_keep_their_adoption_site(self):
++        sources = _sources()
++        seen = self.entries(sources, "interrogation.py:interrogation_of")
++        self.assertIn(("adopted", "interrogation.py:_row", "interrogations.operation_id"), seen)
++        self.assertIn(("adopted", "interrogation.py:_row", "interrogations.settled_at"), seen)
++        source, tree = next((source, tree) for source, tree in sources if source.name == "lanes.py")
++        node = dict(_functions(tree, source.name))["lanes.py:_occupy_lane"]
++        origins = _origins(node, "lanes.py:_occupy_lane", _helper_returns())
++        self.assertEqual(origins["held"], "read:lanes.py:_occupy_lane|runtime_lanes")
++
++    def test_member_reassignment_is_finite_and_applies_each_assignment_once(self):
++        import subprocess
++        import sys
++        source = '''
++def _record(*, envelope):
++    return envelope["record"]
++def public(row):
++    row = _record(envelope=row)
++    return row["identity"]
++def twice(row):
++    row = alias = _record(envelope=row)
++    row = _record(envelope=alias)
++    return row["identity"]
++'''
++        program = ("import ast, json, pathlib\n"
++                   "from tests.manager.test_boundary_inventory import _returned_origins\n"
++                   f"rows = _returned_origins([(pathlib.Path('sample.py'), ast.parse({source!r}))])\n"
++                   "print(json.dumps([rows['sample.py:public'][0], rows['sample.py:twice'][0]]))\n")
++        result = subprocess.run([sys.executable, "-c", program], capture_output=True, text=True, timeout=2)
++        self.assertEqual(result.returncode, 0, result.stderr)
++        self.assertEqual(json.loads(result.stdout), ["caller:row[record][identity]", "caller:row[record][record][identity]"])
++
++    def test_nested_branch_assignment_precedes_an_unbounded_length_join_chain(self):
++        source = self.fragment('''
++def public(connection, condition):
++    if condition:
++        if condition:
++            row = connection.execute("SELECT * FROM records").fetchone()
++        else:
++            row = connection.execute("SELECT * FROM records").fetchone()
++    else:
++        row = connection.execute("SELECT * FROM records").fetchone()
++''' + "\n".join("    alias" + str(n) + " = " + ("row" if n == 0 else "alias" + str(n - 1)) for n in range(12)) + '\n    return alias11["identity"]\n')
++        self.assertEqual(_returned_origins([source])["sample.py:public"][0], "read:sample.py:public|records[identity]")
++
++    def test_parameter_and_local_bindings_shadow_imported_callables(self):
++        producer = self.fragment('''
++def row(connection):
++    return connection.execute("SELECT * FROM offers").fetchone()
++''', "producer.py")
++        for declaration, call, parameter, assignment in (
++                ("from .producer import row as read", "read(connection)", ", read", ""),
++                ("from . import producer as source", "source.row(connection)", ", source", ""),
++                ("from .producer import row as read", "read(connection)", ", supplied", "    read = supplied\n"),
++                ("from . import producer as source", "source.row(connection)", ", supplied", "    source = supplied\n")):
++            with self.subTest(call=call, assignment=assignment):
++                source = self.fragment(f'''
++{declaration}
++def _view(row):
++    return row["claim_generation"]
++def public(connection{parameter}):
++{assignment}    return _view({call})
++''')
++                self.assertEqual(self.entries([producer, source], "sample.py:public"), set())
++                self.assertNotIn("sample.py:public", _returned_origins([producer, source]))
++
++    def test_local_binding_shadows_module_helper_for_delegation_and_returns(self):
++        for parameter, assignment in ((", _view", ""), (", supplied", "    _view = supplied\n")):
++            with self.subTest(parameter=parameter):
++                source = self.fragment(f'''
++def _view(row):
++    return row["claim_generation"]
++def public(connection{parameter}):
++{assignment}    row = connection.execute("SELECT * FROM offers").fetchone()
++    return _view(row)
++''')
++                self.assertEqual(self.entries([source], "sample.py:public"), set())
++                self.assertNotIn("sample.py:public", _returned_origins([source]))
++
++
+ class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
+     """W54182: the inventory's discovery is pure, so it is computed once.
+ 

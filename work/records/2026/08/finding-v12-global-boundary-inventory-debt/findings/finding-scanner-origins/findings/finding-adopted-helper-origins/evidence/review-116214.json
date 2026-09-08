@@ -1,0 +1,107 @@
+{
+  "candidate": {
+    "branch": {
+      "entries": [],
+      "origins": {
+        "condition": "caller:condition",
+        "connection": "caller:connection"
+      }
+    },
+    "equivalent_reversed_branch": {
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.claim_generation"
+        ]
+      ],
+      "origins": {
+        "condition": "caller:condition",
+        "connection": "caller:connection",
+        "row": "read:sample.py:public|offers"
+      }
+    },
+    "nested_import": {
+      "entries": [
+        [
+          "adopted",
+          "unrelated.py:row",
+          "unrelated_offers.claim_generation"
+        ]
+      ],
+      "origins": {
+        "connection": "caller:connection"
+      }
+    },
+    "reassignment_return": "caller:row[record][identity]",
+    "shadow": {
+      "entries": [],
+      "origins": {
+        "connection": "caller:connection",
+        "read": "caller:read"
+      }
+    }
+  },
+  "changed_original_classes": [],
+  "hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "fdaeb9d086a97061dc3170d04184f8553ec2c782e709a958a7915c2475da7571",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-adopted-helper-origins/evidence/candidate.py": "88705883487787340f1b7c07e745b9c57aef7335c6bf1c33af8677d21ed41f82",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-adopted-helper-origins/evidence/correction-116178/candidate.py": "fdaeb9d086a97061dc3170d04184f8553ec2c782e709a958a7915c2475da7571"
+  },
+  "original_class_count": 24,
+  "prior": {
+    "branch": {
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.claim_generation"
+        ]
+      ],
+      "origins": {
+        "condition": "caller:condition",
+        "connection": "caller:connection",
+        "row": "read:sample.py:public|offers"
+      }
+    },
+    "equivalent_reversed_branch": {
+      "entries": [
+        [
+          "adopted",
+          "sample.py:public",
+          "offers.claim_generation"
+        ]
+      ],
+      "origins": {
+        "condition": "caller:condition",
+        "connection": "caller:connection",
+        "row": "read:sample.py:public|offers"
+      }
+    },
+    "nested_import": {
+      "entries": [
+        [
+          "adopted",
+          "unrelated.py:row",
+          "unrelated_offers.claim_generation"
+        ]
+      ],
+      "origins": {
+        "connection": "caller:connection"
+      }
+    },
+    "shadow": {
+      "entries": [
+        [
+          "adopted",
+          "producer.py:row",
+          "offers.claim_generation"
+        ]
+      ],
+      "origins": {
+        "connection": "caller:connection",
+        "read": "caller:read"
+      }
+    }
+  }
+}

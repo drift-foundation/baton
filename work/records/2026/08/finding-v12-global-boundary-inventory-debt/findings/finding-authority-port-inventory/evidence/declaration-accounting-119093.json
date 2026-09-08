@@ -1,0 +1,131 @@
+{
+  "added_rows": [],
+  "current_orphan_calls": [],
+  "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory",
+  "module": "authority_port",
+  "prior_inputs_sha256": "887eac0a136d51985b43fcb9d03e06c5b4b0a13f83d292c974f4795ce6e171fe",
+  "prior_orphan_calls": [
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "document",
+      "{what}'s Work reference"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "document",
+      "{what}'s identity"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "generation",
+      "{what}'s generation"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "identity",
+      "{what}'s Work id"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "identity",
+      "{what}'s authority"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "text",
+      "{what}'s participant"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "document",
+      "{what}'s decision"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s decided role"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s decision endpoint"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s effective scope"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s principal"
+    ]
+  ],
+  "removed_rows": [
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "document",
+      "{what}'s Work reference"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "document",
+      "{what}'s identity"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "generation",
+      "{what}'s generation"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "identity",
+      "{what}'s Work id"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "identity",
+      "{what}'s authority"
+    ],
+    [
+      "authority_port.py:AuthorityPort._assignment",
+      "text",
+      "{what}'s participant"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "document",
+      "{what}'s decision"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s decided role"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s decision endpoint"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s effective scope"
+    ],
+    [
+      "authority_port.py:AuthorityPort._decided",
+      "text",
+      "{what}'s principal"
+    ]
+  ],
+  "runtime_sha256": "ae68d53a97498deb50d8d932547d7bf2a4436735d0b84b41d86b870a8918e79d",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/authority_port.py",
+  "state": "live accounting revalidated; independent implementation acceptance pending",
+  "unchanged_input_counts": {
+    "failed_stimuli": 0,
+    "missing_probes": 34,
+    "orphan_probes": 34,
+    "unowned": 10
+  },
+  "work": "W116979"
+}

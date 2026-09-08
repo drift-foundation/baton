@@ -1,0 +1,41 @@
+
+> codex-event-bridge@0.1.0 test
+> node --test
+
+✔ test/bootstrap_thread.test.mjs (41.611494ms)
+✔ test/claim_slot.test.mjs (455.955107ms)
+✔ test/codex_baton_bridge.test.mjs (54.908045ms)
+✔ test/codex_client.test.mjs (278.915906ms)
+✔ test/command_oracle.test.mjs (43.698442ms)
+✔ test/config.test.mjs (31.32683ms)
+✔ test/cross_work_fence.test.mjs (427.614407ms)
+✔ test/current_priority.test.mjs (141.599408ms)
+✔ test/docker_inspection_policy.test.mjs (45.665197ms)
+✔ test/event_bridge.test.mjs (366.663432ms)
+✔ test/event_types.test.mjs (32.704961ms)
+✖ test/exec_policy_cli.test.mjs (160.617863ms)
+✔ test/failed_turn_settlement.test.mjs (603.840998ms)
+✔ test/policy_syntax.test.mjs (2789.415865ms)
+✔ test/quarantine_fixture.mjs (18.134603ms)
+✔ test/role_instructions.test.mjs (52.784057ms)
+✖ test/runtime_publisher.test.mjs (126.695689ms)
+✔ test/stale_episode.test.mjs (245.130206ms)
+✔ test/system_error_target.test.mjs (54.495989ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 17
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2811.688849
+
+✖ failing tests:
+
+test at test/exec_policy_cli.test.mjs:1:1
+✖ test/exec_policy_cli.test.mjs (160.617863ms)
+  'test failed'
+
+test at test/runtime_publisher.test.mjs:1:1
+✖ test/runtime_publisher.test.mjs (126.695689ms)
+  'test failed'

@@ -1,0 +1,34 @@
+{
+  "work": "W116014",
+  "claim": 118966,
+  "files": {
+    "v12/python/tools/parallel_test.py": {
+      "sha256": "f00fec0efebca9df1e25c025d1c9f07d350d1c79f0f0c880e673888bac884547",
+      "only_added_members": [
+        "tests.integration.test_driver",
+        "tests.job_manager.test_review_driver"
+      ],
+      "other_ast_unchanged": true
+    },
+    "v12/python/tests/authority/test_catalog.py": {
+      "sha256": "14ca384916dd0c175409c9af97c338f923ce73ba789f0eec68a745385904eed6",
+      "only_added_members": [
+        "test_work_label_exposure.py"
+      ],
+      "other_ast_unchanged": true
+    },
+    "v12/python/tests/tools/test_parallel_runner.py": {
+      "sha256": "690241cb9f51e1405c6d3246bd8a66620a95d4f8ecf561e8d5d4553dfd736406",
+      "only_added_members": [
+        "tests.integration.test_driver",
+        "tests.job_manager.test_review_driver"
+      ],
+      "other_ast_unchanged": true
+    }
+  },
+  "packet_hashes_match": true,
+  "approved_third_file_matches": true,
+  "retained_module_tests_passed": 41,
+  "new_test_execution": false,
+  "elapsed_seconds": 0.021270098979584873
+}

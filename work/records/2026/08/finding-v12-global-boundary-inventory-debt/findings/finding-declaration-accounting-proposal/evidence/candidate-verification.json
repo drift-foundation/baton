@@ -1,0 +1,8 @@
+{
+  "candidate_controls_passed": 11,
+  "matches_proposal_rows": true,
+  "orphan_rows": 77,
+  "aggregate_still_fails_on_residuals": true,
+  "new_projection_cached_immutable_registered": true,
+  "elapsed_seconds": 2.0922302560065873
+}

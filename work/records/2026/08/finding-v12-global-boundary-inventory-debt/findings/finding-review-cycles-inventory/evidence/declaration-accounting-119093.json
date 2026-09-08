@@ -1,0 +1,242 @@
+{
+  "added_rows": [
+    [
+      "review_cycles.py:integration_checkpoint",
+      "document",
+      "a persisted assignment fence"
+    ],
+    [
+      "review_cycles.py:record_verdict",
+      "document",
+      "a persisted assignment fence"
+    ]
+  ],
+  "current_orphan_calls": [
+    [
+      "review_cycles.py:_evidence",
+      "document",
+      "persisted checkpoint evidence"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "a persisted checkpoint evidence path"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's base"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's head"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's path_set_digest"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's profile"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's reference"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's tree"
+    ],
+    [
+      "review_cycles.py:_line_place",
+      "text",
+      "the manager's workspace storage"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "capability",
+      "a checkpoint profile's {method} capability"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "text",
+      "a checkpoint profile name"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "document",
+      "a frozen review artifact"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "document",
+      "a frozen review result"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review output name"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's attempt_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's freeze_operation_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's manifest_digest"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's result_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "instant",
+      "a frozen review result's frozen_at"
+    ],
+    [
+      "review_cycles.py:create_line",
+      "text",
+      "a materialized line head"
+    ],
+    [
+      "review_cycles.py:integration_checkpoint",
+      "document",
+      "a persisted assignment fence"
+    ],
+    [
+      "review_cycles.py:record_verdict",
+      "document",
+      "a persisted assignment fence"
+    ]
+  ],
+  "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory",
+  "module": "review_cycles",
+  "prior_inputs_sha256": "8e0e30a3b0210946162de0fe5bc2393dc65092098ecc860c82085f42db2531cf",
+  "prior_orphan_calls": [
+    [
+      "review_cycles.py:_evidence",
+      "document",
+      "persisted checkpoint evidence"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "a persisted checkpoint evidence path"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's base"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's head"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's path_set_digest"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's profile"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's reference"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's tree"
+    ],
+    [
+      "review_cycles.py:_line_place",
+      "text",
+      "the manager's workspace storage"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "capability",
+      "a checkpoint profile's {method} capability"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "text",
+      "a checkpoint profile name"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "document",
+      "a frozen review artifact"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "document",
+      "a frozen review result"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review output name"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's attempt_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's freeze_operation_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's manifest_digest"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's result_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "instant",
+      "a frozen review result's frozen_at"
+    ],
+    [
+      "review_cycles.py:create_line",
+      "text",
+      "a materialized line head"
+    ]
+  ],
+  "removed_rows": [],
+  "runtime_sha256": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+  "state": "live accounting revalidated; independent implementation acceptance pending",
+  "unchanged_input_counts": {
+    "failed_stimuli": 1,
+    "missing_probes": 7,
+    "orphan_probes": 2,
+    "unowned": 4
+  },
+  "work": "W116975"
+}

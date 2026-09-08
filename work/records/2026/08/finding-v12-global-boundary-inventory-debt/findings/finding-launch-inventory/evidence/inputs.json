@@ -1,0 +1,59 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [],
+  "module": "launch",
+  "orphan_calls": [],
+  "orphan_probes": [],
+  "runtime_sha256": "6546008fb4970b406d2a56adffc4f6a36c8c18f62e488a9b0ac74307059d7647",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/launch.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "caller",
+      "launch.py:LaunchDelivery.__init__",
+      "delivery"
+    ],
+    [
+      "caller",
+      "launch.py:adopt",
+      "transport"
+    ],
+    [
+      "caller",
+      "launch.py:adopt",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "launch.py:launch_document",
+      "transport"
+    ],
+    [
+      "caller",
+      "launch.py:materialize",
+      "transport"
+    ],
+    [
+      "caller",
+      "launch.py:materialize",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "launch.py:members_for",
+      "document"
+    ],
+    [
+      "caller",
+      "launch.py:members_for",
+      "document.schema"
+    ]
+  ],
+  "work": "W117008"
+}

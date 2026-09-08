@@ -1,0 +1,257 @@
+{
+  "approved_module_count": 17,
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "catalog_elapsed_seconds": 1.9306446279515512,
+  "claim": 116930,
+  "declared_pairs": 715,
+  "exact_partition": true,
+  "expected_pairs": 817,
+  "partition_counts": {
+    "failed_stimuli": 4,
+    "missing_probes": 153,
+    "orphan_calls": 72,
+    "orphan_probes": 51,
+    "unowned": 183
+  },
+  "rows": [
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 0,
+      "module": null,
+      "orphan_calls": 0,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-module-scope-review",
+      "type": "review",
+      "unowned": 0,
+      "work": "W116952"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 0,
+      "module": null,
+      "orphan_calls": 0,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-declaration-accounting-proposal",
+      "type": "proposal",
+      "unowned": 0,
+      "work": "W116962"
+    },
+    {
+      "failed_stimuli": 1,
+      "missing_probes": 0,
+      "module": "lanes",
+      "orphan_calls": 2,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-lanes-inventory",
+      "type": "module",
+      "unowned": 7,
+      "work": "W116972"
+    },
+    {
+      "failed_stimuli": 1,
+      "missing_probes": 7,
+      "module": "review_cycles",
+      "orphan_calls": 20,
+      "orphan_probes": 2,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory",
+      "type": "module",
+      "unowned": 4,
+      "work": "W116975"
+    },
+    {
+      "failed_stimuli": 1,
+      "missing_probes": 34,
+      "module": "intake",
+      "orphan_calls": 13,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory",
+      "type": "module",
+      "unowned": 12,
+      "work": "W116977"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 34,
+      "module": "authority_port",
+      "orphan_calls": 11,
+      "orphan_probes": 34,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory",
+      "type": "module",
+      "unowned": 10,
+      "work": "W116979"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 23,
+      "module": "interrogation",
+      "orphan_calls": 1,
+      "orphan_probes": 4,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory",
+      "type": "module",
+      "unowned": 4,
+      "work": "W116981"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 10,
+      "module": "sessions",
+      "orphan_calls": 0,
+      "orphan_probes": 1,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory",
+      "type": "module",
+      "unowned": 9,
+      "work": "W116987"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 9,
+      "module": "attempts",
+      "orphan_calls": 2,
+      "orphan_probes": 6,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory",
+      "type": "module",
+      "unowned": 20,
+      "work": "W116992"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 5,
+      "module": "workspaces",
+      "orphan_calls": 3,
+      "orphan_probes": 4,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory",
+      "type": "module",
+      "unowned": 33,
+      "work": "W116995"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 16,
+      "module": "oci",
+      "orphan_calls": 13,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-oci-inventory",
+      "type": "module",
+      "unowned": 22,
+      "work": "W116997"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 4,
+      "module": "handshake",
+      "orphan_calls": 0,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-handshake-inventory",
+      "type": "module",
+      "unowned": 14,
+      "work": "W116999"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 0,
+      "module": "documents",
+      "orphan_calls": 0,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-documents-inventory",
+      "type": "module",
+      "unowned": 26,
+      "work": "W117002"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 0,
+      "module": "credentials",
+      "orphan_calls": 0,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-credentials-inventory",
+      "type": "module",
+      "unowned": 3,
+      "work": "W117004"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 10,
+      "module": "exchange",
+      "orphan_calls": 2,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-exchange-inventory",
+      "type": "module",
+      "unowned": 10,
+      "work": "W117006"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 0,
+      "module": "launch",
+      "orphan_calls": 0,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-launch-inventory",
+      "type": "module",
+      "unowned": 8,
+      "work": "W117008"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 0,
+      "module": "source_boundary",
+      "orphan_calls": 0,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-source-boundary-inventory",
+      "type": "module",
+      "unowned": 1,
+      "work": "W117017"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 0,
+      "module": "custody",
+      "orphan_calls": 1,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-custody-inventory",
+      "type": "module",
+      "unowned": 0,
+      "work": "W117020"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 0,
+      "module": "posture_slots",
+      "orphan_calls": 3,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory",
+      "type": "module",
+      "unowned": 0,
+      "work": "W117022"
+    },
+    {
+      "failed_stimuli": 1,
+      "missing_probes": 1,
+      "module": "output",
+      "orphan_calls": 0,
+      "orphan_probes": 0,
+      "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-output-fixture-scope",
+      "type": "proposal",
+      "unowned": 0,
+      "work": "W117024"
+    },
+    {
+      "failed_stimuli": 0,
+      "missing_probes": 0,
+      "module": "worker_entry",
+      "orphan_calls": 1,
+      "orphan_probes": 0,
+      "path": "work/records/2026/09/finding-v12-worker-entry-inventory-followup",
+      "type": "followup",
+      "unowned": 0,
+      "work": "W117026"
+    }
+  ],
+  "source_hashes": {
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json": "8c670f53a3b83428dd0d9bce4af60b871186507d9ec9b0aa2007432460f7f0a2",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/work-index.json": "5e578bafc697157fc29c1a8d74ced9891bbcf29684aca4fe9839c4c5e741f6f0",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json": "0fc0e0df321b22a46c24729c367efbc374c54d8e75653925e3fce5675e3c0342",
+    "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json": "6b24364ad873d82f729abcde8f20b7c4bee30d05bebcf00428a5b2d3b20f1dc0"
+  },
+  "work": "W48697",
+  "work_count": 21
+}

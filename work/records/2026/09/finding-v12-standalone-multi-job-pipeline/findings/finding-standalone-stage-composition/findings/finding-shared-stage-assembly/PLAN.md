@@ -1,4 +1,46 @@
+# Current execution plan — 2026-09-08, claim119091
+
+This section supersedes the undivided execution assignment and pending-approval
+wording in the historical plan below. The exact assertion change is approved;
+M118923/M118986 are pinned in FINDING. The new review is
+review-2026-09-08T12-41-47Z.md.
+
+1. Independently accept the bounded never-started preparation correction in
+   ../finding-assembly-unstarted-preparation/. Its implementer owns only
+   stage_execution.py and tests/tools/test_stage_execution.py.
+2. Then consume the actual factory-driven lifecycle, mandatory retained custody,
+   representative restart and held integration proof from
+   ../finding-composed-one-job-proof/. It owns the original five-path scope
+   serially after correction acceptance. Preserve provider/registry changes.
+3. This Work performs final joined independent acceptance of both exact
+   candidates and proof, cross-links custody and parent evidence, and returns
+   commands/profiles/artifact roots/verification inputs for the two-Job proof.
+   It does not implement concurrently with either provider.
+
+The held/raw and nominal-group corrections are independently accepted. The
+complete capability is still unproved. Reuse applicable provider results and
+retained gate evidence; baseline reds remain unwaived. The ledger alone carries
+current dependency/route/phase state. Full historical evidence remains here.
+
+## Historical plan (superseded only as specified above)
+
 # Plan
+
+Current assertion authority, 2026-09-08: owner M118923 already approves exactly
+the review116043 observed-then-prepare expectation and all three scoped
+corrections. FINDING's newest entry records that authority and supersedes the
+pending disposition for that change. Obligation118938 repeats it; no second
+approval is needed before the already-authorized implementation. Preserve
+the unrelated assertions, restart holds and remaining lifecycle/custody proof.
+
+Current review, claim116043: changes requested in
+`review-2026-09-08T04-06-54Z.md`. M115946 already approved obligation115920;
+the former pending-disposition header is superseded. Consume held producer
+material without revalidating it as a raw configuration, retain the nominal
+WorkspaceGroup, and prepare before admission of a never-started published
+delivery. One exact existing call-list assertion change needs ops disposition
+under M115946's preserve-assertions boundary. After that, implement these
+corrections and remaining accepted lifecycle/custody work inside the five paths.
 
 Current handoff preparation, 2026-09-08: the port/assembly contract is pinned in
 ../finding-integration-runtime-port/HANDOFF-CONTRACT-2026-09-08.md. W110774 owns
@@ -36,7 +78,7 @@ The expanded failure/status/restart matrix is tracked separately in
 coverage, not this leaf's completion gate. Live dependency state belongs in Baton.
 
 Current correction authority: the approved bounded delivery in FINDING.md.
-Newest review: `review-2026-09-07T15-10-51Z.md`. The preceding two P1 corrections
+Newest review: `review-2026-09-08T04-06-54Z.md`. The earlier configuration P1 corrections
 are independently accepted: receipt actors are authorized through the
 Authority's own reader in the target Work's effective scope, and every check
 this module can answer without writing anything now runs before the preflights,
@@ -51,7 +93,15 @@ accounts are appended after earlier history. Five candidate hashes and25 prior
 test-class ASTs match; independent maximum/maximum-plus-one factory probes pass.
 Equality with Authority.policy_generation() is not required.
 
-Current action: wait on accepted W110772/W110774 provider interfaces, then
+Historical implementation checkpoint, 2026-09-08: obligation115920 is answered (owner M115946, pinned
+in FINDING) and both items are implemented under claim115958 — required_tests is
+derived from the configured producer task and its bound input manifest, and the
+assembly selects continuation through the public delivery readers after refresh,
+with seven focused regressions. NEXT: the approved complete one-Job lifecycle
+proof, one representative reconstructed restart, preserved operator-held
+uncertain integration and the mandatory W105982 custody evidence.
+
+Historical action: wait on accepted W110772/W110774 provider interfaces, then
 resume remaining five-path assembly and its approved lifecycle proof. Provider
 dependencies are recorded after this completed correction review. W110774's
 dated research also requires pre-admission attempt preparation and normal

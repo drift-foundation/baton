@@ -1,0 +1,531 @@
+--- before.py
++++ candidate.py
+@@ -513,6 +513,7 @@
+     def __init__(self, values):
+         super().__init__(values)
+         self.at = {}
++        self.contexts = {}
+         self.evaluating = True
+         self.returned = set()
+ 
+@@ -521,6 +522,49 @@
+     if isinstance(origins, _OriginBindings) and not origins.evaluating:
+         return origins.at.get(id(node), origins)
+     return origins
++
++
++def _contexts_at(origins, node):
++    """Keep a finite loop's subject and literal arguments in the same state."""
++    if isinstance(origins, _OriginBindings) and not origins.evaluating:
++        if id(node) not in origins.at:
++            return ()
++        return origins.contexts.get(id(node), (origins,))
++    return (origins,)
++
++
++def _literal_text(node, origins):
++    if isinstance(node, ast.Constant) and type(node.value) is str:
++        return node.value
++    if isinstance(node, ast.Name):
++        value = _bindings_at(origins, node).get(("literal", node.id))
++        return value if type(value) is str else None
++    if isinstance(node, ast.JoinedStr):
++        pieces = []
++        for piece in node.values:
++            if isinstance(piece, ast.FormattedValue):
++                if piece.conversion != -1 or piece.format_spec is not None:
++                    return None
++                piece = piece.value
++            value = _literal_text(piece, origins)
++            if value is None:
++                return None
++            pieces.append(value)
++        return "".join(pieces)
++    return None
++
++
++def _member_origins(node, origins, site=None, returns=None):
++    """Read members under each reaching context, including finite string keys."""
++    for context in _contexts_at(origins, node):
++        read = _member_read(node)
++        if read is None and isinstance(node, ast.Subscript):
++            member = _literal_text(node.slice, context)
++            if member is not None:
++                read = (node.value, member)
++        if read is not None:
++            for origin in _origin_values(_source(read[0], context, site, returns)):
++                yield origin, read[1]
+ 
+ 
+ def _source(value, origins, site=None, returns=None):
+@@ -534,6 +578,8 @@
+     """
+     if isinstance(origins, _OriginBindings) and id(value) not in origins.at:
+         return None
++    if isinstance(origins, _OriginBindings) and not origins.evaluating and id(value) in origins.contexts:
++        return _join_origins(_source(value, context, site, returns) for context in origins.contexts[id(value)])
+     if isinstance(value, ast.Name):
+         return _bindings_at(origins, value).get(value.id)
+     if site is not None:
+@@ -579,6 +625,9 @@
+         inner = _source(read[0], origins, site, returns)
+         return _extend_origin(inner, f"[{read[1]}]")
+     if isinstance(value, ast.Subscript):
++        member = _literal_text(value.slice, origins)
++        if member is not None:
++            return _extend_origin(_source(value.value, origins, site, returns), f"[{member}]")
+         # A row taken out of a list of rows is still that read's row.
+         return _source(value.value, origins, site, returns)
+     if isinstance(value, (ast.ListComp, ast.GeneratorExp, ast.SetComp)):
+@@ -772,6 +821,7 @@
+     def bind(target, origin):
+         if isinstance(target, ast.Name):
+             origins.pop(("collection", target.id), None)
++            origins.pop(("literal", target.id), None)
+             if origin is None:
+                 origins.pop(target.id, None)
+             else:
+@@ -795,6 +845,11 @@
+             snapshot = {name: _join_origins((previous.get(name), origins.get(name)))
+                         for name in previous.keys() | origins.keys()}
+             origins.at[id(piece)] = types.MappingProxyType(snapshot)
++            if isinstance(piece, (ast.Call, ast.Subscript)):
++                contexts = origins.contexts.setdefault(id(piece), [])
++                current = types.MappingProxyType(dict(origins)) if previous else origins.at[id(piece)]
++                if current not in contexts:
++                    contexts.append(current)
+             if self.exceptions is not None and isinstance(piece, (ast.Call, ast.Attribute, ast.Subscript, ast.BinOp, ast.UnaryOp, ast.Compare, ast.Await)):
+                 self.exceptions.append(dict(origins))
+             return super().visit(piece)
+@@ -811,6 +866,8 @@
+                 # A missing local-list identity is an unknown alternative,
+                 # not evidence that the known candidate is a definite alias.
+                 missing = "unknown-list" if isinstance(name, tuple) and name[0] == "collection" else None
++                if isinstance(name, tuple) and name[0] == "literal":
++                    missing = frozenset({None})
+                 joined = _join_origins(state.get(name, missing) for state in states)
+                 if joined is not None:
+                     origins[name] = joined
+@@ -864,6 +921,7 @@
+         def visit_Assign(self, piece):
+             self.visit(piece.value)
+             origin = _source(piece.value, origins, site, returns)
++            literal = _literal_text(piece.value, origins)
+             collection = None
+             if isinstance(piece.value, ast.List) and not piece.value.elts:
+                 collection = f"list:{site}:{piece.lineno}:{piece.col_offset}"
+@@ -872,6 +930,8 @@
+             for target in piece.targets:
+                 bind(target, origin)
+                 if isinstance(target, ast.Name):
++                    if literal is not None:
++                        origins[("literal", target.id)] = literal
+                     key = ("collection", target.id)
+                     if collection is None:
+                         origins.pop(key, None)
+@@ -914,19 +974,53 @@
+         def visit_AnnAssign(self, piece):
+             if piece.value is not None:
+                 self.visit(piece.value)
++                literal = _literal_text(piece.value, origins)
+                 bind(piece.target, _source(piece.value, origins, site, returns))
++                if isinstance(piece.target, ast.Name) and literal is not None:
++                    origins[("literal", piece.target.id)] = literal
+ 
+         def visit_NamedExpr(self, piece):
+             self.visit(piece.value)
++            literal = _literal_text(piece.value, origins)
+             bind(piece.target, _source(piece.value, origins, site, returns))
++            if isinstance(piece.target, ast.Name) and literal is not None:
++                origins[("literal", piece.target.id)] = literal
+ 
+         def visit_For(self, piece):
+             self.visit(piece.iter)
+             before = dict(origins)
++            if isinstance(piece.target, ast.Name) and isinstance(piece.iter, (ast.Tuple, ast.List)) and all(isinstance(element, ast.Constant) and type(element.value) is str for element in piece.iter.elts):
++                self.literal_loop(piece, before)
++                return
+             bind(piece.target, _source(piece.iter, origins, site, returns))
+             self.loop(piece, before)
+ 
+         visit_AsyncFor = visit_For
++
++        def literal_loop(self, piece, before):
++            self.loops.append([])
++            continuing = [before]
++            for element in piece.iter.elts:
++                if not continuing:
++                    break
++                self.merge(continuing)
++                bind(piece.target, None)
++                origins[("literal", piece.target.id)] = element.value
++                self.flow = None
++                start = len(self.loops[-1])
++                self.block(piece.body)
++                continuing = [dict(origins)] if self.flow is None else []
++                continuing += [state for kind, state in self.loops[-1][start:] if kind == "continue"]
++            exits = self.loops.pop()
++            after = [state for kind, state in exits if kind == "break"]
++            if continuing:
++                self.merge(continuing)
++                self.flow = None
++                self.block(piece.orelse)
++                if self.flow is None:
++                    after.append(dict(origins))
++            self.merge(after)
++            self.flow = None if after else "stop"
+ 
+         def visit_While(self, piece):
+             self.visit(piece.test)
+@@ -1096,24 +1190,22 @@
+                 table = _read_table(piece)
+                 if table is not None:
+                     found.add(("adopted", site, table))
+-                read = _member_read(piece)
+-                if read is not None:
+-                    for origin in _origin_values(_origins_of(read[0], origins)):
+-                        if origin is not None and origin.startswith("session:"):
+-                            subject = _dotted(origin, read[1])
+-                            found.add(("injected",
+-                                       _crossing_of(crossings, subject), subject))
+-                        elif origin is not None and origin.startswith("read:"):
+-                            # A COLUMN THAT IS READ is a field of an adopted row,
+-                            # and the row's crossing is where it belongs.
+-                            where, table = origin[len("read:"):].split("|", 1)
+-                            found.add(("adopted", where,
+-                                       _dotted_read(table, read[1])))
+-                        elif origin is not None and origin.startswith("caller:") \
+-                                and not node.name.startswith("_"):
+-                            found.add(("caller", site,
+-                                       _dotted_read(origin[len("caller:"):],
+-                                                    read[1])))
++                for origin, member in _member_origins(piece, origins):
++                    if origin is not None and origin.startswith("session:"):
++                        subject = _dotted(origin, member)
++                        found.add(("injected",
++                                   _crossing_of(crossings, subject), subject))
++                    elif origin is not None and origin.startswith("read:"):
++                        # A COLUMN THAT IS READ is a field of an adopted row,
++                        # and the row's crossing is where it belongs.
++                        where, table = origin[len("read:"):].split("|", 1)
++                        found.add(("adopted", where,
++                                   _dotted_read(table, member)))
++                    elif origin is not None and origin.startswith("caller:") \
++                            and not node.name.startswith("_"):
++                        found.add(("caller", site,
++                                   _dotted_read(origin[len("caller:"):],
++                                                member)))
+             # ONE LEVEL INTO THIS MODULE'S OWN HELPERS. A crossing's members are
+             # often read by a private helper the crossing hands the whole
+             # document to -- `_assignment` owns three members of a claim answer
+@@ -1244,18 +1336,15 @@
+     found = set()
+     for where, helper, inside in _delegations(node, origins, helpers, site=site, returns=returns):
+         for step in _scope_nodes(helper):
+-            read = _member_read(step)
+-            if read is None:
+-                continue
+-            for found_origin in _origin_values(_source(read[0], inside, where, returns)):
++            for found_origin, member in _member_origins(step, inside, where, returns):
+                 if found_origin.startswith("session:"):
+-                    subject = _dotted(found_origin, read[1])
++                    subject = _dotted(found_origin, member)
+                     found.add(("injected", _crossing_of(crossings, subject), subject))
+                 elif found_origin.startswith("read:"):
+                     read_site, table = found_origin[len("read:"):].split("|", 1)
+-                    found.add(("adopted", read_site, _dotted_read(table, read[1])))
++                    found.add(("adopted", read_site, _dotted_read(table, member)))
+                 elif found_origin.startswith("caller:") and not node.name.startswith("_"):
+-                    found.add(("caller", site, _dotted_read(found_origin[len("caller:"):], read[1])))
++                    found.add(("caller", site, _dotted_read(found_origin[len("caller:"):], member)))
+     return found
+ 
+ 
+@@ -1282,23 +1371,8 @@
+             for _, helper, inside in _delegations(node, origins, helpers, site=site, returns=returns):
+                 for found in _calls_in(helper, inside, site):
+                     owners.setdefault(site, set()).add(found)
+-            for piece in ast.walk(node):
+-                if not (isinstance(piece, ast.Call)
+-                        and isinstance(piece.func, ast.Attribute)
+-                        and isinstance(piece.func.value, ast.Name)
+-                        and piece.func.value.id == "boundaries"
+-                        and piece.func.attr in boundaries.KINDS):
+-                    continue
+-                subject_at, label_at = POSITIONS.get(piece.func.attr, (0, 1))
+-                if len(piece.args) <= label_at:
+-                    raise AssertionError(f"{site}:{piece.lineno} names no label")
+-                label = _label(piece.args[label_at])
+-                if label is None:
+-                    raise AssertionError(
+-                        f"{site}:{piece.lineno} owns a boundary with no literal "
+-                        f"label; the inventory cannot attribute it")
+-                for subject in _origin_values(_subject(piece.args[subject_at], origins)):
+-                    owners.setdefault(site, set()).add((piece.func.attr, label, subject))
++            for found in _calls_in(node, origins, site, all_subjects=True):
++                owners.setdefault(site, set()).add(found)
+     return types.MappingProxyType(
+         {site: frozenset(found) for site, found in owners.items()})
+ 
+@@ -1314,15 +1388,19 @@
+         where, helper = found
+         positional = tuple(one.arg for one in helper.args.posonlyargs + helper.args.args)
+         keywords = tuple(one.arg for one in helper.args.kwonlyargs)
+-        inside = {}
+-        for parameter, argument in _argument_bindings(piece, positional, keywords).items():
+-            origin = _source(argument, origins, site, returns)
+-            if origin is not None:
+-                inside[parameter] = origin
+-        if inside:
+-            local = _origins(helper, where, returns, seed=inside, own_parameters=False)
+-            yield (where, helper, local)
+-            yield from _delegations(helper, local, helpers, site=where, returns=returns, trail=trail + (site, where))
++        for context in _contexts_at(origins, piece):
++            inside = {}
++            for parameter, argument in _argument_bindings(piece, positional, keywords).items():
++                origin = _source(argument, context, site, returns)
++                if origin is not None:
++                    inside[parameter] = origin
++                literal = _literal_text(argument, context)
++                if literal is not None:
++                    inside[("literal", parameter)] = literal
++            if inside:
++                local = _origins(helper, where, returns, seed=inside, own_parameters=False)
++                yield (where, helper, local)
++                yield from _delegations(helper, local, helpers, site=where, returns=returns, trail=trail + (site, where))
+ 
+ 
+ @functools.cache
+@@ -1343,6 +1421,8 @@
+             for where, helper, inside in _delegations(node, origins, helpers, site=site, returns=returns):
+                 for kind, label, _ in _calls_in(helper, inside, site):
+                     found.add((where, kind, label))
++                for kind, label, _ in _calls_in(helper, inside, site, lexical_labels=True):
++                    found.add((where, kind, label))
+     return frozenset(found)
+ 
+ 
+@@ -1354,7 +1434,7 @@
+             columns_read, owning_validators, propagated_owners)
+ 
+ 
+-def _calls_in(node, origins, site):
++def _calls_in(node, origins, site, *, all_subjects=False, lexical_labels=False):
+     """The boundary calls a function makes, resolved through given bindings."""
+     for piece in _scope_nodes(node):
+         if not (isinstance(piece, ast.Call)
+@@ -1364,30 +1444,39 @@
+                 and piece.func.attr in boundaries.KINDS):
+             continue
+         subject_at, label_at = POSITIONS.get(piece.func.attr, (0, 1))
+-        label = _label(piece.args[label_at])
+-        if label is None:
++        if len(piece.args) <= label_at:
+             raise AssertionError(f"{site}:{piece.lineno} names no label")
+-        for subject in _origin_values(_subject(piece.args[subject_at], origins)):
+-            if subject.startswith("session:") or subject.startswith("read:"):
+-                yield (piece.func.attr, label, subject)
+-
+-
+-def _label(node):
+-    """The literal text of a boundary's label, or None.
+-
+-    A shared owner that serves two crossings takes the CALLER's noun and builds
+-    its labels from it -- `f"{what}'s generation"` -- so the label carries which
+-    crossing it came from while the distinguishing text stays literal in the
+-    source. The literal part is what an inventory can attribute and what a probe
+-    can assert; a label with no literal part at all still cannot be either.
+-    """
+-    if isinstance(node, ast.Constant) and type(node.value) is str:
+-        return node.value
++        for context in _contexts_at(origins, piece):
++            label = _label(piece.args[label_at], {} if lexical_labels else context)
++            if label is None:
++                raise AssertionError(f"{site}:{piece.lineno} names no label")
++            for subject in _origin_values(_subject(piece.args[subject_at], context)):
++                if all_subjects or subject.startswith("session:") or subject.startswith("read:"):
++                    yield (piece.func.attr, label, subject)
++
++
++def _label(node, origins=None):
++    """Resolve definite literal context; keep unknown expressions explicit."""
++    origins = {} if origins is None else origins
++    literal = _literal_text(node, origins)
++    if literal is not None:
++        return literal
+     if isinstance(node, ast.JoinedStr):
+-        literal = "".join(piece.value for piece in node.values
+-                          if isinstance(piece, ast.Constant)
+-                          and type(piece.value) is str)
+-        return literal or None
++        pieces = []
++        for piece in node.values:
++            if isinstance(piece, ast.Constant):
++                pieces.append(piece.value)
++            elif isinstance(piece, ast.FormattedValue):
++                value = _literal_text(piece.value, origins)
++                if value is not None and piece.conversion == -1 and piece.format_spec is None:
++                    pieces.append(value)
++                else:
++                    conversion = "" if piece.conversion == -1 else "!" + chr(piece.conversion)
++                    spec = "" if piece.format_spec is None else ":" + _label(piece.format_spec, origins)
++                    pieces.append("{" + ast.unparse(piece.value) + conversion + spec + "}")
++        return "".join(pieces)
++    if isinstance(node, ast.Name):
++        return "{" + node.id + "}"
+     return None
+ 
+ 
+@@ -11874,6 +11963,152 @@
+         self.assertEqual(local["landing"], "caller:adapter[mounts]")
+ 
+ 
++class ProviderLabelsStayWithTheirSubdocuments(unittest.TestCase):
++    def fragment(self, body, extra=""):
++        tree = ast.parse('''
++def _provider(ending, provider):
++    taken = boundaries.document(ending, f"a {provider} teardown ending")
++    boundaries.text(taken["lifecycle_state"], f"a {provider} teardown ending's state")
++def public(answer, supplied):
++''' + body + extra)
++        returned = _returned_origins([(pathlib.Path("sample.py"), tree)])
++        node = dict(_functions(tree, "sample.py"))["sample.py:public"]
++        local = _origins(node, "sample.py:public", returned, seed={"answer": "session:destroy"})
++        return tree, returned, node, local
++
++    def calls(self, body, extra=""):
++        tree, returned, node, local = self.fragment(body, extra)
++        found = set(_calls_in(node, local, "sample.py:public"))
++        for where, helper, inside in _delegations(node, local, _helpers(tree, "sample.py"), site="sample.py:public", returns=returned):
++            found.update(_calls_in(helper, inside, where))
++        return found
++
++    def expected(self, providers=("credentials", "launch")):
++        return {(kind, f"a {provider} teardown ending{tail}", f"session:destroy[{provider}]{member}")
++                for provider in providers for kind, tail, member in
++                (("document", "", ""), ("text", "'s state", "[lifecycle_state]"))}
++
++    def test_finite_helper_calls_keep_exact_subject_label_pairs(self):
++        self.assertEqual(self.calls('''
++    for provider in ("credentials", "launch"):
++        _provider(answer[provider], provider)
++'''), self.expected())
++
++    def test_direct_calls_keep_the_same_context_as_the_subject(self):
++        self.assertEqual(self.calls('''
++    for provider in ["credentials", "launch"]:
++        taken = boundaries.document(answer[provider], f"a {provider} teardown ending")
++        boundaries.text(taken["lifecycle_state"], f"a {provider} teardown ending's state")
++'''), self.expected())
++
++    def test_literal_alias_and_keyword_arguments_survive_nested_helpers(self):
++        self.assertEqual(self.calls('''
++    for provider in ("credentials", "launch"):
++        alias = provider
++        _forward(answer[alias], name=alias)
++''', '''
++def _forward(value, *, name):
++    _provider(provider=name, ending=value)
++'''), self.expected())
++
++    def test_actual_argument_pairing_is_not_guessed_from_matching_names(self):
++        self.assertEqual(self.calls('''
++    _provider(answer["launch"], "credentials")
++'''), {("document", "a credentials teardown ending", "session:destroy[launch]"),
++         ("text", "a credentials teardown ending's state", "session:destroy[launch][lifecycle_state]")})
++
++    def test_reassignment_replaces_the_literal_context(self):
++        self.assertEqual(self.calls('''
++    provider = "credentials"
++    provider = "launch"
++    _provider(answer[provider], provider)
++'''), self.expected(("launch",)))
++
++    def test_unknown_and_conflicting_literals_stay_explicit(self):
++        for setup in ("provider = supplied", 'provider = "credentials"\n    if supplied:\n        provider = supplied', 'provider = "credentials"\n    if supplied:\n        provider = "launch"'):
++            with self.subTest(setup=setup):
++                self.assertEqual(self.calls("    " + setup + '\n    _provider(answer[provider], provider)\n'), {
++                    ("document", "a {provider} teardown ending", "session:destroy"),
++                    ("text", "a {provider} teardown ending's state", "session:destroy[lifecycle_state]")})
++
++    def test_unknown_iterable_cannot_invent_the_known_provider_pair(self):
++        self.assertEqual(self.calls('''
++    for provider in supplied:
++        _provider(answer[provider], provider)
++'''), {("document", "a {provider} teardown ending", "session:destroy"),
++         ("text", "a {provider} teardown ending's state", "session:destroy[lifecycle_state]")})
++
++    def test_break_and_return_stop_later_literal_iterations(self):
++        for exit_statement in ("break", "return"):
++            with self.subTest(exit_statement=exit_statement):
++                self.assertEqual(self.calls(f'''
++    for provider in ("credentials", "launch"):
++        _provider(answer[provider], provider)
++        {exit_statement}
++    else:
++        _provider(answer["extra"], "extra")
++'''), self.expected(("credentials",)))
++
++    def test_continue_keeps_later_iterations_and_exhaustion_else(self):
++        self.assertEqual(self.calls('''
++    for provider in ("credentials", "launch"):
++        _provider(answer[provider], provider)
++        continue
++    else:
++        _provider(answer["extra"], "extra")
++'''), self.expected(("credentials", "launch", "extra")))
++
++    def test_empty_literal_loop_has_no_body_calls(self):
++        self.assertEqual(self.calls('''
++    for provider in ():
++        _provider(answer[provider], provider)
++'''), set())
++
++    def test_nested_literal_loops_preserve_both_member_dimensions(self):
++        self.assertEqual(self.calls('''
++    for provider in ("credentials", "launch"):
++        for field in ("state", "why"):
++            boundaries.text(answer[provider][field], f"a {provider} {field}")
++'''), {("text", f"a {provider} {field}", f"session:destroy[{provider}][{field}]")
++         for provider in ("credentials", "launch") for field in ("state", "why")})
++
++    def test_unresolved_formatting_is_never_silently_removed(self):
++        for expression, expected in (('f"{provider}"', "{provider}"),
++                                     ('f"a {provider!r:>12} ending"', "a {provider!r:>12} ending")):
++            with self.subTest(expression=expression):
++                self.assertEqual(_label(ast.parse(expression, mode="eval").body), expected)
++
++    def test_real_provider_helper_keeps_each_destroy_subdocument_and_label(self):
++        source, tree = next((source, tree) for source, tree in _sources() if source.name == "intake.py")
++        node = dict(_functions(tree, source.name))["intake.py:_destroyed"]
++        returned = _helper_returns()
++        local = _origins(node, "intake.py:_destroyed", returned)
++        calls = set()
++        for where, helper, inside in _delegations(node, local, _helpers(tree, source.name), site="intake.py:_destroyed", returns=returned):
++            if where == "intake.py:_provider_ending":
++                calls.update(_calls_in(helper, inside, where))
++        self.assertEqual(calls, {(kind, label, subject.replace("session:destroy", "session:adapter.destroy"))
++                                 for kind, label, subject in self.expected()})
++
++    def test_real_unsettled_provider_reads_keep_subdocuments(self):
++        source, tree = next((source, tree) for source, tree in _sources() if source.name == "intake.py")
++        node = dict(_functions(tree, source.name))["intake.py:_unsettled_providers"]
++        returned = _helper_returns()
++        local = _origins(node, "intake.py:_unsettled_providers", returned, seed={"answer": "session:adapter.destroy"})
++        found = set()
++        for piece in _scope_nodes(node):
++            if _member_read(piece) is not None:
++                found.update(_origin_values(_source(piece, local, "intake.py:_unsettled_providers", returned)))
++        self.assertEqual(found, {f"session:adapter.destroy[{provider}][{member}]"
++                                 for provider in ("credentials", "launch") for member in ("lifecycle_state", "why")})
++
++    def test_real_provider_envelopes_are_entries_as_well_as_their_fields(self):
++        entries = receiving_entries()
++        for provider in ("credentials", "launch"):
++            for suffix in ("", ".lifecycle_state", ".why"):
++                self.assertIn(("injected", "intake.py:_destroyed", f"adapter.destroy.{provider}{suffix}"), entries)
++
++
+ class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
+     """W54182: the inventory's discovery is pure, so it is computed once.
+ 

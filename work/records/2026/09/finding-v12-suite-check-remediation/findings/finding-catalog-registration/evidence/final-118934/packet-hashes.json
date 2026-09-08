@@ -1,0 +1,14 @@
+{
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/FINDING.md": "5e8182eb975361255c6c71102f0faf8f7d9d5fc130bf5b5179cc2da97a0d763b",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/PLAN.md": "84d2b87752115b336a61280e59c97083d83db7930ed1bd235a5b7f69e4f4ea21",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/PROGRESS.md": "79a66fe654713ead5bfbd553f3ca7b259138c3094a19f7da70fa7573272dac1c",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/RESULT.md": "5277593177a8cf1b76287f50370ca0bc9d90a2bbdbb5e3a5ee71c90976560b0b",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/evidence/final-118934/candidate/v12/python/tests/authority/test_catalog.py": "14ca384916dd0c175409c9af97c338f923ce73ba789f0eec68a745385904eed6",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/evidence/final-118934/candidate/v12/python/tests/tools/test_parallel_runner.py": "690241cb9f51e1405c6d3246bd8a66620a95d4f8ecf561e8d5d4553dfd736406",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/evidence/final-118934/candidate/v12/python/tools/parallel_test.py": "f00fec0efebca9df1e25c025d1c9f07d350d1c79f0f0c880e673888bac884547",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/evidence/final-118934/candidate.patch": "0bea0cf86a0324f21445f1020e2fcff56abd73eda8a6f6f674e3ba613ad0c333",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/evidence/final-118934/focused.txt": "49cd6fb5b2a4b3e38e1e2936bdd9de33aab1935b0e2fa0a953c01d1f3071e65a",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/evidence/final-118934/modules.txt": "bc26d8b1bcaa75a8a8a9eb027a66544f56923a8f2fdd686ff3ef4ffa41c4b2aa",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/evidence/final-118934/verification.json": "fa6a7e9a6c250cbddd964910249712732e48923fd2755424a1f7e09183d902ef",
+  "work/records/2026/09/finding-v12-suite-check-remediation/findings/finding-catalog-registration/evidence/verify-118934.py": "e1ddd1aa43829e622971f90af2b7f6b7eacf45832dedfacb25763449cb5f325c"
+}

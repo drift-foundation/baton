@@ -1,0 +1,161 @@
+{
+  "baseline_sha256": "3973301e09e27a4cb724969c158a0441a629037718d755dae1ada594a2a24b5c",
+  "failed_stimuli": [],
+  "missing_probes": [
+    [
+      [
+        "caller",
+        "exchange.py:ExchangeDelivery.__init__",
+        "attempt_id"
+      ],
+      "an exchange attempt id"
+    ],
+    [
+      [
+        "caller",
+        "exchange.py:ExchangeDelivery.__init__",
+        "root"
+      ],
+      "an exchange delivery root"
+    ],
+    [
+      [
+        "caller",
+        "exchange.py:adopt",
+        "root"
+      ],
+      "an exchange delivery root"
+    ],
+    [
+      [
+        "caller",
+        "exchange.py:command_document",
+        "attempt_id"
+      ],
+      "an exchange attempt id"
+    ],
+    [
+      [
+        "caller",
+        "exchange.py:materialize",
+        "root"
+      ],
+      "an exchange delivery root"
+    ],
+    [
+      [
+        "caller",
+        "exchange.py:publish_command",
+        "document"
+      ],
+      "an exchange command"
+    ],
+    [
+      [
+        "caller",
+        "exchange.py:publish_command",
+        "document.attempt_id"
+      ],
+      "an exchange command"
+    ],
+    [
+      [
+        "caller",
+        "exchange.py:publish_command",
+        "document.sequence_id"
+      ],
+      "an exchange command"
+    ],
+    [
+      [
+        "caller",
+        "exchange.py:sequence_of",
+        "attempt_id"
+      ],
+      "an exchange attempt id"
+    ],
+    [
+      [
+        "caller",
+        "exchange.py:worker_operation_id",
+        "attempt_id"
+      ],
+      "an exchange attempt id"
+    ]
+  ],
+  "module": "exchange",
+  "orphan_calls": [
+    [
+      "exchange.py:_instant",
+      "instant",
+      "a worker document's {name}"
+    ],
+    [
+      "exchange.py:_value",
+      "text",
+      "an exchange document value"
+    ]
+  ],
+  "orphan_probes": [],
+  "runtime_sha256": "1fbff4e8bd73c44b658e5fc7ec0b5595ada498813ec5247ae2032c32543f35ce",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/exchange.py",
+  "scope_type": "module",
+  "sources": {
+    "catalog_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/evidence/planning-116930/catalog.json",
+    "owner_census": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-scanner-origins/findings/finding-member-label-context/evidence/joined-116776/census.json",
+    "probe_failures": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-writer-key-fixture/evidence/residual-probes.json"
+  },
+  "unowned": [
+    [
+      "caller",
+      "exchange.py:adopt",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "exchange.py:adopt",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "exchange.py:command_document",
+      "session"
+    ],
+    [
+      "caller",
+      "exchange.py:discard",
+      "root"
+    ],
+    [
+      "caller",
+      "exchange.py:materialize",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "exchange.py:materialize",
+      "workspace_group"
+    ],
+    [
+      "caller",
+      "exchange.py:observation",
+      "delivery"
+    ],
+    [
+      "caller",
+      "exchange.py:publish_command",
+      "delivery"
+    ],
+    [
+      "caller",
+      "exchange.py:state_document",
+      "operation"
+    ],
+    [
+      "caller",
+      "exchange.py:worker_operation_id",
+      "operation"
+    ]
+  ],
+  "work": "W117006"
+}

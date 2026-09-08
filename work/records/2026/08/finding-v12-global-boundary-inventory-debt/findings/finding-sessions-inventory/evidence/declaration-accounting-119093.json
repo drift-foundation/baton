@@ -1,0 +1,31 @@
+{
+  "added_rows": [
+    [
+      "sessions.py:_request_session_quiescence",
+      "identity",
+      "a runtime attempt id"
+    ]
+  ],
+  "current_orphan_calls": [
+    [
+      "sessions.py:_request_session_quiescence",
+      "identity",
+      "a runtime attempt id"
+    ]
+  ],
+  "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory",
+  "module": "sessions",
+  "prior_inputs_sha256": "1dc9c28b687e6c047711f3baceaa0ae58a43b288c45bac1f56b66b98cc70d728",
+  "prior_orphan_calls": [],
+  "removed_rows": [],
+  "runtime_sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+  "runtime_source": "v12/python/src/baton_v12/worker_manager/sessions.py",
+  "state": "live accounting revalidated; independent implementation acceptance pending",
+  "unchanged_input_counts": {
+    "failed_stimuli": 0,
+    "missing_probes": 10,
+    "orphan_probes": 1,
+    "unowned": 9
+  },
+  "work": "W116987"
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "entry": [
+      "caller",
+      "sessions.py:reconcile_agent_session",
+      "agent"
+    ],
+    "existing_catalog_label": "the agent adapter's ",
+    "currently_unmatched_discovery_labels": [
+      "the agent adapter's {operation}"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence"
+    ],
+    "existing_catalog_label": "a persisted line checkpoint",
+    "currently_unmatched_discovery_labels": [
+      "a persisted assignment fence"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:integration_checkpoint",
+      "integration_eligibility.verdict_id"
+    ],
+    "existing_catalog_label": "persisted integration eligibility",
+    "currently_unmatched_discovery_labels": [
+      "a checkpoint verdict identity"
+    ],
+    "status": "Unreviewed mapping candidates; prove real reached refusal before selecting or changing a label/stimulus."
+  }
+]

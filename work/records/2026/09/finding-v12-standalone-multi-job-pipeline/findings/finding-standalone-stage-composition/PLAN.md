@@ -113,3 +113,12 @@ missing cleanup refusal before receipts/admission). This supersedes the pending
 review-ahead checklist above. Close the aggregate gate satisfying; consumer routes
 retain all remaining dependencies and their own implementation/live authority.
 No broad red gate is waived and no standalone assembly acceptance is claimed.
+
+2026-09-08 reviewer decomposition: shared assembly execution is now two serial
+bounded deliveries in findings/finding-assembly-unstarted-preparation/ and
+findings/finding-composed-one-job-proof/. The first owns the remaining approved
+preparation correction; the second owns the actual lifecycle/custody/restart/
+held proof within the original five paths. Shared assembly retains historical
+evidence and final joined acceptance. This supersedes its earlier undivided
+execution assignment without changing the capability gate. See its
+review-2026-09-08T12-41-47Z.md. Live scheduling relationships belong to Baton.
