@@ -1,0 +1,63 @@
+--- review-114371/tools/codex_copilot_notifier.py
++++ candidate/tools/codex_copilot_notifier.py
+@@ -58,7 +58,7 @@
+     return envelope
+ 
+ 
+-def attention(config, read=baton_read):
++def attention(config, read=baton_read, *, stale_runtime_keys=None):
+     items, after, cursors, authority = {}, None, set(), None
+     while True:
+         page = read(config, "actionable-work", "limit=100", *([f"after={after}"] if after else []))
+@@ -100,11 +100,18 @@
+         items["incident:" + str(row["incident"])] = {key: row.get(key) for key in (*FAILURE_IDENTITY, "first_ts", "category")}
+     for row in runtime["result"]["participants"]:
+         run = row["runtime"]
+-        if run["action_owner"] != config["observer"] or run["state"] != "failed":
++        if run["action_owner"] != config["observer"]:
++            continue
++        key = "runtime:" + row["participant"]
++        if stale_runtime_keys is not None and run["state"] == "unknown" and run.get("provenance") == "derived" and run.get("stale") is True:
++            # Expiry hides the reported cause/transition; retain accepted hashes,
++            # but never treat stale contact itself as new failure attention.
++            stale_runtime_keys.add(key)
++        if run["state"] != "failed":
+             continue
+         item = {key: run.get(key) for key in (*FAILURE_IDENTITY, "since")}
+         item["participant"] = row["participant"]
+-        items["runtime:" + row["participant"]] = item
++        items[key] = item
+     return authority, items
+ 
+ 
+@@ -174,15 +181,17 @@
+         raise ValueError("target must be the explicitly configured prompt participant")
+     if not status.get("instanceId") or not target.get("threadId"):
+         raise ValueError("bridge lacks copilot support; deploy the paired bridge first")
+-    authority, items = attention(config, read)
++    stale_runtime_keys = set()
++    authority, items = attention(config, read, stale_runtime_keys=stale_runtime_keys)
+     scope = digest([authority, config["observer"], config["target"], config["prompt_participant"], status["instanceId"], target["threadId"]])
+     seen = state.get("seen", {}) if state.get("scope") == scope else {}
+     current = {key: digest(value) for key, value in items.items()}
+     paired = state.get("paired", {}) if state.get("scope") == scope else {}
+     changed, covered, pairs = failure_changes(items, current, seen, paired)
+-    # Prune resolved items without manufacturing a notification. Do not mark
+-    # anything new seen until the socket explicitly accepts the advisory.
+-    next_state = {"scope": scope, "seen": {k: v for k, v in seen.items() if k in current}, "paired": {k: v for k, v in paired.items() if current.get(k) == v}}
++    # Prune resolved items, retaining accepted failures during derived expiry.
++    # Nothing new is seen merely because it went stale or the prompt is busy.
++    retained = {k: v for k, v in seen.items() if k in current or k in stale_runtime_keys}
++    next_state = {"scope": scope, "seen": retained, "paired": {k: v for k, v in paired.items() if current.get(k) == v or (k in stale_runtime_keys and retained.get(k) == v)}}
+     next_state["seen"].update({k: current[k] for k in covered})
+     remember_failure_pairs(next_state, current, pairs)
+     if not changed:
+@@ -200,7 +209,7 @@
+     }
+     response = request(config, event)
+     if response.get("accepted") is True:
+-        next_state["seen"] = current
++        next_state["seen"].update(current)
+         remember_failure_pairs(next_state, current, pairs)
+         return next_state, {"status": "accepted", "changed": len(changed), "event": event["id"]}
+     return next_state, {"status": "not-accepted", "reason": response.get("reason", "unknown")}

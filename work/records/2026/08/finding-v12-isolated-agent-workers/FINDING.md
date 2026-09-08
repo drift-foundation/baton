@@ -2236,3 +2236,58 @@ construction default, not protocol vocabulary and not a requirement to force
 incompatible providers onto one OS. The present mismatch is therefore known
 and acceptable during the proof, while the next provider-image selection must
 state whether convergence is practical rather than inheriting a moving tag.
+
+## API-backed model workers without a required vendor CLI — confirmed 2026-09-07
+
+Slawomir confirmed that v12 must support trying and adding models through
+provider-specific wrappers inside Docker without tying Baton to a particular
+vendor CLI. A wrapper may call a remote model's HTTP API directly; the model
+does not have to ship a coding-oriented agent or CLI. Research, analysis and
+other non-coding assignments are valid uses of the same worker boundary.
+
+This explicitly supersedes any CLI-only interpretation of the earlier
+"Unified agent boundary" wording, "Every model/vendor CLI is wrapped". CLI
+and native agent adapters remain supported choices. The 2026-08-23 ruling
+"Provider-native code stays inside the worker" continues to apply: provider
+transport and SDK details stay inside the worker image, while Baton consumes
+the established worker, session, event, artifact and evidence contracts.
+
+The design separates a reusable task runner from provider-specific transport.
+The runner manages the assignment, conversation, permitted tool execution and
+declared outputs; an adapter translates authentication, requests, responses
+and streaming for a provider. A direct model API supplies inference, while
+the runner supplies any agent loop that the assignment requires. Additional
+models should be introduced through adapters and runtime profiles without
+requiring provider-specific changes to Baton's lifecycle protocol. Supported
+tools, search and other capabilities must be represented honestly rather than
+assumed from a shared API shape. The service provider and the underlying model
+identity remain distinguishable in runtime provenance.
+
+Venice and Duck.ai were discussion examples, not selected or certified
+providers. This decision authorizes the architectural direction, not a live
+provider integration, credential use, or a change to the current critical
+path. It belongs to later M4 runtime certification. A first API-backed
+research assignment carried through to a retained result is the proposed
+bounded proof; provider selection, supported access and acceptance checks
+remain to be scoped before implementation. Pool changes remain deferred.
+
+Recorded by baton.prompt from the interactive confirmation on 2026-09-07.
+
+## Minimal safe standalone critical path — confirmed 2026-09-07
+
+Slawomir confirmed that the first standalone v12 critical path should contain
+the minimum safe capability, with general hardening deferred. In the W110772
+discussion, discovery of a missing verification producer had expanded into a
+general-purpose clean-verifier service. That service is deferred rather than
+automatically required for the first proof. First assess a narrowly scoped real
+verification arrangement using existing isolated execution facilities; if that
+still exceeds the milestone, name the exact contract change and limitation for
+owner disposition. A passing result must never be manufactured to clear a gate.
+
+This supersedes scheduling the proposed general verifier as a current delivery
+prerequisite, not the existing verification semantics or the need for isolation,
+authorized writes, exact candidate/result identity, independent review and
+retained evidence. W110772's FINDING/PLAN own the immediate scope correction at
+`work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/`.
+Recorded by baton.prompt; implementation and any acceptance change still need
+their concrete bounded disposition.

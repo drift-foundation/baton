@@ -1,0 +1,6 @@
+test_real_git_keeps_an_old_checkpoint_after_the_line_advances (tests.manager.test_checkpoint_profiles.CheckpointProfile.test_real_git_keeps_an_old_checkpoint_after_the_line_advances) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.037s
+
+OK

@@ -1,0 +1,428 @@
+--- review-114048/v12/python/tools/integration_bundle.py
++++ review-114486/v12/python/tools/integration_bundle.py
+@@ -101,7 +101,7 @@
+ # nobody declared. `tests/tools/test_integration_bundle.py` asserts every
+ # constant below equals the worker contract's, which fails the moment either
+ # side moves.
+-BUNDLE_SCHEMA = "baton.integration-input/1"
++BUNDLE_SCHEMA = "baton.integration-input/2"
+ ENVELOPE_DOCUMENT = "integration.json"
+ INSTRUCTIONS_DOCUMENT = "instructions.txt"
+ EVIDENCE_DIRECTORY = "evidence"
+@@ -109,19 +109,43 @@
+ ENVELOPE_MEMBERS = ("schema", "assignment_digest", "launch", "eligibility",
+                     "checkpoint", "evidence", "instructions", "paths")
+ LAUNCH_MEMBERS = ("schema", "role", "digest")
+-EVIDENCE_DOCUMENTS = ("checkpoint.json", "job.json", "proposal.json",
+-                      "receipts.json", "result.json", "review.json",
+-                      "tests.json")
++EVIDENCE_DOCUMENTS = ("authority.json", "checkpoint.json", "job.json",
++                      "proposal.json", "receipts.json", "result.json",
++                      "review.json", "tests.json")
+ EVIDENCE_MEMBERS = ("name", "digest", "bytes")
+ PATH_MEMBERS = ("path", "operation", "base", "candidate")
+ SIDE_MEMBERS = ("object", "blob", "bytes", "mode")
+ OPERATIONS = ("add", "delete", "edit")
+ MODES = ("100644", "100755")
+ 
++# W114085: the authority account's closed shapes, mirrored from the worker
++# contract and held equal by the conformance case below.
++AUTHORITY_DOCUMENT = "authority.json"
++AUTHORITY_SCHEMA = "baton.integration-authority/1"
++AUTHORITY_MEMBERS = ("schema", "scope", "review", "paths")
++AUTHORITY_SCOPE_MEMBERS = ("job_id", "stage_id", "work_id", "scope_digest",
++                           "test_scope")
++AUTHORITY_REVIEW_MEMBERS = ("verdict_id", "attachment_id", "disposition",
++                            "reviewer_participant", "result_id",
++                            "result_digest", "documents")
++AUTHORITY_OUTPUT_MEMBERS = ("output_name", "tree_digest", "bytes",
++                            "entry_count", "files")
++AUTHORITY_FILE_MEMBERS = ("path", "digest", "bytes", "text")
++AUTHORITY_PATH_MEMBERS = ("path", "operation", "base_mode", "candidate_mode",
++                          "requires", "authorized_by")
++AUTHORITY_GRANT_MEMBERS = ("requirement", "kind", "entry")
++REQUIREMENTS = ("executable-addition", "existing-test", "mode-change")
++AUTHORITY_KINDS = ("job-test-scope",)
++
+ MAX_ENVELOPE_BYTES = 1024 * 1024
+ MAX_INSTRUCTION_BYTES = 64 * 1024
+ MAX_BLOB_BYTES = 64 * 1024 * 1024
+ MAX_EVIDENCE_BYTES = 1024 * 1024
++MAX_REVIEW_OUTPUTS = 8
++# HOW DEEP A COLLECTED REVIEWER OUTPUT MAY NEST.
++MAX_REVIEW_DEPTH = 8
++MAX_REVIEW_FILES = 32
++MAX_REVIEW_BYTES = 1024 * 1024
+ 
+ # EVERY FILE ONE BUNDLE MAY HOLD, and `MAX_PATHS` DERIVED FROM IT rather than
+ # chosen. The publication manifest is one array with one entry per emitted
+@@ -132,6 +156,10 @@
+ # from 252 two-sided edits and only then refused, leaving a consumable
+ # destination and no digest. Nine files are fixed and an edit emits at most two
+ # blobs, so the ceiling is (512 - 9) // 2.
++#
++# W114085 ADDED THE EIGHTH PROJECTION AND SPENT NOTHING ELSE: ten files are
++# fixed rather than nine, and the reviewer's documents travel INSIDE
++# `authority.json` rather than as emitted files, so the accepted 251 stands.
+ MAX_BUNDLE_FILES = 512
+ FIXED_FILES = 2 + len(EVIDENCE_DOCUMENTS)
+ MAX_PATHS = (MAX_BUNDLE_FILES - FIXED_FILES) // 2
+@@ -545,6 +573,13 @@
+         "account": account,
+         "line": line,
+         "checkpoint": accepted,
++        # W114085: THE TWO OWNER ANSWERS THE AUTHORITY ACCOUNT IS BUILT FROM,
++        # returned rather than re-read. `_accepted_evidence` is the ONE
++        # re-resolution this producer performs and it already holds both; a
++        # second read of either would be a second account of one decision, and
++        # the whole point of this function is that there is only one.
++        "verdict": verdict,
++        "attachment": attachment,
+         "documents": {
+             "checkpoint.json": {
+                 "checkpoint_id": checkpoint["checkpoint_id"],
+@@ -583,6 +618,323 @@
+                 "review_result_digest": verdict["review_result_digest"],
+                 "recorded_at": verdict["recorded_at"]},
+             "tests.json": tests}}
++
++
++def _held_directory(path, what):
++    """One descriptor for `path`, walked from `/` a component at a time.
++
++    W114085 review 2026-09-07T23:16:55Z [P1]. The first version compared the
++    locator's LEXICAL prefix with the configured store and then handed the
++    pathname to `workspaces.copied_manifest`, whose `_real` resolves the root
++    with `realpath` before its own descriptor-safe walk begins. That walk is
++    safe for DESCENDANTS and says nothing about the root or its ancestors, so
++    a symlink anywhere above the custody directory was followed -- and the
++    reviewer's probe published a bundle whose review files came from outside
++    configured storage entirely.
++
++    THE OWNER GAP, RECORDED RATHER THAN WORKED AROUND: no public capability in
++    this build measures or copies a tree through a HELD directory identity.
++    `directory_manifest` and `copied_manifest` both take a pathname and
++    realpath it. Editing them is generic-core work this Work is not authorized
++    to do, so this module walks and measures through its own descriptors, and
++    a conformance case holds its measurement equal to `directory_manifest`'s
++    on a tree with no links at all.
++
++    `realpath` IS DELIBERATELY NOT USED. It resolves a link and hands back the
++    target, which ACCEPTS the escape rather than refusing it.
++    """
++    if type(path) is not str or not path or not os.path.isabs(path) \
++            or os.path.normpath(path) != path or path.startswith("//"):
++        _refuse(f"{what} is one canonical absolute path",
++                category="integrity", code="path")
++    holder = os.open("/", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
++    opened = [holder]
++    try:
++        for name in [one for one in path.split("/") if one]:
++            try:
++                holder = os.open(name, os.O_RDONLY | os.O_DIRECTORY
++                                 | os.O_NOFOLLOW, dir_fd=holder)
++            except OSError as failed:
++                _denied(f"{what} is not reachable without following a link "
++                        f"({failed.errno}); {name!r} is a link, a file or "
++                        f"absent")
++            opened.append(holder)
++        return opened.pop()
++    finally:
++        for one in opened:
++            os.close(one)
++
++
++def _measured_tree(holder, what, *, prefix="", entries=None, content=None,
++                   depth=0):
++    """Every regular file under a HELD directory, measured as it is read.
++
++    ONE PASS AND NO SECOND LOOK. The bytes that are digested are the bytes
++    that are kept: there is no measure-then-reopen window for a replacement to
++    land in, which is the shape `copied_manifest` exists to provide and the
++    reason this does not measure with one call and read with another.
++
++    THE SPELLING IS `directory_manifest`'S, deliberately: relative paths sorted
++    bytewise, `digest_of_bytes` per file, and `digest(entries)` as the tree
++    identity -- because the frozen review recorded its `content_digest` with
++    that owner and a second spelling here would be a comparison that could
++    never succeed.
++    """
++    entries = [] if entries is None else entries
++    content = {} if content is None else content
++    if depth > MAX_REVIEW_DEPTH:
++        _refuse(f"{what} nests deeper than this contract measures")
++    for name in sorted(os.listdir(holder)):
++        held = os.stat(name, dir_fd=holder, follow_symlinks=False)
++        relative = name if not prefix else f"{prefix}/{name}"
++        if stat.S_ISDIR(held.st_mode):
++            try:
++                child = os.open(name, os.O_RDONLY | os.O_DIRECTORY
++                                | os.O_NOFOLLOW, dir_fd=holder)
++            except OSError as failed:
++                _denied(f"{what} carries {relative!r}, which is not a "
++                        f"directory this reader can enter without following a "
++                        f"link ({failed.errno})")
++            try:
++                _measured_tree(child, what, prefix=relative, entries=entries,
++                               content=content, depth=depth + 1)
++            finally:
++                os.close(child)
++            continue
++        if not stat.S_ISREG(held.st_mode):
++            _denied(f"{what} carries {relative!r}, which is neither a "
++                    f"directory nor a regular file; custody this producer "
++                    f"cannot account for is not custody it publishes")
++        if len(entries) >= MAX_REVIEW_FILES:
++            _refuse(f"{what} holds more than the bound of "
++                    f"{MAX_REVIEW_FILES} files")
++        payload = _read_held(holder, name, relative, what)
++        entries.append({"path": relative, "bytes": len(payload),
++                        "content_digest": digest_of_bytes(payload)})
++        content[relative] = payload
++    entries.sort(key=lambda one: one["path"].encode("utf-8"))
++    total = sum(one["bytes"] for one in entries)
++    if total > MAX_REVIEW_BYTES:
++        _refuse(f"{what} holds {total} bytes, above the bound of "
++                f"{MAX_REVIEW_BYTES}")
++    return {"entries": entries, "entry_count": len(entries),
++            "total_bytes": total, "tree_digest": digest(entries),
++            "content": content}
++
++
++def _read_held(holder, name, relative, what):
++    """One regular file, proved on the descriptor that reads it."""
++    try:
++        handle = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
++                         dir_fd=holder)
++    except OSError as failed:
++        _denied(f"{what} carries {relative!r}, which is not readable as an "
++                f"ordinary file ({failed.errno})")
++    try:
++        held = os.fstat(handle)
++        if not stat.S_ISREG(held.st_mode):
++            _denied(f"{what} carries {relative!r}, which is not a regular "
++                    f"file")
++        if held.st_size > MAX_REVIEW_BYTES:
++            _refuse(f"{what} carries {relative!r} at {held.st_size} bytes, "
++                    f"above the bound of {MAX_REVIEW_BYTES}")
++        os.set_blocking(handle, True)
++        payload = b""
++        while True:
++            chunk = os.read(handle, 65536)
++            if not chunk:
++                break
++            payload += chunk
++            if len(payload) > MAX_REVIEW_BYTES:
++                _refuse(f"{what} carries {relative!r} above the bound of "
++                        f"{MAX_REVIEW_BYTES}")
++        if len(payload) != held.st_size:
++            _refuse(f"{what} carries {relative!r}, which changed size while "
++                    f"it was read")
++        return payload
++    finally:
++        os.close(handle)
++
++
++def _review_documents(manager, verdict):
++    """Every byte of the frozen independent review, out of manager custody.
++
++    W114085. WHAT WAS MISSING AND WHY IT MATTERS. `review.json` carried the
++    reviewer's frozen output REFERENCES -- an artifact id, a tree digest and a
++    `file://` locator into manager custody -- and a container cannot read a
++    host path. So the bundle asserted that an independent review existed and
++    gave the runtime no way to read what it said, which is exactly the
++    authority a scheduled existing-test change needs.
++
++    THE LOCATOR IS CHECKED, NEVER TRUSTED, AND CONTAINMENT IS PHYSICAL. The
++    configured store and the custody directory are each walked from `/` one
++    component at a time with `O_NOFOLLOW`, so neither can be reached through a
++    link; only then does lexical containment mean anything, because a
++    link-free path that is lexically inside a link-free root IS inside it.
++    Every byte is then read through the descriptor that walk produced.
++    """
++    from baton_v12.contracts.manifest import check_uri
++    from baton_v12.worker_manager.workspaces import (
++        configured_workspace_storage)
++
++    frozen = verdict["review_result"]
++    artifacts = frozen["artifacts"]
++    if type(artifacts) is not list or len(artifacts) > MAX_REVIEW_OUTPUTS:
++        _refuse(f"a frozen review carries at most {MAX_REVIEW_OUTPUTS} "
++                f"collected outputs; this one carries {len(artifacts)}")
++    storage = configured_workspace_storage(manager).place
++    # THE STORE ITSELF, PROVED FIRST. A configured store reached through a
++    # link is a store this deployment cannot hold anything to.
++    os.close(_held_directory(storage, "the configured workspace store"))
++    documents = []
++    held = {}
++    counted = 0
++    measured = 0
++    for artifact in sorted(artifacts, key=lambda one: one["output_name"]):
++        name = artifact["output_name"]
++        if type(name) is not str or not name or "/" in name \
++                or name in (".", ".."):
++            _refuse("a collected review output is named by one ordinary name")
++        check_uri(artifact["locator"], f"review output {name}'s locator")
++        if not artifact["locator"].startswith("file:///"):
++            _gap(f"review output {name} is not held at a local custody path")
++        place = artifact["locator"][len("file://"):]
++        what = f"review output {name}'s custody directory"
++        if os.path.normpath(place) != place \
++                or not (place == storage
++                        or place.startswith(storage.rstrip("/") + "/")):
++            _gap(f"review output {name} is held at {name_value(place)}, which "
++                 f"is not inside the workspace store this deployment "
++                 f"configured; a public locator is not host access")
++        holder = _held_directory(place, what)
++        try:
++            copied = _measured_tree(holder, what)
++        finally:
++            os.close(holder)
++        if copied["tree_digest"] != artifact["content_digest"] \
++                or copied["total_bytes"] != artifact["bytes"]:
++            _drifted(f"review output {name} does not measure to the identity "
++                     f"the frozen review recorded for it")
++        counted += copied["entry_count"]
++        measured += copied["total_bytes"]
++        if counted > MAX_REVIEW_FILES or measured > MAX_REVIEW_BYTES:
++            _refuse(f"this review materializes {counted} files and "
++                    f"{measured} bytes, above the bounds of "
++                    f"{MAX_REVIEW_FILES} and {MAX_REVIEW_BYTES}")
++        files = []
++        for entry in copied["entries"]:
++            payload = copied["content"][entry["path"]]
++            try:
++                rendered = payload.decode("utf-8")
++            except UnicodeDecodeError:
++                # NOT WRAPPED INTO READABILITY. A reviewer's evaluation of a
++                # test change is prose; a review document this producer cannot
++                # decode is an operator's case, and encoding it would publish
++                # something no runtime can actually read and evaluate.
++                _gap(f"review file {name}/{entry['path']} is not UTF-8 text; "
++                     f"this build carries the independent review's own words "
++                     f"and does not encode material it cannot render")
++            files.append({"path": entry["path"], "bytes": entry["bytes"],
++                          "digest": _address(payload), "text": rendered})
++            held[(name, entry["path"])] = payload
++        documents.append({"output_name": name,
++                          "tree_digest": copied["tree_digest"],
++                          "bytes": copied["total_bytes"],
++                          "entry_count": copied["entry_count"],
++                          "files": files})
++    return {"documents": documents, "content": held}
++
++
++def _authority_account(job, verdict, attachment, review, table):
++    """What the accepted records say about each row that needs saying-about.
++
++    W114085. THE PRODUCER STATES; IT DOES NOT DECIDE. Every grant here names an
++    accepted owner's own answer -- today the accepted Job's scheduled test
++    scope, which `job_manager/documents` calls "the bounded test-change
++    authority a later reviewer and integrator check a proposal against". The
++    workload still decides the import.
++
++    AND WHERE NO OWNER EXISTS, THIS REFUSES. A mode change and an executable
++    addition have no accepted scope anywhere in this build: the Job carries
++    `test_scope` and nothing else per-path. Publishing such a candidate would
++    mean either shipping an unauthorized change or inventing the authority for
++    it, so the bundle is not published and the gap is named exactly.
++    """
++    scope = list(job["test_scope"])
++    rows = []
++    for row in table:
++        requires = _required_authority(row, scope)
++        if not requires:
++            continue
++        grants = []
++        for requirement in requires:
++            entry = _grant(requirement, row["path"], scope)
++            if entry is None:
++                _gap(f"reviewed path {name_value(row['path'])} requires "
++                     f"{requirement} authority and no accepted record in this "
++                     f"build supplies it; the accepted Job carries a test "
++                     f"scope and no mode or executable scope, so this "
++                     f"candidate is refused rather than published without the "
++                     f"authority it needs")
++            grants.append({"requirement": requirement,
++                           "kind": "job-test-scope", "entry": entry})
++        rows.append({"path": row["path"], "operation": row["operation"],
++                     "base_mode": row["base"]["mode"] if row["base"] else None,
++                     "candidate_mode": (row["candidate"]["mode"]
++                                        if row["candidate"] else None),
++                     "requires": requires, "authorized_by": grants})
++    return {"schema": AUTHORITY_SCHEMA,
++            "scope": {"job_id": job["job_id"], "stage_id": job["stage_id"],
++                      "work_id": job["work_id"],
++                      "scope_digest": job["scope_digest"],
++                      "test_scope": scope},
++            "review": {"verdict_id": verdict["verdict_id"],
++                       "attachment_id": verdict["attachment_id"],
++                       "disposition": verdict["disposition"],
++                       "reviewer_participant":
++                           attachment["reviewer_participant"],
++                       "result_id": verdict["review_result"]["result_id"],
++                       "result_digest": verdict["review_result_digest"],
++                       "documents": review["documents"]},
++            "paths": rows}
++
++
++def _within_scope(path, scope):
++    """A scope entry is a directory, matched at a COMPONENT boundary."""
++    return any(path == one or path.startswith(one.rstrip("/") + "/")
++               for one in scope)
++
++
++def _required_authority(row, scope):
++    """What one reviewed row needs somebody to have decided, and nothing else.
++
++    NO FILENAME IS INSPECTED. The accepted scope is the enumeration, so
++    membership in it is both what makes a test change need authority and what
++    supplies it; a heuristic over names would be this producer inventing the
++    reviewed enumeration it is supposed to be carrying.
++    """
++    needs = set()
++    base, candidate = row["base"], row["candidate"]
++    if row["operation"] in ("edit", "delete") and _within_scope(row["path"],
++                                                                scope):
++        needs.add("existing-test")
++    if base is not None and candidate is not None \
++            and base["mode"] != candidate["mode"]:
++        needs.add("mode-change")
++    if base is None and candidate is not None \
++            and candidate["mode"] == "100755":
++        needs.add("executable-addition")
++    return sorted(needs)
++
++
++def _grant(requirement, path, scope):
++    """The accepted entry that supplies one requirement, or None."""
++    if requirement != "existing-test":
++        return None
++    for one in scope:
++        if _within_scope(path, [one]):
++            return one
++    return None
+ 
+ 
+ def _checked_operands(*, integration_profile, assignment, launch,
+@@ -837,7 +1189,19 @@
+             != account["path_set_digest"]:
+         _refuse("the composed path table is not the accepted path set")
+ 
+-    documents = resolved["documents"]
++    # W114085: THE REVIEW'S OWN BYTES AND THE AUTHORITY ACCOUNT, both composed
++    # BEFORE anything is staged, so a candidate whose authority no accepted
++    # record supplies refuses with nothing on disk. Nothing is copied to get
++    # them: the custody tree is measured and read in one descriptor-bound
++    # pass, so there is no scratch directory and no second look.
++    review = _review_documents(manager, resolved["verdict"])
++    authority = _authority_account(resolved["documents"]["job.json"],
++                                   resolved["verdict"],
++                                   resolved["attachment"], review,
++                                   table["paths"])
++
++    documents = dict(resolved["documents"])
++    documents[AUTHORITY_DOCUMENT] = authority
+     files = []
+     references = []
+     for name in EVIDENCE_DOCUMENTS:

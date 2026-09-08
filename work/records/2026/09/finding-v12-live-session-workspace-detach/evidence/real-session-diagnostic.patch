@@ -1,0 +1,298 @@
+--- a/evidence/real_session_preflight.py
++++ b/evidence/real_session_preflight_diagnostic.py
+@@ -31,9 +31,81 @@
+        "PYTHONDONTWRITEBYTECODE": "1"}
+ 
+ 
++
++# Only controller-authored vocabulary crosses either failure boundary.
++STAGES = frozenset(("identity", "home", "version-command", "version-check",
++                    "help-command", "help-check", "stream-start", "stream-pin",
++                    "initialize-send", "initialize-read", "idle-check",
++                    "image-check", "container-create", "offline-initialization", "done"))
++REASONS = frozenset((
++    "output-limit", "invalid-json", "invalid-record", "command-timeout",
++    "command-failed", "invalid-control-response", "wrong-control-correlation",
++    "initialization-refused", "wrong-probe-identity", "wrong-cli-version",
++    "required-flag-absent", "initialization-timeout", "cli-exited-before-initialization",
++    "initialized-cli-exited", "cli-process-changed", "docker-refused",
++    "docker-output-limit", "container-image-mismatch", "container-label-mismatch",
++    "wrong-container-posture", "wrong-container-user", "unexpected-bind", "wrong-image",
++    "provider-image-environment", "invalid-created-id", "inside-probe-failed",
++    "stop-unconfirmed", "path-not-found", "permission-denied", "os-error",
++    "timeout", "invalid-encoding", "unexpected-error", "invalid-probe-diagnostic",
++))
++FAILURE_KEYS = frozenset(("outcome", "stage", "reason", "child_exit_code", "os_errno"))
++
++
++class ProbeFailure(RuntimeError):
++    def __init__(self, reason, exit_code=None):
++        # Never use arbitrary exception text as a reason, even from our helpers.
++        self.reason = reason if reason in REASONS else "unexpected-error"
++        self.exit_code = exit_code
++        super().__init__(self.reason)
++
++
+ def require(condition, reason):
+     if not condition:
+-        raise RuntimeError(reason)
++        raise ProbeFailure(reason)
++
++
++def numeric(value, low, high):
++    return value is None or (type(value) is int and low <= value <= high)
++
++
++def failure(error, diagnostics):
++    reason = "unexpected-error"
++    if isinstance(error, ProbeFailure):
++        reason = error.reason
++    elif isinstance(error, FileNotFoundError):
++        reason = "path-not-found"
++    elif isinstance(error, PermissionError):
++        reason = "permission-denied"
++    elif isinstance(error, subprocess.TimeoutExpired):
++        reason = "timeout"
++    elif isinstance(error, OSError):
++        reason = "os-error"
++    elif isinstance(error, UnicodeError):
++        reason = "invalid-encoding"
++    elif isinstance(error, json.JSONDecodeError):
++        reason = "invalid-json"
++    code = error.exit_code if isinstance(error, ProbeFailure) else diagnostics.get("child_exit_code")
++    if code is None:
++        code = diagnostics.get("child_exit_code")
++    number = getattr(error, "errno", None) if isinstance(error, OSError) else None
++    stage = diagnostics.get("stage")
++    return dict(outcome="offline-transport-preflight-failed",
++                stage=stage if stage in STAGES else "identity", reason=reason,
++                child_exit_code=code if numeric(code, -255, 255) else None,
++                os_errno=number if numeric(number, 0, 4095) else None)
++
++
++def checked_failure(answer):
++    require(isinstance(answer, dict) and set(answer) == FAILURE_KEYS,
++            "invalid-probe-diagnostic")
++    require(answer["outcome"] == "offline-transport-preflight-failed"
++            and isinstance(answer["stage"], str) and answer["stage"] in STAGES
++            and isinstance(answer["reason"], str) and answer["reason"] in REASONS
++            and numeric(answer["child_exit_code"], -255, 255)
++            and numeric(answer["os_errno"], 0, 4095), "invalid-probe-diagnostic")
++    # Copy exactly the validated diagnostic projection, never other response data.
++    return {key: answer[key] for key in sorted(FAILURE_KEYS)}
+ 
+ 
+ class Frames:
+@@ -52,13 +124,15 @@
+             try:
+                 record = json.loads(line)
+             except (ValueError, UnicodeError):
+-                raise RuntimeError("invalid-json") from None
++                raise ProbeFailure("invalid-json") from None
+             require(isinstance(record, dict), "invalid-record")
+             records.append(record)
+         return records
+ 
+ 
+-def captured(argv):
++def captured(argv, diagnostics=None):
++    diagnostics = diagnostics if diagnostics is not None else {}
++    diagnostics["child_exit_code"] = None
+     child = subprocess.Popen(argv, stdin=subprocess.DEVNULL,
+                              stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                              cwd="/tmp", env=ENV)
+@@ -74,9 +148,14 @@
+                 break
+             data.extend(chunk)
+             require(len(data) <= LIMIT, "output-limit")
+-        require(child.wait(timeout=max(.01, deadline-time.monotonic())) == 0, "command-failed")
++        diagnostics["child_exit_code"] = child.wait(timeout=max(.01, deadline-time.monotonic()))
++        require(diagnostics["child_exit_code"] == 0, "command-failed")
+         return bytes(data)
+     finally:
++        # Preserve the natural exit if observable; do not call our cleanup signal
++        # the cause of a timeout/output-limit failure.
++        if diagnostics["child_exit_code"] is None:
++            diagnostics["child_exit_code"] = child.poll()
+         if child.poll() is None:
+             child.kill()
+         child.wait(timeout=5)
+@@ -94,12 +173,18 @@
+     return True
+ 
+ 
+-def inside():
++def inside(diagnostics):
++    diagnostics.update(stage="identity", child_exit_code=None)
+     require(os.geteuid() == 65532 and os.getpid() == 1, "wrong-probe-identity")
++    diagnostics["stage"] = "home"
+     Path(ENV["HOME"]).mkdir(mode=0o700)
+-    version = captured([CLI, "--version"])
++    diagnostics["stage"] = "version-command"
++    version = captured([CLI, "--version"], diagnostics)
++    diagnostics["stage"] = "version-check"
+     require(version.decode().strip() == VERSION, "wrong-cli-version")
+-    help_bytes = captured([CLI, "--help"])
++    diagnostics["stage"] = "help-command"
++    help_bytes = captured([CLI, "--help"], diagnostics)
++    diagnostics["stage"] = "help-check"
+     help_text = help_bytes.decode()
+     flags = {flag: flag in help_text for flag in FLAGS}
+     require(all(flags.values()), "required-flag-absent")
+@@ -108,19 +193,24 @@
+     argv = [CLI, "--print", "--input-format", "stream-json", "--output-format",
+             "stream-json", "--verbose", "--tools", "", "--setting-sources=",
+             "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}']
++    diagnostics.update(stage="stream-start", child_exit_code=None)
+     child = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                              stderr=subprocess.DEVNULL, cwd="/tmp", env=ENV)
+-    pidfd = os.pidfd_open(child.pid)
+-    start = Path(f"/proc/{child.pid}/stat").read_text().rsplit(")", 1)[1].split()[19]
+-    request_id = uuid.uuid4().hex
+-    decoder = Frames()
+-    accepted = False
+-    begun = time.monotonic_ns()
++    pidfd = None
+     try:
++        diagnostics["stage"] = "stream-pin"
++        pidfd = os.pidfd_open(child.pid)
++        start = Path(f"/proc/{child.pid}/stat").read_text().rsplit(")", 1)[1].split()[19]
++        request_id = uuid.uuid4().hex
++        decoder = Frames()
++        accepted = False
++        begun = time.monotonic_ns()
++        diagnostics["stage"] = "initialize-send"
+         child.stdin.write((json.dumps({"type": "control_request", "request_id": request_id,
+                                       "request": {"subtype": "initialize", "hooks": None}}) + "\n").encode())
+         child.stdin.flush()
+         deadline = time.monotonic() + 15
++        diagnostics["stage"] = "initialize-read"
+         while not accepted:
+             remaining = deadline - time.monotonic()
+             require(remaining > 0, "initialization-timeout")
+@@ -131,6 +221,7 @@
+                 accepted = initialized(record, request_id) or accepted
+         elapsed = time.monotonic_ns() - begun
+         # This proves only an idle initialized process, never a Claude turn/session.
++        diagnostics["stage"] = "idle-check"
+         require(not select.select([pidfd], [], [], 1)[0], "initialized-cli-exited")
+         require(Path(f"/proc/{child.pid}/stat").read_text().rsplit(")", 1)[1].split()[19]
+                 == start, "cli-process-changed")
+@@ -140,26 +231,55 @@
+                     start=start, initialization_ns=elapsed,
+                     real_turns=0, session_continuity="unproved", restore="unproved")
+     finally:
+-        child.stdin.close()
+-        if child.poll() is None:
+-            child.terminate()
++        diagnostics["child_exit_code"] = child.poll()
++        # Keep the primary failure stage/reason even when closing a broken pipe.
++        active_error = sys.exc_info()[1]
+         try:
+-            child.wait(timeout=3)
+-        except subprocess.TimeoutExpired:
+-            child.kill()
+-            child.wait(timeout=3)
+-        child.stdout.close()
+-        os.close(pidfd)
+-
+-
+-def docker(*args):
++            try:
++                child.stdin.close()
++            except BrokenPipeError:
++                if active_error is None:
++                    raise
++            finally:
++                if child.poll() is None:
++                    child.terminate()
++                try:
++                    child.wait(timeout=3)
++                except subprocess.TimeoutExpired:
++                    child.kill()
++                    child.wait(timeout=3)
++        except Exception as cleanup:
++            diagnostics["cleanup_failure"] = failure(cleanup, diagnostics)
++            if active_error is None:
++                raise
++        finally:
++            child.stdout.close()
++            if pidfd is not None:
++                os.close(pidfd)
++
++
++def inside_result():
++    diagnostics = {}
++    try:
++        return inside(diagnostics), 0
++    except Exception as error:
++        answer = failure(error, diagnostics)
++        return answer, 1
++
++
++def docker(*args, allow_exit=False):
+     result = subprocess.run(["/usr/bin/docker", "--host", "unix:///var/run/docker.sock", *args],
+                             stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                             stderr=subprocess.DEVNULL, timeout=60,
+                             env={"PATH": "/usr/bin:/bin", "HOME": "/nonexistent",
+                                  "DOCKER_CONFIG": "/nonexistent"})
+-    require(result.returncode == 0, "docker-refused")
+     require(len(result.stdout) <= LIMIT, "docker-output-limit")
++    if allow_exit:
++        # start --attach can carry the structured inside failure with exit1.
++        # Preserve it for validation rather than discarding stdout on that exit.
++        return result.stdout, result.returncode
++    if result.returncode != 0:
++        raise ProbeFailure("docker-refused", result.returncode)
+     return result.stdout
+ 
+ 
+@@ -212,14 +332,19 @@
+         (root / "registration.json").write_text(json.dumps(result, indent=2) + "\n")
+         checked_container(container, nonce)
+         result["stage"] = "offline-initialization"
+-        answer = json.loads(docker("start", "--attach", container))
++        raw, result["docker_exit_code"] = docker("start", "--attach", container, allow_exit=True)
++        answer = json.loads(raw)
++        if isinstance(answer, dict) and answer.get("outcome") == "offline-transport-preflight-failed":
++            result["probe"] = checked_failure(answer)
++            raise ProbeFailure("inside-probe-failed")
+         require(isinstance(answer, dict) and answer.get("outcome") == "offline-transport-preflight-passed",
+                 "inside-probe-failed")
++        require(result["docker_exit_code"] == 0, "docker-refused")
+         result["probe"] = answer
+         result["outcome"] = "offline-transport-preflight-passed"
+         result["stage"] = "done"
+-    except Exception:
+-        # No raw runtime exception or child output is published.
++    except Exception as error:
++        result["failure"] = failure(error, result)
+         result["outcome"] = "failed-or-blocked"
+     finally:
+         if container is not None:
+@@ -234,7 +359,8 @@
+                 result["container_exit_code"] = found["State"]["ExitCode"]
+                 if result["container_exit_code"] != 0:
+                     result["outcome"] = "failed-or-blocked"
+-            except Exception:
++            except Exception as error:
++                result["cleanup_failure"] = failure(error, result)
+                 result["cleanup"] = "unconfirmed-operator-inspection-required"
+                 result["outcome"] = "failed-or-blocked"
+         (root / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+@@ -283,12 +409,9 @@
+         result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(LocalTests))
+         return 0 if result.wasSuccessful() else 1
+     if args.inside:
+-        try:
+-            print(json.dumps(inside(), sort_keys=True))
+-            return 0
+-        except Exception:
+-            print('{"outcome":"offline-transport-preflight-failed"}')
+-            return 1
++        answer, code = inside_result()
++        print(json.dumps(answer, sort_keys=True))
++        return code
+     return operator()
+ 
+ 

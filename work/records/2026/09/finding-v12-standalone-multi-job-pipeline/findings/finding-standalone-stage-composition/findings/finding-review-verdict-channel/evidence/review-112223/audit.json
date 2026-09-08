@@ -1,0 +1,101 @@
+{
+  "candidate": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "9b9e86680fedfb6f5667bd3c8cf0ec248a629d32d81e637c22414d9f6694382e",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "0ba2b2bb7adb9c6181cb843a4b90ddf5da6bd8dadd43ed9e6e5a5952020c2262",
+      "matches": true
+    },
+    "v12/python/tests/manager/test_review_cycles.py": {
+      "sha256": "fe14f790dff402c36f2e96a98926641f0131a0b729753e11c18c83113a0f9a16",
+      "matches": true
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "sha256": "2dc3899380331f9a954a588884cf6bdc7bc4546141dc378a3393d683a49fe83f",
+      "matches": true
+    },
+    "v12/python/REVIEW-CYCLES.md": {
+      "sha256": "02539823dcc33b4cada0b1f72820761299f11e23321726a7cea8a51ac85bf060",
+      "matches": true
+    }
+  },
+  "manifest_sha256": "214db3371ec5ddddd34b96d28e708db450eec9c53a78ef55f471f5391736e090",
+  "manifest_files_match": {
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/FINDING.md": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/PLAN.md": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/PROGRESS.md": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/LIFECYCLE-PLAN.md": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/baseline.json": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/before/v12/python/REVIEW-CYCLES.md": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/before/v12/python/src/baton_v12/job_manager/review_driver.py": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/before/v12/python/src/baton_v12/worker_manager/review_cycles.py": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/before/v12/python/tests/job_manager/test_review_driver.py": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/before/v12/python/tests/manager/test_review_cycles.py": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate/v12/python/REVIEW-CYCLES.md": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate/v12/python/src/baton_v12/job_manager/review_driver.py": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate/v12/python/src/baton_v12/worker_manager/review_cycles.py": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate/v12/python/tests/job_manager/test_review_driver.py": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate/v12/python/tests/manager/test_review_cycles.py": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate.json": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/delta-REVIEW-CYCLES.md.txt": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/delta-review_cycles.py.txt": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/delta-review_driver.py.txt": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/delta-test_review_cycles.py.txt": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/delta-test_review_driver.py.txt": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/focused-suites.txt": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/inventory-before-manifest-check.txt": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/inventory-delta.json": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/inventory-gate.json": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/inventory-gate.txt": true,
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/inventory_delta.py": true
+  },
+  "inventory_delta": {
+    "unowned": {
+      "before_count": 185,
+      "after_count": 185,
+      "added": [],
+      "removed": []
+    },
+    "orphans": {
+      "before_count": 55,
+      "after_count": 56,
+      "added": [
+        [
+          "review_cycles.py:_cleaned_review",
+          "document",
+          "a historical review cleanup"
+        ]
+      ],
+      "removed": []
+    },
+    "untracked_columns": {
+      "before_count": 2,
+      "after_count": 2,
+      "added": [],
+      "removed": []
+    },
+    "source_sha256": {
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py": "9b9e86680fedfb6f5667bd3c8cf0ec248a629d32d81e637c22414d9f6694382e"
+    }
+  },
+  "focused_tail": [
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 170 tests in 2.612s",
+    "",
+    "OK",
+    "",
+    "exit_code: 0"
+  ],
+  "inventory_tail": [
+    "- ['operation_id', 'settled_at']",
+    "+ [] : columns this build reads that the universe cannot see",
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 176 tests in 6.805s",
+    "",
+    "FAILED (failures=6, skipped=1)"
+  ]
+}

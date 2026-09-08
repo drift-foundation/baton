@@ -1,0 +1,12 @@
+{
+  "cleanup_accounted": true,
+  "construction_complete": true,
+  "partial_setup_unresolved": false,
+  "resources": {
+    "credential_home": "created",
+    "fixture_store": "created",
+    "source_registry": "created"
+  },
+  "stage": "pair",
+  "store_close": "confirmed"
+}

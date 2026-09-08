@@ -1,0 +1,149 @@
+{
+  "claim": 114048,
+  "observed_at": "2026-09-07T22:46:18.878668+00:00",
+  "sources": {
+    "v12/worker/integration_workload.py": {
+      "sha256": "1725d917184addad6b589901db447afb5f8e7fbe2f6545d4cdd8924d0a494bc5",
+      "recorded": "1725d917184addad6b589901db447afb5f8e7fbe2f6545d4cdd8924d0a494bc5",
+      "matches": true
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "7cb26737a5694f6e2e5eb2869c28bb5425703ba339ab3633eab388f3608a1679",
+      "recorded": "7cb26737a5694f6e2e5eb2869c28bb5425703ba339ab3633eab388f3608a1679",
+      "matches": true
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "recorded": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "matches": true
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "recorded": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "matches": true
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "77359725e7b875ea4305e183ea56c46fb0fd783001905201211e94bd5315281a",
+      "recorded": "77359725e7b875ea4305e183ea56c46fb0fd783001905201211e94bd5315281a",
+      "matches": true
+    },
+    "v12/python/tools/parallel_test.py": {
+      "sha256": "5bf2cbfbf29c603f07f811a1d5f968257798e1944d91bed0d97fe9aa393bf302",
+      "recorded": "5bf2cbfbf29c603f07f811a1d5f968257798e1944d91bed0d97fe9aa393bf302",
+      "matches": true
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "recorded": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "matches": true
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "03e346c27b6b919f00581183e301b9c5c979e89ba43adb29aa301d0ce9e735a6",
+      "recorded": "03e346c27b6b919f00581183e301b9c5c979e89ba43adb29aa301d0ce9e735a6",
+      "matches": true
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "ee7a41f545c4cf8806af31d55e318f5a256efb2b525081b118d82ad4fb8c5c20",
+      "recorded": "ee7a41f545c4cf8806af31d55e318f5a256efb2b525081b118d82ad4fb8c5c20",
+      "matches": true
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "645b16f533530d108c0824d48267319b28d0bf7df001b0625c3be56523629c26",
+      "recorded": "645b16f533530d108c0824d48267319b28d0bf7df001b0625c3be56523629c26",
+      "matches": true
+    }
+  },
+  "retained": {
+    "draft-progress.md": {
+      "source": "/tmp/w110935_progress.md",
+      "sha256": "a43cb8922f20a2216b7103b6bbba08212d8650f4af800eeddad85c0f87a8f83c",
+      "summary": [],
+      "failures": []
+    },
+    "gate-first.txt": {
+      "source": "/tmp/w110935-gate.txt",
+      "sha256": "02e56748d408f63360d487479312d04cd19cd847da50e05262ba10b27c25d2f7",
+      "summary": [
+        "Ran 4985 tests in 263.556s",
+        "FAILED (failures=11, errors=1, skipped=21)"
+      ],
+      "failures": [
+        "ERROR: test_every_v12_test_module_is_registered_exactly_once (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once)",
+        "FAIL: test_the_suite_is_one_gate_and_not_a_pile_of_files (tests.authority.test_catalog.TheMigrationChecklistIsRead.test_the_suite_is_one_gate_and_not_a_pile_of_files)",
+        "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:writer_of', 'line_writers.writer_id'), label='a persisted line writer')",
+        "FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)",
+        "FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)",
+        "FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)",
+        "FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)",
+        "FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)",
+        "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)",
+        "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_nothing_this_module_made_survives_it)",
+        "FAIL: test_no_container_of_this_suite_survives_it (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_no_container_of_this_suite_survives_it)",
+        "FAIL: test_only_this_run_s_image_tag_exists (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_only_this_run_s_image_tag_exists)"
+      ]
+    },
+    "gate-final.txt": {
+      "source": "/tmp/w110935-gate-final.txt",
+      "sha256": "9425119b857f026e5aa75c3f7296c6857c986ca68ff2a5d85b3fb1eee9ddd0f9",
+      "summary": [
+        "Ran 4987 tests in 249.599s",
+        "FAILED (failures=12, errors=1, skipped=21)"
+      ],
+      "failures": [
+        "ERROR: test_every_v12_test_module_is_registered_exactly_once (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once)",
+        "FAIL: test_the_suite_is_one_gate_and_not_a_pile_of_files (tests.authority.test_catalog.TheMigrationChecklistIsRead.test_the_suite_is_one_gate_and_not_a_pile_of_files)",
+        "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:writer_of', 'line_writers.writer_id'), label='a persisted line writer')",
+        "FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)",
+        "FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)",
+        "FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)",
+        "FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)",
+        "FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)",
+        "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)",
+        "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_nothing_this_module_made_survives_it)",
+        "FAIL: test_no_container_of_this_suite_survives_it (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_no_container_of_this_suite_survives_it)",
+        "FAIL: test_only_this_run_s_image_tag_exists (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_only_this_run_s_image_tag_exists)",
+        "FAIL: test_an_explicit_discard_still_ends_complete_and_removes_the_tree (tests.tools.test_dogfood_retry_engine.DockerPublicRetry.test_an_explicit_discard_still_ends_complete_and_removes_the_tree)"
+      ]
+    },
+    "gate-dossier.txt": {
+      "source": "/home/sl/src/baton/work/records/2026/09/finding-v12-integration-worker-workload/evidence/implementation-113667/subtree-gate.txt",
+      "sha256": "220010ee57ecb956acfcb790b2fe496187005ec8863a8ff1952885b9701a2a11",
+      "summary": [
+        "Ran 4987 tests in 269.991s",
+        "FAILED (failures=11, errors=1, skipped=21)"
+      ],
+      "failures": [
+        "ERROR: test_every_v12_test_module_is_registered_exactly_once (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once)",
+        "FAIL: test_the_suite_is_one_gate_and_not_a_pile_of_files (tests.authority.test_catalog.TheMigrationChecklistIsRead.test_the_suite_is_one_gate_and_not_a_pile_of_files)",
+        "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:writer_of', 'line_writers.writer_id'), label='a persisted line writer')",
+        "FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)",
+        "FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)",
+        "FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)",
+        "FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)",
+        "FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)",
+        "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)",
+        "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_nothing_this_module_made_survives_it)",
+        "FAIL: test_no_container_of_this_suite_survives_it (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_no_container_of_this_suite_survives_it)",
+        "FAIL: test_only_this_run_s_image_tag_exists (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_only_this_run_s_image_tag_exists)"
+      ]
+    },
+    "focused-author.txt": {
+      "source": "/home/sl/src/baton/work/records/2026/09/finding-v12-integration-worker-workload/evidence/implementation-113667/focused.txt",
+      "sha256": "bd6b8cf682a30ea25d4802037f4c4a8625bce0566675f95d91d088f03f300298",
+      "summary": [
+        "Ran 329 tests in 22.834s",
+        "OK"
+      ],
+      "failures": []
+    },
+    "progress-at-review.md": {
+      "source": "/home/sl/src/baton/work/records/2026/09/finding-v12-integration-worker-workload/PROGRESS.md",
+      "sha256": "18bfb271b7207f28d6afd90b7bf79a3ecbc52fa0d57016abac72f7de36475bd9",
+      "summary": [],
+      "failures": []
+    }
+  },
+  "preserved_prior_worker_methods": true,
+  "prior_worker_method_count": 12,
+  "new_test_method_count": 62
+}

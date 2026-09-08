@@ -1,0 +1,126 @@
+--- a/v12/python/tests/tools/test_parallel_runner.py
++++ b/v12/python/tests/tools/test_parallel_runner.py
+@@ -322,7 +322,8 @@
+                           # derives an image from the reference worker and
+                           # drives the documented commands over real
+                           # containers.
+-                          "tests.tools.test_dogfood_retry_engine"))
++                          "tests.tools.test_dogfood_retry_engine",
++                          "tests.manager.test_private_line_access_engine"))
+         for module in SERIAL_MODULES:
+             with self.subTest(module=module):
+                 self.assertNotIn(module, PARALLEL_MODULES)
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -1073,6 +1073,9 @@
+ # Every one still needs a witness: a declared owner with nothing exercising it
+ # is a claim, not a boundary.
+ STATED_OWNERS = {
++    ("caller", "workspaces.py:AllocatedRoots.__init__", "_line"):
++        "the manager mint gates construction; the line marker selects policy, "
++        "while a lifecycle-owned proof binds actual roots to the durable writer at launch",
+     # -- W71918: typed aggregates and manager-owned presence reads ----------
+     # A checkpoint profile and nominated source are nominal capabilities, not
+     # caller documents. Their methods/mint are checked before use. Assignment
+@@ -2044,6 +2047,8 @@
+ }
+ 
+ DELEGATED = {
++    ("caller", "workspaces.py:AllocatedRoots.__init__", "_line_proof"):
++        ("workspaces.py:_granted_roots", "caller:line_proof"),
+     # -- W71918: public lifecycle operations share their exact private owners.
+     ("caller", "review_cycles.py:grant_writer", "line_id"):
+         ("review_cycles.py:line_of", "caller:line_id"),
+@@ -5281,6 +5286,13 @@
+                                if name != member})
+ 
+         return {
++            (at("workspaces.py:AllocatedRoots.__init__", "_line_proof"),
++             "a development-line launch proof"):
++                ("a development-line launch proof",
++                 lambda: workspaces._granted_roots(
++                     workspaces.assignment_workspace(
++                         self.configured_group(), self.root, "attempt-line-proof"),
++                     lambda: True, line_proof="not a capability")),
+             # -- W6631: the six focused gaps left after its declarations -----
+             (at("workspaces.py:assignment_workspace", "assignment_id"),
+              "an assignment identity"):
+@@ -6373,6 +6385,16 @@
+     probe -- an unowned adopted crossing coexisted with a green gate.
+     """
+ 
++    def test_line_launch_proof_has_an_exact_live_capability_probe(self):
++        entry = ("caller", "workspaces.py:AllocatedRoots.__init__", "_line_proof")
++        label = "a development-line launch proof"
++        self.assertIn(entry, receiving_entries())
++        self.assertEqual(delegated_labels(entry), [label])
++        self.assertIn((entry, label), self.expected())
++        full, probe = self.all_probes()[(entry, label)]
++        self.assertEqual(full, label)
++        self.refusing(full, probe)
++
+     # W35557: EVERY SITE THAT ADOPTS AN ATTEMPT ROW, and the driver that
+     # reaches it. Three modules read this one table through
+     # `boundaries.row(..., ATTEMPT_COLUMNS)`, and each was covered differently
+@@ -7437,6 +7459,8 @@
+ # label, so it is exercised rather than probed -- and the mapping is checked both
+ # ways, so a rule with no witness and a witness naming no rule both fail.
+ WITNESSES = {
++    ("caller", "workspaces.py:AllocatedRoots.__init__", "_line"):
++        "test_line_launch_metadata_keeps_mint_and_durable_binding",
+     # -- W71917: the source/workspace boundary -------------------------------
+     ("caller", "source_boundary.py:NominatedSource.__init__", "_minted"):
+         "test_a_nominated_source_a_caller_minted_is_refused",
+@@ -7938,6 +7962,52 @@
+ class StatedRules(BoundaryCase):
+     """The witnesses themselves. Each exercises one stated rule."""
+ 
++    def test_line_launch_metadata_keeps_mint_and_durable_binding(self):
++        from . import test_review_cycles as fixtures
++
++        with self.assertRaisesRegex(ContractRefusal, "not constructed"):
++            workspaces.AllocatedRoots(
++                {"inputs": "/untrusted/inputs", "workspace": "/untrusted/line"},
++                _line=True, _line_proof=lambda roots, gid, labels: roots["workspace"])
++
++        fixture = fixtures.StableLineLifecycle()
++        self.addCleanup(fixture.doCleanups)
++        fixture.setUp()
++        self.addCleanup(fixture.tearDown)
++        first, _, delivery = fixture.mounted_writer()
++        roots = delivery["roots"]
++        self.assertEqual(workspaces._prove_execution_workspace(
++            roots, fixture.group.gid, fixture.labels()), first["path"])
++
++        second = review_cycles.create_line(
++            fixture.store, source=source_boundary.nominate_source(fixture.source),
++            declared_base=fixtures.BASE, profile=fixture.profile,
++            authority_uuid=fixtures.AUTHORITY, work_id="01234567-W106897")
++        fixture.attempt("other-attempt", 1, "baton.impl", "other-principal")
++        fixture.store._connection.execute(
++            "UPDATE attempts SET work_id = ? WHERE runtime_attempt_id = 'other-attempt'",
++            ("01234567-W106897",))
++        writer = review_cycles.grant_writer(
++            fixture.store, line_id=second["line_id"], attempt_id="other-attempt",
++            generation=1, worker_id="other-worker", profile=fixture.profile)
++        workspaces.assignment_workspace(fixture.group, fixture.storage, "other-attempt")
++        other = review_cycles.writer_boundary(
++            fixture.store, writer_id=writer["writer_id"], generation=1)["roots"]
++        other_labels = attempts.assignment_of(fixture.store, "other-attempt")
++        self.assertEqual(workspaces._prove_execution_workspace(
++            other, fixture.group.gid, other_labels), second["path"])
++
++        # Both roots and grants are genuine and live. Copying one's metadata
++        # cannot authorize the other's path or assignment at the launch seam.
++        for member in ("_line", "_line_proof", "_grant"):
++            object.__setattr__(other, member, getattr(roots, member))
++        with self.assertRaisesRegex(ContractRefusal, "actual launch roots"):
++            workspaces._prove_execution_workspace(other, fixture.group.gid, fixture.labels())
++        with self.assertRaisesRegex(ContractRefusal, "current writer assignment"):
++            workspaces._prove_execution_workspace(other, fixture.group.gid, other_labels)
++        self.assertEqual(workspaces._prove_execution_workspace(
++            roots, fixture.group.gid, fixture.labels()), first["path"])
++
+     def test_review_cycle_stated_owners(self):
+         """The aggregate owners are live and the focused lifecycle suite runs."""
+         from .test_review_cycles import ReviewCycles

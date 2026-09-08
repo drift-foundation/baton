@@ -1,0 +1,17 @@
+{
+  "created_at": "2026-09-07T03:12:18.274045+00:00",
+  "work": "W106673",
+  "claim": 106813,
+  "status": "prepared, not independently reviewed or executed",
+  "sha256": {
+    "evidence/host_runner.py": "5b2eea59774c14c27574fc8b18a9979a6f3c2c2969265cf8ef1c4a944436380e",
+    "evidence/resident.py": "30d3c2a5e34c0461a2d2a15006cfe26f42d587d938a3179d61d9a874c3002496",
+    "RUNNER.md": "c8ff48a9106a1ee762cc09fddc7f86b3b7524baec4d3e743d5656cf779452a82",
+    "AUTHORITY.md": "b2332c5d4e1ebefca18da88f3febcc134a9fcac6c49c06ff4bb5087016ecf4de",
+    "FINDING.md": "17d9a8a69aae37235cf7a8eb342bc3884b37f0c6c6635aa158923fe454a214df",
+    "PLAN.md": "09d218faa9c5c08a7384c1159c26bf04918c0b1a4953f333a59f26a5a28bf10e",
+    "PROGRESS.md": "adeeda347ef48588d28fd75eb33ace3235f67f342912bda68c5f2dcb258755b7",
+    "evidence/runner-inputs.json": "92085dee24071a586b54b4474b17b31f312cbff3e46455a413165089e8dae48f",
+    "evidence/runner-self-test.txt": "99ff59bc5e051ddd06a3a620e864ddb7da2943b50d5d8727f563989ddea0a436"
+  }
+}

@@ -1,0 +1,490 @@
+{
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "c635fc8442c2689c336501a4527d608153c6f4605affe0d4630ebdeba9e63d4f",
+      "baseline": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377"
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "fcac6d17e146bf2d89725562addb62e7d8ea5c6d1dccb2bd79f4bb29dd04d610",
+      "baseline": "fcac6d17e146bf2d89725562addb62e7d8ea5c6d1dccb2bd79f4bb29dd04d610"
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "d7a3e63e2b9ef8b6fffc6eb219790a3df7fd58c3be2ffeb59727bf9284dfd8b1",
+      "baseline": "d7a3e63e2b9ef8b6fffc6eb219790a3df7fd58c3be2ffeb59727bf9284dfd8b1"
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "8e2001f4a1dc0a7106f041db29afafeb725d1e598c7c165a141fe9dbd44acf33",
+      "baseline": "8e2001f4a1dc0a7106f041db29afafeb725d1e598c7c165a141fe9dbd44acf33"
+    },
+    "v12/python/tests/manager/test_review_cycles.py": {
+      "sha256": "319fa540e2ec37b43ab2207da2149554367044622d84891ec46bd01ec68f557d",
+      "baseline": "5e24cc14c4fe134f23664229dda84736954d72b3f21dc1ebd2aae666fce961de"
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "sha256": "048f79a113f7f1d9beb5d56966d923b9fbdbb65456948df7fe251d2519d764c9",
+      "baseline": "048f79a113f7f1d9beb5d56966d923b9fbdbb65456948df7fe251d2519d764c9"
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "253c22ced28342012af4a05c942599ef26122ec3d224e2763eb69a344cd7d4a6",
+      "baseline": "253c22ced28342012af4a05c942599ef26122ec3d224e2763eb69a344cd7d4a6"
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "sha256": "acbb0d21364d2e442152c45af90c982d8f5e2b3d0c54c3735af83834eba5c6ce",
+      "baseline": "acbb0d21364d2e442152c45af90c982d8f5e2b3d0c54c3735af83834eba5c6ce"
+    },
+    "v12/python/REVIEW-CYCLES.md": {
+      "sha256": "e15f5f0d80e60e745039fa4bc3dd6d792ce7c179cdd1b2a4d89e990f127b9893",
+      "baseline": "e15f5f0d80e60e745039fa4bc3dd6d792ce7c179cdd1b2a4d89e990f127b9893"
+    },
+    "v12/python/tests/manager/test_dependencies.py": {
+      "sha256": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+      "baseline": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "95271d77edc044653eef59f79169c82394c5e2b30d1b5ffb1edb48b16d88da47",
+      "baseline": "95271d77edc044653eef59f79169c82394c5e2b30d1b5ffb1edb48b16d88da47"
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+      "baseline": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27"
+    },
+    "v12/python/src/baton_v12/authority/core.py": {
+      "sha256": "26a8a7a91b3bc7d9859bf9f5a747d9fda6ef88cdb5fe430bff1310d007c1d013",
+      "baseline": "26a8a7a91b3bc7d9859bf9f5a747d9fda6ef88cdb5fe430bff1310d007c1d013"
+    },
+    "v12/worker/scripted_agent.py": {
+      "sha256": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+      "baseline": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c"
+    },
+    "v12/python/src/baton_v12/source_profiles/checkout.py": {
+      "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "baseline": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+    }
+  },
+  "observations": [
+    {
+      "freeze_reentry": false,
+      "ended": {
+        "attempt_id": "public-review",
+        "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+        "verdict": "accepted",
+        "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+        "verdict_record": {
+          "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1",
+          "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "checkpoint_digest": "sha256:cfc639c7e1bfd477546baa1fcb502877c288fc5475305e4815d7b382267d0be7",
+          "revision": 1,
+          "base": "590c5d47b70a1d579e9ea0ed1bd0634907a0bca5",
+          "head": "71b125074da2c8782b06e303d22f54d6057c1ff5",
+          "tree": "187c9962e6f295e91283e6ee38b7b398846002b8",
+          "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+          "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+          "review_generation": 1,
+          "reviewer_worker_id": "public-review-worker",
+          "reviewer_participant": "baton.review",
+          "reviewer_principal": "public-review-principal",
+          "disposition": "accepted",
+          "review_result": {
+            "attempt_id": "public-review",
+            "result_id": "result-public-review",
+            "disposition": "completed",
+            "manifest_digest": "sha256:4da054dad0479af19e906a94e903221096708377b2770a7ef56b0b5412eb415d",
+            "freeze_operation_id": "output.freeze:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+            "frozen_at": "2026-09-02T00:00:00.000Z",
+            "artifacts": [
+              {
+                "output_name": "findings",
+                "artifact_id": "public-review:findings",
+                "media_type": "application/octet-stream",
+                "bytes": 135,
+                "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+                "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-kpqbps2w/storage/public-review/custody/findings"
+              },
+              {
+                "output_name": "logs",
+                "artifact_id": "public-review:logs",
+                "media_type": "application/octet-stream",
+                "bytes": 406,
+                "content_digest": "sha256:c5454c443d1027e2000227185ba2ec762db6f6433a0c142a01fb97bee4f65d14",
+                "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-kpqbps2w/storage/public-review/custody/logs"
+              }
+            ]
+          },
+          "review_result_digest": "sha256:5c2168a6eaf61db72143ba45132fce306c604ce0bee34b312209179ef2459da5",
+          "review_fence": {
+            "intent": {
+              "attempt_id": "public-review",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.review",
+                "generation": 1
+              },
+              "runtime_id": "runtime-public-review",
+              "decision": "finalized",
+              "worker_disposition": "completed",
+              "authority_operation_id": "authority.finalize-quiescent:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+              "reason": "independent checkpoint review completed"
+            },
+            "fenced": {
+              "cause": "cancelled",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.review",
+                "generation": 1
+              },
+              "phase": "block",
+              "gate": "runtime-quiescence:1",
+              "fenced": true
+            }
+          },
+          "review_fence_digest": "sha256:834db9a2d2577b8d9027acd1f903d7f3962ca636e613d2a814bf287f160f29d7"
+        },
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "cleaned_up": true,
+        "result_id": "result-public-review",
+        "manifest_digest": "sha256:4da054dad0479af19e906a94e903221096708377b2770a7ef56b0b5412eb415d",
+        "receipt_digest": "sha256:3a4f3564fa880bff268c57e25f17b0751f03747ba337531e21cffaf3b1ca5fc4",
+        "artifacts": [
+          "public-review:findings",
+          "public-review:logs"
+        ],
+        "retention": "retain",
+        "outcome": "accepted",
+        "held_reason": null
+      },
+      "persisted_verdict": {
+        "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "review_assignment_generation": 1,
+        "reviewer_worker_id": "public-review-worker",
+        "reviewer_participant": "baton.review",
+        "reviewer_principal": "public-review-principal",
+        "disposition": "accepted",
+        "checkpoint_digest": "sha256:cfc639c7e1bfd477546baa1fcb502877c288fc5475305e4815d7b382267d0be7",
+        "revision": 1,
+        "base_object": "590c5d47b70a1d579e9ea0ed1bd0634907a0bca5",
+        "head_object": "71b125074da2c8782b06e303d22f54d6057c1ff5",
+        "tree_object": "187c9962e6f295e91283e6ee38b7b398846002b8",
+        "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+        "review_result": {
+          "artifacts": [
+            {
+              "artifact_id": "public-review:findings",
+              "bytes": 135,
+              "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+              "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-kpqbps2w/storage/public-review/custody/findings",
+              "media_type": "application/octet-stream",
+              "output_name": "findings"
+            },
+            {
+              "artifact_id": "public-review:logs",
+              "bytes": 406,
+              "content_digest": "sha256:c5454c443d1027e2000227185ba2ec762db6f6433a0c142a01fb97bee4f65d14",
+              "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-kpqbps2w/storage/public-review/custody/logs",
+              "media_type": "application/octet-stream",
+              "output_name": "logs"
+            }
+          ],
+          "attempt_id": "public-review",
+          "disposition": "completed",
+          "freeze_operation_id": "output.freeze:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+          "frozen_at": "2026-09-02T00:00:00.000Z",
+          "manifest_digest": "sha256:4da054dad0479af19e906a94e903221096708377b2770a7ef56b0b5412eb415d",
+          "result_id": "result-public-review"
+        },
+        "review_result_digest": "sha256:5c2168a6eaf61db72143ba45132fce306c604ce0bee34b312209179ef2459da5",
+        "review_fence": {
+          "fenced": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.review",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.review",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "attempt_id": "public-review",
+            "authority_operation_id": "authority.finalize-quiescent:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+            "decision": "finalized",
+            "reason": "independent checkpoint review completed",
+            "runtime_id": "runtime-public-review",
+            "worker_disposition": "completed"
+          }
+        },
+        "review_fence_digest": "sha256:834db9a2d2577b8d9027acd1f903d7f3962ca636e613d2a814bf287f160f29d7",
+        "recorded_at": "2026-09-02T00:00:00.000Z"
+      },
+      "exact_projection_equal": false,
+      "all_mapped_semantics_equal": true,
+      "original_custody_assertions": {
+        "exception": "AssertionError",
+        "message": "{'ver[82 chars]8', 'line_id': 'line-c71b47a3a4cf6f0cc88a98e20[2891 chars]00Z'} != {'ver[82 chars]8', 'authority_uuid': '0000000a000000000000000[2816 chars]9d7'}\nDiff is 4535 characters long. Set self.maxDiff to None to see it."
+      },
+      "runtime_after_cleanup": {
+        "attempt_id": "public-review",
+        "runtime_id": "runtime-public-review",
+        "execution_runtime": "destroyed",
+        "cleanup": "retained",
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          },
+          "participant": "baton.review",
+          "generation": 1
+        }
+      },
+      "verdict_count": 1,
+      "worker_turns": 1,
+      "destroy_calls": 1,
+      "post_cleanup_eligibility": {
+        "exception": "ContractRefusal",
+        "message": "review completion requires the exact attached runtime to be positively quiescent"
+      },
+      "post_cleanup_replay": {
+        "exception": "ContractRefusal",
+        "message": "execution_runtime is 'destroyed'; 'quiescent' does not follow it"
+      }
+    },
+    {
+      "freeze_reentry": true,
+      "ended": {
+        "attempt_id": "public-review",
+        "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+        "verdict": "accepted",
+        "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+        "verdict_record": {
+          "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1",
+          "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "checkpoint_digest": "sha256:cfc639c7e1bfd477546baa1fcb502877c288fc5475305e4815d7b382267d0be7",
+          "revision": 1,
+          "base": "590c5d47b70a1d579e9ea0ed1bd0634907a0bca5",
+          "head": "71b125074da2c8782b06e303d22f54d6057c1ff5",
+          "tree": "187c9962e6f295e91283e6ee38b7b398846002b8",
+          "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+          "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+          "review_generation": 1,
+          "reviewer_worker_id": "public-review-worker",
+          "reviewer_participant": "baton.review",
+          "reviewer_principal": "public-review-principal",
+          "disposition": "accepted",
+          "review_result": {
+            "attempt_id": "public-review",
+            "result_id": "result-public-review",
+            "disposition": "completed",
+            "manifest_digest": "sha256:5e07137195a16cdcdbeac6f686ecdec0802a98eb7a94f60bf58db69b6a0e2ada",
+            "freeze_operation_id": "output.freeze:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+            "frozen_at": "2026-09-02T00:00:00.000Z",
+            "artifacts": [
+              {
+                "output_name": "findings",
+                "artifact_id": "public-review:findings",
+                "media_type": "application/octet-stream",
+                "bytes": 135,
+                "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+                "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-4h3cfc80/storage/public-review/custody/findings"
+              },
+              {
+                "output_name": "logs",
+                "artifact_id": "public-review:logs",
+                "media_type": "application/octet-stream",
+                "bytes": 406,
+                "content_digest": "sha256:c5454c443d1027e2000227185ba2ec762db6f6433a0c142a01fb97bee4f65d14",
+                "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-4h3cfc80/storage/public-review/custody/logs"
+              }
+            ]
+          },
+          "review_result_digest": "sha256:84f53c8323ad8f71bb098bd3c451c1c2f64b652f5ab82760dc7bfe7fa2cd3a24",
+          "review_fence": {
+            "intent": {
+              "attempt_id": "public-review",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.review",
+                "generation": 1
+              },
+              "runtime_id": "runtime-public-review",
+              "decision": "finalized",
+              "worker_disposition": "completed",
+              "authority_operation_id": "authority.finalize-quiescent:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+              "reason": "independent checkpoint review completed"
+            },
+            "fenced": {
+              "cause": "cancelled",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.review",
+                "generation": 1
+              },
+              "phase": "block",
+              "gate": "runtime-quiescence:1",
+              "fenced": true
+            }
+          },
+          "review_fence_digest": "sha256:834db9a2d2577b8d9027acd1f903d7f3962ca636e613d2a814bf287f160f29d7"
+        },
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "cleaned_up": true,
+        "result_id": "result-public-review",
+        "manifest_digest": "sha256:5e07137195a16cdcdbeac6f686ecdec0802a98eb7a94f60bf58db69b6a0e2ada",
+        "receipt_digest": "sha256:c8804a736e950b3866759942f8bb99380226f85b8598d6efa5518ebe90b96f20",
+        "artifacts": [
+          "public-review:findings",
+          "public-review:logs"
+        ],
+        "retention": "retain",
+        "outcome": "accepted",
+        "held_reason": null
+      },
+      "persisted_verdict": {
+        "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "review_assignment_generation": 1,
+        "reviewer_worker_id": "public-review-worker",
+        "reviewer_participant": "baton.review",
+        "reviewer_principal": "public-review-principal",
+        "disposition": "accepted",
+        "checkpoint_digest": "sha256:cfc639c7e1bfd477546baa1fcb502877c288fc5475305e4815d7b382267d0be7",
+        "revision": 1,
+        "base_object": "590c5d47b70a1d579e9ea0ed1bd0634907a0bca5",
+        "head_object": "71b125074da2c8782b06e303d22f54d6057c1ff5",
+        "tree_object": "187c9962e6f295e91283e6ee38b7b398846002b8",
+        "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+        "review_result": {
+          "artifacts": [
+            {
+              "artifact_id": "public-review:findings",
+              "bytes": 135,
+              "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+              "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-4h3cfc80/storage/public-review/custody/findings",
+              "media_type": "application/octet-stream",
+              "output_name": "findings"
+            },
+            {
+              "artifact_id": "public-review:logs",
+              "bytes": 406,
+              "content_digest": "sha256:c5454c443d1027e2000227185ba2ec762db6f6433a0c142a01fb97bee4f65d14",
+              "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-4h3cfc80/storage/public-review/custody/logs",
+              "media_type": "application/octet-stream",
+              "output_name": "logs"
+            }
+          ],
+          "attempt_id": "public-review",
+          "disposition": "completed",
+          "freeze_operation_id": "output.freeze:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+          "frozen_at": "2026-09-02T00:00:00.000Z",
+          "manifest_digest": "sha256:5e07137195a16cdcdbeac6f686ecdec0802a98eb7a94f60bf58db69b6a0e2ada",
+          "result_id": "result-public-review"
+        },
+        "review_result_digest": "sha256:84f53c8323ad8f71bb098bd3c451c1c2f64b652f5ab82760dc7bfe7fa2cd3a24",
+        "review_fence": {
+          "fenced": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.review",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.review",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "attempt_id": "public-review",
+            "authority_operation_id": "authority.finalize-quiescent:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+            "decision": "finalized",
+            "reason": "independent checkpoint review completed",
+            "runtime_id": "runtime-public-review",
+            "worker_disposition": "completed"
+          }
+        },
+        "review_fence_digest": "sha256:834db9a2d2577b8d9027acd1f903d7f3962ca636e613d2a814bf287f160f29d7",
+        "recorded_at": "2026-09-02T00:00:00.000Z"
+      },
+      "exact_projection_equal": false,
+      "all_mapped_semantics_equal": true,
+      "original_custody_assertions": {
+        "exception": "AssertionError",
+        "message": "{'ver[82 chars]8', 'line_id': 'line-c71b47a3a4cf6f0cc88a98e20[2891 chars]00Z'} != {'ver[82 chars]8', 'authority_uuid': '0000000a000000000000000[2816 chars]9d7'}\nDiff is 4535 characters long. Set self.maxDiff to None to see it."
+      },
+      "runtime_after_cleanup": {
+        "attempt_id": "public-review",
+        "runtime_id": "runtime-public-review",
+        "execution_runtime": "destroyed",
+        "cleanup": "retained",
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          },
+          "participant": "baton.review",
+          "generation": 1
+        }
+      },
+      "verdict_count": 1,
+      "worker_turns": 1,
+      "destroy_calls": 1,
+      "post_cleanup_eligibility": {
+        "exception": "ContractRefusal",
+        "message": "review completion requires the exact attached runtime to be positively quiescent"
+      },
+      "post_cleanup_replay": {
+        "exception": "ContractRefusal",
+        "message": "execution_runtime is 'destroyed'; 'quiescent' does not follow it"
+      }
+    }
+  ]
+}

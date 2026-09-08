@@ -1,0 +1,9 @@
+test_the_serial_modules_are_the_ones_that_own_an_engine (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_serial_modules_are_the_ones_that_own_an_engine) ... ok
+test_line_launch_proof_has_an_exact_live_capability_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_line_launch_proof_has_an_exact_live_capability_probe) ... ok
+test_line_launch_metadata_keeps_mint_and_durable_binding (tests.manager.test_boundary_inventory.StatedRules.test_line_launch_metadata_keeps_mint_and_durable_binding) ... ok
+test_every_stated_owner_names_a_witness_that_exists (tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness.test_every_stated_owner_names_a_witness_that_exists) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.653s
+
+OK

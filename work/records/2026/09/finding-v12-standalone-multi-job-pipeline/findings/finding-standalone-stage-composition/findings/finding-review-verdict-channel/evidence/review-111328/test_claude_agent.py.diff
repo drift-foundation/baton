@@ -1,0 +1,46 @@
+--- work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/review-111187/candidate/v12/python/tests/manager/test_claude_agent.py
++++ v12/python/tests/manager/test_claude_agent.py
+@@ -2854,6 +2854,43 @@
+              "verdict": "accepted",
+              "findings": "x" * (claude_agent.MAX_REPORT_BYTES + 16)}))
+ 
++    def test_a_report_that_is_a_fifo_decides_nothing_and_does_not_hang(self):
++        """REVIEW 2026-09-07T15-19-16Z [P1]: the report was opened blocking
++        before anything proved it a regular file, so a provider that created
++        this name as a FIFO and exited successfully left the adapter waiting
++        for a writer that never arrives -- outside its own bounded invocation,
++        so the provider deadline bounded nothing about it.
++
++        THE CASE IS ITS OWN PROOF OF NOT HANGING: it runs in this process with
++        no writer anywhere, so a blocking open never returns and the suite
++        stops. Returning at all is the assertion."""
++        def after():
++            place = os.path.join(self.calls[-1][1]["cwd"],
++                                 claude_agent.REVIEW_REPORT)
++            os.unlink(place)
++            os.mkfifo(place)
++
++        self.unable(after=after)
++
++    def test_a_report_naming_a_link_decides_nothing(self):
++        def after():
++            place = os.path.join(self.calls[-1][1]["cwd"],
++                                 claude_agent.REVIEW_REPORT)
++            os.unlink(place)
++            os.symlink(os.path.join(self.source, "harness.py"), place)
++
++        self.unable(after=after)
++
++    def test_findings_no_encoder_will_accept_decide_nothing(self):
++        """REVIEW [P1]: `json` decodes an escaped lone surrogate into a `str`
++        no UTF-8 encoder accepts, so the report passed every check and then
++        raised `UnicodeEncodeError` from the findings writer -- after the logs
++        output was published and while findings was half written. Adopting
++        text is adopting the obligation to publish it."""
++        self.unable(report='{"schema": "%s", "verdict": "accepted", '
++                           '"findings": "bad \\ud800 surrogate"}'
++                           % claude_agent.REVIEW_REPORT_SCHEMA)
++
+     def test_a_report_that_is_a_directory_decides_nothing(self):
+         def after():
+             place = os.path.join(self.calls[-1][1]["cwd"],

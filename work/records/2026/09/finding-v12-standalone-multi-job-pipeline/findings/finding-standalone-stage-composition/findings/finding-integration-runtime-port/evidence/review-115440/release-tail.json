@@ -1,0 +1,26 @@
+{
+  "worker_exit": 0,
+  "first_completion": {
+    "category": "refused",
+    "code": "precondition",
+    "message": "review injected release interruption"
+  },
+  "before_replay": {
+    "entry": "integrated",
+    "lease": "live"
+  },
+  "continue_replay": {
+    "category": "refused",
+    "code": "precondition",
+    "message": "the Authority refused the approval receipt: approval receipt is immutable"
+  },
+  "restart_admission": {
+    "category": "refused",
+    "code": "precondition",
+    "message": "the Authority refused the approval receipt: approval receipt is immutable"
+  },
+  "after_replays": {
+    "entry": "integrated",
+    "lease": "live"
+  }
+}

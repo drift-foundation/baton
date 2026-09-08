@@ -1447,3 +1447,234 @@ refuse.
 registry gate passes. The parallel registry's note now says that the cases
 using two connections — the threaded grant race and this round's interleaving —
 open both against their own database file inside the case.
+
+## 2026-09-06 — baton.claude — W101714: the account loses two members that had no producer
+
+W101491's admission leaf could not implement against the account this record
+landed in the seventh correction, and its finding was right. `baton.tuner`
+asked K for "one closed re-resolvable generic candidate/profile account"; this
+is that answer, landed rather than described. The obligation was ACCEPTED
+rather than answered in prose, so the tuner's leaf is explicitly gated on
+W101714 instead of waiting on a promise.
+
+### What was wrong, and it was mine
+
+The owner clarification asked for "a closed profile kind/version and
+profile-validated account or digest", and I minted three members to satisfy
+that sentence without asking who would ever PRODUCE them. Admission found it
+at once: it can re-read Authority's proposal, verification, review and approval
+receipts and W71918's line and checkpoint evidence, and neither computes a
+`profile_account_digest` or a `profile_version`. Both existed only at this
+coordinator's own receiving seam and in its fixtures — so an entry could carry
+only a CALLER'S CLAIM about them, and an account assembled from caller claims
+cannot support the scope-mismatch refusal this record requires.
+
+**They were typed, validated, cross-bound to the journal, proved against the
+signed act, and still unprovable.** Eight rounds of this record moved the proof
+to the last surviving witness each time; this is the same lesson arriving from
+the other end. A member of an immutable evidence account needs a NAMED PRODUCER
+before it is minted. The test is not "can this build validate its type" but
+"which accepted act computed it, and how does a later reader recompute it from
+that act".
+
+### What I checked rather than assumed
+
+- `checkpoint_digest` — `review_cycles.freeze` computes `digest(evidence)` over
+  `{base, head, tree, paths, path_set_digest, profile, reference}`, and the
+  verdict row copies it. So the profile-shaped account IS the checkpoint
+  evidence and it was ALREADY bound here, by a member with a producer.
+  `profile_account_digest` was a second owner of one fact.
+- `profile_kind` — the evidence's own `profile` member, `source_profiles`'
+  `GENERIC_PROFILE` or `GIT_PROFILE`. Re-resolvable, and a NAME rather than a
+  meaning, so the VCS-neutral boundary is untouched.
+- `scope_digest` — this record had never named its producer either, and it has
+  one: the accepted Job's `test_scope`, required by `JOB_MEMBERS`, persisted by
+  `job_manager/submission.py`, held as a `NOT NULL` json column and owned by
+  `Column("json")`. Admission re-resolves `digest(test_scope)` from the Job
+  store rather than believing a caller.
+- `profile_version` — nothing. The version that matters belongs to the RUNTIME
+  profile in W101490's boundary, which is deployment wiring: a redeployment
+  that bumps a runtime profile version does not change which candidate was
+  accepted, so it has no business in an immutable account describing one.
+
+### The change
+
+`ELIGIBILITY_MEMBERS` is fourteen; `entries` loses two columns; `SCHEMA_VERSION`
+moves 2 → 3 with no migration invented, because two shapes under one version
+number is the drift a version exists to prevent. `COUNTED_FROM_ONE` is back to
+`assignment_generation` alone. `runtime.integration_profile` is UNCHANGED —
+its `profile_version` is the deployment's wiring and was never candidate
+evidence, which is the distinction this correction is about.
+
+FINDING.md carries the supersession as its own dated section against the
+seventh correction's text rather than editing it, because the reasoning that
+was superseded is how the next reader knows why the current rule is not the
+obvious one.
+
+### Verification
+
+    PYTHONPATH=src:. python3 -m unittest tests.integration.test_coordinator \
+        tests.integration.test_runtime
+    -> Ran 246 tests, OK
+
+`test_every_member_of_the_account_has_a_producer` keeps the finding as a case:
+the two members are absent, the account is fourteen, and `checkpoint_digest` is
+what binds the profile-shaped account. The closed-account matrix now drives
+`profile_account_digest` as an operand this build does NOT own — the member
+that used to be required is refused if it returns — beside the Git operand it
+already refused.
+
+Broad sweep, both phases:
+
+    -> parallel source: 563 shards, 3958 tests, 6 failures, 0 errors, 3 skipped
+    -> serial source: 16 shards, 235 tests, 4 failures, 13 skipped
+
+4193 tests, 10 failures, byte-identical to the recorded baseline. The
+whitespace gate is clean and the registry gate passes.
+
+## 2026-09-06 — baton.claude — W101714's review: the rule, applied to what I kept
+
+`review-2026-09-06T12-59-53Z.md` found one [P0] and two [P1]s. All three are
+corrected. 193 focused coordinator cases (188 before), 274 with the runtime
+boundary that composes on it.
+
+### [P0] I applied my own rule to the members I removed and not to the ones I kept
+
+`proposal_manifest_digest` was in exactly the state the two removed members were
+in: the name exists in the frozen worker-control JSON schema's proposal-publish
+body and in this coordinator, and no accepted Python operation produces it. I
+assigned it to "Authority's proposal/verification receipts" FROM MEMORY. Those
+documents carry `candidate_digest`, `result_id`, `result_digest`,
+`input_digest`, `policy_digest` and `target`; there is no manifest digest
+anywhere in them.
+
+The accepted `publish` operation's own pair replaces it: `result_id` and
+`result_digest`, required operands of that operation and columns of Authority's
+`proposal` row -- the frozen result's identity and its content digest, which is
+what a manifest digest was reaching for. They travel together because half a
+binding is what this record already refused for `checkpoint_id` and
+`checkpoint_digest`. The account is fifteen members; the store is
+`SCHEMA_VERSION` 4.
+
+**And one producer I had named wrongly**, found while checking the rest rather
+than reported: `expected_target_revision` does not come from "the coordinator's
+target row", because the target document is a name and a description and
+carries no revision at all. Its producer is Authority's `publish` operand and
+`proposal.target`.
+
+### Why the first correction missed it, and what stops the third
+
+The regression I wrote asserted that two names were absent and that the tuple
+was fourteen long. **It passed while its own title was false**, because
+counting members cannot find a member without a producer.
+`EveryMemberOfTheAccountHasAProducer` now maps every member to the surface it
+claims to come from and asks THAT SURFACE whether it offers the name --
+`attempts.ASSIGNMENT_COLUMNS`, `CHECKPOINT_VERDICT_COLUMNS`, the Authority
+`proposal` table built from its own `SCHEMA` into a scratch database,
+`JOB_COLUMNS`, `source_profiles.PROFILES` -- for every member rather than for
+the ones I remembered. It also drives the two computable ones for real:
+`path_set_digest` is `digest(paths)` and `scope_digest` is
+`digest(test_scope)`, which is how their producers compute them.
+
+The immutability matrix now walks `ELIGIBILITY_MEMBERS` itself instead of a
+list beside it. That second copy is what let it name a member the account no
+longer had.
+
+### [P1] The fixture asserted a value its producer cannot emit
+
+`profile_kind` was `repository`; the accepted checkpoint evidence's `profile`
+member is `generic` or `git`. A fixture demonstrating that the coordinator
+accepts arbitrary text demonstrates something that was already true. It is
+`source_profiles.GIT_PROFILE` now, and a case asserts the stored kind is one
+`PROFILES` contains.
+
+### [P1] The live contract still described the superseded account
+
+`queue.py`'s module docstring still promised the three-member profile binding,
+`schema.py` still described a closed versioned boundary and a
+changed-profile-account refusal, the counted-member comment still said "two",
+and the actionable PLAN still named three members and schema version 2. All
+four now describe the account that exists, while FINDING.md keeps the old text
+as superseded history. A confirmed decision leaves ONE current actionable rule;
+three of these were the same rule spoken in four places, which is how they
+drifted apart.
+
+### Verification
+
+    PYTHONPATH=src:. python3 -m unittest tests.integration.test_coordinator \
+        tests.integration.test_runtime
+    -> Ran 274 tests, OK (skipped=1)
+
+Broad sweep, both phases:
+
+    -> parallel source: 568 shards, 3991 tests, 6 failures, 0 errors, 4 skipped
+    -> serial source: 16 shards, 235 tests, 4 failures, 13 skipped
+
+4226 tests, 10 failures, byte-identical to the recorded baseline. The
+whitespace gate is clean and the registry gate passes.
+
+## 2026-09-06 — baton.claude — the producer map read a surface it had written
+
+`review-2026-09-06T13-25-26Z.md` accepted the [P0] correction --
+`result_id`/`result_digest` are genuinely produced by Authority's `publish` and
+carried by its `proposal` row -- and found two [P1]s. Both are corrected. 195
+focused coordinator cases (193 before), 284 with the runtime boundary.
+
+### [P1] The map manufactured one of its own surfaces
+
+I built the producer map to stop members without producers, and for the
+checkpoint evidence I wrote the literal `{"profile_kind"}` -- a set written by
+the test, asserting that the test's own member is in it. Both profile cases
+would have kept passing if the accepted evidence dropped `profile` entirely,
+which is exactly the question the map exists to ask.
+
+**This is the count-only defect again, one level less obvious.** A proof is
+only as good as the surface it reads, and a surface the proof writes is not
+one. The surface is now `LINE_CHECKPOINT_COLUMNS["evidence"].members`, W71918's
+own closed member set for the document `checkpoint_profiles.freeze` produces.
+The rename is stated rather than hidden -- evidence carries `profile`, the
+entry copies it as `profile_kind` -- so if that member goes, the surface offers
+nothing and the map fails.
+
+The value side is bound as well: `freeze` writes `source_profiles.GIT_PROFILE`
+into that member, and the account's copy is compared to that constant.
+Freezing for real needs a repository and a command runner, which would be Git
+reaching into a suite whose subject is a coordinator that must not know what
+Git is -- so the constant and the member set are the two halves readable
+without it, and both are read.
+
+### [P1] Two actionable plans still required removed members
+
+The parent's item 4 still said "do not equate ... `proposal_manifest_digest`",
+and the admission child's plan was still BLOCKED on re-resolving
+`profile_account_digest` and still asked K for an account that no longer
+exists. Both now name the fifteen-member account and its producers; the child's
+item 2 is unblocked and its item 4 answered, with the note that an insufficient
+account is returned to K rather than widened there. The old FINDING sections
+stay as chronological history.
+
+**Second round in a row where the stale actionable rule was a finding.** The
+correction is cheap and the habit is not: a decision that changes a shared
+contract has to be walked through every plan that names it in the same round.
+
+### Verification
+
+    PYTHONPATH=src:. python3 -m unittest tests.integration.test_coordinator \
+        tests.integration.test_runtime
+    -> Ran 284 tests, OK (skipped=1)
+
+Broad sweep, both phases:
+
+    -> parallel source: 571 shards, 4008 tests, 6 failures, 0 errors, 4 skipped
+    -> serial source: 16 shards, 235 tests, 4 failures, 13 skipped
+
+4243 tests, 10 failures, byte-identical to the recorded baseline. The
+whitespace and registry gates pass.
+
+### One defect I am reporting rather than fixing
+
+`integration/runtime.py`'s `__all__` lists `OBSERVED_RUNTIME_MEMBERS` twice --
+my own slip while correcting W101490's export residue. It is harmless to
+`import *` and it is still wrong. W101490 is with the reviewer right now, so
+editing its bytes mid-review would move the snapshot underneath that review;
+I will correct it in that Work's next round rather than here.

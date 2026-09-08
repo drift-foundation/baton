@@ -1,0 +1,13 @@
+{
+  "existing_test_methods_unchanged": 28,
+  "added_test_methods": [
+    "FailureNotificationTests.test_accepted_failure_survives_expiry_reload_and_identical_renewal",
+    "FailureNotificationTests.test_expiry_never_acknowledges_rejected_or_busy_attention",
+    "FailureNotificationTests.test_first_observed_expiry_is_not_attention_or_acceptance",
+    "FailureNotificationTests.test_new_failure_transition_after_expiry_notifies",
+    "FailureNotificationTests.test_only_derived_expiry_preserves_memory_and_recovery_allows_failure",
+    "FailureNotificationTests.test_paired_expiry_dismissal_renewal_and_new_incident",
+    "FailureNotificationTests.test_stale_replacement_does_not_cover_its_failed_report",
+    "FailureNotificationTests.test_unrelated_delivery_during_expiry_preserves_accepted_failure"
+  ]
+}

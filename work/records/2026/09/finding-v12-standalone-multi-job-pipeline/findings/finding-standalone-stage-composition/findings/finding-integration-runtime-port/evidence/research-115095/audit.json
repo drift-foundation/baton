@@ -1,0 +1,115 @@
+{
+  "claim": 115095,
+  "at": "2026-09-08T01:31:11.877130+00:00",
+  "provider_paths": {
+    "v12/python/src/baton_v12/integration/oci_delivery.py": {
+      "sha256": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+      "accepted_sha256": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "accepted_sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/oci.py": {
+      "sha256": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+      "accepted_sha256": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+      "matches": true
+    },
+    "v12/python/tests/integration/test_runtime.py": {
+      "sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "accepted_sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "matches": true
+    },
+    "v12/python/tests/manager/test_dependencies.py": {
+      "sha256": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+      "accepted_sha256": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+      "matches": true
+    },
+    "v12/python/tests/manager/test_oci_integration.py": {
+      "sha256": "822bae5cb51c7f664c1f351aff9147957c930db3251c2e932330a7a125d301a6",
+      "accepted_sha256": "822bae5cb51c7f664c1f351aff9147957c930db3251c2e932330a7a125d301a6",
+      "matches": true
+    },
+    "v12/python/tools/parallel_test.py": {
+      "sha256": "5bf2cbfbf29c603f07f811a1d5f968257798e1944d91bed0d97fe9aa393bf302",
+      "accepted_sha256": "5bf2cbfbf29c603f07f811a1d5f968257798e1944d91bed0d97fe9aa393bf302",
+      "matches": true
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "accepted_sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "matches": true
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "accepted_sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "matches": true
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "accepted_sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "matches": true
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "accepted_sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "matches": true
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "accepted_sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "matches": true
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "accepted_sha256": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "matches": true
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "accepted_sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "matches": true
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "accepted_sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "matches": true
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "accepted_sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "matches": true
+    }
+  },
+  "all_provider_paths_match": true,
+  "scope_baseline": {
+    "v12/python/tools/integration_worker.py": {
+      "exists": false,
+      "sha256": null
+    },
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "exists": false,
+      "sha256": null
+    },
+    "v12/python/tools/parallel_test.py": {
+      "exists": true,
+      "sha256": "5bf2cbfbf29c603f07f811a1d5f968257798e1944d91bed0d97fe9aa393bf302"
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "exists": true,
+      "sha256": "d6b3be4f99e0776d6ec402db6bfb05b4db8fd376a36b8d1c4225eb17dec83bd6"
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "exists": true,
+      "sha256": "c2c749ce5d2c1ecadb5d8b0e1ae5ea2943a650779af88ca04dcc9b0b41f97dbd"
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "exists": true,
+      "sha256": "3aeb9fad7e75d958070c7086cbfeeccf9098ff4f9714f1bff1be69a6a5988907"
+    }
+  },
+  "registry_note": "The shared registry uses the newer accepted W110935 hash; the older W110934 registry is historical.",
+  "executed_tests": false
+}

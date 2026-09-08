@@ -1,0 +1,10 @@
+{
+  "provenance": "Implementation supplied a reconstruction, not retained historical bytes. Reviewer removed one extra trailing newline and matched the prior independent signed-off SHA-256 from review-2026-09-06T18-02-22Z.md under finding-review-correction-driver.",
+  "supplied_reconstruction_sha256": "fc8aa8dc37decc5631dc6f64e66c7bbeecccfd55000e86a2de3fb1e9c95bcb9c",
+  "verified_prior_sha256": "4ee56ddc684a2e35bd545d3e2a0dda55e2d9664d3a70843ac4ef7be756cc0fca",
+  "prior_assertion_calls": 113,
+  "current_assertion_calls": 128,
+  "prior_method_assertions_preserved": true,
+  "original_reproducer_sha256": "e1dbd2e037ecfff46b776daa604602ce9f918795cfa9cadb5a24fe995be26a92",
+  "reproducer_change": "Only two qualified references renamed to approved private helper; all tests/assertions preserved."
+}

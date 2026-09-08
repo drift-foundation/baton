@@ -1,0 +1,16 @@
+{
+  "original_manifest_sha256": "eea4e949548c2301e4c45f815a60380b8edda1adbbc4c4f75dd6420ac496402b",
+  "root": "/tmp/baton-w106673-setup-repro-kuwk9v8l",
+  "stage": "credential-api-import",
+  "reproduction": {
+    "outcome": "refused",
+    "exception_kind": "FileNotFoundError",
+    "errno": 2,
+    "missing_worker_schema": true
+  },
+  "stderr_empty": true,
+  "privileges": "ordinary user",
+  "credential_construction": false,
+  "credential_source_read": false,
+  "docker": false
+}

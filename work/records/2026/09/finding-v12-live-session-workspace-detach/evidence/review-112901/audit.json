@@ -1,0 +1,17 @@
+{
+  "claim": 112901,
+  "handoff_sha256": "6dde1c32cd6924efe2d0bc978bbf709090496f0c823a2f4efd2c9cb165b7be8e",
+  "handoff_files": 19,
+  "historical_files": 305,
+  "package_inputs": 163,
+  "preserved_prior_inputs": 152,
+  "package_sha256": "3d4332754ab9bdce095f8a31d5e6e010550645f1fa226fc46916db523918f808",
+  "candidate": {
+    "live_controller_failure_reason_112817.py": "a8b06a1ad33e6030dc0f126222c8250b71241ad1f399f10a228d34f4484036eb",
+    "live_supervisor_failure_reason_112817.py": "fe3c8813773f2aa74a6ab07643b204c5f0e3ce5dde78dabd28b1fcde7a97623f",
+    "test_failure_reason_112817.py": "34725760c687128b084b40a795e7f883e52b4b2ce613dcf6ffbf8b2b24ad2730"
+  },
+  "hashes": "all match before reviewer annotations",
+  "private_data_read": false,
+  "live_run": false
+}

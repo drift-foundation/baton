@@ -1,0 +1,95 @@
+{
+  "candidate": {
+    "v12/python/src/baton_v12/integration/oci_delivery.py": {
+      "sha256": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+      "matches_submission": true,
+      "changed_since_review111840": true
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "matches_submission": true,
+      "changed_since_review111840": false
+    },
+    "v12/python/src/baton_v12/worker_manager/oci.py": {
+      "sha256": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+      "matches_submission": true,
+      "changed_since_review111840": false
+    },
+    "v12/python/tests/integration/test_runtime.py": {
+      "sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "matches_submission": true,
+      "changed_since_review111840": false
+    },
+    "v12/python/tests/manager/test_dependencies.py": {
+      "sha256": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+      "matches_submission": true,
+      "changed_since_review111840": false
+    },
+    "v12/python/tests/manager/test_oci_integration.py": {
+      "sha256": "822bae5cb51c7f664c1f351aff9147957c930db3251c2e932330a7a125d301a6",
+      "matches_submission": true,
+      "changed_since_review111840": true
+    },
+    "v12/python/tools/parallel_test.py": {
+      "sha256": "39b161a50e6e58ecfa6001c022532c23f9518779c85ce94c9dd1dace624318be",
+      "matches_submission": true,
+      "changed_since_review111840": false
+    }
+  },
+  "handoff_manifest_sha256": "a2b7adca6d29fbded53f37f5457353942c2fbb79b42b33be80d6fe94d234d522",
+  "handoff_manifest_files_match": {
+    "work/records/2026/09/finding-v12-integration-oci-delivery/FINDING.md": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/PLAN.md": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/PROGRESS.md": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/baseline.json": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/candidate/v12/python/src/baton_v12/integration/oci_delivery.py": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/candidate/v12/python/tests/manager/test_oci_integration.py": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/candidate.json": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/delta-oci_delivery.py.txt": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/delta-test_oci_integration.py.txt": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/manager-results.json": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/manager_path.py": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/mount-module.txt": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/new-tests.txt": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/recovery-before.json": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/recovery-shape-results.json": true,
+    "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/recovery_shape.py": true
+  },
+  "all_prior_test_bytes_preserved": true,
+  "added_test_methods": [
+    "test_exact_layout_recovers_after_grant_loss_without_publication",
+    "test_foreign_assignment_and_result_roots_refuse_even_with_real_inodes",
+    "test_swapping_assignment_and_result_sources_refuses",
+    "test_each_fixed_access_flag_is_required",
+    "test_each_fixed_container_target_is_required",
+    "test_every_source_device_and_inode_must_match",
+    "test_fixed_entries_cannot_be_reordered",
+    "test_duplicate_target_refuses_before_a_capability_is_returned",
+    "test_missing_or_extra_source_refuses"
+  ],
+  "recovery_outcomes": {
+    "unchanged": true,
+    "foreign_assignment_root": false,
+    "wrong_assignment_access": false,
+    "duplicate_target": false
+  },
+  "manager_run_counts": {
+    "normal": 1,
+    "unreadable": 1,
+    "missing_later": 1
+  },
+  "manager_final_axes": {
+    "normal": "quiescent",
+    "unreadable": "uncertain",
+    "missing_later": "uncertain"
+  },
+  "mount_log_tail": [
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 78 tests in 0.788s",
+    "",
+    "OK",
+    "",
+    "exit_code: 0"
+  ]
+}

@@ -1,0 +1,86 @@
+--- work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/review-111187/candidate/v12/worker/claude_agent.py
++++ v12/worker/claude_agent.py
+@@ -2376,6 +2376,19 @@
+     if type(findings) is not str or not findings.strip() \
+             or len(findings) > MAX_FINDINGS:
+         return None
++    # AND IT MUST BE TEXT THIS ADAPTER CAN ACTUALLY WRITE. REVIEW
++    # 2026-09-07T15-19-16Z [P1]: `json` decodes an escaped lone surrogate into
++    # a `str` that no UTF-8 encoder will accept, so a report carrying one
++    # passed every check here and then raised `UnicodeEncodeError` from the
++    # `findings.txt` writer -- after the logs output had been published and
++    # while the findings output was half written. Adopting text is adopting
++    # the obligation to publish it, so the encode is proved at the point the
++    # document is adopted and a failure takes the ordinary unable path with
++    # no claim and no partial output.
++    try:
++        findings.encode("utf-8")
++    except UnicodeEncodeError:
++        return None
+     return {"schema": REVIEW_REPORT_SCHEMA, "verdict": document["verdict"],
+             "findings": findings}
+ 
+@@ -2387,18 +2400,58 @@
+     decided by the provider is a file whose read has to be bounded by this
+     program, and one byte past the ceiling makes the report unusable rather
+     than truncated -- a truncated JSON document is a different document.
++
++    AND THE OPEN IS NON-BLOCKING, WHICH IS THE HALF THAT WAS MISSING. REVIEW
++    2026-09-07T15-19-16Z [P1]: this routed the report through `_open_under`,
++    whose final open is a blocking `O_RDONLY | O_NOFOLLOW` performed BEFORE
++    `fstat` proves a regular file. A provider that creates
++    `review-report.json` as a FIFO and exits successfully therefore leaves
++    this adapter waiting for a writer that will never arrive -- outside the
++    provider's own bounded invocation, so `PROVIDER_SECONDS` bounds nothing
++    about it and the container hangs after the turn is over. The reviewer's
++    probe reproduced exactly that.
++
++    THIS BOUNDARY GETS ITS OWN OPENER RATHER THAN A REDESIGN OF THE OTHER
++    ONE. `_open_under` walks every component of a path inside a tree this
++    adapter measured and is correct for that; the report is one fixed name in
++    a directory this adapter created exclusively for it, written by the least
++    trusted process in the container. So the ordering here is
++    `O_NONBLOCK` first, regular-file proof on the DESCRIPTOR second, bounded
++    read third -- which is the same rule `baton_worker` and the integration
++    delivery already apply to runtime-written documents, applied here.
++
++    THE PARENT IS STILL OPENED NO-FOLLOW AND THE CHILD IS RELATIVE TO IT, so
++    a link swapped in at either level is refused rather than resolved.
+     """
++    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY
+     try:
+-        descriptor = _open_under(root, relative, what)
+-    except TaskRefusal:
++        parent = os.open(root, flags)
++    except OSError:
+         return None
+     try:
+-        with os.fdopen(descriptor, "rb", closefd=False) as reading:
+-            raw = reading.read(MAX_REPORT_BYTES + 1)
++        try:
++            handle = os.open(relative,
++                             os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
++                             dir_fd=parent)
++        except OSError:
++            # ABSENT, A LINK, OR A DEVICE THIS PROGRAM WILL NOT OPEN. All
++            # three are "no usable report", which is the unable path.
++            return None
++    finally:
++        os.close(parent)
++    try:
++        found = os.fstat(handle)
++        if not stat.S_ISREG(found.st_mode):
++            # A FIFO REACHES HERE RATHER THAN BLOCKING ABOVE, which is the
++            # whole point of the ordering: `O_NONBLOCK` on a FIFO with no
++            # writer opens immediately for reading, and this is where it is
++            # refused as not being a document.
++            return None
++        raw = os.read(handle, MAX_REPORT_BYTES + 1)
+     except OSError:
+         return None
+     finally:
+-        os.close(descriptor)
++        os.close(handle)
+     return None if len(raw) > MAX_REPORT_BYTES else raw
+ 
+ 

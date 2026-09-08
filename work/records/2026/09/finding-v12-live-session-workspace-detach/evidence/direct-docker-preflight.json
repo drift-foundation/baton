@@ -1,0 +1,18 @@
+{
+  "proof": "standalone-read-only-tool-invocations",
+  "docker_version": {
+    "command": "docker version --format '{{.Server.Version}}'",
+    "exit": 0,
+    "stdout": "29.1.3"
+  },
+  "docker_security": {
+    "command": "docker info --format '{{json .SecurityOptions}}'",
+    "exit": 0,
+    "stdout": "[\"name=apparmor\",\"name=seccomp,profile=builtin\",\"name=cgroupns\"]"
+  },
+  "experiment_containers": {
+    "command": "docker ps --all --filter label=baton.experiment=W106673 --format '{{.ID}}\\t{{.Image}}\\t{{.Names}}'",
+    "exit": 0,
+    "stdout": ""
+  }
+}

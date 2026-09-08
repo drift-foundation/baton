@@ -1,0 +1,1952 @@
+[
+  {
+    "action": "create-intent",
+    "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+    "monotonic_ns": 459931645663791,
+    "network_id": "fbf516198bad44bfcd84fd2fc242b7dcaa4c003fd781d66faa1b149719210096",
+    "nonce": "932d04b9ea25495e9ead80d5d02c840d",
+    "requested_session": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda",
+    "resume": true,
+    "workspace_pin": [
+      43,
+      11799375
+    ]
+  },
+  {
+    "action": "created",
+    "container": "607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1",
+    "monotonic_ns": 459931700923006
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459931778978567,
+    "operation": "start",
+    "stage": "response-observed",
+    "turn": 0
+  },
+  {
+    "action": "registered",
+    "identity": {
+      "container": "607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1",
+      "mount_namespace": [
+        4,
+        4026532903
+      ],
+      "pid": 1689040,
+      "start": "45993174",
+      "workspace": [
+        43,
+        11799375
+      ]
+    },
+    "monotonic_ns": 459931784443147
+  },
+  {
+    "action": "topology",
+    "attached": true,
+    "monotonic_ns": 459931790556984,
+    "mounts": [
+      {
+        "device": "0:50",
+        "filesystem": "overlay",
+        "id": "877",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "879",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "880",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev"
+      },
+      {
+        "device": "0:86",
+        "filesystem": "devpts",
+        "id": "881",
+        "options": [
+          "rw",
+          "nosuid",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev/pts"
+      },
+      {
+        "device": "0:87",
+        "filesystem": "sysfs",
+        "id": "882",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/sys"
+      },
+      {
+        "device": "0:28",
+        "filesystem": "cgroup2",
+        "id": "883",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/system.slice/docker-607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1.scope",
+        "target": "/sys/fs/cgroup"
+      },
+      {
+        "device": "0:82",
+        "filesystem": "mqueue",
+        "id": "884",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev/mqueue"
+      },
+      {
+        "device": "0:88",
+        "filesystem": "tmpfs",
+        "id": "885",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev/shm"
+      },
+      {
+        "device": "0:89",
+        "filesystem": "tmpfs",
+        "id": "886",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/tmp"
+      },
+      {
+        "device": "0:43",
+        "filesystem": "tmpfs",
+        "id": "887",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-live-nsn38dlq/restored-first/workspace",
+        "target": "/output"
+      },
+      {
+        "device": "0:43",
+        "filesystem": "tmpfs",
+        "id": "888",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-live-nsn38dlq/restored-first/session-private",
+        "target": "/session"
+      },
+      {
+        "device": "0:43",
+        "filesystem": "tmpfs",
+        "id": "889",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-live-nsn38dlq/restored-second/live_supervisor.py",
+        "target": "/live_supervisor.py"
+      },
+      {
+        "device": "259:2",
+        "filesystem": "ext4",
+        "id": "890",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/var/lib/docker/containers/607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1/resolv.conf",
+        "target": "/etc/resolv.conf"
+      },
+      {
+        "device": "259:2",
+        "filesystem": "ext4",
+        "id": "891",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/var/lib/docker/containers/607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1/hostname",
+        "target": "/etc/hostname"
+      },
+      {
+        "device": "259:2",
+        "filesystem": "ext4",
+        "id": "892",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/var/lib/docker/containers/607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1/hosts",
+        "target": "/etc/hosts"
+      },
+      {
+        "device": "0:27",
+        "filesystem": "tmpfs",
+        "id": "893",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-credentials-gto3nyl3/credentials/932d04b9ea25495e9ead80d5d02c840d/claude",
+        "target": "/run/baton/credentials/claude"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "482",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/bus",
+        "target": "/proc/bus"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "484",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/fs",
+        "target": "/proc/fs"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "499",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/irq",
+        "target": "/proc/irq"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "511",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/sys",
+        "target": "/proc/sys"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "512",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/sysrq-trigger",
+        "target": "/proc/sysrq-trigger"
+      },
+      {
+        "device": "0:90",
+        "filesystem": "tmpfs",
+        "id": "513",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc/acpi"
+      },
+      {
+        "device": "0:91",
+        "filesystem": "tmpfs",
+        "id": "514",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc/asound"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "515",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/interrupts"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "516",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/kcore"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "517",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/keys"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "518",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/latency_stats"
+      },
+      {
+        "device": "0:92",
+        "filesystem": "tmpfs",
+        "id": "519",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc/scsi"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "520",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/timer_list"
+      },
+      {
+        "device": "0:93",
+        "filesystem": "tmpfs",
+        "id": "521",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/sys/devices/virtual/powercap"
+      },
+      {
+        "device": "0:94",
+        "filesystem": "tmpfs",
+        "id": "522",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/sys/firmware"
+      }
+    ]
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459931790780029,
+    "operation": "start",
+    "stage": "command-identity-check",
+    "turn": 0
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459931796115700,
+    "operation": "start",
+    "stage": "command-write-intent",
+    "turn": 0
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459931796335699,
+    "operation": "start",
+    "stage": "command-write-completed",
+    "turn": 0
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932021191238,
+    "operation": "start",
+    "stage": "response-observed",
+    "turn": 0
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932042939586,
+    "operation": "identity",
+    "stage": "command-identity-check",
+    "turn": 0
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932048033838,
+    "operation": "identity",
+    "stage": "command-write-intent",
+    "turn": 0
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932048233419,
+    "operation": "identity",
+    "stage": "command-write-completed",
+    "turn": 0
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932048439261,
+    "operation": "identity",
+    "stage": "response-observed",
+    "turn": 0
+  },
+  {
+    "action": "quiescent",
+    "monotonic_ns": 459932048620749,
+    "processes": [
+      {
+        "executable": [
+          50,
+          19280387
+        ],
+        "inner_pid": 1,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689017,
+        "pid": 1689040,
+        "start": "45993174"
+      },
+      {
+        "executable": [
+          50,
+          19278511
+        ],
+        "inner_pid": 8,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689040,
+        "pid": 1689158,
+        "start": "45993180"
+      }
+    ],
+    "session": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda"
+  },
+  {
+    "action": "initialized",
+    "actual_model": null,
+    "cli_pid": 8,
+    "cli_start": "45993180",
+    "cli_version": "2.1.247",
+    "event": "initialized",
+    "initialize_ns": 220550154,
+    "monotonic_ns": 459932048798710,
+    "session": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda"
+  },
+  {
+    "action": "replacement-start-and-initialize",
+    "duration_ns": 403643244,
+    "monotonic_ns": 459932048987370
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932049178967,
+    "operation": "turn",
+    "stage": "turn-intent",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932049359402,
+    "operation": "turn",
+    "stage": "pre-turn-quiescence",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932062258836,
+    "operation": "identity",
+    "stage": "command-identity-check",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932068011342,
+    "operation": "identity",
+    "stage": "command-write-intent",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932068315267,
+    "operation": "identity",
+    "stage": "command-write-completed",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932068607771,
+    "operation": "identity",
+    "stage": "response-observed",
+    "turn": 1
+  },
+  {
+    "action": "quiescent",
+    "monotonic_ns": 459932068935150,
+    "processes": [
+      {
+        "executable": [
+          50,
+          19280387
+        ],
+        "inner_pid": 1,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689017,
+        "pid": 1689040,
+        "start": "45993174"
+      },
+      {
+        "executable": [
+          50,
+          19278511
+        ],
+        "inner_pid": 8,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689040,
+        "pid": 1689158,
+        "start": "45993180"
+      }
+    ],
+    "session": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda"
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932069170878,
+    "operation": "turn",
+    "stage": "command-identity-check",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932074937751,
+    "operation": "turn",
+    "stage": "command-write-intent",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459932075254971,
+    "operation": "turn",
+    "stage": "command-write-completed",
+    "turn": 1
+  },
+  {
+    "action": "supervisor-observation",
+    "arm": "restored-second",
+    "event": "diagnostic",
+    "monotonic_ns": 459932075741395,
+    "operation": "turn",
+    "stage": "provider-write-intent",
+    "supervisor_monotonic_ns": 459932075414227,
+    "turn": 1
+  },
+  {
+    "action": "supervisor-observation",
+    "arm": "restored-second",
+    "event": "diagnostic",
+    "monotonic_ns": 459932075972254,
+    "operation": "turn",
+    "stage": "provider-write-completed",
+    "supervisor_monotonic_ns": 459932075445996,
+    "turn": 1
+  },
+  {
+    "action": "supervisor-observation",
+    "arm": "restored-second",
+    "event": "diagnostic",
+    "monotonic_ns": 459938860614106,
+    "operation": "turn",
+    "stage": "provider-response-observed",
+    "supervisor_monotonic_ns": 459938860371075,
+    "turn": 1
+  },
+  {
+    "action": "supervisor-observation",
+    "arm": "restored-second",
+    "event": "diagnostic",
+    "failure_reason": {
+      "http_status": null,
+      "shape": "null"
+    },
+    "monotonic_ns": 459938861252854,
+    "operation": "turn",
+    "result_fields": {
+      "is_error": "false",
+      "known_subtype": null,
+      "subtype": "success"
+    },
+    "stage": "provider-result-validation",
+    "supervisor_monotonic_ns": 459938860408855,
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938861543975,
+    "operation": "turn",
+    "stage": "response-observed",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938861799841,
+    "operation": "turn",
+    "stage": "post-response-validation",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938862038715,
+    "operation": "turn",
+    "stage": "post-turn-quiescence",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938876483242,
+    "operation": "identity",
+    "stage": "command-identity-check",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938882303394,
+    "operation": "identity",
+    "stage": "command-write-intent",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938882650579,
+    "operation": "identity",
+    "stage": "command-write-completed",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938882926001,
+    "operation": "identity",
+    "stage": "response-observed",
+    "turn": 1
+  },
+  {
+    "action": "quiescent",
+    "monotonic_ns": 459938883184612,
+    "processes": [
+      {
+        "executable": [
+          50,
+          19280387
+        ],
+        "inner_pid": 1,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689017,
+        "pid": 1689040,
+        "start": "45993174"
+      },
+      {
+        "executable": [
+          50,
+          19278511
+        ],
+        "inner_pid": 8,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689040,
+        "pid": 1689158,
+        "start": "45993180"
+      }
+    ],
+    "session": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda"
+  },
+  {
+    "action": "turn-complete",
+    "actual_model": "claude-fable-5",
+    "cli_pid": 8,
+    "cli_start": "45993180",
+    "cli_version": "2.1.247",
+    "completed_ns": 459938860435464,
+    "dispatched_ns": 459932069169045,
+    "event": "complete",
+    "monotonic_ns": 459938883435439,
+    "num_turns": 3,
+    "reported_cost_usd": 0.061413999999999996,
+    "session": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda"
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938896297674,
+    "operation": "identity",
+    "stage": "command-identity-check",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938901366538,
+    "operation": "identity",
+    "stage": "command-write-intent",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938901740965,
+    "operation": "identity",
+    "stage": "command-write-completed",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938902045040,
+    "operation": "identity",
+    "stage": "response-observed",
+    "turn": 1
+  },
+  {
+    "action": "quiescent",
+    "monotonic_ns": 459938902332795,
+    "processes": [
+      {
+        "executable": [
+          50,
+          19280387
+        ],
+        "inner_pid": 1,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689017,
+        "pid": 1689040,
+        "start": "45993174"
+      },
+      {
+        "executable": [
+          50,
+          19278511
+        ],
+        "inner_pid": 8,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689040,
+        "pid": 1689158,
+        "start": "45993180"
+      }
+    ],
+    "session": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda"
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938915436819,
+    "operation": "identity",
+    "stage": "command-identity-check",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938920770356,
+    "operation": "identity",
+    "stage": "command-write-intent",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938921179467,
+    "operation": "identity",
+    "stage": "command-write-completed",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938921527664,
+    "operation": "identity",
+    "stage": "response-observed",
+    "turn": 1
+  },
+  {
+    "action": "quiescent",
+    "monotonic_ns": 459938921828924,
+    "processes": [
+      {
+        "executable": [
+          50,
+          19280387
+        ],
+        "inner_pid": 1,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689017,
+        "pid": 1689040,
+        "start": "45993174"
+      },
+      {
+        "executable": [
+          50,
+          19278511
+        ],
+        "inner_pid": 8,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689040,
+        "pid": 1689158,
+        "start": "45993180"
+      }
+    ],
+    "session": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda"
+  },
+  {
+    "action": "topology",
+    "attached": true,
+    "monotonic_ns": 459938927204389,
+    "mounts": [
+      {
+        "device": "0:50",
+        "filesystem": "overlay",
+        "id": "877",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "879",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "880",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev"
+      },
+      {
+        "device": "0:86",
+        "filesystem": "devpts",
+        "id": "881",
+        "options": [
+          "rw",
+          "nosuid",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev/pts"
+      },
+      {
+        "device": "0:87",
+        "filesystem": "sysfs",
+        "id": "882",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/sys"
+      },
+      {
+        "device": "0:28",
+        "filesystem": "cgroup2",
+        "id": "883",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/system.slice/docker-607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1.scope",
+        "target": "/sys/fs/cgroup"
+      },
+      {
+        "device": "0:82",
+        "filesystem": "mqueue",
+        "id": "884",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev/mqueue"
+      },
+      {
+        "device": "0:88",
+        "filesystem": "tmpfs",
+        "id": "885",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev/shm"
+      },
+      {
+        "device": "0:89",
+        "filesystem": "tmpfs",
+        "id": "886",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/tmp"
+      },
+      {
+        "device": "0:43",
+        "filesystem": "tmpfs",
+        "id": "887",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-live-nsn38dlq/restored-first/workspace",
+        "target": "/output"
+      },
+      {
+        "device": "0:43",
+        "filesystem": "tmpfs",
+        "id": "888",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-live-nsn38dlq/restored-first/session-private",
+        "target": "/session"
+      },
+      {
+        "device": "0:43",
+        "filesystem": "tmpfs",
+        "id": "889",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-live-nsn38dlq/restored-second/live_supervisor.py",
+        "target": "/live_supervisor.py"
+      },
+      {
+        "device": "259:2",
+        "filesystem": "ext4",
+        "id": "890",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/var/lib/docker/containers/607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1/resolv.conf",
+        "target": "/etc/resolv.conf"
+      },
+      {
+        "device": "259:2",
+        "filesystem": "ext4",
+        "id": "891",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/var/lib/docker/containers/607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1/hostname",
+        "target": "/etc/hostname"
+      },
+      {
+        "device": "259:2",
+        "filesystem": "ext4",
+        "id": "892",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/var/lib/docker/containers/607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1/hosts",
+        "target": "/etc/hosts"
+      },
+      {
+        "device": "0:27",
+        "filesystem": "tmpfs",
+        "id": "893",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-credentials-gto3nyl3/credentials/932d04b9ea25495e9ead80d5d02c840d/claude",
+        "target": "/run/baton/credentials/claude"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "482",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/bus",
+        "target": "/proc/bus"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "484",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/fs",
+        "target": "/proc/fs"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "499",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/irq",
+        "target": "/proc/irq"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "511",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/sys",
+        "target": "/proc/sys"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "512",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/sysrq-trigger",
+        "target": "/proc/sysrq-trigger"
+      },
+      {
+        "device": "0:90",
+        "filesystem": "tmpfs",
+        "id": "513",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc/acpi"
+      },
+      {
+        "device": "0:91",
+        "filesystem": "tmpfs",
+        "id": "514",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc/asound"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "515",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/interrupts"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "516",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/kcore"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "517",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/keys"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "518",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/latency_stats"
+      },
+      {
+        "device": "0:92",
+        "filesystem": "tmpfs",
+        "id": "519",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc/scsi"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "520",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/timer_list"
+      },
+      {
+        "device": "0:93",
+        "filesystem": "tmpfs",
+        "id": "521",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/sys/devices/virtual/powercap"
+      },
+      {
+        "device": "0:94",
+        "filesystem": "tmpfs",
+        "id": "522",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/sys/firmware"
+      }
+    ]
+  },
+  {
+    "action": "detach-result",
+    "answer": {
+      "errno": null,
+      "ok": true
+    },
+    "monotonic_ns": 459938939099216
+  },
+  {
+    "action": "topology",
+    "attached": false,
+    "monotonic_ns": 459938944755132,
+    "mounts": [
+      {
+        "device": "0:50",
+        "filesystem": "overlay",
+        "id": "877",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "879",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "880",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev"
+      },
+      {
+        "device": "0:86",
+        "filesystem": "devpts",
+        "id": "881",
+        "options": [
+          "rw",
+          "nosuid",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev/pts"
+      },
+      {
+        "device": "0:87",
+        "filesystem": "sysfs",
+        "id": "882",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/sys"
+      },
+      {
+        "device": "0:28",
+        "filesystem": "cgroup2",
+        "id": "883",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/system.slice/docker-607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1.scope",
+        "target": "/sys/fs/cgroup"
+      },
+      {
+        "device": "0:82",
+        "filesystem": "mqueue",
+        "id": "884",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev/mqueue"
+      },
+      {
+        "device": "0:88",
+        "filesystem": "tmpfs",
+        "id": "885",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/dev/shm"
+      },
+      {
+        "device": "0:89",
+        "filesystem": "tmpfs",
+        "id": "886",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/tmp"
+      },
+      {
+        "device": "0:43",
+        "filesystem": "tmpfs",
+        "id": "888",
+        "options": [
+          "rw",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-live-nsn38dlq/restored-first/session-private",
+        "target": "/session"
+      },
+      {
+        "device": "0:43",
+        "filesystem": "tmpfs",
+        "id": "889",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-live-nsn38dlq/restored-second/live_supervisor.py",
+        "target": "/live_supervisor.py"
+      },
+      {
+        "device": "259:2",
+        "filesystem": "ext4",
+        "id": "890",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/var/lib/docker/containers/607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1/resolv.conf",
+        "target": "/etc/resolv.conf"
+      },
+      {
+        "device": "259:2",
+        "filesystem": "ext4",
+        "id": "891",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/var/lib/docker/containers/607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1/hostname",
+        "target": "/etc/hostname"
+      },
+      {
+        "device": "259:2",
+        "filesystem": "ext4",
+        "id": "892",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/var/lib/docker/containers/607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1/hosts",
+        "target": "/etc/hosts"
+      },
+      {
+        "device": "0:27",
+        "filesystem": "tmpfs",
+        "id": "893",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev"
+        ],
+        "propagation": [],
+        "root": "/baton-w106673-credentials-gto3nyl3/credentials/932d04b9ea25495e9ead80d5d02c840d/claude",
+        "target": "/run/baton/credentials/claude"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "482",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/bus",
+        "target": "/proc/bus"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "484",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/fs",
+        "target": "/proc/fs"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "499",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/irq",
+        "target": "/proc/irq"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "511",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/sys",
+        "target": "/proc/sys"
+      },
+      {
+        "device": "0:84",
+        "filesystem": "proc",
+        "id": "512",
+        "options": [
+          "ro",
+          "nosuid",
+          "nodev",
+          "noexec",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/sysrq-trigger",
+        "target": "/proc/sysrq-trigger"
+      },
+      {
+        "device": "0:90",
+        "filesystem": "tmpfs",
+        "id": "513",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc/acpi"
+      },
+      {
+        "device": "0:91",
+        "filesystem": "tmpfs",
+        "id": "514",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc/asound"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "515",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/interrupts"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "516",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/kcore"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "517",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/keys"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "518",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/latency_stats"
+      },
+      {
+        "device": "0:92",
+        "filesystem": "tmpfs",
+        "id": "519",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/proc/scsi"
+      },
+      {
+        "device": "0:85",
+        "filesystem": "tmpfs",
+        "id": "520",
+        "options": [
+          "rw",
+          "nosuid"
+        ],
+        "propagation": [],
+        "root": "/null",
+        "target": "/proc/timer_list"
+      },
+      {
+        "device": "0:93",
+        "filesystem": "tmpfs",
+        "id": "521",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/sys/devices/virtual/powercap"
+      },
+      {
+        "device": "0:94",
+        "filesystem": "tmpfs",
+        "id": "522",
+        "options": [
+          "ro",
+          "relatime"
+        ],
+        "propagation": [],
+        "root": "/",
+        "target": "/sys/firmware"
+      }
+    ]
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938945348084,
+    "operation": "probe",
+    "stage": "command-identity-check",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938951057991,
+    "operation": "probe",
+    "stage": "command-write-intent",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938951651995,
+    "operation": "probe",
+    "stage": "command-write-completed",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938952751870,
+    "operation": "probe",
+    "stage": "response-observed",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938966262291,
+    "operation": "identity",
+    "stage": "command-identity-check",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938971908980,
+    "operation": "identity",
+    "stage": "command-write-intent",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938972508003,
+    "operation": "identity",
+    "stage": "command-write-completed",
+    "turn": 1
+  },
+  {
+    "action": "turn-boundary",
+    "arm": "restored-second",
+    "monotonic_ns": 459938973077773,
+    "operation": "identity",
+    "stage": "response-observed",
+    "turn": 1
+  },
+  {
+    "action": "quiescent",
+    "monotonic_ns": 459938973623377,
+    "processes": [
+      {
+        "executable": [
+          50,
+          19280387
+        ],
+        "inner_pid": 1,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689017,
+        "pid": 1689040,
+        "start": "45993174"
+      },
+      {
+        "executable": [
+          50,
+          19278511
+        ],
+        "inner_pid": 8,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 1689040,
+        "pid": 1689158,
+        "start": "45993180"
+      }
+    ],
+    "session": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda"
+  },
+  {
+    "action": "final-detach",
+    "duration_ns": 71547920,
+    "monotonic_ns": 459938974165505
+  },
+  {
+    "action": "receipt-consumed",
+    "monotonic_ns": 459938974731558,
+    "receipt": {
+      "generation": 1,
+      "identity": {
+        "container": "607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1",
+        "mount_namespace": [
+          4,
+          4026532903
+        ],
+        "pid": 1689040,
+        "start": "45993174",
+        "workspace": [
+          43,
+          11799375
+        ]
+      },
+      "observation": {
+        "access": {
+          "errno": 2,
+          "event": "probe",
+          "writable": false
+        },
+        "mount_absent": true
+      },
+      "operation": "961d2e587d4c41b6b93c3b5b6486c52d"
+    }
+  },
+  {
+    "action": "consumed-and-verified",
+    "corrected": true,
+    "files": {
+      "continuity.txt": "e00a61913270d6abeafe0cf211be9c1315dab46192698a7395ef74c46f9642b5",
+      "solution.py": "671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81"
+    },
+    "monotonic_ns": 459938975327265
+  },
+  {
+    "action": "shutdown-confirmed",
+    "container": "607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1",
+    "init_exit_observed": true,
+    "monotonic_ns": 459939111646717
+  }
+]

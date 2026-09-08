@@ -1,0 +1,21 @@
+test_consume_still_requires_exact_receipt_before_artifact_read (__main__.DiagnosticsTests.test_consume_still_requires_exact_receipt_before_artifact_read) ... ok
+test_correlated_provider_milestones_reach_validated_completion (__main__.DiagnosticsTests.test_correlated_provider_milestones_reach_validated_completion) ... ok
+test_duplicate_or_out_of_order_provider_milestones_refuse (__main__.DiagnosticsTests.test_duplicate_or_out_of_order_provider_milestones_refuse) ... ok
+test_failure_after_response_preserves_boundary_before_validation (__main__.DiagnosticsTests.test_failure_after_response_preserves_boundary_before_validation) ... ok
+test_failure_after_write_has_no_response_claim (__main__.DiagnosticsTests.test_failure_after_write_has_no_response_claim) ... ok
+test_failure_before_write_has_intent_but_no_write_claim (__main__.DiagnosticsTests.test_failure_before_write_has_intent_but_no_write_claim) ... ok
+test_partial_host_write_never_becomes_completed_write (__main__.DiagnosticsTests.test_partial_host_write_never_becomes_completed_write) ... ok
+test_partial_summary_preserves_retained_success_without_comparison (__main__.DiagnosticsTests.test_partial_summary_preserves_retained_success_without_comparison) ... ok
+test_post_turn_quiescence_failure_does_not_hide_response (__main__.DiagnosticsTests.test_post_turn_quiescence_failure_does_not_hide_response) ... ok
+test_provider_failed_result_is_observed_before_refusal (__main__.DiagnosticsTests.test_provider_failed_result_is_observed_before_refusal) ... ok
+test_successful_turn_records_actual_model_and_completion (__main__.DiagnosticsTests.test_successful_turn_records_actual_model_and_completion) ... ok
+test_supervisor_partial_write_and_after_write_failure (__main__.DiagnosticsTests.test_supervisor_partial_write_and_after_write_failure) ... ok
+test_supervisor_refusal_before_turn_increment_is_correlated (__main__.DiagnosticsTests.test_supervisor_refusal_before_turn_increment_is_correlated) ... ok
+test_unconfirmed_shutdown_still_retains_delivery_with_closed_context (__main__.DiagnosticsTests.test_unconfirmed_shutdown_still_retains_delivery_with_closed_context) ... ok
+test_unknown_diagnostic_fields_codes_and_cross_arm_frames_are_rejected (__main__.DiagnosticsTests.test_unknown_diagnostic_fields_codes_and_cross_arm_frames_are_rejected) ... ok
+test_untrusted_response_observed_before_shape_refusal (__main__.DiagnosticsTests.test_untrusted_response_observed_before_shape_refusal) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.005s
+
+OK

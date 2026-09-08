@@ -1,0 +1,9 @@
+Recorded result of the focused command executed in claim 107206 before packaging; not a captured terminal transcript.
+cwd: baton:v12/python
+PYTHONPATH=src python3 -m unittest \
+  tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_serial_modules_are_the_ones_that_own_an_engine \
+  tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_line_launch_proof_has_an_exact_live_capability_probe \
+  tests.manager.test_boundary_inventory.StatedRules.test_line_launch_metadata_keeps_mint_and_durable_binding \
+  tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness \
+  -v
+Result: 4 tests, 0.632 seconds, OK, exit 0.

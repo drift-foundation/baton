@@ -1,0 +1,210 @@
+{
+  "boundary": "real producer/entry/provider subprocess/verification subprocess/result reader; existing revision seam and plain disposable target; no Git command, engine, credential, or live model",
+  "cases": [
+    {
+      "case": "control",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "candidate_matches": true,
+      "mode": "0o644",
+      "actual_sha256": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+      "expected_sha256": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+      "witness_changed": null,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "harness.py"
+              ],
+              "status": 0
+            }
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "bytes",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "candidate_matches": false,
+      "mode": "0o644",
+      "actual_sha256": "6a2bebdacc98c837cbbca6c22b0f2e61fddb7327b0043c4b7d5565413511e0c9",
+      "expected_sha256": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+      "witness_changed": null,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "harness.py"
+              ],
+              "status": 0
+            }
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "mode",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "candidate_matches": true,
+      "mode": "0o755",
+      "actual_sha256": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+      "expected_sha256": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+      "witness_changed": null,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "harness.py"
+              ],
+              "status": 0
+            }
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "delete",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "candidate_matches": false,
+      "mode": null,
+      "actual_sha256": null,
+      "expected_sha256": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+      "witness_changed": null,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "harness.py"
+              ],
+              "status": 0
+            }
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "witness",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "candidate_matches": true,
+      "mode": "0o644",
+      "actual_sha256": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+      "expected_sha256": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+      "witness_changed": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "harness.py"
+              ],
+              "status": 0
+            }
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "failed",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "candidate_matches": true,
+      "mode": "0o644",
+      "actual_sha256": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+      "expected_sha256": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+      "witness_changed": null,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {
+              "observed": "the accepted verification did not complete successfully over the imported target (exit 3)",
+              "status": 3
+            },
+            "reason": "verification-failed"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "held",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    }
+  ]
+}

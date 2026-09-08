@@ -1,0 +1,449 @@
+--- work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_setup.py
++++ work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_diagnostic.py
+@@ -1,4 +1,4 @@
+-"""W106673 ONE separately approved live pair. --audit is read-only/offline.
++"""W106673 diagnostic candidate. --audit is read-only/offline; --run is disabled.
+ 
+ No arbitrary image/model/credential/network/target operands, build, pull, retry,
+ production manager invocation or live coordination-store access. Fixture-only.
+@@ -7,8 +7,10 @@
+ from contextlib import contextmanager
+ from datetime import datetime, timezone
+ import hashlib
++from functools import wraps
+ import importlib.util
+ import json
++import math
+ import os
+ from pathlib import Path
+ import re
+@@ -30,7 +32,7 @@
+ DELAY_NS = 5_000_000_000
+ DOCKER_ENV = dict(PATH="/usr/bin:/bin", HOME="/nonexistent", DOCKER_CONFIG="/nonexistent")
+ DOCKER = ["/usr/bin/docker", "--host", "unix:///var/run/docker.sock"]
+-MANIFEST = HERE / "live-setup-manifest.json"
++MANIFEST = HERE / "live-diagnostic-manifest.json"
+ 
+ 
+ def digest(path):
+@@ -71,7 +73,7 @@
+         sys.exit(1)
+ 
+ import host_runner as base
+-import live_supervisor as wire
++import live_supervisor_diagnostic as wire
+ import real_session_contract as contract
+ require = wire.require
+ 
+@@ -254,6 +256,113 @@
+     return credentials, workspaces, ControlStore, sources
+ 
+ 
++HOST_STAGES = frozenset(("created", "turn-intent", "pre-turn-quiescence", "command-identity-check",
++    "command-write-intent", "command-write-completed", "response-observed", "post-response-validation", "post-turn-quiescence"))
++OUTER_OPERATIONS = frozenset(("start", "turn", "detach", "attach", "consume", "shutdown"))
++
++
++def diagnostic_operation(operation):
++    require(operation in OUTER_OPERATIONS, "diagnostic-operation-invalid")
++    def decorate(function):
++        @wraps(function)
++        def observed(self, *args, **kwargs):
++            previous = self.outer_operation
++            self.outer_operation = operation
++            try:
++                return function(self, *args, **kwargs)
++            except BaseException as error:
++                if self.last_failure is None:
++                    self.last_failure = self.failure(error)
++                    self.event("operation-refused", **self.last_failure)
++                raise
++            finally:
++                self.outer_operation = previous
++        return observed
++    return decorate
++
++
++def diagnostic_frame(value, arm, operation, turn):
++    common = {"event", "arm", "operation", "turn", "stage"}
++    fields = {"monotonic_ns"} if value.get("event") == "diagnostic" else {"refusal_code", "exception_kind", "errno"}
++    require(set(value) == common | fields and value["event"] in ("diagnostic", "refused"), "diagnostic-frame-invalid")
++    require(value["arm"] in wire.ARMS and value["operation"] == operation
++            and (value["arm"] == arm or operation == "start" and value["arm"] == "unassigned"), "diagnostic-frame-invalid")
++    require(type(value["turn"]) is int and 0 <= value["turn"] <= turn <= 2
++            and turn - value["turn"] <= 1 and value["stage"] in wire.DIAGNOSTIC_STAGES, "diagnostic-frame-invalid")
++    if value["event"] == "diagnostic":
++        require(type(value["monotonic_ns"]) is int and 0 < value["monotonic_ns"] <= time.monotonic_ns(), "diagnostic-frame-invalid")
++        require(value["turn"] == turn, "diagnostic-frame-invalid")
++    else:
++        require(value["refusal_code"] in wire.REFUSAL_CODES | {"unclassified"}
++                and value["exception_kind"] in ("fixture-refusal", "broken-pipe", "os-error", "value-error", "type-error", "key-error", "subprocess-timeout", "other")
++                and (value["errno"] is None or type(value["errno"]) is int and 0 < value["errno"] < 4096), "diagnostic-frame-invalid")
++    return dict(value)
++
++
++def response_shape(value):
++    identity = {"cli_pid", "cli_start", "session", "actual_model", "cli_version"}
++    allowed = {"ready": {"event", "pid", "uid", "gid"}, "identity": {"event"} | identity,
++        "initialized": {"event", "initialize_ns"} | identity,
++        "complete": {"event", "completed_ns", "num_turns", "reported_cost_usd"} | identity,
++        "probe": {"event", "writable", "errno"}}
++    kind = value.get("event")
++    require(type(kind) is str and kind in allowed and set(value) == allowed[kind], "response-shape-invalid")
++    for name in ("pid", "uid", "gid", "cli_pid", "initialize_ns", "completed_ns", "num_turns"):
++        if name in value:
++            require(type(value[name]) is int and 0 < value[name] < 2**63, "response-shape-invalid")
++    if kind in ("identity", "initialized", "complete"):
++        require(type(value["session"]) is str and wire.SESSION.fullmatch(value["session"])
++                and type(value["cli_start"]) is str and value["cli_start"].isdigit() and len(value["cli_start"]) <= 24
++                and value["cli_version"] == wire.VERSION and value["actual_model"] in (None, wire.ACTUAL_MODEL), "response-shape-invalid")
++    if kind == "complete":
++        require(type(value["reported_cost_usd"]) in (int, float) and math.isfinite(value["reported_cost_usd"])
++                and 0 <= value["reported_cost_usd"] <= 1 and value["num_turns"] <= wire.MAX_TURNS
++                and value["actual_model"] == wire.ACTUAL_MODEL, "response-shape-invalid")
++    if kind == "probe":
++        require(type(value["writable"]) is bool and type(value["errno"]) is int and 0 <= value["errno"] < 4096, "response-shape-invalid")
++
++
++def observed_milestones(fixtures, outcome):
++    result = dict(containers_created=0, cli_initializations=0, turn_intents=0,
++        host_turn_writes_observed=0, provider_turn_writes_observed=0, provider_results_observed=0,
++        validated_turn_completions=0, verified_consumptions=0, actual_models=[],
++        retained_correction_verified=False, restore_initialization_observed=False,
++        restored_correction_verified=False, matched_pair_verified=outcome.get("outcome") == "live-pair-passed")
++    for fixture in fixtures:
++        for event in fixture.events:
++            action = event["action"]
++            for expected, key in (("created", "containers_created"), ("initialized", "cli_initializations"),
++                                  ("turn-complete", "validated_turn_completions"), ("consumed-and-verified", "verified_consumptions")):
++                result[key] += int(action == expected)
++            if action == "turn-boundary" and event["operation"] == "turn":
++                result["turn_intents"] += int(event["stage"] == "turn-intent")
++                result["host_turn_writes_observed"] += int(event["stage"] == "command-write-completed")
++            if action == "supervisor-observation" and event["event"] == "diagnostic":
++                result["provider_turn_writes_observed"] += int(event["stage"] == "provider-write-completed")
++                result["provider_results_observed"] += int(event["stage"] == "provider-response-observed")
++            if action == "turn-complete" and event.get("actual_model") == wire.ACTUAL_MODEL:
++                result["actual_models"] = [wire.ACTUAL_MODEL]
++            if fixture.resume and action == "initialized":
++                result["restore_initialization_observed"] = True
++            if action == "consumed-and-verified" and event["corrected"] is True:
++                if fixture.arm == "retained-first":
++                    result["retained_correction_verified"] = True
++                if fixture.arm == "restored-second":
++                    result["restored_correction_verified"] = True
++    return result
++
++
++def runtime_limitations(observed):
++    return [
++        "Milestones describe observations in this invocation; missing observations do not prove no dispatch or side effect occurred.",
++        "Host command write, provider user-frame write, provider result observation and validated completion are distinct boundaries.",
++        "Actual model was observed in a validated completion." if observed["actual_models"] else "Actual model has no validated completion observation in this invocation.",
++        "Matched pair was verified in this invocation." if observed["matched_pair_verified"] else "No matched comparison is established by this invocation; accepted earlier retained proof remains separate evidence.",
++        "Nominal turn/budget options do not establish hard billing or subscription limits; reported-cost checks occur after execution.",
++        "Ordinary bridge egress is not provider-only enforcement. Provider/cache costs and production adoption remain unproved.",
++        "One fixture run does not prove production-manager restart recovery; unknown ending outcomes keep future work closed."]
++
++
+ def process_fact(pid):
+     fields = {}
+     for line in Path(f"/proc/{pid}/status").read_text().splitlines():
+@@ -348,6 +457,13 @@
+         self.stopped = False
+         self.delivery = None
+         self.create_started = False
++        self.arm = name
++        require(self.arm in wire.ARMS - {"unassigned"}, "diagnostic-arm-invalid")
++        self.active_turn = 0
++        self.operation = "start"
++        self.live_stage = "created"
++        self.last_failure = None
++        self.outer_operation = "start"
+ 
+     def event(self, action, **facts):
+         if action == "detach-result":
+@@ -399,20 +515,62 @@
+                 and response["session"] == self.session, "supervisor-cli-identity-drift")
+         self.event("quiescent", processes=facts, session=self.session)
+ 
++    def observe(self, stage, operation=None):
++        require(stage in HOST_STAGES, "diagnostic-stage-invalid")
++        if operation is not None:
++            require(operation in wire.OPERATIONS, "diagnostic-operation-invalid")
++            self.operation = operation
++        self.live_stage = stage
++        self.event("turn-boundary", arm=self.arm, operation=self.operation, turn=self.active_turn, stage=stage)
++
++    def failure(self, error):
++        return dict(arm=self.arm, operation=self.operation, outer_operation=self.outer_operation, turn=self.active_turn,
++                    stage=self.live_stage, **wire.refusal_projection(error))
++
+     def reply(self, seconds=30):
+-        answer = self.reader.next(min(self.deadline, time.monotonic() + seconds))
+-        require(answer.get("event") in ("ready", "initialized", "complete", "identity", "probe"), "supervisor-refused")
+-        return answer
++        deadline = min(self.deadline, time.monotonic() + seconds)
++        progress = 0
++        sequence = ("provider-write-intent", "provider-write-completed", "provider-response-observed", "provider-result-validation")
++        for _ in range(32):
++            answer = self.reader.next(deadline)
++            kind = answer.get("event")
++            if kind in ("diagnostic", "refused"):
++                projection = diagnostic_frame(answer, self.arm, self.operation, self.active_turn)
++                if kind == "diagnostic":
++                    require(self.operation == "turn" and progress < len(sequence)
++                            and projection["stage"] == sequence[progress], "diagnostic-frame-invalid")
++                    progress += 1
++                    projection["supervisor_monotonic_ns"] = projection.pop("monotonic_ns")
++                self.event("supervisor-observation", **projection)
++                if kind == "refused":
++                    self.observe("response-observed")
++                    require(False, "supervisor-refused")
++                continue
++            self.observe("response-observed")
++            response_shape(answer)
++            return answer
++        require(False, "diagnostic-frame-limit")
+ 
+     def command(self, command, **operands):
+-        self.identity()
+-        self.link.stdin.write(json.dumps(dict(op=command, **operands)).encode() + b"\n")
+-        self.link.stdin.flush()
+-        return self.reply(180 if command == "turn" else 30)
+-
++        self.observe("command-identity-check", command)
++        try:
++            self.identity()
++            raw = json.dumps(dict(op=command, **operands)).encode() + b"\n"
++            self.observe("command-write-intent")
++            written = self.link.stdin.write(raw)
++            require(written == len(raw), "host-write-incomplete")
++            self.link.stdin.flush()
++            self.observe("command-write-completed")
++            return self.reply(180 if command == "turn" else 30)
++        except BaseException as error:
++            self.last_failure = self.failure(error)
++            self.event("operation-refused", **self.last_failure)
++            raise
++
++    @diagnostic_operation("start")
+     def start(self):
+         script = self.directory / "live_supervisor.py"
+-        script.write_bytes((HERE / "live_supervisor.py").read_bytes())
++        script.write_bytes((HERE / "live_supervisor_diagnostic.py").read_bytes())
+         os.chmod(script, 0o444)
+         self.delivery = self.credentials.materialize(self.nonce)
+         credential, target = self.delivery.mounts()[0]
+@@ -450,7 +608,7 @@
+         require(len(output) == 1, "initial-workspace-missing")
+         self.source_mount = output[0]
+         self.topology(True)
+-        initialized = self.command("start", session=self.session, resume=self.resume, deadline=self.deadline)
++        initialized = self.command("start", arm=self.arm, session=self.session, resume=self.resume, deadline=self.deadline)
+         self.cli_inner, self.cli_start = initialized["cli_pid"], initialized["cli_start"]
+         facts = self.tree()
+         matches = [f for f in facts if f["inner_pid"] == self.cli_inner and f["start"] == self.cli_start]
+@@ -461,24 +619,42 @@
+         self.quiescent()
+         self.event("initialized", **initialized)
+ 
++    @diagnostic_operation("turn")
+     def turn(self, prompt):
+-        self.quiescent()
+-        began = time.monotonic_ns()
+-        answer = self.command("turn", prompt=prompt)
+-        require(answer["session"] == self.session and answer["actual_model"] == wire.ACTUAL_MODEL
+-                and answer["cli_version"] == wire.VERSION, "turn-runtime-identity")
+-        completed = answer["completed_ns"]
+-        require(type(completed) is int and began <= completed <= time.monotonic_ns(), "turn-clock-order")
+-        self.quiescent()
+-        self.event("turn-complete", dispatched_ns=began, **answer)
+-        return began, completed, answer
+-
++        self.active_turn += 1
++        self.observe("turn-intent", "turn")
++        try:
++            self.observe("pre-turn-quiescence")
++            self.quiescent()
++            began = time.monotonic_ns()
++            answer = self.command("turn", prompt=prompt)
++            self.observe("post-response-validation", "turn")
++            require(answer["session"] == self.session and answer["actual_model"] == wire.ACTUAL_MODEL
++                    and answer["cli_version"] == wire.VERSION, "turn-runtime-identity")
++            completed = answer["completed_ns"]
++            require(type(completed) is int and began <= completed <= time.monotonic_ns(), "turn-clock-order")
++            self.observe("post-turn-quiescence")
++            self.quiescent()
++            self.event("turn-complete", dispatched_ns=began, **answer)
++            return began, completed, answer
++        except BaseException as error:
++            if self.last_failure is None:
++                self.last_failure = self.failure(error)
++                self.event("operation-refused", **self.last_failure)
++            raise
++
++    @diagnostic_operation("detach")
+     def detach(self):
+         self.quiescent()
+         receipt = super().detach()
+         self.quiescent()
+         return receipt
+ 
++    @diagnostic_operation("attach")
++    def attach(self):
++        return super().attach()
++
++    @diagnostic_operation("consume")
+     def consume(self, receipt, token, corrected):
+         self.gate.consume(receipt)
+         self.event("receipt-consumed", receipt=receipt)
+@@ -492,6 +668,7 @@
+         self.quiescent()
+         return [self.container, self.cli_pid, self.cli_start, self.ns_pin]
+ 
++    @diagnostic_operation("shutdown")
+     def shutdown(self):
+         # A dead/failed CLI must not prevent stopping the exact pinned container.
+         found = self.inspect()
+@@ -631,6 +808,9 @@
+         outcome["outcome"] = "failed-or-inconclusive"
+         outcome["failure_code"] = "execution-refused"
+         outcome["diagnostic"] = safe_exception(error, setup.value["stage"])
++        if fixtures:
++            fixture = fixtures[-1]
++            outcome["runtime_diagnostic"] = fixture.last_failure or fixture.failure(error)
+     finally:
+         signal.setitimer(signal.ITIMER_REAL, max(0.001, overall_deadline - time.monotonic()))
+         cleanup = []
+@@ -660,7 +840,10 @@
+         outcome["cleanup_confirmed"] = setup_settled and all(row["confirmed"] for row in cleanup) and (credentials is None or not credentials.deliveries)
+         if not outcome["cleanup_confirmed"]:
+             outcome["outcome"] = "failed-or-inconclusive"
+-        outcome["limitations"] = manifest["limitations"]
++        outcome.pop("consumption_and_admission", None)
++        outcome["future_work"] = "not-admitted-after-ending"
++        outcome["observed_milestones"] = observed_milestones(fixtures, outcome)
++        outcome["limitations"] = runtime_limitations(outcome["observed_milestones"])
+         outcome["elapsed_seconds_before_result_export"] = time.monotonic() - began
+         base.save(root / "result.json", outcome)
+         print(export_evidence(root), flush=True)
+@@ -678,7 +861,8 @@
+             found = audit()
+             print(json.dumps(dict(outcome="offline-hash-audit-passed", files=len(found["files"]))))
+             sys.exit(0)
+-        sys.exit(run())
++        print('{"outcome":"execution-scope-not-selected"}')
++        sys.exit(2)
+     except Exception:
+         print('{"outcome":"refused-before-result"}')
+         sys.exit(1)
+--- work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor.py
++++ work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_diagnostic.py
+@@ -34,6 +34,27 @@
+ 
+ class Refusal(Exception):
+     pass
++
++
++ARMS = frozenset(("unassigned", "retained-first", "restored-first", "restored-second"))
++OPERATIONS = frozenset(("start", "turn", "identity", "probe"))
++DIAGNOSTIC_STAGES = frozenset(("created", "command-validation", "provider-write-intent",
++    "provider-write-completed", "provider-response-observed", "provider-result-validation"))
++REFUSAL_CODES = frozenset(('actual-model-drift', 'actual-model-unobserved', 'artifact-file-boundary', 'artifact-path-set', 'artifact-size-bound', 'artifact-verification-failed', 'builtin-bridge-unproved', 'choose-one-operation', 'cleanup-deadline', 'cli-exited', 'cli-host-identity-unproved', 'cli-parent-drift', 'cli-pid-reused', 'cli-pidfd-exited', 'cli-version-drift', 'command-not-allowed', 'consumer-workspace-drift', 'container-image-drift', 'container-label-drift', 'container-not-current', 'created-id-unrecognized', 'credential-home-not-volatile', 'credential-link-changed', 'credential-link-occupied', 'credential-release-before-shutdown', 'credential-slot-drift', 'diagnostic-arm-invalid', 'diagnostic-frame-invalid', 'diagnostic-frame-limit', 'diagnostic-operation-invalid', 'diagnostic-stage-invalid', 'docker-output-bound', 'docker-refused', 'duplicate-start', 'execution-scope-not-selected', 'export-file-boundary', 'fixture-only', 'host-write-incomplete', 'idle-process-tree-changed', 'image-missing-or-drift', 'init-exit-unconfirmed', 'init-exited-or-reused', 'init-session-changed', 'initial-workspace-missing', 'initial-workspace-not-empty', 'initialize-frame', 'initialize-rejected', 'input-bound', 'manifest-constants', 'namespace-survivor', 'namespace-workspace-drift', 'overall-deadline', 'overall-timeout', 'package-drift', 'process-list-shape', 'process-namespace-drift', 'process-privilege-drift', 'process-user-drift', 'process-workspace-cwd', 'prompt-bound', 'provider-result-failed', 'provider-turn-limit', 'provider-write-incomplete', 'replacement-before-reviewed-stop', 'reported-cost-limit', 'response-shape-invalid', 'result-session-changed', 'resume-input', 'review-deadline', 'runtime-already-imported', 'runtime-copy-drift', 'runtime-file-set-drift', 'runtime-mount-config-drift', 'runtime-posture-drift', 'runtime-source-symlink', 'runtime-user-drift', 'schema-package-incomplete', 'separate-root-operator-approval-required', 'session-input', 'shutdown-unconfirmed', 'stopped', 'stream-eof', 'stream-json', 'stream-line-bound', 'stream-shape', 'stream-timeout', 'stream-total-bound', 'supervisor-cli-identity-drift', 'supervisor-identity', 'supervisor-refused', 'turn-clock-order', 'turn-runtime-identity', 'unexpected-control-request', 'unexpected-idle-process-tree', 'unknown-diagnostic-stage', 'unknown-setup-resource', 'unknown-setup-stage', 'unrecognized-provider-frame', 'unsupported-namespace-posture', 'user-turn-limit'))
++
++
++def refusal_projection(error):
++    # No str(error): custom exception __str__ methods are outside projection.
++    code = error.args[0] if type(error) is Refusal and len(error.args) == 1 else None
++    if type(code) is not str or code not in REFUSAL_CODES:
++        code = "unclassified"
++    kinds = {Refusal: "fixture-refusal", BrokenPipeError: "broken-pipe", OSError: "os-error",
++             ValueError: "value-error", TypeError: "type-error", KeyError: "key-error",
++             subprocess.TimeoutExpired: "subprocess-timeout"}
++    number = error.errno if isinstance(error, OSError) else None
++    if type(number) is not int or not 0 < number < 4096:
++        number = None
++    return dict(refusal_code=code, exception_kind=kinds.get(type(error), "other"), errno=number)
+ 
+ 
+ def argv(session, resume):
+@@ -100,6 +121,15 @@
+         self.session = None
+         self.model = None
+         self.deadline = None
++        self.arm = "unassigned"
++        self.operation = "start"
++        self.stage = "created"
++
++    def observe(self, stage):
++        require(stage in DIAGNOSTIC_STAGES, "diagnostic-stage-invalid")
++        self.stage = stage
++        print(json.dumps(dict(event="diagnostic", arm=self.arm, operation=self.operation,
++              turn=self.turns, stage=stage, monotonic_ns=time.monotonic_ns())), flush=True)
+ 
+     def identity(self):
+         require(self.process is not None and self.process.poll() is None, "cli-exited")
+@@ -110,6 +140,8 @@
+ 
+     def initialize(self, command):
+         require(self.process is None, "duplicate-start")
++        require(command.get("arm") in ARMS - {"unassigned"}, "diagnostic-arm-invalid")
++        self.arm = command["arm"]
+         self.session = command["session"]
+         self.limit = 1 if command["resume"] else 2
+         self.deadline = command["deadline"]
+@@ -161,7 +193,8 @@
+     def send(self, value):
+         raw = json.dumps(value, separators=(",", ":")).encode() + b"\n"
+         require(len(raw) <= 8192, "input-bound")
+-        self.process.stdin.write(raw)
++        written = self.process.stdin.write(raw)
++        require(written == len(raw), "provider-write-incomplete")
+         self.process.stdin.flush()
+ 
+     def turn(self, command):
+@@ -170,9 +203,11 @@
+         prompt = command["prompt"]
+         require(type(prompt) is str and len(prompt) <= 4096, "prompt-bound")
+         self.turns += 1
++        self.observe("provider-write-intent")
+         self.lines.count = len(self.lines.buffer)
+         self.send(dict(type="user", message=dict(role="user", content=prompt),
+                        parent_tool_use_id=None, session_id=self.session))
++        self.observe("provider-write-completed")
+         deadline = min(self.deadline, time.monotonic() + TURN_SECONDS)
+         while True:
+             value = self.lines.next(deadline)
+@@ -182,6 +217,8 @@
+                 require(value.get("model") == ACTUAL_MODEL, "actual-model-drift")
+                 self.model = value["model"]
+             elif kind == "result":
++                self.observe("provider-response-observed")
++                self.observe("provider-result-validation")
+                 answer = result_projection(value, self.session)
+                 require(self.model == ACTUAL_MODEL, "actual-model-unobserved")
+                 return dict(event="complete", completed_ns=time.monotonic_ns(),
+@@ -195,6 +232,9 @@
+ 
+     def command(self, command):
+         operation = command.get("op")
++        require(operation in OPERATIONS, "diagnostic-operation-invalid")
++        self.operation = operation
++        self.stage = "command-validation"
+         if operation == "start":
+             return self.initialize(command)
+         if operation == "turn":
+@@ -236,9 +276,9 @@
+             command = reader.next(supervisor.deadline or time.monotonic() + 30)
+             answer = supervisor.command(command)
+             print(json.dumps(answer, allow_nan=False), flush=True)
+-    except BaseException:
+-        # Exception messages can contain provider-controlled data. Never export them.
+-        print('{"event":"refused"}', flush=True)
++    except BaseException as error:
++        print(json.dumps(dict(event="refused", arm=supervisor.arm, operation=supervisor.operation,
++              turn=supervisor.turns, stage=supervisor.stage, **refusal_projection(error))), flush=True)
+         return 1
+     finally:
+         signal.setitimer(signal.ITIMER_REAL, 0)

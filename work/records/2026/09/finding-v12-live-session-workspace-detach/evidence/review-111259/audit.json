@@ -1,0 +1,35 @@
+{
+  "manifest_sha256": "bb2f29412486a2ed3846e9c7235f1481e5cb62e16b7a6889ca3fbbc8b9d1c0fd",
+  "inputs": 143,
+  "mismatches": [
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "expected": "62db37ee8cd52bf99fc4e68b766841586f921324366e9e0191fc9618b33e6765",
+      "observed": "fcac6d17e146bf2d89725562addb62e7d8ea5c6d1dccb2bd79f4bb29dd04d610"
+    }
+  ],
+  "historical_count": 167,
+  "historical_mismatches": [],
+  "runtime_file_set_matches": true,
+  "definitions": {
+    "live_controller_result_diagnostics.py": {
+      "modified": [
+        "diagnostic_frame",
+        "Fixture.start"
+      ],
+      "added": [],
+      "unchanged": 49
+    },
+    "live_supervisor_result_diagnostics.py": {
+      "modified": [
+        "Supervisor.observe",
+        "Supervisor.turn"
+      ],
+      "added": [
+        "validate_result_fields",
+        "result_fields"
+      ],
+      "unchanged": 14
+    }
+  }
+}

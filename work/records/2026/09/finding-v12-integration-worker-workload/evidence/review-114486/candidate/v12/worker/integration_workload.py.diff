@@ -1,0 +1,465 @@
+--- review-114048/v12/worker/integration_workload.py
++++ review-114486/v12/worker/integration_workload.py
+@@ -44,6 +44,22 @@
+   anything short of a verified complete import is `held`; unchanged final
+   bytes do not establish absence of mutation, because restoration is not
+   absence.
++
++  AND `integrated` REQUIRES THE SCHEDULED VERIFICATION TO HAVE PASSED HERE.
++  Review 2026-09-07T22:48:26Z [P1] found this file publishing `integrated`
++  over a report whose verification had failed, had not finished, or was
++  absent, and copying that member through unchanged. The command now comes
++  from the accepted evidence, this runtime RUNS it over the imported target,
++  and the status published is its own observation. A report is corroboration
++  and never the measurement.
++
++NOTHING THE PROVIDER WROTE REACHES A MANAGER-VISIBLE RESULT. Review [P1] found
++two channels where it did -- the report's `verification.argv` and its
++out-of-scope path strings -- and the rule is now uniform: every path in a
++result is rendered from the validated accepted table, every command is the
++accepted one, every reason is from this module's closed vocabularies, and
++anything else crosses as a COUNT. The provider's own report stays inside its
++private evidence boundary.
+ 
+ WHAT IS NOT CLAIMED. These checks are not a kernel-enforced per-path write
+ allowlist. The provider runs with the granted target mount and may leave
+@@ -103,12 +119,14 @@
+                    "instructions-uncorrelated", "evidence-uncorrelated",
+                    "scope-unauthorized", "review-unaccepted",
+                    "target-unavailable", "target-drift", "target-unwritable",
+-                   "path-unsupported", "result-published", "workload-failed")
++                   "path-unsupported", "result-published", "result-unreadable",
++                   "verification-unavailable", "workload-failed")
+ 
+ # AND EVERYTHING AFTER THE PROVIDER HAD WRITABLE WORK, short of a verified
+ # complete import.
+ HOLD_REASONS = ("provider-failed", "report-missing", "report-unreadable",
+-                "report-foreign", "report-outside-scope", "import-incomplete",
++                "report-foreign", "report-outside-scope", "report-inconsistent",
++                "import-incomplete", "verification-failed",
+                 "repository-mutated", "provider-uncertain", "result-oversized")
+ 
+ 
+@@ -139,6 +157,13 @@
+ # THE VERSION-CONTROL READ'S CEILING. A `rev-parse` that has not answered in a
+ # minute is not going to.
+ REVISION_SECONDS = 60
++
++# THE SCHEDULED VERIFICATION'S CEILING, and the shape of the command this
++# runtime will execute. The command comes from the accepted evidence and is
++# bounded here because it is still text this runtime did not author.
++VERIFICATION_SECONDS = 1800
++MAX_VERIFICATION_ARGV = 64
++MAX_VERIFICATION_WORD = 4096
+ 
+ # THE TWO REVIEWED REGULAR FILE MODES, in the filesystem's spelling. The
+ # version-control mode in the reviewed table is what selects between them; a
+@@ -420,6 +445,82 @@
+     return found
+ 
+ 
++def accepted_verification(evidence):
++    """The command this integration must run, from the accepted evidence.
++
++    W110935 review 2026-09-07T22:48:26Z [P1]. The ending used to publish
++    whatever `verification` the provider's report happened to carry, and to
++    publish `integrated` whatever that member said -- so an import followed by
++    a failed, unfinished or entirely absent verification was reported as a
++    completed integration, and the reviewer's probe demonstrated all three.
++    The report is a claim; this is the command, and the status is this
++    workload's own observation of running it.
++
++    WHERE THE COMMAND COMES FROM. `tests.json` is
++    `driver.ordinary_test_evidence`, whose observation records the exact argv
++    the accepted candidate's own producer ran, cross-bound by
++    `checkpoint_id` to the checkpoint this bundle carries -- and that binding
++    is already correlated before this is read.
++
++    AND WHAT IS DELIBERATELY NOT TAKEN FROM IT: the observation's `status`.
++    That is the historical run, which a reviewer may have accepted while
++    failing; this integration's own outcome is decided by running the command
++    HERE, over the imported target, in this turn.
++    """
++    observation = (evidence.get("tests.json") or {}).get("observation")
++    if type(observation) is not dict:
++        _refuse("verification-unavailable",
++                "this bundle carries no ordinary-test observation, so there "
++                "is no accepted command for this integration to run")
++    argv = observation.get("argv")
++    if type(argv) is not list or not argv or len(argv) > MAX_VERIFICATION_ARGV:
++        _refuse("verification-unavailable",
++                "the accepted observation names no bounded verification "
++                "command")
++    for one in argv:
++        if type(one) is not str or not one or "\x00" in one \
++                or len(one) > MAX_VERIFICATION_WORD:
++            _refuse("verification-unavailable",
++                    "the accepted verification command carries a word this "
++                    "runtime will not execute")
++    return list(argv)
++
++
++def run_verification(target_root, argv, *, run=None):
++    """Run the accepted command over the imported target and observe it.
++
++    BOTH STREAMS ON `/dev/null`, which is `claude_agent._ran`'s rule and is
++    not this file's to relax: this is code out of the candidate a provider
++    just imported, running as the same uid with the same mounts readable, and
++    W39357's review found exactly that command's output carrying a bearer into
++    a host-visible document. What crosses this boundary is an integer.
++
++    THE ENVIRONMENT IS COMPOSED, NEVER INHERITED, for the same reason the
++    provider's is: a variable this process happens to hold must not decide how
++    the candidate's own tests behave.
++    """
++    runner = subprocess.run if run is None else run
++    try:
++        done = runner(list(argv), cwd=target_root, timeout=VERIFICATION_SECONDS,
++                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
++                      env={"PATH": os.environ.get("PATH", "/usr/bin:/bin"),
++                           "HOME": target_root,
++                           "PYTHONDONTWRITEBYTECODE": "1"})
++    except subprocess.TimeoutExpired:
++        return {"argv": list(argv), "status": None,
++                "why": f"the verification did not finish within "
++                       f"{VERIFICATION_SECONDS}s"}
++    except (OSError, subprocess.SubprocessError) as failed:
++        return {"argv": list(argv), "status": None,
++                "why": f"the verification could not be started "
++                       f"({type(failed).__name__})"}
++    status = getattr(done, "returncode", None)
++    if type(status) is bool or type(status) is not int:
++        return {"argv": list(argv), "status": None,
++                "why": "the verification did not answer an exit status"}
++    return {"argv": list(argv), "status": status, "why": None}
++
++
+ def _target_state(holder, path, *, limit):
+     """What is at one scheduled path right now: kind, digest, mode, writable.
+ 
+@@ -604,7 +705,7 @@
+     checkpoint = envelope["checkpoint"]
+     evidence = taken["evidence"]
+     _correlated_evidence(envelope, eligibility, checkpoint, evidence)
+-    _authorized_scope(envelope["paths"], evidence)
++    authority = _authorized_scope(envelope["paths"], evidence)
+     if canonical_digest([one["path"] for one in envelope["paths"]]) \
+             != eligibility["path_set_digest"]:
+         _refuse("bundle-uncorrelated",
+@@ -616,6 +717,7 @@
+                 "different path sets")
+     return {"envelope": envelope, "eligibility": eligibility,
+             "checkpoint": checkpoint, "instructions": instructions,
++            "authority": authority,
+             "bundle_digest": measured["bundle_digest"]}
+ 
+ 
+@@ -656,53 +758,31 @@
+                 "the envelope does not name the closed evidence set")
+ 
+ 
+-def is_test_path(path):
+-    """Whether a target path is an EXISTING TEST for scope purposes.
+-
+-    DELIBERATELY OVER-INCLUSIVE, and the direction matters: a predicate that
+-    called too much a test can only demand that the accepted Job's scope name
+-    it, and one that called too little a test would let an existing test be
+-    modified on no authority at all. Being wrong the safe way costs a refusal
+-    the operator can see; being wrong the other way is the exact failure the
+-    scope check exists for.
+-    """
+-    parts = path.split("/")
+-    if any(one in ("test", "tests", "testing") for one in parts):
+-        return True
+-    name = parts[-1]
+-    return name.startswith("test_") or name.startswith("test-") \
+-        or name.endswith("_test.py") or name.endswith("-test.py") \
+-        or name.startswith("Test")
+-
+-
+-def _within_scope(path, scope):
+-    """Whether one changed path is inside the accepted Job's scheduled scope.
+-
+-    A SCOPE ENTRY IS A PATH PREFIX, because a real accepted Job's scope names
+-    directories -- `v12/python/tests/job_manager` -- rather than every file
+-    beneath them. Matching on exact equality alone would refuse every genuine
+-    scheduled change and, worse, would teach a reader that the check is
+-    stricter than it is. The boundary is a COMPONENT boundary: a scope of
+-    `tests/a` admits `tests/a/one.py` and does not admit `tests/abc.py`.
+-    """
+-    return any(path == one or path.startswith(one.rstrip("/") + "/")
+-               for one in scope)
+-
+-
+ def _authorized_scope(rows, evidence):
+-    """The scheduled test scope and the frozen review, evaluated SEMANTICALLY.
+-
+-    AN INTERNALLY CONSISTENT BUNDLE IS NOT BLANKET AUTHORITY. Repository policy
+-    is explicit that adding tests needs no case-specific confirmation and that
+-    changing an EXISTING test's assertions or expected behaviour does -- an
+-    accepted Work or plan that scheduled that exact change within a bounded
+-    scope. So an `edit` or a `delete` of a path this build reads as a test is
+-    admitted only when the accepted Job's own test scope names it, and a
+-    generic approval receipt is not consulted at all, because it does not
+-    answer this question.
+-
+-    MISSING OR CONTRADICTORY EVIDENCE REFUSES BEFORE THE PROVIDER IS CALLED,
+-    rather than being read as permission by absence.
++    """The AUTHORITY ACCOUNT, consumed rather than re-derived.
++
++    W114085 delivered the producer half: `authority.json` names, per reviewed
++    row that needs authority, what it requires and which accepted record
++    supplies it, and carries the frozen review's OWN DOCUMENTS so the
++    requirement can be evaluated against what the review actually said.
++    `integration_contract.read_bundle` has already refused a bundle whose
++    account does not describe its own path table, or that claims a grant of a
++    kind no accepted owner supplies -- which is where a mode change or an
++    executable addition fails closed.
++
++    WHAT THIS ADDS ON TOP, AND WHY IT IS NOT THE SAME CHECK TWICE. The
++    contract answers internal consistency; this answers whether this RUNTIME
++    should proceed on it: that the frozen review accepted the candidate, that
++    the account is about the Job admission resolved, and that a row requiring
++    an existing-test decision has review material to have decided it. A
++    consumer that took the producer's account as its own verdict would be
++    trusting a document instead of reading it.
++
++    THE FILENAME PREDICATE IS GONE. Review 2026-09-07T22:48:26Z [P1]: "a
++    filename heuristic cannot stand in for that reviewed enumeration". It
++    guessed which paths were tests and then checked prefix membership, which
++    is neither the accepted scope's enumeration nor the review's evaluation.
++    The accepted Job's scope is the enumeration and the account carries it.
+     """
+     review = evidence.get("review.json")
+     if type(review) is not dict or "disposition" not in review:
+@@ -711,28 +791,35 @@
+     if review["disposition"] != "accepted":
+         _refuse("review-unaccepted",
+                 "the frozen independent review did not accept this candidate")
++    account = evidence.get(contract.AUTHORITY_DOCUMENT)
++    if type(account) is not dict:
++        _refuse("scope-unauthorized",
++                "this bundle carries no authority account; absent and empty "
++                "are not one claim")
++    if account["review"]["disposition"] != review["disposition"] \
++            or account["review"]["verdict_id"] != review["verdict_id"]:
++        _refuse("evidence-uncorrelated",
++                "the authority account and the frozen review projection "
++                "describe different decisions")
+     job = evidence.get("job.json")
+-    if type(job) is not dict or type(job.get("test_scope")) is not list:
++    if type(job) is not dict \
++            or account["scope"]["scope_digest"] != job.get("scope_digest") \
++            or account["scope"]["work_id"] != job.get("work_id"):
+         _refuse("scope-unauthorized",
+-                "this bundle carries no accepted Job test scope; absent and "
+-                "empty are not one claim")
+-    scope = []
+-    for one in job["test_scope"]:
+-        if type(one) is not str or not one:
+-            _refuse("scope-unauthorized",
+-                    "the accepted Job's test scope names a path that is not "
+-                    "durable text")
+-        scope.append(one)
+-    unauthorized = sorted(row["path"] for row in rows
+-                          if row["operation"] in ("edit", "delete")
+-                          and is_test_path(row["path"])
+-                          and not _within_scope(row["path"], scope))
+-    if unauthorized:
+-        _refuse("scope-unauthorized",
+-                "this candidate changes an existing test the accepted Job's "
+-                "scheduled scope does not name",
+-                {"paths": unauthorized[:MAX_NAMED_PATHS],
+-                 "path_count": len(unauthorized)})
++                "the authority account is not about the accepted Job this "
++                "admission resolved")
++    # AND A DECISION NEEDS SOMETHING TO HAVE DECIDED IT. An account that
++    # grants an existing-test change while carrying no review document at all
++    # is a scope entry standing in for the reviewed evaluation it is supposed
++    # to be evidence of.
++    if any("existing-test" in one["requires"] for one in account["paths"]) \
++            and not any(document["files"]
++                        for document in account["review"]["documents"]):
++        _refuse("review-unaccepted",
++                "this candidate changes an existing test and the frozen "
++                "review carries no document this runtime can evaluate it "
++                "against")
++    return account
+ 
+ 
+ # -- the whole preflight, before any target is touched -----------------------
+@@ -799,7 +886,8 @@
+ 
+ 
+ def compose_prompt(*, instructions, bundle_root, target_root, report_place,
+-                   assignment, assignment_digest, bundle_digest, rows):
++                   assignment, assignment_digest, bundle_digest, rows,
++                   authority=None, verification=None):
+     """The one prompt this workload hands a provider.
+ 
+     EVERY PATH IS RENDERED FROM THE VALIDATED TABLE and nothing else. The
+@@ -836,6 +924,28 @@
+                if base else "")
+             + (f" to candidate {candidate['blob']} mode {candidate['mode']}"
+                if candidate else ""))
++    # W110935 review 2026-09-07T22:48:26Z [P1]: the prompt did not require the
++    # provider to inspect the accepted decision and the frozen review before
++    # importing, so "the model evaluates the scheduled scope" was a sentence in
++    # a finding with nothing behind it. The account and the review's own
++    # documents are named here, from the validated projection only.
++    if authority is not None:
++        lines += ["", "Before importing, read the accepted authority account "
++                      f"at {bundle_root}/{contract.EVIDENCE_DIRECTORY}/"
++                      f"{contract.AUTHORITY_DOCUMENT} and the independent "
++                      f"review documents it carries. Every row below that "
++                      f"requires authority names the accepted record that "
++                      f"supplies it; satisfy yourself that the review "
++                      f"actually evaluated each such change before importing "
++                      f"it, and stop and report a refusal if it did not."]
++        for row in authority:
++            lines.append(f"  {row['path']} requires "
++                         f"{', '.join(row['requires'])}")
++    if verification is not None:
++        lines += ["", f"After importing, the scheduled verification "
++                      f"{' '.join(verification)} is run over the target by "
++                      f"this runtime and must exit zero; run it yourself "
++                      f"first if you want to know before reporting."]
+     lines += ["",
+               "Do not change version-control state in any way. Do not repair "
+               "permissions, redesign the candidate, resolve a conflict, or "
+@@ -886,10 +996,15 @@
+     scheduled = {row["path"] for row in rows}
+     outside = sorted(set(taken["paths"]) - scheduled)
+     if outside:
++        # THE COUNT AND NOT THE PATHS. Review 2026-09-07T22:48:26Z [P1]: this
++        # copied the provider's own out-of-scope path strings into a
++        # manager-visible detail, and the reviewer's canary rode one straight
++        # through into the parsed result. A path OUTSIDE the accepted table is
++        # by definition not a value this runtime can render from the table, so
++        # what crosses is how many there were.
+         _hold("report-outside-scope",
+-              "the provider reports changing a path the accepted table does "
+-              "not name",
+-              {"paths": outside[:MAX_NAMED_PATHS], "path_count": len(outside)})
++              "the provider reports changing paths the accepted table does "
++              "not name", {"path_count": len(outside)})
+     return taken
+ 
+ 
+@@ -973,7 +1088,7 @@
+ 
+ 
+ def integrate(*, agent, assignment, launch, bundle_root, target_root, scratch,
+-              result_root=None, revision=None):
++              result_root=None, revision=None, verify=None):
+     """One integration, from an accepted bundle to one composed result.
+ 
+     THE ORDER IS THE CONTRACT: correlate, preflight the whole path set, take
+@@ -995,6 +1110,10 @@
+             _refuse("bundle-unreadable", str(failed))
+         correlated = _correlated(taken, measured, fixed, launch)
+         rows = correlated["envelope"]["paths"]
++        # RESOLVED BEFORE THE PROVIDER IS STARTED, so a bundle with no
++        # accepted verification command refuses without a turn rather than
++        # after one.
++        accepted = accepted_verification(taken["evidence"])
+ 
+         try:
+             holder = os.open(target_root, _DIRECTORY)
+@@ -1031,7 +1150,9 @@
+                 bundle_root=bundle_root, target_root=target_root,
+                 report_place=report_place, assignment=fixed,
+                 assignment_digest=correlated["envelope"]["assignment_digest"],
+-                bundle_digest=correlated["bundle_digest"], rows=rows)
++                bundle_digest=correlated["bundle_digest"], rows=rows,
++                authority=correlated["authority"]["paths"],
++                verification=accepted)
+ 
+             started = True
+             answer = agent.invoke_provider(prompt=prompt, room=target_root)
+@@ -1057,6 +1178,8 @@
+                       "this turn, and no candidate imports it")
+             imported, missed, after = _verified(holder, rows)
+             if missed:
++                # THE PATHS HERE ARE THE ACCEPTED TABLE'S OWN, rendered from
++                # the rows this runtime validated and never from the report.
+                 _hold("import-incomplete",
+                       "the target is not the approved candidate at every "
+                       "scheduled path after a turn that had writable work",
+@@ -1067,7 +1190,30 @@
+                 _hold("provider-uncertain",
+                       "every scheduled path carries the approved candidate "
+                       "and the provider's own report does not claim an import")
+-            return _integrated_result(fixed, imported, report["verification"])
++            # AND THE REPORT MUST BE CONSISTENT WITH WHAT IT CLAIMS. Review
++            # 2026-09-07T22:48:26Z [P1] published `integrated` over a report
++            # that still said `preflight` and named no imported path: a
++            # provider that claims an import while describing a turn that
++            # never reached one is not corroborating anything.
++            if report["phase"] != "verification" \
++                    or report["paths"] != sorted(row["path"] for row in rows):
++                _hold("report-inconsistent",
++                      "the provider's report claims an import and does not "
++                      "describe one: its phase or its changed-path list is "
++                      "not the completed turn the target shows")
++            # THE SCHEDULED VERIFICATION IS RUN HERE, and its status is this
++            # runtime's own observation rather than a member of the report.
++            observed = (run_verification if verify is None else verify)(
++                target_root, accepted)
++            if observed["status"] != 0:
++                _hold("verification-failed",
++                      f"the accepted verification did not complete "
++                      f"successfully over the imported target "
++                      f"({observed['why'] or 'exit ' + str(observed['status'])})",
++                      {"status": observed["status"]})
++            return _integrated_result(fixed, imported,
++                                      {"argv": observed["argv"],
++                                       "status": observed["status"]})
+         finally:
+             os.close(holder)
+     except _Refused as failed:
+@@ -1152,17 +1298,41 @@
+     ONE INTEGRATION ANSWERS ONCE. A published result means the provider turn
+     already happened, whatever this incarnation believes; running a second one
+     over a terminal answer is how an attempt integrates twice.
++
++    `None` MEANS ONE THING ONLY: this runtime opened the result namespace,
++    found it to be its own directory, and found no result file inside it.
++
++    Review 2026-09-07T22:48:26Z [P2]: every `OSError` used to answer `None`,
++    so a namespace that was a symlink, was not readable, or was not a
++    directory at all reported "no prior result" -- and the entry's own
++    documented rule, that an unreadable namespace is not permission to start
++    work, could never fire because its exception branch never saw those
++    errors. The reviewer's probe put a correlated held result behind a
++    symlinked namespace and watched a second writable provider turn happen
++    over it. So a namespace this runtime cannot prove RAISES, and the callers
++    treat that as a refusal rather than as an absence.
+     """
+     try:
+         holder = os.open(result_root, _DIRECTORY)
+-    except OSError:
+-        return None
++    except OSError as failed:
++        raise WorkloadRefusal(
++            f"the integration result namespace is not a directory this "
++            f"runtime can open without following a link ({failed.errno}); "
++            f"whether this attempt has already answered is exactly the "
++            f"question that just went unanswered") from None
+     try:
+         try:
+             os.stat(contract.RESULT_DOCUMENT, dir_fd=holder,
+                     follow_symlinks=False)
+-        except OSError:
++        except FileNotFoundError:
++            # THE ONE ORDINARY ABSENCE: a namespace this runtime proved, with
++            # no result in it yet. Every other error is a namespace it could
++            # not ask.
+             return None
++        except OSError as failed:
++            raise WorkloadRefusal(
++                f"the published integration result could not be examined "
++                f"({failed.errno})") from None
+         return _read_file(holder, contract.RESULT_DOCUMENT,
+                           limit=contract.MAX_RESULT_BYTES,
+                           what="the published integration result")

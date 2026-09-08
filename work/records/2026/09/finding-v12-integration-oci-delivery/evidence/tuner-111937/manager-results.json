@@ -1,0 +1,168 @@
+{
+  "normal": {
+    "start": {
+      "attempt_id": "attempt-1",
+      "decision": "attached",
+      "runtime_id": "runtime-1",
+      "observed": "running"
+    },
+    "state_after_start": {
+      "attempt_id": "attempt-1",
+      "runtime_id": "runtime-1",
+      "execution_runtime": "running",
+      "cleanup": "pending",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      }
+    },
+    "reconcile_after_block": {
+      "attempt_id": "attempt-1",
+      "decision": "attached",
+      "runtime_id": "runtime-1",
+      "observed": "running"
+    },
+    "stop_after_block": {
+      "runtime_id": "runtime-1",
+      "ordered": true,
+      "state": "quiescent",
+      "why": "the engine reports it not running"
+    },
+    "reconcile_after_stop": {
+      "attempt_id": "attempt-1",
+      "decision": "attached",
+      "runtime_id": "runtime-1",
+      "observed": "quiescent"
+    },
+    "state_at_end": {
+      "attempt_id": "attempt-1",
+      "runtime_id": "runtime-1",
+      "execution_runtime": "quiescent",
+      "cleanup": "pending",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run",
+      "inspect",
+      "ps",
+      "inspect",
+      "ps",
+      "inspect",
+      "stop",
+      "inspect",
+      "ps",
+      "inspect"
+    ],
+    "run_calls": 1
+  },
+  "unreadable": {
+    "start": {
+      "attempt_id": "attempt-1",
+      "decision": "attached",
+      "runtime_id": "runtime-1",
+      "observed": "uncertain",
+      "why": "this runtime's integration mounts are not this attempt's: the engine did not report this runtime's binds, so nothing about its integration mounts is proved"
+    },
+    "state_after_start": {
+      "attempt_id": "attempt-1",
+      "runtime_id": "runtime-1",
+      "execution_runtime": "uncertain",
+      "cleanup": "pending",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      }
+    },
+    "state_at_end": {
+      "attempt_id": "attempt-1",
+      "runtime_id": "runtime-1",
+      "execution_runtime": "uncertain",
+      "cleanup": "pending",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run",
+      "inspect",
+      "ps",
+      "inspect"
+    ],
+    "run_calls": 1
+  },
+  "missing_later": {
+    "start": {
+      "attempt_id": "attempt-1",
+      "decision": "attached",
+      "runtime_id": "runtime-1",
+      "observed": "running"
+    },
+    "state_after_start": {
+      "attempt_id": "attempt-1",
+      "runtime_id": "runtime-1",
+      "execution_runtime": "running",
+      "cleanup": "pending",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      }
+    },
+    "reconcile_missing_mounts": {
+      "attempt_id": "attempt-1",
+      "decision": "attached",
+      "runtime_id": "runtime-1",
+      "observed": "uncertain",
+      "why": "this runtime's integration mounts are not this attempt's: the live runtime carries 0 binds at '/run/baton/integration/assignment'; exact agreement is one"
+    },
+    "state_at_end": {
+      "attempt_id": "attempt-1",
+      "runtime_id": "runtime-1",
+      "execution_runtime": "uncertain",
+      "cleanup": "pending",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run",
+      "inspect",
+      "ps",
+      "inspect",
+      "ps",
+      "inspect"
+    ],
+    "run_calls": 1
+  }
+}

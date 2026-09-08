@@ -1,0 +1,24 @@
+{
+  "work": "W105982",
+  "claim": 107680,
+  "recorded_at": "2026-09-07T05:16:36.252604+00:00",
+  "candidate_sha256": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "101a2c1754cfb2ea7fc6e08783a902c4e944b33ed7b0189130aaf8c6ff79f566",
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1",
+    "v12/python/tests/manager/test_review_cycles.py": "5e24cc14c4fe134f23664229dda84736954d72b3f21dc1ebd2aae666fce961de",
+    "v12/python/tests/manager/test_workspaces.py": "8874973c44e83f1ccbf0c1a19fc3ac1953f220c9312d551ca0e9fe63175935d5",
+    "v12/python/tests/manager/test_oci.py": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+    "v12/python/tests/job_manager/test_review_driver.py": "2b759a9ad7ec3bb9042c4f137b36c68035c18be8e9d948caae40cf470526a1df"
+  },
+  "evidence_sha256": {
+    "review_consumption_corrections.py": "b70043d1b6da047cff8372557d417eeea979cecbf0adcecc53aae3c0f0034a5c",
+    "review-correction-probes-2026-09-07.txt": "5d18125d8f91441a2fcdfacac18b320599d043079b9eb83f2a7e481ae2541049",
+    "review-correction-replay-2026-09-07.txt": "5c5c12ad786521d332a1523388cc399a273b9bc673540514f3142f793e5b5dd1",
+    "review-correction-preservation.json": "3f537051046f48a8d6aa615d96a616a1ae1827ee58b57709d5a121641866ec56",
+    "review-job-test-hash-verified-base.py": "4ee56ddc684a2e35bd545d3e2a0dda55e2d9664d3a70843ac4ef7be756cc0fca",
+    "review-job-test-hash-verified.diff": "fec0225403537e0e4f1701cec959aff4c48c95f6f060646aabd52ca4946f025d"
+  },
+  "scope": "Corrected code checkpoint only; no live runtime or production-detach acceptance."
+}

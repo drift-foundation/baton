@@ -1,0 +1,852 @@
+--- a/v12/python/src/baton_v12/worker_manager/workspaces.py
++++ b/v12/python/src/baton_v12/worker_manager/workspaces.py
+@@ -856,6 +856,120 @@
+                 f"the worker cannot write the outputs it must declare")
+     os.chmod(place, WORKSPACE_DIR)
+     return place
++
++
++_LINE_DIR = 0o2775
++
++
++def _prove_line_access(place, pinned, gid):
++    """Prove stable development-root access without repairing an existing line."""
++    check_workspace_group(gid)
++    if os.path.realpath(place) != place:
++        _denied("the development line is its own canonical directory")
++    try:
++        found = os.lstat(place)
++    except OSError as failure:
++        _denied(f"the development line cannot be measured: {type(failure).__name__}")
++    if (not stat.S_ISDIR(found.st_mode)
++            or (found.st_dev, found.st_ino) != tuple(pinned)
++            or found.st_gid != gid or stat.S_IMODE(found.st_mode) != _LINE_DIR):
++        _denied("the recorded development line must retain its object identity, "
++                "configured group and mode 02775; admission does not repair it")
++    return place
++
++
++def _provision_line_access(place, pinned, gid):
++    """Provision one initially materialized tree; the lifecycle owns exclusion.
++
++    Hold no-follow descriptors through complete preflight and mutation. Nothing
++    is changed on a preflight refusal. An OS failure during application can leave
++    partial permissions; the caller must keep the line materializing/ungranted.
++    """
++    check_workspace_group(gid)
++    if os.path.realpath(place) != place:
++        _denied("initial development-line access requires a canonical root")
++    held = []
++    count = 0
++    total = 0
++    applying = False
++
++    def visit(descriptor, depth):
++        nonlocal count, total
++        found = os.fstat(descriptor)
++        held.append((descriptor, found))
++        count += 1
++        if count > MAX_ENTRIES or depth > MAX_DEPTH:
++            _refuse("initial development-line access exceeds the filesystem ceiling", code="limit")
++        if found.st_uid != os.geteuid():
++            _denied("initial development-line access changes only manager-owned entries")
++        if stat.S_ISREG(found.st_mode):
++            if found.st_nlink != 1:
++                _denied("initial development-line access refuses hardlinked files")
++            total += found.st_size
++            if total > MAX_BYTES:
++                _refuse("initial development-line access exceeds the byte ceiling", code="limit")
++            return
++        if not stat.S_ISDIR(found.st_mode):
++            _denied("initial development-line access refuses special files")
++        with os.scandir(descriptor) as listing:
++            for entry in listing:
++                if count >= MAX_ENTRIES or depth >= MAX_DEPTH:
++                    _refuse("initial development-line access exceeds the filesystem ceiling", code="limit")
++                observed = entry.stat(follow_symlinks=False)
++                if stat.S_ISLNK(observed.st_mode):
++                    count += 1
++                    continue
++                if not (stat.S_ISDIR(observed.st_mode) or stat.S_ISREG(observed.st_mode)):
++                    _denied("initial development-line access refuses special files")
++                flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
++                if stat.S_ISDIR(observed.st_mode):
++                    flags |= os.O_DIRECTORY
++                child = os.open(entry.name, flags, dir_fd=descriptor)
++                opened = os.fstat(child)
++                if (opened.st_dev, opened.st_ino) != (observed.st_dev, observed.st_ino):
++                    os.close(child)
++                    _denied("an initial development-line entry changed during preflight")
++                visit(child, depth + 1)
++
++    try:
++        root = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
++        found = os.fstat(root)
++        if (found.st_dev, found.st_ino) != tuple(pinned):
++            os.close(root)
++            _denied("the initial development line no longer has its recorded pin")
++        visit(root, 0)
++        current = os.lstat(place)
++        if (current.st_dev, current.st_ino) != tuple(pinned):
++            _denied("the initial development-line root changed before provisioning")
++        for descriptor, original in held:
++            current = os.fstat(descriptor)
++            if (current.st_uid, current.st_nlink, current.st_mode) != (
++                    original.st_uid, original.st_nlink, original.st_mode):
++                _denied("an initial development-line entry changed before provisioning")
++        applying = True
++        for descriptor, original in held:
++            mode = (_LINE_DIR if stat.S_ISDIR(original.st_mode)
++                    else 0o775 if original.st_mode & stat.S_IXUSR else 0o664)
++            os.fchown(descriptor, -1, gid)
++            os.fchmod(descriptor, mode)
++        return _prove_line_access(place, pinned, gid)
++    except OSError as failure:
++        stage = "partial provisioning may remain" if applying else "no permissions were changed"
++        _denied(f"initial development-line access failed: {type(failure).__name__}; "
++                f"{stage}; keep the line materializing and ungranted")
++    finally:
++        for descriptor, _ in reversed(held):
++            os.close(descriptor)
++
++
++def _prove_execution_workspace(roots, gid, labels):
++    """A line marker selects policy; the lifecycle proof supplies authority."""
++    if type(roots) is AllocatedRoots and roots._line:
++        if roots._line_proof is None or roots._grant is None or not roots._grant():
++            _denied("a development-line launch requires its current lifecycle proof and grant")
++        return roots._line_proof(roots, gid, labels)
++    return prove_workspace_group(roots["workspace"], gid,
++                                 what="this assignment's workspace root")
+ 
+ ROOT_NAMES = ("inputs", "workspace")
+ HOME_ENTRIES = ("credential-state", "credentials", "custody") + ROOT_NAMES
+@@ -1468,10 +1582,10 @@
+     argument type rather than quietly succeeding.
+     """
+ 
+-    __slots__ = ("_members", "_grant", "_grant_required")
++    __slots__ = ("_members", "_grant", "_grant_required", "_line", "_line_proof")
+ 
+     def __init__(self, made, _minted=None, _grant=None,
+-                 _grant_required=False):
++                 _grant_required=False, _line=False, _line_proof=None):
+         if _minted is not _MINT:
+             _denied("allocated roots are answered by `assignment_workspace` "
+                     "and are not constructed; roots a caller can mint are "
+@@ -1496,6 +1610,8 @@
+         object.__setattr__(self, "_members", MappingProxyType(dict(made)))
+         object.__setattr__(self, "_grant", _grant)
+         object.__setattr__(self, "_grant_required", _grant_required)
++        object.__setattr__(self, "_line", _line)
++        object.__setattr__(self, "_line_proof", _line_proof)
+ 
+     # -- the read half of the mapping protocol, and only the read half ------
+     #
+@@ -1938,10 +2054,10 @@
+         _denied("the writable line no longer has its persisted object identity")
+     return AllocatedRoots({"inputs": roots["inputs"],
+                            "workspace": place}, _MINT,
+-                          _grant_required=True)
+-
+-
+-def _granted_roots(roots, grant):
++                          _grant_required=True, _line=True)
++
++
++def _granted_roots(roots, grant, *, line_proof=None):
+     """Bind manager-owned roots to one live lifecycle grant.
+ 
+     Private because the lifecycle owner, not a runtime caller, supplies this
+@@ -1951,7 +2067,10 @@
+     if type(roots) is not AllocatedRoots:
+         _denied("a live grant binds roots this manager allocated")
+     boundaries.capability(grant, "an assignment roots live grant")
+-    return AllocatedRoots(dict(roots), _MINT, grant, True)
++    if line_proof is not None:
++        boundaries.capability(line_proof, "a development-line launch proof")
++    return AllocatedRoots(dict(roots), _MINT, grant, True,
++                          roots._line, line_proof)
+ 
+ 
+ def discard_execution_roots(storage, assignment_id):
+--- a/v12/python/src/baton_v12/worker_manager/review_cycles.py
++++ b/v12/python/src/baton_v12/worker_manager/review_cycles.py
+@@ -595,6 +595,11 @@
+         if current["state"] != "materializing":
+             raise ContractRefusal("integrity", "schema",
+                                   "line materialization changed state before completion")
++        if _object(path, "the materialized development line") != (device, inode):
++            raise ContractRefusal("runtime-observation", "identity-mismatch",
++                                  "the materialized development line changed before publication")
++        workspaces._provision_line_access(
++            path, (device, inode), workspaces.configured_workspace_group(store).gid)
+         connection.execute(
+             "UPDATE review_lines SET line_device = ?, line_inode = ?, "
+             "state = 'idle' WHERE line_id = ? AND state = 'materializing'",
+@@ -661,6 +666,17 @@
+         if current["state"] not in ("idle", "correction-ready"):
+             raise ContractRefusal("refused", "precondition",
+                                   "the line acquired another active attachment")
++        current_assignment = assignment_of(store, attempt_id)
++        _same_assignment(current_assignment, current, generation)
++        if (current_assignment != assignment
++                or current["state"] != line["state"]
++                or current["current_checkpoint_id"] != line["current_checkpoint_id"]):
++            raise ContractRefusal("stale-assignment", "generation",
++                                  "writer admission changed after its checkpoint validation")
++        _validate_line_object(current)
++        workspaces._prove_line_access(
++            current["line_path"], (current["line_device"], current["line_inode"]),
++            workspaces.configured_workspace_group(store).gid)
+         now = store._now()
+         connection.execute(
+             "INSERT INTO line_writers (writer_id, line_id, runtime_attempt_id, "
+@@ -1163,6 +1179,30 @@
+             and line["state"] == "writing")
+ 
+ 
++def _writer_access(store, writer_id, generation, roots, gid, labels):
++    """Bind actual launch roots to the current durable writer and assignment."""
++    writer = writer_of(store, writer_id)
++    line = line_of(store, writer["line_id"])
++    assignment = assignment_of(store, writer["runtime_attempt_id"])
++    _same_assignment(assignment, line, generation)
++    if (not _writer_grant(store, writer_id, line["line_id"], generation)
++            or writer["participant"] != assignment["participant"]
++            or writer["principal"] != assignment["principal"]
++            or any(labels.get(name) != value for name, value in assignment.items())
++            or gid != workspaces.configured_workspace_group(store).gid):
++        raise ContractRefusal("stale-assignment", "generation",
++                              "the launch is not this development line's current writer assignment")
++    _validate_line_object(line)
++    expected = workspaces.line_assignment_workspace(
++        _storage(store), writer["runtime_attempt_id"], line["line_path"],
++        (line["line_device"], line["line_inode"]))
++    if dict(roots) != dict(expected):
++        raise ContractRefusal("runtime-observation", "identity-mismatch",
++                              "the actual launch roots differ from the durable writer line")
++    return workspaces._prove_line_access(
++        roots["workspace"], (line["line_device"], line["line_inode"]), gid)
++
++
+ def writer_boundary(store, *, writer_id, generation):
+     """Compose the direct writable line mount for the active writer attempt."""
+     boundaries.generation(generation, "an assignment generation")
+@@ -1184,7 +1224,9 @@
+         (line["line_device"], line["line_inode"]))
+     roots = workspaces._granted_roots(
+         roots, lambda: _writer_grant(store, writer_id,
+-                                     line["line_id"], generation))
++                                     line["line_id"], generation),
++        line_proof=lambda actual, gid, labels: _writer_access(
++            store, writer_id, generation, actual, gid, labels))
+     return {"roots": roots,
+             "boundary": source_boundary.compose_runtime_storage_boundary(
+                 nominated, roots)}
+--- a/v12/python/src/baton_v12/worker_manager/oci.py
++++ b/v12/python/src/baton_v12/worker_manager/oci.py
+@@ -2016,10 +2016,8 @@
+                         "none; without it the worker holds no share in its own "
+                         "workspace and cannot write the outputs this "
+                         "assignment requires it to declare")
+-                workspaces.prove_workspace_group(
+-                    self.assignment_roots["workspace"],
+-                    self.workspace_group.gid,
+-                    what="this assignment's workspace root")
++                workspaces._prove_execution_workspace(
++                    self.assignment_roots, self.workspace_group.gid, labels)
+             delivered = (self.credential_delivery.mounts()
+                          if self.credential_delivery is not None else ())
+             argv = run_vector(
+--- a/v12/python/tests/manager/test_workspaces.py
++++ b/v12/python/tests/manager/test_workspaces.py
+@@ -1793,3 +1793,115 @@
+ 
+ if __name__ == "__main__":
+     unittest.main()
++
++
++class InitialStableLineAccess(unittest.TestCase):
++    """W106896: initial-only access without content replacement or repair."""
++
++    def setUp(self):
++        self.temporary = tempfile.TemporaryDirectory()
++        self.addCleanup(self.temporary.cleanup)
++        self.root = pathlib.Path(self.temporary.name)
++        self.line = self.root / "checkout"
++        self.line.mkdir(mode=0o700)
++        self.gid = os.getgid()
++        self.pin = (self.line.stat().st_dev, self.line.stat().st_ino)
++
++    def provision(self):
++        return workspaces._provision_line_access(str(self.line), self.pin, self.gid)
++
++    def test_populated_restrictive_tree_preserves_bytes_pins_and_executables(self):
++        import subprocess
++        import sys
++
++        subprocess.run([sys.executable, "-c",
++                        "import os,pathlib,sys; os.umask(0o077); "
++                        "p=pathlib.Path(sys.argv[1]); (p/'metadata').mkdir(); "
++                        "(p/'metadata'/'index').write_bytes(b'opaque'); "
++                        "(p/'run').write_bytes(b'executable'); "
++                        "os.chmod(p/'run',0o700)", str(self.line)], check=True)
++        outside = self.root / "outside"
++        outside.write_bytes(b"source")
++        outside.chmod(0o600)
++        (self.line / "link").symlink_to(outside)
++        files = [self.line / "metadata/index", self.line / "run"]
++        before = [(p.stat().st_ino, p.read_bytes()) for p in files]
++        self.assertEqual((self.line / "metadata/index").stat().st_mode & 0o7777, 0o600)
++        self.provision()
++        for p, mode in [(self.line, 0o2775), (self.line / "metadata", 0o2775),
++                        (files[0], 0o664), (files[1], 0o775)]:
++            self.assertEqual(p.stat().st_mode & 0o7777, mode)
++            self.assertEqual(p.stat().st_gid, self.gid)
++        self.assertEqual([(p.stat().st_ino, p.read_bytes()) for p in files], before)
++        self.assertEqual((self.line.stat().st_dev, self.line.stat().st_ino), self.pin)
++        self.assertEqual(outside.stat().st_mode & 0o7777, 0o600)
++        self.assertTrue((self.line / "link").is_symlink())
++        self.assertEqual(self.provision(), str(self.line))
++
++    def test_bad_group_root_or_pin_refuses_before_mutation(self):
++        for gid in (0, -1, True, max(os.getgroups() + [os.getgid()]) + 1):
++            with self.subTest(gid=gid), self.assertRaises(ContractRefusal):
++                workspaces._provision_line_access(str(self.line), self.pin, gid)
++        with self.assertRaises(ContractRefusal):
++            workspaces._provision_line_access(str(self.line), (self.pin[0], self.pin[1] + 1), self.gid)
++        alias = self.root / "alias"
++        alias.symlink_to(self.line, target_is_directory=True)
++        with self.assertRaises(ContractRefusal):
++            workspaces._provision_line_access(str(alias), self.pin, self.gid)
++        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
++
++    def test_hardlink_and_special_file_preflight_never_changes_other_entries(self):
++        good = self.line / "good"
++        good.write_bytes(b"unchanged")
++        good.chmod(0o600)
++        linked = self.line / "linked"
++        os.link(good, linked)
++        with self.assertRaisesRegex(ContractRefusal, "hardlinked"):
++            self.provision()
++        self.assertEqual(good.stat().st_mode & 0o7777, 0o600)
++        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
++        linked.unlink()
++        os.mkfifo(linked)
++        with self.assertRaisesRegex(ContractRefusal, "special"):
++            self.provision()
++        self.assertEqual(good.stat().st_mode & 0o7777, 0o600)
++
++    def test_limits_and_foreign_owner_refuse_without_chmod(self):
++        (self.line / "child").mkdir()
++        for name, ceiling in (("MAX_ENTRIES", 1), ("MAX_DEPTH", 0), ("MAX_BYTES", 0)):
++            (self.line / "file").write_bytes(b"x")
++            with mock.patch.object(workspaces, name, ceiling), self.assertRaises(ContractRefusal):
++                self.provision()
++            self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
++        with mock.patch.object(workspaces.os, "geteuid", return_value=os.geteuid() + 1):
++            with self.assertRaisesRegex(ContractRefusal, "manager-owned"):
++                self.provision()
++        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
++
++    def test_application_failure_reports_partial_state_and_initial_retry_finishes(self):
++        (self.line / "file").write_bytes(b"x")
++        original = os.fchmod
++        calls = []
++
++        def fail_second(descriptor, mode):
++            calls.append(mode)
++            if len(calls) == 2:
++                raise PermissionError("injected permission fault")
++            return original(descriptor, mode)
++
++        with mock.patch.object(workspaces.os, "fchmod", side_effect=fail_second):
++            with self.assertRaisesRegex(ContractRefusal, "partial provisioning"):
++                self.provision()
++        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o2775)
++        self.provision()
++        self.assertEqual((self.line / "file").stat().st_mode & 0o7777, 0o664)
++
++    def test_proof_does_not_retrofit_an_unprovisioned_line(self):
++        with self.assertRaises(ContractRefusal):
++            workspaces._prove_line_access(str(self.line), self.pin, self.gid)
++        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
++        self.provision()
++        with self.assertRaises(ContractRefusal):
++            workspaces.prove_workspace_group(str(self.line), self.gid)
++        with self.assertRaises(ContractRefusal):
++            workspaces._prove_execution_workspace({"workspace": str(self.line)}, self.gid, {})
+--- a/v12/python/tests/manager/test_review_cycles.py
++++ b/v12/python/tests/manager/test_review_cycles.py
+@@ -833,3 +833,204 @@
+         with self.assertRaises(ContractRefusal) as caught:
+             verdict_of(self.store, verdict["verdict_id"])
+         self.assertIn("no committed", str(caught.exception))
++
++
++class StableLineLifecycle(unittest.TestCase):
++    """Initial-access checkpoint; reuse fixture builders, not inherited cases."""
++
++    setUp = ReviewCycles.setUp
++    tearDown = ReviewCycles.tearDown
++    attempt = ReviewCycles.attempt
++    line = ReviewCycles.line
++    port = ReviewCycles.port
++    complete = ReviewCycles.complete
++    writer = ReviewCycles.writer
++    freeze = ReviewCycles.freeze
++    review = ReviewCycles.review
++    verdict = ReviewCycles.verdict
++
++    def mounted_writer(self):
++        line = self.line()
++        writer = self.writer(line["line_id"], 1)
++        assignment_workspace(self.group, self.storage, "writer-attempt-1")
++        delivered = writer_boundary(self.store, writer_id=writer["writer_id"], generation=1)
++        return line, writer, delivered
++
++    def labels(self):
++        from baton_v12.worker_manager.attempts import assignment_of
++        return assignment_of(self.store, "writer-attempt-1")
++
++    def test_provisioning_is_serialized_before_idle_and_never_repeated(self):
++        from baton_v12.worker_manager import workspaces
++        original = workspaces._provision_line_access
++        calls = []
++
++        def provision(place, pinned, gid):
++            self.assertTrue(self.store._connection.in_transaction)
++            self.assertEqual(self.store._connection.execute("SELECT state FROM review_lines").fetchone()[0],
++                             "materializing")
++            calls.append(place)
++            return original(place, pinned, gid)
++
++        with mock.patch.object(workspaces, "_provision_line_access", side_effect=provision):
++            line, writer, delivered = self.mounted_writer()
++            self.assertEqual(workspaces._prove_execution_workspace(
++                delivered["roots"], self.group.gid, self.labels()), line["path"])
++            self.assertEqual(self.line(), line)
++            grant_writer(self.store, line_id=line["line_id"], attempt_id="writer-attempt-1",
++                         generation=1, worker_id="worker-1", profile=self.profile)
++            checkpoint = self.freeze(writer, 1)
++            review = self.review(checkpoint["checkpoint_id"], 1)
++            assignment_workspace(self.group, self.storage, "review-attempt-1")
++            readonly = review_boundary(self.store, attachment_id=review["attachment_id"], profile=self.profile)
++            self.assertFalse(readonly["roots"]._line)
++            self.verdict(review, 1, "changes-requested")
++            self.writer(line["line_id"], 2, checkpoint["checkpoint_id"])
++        self.assertEqual(calls, [line["path"]])
++        self.assertEqual(os.stat(line["path"]).st_mode & 0o7777, 0o2775)
++
++    def test_late_creator_cannot_reprovision_an_admitted_line(self):
++        from baton_v12.worker_manager import workspaces
++        materialize = self.profile.materialize
++        inside = False
++        saved = {}
++
++        def interleave(source, path, base):
++            nonlocal inside
++            result = materialize(source, path, base)
++            if not inside:
++                inside = True
++                saved["line"] = self.line()
++                self.writer(saved["line"]["line_id"], 1)
++                child = os.path.join(path, "live-worker-file")
++                with open(child, "w") as stream:
++                    stream.write("owned by live work")
++                os.chmod(child, 0o600)
++            return result
++
++        with mock.patch.object(self.profile, "materialize", side_effect=interleave):
++            with mock.patch.object(workspaces, "_provision_line_access",
++                                   wraps=workspaces._provision_line_access) as provision:
++                self.assertEqual(self.line(), saved["line"])
++                self.assertEqual(provision.call_count, 1)
++        self.assertEqual(os.stat(os.path.join(saved["line"]["path"], "live-worker-file")).st_mode & 0o7777, 0o600)
++
++    def test_partial_initial_failure_keeps_materializing_and_retry_can_finish(self):
++        from baton_v12.worker_manager import workspaces
++        with mock.patch.object(workspaces.os, "fchmod", side_effect=PermissionError("injected")):
++            with self.assertRaisesRegex(ContractRefusal, "partial provisioning"):
++                self.line()
++        self.assertEqual(self.store._connection.execute("SELECT state FROM review_lines").fetchone()[0],
++                         "materializing")
++        self.assertEqual(self.store._connection.execute("SELECT count(*) FROM line_writers").fetchone()[0], 0)
++        self.assertEqual(self.line()["state"], "idle")
++
++    def test_admission_does_not_repair_preexisting_root(self):
++        line = self.line()
++        os.chmod(line["path"], 0o700)
++        with self.assertRaises(ContractRefusal):
++            self.writer(line["line_id"], 1)
++        self.assertEqual(os.stat(line["path"]).st_mode & 0o7777, 0o700)
++        self.assertEqual(line_of(self.store, line["line_id"])["state"], "idle")
++
++    def test_assignment_generation_is_rechecked_in_grant_transaction(self):
++        line = self.line()
++        original = self.store.transact
++
++        def interleave(operation, kind, signature, act):
++            if kind == "review-line.grant-writer":
++                self.store._connection.execute(
++                    "UPDATE attempts SET assignment_generation = 2 WHERE runtime_attempt_id = 'writer-attempt-1'")
++            return original(operation, kind, signature, act)
++
++        with mock.patch.object(self.store, "transact", side_effect=interleave):
++            with self.assertRaises(ContractRefusal):
++                self.writer(line["line_id"], 1)
++        self.assertEqual(line_of(self.store, line["line_id"])["state"], "idle")
++        self.assertEqual(self.store._connection.execute("SELECT count(*) FROM line_writers").fetchone()[0], 0)
++
++    def test_durable_launch_binding_refuses_crosswired_roots_and_labels(self):
++        from types import MappingProxyType
++        from baton_v12.worker_manager import workspaces
++        line, writer, delivered = self.mounted_writer()
++        roots = delivered["roots"]
++        self.assertTrue(roots._line)
++        original = dict(roots)
++        other = os.path.join(self.storage, "other-line")
++        os.mkdir(other)
++        os.chmod(other, 0o2775)
++        os.chown(other, -1, self.group.gid)
++        object.__setattr__(roots, "_members", MappingProxyType({**original, "workspace": other}))
++        with self.assertRaisesRegex(ContractRefusal, "actual launch roots"):
++            workspaces._prove_execution_workspace(roots, self.group.gid, self.labels())
++        object.__setattr__(roots, "_members", MappingProxyType(original))
++        for member, value in (("runtime_attempt_id", "another-attempt"),
++                              ("generation", 2), ("principal", "another-principal")):
++            with self.subTest(member=member), self.assertRaises(ContractRefusal):
++                workspaces._prove_execution_workspace(roots, self.group.gid, {**self.labels(), member: value})
++        self.freeze(writer, 1)
++        with self.assertRaises(ContractRefusal):
++            workspaces._prove_execution_workspace(roots, self.group.gid, self.labels())
++
++    def test_replaced_line_refuses_launch(self):
++        from baton_v12.worker_manager import workspaces
++        line, _, delivered = self.mounted_writer()
++        os.rename(line["path"], line["path"] + "-original")
++        os.mkdir(line["path"], 0o2775)
++        os.chmod(line["path"], 0o2775)
++        with self.assertRaises(ContractRefusal):
++            workspaces._prove_execution_workspace(delivered["roots"], self.group.gid, self.labels())
++
++
++    def test_root_replacement_before_initial_publication_never_provisions_replacement(self):
++        original = self.store.transact
++        changed = {}
++
++        def interleave(operation, kind, signature, act):
++            if kind == "review-line.create":
++                path = self.store._connection.execute("SELECT line_path FROM review_lines").fetchone()[0]
++                changed["path"] = path
++                os.rename(path, path + "-original")
++                os.mkdir(path, 0o700)
++            return original(operation, kind, signature, act)
++
++        with mock.patch.object(self.store, "transact", side_effect=interleave):
++            with self.assertRaises(ContractRefusal):
++                self.line()
++        self.assertEqual(os.stat(changed["path"]).st_mode & 0o7777, 0o700)
++        self.assertEqual(self.store._connection.execute("SELECT state FROM review_lines").fetchone()[0],
++                         "materializing")
++
++    def test_changed_current_checkpoint_cannot_admit_a_stale_correction(self):
++        line = self.line()
++        first = self.freeze(self.writer(line["line_id"], 1), 1)
++        self.verdict(self.review(first["checkpoint_id"], 1), 1, "changes-requested")
++        second = self.freeze(self.writer(line["line_id"], 2, first["checkpoint_id"]), 2)
++        self.verdict(self.review(second["checkpoint_id"], 2), 2, "changes-requested")
++        original = self.profile.validate
++
++        def interleave(repository, evidence, *, current=False):
++            result = original(repository, evidence, current=current)
++            self.store._connection.execute("UPDATE review_lines SET current_checkpoint_id = ?",
++                                           (first["checkpoint_id"],))
++            return result
++
++        with mock.patch.object(self.profile, "validate", side_effect=interleave):
++            with self.assertRaises(ContractRefusal):
++                self.writer(line["line_id"], 3, second["checkpoint_id"])
++        self.assertEqual(self.store._connection.execute(
++            "SELECT count(*) FROM line_writers WHERE state = 'active'").fetchone()[0], 0)
++
++    def test_current_assignment_principal_must_still_match_the_granted_writer(self):
++        from baton_v12.worker_manager import workspaces
++        _, _, delivered = self.mounted_writer()
++        self.store._connection.execute(
++            "UPDATE attempts SET assignment_principal = 'replacement' WHERE runtime_attempt_id = 'writer-attempt-1'")
++        with self.assertRaises(ContractRefusal):
++            workspaces._prove_execution_workspace(delivered["roots"], self.group.gid, self.labels())
++
++    def test_launch_group_must_equal_durable_configuration(self):
++        from baton_v12.worker_manager import workspaces
++        _, _, delivered = self.mounted_writer()
++        with self.assertRaises(ContractRefusal):
++            workspaces._prove_execution_workspace(delivered["roots"], self.group.gid + 1, self.labels())
+--- a/v12/python/tests/manager/test_oci.py
++++ b/v12/python/tests/manager/test_oci.py
+@@ -1993,3 +1993,93 @@
+         self.assertIn("names no attempt", raised.exception.message)
+         self.assertTrue(os.path.lexists(home.volatile_root("attempt-1")))
+         self.assertEqual(self.engine.vectors, [])
++
++
++class StableLineLaunch(unittest.TestCase):
++    """W106896 launch proof with real lifecycle roots and a recording engine."""
++
++    def setUp(self):
++        from . import test_review_cycles
++        self.fixture = test_review_cycles.StableLineLifecycle()
++        self.fixture.setUp()
++        self.addCleanup(self.fixture.doCleanups)
++        self.addCleanup(self.fixture.tearDown)
++        self.line, self.writer, self.delivered = self.fixture.mounted_writer()
++        self.labels = {**LABELS, **self.fixture.labels()}
++        self.launch_number = 0
++
++    def start(self, roots=None, labels=None, delivered=True):
++        roots = self.delivered["roots"] if roots is None else roots
++        labels = self.labels if labels is None else labels
++        self.launch_number += 1
++        home = os.path.join(self.fixture.temporary.name, f"launch-{self.launch_number}")
++        os.mkdir(home)
++        delivery = launch.materialize(home, attempt_id=labels["runtime_attempt_id"],
++                                      session="session-1", contract="initial access",
++                                      role="implementer")
++        self.engine = Engine([answer(stdout=""), answer(stdout="runtime-1\n")])
++        adapter = OciAdapter(
++            "docker", self.engine, identity=Adapting.IDENTITY, assignment_roots=roots,
++            posture="execution", workspace_group=self.fixture.group, launch_delivery=delivery,
++            source_delivery=self.delivered["boundary"] if delivered else None,
++            mounts=[{"source": roots["inputs"], "target": "/input", "writable": False},
++                    {"source": roots["workspace"], "target": "/output", "writable": True}])
++        return adapter.start({"labels": labels, "operation_id": f"start-{self.launch_number}",
++                              "input_root": roots["inputs"]})
++
++    def assert_no_runtime_start(self):
++        self.assertFalse(any("run" in argv for argv in self.engine.vectors))
++
++    def test_current_line_launch_reaches_engine_with_fixed_identity(self):
++        self.start()
++        argv = self.engine.vectors[-1]
++        self.assertIn("run", argv)
++        self.assertIn("65532:65532", argv)
++        self.assertIn(str(self.fixture.group.gid), argv)
++        self.assertIn(f"type=bind,source={self.line['path']},target=/output,readonly=false", argv)
++        self.assertEqual(os.stat(self.line["path"]).st_mode & 0o7777, 0o2775)
++
++    def test_plain_copy_cannot_select_development_mode(self):
++        with self.assertRaises(ContractRefusal):
++            self.start(dict(self.delivered["roots"]))
++        self.assert_no_runtime_start()
++
++    def test_incorrect_modes_never_launch_or_repair(self):
++        for mode in (0o2770, 0o775, 0o2777):
++            with self.subTest(mode=mode):
++                os.chmod(self.line["path"], mode)
++                with self.assertRaises(ContractRefusal):
++                    self.start()
++                self.assert_no_runtime_start()
++                self.assertEqual(os.stat(self.line["path"]).st_mode & 0o7777, mode)
++
++    def test_stale_generation_and_revoked_grant_refuse_before_run(self):
++        with self.assertRaises(ContractRefusal):
++            self.start(labels={**self.labels, "generation": 2})
++        self.assert_no_runtime_start()
++        self.fixture.freeze(self.writer, 1)
++        with self.assertRaises(ContractRefusal):
++            self.start()
++        self.assert_no_runtime_start()
++
++    def test_copied_marker_with_crosswired_workspace_refuses_without_source_delivery(self):
++        from types import MappingProxyType
++        roots = self.delivered["roots"]
++        alternate = os.path.join(self.fixture.storage, "crosswired")
++        os.mkdir(alternate)
++        os.chown(alternate, -1, self.fixture.group.gid)
++        os.chmod(alternate, 0o2775)
++        object.__setattr__(roots, "_members", MappingProxyType({**dict(roots), "workspace": alternate}))
++        with self.assertRaisesRegex(ContractRefusal, "actual launch roots"):
++            self.start(delivered=False)
++        self.assert_no_runtime_start()
++
++    def test_ordinary_workspace_keeps_02770_launch_contract(self):
++        roots = workspaces.adopted_assignment_workspace(self.fixture.storage, "writer-attempt-1")
++        self.assertEqual(os.stat(roots["workspace"]).st_mode & 0o7777, 0o2770)
++        self.start(roots, delivered=False)
++        self.assertIn("run", self.engine.vectors[-1])
++        os.chmod(roots["workspace"], 0o2775)
++        with self.assertRaises(ContractRefusal):
++            self.start(roots, delivered=False)
++        self.assert_no_runtime_start()
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -402,7 +402,8 @@
+                   # W39358's public-retry gate: it derives an image from the
+                   # reference worker and runs real containers through the
+                   # documented commands.
+-                  "tests.tools.test_dogfood_retry_engine")
++                  "tests.tools.test_dogfood_retry_engine",
++                  "tests.manager.test_private_line_access_engine")
+ 
+ # The two whole-universe scans from the baseline. Split one test method per
+ # shard; every other class ships as one shard.
+--- a/v12/python/tests/manager/test_private_line_access_engine.py
++++ b/v12/python/tests/manager/test_private_line_access_engine.py
+@@ -0,0 +1,155 @@
++"""W106896 initial-access engine checkpoint; full custody proof stays W105706.
++
++Opt-in requires operator-approved exact local image and dedicated workspace gid.
++No builds, pulls, providers or implicit group fallback. This module initially
++proves only materialization/launch/first-writer access; W105982 owns the later
++custody composition before this module gains manager/reviewer/correction cases.
++"""
++import json
++import os
++from pathlib import Path
++import subprocess
++import unittest
++import uuid
++
++from baton_v12.checkpoint_profiles import GitCheckpointProfile
++from baton_v12.worker_manager import create_line, launch, oci
++from baton_v12.worker_manager.source_boundary import nominate_source
++from . import test_review_cycles
++
++
++class InitialPrivateLineEngine(unittest.TestCase):
++    def setUp(self):
++        if os.environ.get("BATON_V12_INITIAL_ACCESS_ENGINE") != "1":
++            self.skipTest("initial-access runtime setup is not explicitly enabled")
++        self.image = os.environ.get("BATON_V12_PRIVATE_LINE_IMAGE", "")
++        self.assertRegex(self.image, r"^sha256:[0-9a-f]{64}$",
++                         "an operator-approved installed image ID is required")
++        self.assertTrue(os.environ.get("BATON_V12_WORKSPACE_GROUP"),
++                        "an explicit dedicated workspace group is required")
++        self.fixture = test_review_cycles.StableLineLifecycle()
++        self.fixture.setUp()
++        self.addCleanup(self.fixture.doCleanups)
++        self.addCleanup(self.fixture.tearDown)
++        self.container = None
++        self.run_nonce = uuid.uuid4().hex
++        self.addCleanup(self.cleanup_runtime)
++        image = json.loads(self.command(["docker", "image", "inspect", self.image]))[0]
++        self.assertEqual(image["Id"], self.image)
++        self.assertFalse(image["Config"].get("Volumes"),
++                         "the fixture image may not add writable volume aliases")
++
++    def command(self, argv):
++        result = subprocess.run(argv, stdin=subprocess.DEVNULL, capture_output=True,
++                                text=True, timeout=300, umask=0o002)
++        self.assertEqual(result.returncode, 0, result.stderr[:1000])
++        return result.stdout.strip()
++
++    def cleanup_runtime(self):
++        if self.container is None:
++            return
++        found = json.loads(self.command(["docker", "inspect", self.container]))[0]
++        self.assertEqual(found["Id"], self.container)
++        self.assertEqual(found["Image"], self.image)
++        self.assertEqual(found["Config"]["Labels"].get("baton.initial-access"), self.run_nonce)
++        self.command(["docker", "rm", "--force", self.container])
++
++    def test_initial_populated_line_is_writable_by_the_fixed_runtime(self):
++        fixture = self.fixture
++        source = fixture.source
++        self.command(["git", "init", source])
++        Path(source, "tracked").write_text("initial\n")
++        Path(source, "execute").write_text("#!/bin/sh\nexit 0\n")
++        os.chmod(Path(source, "execute"), 0o755)
++        self.command(["git", "-C", source, "add", "tracked", "execute"])
++        self.command(["git", "-C", source, "-c", "user.name=fixture",
++                      "-c", "user.email=fixture@example.invalid", "commit", "-m", "base"])
++        base = self.command(["git", "-C", source, "rev-parse", "HEAD"])
++
++        def manager_runner(argv):
++            # Per-child creation mask; never mutate the manager-global mask.
++            result = subprocess.run(argv, stdin=subprocess.DEVNULL, capture_output=True,
++                                    text=True, timeout=300, umask=0o002)
++            return {"returncode": result.returncode, "stdout": result.stdout, "stderr": result.stderr}
++
++        profile = GitCheckpointProfile(manager_runner)
++        line = create_line(fixture.store, source=nominate_source(source), declared_base=base,
++                           profile=profile, authority_uuid=test_review_cycles.AUTHORITY,
++                           work_id=test_review_cycles.WORK)
++        fixture.profile = profile
++        writer = fixture.writer(line["line_id"], 1)
++        from baton_v12.worker_manager import workspaces, writer_boundary
++        workspaces.assignment_workspace(fixture.group, fixture.storage, "writer-attempt-1")
++        delivered = writer_boundary(fixture.store, writer_id=writer["writer_id"], generation=1)
++        before = os.stat(line["path"])
++        self.assertEqual(before.st_mode & 0o7777, 0o2775)
++        self.assertEqual(Path(line["path"], "tracked").read_text(), "initial\n")
++        labels = {**fixture.labels(), "profile_digest": "sha256:" + "b" * 64,
++                  "policy_digest": "sha256:" + "d" * 64, "adapter_digest": "sha256:" + "c" * 64}
++        identity = {name: labels[name] for name in ("profile_digest", "policy_digest", "adapter_digest")}
++        identity["image_digest"] = self.image
++        home = Path(fixture.temporary.name, "launch")
++        home.mkdir()
++        delivery = launch.materialize(str(home), attempt_id="writer-attempt-1",
++                                      session="initial-access", contract="fixture", role="implementer")
++        program = r"""
++import errno,json,os,pathlib,subprocess
++os.umask(0o002)
++p=pathlib.Path('/output')
++with (p/'tracked').open('a') as f: f.write('runtime\n')
++(p/'nested').mkdir()
++(p/'nested'/'new').write_text('runtime-created\n')
++subprocess.run([str(p/'execute')],check=True)
++git=['git','-c','safe.directory=/output','-C','/output']
++subprocess.run(git+['add','tracked','nested/new'],check=True,stdout=subprocess.DEVNULL)
++subprocess.run(git+['-c','user.name=fixture','-c','user.email=fixture@example.invalid',
++                    'commit','-m','runtime'],check=True,stdout=subprocess.DEVNULL)
++try:
++    pathlib.Path('/input/source/tracked').write_text('forbidden')
++except OSError as e:
++    assert e.errno==errno.EROFS
++else:
++    raise AssertionError('source is writable')
++print(json.dumps({'uid':os.getuid(),'gid':os.getgid(),'groups':os.getgroups()}))
++"""
++
++        def engine(argv):
++            if "run" in argv:
++                # Change only this fixture's payload; retain composed restrictions,
++                # identity labels and source/line/launch mounts.
++                self.assertEqual(argv[-1], self.image)
++                argv = [*argv[:-1], "--pull=never", "--label", "baton.initial-access=" + self.run_nonce,
++                        "--entrypoint=python3", self.image, "-c", program]
++            result = subprocess.run(argv, stdin=subprocess.DEVNULL, capture_output=True,
++                                    text=True, timeout=300)
++            if "run" in argv and result.returncode == 0:
++                candidate = result.stdout.strip()
++                self.assertRegex(candidate, r"^[0-9a-f]{64}$")
++                self.container = candidate
++            return {"status": result.returncode, "stdout": result.stdout, "stderr": result.stderr}
++
++        roots = delivered["roots"]
++        adapter = oci.OciAdapter(
++            "docker", engine, identity=identity, assignment_roots=roots, posture="execution",
++            workspace_group=fixture.group, launch_delivery=delivery, source_delivery=delivered["boundary"],
++            mounts=[{"source": roots["inputs"], "target": "/input", "writable": False},
++                    {"source": roots["workspace"], "target": "/output", "writable": True}])
++        adapter.start({"labels": labels, "operation_id": "initial-access-start", "input_root": roots["inputs"]})
++        self.assertIsNotNone(self.container)
++        self.assertEqual(self.command(["docker", "wait", self.container]), "0")
++        stopped = json.loads(self.command(["docker", "inspect", self.container]))[0]
++        self.assertFalse(stopped["State"]["Running"])
++        self.assertEqual(stopped["State"]["Pid"], 0)
++        facts = json.loads(self.command(["docker", "logs", self.container]))
++        self.assertEqual((facts["uid"], facts["gid"]), (65532, 65532))
++        self.assertIn(fixture.group.gid, facts["groups"])
++        created = Path(line["path"], "nested/new").stat()
++        self.assertNotEqual(created.st_uid, os.geteuid(), "same-owner writes are not the runtime proof")
++        self.assertEqual(created.st_gid, fixture.group.gid)
++        self.assertEqual(created.st_mode & 0o7777, 0o664)
++        self.assertEqual(Path(line["path"], "nested").stat().st_mode & 0o7777, 0o2775)
++        self.assertEqual(Path(line["path"], "tracked").read_text(), "initial\nruntime\n")
++        self.assertEqual(Path(source, "tracked").read_text(), "initial\n")
++        self.assertEqual((os.stat(line["path"]).st_dev, os.stat(line["path"]).st_ino),
++                         (before.st_dev, before.st_ino))
++        self.assertNotEqual(self.command(["git", "-C", line["path"], "rev-parse", "HEAD"]), base)

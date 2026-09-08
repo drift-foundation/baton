@@ -1,0 +1,77 @@
+{
+  "claim": 108110,
+  "export": "/tmp/baton-w106673-live-export-bnhjq5rq",
+  "originals_read": false,
+  "manifest_sha256": "c0ec6a1d820894f9a6064b6289824f20fdf296e6e2ea7599df9f22108cbb1b30",
+  "candidate_hashes_matched": 90,
+  "export_hashes_matched": 9,
+  "topology_sequences": {
+    "retained-first": [
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false
+    ],
+    "restored-first": [
+      true
+    ]
+  },
+  "retained_live_continuity": "accepted within reviewed fixture and exported observations",
+  "time_to_verified_correction_seconds": 11.936325138,
+  "review_delay_seconds": 5.0,
+  "time_to_review_ready_seconds": 0.092287139,
+  "correction_response_seconds": 6.662561789,
+  "final_verification_seconds": 0.112077937,
+  "mount_durations_seconds": {
+    "first-detach": 0.067872486,
+    "reattach": 0.030631873,
+    "final-detach": 0.068312975
+  },
+  "restoration_observed": false,
+  "comparison": "inconclusive",
+  "restored_first_last_pre_shutdown_event": {
+    "action": "quiescent",
+    "monotonic_ns": 410119518337008,
+    "processes": [
+      {
+        "executable": [
+          50,
+          19280387
+        ],
+        "inner_pid": 1,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 703991,
+        "pid": 704014,
+        "start": "41011915"
+      },
+      {
+        "executable": [
+          50,
+          19278511
+        ],
+        "inner_pid": 8,
+        "namespace": [
+          4,
+          4026532903
+        ],
+        "parent": 704014,
+        "pid": 704131,
+        "start": "41011921"
+      }
+    ],
+    "session": "0be4f82f-ef1b-4f3b-a11f-9d857da32330"
+  },
+  "independent_container_endings": "both exited, PID0, no OOM; exit code 1",
+  "limits": [
+    "Export hash checks bind supplied projections, not independently reread protected originals.",
+    "Continuity token verification is attested by reviewed controller; raw token not exported.",
+    "Missing turn-complete does not establish whether a user frame was sent or a model reply arrived.",
+    "No credential teardown inspection, provider cause, billing enforcement or production adoption claim."
+  ]
+}

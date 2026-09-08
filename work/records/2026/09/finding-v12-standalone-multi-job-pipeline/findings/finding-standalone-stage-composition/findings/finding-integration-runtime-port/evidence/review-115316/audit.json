@@ -1,0 +1,45 @@
+{
+  "claim": 115316,
+  "at": "2026-09-08T02:07:47.002161+00:00",
+  "candidate_sha256": {
+    "v12/python/tools/integration_worker.py": "2d4a5504224b395123f50393dd43a11aa399d5cd819f98814eaa786a33bb2bfe",
+    "v12/python/tests/tools/test_integration_worker.py": "de650584f8b43a27c3cf3db8f2d5b2cec6dd86ee3307984468b722fc7af3749c",
+    "v12/python/tools/parallel_test.py": "61d0e0a1482a059c390fe356b5b14f1821aedbbcdec48ffc7624baf621a852d5",
+    "v12/python/src/baton_v12/integration/driver.py": "6af1fad3a23103353268592e38de336807239161f7346d7fa1ef915cf35034a8",
+    "v12/python/src/baton_v12/integration/__init__.py": "523bbdb2da06f6b170debcfe270bee9867ba55791b5f551be4bdca604ce44d9e",
+    "v12/python/tests/integration/test_driver.py": "eceabf0cfa5d452d4c69ea426f28a829dbcee524d57ce5e7cd255b5d4012c420"
+  },
+  "gate_sha256": "2f07fa43807a7de3bb123c5865e9ab0545ef8b408e58ddf30f5c617a7b04452a",
+  "gate_tail": [
+    "----------------------------------------------------------------------",
+    "Ran 5063 tests in 273.359s",
+    "",
+    "FAILED (failures=11, errors=1, skipped=21)"
+  ],
+  "probes": {
+    "decision_uncertain": {
+      "owner_answer": {
+        "attempt_id": "attempt-1",
+        "decision": "uncertain",
+        "why": "fixture observation unavailable"
+      },
+      "marker_retained": true
+    },
+    "attached_uncertain": {
+      "owner_answer": {
+        "attempt_id": "attempt-1",
+        "decision": "attached",
+        "runtime_id": "runtime-1",
+        "observed": "uncertain",
+        "why": "fixture observation unavailable"
+      },
+      "marker_retained": true
+    },
+    "observation_after_restart_or_forget": {
+      "category": "refused",
+      "code": "precondition",
+      "message": "this execution holds no delivery root for attempt 'attempt-1'; a status read names the launch root its own deployment materialized"
+    }
+  },
+  "limits": "Injected reconciliation answers prove consumer branch behavior only; no real manager/runtime recovery or whole-start proof."
+}

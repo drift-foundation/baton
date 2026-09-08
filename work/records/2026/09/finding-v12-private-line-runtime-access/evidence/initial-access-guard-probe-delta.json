@@ -1,0 +1,36 @@
+{
+  "method": "Only the three scoped production modules are substituted with saved pre-edit ASTs; all other current source and guard bytes stay fixed.",
+  "baseline_counts": {
+    "unowned": 172,
+    "orphans": 55,
+    "owned_never_probed": 59,
+    "probed_never_owned": 12
+  },
+  "candidate_counts": {
+    "unowned": 172,
+    "orphans": 55,
+    "owned_never_probed": 59,
+    "probed_never_owned": 11
+  },
+  "added": {
+    "unowned": [],
+    "orphans": [],
+    "owned_never_probed": [],
+    "probed_never_owned": []
+  },
+  "removed": {
+    "unowned": [],
+    "orphans": [],
+    "owned_never_probed": [],
+    "probed_never_owned": [
+      [
+        [
+          "caller",
+          "workspaces.py:AllocatedRoots.__init__",
+          "_line_proof"
+        ],
+        "a development-line launch proof"
+      ]
+    ]
+  }
+}

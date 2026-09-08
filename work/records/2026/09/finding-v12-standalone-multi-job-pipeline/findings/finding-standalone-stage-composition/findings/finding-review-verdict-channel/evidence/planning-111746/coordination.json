@@ -1,0 +1,76 @@
+{
+  "snapshot_seq": 111751,
+  "counts": {
+    "context_nodes": 32,
+    "edges": 93,
+    "nodes": 73,
+    "selected_nodes": 41
+  },
+  "verification_related_nodes": [
+    {
+      "classification": "confirmed-defect",
+      "created_seq": 61981,
+      "id": "2b077949-W61981",
+      "last_changed_at": "2026-09-01T14:59:09.920Z",
+      "local_id": "W61981",
+      "origin": "self-initiated",
+      "outcome": null,
+      "phase": "parked",
+      "priority": "low",
+      "selected": true,
+      "status": "open",
+      "team": "baton",
+      "title": "Make v12 verification context complete and explicit"
+    },
+    {
+      "classification": "limitation",
+      "created_seq": 110772,
+      "id": "2b077949-W110772",
+      "last_changed_at": "2026-09-07T16:37:14.023Z",
+      "local_id": "W110772",
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "active",
+      "priority": "high",
+      "selected": true,
+      "status": "open",
+      "team": "baton",
+      "title": "V12: Carry the frozen reviewer verdict into the review ending"
+    }
+  ],
+  "w110772_edges": [
+    {
+      "predicate": "contains",
+      "relation": "containment",
+      "relation_seq": 110772,
+      "source": "2b077949-W103068",
+      "target": "2b077949-W110772",
+      "via_obligation": null
+    },
+    {
+      "predicate": "blocks",
+      "relation": "dependency",
+      "relation_seq": 111153,
+      "source": "2b077949-W110772",
+      "target": "2b077949-W110935",
+      "via_obligation": null
+    },
+    {
+      "predicate": "blocks",
+      "relation": "dependency",
+      "relation_seq": 111182,
+      "source": "2b077949-W110772",
+      "target": "2b077949-W103083",
+      "via_obligation": null
+    },
+    {
+      "predicate": "blocks",
+      "relation": "dependency",
+      "relation_seq": 111297,
+      "source": "2b077949-W110772",
+      "target": "2b077949-W106673",
+      "via_obligation": null
+    }
+  ],
+  "finding": "No separate clean-verifier provider Work appears in the open graph; W61981 remains parked. W110772 has no new provider dependency."
+}

@@ -1,0 +1,46 @@
+{
+  "claim": 115669,
+  "at": "2026-09-08T03:05:51.764168+00:00",
+  "candidate": {
+    "v12/python/tools/integration_worker.py": "0fb9abe758a07923a11ef1f964b9f8a415b9b100957ce6e22a8b5f24a478841b",
+    "v12/python/tests/tools/test_integration_worker.py": "25198aa0cf37cd48f65d86439b4abd3b8d107dfe7dce6697d0ae830d42bd3043",
+    "v12/python/tools/parallel_test.py": "61d0e0a1482a059c390fe356b5b14f1821aedbbcdec48ffc7624baf621a852d5",
+    "v12/python/src/baton_v12/integration/driver.py": "c1f55d7b8416ce29bd3024ead709852145c1d885af4bba3e5c47a498abcfd887",
+    "v12/python/src/baton_v12/integration/__init__.py": "523bbdb2da06f6b170debcfe270bee9867ba55791b5f551be4bdca604ce44d9e",
+    "v12/python/tests/integration/test_driver.py": "cbf89cb694249f89622789334ed0fd3b32dfe4a241ee030c9896993949d9d955"
+  },
+  "gate_sha256": "d7092f990f8d2fe5b1af95084e6706bdd3c0413e13ad2390424b02e75b18f067",
+  "gate_tail": [
+    "----------------------------------------------------------------------",
+    "Ran 5079 tests in 269.875s",
+    "",
+    "FAILED (failures=11, errors=1, skipped=21)"
+  ],
+  "probes": {
+    "initial_runtime": "running",
+    "initial_credential_lifecycle": {
+      "runtime_id": "runtime-integrator-attempt",
+      "lifecycle_state": "live"
+    },
+    "prepare_running_attempt": {
+      "succeeded": true
+    },
+    "discard_calls_on_running_attempt": 1,
+    "additional_provider_calls": 1,
+    "credential_lifecycle_after_reprepare": null,
+    "runtime_after_reprepare": "running",
+    "refresh_witness_failure": {
+      "succeeded": false,
+      "exception": "ContractRefusal",
+      "message": "review witness read unavailable"
+    },
+    "marker_after_witness_failure": true,
+    "unavailable_preparation": {
+      "succeeded": false,
+      "exception": "ContractRefusal",
+      "message": "review synthetic provider unavailable"
+    },
+    "entries_after_unavailable_preparation": 0,
+    "runtime_after_unavailable_preparation": "not-started"
+  }
+}

@@ -1,0 +1,53 @@
+--- before/v12/python/tests/manager/test_review_cycles.py
++++ candidate/v12/python/tests/manager/test_review_cycles.py
+@@ -445,15 +445,8 @@
+         # NO AXIS IS FORGED AND NONE IS RESET, which is the half worth
+         # driving: the verdict is recorded with the axis left exactly as each
+         # value below found it.
+-        for axis in ("none", "failed", "unable"):
+-            with self.subTest(verification=axis):
+-                self.store._connection.execute(
+-                    "UPDATE attempts SET verification = ? WHERE "
+-                    "runtime_attempt_id = 'review-attempt-1'", (axis,))
+-                held = self.store._connection.execute(
+-                    "SELECT verification FROM attempts WHERE "
+-                    "runtime_attempt_id = 'review-attempt-1'").fetchone()[0]
+-                self.assertEqual(held, axis)
++        # Each axis is exercised through a fresh verdict in the separate case
++        # below; writing and reading it before one final verdict proved nothing.
+         self.store._connection.execute(
+             "UPDATE attempts SET verification = 'none' "
+             "WHERE runtime_attempt_id = 'review-attempt-1'")
+@@ -466,6 +459,32 @@
+         self.assertEqual(self.store._connection.execute(
+             "SELECT verification FROM attempts WHERE "
+             "runtime_attempt_id = 'review-attempt-1'").fetchone()[0], "none")
++
++    def test_each_reviewer_axis_records_a_fresh_verdict_without_changing_the_axis(self):
++        for axis in ("none", "failed", "unable"):
++            with self.subTest(verification=axis):
++                fresh = ReviewCycles()
++                fresh.setUp()
++                try:
++                    line = fresh.line()
++                    checkpoint = fresh.freeze(fresh.writer(line["line_id"], 1), 1)
++                    review = fresh.review(checkpoint["checkpoint_id"], 1)
++                    fresh.complete("review-attempt-1", review=True)
++                    fresh.store._connection.execute(
++                        "UPDATE attempts SET verification = ? WHERE runtime_attempt_id = 'review-attempt-1'", (axis,))
++                    port = fresh.port("baton.review")
++                    self.assertEqual(port.calls, [])
++                    verdict = record_verdict(fresh.store, attachment_id=review["attachment_id"],
++                        disposition="accepted", profile=fresh.profile, port=port)
++                    self.assertEqual(fresh.store._connection.execute(
++                        "SELECT verification FROM attempts WHERE runtime_attempt_id = 'review-attempt-1'").fetchone()[0], axis)
++                    self.assertEqual(len(port.calls), 1)
++                    self.assertEqual(fresh.store._connection.execute(
++                        "SELECT count(*) FROM checkpoint_verdicts").fetchone()[0], 1)
++                    self.assertEqual(integration_checkpoint(fresh.store, line["line_id"])["verdict_id"], verdict["verdict_id"])
++                finally:
++                    fresh.tearDown()
++                    fresh.doCleanups()
+ 
+     def test_live_child_and_stale_progress_refuse_without_mutation(self):
+         line = self.line()

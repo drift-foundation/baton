@@ -1,0 +1,8 @@
+test_changed_assignment_principal_cannot_authorize_consumption (__main__.ConsumptionBoundaries.test_changed_assignment_principal_cannot_authorize_consumption) ... ok
+test_checkpoint_rechecks_object_after_the_authority_fence (__main__.ConsumptionBoundaries.test_checkpoint_rechecks_object_after_the_authority_fence) ... ok
+test_symlinks_cannot_bypass_entry_ceiling (__main__.ConsumptionBoundaries.test_symlinks_cannot_bypass_entry_ceiling) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.011s
+
+OK

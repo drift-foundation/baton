@@ -1,0 +1,41 @@
+--- live_controller_rebound_112609.py
++++ live_controller_failure_reason_112817.py
+@@ -32,7 +32,7 @@
+ DELAY_NS = 5_000_000_000
+ DOCKER_ENV = dict(PATH="/usr/bin:/bin", HOME="/nonexistent", DOCKER_CONFIG="/nonexistent")
+ DOCKER = ["/usr/bin/docker", "--host", "unix:///var/run/docker.sock"]
+-MANIFEST = HERE / "result-diagnostics-rebound-112609-manifest.json"
++MANIFEST = HERE / "failure-reason-112817-manifest.json"
+ 
+ 
+ def digest(path):
+@@ -73,7 +73,7 @@
+         sys.exit(1)
+ 
+ import host_runner as base
+-import live_supervisor_result_diagnostics as wire
++import live_supervisor_failure_reason_112817 as wire
+ import real_session_contract as contract
+ require = wire.require
+ 
+@@ -289,6 +289,11 @@
+                 and operation == "turn", "diagnostic-frame-invalid")
+         wire.validate_result_fields(value["result_fields"])
+         fields = fields | {"result_fields"}
++    if "failure_reason" in value:
++        require(value.get("event") == "diagnostic"
++                and value.get("stage") == "provider-result-validation" and operation == "turn", "diagnostic-frame-invalid")
++        wire.validate_failure_reason(value["failure_reason"])
++        fields = fields | {"failure_reason"}
+     require(set(value) == common | fields and value["event"] in ("diagnostic", "refused"), "diagnostic-frame-invalid")
+     require(value["arm"] in wire.ARMS and value["operation"] == operation
+             and (value["arm"] == arm or operation == "start" and value["arm"] == "unassigned"), "diagnostic-frame-invalid")
+@@ -575,7 +580,7 @@
+     @diagnostic_operation("start")
+     def start(self):
+         script = self.directory / "live_supervisor.py"
+-        script.write_bytes((HERE / "live_supervisor_result_diagnostics.py").read_bytes())
++        script.write_bytes((HERE / "live_supervisor_failure_reason_112817.py").read_bytes())
+         os.chmod(script, 0o444)
+         self.delivery = self.credentials.materialize(self.nonce)
+         credential, target = self.delivery.mounts()[0]

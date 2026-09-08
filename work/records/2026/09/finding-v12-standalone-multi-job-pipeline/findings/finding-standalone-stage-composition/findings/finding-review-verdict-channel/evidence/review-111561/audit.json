@@ -1,0 +1,301 @@
+{
+  "hashes": {
+    "v12/worker/claude_agent.py": {
+      "expected": "8e2001f4a1dc0a7106f041db29afafeb725d1e598c7c165a141fe9dbd44acf33",
+      "actual": "8e2001f4a1dc0a7106f041db29afafeb725d1e598c7c165a141fe9dbd44acf33",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "expected": "fcac6d17e146bf2d89725562addb62e7d8ea5c6d1dccb2bd79f4bb29dd04d610",
+      "actual": "fcac6d17e146bf2d89725562addb62e7d8ea5c6d1dccb2bd79f4bb29dd04d610",
+      "matches": true
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "expected": "acbb0d21364d2e442152c45af90c982d8f5e2b3d0c54c3735af83834eba5c6ce",
+      "actual": "acbb0d21364d2e442152c45af90c982d8f5e2b3d0c54c3735af83834eba5c6ce",
+      "matches": true
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "expected": "048f79a113f7f1d9beb5d56966d923b9fbdbb65456948df7fe251d2519d764c9",
+      "actual": "048f79a113f7f1d9beb5d56966d923b9fbdbb65456948df7fe251d2519d764c9",
+      "matches": true
+    }
+  },
+  "prior_111559_bytes_match": true,
+  "prior_prefix_sha256": "65b9e9fef04d30f36a16070fea8096f4ee19f4caef56b4132832881703a15f4a",
+  "observed": [
+    {
+      "cut": false,
+      "before": [],
+      "order": [
+        "quiesce",
+        "observe",
+        "freeze",
+        "correlate",
+        "intake",
+        "retain",
+        "resolve",
+        "verdict"
+      ],
+      "owner_answer_at_verdict": [
+        {
+          "runtime_attempt_id": "public-review",
+          "output": "sealed",
+          "verification": "none",
+          "worker_disposition": "completed"
+        }
+      ],
+      "completion_digest": "sha256:d917e7cbf86f4a81b64fb9a25e7d1e38a6f7267e4dff7b6bedb6cd43448ba8c9",
+      "frozen": {
+        "attempt_id": "public-review",
+        "result_id": "result-public-review",
+        "disposition": "completed",
+        "manifest_digest": "sha256:48b521e5e840a6c34eabb18a9d954b8a5795223c6a2bfcc2c5236a1534d09627",
+        "freeze_operation_id": "output.freeze:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+        "frozen_at": "2026-09-02T00:00:00.000Z",
+        "artifacts": [
+          {
+            "output_name": "findings",
+            "artifact_id": "public-review:findings",
+            "media_type": "application/octet-stream",
+            "bytes": 135,
+            "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+            "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-qi17k6lw/storage/public-review/custody/findings"
+          },
+          {
+            "output_name": "logs",
+            "artifact_id": "public-review:logs",
+            "media_type": "application/octet-stream",
+            "bytes": 406,
+            "content_digest": "sha256:8a3d72ce028f19e8a4da874a132f3eb735a0a11a269be2daca41ad89f32a1bde",
+            "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-qi17k6lw/storage/public-review/custody/logs"
+          }
+        ]
+      },
+      "frozen_at_cut": null,
+      "receipt": {
+        "attempt_id": "public-review",
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          },
+          "participant": "baton.review",
+          "generation": 1
+        },
+        "result_id": "result-public-review",
+        "manifest_digest": "sha256:48b521e5e840a6c34eabb18a9d954b8a5795223c6a2bfcc2c5236a1534d09627",
+        "custody": "accepted",
+        "why": "collected under the live assignment this attempt is fixed to",
+        "recoverable": false,
+        "artifacts": [
+          {
+            "artifact_id": "public-review:findings",
+            "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+            "bytes": 135,
+            "custody_locator": "file:///home/sl/src/baton/v12/python/v12-w71917-qi17k6lw/storage/public-review/custody/findings"
+          },
+          {
+            "artifact_id": "public-review:logs",
+            "content_digest": "sha256:8a3d72ce028f19e8a4da874a132f3eb735a0a11a269be2daca41ad89f32a1bde",
+            "bytes": 406,
+            "custody_locator": "file:///home/sl/src/baton/v12/python/v12-w71917-qi17k6lw/storage/public-review/custody/logs"
+          }
+        ],
+        "operation": {
+          "operation_id": "intake.record:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+          "signature_digest": "sha256:39d3457cd61d15580bc2bb2b32e61cd116f311775729d25caaf2083a870720b9"
+        },
+        "receipt_digest": "sha256:6a4db999feb76df782747ad32873f303c98e7a00088da5ba04c133db24f09d2a"
+      },
+      "retentions": [
+        {
+          "artifact_id": "public-review:findings",
+          "disposition": "retain",
+          "retention_policy_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+          "decided_at": "2026-09-02T00:00:00.000Z"
+        },
+        {
+          "artifact_id": "public-review:logs",
+          "disposition": "retain",
+          "retention_policy_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+          "decided_at": "2026-09-02T00:00:00.000Z"
+        }
+      ],
+      "ending": {
+        "attempt_id": "public-review",
+        "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+        "verdict": "accepted",
+        "verdict_id": null,
+        "verdict_record": null,
+        "line_id": null,
+        "checkpoint_id": null,
+        "result_id": "result-public-review",
+        "manifest_digest": "sha256:48b521e5e840a6c34eabb18a9d954b8a5795223c6a2bfcc2c5236a1534d09627",
+        "receipt_digest": "sha256:6a4db999feb76df782747ad32873f303c98e7a00088da5ba04c133db24f09d2a",
+        "artifacts": [
+          "public-review:findings",
+          "public-review:logs"
+        ],
+        "retention": "retain",
+        "outcome": "held",
+        "held_reason": "the checkpoint's review evidence is not one this manager can settle: refused/precondition -- a review verdict requires frozen output and passed verification",
+        "cleaned_up": false
+      },
+      "worker_turns": 1,
+      "verdict_count": 0,
+      "destroy_calls": []
+    },
+    {
+      "cut": true,
+      "before": [
+        "quiesce",
+        "observe",
+        "freeze"
+      ],
+      "order": [
+        "quiesce",
+        "observe",
+        "freeze",
+        "correlate",
+        "intake",
+        "retain",
+        "resolve",
+        "verdict"
+      ],
+      "owner_answer_at_verdict": [
+        {
+          "runtime_attempt_id": "public-review",
+          "output": "sealed",
+          "verification": "none",
+          "worker_disposition": "completed"
+        }
+      ],
+      "completion_digest": "sha256:d917e7cbf86f4a81b64fb9a25e7d1e38a6f7267e4dff7b6bedb6cd43448ba8c9",
+      "frozen": {
+        "attempt_id": "public-review",
+        "result_id": "result-public-review",
+        "disposition": "completed",
+        "manifest_digest": "sha256:0452894ddedfdbc2b508e193af85b9d1b2c35eb39c20030e46f3ea93a4c09478",
+        "freeze_operation_id": "output.freeze:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+        "frozen_at": "2026-09-02T00:00:00.000Z",
+        "artifacts": [
+          {
+            "output_name": "findings",
+            "artifact_id": "public-review:findings",
+            "media_type": "application/octet-stream",
+            "bytes": 135,
+            "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+            "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-n8q1aiza/storage/public-review/custody/findings"
+          },
+          {
+            "output_name": "logs",
+            "artifact_id": "public-review:logs",
+            "media_type": "application/octet-stream",
+            "bytes": 406,
+            "content_digest": "sha256:8a3d72ce028f19e8a4da874a132f3eb735a0a11a269be2daca41ad89f32a1bde",
+            "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-n8q1aiza/storage/public-review/custody/logs"
+          }
+        ]
+      },
+      "frozen_at_cut": {
+        "attempt_id": "public-review",
+        "result_id": "result-public-review",
+        "disposition": "completed",
+        "manifest_digest": "sha256:0452894ddedfdbc2b508e193af85b9d1b2c35eb39c20030e46f3ea93a4c09478",
+        "freeze_operation_id": "output.freeze:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+        "frozen_at": "2026-09-02T00:00:00.000Z",
+        "artifacts": [
+          {
+            "output_name": "findings",
+            "artifact_id": "public-review:findings",
+            "media_type": "application/octet-stream",
+            "bytes": 135,
+            "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+            "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-n8q1aiza/storage/public-review/custody/findings"
+          },
+          {
+            "output_name": "logs",
+            "artifact_id": "public-review:logs",
+            "media_type": "application/octet-stream",
+            "bytes": 406,
+            "content_digest": "sha256:8a3d72ce028f19e8a4da874a132f3eb735a0a11a269be2daca41ad89f32a1bde",
+            "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-n8q1aiza/storage/public-review/custody/logs"
+          }
+        ]
+      },
+      "receipt": {
+        "attempt_id": "public-review",
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          },
+          "participant": "baton.review",
+          "generation": 1
+        },
+        "result_id": "result-public-review",
+        "manifest_digest": "sha256:0452894ddedfdbc2b508e193af85b9d1b2c35eb39c20030e46f3ea93a4c09478",
+        "custody": "accepted",
+        "why": "collected under the live assignment this attempt is fixed to",
+        "recoverable": false,
+        "artifacts": [
+          {
+            "artifact_id": "public-review:findings",
+            "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+            "bytes": 135,
+            "custody_locator": "file:///home/sl/src/baton/v12/python/v12-w71917-n8q1aiza/storage/public-review/custody/findings"
+          },
+          {
+            "artifact_id": "public-review:logs",
+            "content_digest": "sha256:8a3d72ce028f19e8a4da874a132f3eb735a0a11a269be2daca41ad89f32a1bde",
+            "bytes": 406,
+            "custody_locator": "file:///home/sl/src/baton/v12/python/v12-w71917-n8q1aiza/storage/public-review/custody/logs"
+          }
+        ],
+        "operation": {
+          "operation_id": "intake.record:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+          "signature_digest": "sha256:39d3457cd61d15580bc2bb2b32e61cd116f311775729d25caaf2083a870720b9"
+        },
+        "receipt_digest": "sha256:4fea1a637e86291e213503de6255666bbecf707b483dc85200debc189461217c"
+      },
+      "retentions": [
+        {
+          "artifact_id": "public-review:findings",
+          "disposition": "retain",
+          "retention_policy_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+          "decided_at": "2026-09-02T00:00:00.000Z"
+        },
+        {
+          "artifact_id": "public-review:logs",
+          "disposition": "retain",
+          "retention_policy_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+          "decided_at": "2026-09-02T00:00:00.000Z"
+        }
+      ],
+      "ending": {
+        "attempt_id": "public-review",
+        "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+        "verdict": "accepted",
+        "verdict_id": null,
+        "verdict_record": null,
+        "line_id": null,
+        "checkpoint_id": null,
+        "result_id": "result-public-review",
+        "manifest_digest": "sha256:0452894ddedfdbc2b508e193af85b9d1b2c35eb39c20030e46f3ea93a4c09478",
+        "receipt_digest": "sha256:4fea1a637e86291e213503de6255666bbecf707b483dc85200debc189461217c",
+        "artifacts": [
+          "public-review:findings",
+          "public-review:logs"
+        ],
+        "retention": "retain",
+        "outcome": "held",
+        "held_reason": "the checkpoint's review evidence is not one this manager can settle: refused/precondition -- a review verdict requires frozen output and passed verification",
+        "cleaned_up": false
+      },
+      "worker_turns": 1,
+      "verdict_count": 0,
+      "destroy_calls": []
+    }
+  ]
+}

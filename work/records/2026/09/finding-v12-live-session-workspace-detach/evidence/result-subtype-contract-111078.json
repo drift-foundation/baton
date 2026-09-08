@@ -1,0 +1,19 @@
+{
+  "source": "https://code.claude.com/docs/en/agent-sdk/agent-loop",
+  "section": "Handle the result",
+  "observed_date": "2026-09-07",
+  "known_nonsuccess_labels": [
+    "error_during_execution",
+    "error_max_turns",
+    "error_max_budget_usd",
+    "error_max_structured_output_retries"
+  ],
+  "interpretation": "Closed documented label allowlist only; no pinned-image emission, historical cause, or billing guarantee inferred.",
+  "unrecognized_subtype": "unknown",
+  "structured_failure_code_classification": "not added; no additional selected-transport contract established",
+  "source_lookup_findings": [
+    "Guessed local /usr/local/lib/node_modules and /home/sl/.local/lib directories were absent; no selected-runtime source read there.",
+    "Guessed TypeScript repository src/sdk/types.ts and sdk.d.ts URLs returned 404; official result documentation supplies the recorded labels.",
+    "Official Python SDK types.py was readable, but its ResultMessage subtype is an open string and does not alone enumerate known labels."
+  ]
+}

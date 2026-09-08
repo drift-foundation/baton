@@ -1,0 +1,56 @@
+{
+  "claim": 112530,
+  "manifest_sha256": "85fef2a72bb68080fd988c7c343c4d2295b1d2cc1a91eeef0def427086117a4a",
+  "candidate": {
+    "v12/python/tests/integration/test_driver.py": "3aeb9fad7e75d958070c7086cbfeeccf9098ff4f9714f1bff1be69a6a5988907",
+    "v12/python/src/baton_v12/integration/driver.py": "d6b3be4f99e0776d6ec402db6bfb05b4db8fd376a36b8d1c4225eb17dec83bd6",
+    "v12/worker/claude_agent.py": "65a9d8b7dda16f76665c0a620740653b43692ac315e246fd4e822fe222101817",
+    "v12/python/tests/manager/test_claude_agent.py": "a6c6e57ad38dd9c24c6ad864080ed02f0106ce27a509631b52436c1f9bbf5dd7",
+    "v12/python/tests/manager/test_dependencies.py": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+    "v12/python/tests/job_manager/test_review_driver.py": "cb376576b1100976ec865749e6649cccd8cc1addf00210dda8c88bf801b919bc",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/worker_manager/custody.py": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6"
+  },
+  "evidence": {
+    "baseline.json": "487992ea2e4743ed5bd7cea883dfe1f84b9ce180010f4d1cecb8f19f76c26366",
+    "candidate.json": "bf48ea7a1e8f78dfbf647cfebacee250ebc8f564b4cba14d3d549a495384e902",
+    "component_probe.json": "17039e296d0df616bf54078b5a468207da976c75c839416bcf6f2333db0c5c12",
+    "component_probe.py": "eea0d3bce475a70207c8b1579174c59033f15cdc09631ace81847f91a749c4fc",
+    "delta-test_driver.py.txt": "381ec353e04c8a29dbeaa691970e403b18e9bfc9f9a6d92fa8c3516ebb7e37b6",
+    "focused.txt": "aef13162bc572d6b1584c7029573fd06ae3345cebb21f2d5c6028bc056938104",
+    "historical-broad-evidence.json": "2c45387e5b39fd6fc6d836fbc77b276a13f243c36fd1f67c523acab4767be173",
+    "test-authority-audit.json": "2d7566311ac91898b6f2e8f0387a84e249a0132f0cfa43d4148f603ab43ecd04",
+    "test-sensitivity.json": "4c7a25154ae7cdc508a8b5bede2699eb2042e58fc6ba9c0211a839995748dc0f",
+    "test_sensitivity.py": "3c143b98742491b776e1bdac69aa6bbed93819e232f1776a0d1fd21178310c45"
+  },
+  "test_audit": {
+    "changed": [
+      "TheReaderConsumesTheOwnersActualAnswer.setUp",
+      "TheReaderConsumesTheOwnersActualAnswer.test_the_consumer_reads_that_document_without_raising"
+    ],
+    "added": [
+      "TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted",
+      "TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate",
+      "TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts",
+      "TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission",
+      "TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+      "TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence",
+      "TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission",
+      "_OrdinaryAdmissionWorld.__init__",
+      "_OrdinaryAdmissionWorld.admit",
+      "_OrdinaryAdmissionWorld.assert_no_admission",
+      "_OrdinaryAdmissionWorld.assert_retained_history",
+      "_OrdinaryAdmissionWorld.evidence",
+      "_OrdinaryAdmissionWorld.receipts"
+    ]
+  },
+  "historical_broad": {
+    "path": "work/records/2026/09/finding-v12-ordinary-test-admission/evidence/implementation-112071/subtree-gate-keyerror.txt",
+    "sha256": "7ea32fca54b20042b1099e0154f1068da5dc24bb68bcdbd4e018181a541d693a",
+    "reported_tests": 4815,
+    "reported_failures": 11,
+    "reported_errors": 1,
+    "reported_skips": 21,
+    "status": "Historical retained evidence only; not rerun or re-certified for current shared-tree bytes."
+  }
+}

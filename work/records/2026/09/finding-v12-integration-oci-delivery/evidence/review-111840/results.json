@@ -1,0 +1,223 @@
+{
+  "normal": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.merge",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "manager_start_answer_parser": {
+      "accepted": true,
+      "answer": {
+        "runtime_id": "runtime-1",
+        "labels": {
+          "runtime_attempt_id": "attempt-1",
+          "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+          "work_id": "2b077949-W4",
+          "participant": "baton.merge",
+          "generation": 1,
+          "principal": "principal:org-a",
+          "effective_scope": "scope:deployment",
+          "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run",
+      "inspect"
+    ],
+    "run_calls": 1
+  },
+  "unknown_mounts": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.merge",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "manager_start_answer_parser": {
+      "accepted": true,
+      "answer": {
+        "runtime_id": "runtime-1",
+        "labels": {
+          "runtime_attempt_id": "attempt-1",
+          "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+          "work_id": "2b077949-W4",
+          "participant": "baton.merge",
+          "generation": 1,
+          "principal": "principal:org-a",
+          "effective_scope": "scope:deployment",
+          "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run",
+      "inspect"
+    ],
+    "run_calls": 1
+  },
+  "ordinary_workspace_mount": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.merge",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "manager_start_answer_parser": {
+      "accepted": true,
+      "answer": {
+        "runtime_id": "runtime-1",
+        "labels": {
+          "runtime_attempt_id": "attempt-1",
+          "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+          "work_id": "2b077949-W4",
+          "participant": "baton.merge",
+          "generation": 1,
+          "principal": "principal:org-a",
+          "effective_scope": "scope:deployment",
+          "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run",
+      "inspect"
+    ],
+    "run_calls": 1
+  },
+  "foreign_participant": {
+    "accepted": false,
+    "reason": "this start is labelled for participant 'baton.foreign' and the grant was given to 'baton.merge'; a runtime runs under the grant it was given, not beside it; the credential delivery is not-delivered and the launch document is torn-down",
+    "engine_operations": [
+      "ps",
+      "ps"
+    ],
+    "run_calls": 0
+  },
+  "late_result_mode": {
+    "accepted": false,
+    "reason": "attempt 'attempt-1''s integration result namespace is mode 0o777 and this manager established 0o2770; a delivery whose modes have moved is not the one it wrote; the credential delivery is not-delivered and the launch document is torn-down",
+    "engine_operations": [
+      "ps",
+      "ps"
+    ],
+    "run_calls": 0
+  },
+  "late_binding_mode": {
+    "accepted": false,
+    "reason": "the integration mount binding at 'mount-binding.json' is mode 0o666 and this manager published 0o444; a document whose mode has moved is not the one it wrote; the credential delivery is not-delivered and the launch document is torn-down",
+    "engine_operations": [
+      "ps",
+      "ps"
+    ],
+    "run_calls": 0
+  },
+  "ordinary_observation_missing_binds": {
+    "ordinary_observation": {
+      "state": "uncertain",
+      "why": "this runtime's integration mounts are not this attempt's: the live runtime carries 0 binds at '/run/baton/integration/assignment'; exact agreement is one",
+      "mounts": [],
+      "candidates": [
+        {
+          "runtime_id": "runtime-1",
+          "state": "running",
+          "why": "the engine reports it running"
+        }
+      ]
+    },
+    "integration_comparator": {
+      "runtime_id": "runtime-1",
+      "state": "uncertain",
+      "agrees": false,
+      "why": "the live runtime carries 0 binds at '/run/baton/integration/assignment'; exact agreement is one",
+      "mounts": []
+    }
+  },
+  "recovery_blocked": {
+    "accepted": true,
+    "mounts": [
+      [
+        "/tmp/v12-integration-7m_pcdsp/launch/integration/assignment",
+        "/run/baton/integration/assignment",
+        false
+      ],
+      [
+        "/tmp/v12-integration-7m_pcdsp/launch/integration/result",
+        "/run/baton/integration/result",
+        true
+      ],
+      [
+        "/tmp/v12-integration-7m_pcdsp/canonical-target",
+        "/target",
+        true
+      ]
+    ],
+    "configured_target": "/tmp/v12-integration-7m_pcdsp/canonical-target",
+    "restart_refusal": {
+      "accepted": false,
+      "reason": "attempt 'attempt-1''s mount boundary was RECOVERED rather than composed; a read-only adoption exists to inspect and stop an exact runtime and never to start one"
+    }
+  },
+  "recovery_missing": {
+    "accepted": false,
+    "reason": "attempt 'attempt-1' has no retained integration mount binding; a recovery adopts the plan this manager recorded and never composes a replacement for it"
+  },
+  "recovery_other_configured_directory": {
+    "accepted": false,
+    "reason": "this deployment now nominates '/tmp/v12-integration-3i0f7_oo/other-target' for target 'target:mainline' and the retained binding recorded '/tmp/v12-integration-3i0f7_oo/canonical-target'; a recovery reports the plan it found rather than the one the configuration currently describes"
+  },
+  "public_immutability": [
+    {
+      "exception": "AttributeError",
+      "message": "'mappingproxy' object has no attribute '__setitem__'"
+    },
+    {
+      "exception": "AttributeError",
+      "message": "'mappingproxy' object has no attribute '__setitem__'"
+    },
+    {
+      "exception": "AttributeError",
+      "message": "'mappingproxy' object has no attribute '__setitem__'"
+    }
+  ]
+}

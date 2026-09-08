@@ -1,0 +1,8 @@
+{
+  "command": "python3 -B evidence/live_controller_failure_reason_112817.py --audit",
+  "exit_code": 0,
+  "result": {
+    "outcome": "offline-hash-audit-passed",
+    "files": 163
+  }
+}

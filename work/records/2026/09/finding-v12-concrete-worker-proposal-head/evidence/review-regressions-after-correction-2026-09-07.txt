@@ -1,0 +1,10 @@
+test_index_hook_does_not_run (__main__.ReviewRegressions.test_index_hook_does_not_run) ... ok
+test_noop_correction_does_not_retain_prior_bundle (__main__.ReviewRegressions.test_noop_correction_does_not_retain_prior_bundle) ... ok
+test_verified_dependency_cannot_be_omitted_from_commit (__main__.ReviewRegressions.test_verified_dependency_cannot_be_omitted_from_commit) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.251s
+
+OK
+{"probe": "index_hook", "disposition": "completed", "hook_ran": false}
+{"probe": "noop_correction", "disposition": "unable", "metadata": {}, "head": null, "old_bundle_survives": false}

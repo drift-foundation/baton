@@ -1,0 +1,16 @@
+{
+  "broad_passed": 32,
+  "claim": 111078,
+  "files": {
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-audit-111078.json": "ffbdc831c53462a35798df05174dc90b06c2616fb04cbeff02ebea595e56c043",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-broad-111078.txt": "d4bba54d675cc7bf06cf9206b5635b07595694620292c8669069950b0c963ad1",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-focused-111078.txt": "eb5f9114770df87f52e11f3c1294b91565a0c4c7d8fa335888129e882d5e07cb",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-manifest-111078.json": "a80ecee8921adb1a0b34ae8955967646dbe9e81e43628f9f19815820dd9a93a5",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-manifest.json": "bb2f29412486a2ed3846e9c7235f1481e5cb62e16b7a6889ca3fbbc8b9d1c0fd"
+  },
+  "focused_passed": 8,
+  "git_diff_check": "passed",
+  "live_run": false,
+  "new_file_whitespace": "passed",
+  "work": "W106673"
+}

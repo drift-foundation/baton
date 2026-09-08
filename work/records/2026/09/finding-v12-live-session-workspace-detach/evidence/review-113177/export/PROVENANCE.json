@@ -1,0 +1,15 @@
+{
+  "files": {
+    "arms.json": "ba13fa385efde3c0964eeaa0a84e8da9998a8442fa92b474ee4097b0b0f101cc",
+    "network.json": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+    "package.json": "ba204721882b88292e925e70dbb1557fac33c368e0b53f165fc899f33c03b0a9",
+    "restored-first/events.json": "214fff76b73ae5c76f87eca8a1ed5d180737b459b3437a82d65c57695a942767",
+    "restored-first/gate.json": "4062d489bcafafdfcacf0d9d4da74afe411bade5f600c1e8228fc3c85c65a023",
+    "restored-second/events.json": "ef7f5bb2138fde33d55214ad02e93daa8c5c0d4332bb6d671d4517dc79346d2d",
+    "restored-second/gate.json": "7b9f6a00fcf82f44773920d01b9611ccb5f1eb6b41d45fc0d8d582ee4c048bbd",
+    "result.json": "d8e80f4e0af600c251c1b159e7cb184e6b6054f0e8c329fb6fe69179699a98c3",
+    "setup.json": "a3861d19580255ee5fa9d6f91af511f6e0e24265ed3ec5a802394b7d0ebd5c95"
+  },
+  "original_root": "/tmp/baton-w106673-live-nsn38dlq",
+  "scope": "controller-owned projections only; session, source, delivery, workspace and fixture store excluded"
+}

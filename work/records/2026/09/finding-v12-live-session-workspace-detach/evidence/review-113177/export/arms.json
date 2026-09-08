@@ -1,0 +1,51 @@
+{
+  "restored": {
+    "actual_model": "claude-fable-5",
+    "cli_version": "2.1.247",
+    "consumption_receipts_verified": true,
+    "correction_dispatch_ns": 459932069169045,
+    "correction_done_ns": 459938860435464,
+    "correction_prompt_sha256": "269533f6b4ca04c2a162832c24f56f719fa30ff3a8353bc6922b7b5f597495df",
+    "correction_verified": true,
+    "end_of_work_ns": 459926477774630,
+    "final_shutdown_confirmed": true,
+    "first_artifact_verified": true,
+    "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+    "initial_bytes_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "initial_prompt_sha256": "01b804fd43686c64f137790adb141da549a86c91ce6fd26fa269573c49e9c53e",
+    "model": "claude-fable-5[1m]",
+    "old_container_shutdown_confirmed": true,
+    "process_after": [
+      "607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1",
+      1689158,
+      "45993180",
+      [
+        4,
+        4026532903
+      ]
+    ],
+    "process_before": [
+      "1fb34e7ecd90e4286d26dc89df518e5c78b76b9269b8e32180ae5368d798ae2f",
+      1688650,
+      "45992117",
+      [
+        4,
+        4026532903
+      ]
+    ],
+    "resume_requested": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda",
+    "review_delay_ns": 5000000000,
+    "review_ready_ns": 459926645072531,
+    "session_after": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda",
+    "session_before": "869bb45a-c2a3-4b7d-9faa-e8a7af6d5dda",
+    "verified_correction_ns": 459938975888619,
+    "workspace_after": [
+      43,
+      11799375
+    ],
+    "workspace_before": [
+      43,
+      11799375
+    ]
+  }
+}

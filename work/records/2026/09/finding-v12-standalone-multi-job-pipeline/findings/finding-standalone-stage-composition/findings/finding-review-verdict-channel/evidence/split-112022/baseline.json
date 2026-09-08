@@ -1,0 +1,17 @@
+{
+  "v12/python/src/baton_v12/worker_manager/review_cycles.py": "c635fc8442c2689c336501a4527d608153c6f4605affe0d4630ebdeba9e63d4f",
+  "v12/python/src/baton_v12/job_manager/review_driver.py": "fcac6d17e146bf2d89725562addb62e7d8ea5c6d1dccb2bd79f4bb29dd04d610",
+  "v12/python/src/baton_v12/integration/driver.py": "d7a3e63e2b9ef8b6fffc6eb219790a3df7fd58c3be2ffeb59727bf9284dfd8b1",
+  "v12/worker/claude_agent.py": "8e2001f4a1dc0a7106f041db29afafeb725d1e598c7c165a141fe9dbd44acf33",
+  "v12/python/tests/manager/test_review_cycles.py": "319fa540e2ec37b43ab2207da2149554367044622d84891ec46bd01ec68f557d",
+  "v12/python/tests/job_manager/test_review_driver.py": "048f79a113f7f1d9beb5d56966d923b9fbdbb65456948df7fe251d2519d764c9",
+  "v12/python/tests/integration/test_driver.py": "253c22ced28342012af4a05c942599ef26122ec3d224e2763eb69a344cd7d4a6",
+  "v12/python/tests/manager/test_claude_agent.py": "acbb0d21364d2e442152c45af90c982d8f5e2b3d0c54c3735af83834eba5c6ce",
+  "v12/python/REVIEW-CYCLES.md": "e15f5f0d80e60e745039fa4bc3dd6d792ce7c179cdd1b2a4d89e990f127b9893",
+  "v12/python/tests/manager/test_dependencies.py": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+  "v12/python/tools/stage_execution.py": "95271d77edc044653eef59f79169c82394c5e2b30d1b5ffb1edb48b16d88da47",
+  "v12/python/tools/single_worker.py": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+  "v12/python/src/baton_v12/authority/core.py": "26a8a7a91b3bc7d9859bf9f5a747d9fda6ef88cdb5fe430bff1310d007c1d013",
+  "v12/worker/scripted_agent.py": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+  "v12/python/src/baton_v12/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+}

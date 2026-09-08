@@ -1,0 +1,78 @@
+{
+ "claim": 114241,
+ "author": "baton.claude",
+ "work": "W110935",
+ "scope": "The four corrections review-2026-09-07T22-48-26Z requires: required verification, provider-text projection, semantic authority and the mode cases, and the result-namespace refusal.",
+ "revalidated_before_acting": {
+  "ten_hashes_from_review_114048_matched": true,
+  "w114085_interface_already_in_tree": true,
+  "claude_agent_untouched": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955"
+ },
+ "corrections": {
+  "verification": {
+   "finding": "integrated was published after failed, unfinished and absent verification, and over a report still claiming preflight with no paths",
+   "correction": "the command is bound to tests.json's accepted ordinary-test observation, resolved before the provider, RUN by this runtime over the imported target, and held on any non-zero status, timeout or failure to start; the report must corroborate phase and path list",
+   "not_taken": "the historical status in that evidence, which a reviewer may have accepted while failing",
+   "regressions": ["test_a_failed_verification_after_a_complete_import_is_held",
+                   "test_a_verification_that_cannot_run_is_held",
+                   "test_a_report_that_claims_an_import_it_did_not_reach_is_held",
+                   "test_the_accepted_verification_is_the_one_that_runs",
+                   "test_a_bundle_with_no_accepted_verification_command_refuses"],
+   "fixture": "the disposable target carries a REAL harness.py and the case starts a real process; the previous fixture invented the verification record"
+  },
+  "provider_text": {
+   "finding": "the report's out-of-scope path strings and its verification.argv crossed into manager-visible results",
+   "correction": "out-of-scope paths cross as a count; the published command is the accepted one; the uniform rule is stated in the module docstring",
+   "regressions": ["test_no_provider_text_reaches_an_integrated_result",
+                   "test_no_provider_text_reaches_a_held_result"]
+  },
+  "authority": {
+   "finding": "a filename heuristic plus prefix membership stood in for the reviewed enumeration",
+   "correction": "is_test_path removed; the workload consumes W114085's authority account and the prompt requires the provider to evaluate the frozen review's own documents",
+   "named_residual_risk": "a test file the accepted Job never scheduled reads as an ordinary content change; the accepted scope is the only mechanical enumeration and guessing is what the review rejected. The frozen review's words now travel in the bundle so the answer is readable; catching an unscheduled test change is the review's responsibility.",
+   "regressions": ["test_the_accepted_scope_is_the_enumeration_and_not_a_filename",
+                   "test_a_scheduled_test_change_with_no_review_document_refuses",
+                   "test_an_authority_account_about_another_job_refuses"]
+  },
+  "mode": {
+   "finding": "the positive executable case took a 0644 base to a 0755 candidate and called it preservation",
+   "correction": "split into preserving a mode (imports) and an unauthorized mode change (the producer refuses, no bundle exists, no provider starts, target untouched)",
+   "third_state_not_constructible": "an explicitly authorized mode change needs an accepted owner that does not exist in this build; W114085 records that gap and the case says so rather than fabricating an authority",
+   "regressions": ["test_an_edit_preserves_the_reviewed_mode",
+                   "test_a_mode_change_is_not_publishable_and_starts_no_provider"]
+  },
+  "result_namespace": {
+   "finding": "existing_result answered None for every OSError, so the entry's unreadable-namespace rule could never fire and a second writable turn happened behind a symlinked namespace",
+   "correction": "None means only: namespace opened and proved, no result file. Every other error raises and both callers refuse before any provider starts.",
+   "regressions": ["test_an_unreadable_result_namespace_starts_no_provider",
+                   "test_an_absent_result_file_in_a_proved_namespace_is_not_a_refusal"]
+  }
+ },
+ "delivered": {
+  "v12/worker/integration_workload.py": "54a2298804ea24cb2a402a7247d55c8b056fcaa6eafd288cf82a73a9afb065e1",
+  "v12/worker/integration_entry.py": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+  "v12/python/tests/manager/test_integration_worker.py": "ab4e8168e42b19d342c402a43edd3fa1b667b4e8f54648fadb84e37ef949ed03"
+ },
+ "unchanged_this_claim": {
+  "v12/worker/Dockerfile.integration": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+  "v12/python/tests/manager/test_integration_image.py": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+  "v12/python/tools/parallel_test.py": "5bf2cbfbf29c603f07f811a1d5f968257798e1944d91bed0d97fe9aa393bf302",
+  "v12/worker/claude_agent.py": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+  "v12/worker/integration_contract.py": "e4d5b2ef5b610cfb348bbb37ca3437f7f7c25a4ce6828dfd62864871b9cbf813",
+  "v12/python/tools/integration_bundle.py": "7279f3140d2f2968b7b3b2e4b45f054e1956606d8fd418abb01d89a17464e4ae",
+  "v12/python/tests/tools/test_integration_bundle.py": "20fea94a5ca463197952c7228003621254262a4daaa26d60390f4d2618303468",
+  "note": "the last three are W114085's candidate, under its own independent review; this claim did not change them"
+ },
+ "focused": {
+  "transcript": "focused.txt",
+  "tests.manager.test_integration_worker": {"tests": 73, "failures": 0, "was": 62},
+  "tests.tools.test_integration_bundle": {"tests": 101, "failures": 0},
+  "tests.manager.test_integration_image": {"tests": 12, "failures": 0},
+  "tests.manager.test_claude_agent": {"tests": 172, "failures": 0, "note": "unchanged"},
+  "total": {"tests": 358, "failures": 0, "seconds": 26.688}
+ },
+ "not_performed": [
+  "no image built or selected, no container started, no credential mounted, no live provider called",
+  "no version-control mutation of any kind"
+ ]
+}

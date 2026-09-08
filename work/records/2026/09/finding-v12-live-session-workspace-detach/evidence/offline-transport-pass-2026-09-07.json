@@ -1,0 +1,63 @@
+{
+  "provenance": "Operator ran reviewed command and supplied result; baton.prompt independently read retained JSON and observed exact container exited/PID0/exit0/no OOM",
+  "retained_root": "/tmp/baton-w106673-session-preflight-u6nurmlz",
+  "result": {
+    "outcome": "offline-transport-preflight-passed",
+    "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+    "run": "f84ff39588ae46b3ab7d1e574ab97ad3",
+    "script_sha256": "a3e50fe42f7fd191df01b407b4fb05bebe93ca5e9a59c0c7fa48f97d920393fa",
+    "stage": "done",
+    "container": "444a9cd51de60cec40a6809e27b91ebb4a33764bf56b9f89575c6dc5b4e1ae24",
+    "docker_exit_code": 0,
+    "probe": {
+      "flags": {
+        "--dangerously-skip-permissions": true,
+        "--input-format": true,
+        "--max-budget-usd": true,
+        "--max-turns": false,
+        "--mcp-config": true,
+        "--model": true,
+        "--output-format": true,
+        "--print": true,
+        "--resume": true,
+        "--session-id": true,
+        "--setting-sources": true,
+        "--strict-mcp-config": true,
+        "--tools": true,
+        "--verbose": true
+      },
+      "help_sha256": "71ad650f59e08ae40ede14c534db4f49d8590ee5a4f92f6da2882d3a5560fea6",
+      "idle_process_survived": true,
+      "initialization_ns": 204277488,
+      "initialized": true,
+      "missing_help_flags": [
+        "--max-turns"
+      ],
+      "outcome": "offline-transport-preflight-passed",
+      "pid": 13,
+      "real_turns": 0,
+      "restore": "unproved",
+      "session_continuity": "unproved",
+      "start": "40520707",
+      "unexercised_flags": [
+        "--resume",
+        "--session-id",
+        "--max-turns",
+        "--max-budget-usd",
+        "--model",
+        "--dangerously-skip-permissions"
+      ],
+      "version": "2.1.247 (Claude Code)"
+    },
+    "cleanup": "confirmed-stopped-retained",
+    "container_exit_code": 0
+  },
+  "registration": {
+    "outcome": "failed-or-blocked",
+    "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+    "run": "f84ff39588ae46b3ab7d1e574ab97ad3",
+    "script_sha256": "a3e50fe42f7fd191df01b407b4fb05bebe93ca5e9a59c0c7fa48f97d920393fa",
+    "stage": "container-create",
+    "container": "444a9cd51de60cec40a6809e27b91ebb4a33764bf56b9f89575c6dc5b4e1ae24"
+  }
+}

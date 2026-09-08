@@ -1,0 +1,20 @@
+--- test_result_diagnostics.py
++++ test_result_rebound_112609.py
+@@ -10,7 +10,7 @@
+ import unittest
+ from unittest import mock
+ 
+-import live_controller_result_diagnostics as host
++import live_controller_rebound_112609 as host
+ import test_restore_constructor as constructors
+ import test_live_package as package
+ 
+@@ -173,7 +173,7 @@
+         program = """import json,sys
+ from pathlib import Path
+ sys.path.insert(0,sys.argv[1])
+-import live_controller_result_diagnostics as c
++import live_controller_rebound_112609 as c
+ setup=c.Setup(Path(sys.argv[3]))
+ apis=c.runtime_apis(Path(sys.argv[2]),setup)
+ print(json.dumps(dict(api_count=len(apis),review_driver_imported='baton_v12.job_manager.review_driver' in sys.modules,

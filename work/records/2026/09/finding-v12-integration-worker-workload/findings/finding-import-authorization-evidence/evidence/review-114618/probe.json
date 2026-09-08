@@ -1,0 +1,35 @@
+{
+  "boundary": "Real producer and worker reader; derived copies alter materialized files and nested frozen artifact references but preserve original frozen result identity. No engine, live provider, Git operation or canonical store access.",
+  "cases": [
+    {
+      "case": "control",
+      "original_digest_correct": true,
+      "retained_result_digest": "sha256:278616d3e377370bdbd6ba7b5113b9e0147aff58c7a2154beabfd081e303fb92",
+      "actual_frozen_result_digest": "sha256:278616d3e377370bdbd6ba7b5113b9e0147aff58c7a2154beabfd081e303fb92",
+      "identity_preserved": true,
+      "accepted": true,
+      "document_count": 3,
+      "invented_text_returned": false
+    },
+    {
+      "case": "rewritten_output",
+      "original_digest_correct": true,
+      "retained_result_digest": "sha256:b4d04e8eeb8f6ba8de9a090489106a5a8907195f2d9ecb662ba06a6186bfb1e6",
+      "actual_frozen_result_digest": "sha256:d37c9144976fed2871e1c7a39ca29ba9a638b3c346b3d31b74cda4cb423694cc",
+      "identity_preserved": true,
+      "accepted": true,
+      "document_count": 3,
+      "invented_text_returned": true
+    },
+    {
+      "case": "removed_outputs",
+      "original_digest_correct": true,
+      "retained_result_digest": "sha256:e70520bc1c12f3ece039aa19415879374e87500e8131d8a19c126e843f65a4bc",
+      "actual_frozen_result_digest": "sha256:517877da3877c314a6ee967d174a2fa86dee5e2c6e9cf83104bca0007debe68f",
+      "identity_preserved": true,
+      "accepted": true,
+      "document_count": 0,
+      "invented_text_returned": false
+    }
+  ]
+}

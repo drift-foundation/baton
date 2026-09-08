@@ -1,0 +1,175 @@
+--- before/v12/python/src/baton_v12/worker_manager/review_cycles.py
++++ candidate/v12/python/src/baton_v12/worker_manager/review_cycles.py
+@@ -12,7 +12,7 @@
+ 
+ from ..contracts import ContractRefusal, canonical_text, digest
+ from ..contracts.errors import name_value
+-from . import (attempts, boundaries, intake, output, schema,
++from . import (attempts, boundaries, intake, manifests, output, schema,
+                source_boundary, workspaces)
+ from .attempts import assignment_of
+ from .store import manager_signature
+@@ -1004,6 +1004,24 @@
+     THIS IS NOT A TRANSITION. Nothing here moves `sealed` back to `frozen` or
+     writes any axis; the axis is read and the receipt is what is believed.
+     """
++    manifest = manifests.load_manifest(store, result["manifest_digest"], "resultManifest")
++    if manifest is None:
++        raise ContractRefusal("refused", "precondition",
++                              "the custodied review has no retained result manifest")
++    assignment = {"participant": attempt["assignment_participant"],
++                  "generation": attempt["assignment_generation"],
++                  "work_ref": {"work_id": attempt["work_id"], "authority_uuid": attempt["authority_uuid"]}}
++    artifacts = [dict(output_name=one["name"], **one["artifact"])
++                 for one in manifest["outputs"] if one["artifact"] is not None]
++    if manifest["result_id"] != result["result_id"] \
++            or manifest["disposition"] != result["disposition"] \
++            or manifest["assignment_ref"] != assignment \
++            or manifest["input_manifest_digest"] != attempt["input_digest"] \
++            or manifest["policy_digest"] != attempt["policy_digest"] \
++            or manifest["freeze_operation"]["operation_id"] != result["freeze_operation_id"] \
++            or sorted(artifacts, key=lambda one: one["output_name"]) != result["artifacts"]:
++        raise ContractRefusal("integrity", "digest",
++                              "the retained review manifest differs from its frozen result and assignment")
+     receipt = intake.intake_receipt_of(store, attempt["runtime_attempt_id"])
+     if receipt is None:
+         raise ContractRefusal(
+@@ -1018,6 +1036,9 @@
+             "integrity", "schema",
+             "the intake receipt and the frozen review result name different "
+             "results; a verdict rests on one account of one output")
++    if receipt["custody"] != "accepted":
++        raise ContractRefusal("refused", "precondition",
++                              "a review verdict requires accepted intake custody")
+     collected = {one["artifact_id"] for one in receipt["artifacts"]}
+     declared = {one["artifact_id"] for one in result["artifacts"]}
+     if not declared <= collected:
+@@ -1027,18 +1048,84 @@
+             f"{', '.join(sorted(name_value(one) for one in declared - collected))} "
+             f"and the intake receipt collected neither; a verdict rests on "
+             f"material this manager took custody of")
+-    if not intake.retentions_of(store, attempt["runtime_attempt_id"]):
++    measured = {(one["artifact_id"], one["bytes"], one["content_digest"])
++                for one in result["artifacts"]}
++    received = {(one["artifact_id"], one["bytes"], one["content_digest"])
++                for one in receipt["artifacts"]}
++    if measured != received or len(receipt["artifacts"]) != len(result["artifacts"]):
++        raise ContractRefusal("integrity", "digest",
++                              "review intake artifacts differ from the frozen measurements")
++    retained = intake.retentions_of(store, attempt["runtime_attempt_id"])
++    if {one["artifact_id"] for one in retained if one["disposition"] == "retain"} != declared:
+         raise ContractRefusal(
+             "refused", "precondition",
+-            f"attempt {name_value(attempt['runtime_attempt_id'])} is sealed "
+-            f"and carries no retention decision; material nobody decided "
+-            f"about is not evidence a verdict may rest on")
++            "every frozen review artifact requires its retained decision")
+     return receipt
+ 
+ 
+-def _completed_review(store, attachment):
+-    attempt = _quiescent_completed(
+-        store, attachment["runtime_attempt_id"], review=True)
++def _cleaned_review(store, attachment, attempt, result, verdict):
++    """Historical completion is exact committed evidence, never an axis alone."""
++    proved = verdict_of(store, verdict["verdict_id"])
++    operation_id = VERDICT_KIND + ":" + attachment["attachment_id"]
++    if _committed_act(store, VERDICT_KIND, operation_id, "the historical verdict") \
++            != _committed_operands(store, VERDICT_KIND, operation_id, "the historical verdict"):
++        raise ContractRefusal("integrity", "schema",
++                              "historical verdict answer differs from its committed operands")
++    if proved != verdict or review_of(store, attachment["attachment_id"]) != attachment \
++            or attachment["state"] != "ended" \
++            or attempt["runtime_id"] is None \
++            or attempt["worker_disposition"] != "completed" \
++            or attempt["output"] != "sealed" \
++            or attempt["cleanup"] != "retained" \
++            or result != verdict["review_result"]:
++        raise ContractRefusal("refused", "precondition",
++                              "historical review completion requires its ended verdict and retained cleanup")
++    for member in ("attachment_id", "line_id", "checkpoint_id", "reviewer_worker_id",
++                   "reviewer_participant", "reviewer_principal"):
++        if attachment[member] != verdict[member]:
++            raise ContractRefusal("integrity", "schema",
++                                  "historical review verdict belongs to another attachment")
++    if attachment["assignment_generation"] != verdict["review_assignment_generation"] \
++            or attempt["assignment_generation"] != verdict["review_assignment_generation"] \
++            or attempt["assignment_participant"] != verdict["reviewer_participant"] \
++            or attempt["assignment_principal"] != verdict["reviewer_principal"]:
++        raise ContractRefusal("integrity", "schema",
++                              "historical review verdict belongs to another assignment")
++    fence = _current_fence(store, attempt, verdict["review_fence"],
++                           "the historical review fence")
++    receipt = _custodied_review(store, attempt, result)
++    retained = intake.retentions_of(store, attempt["runtime_attempt_id"])
++    policies = {one["retention_policy_digest"] for one in retained}
++    if len(policies) != 1:
++        raise ContractRefusal("refused", "precondition",
++                              "historical review cleanup requires one exact retention policy")
++    policy = next(iter(policies))
++    operation = intake.destroy_operation(attempt, receipt["receipt_digest"], policy)
++    record = store.operation_record(operation["operation_id"])
++    if record is None or record["kind"] != "runtime.destroy" or record["state"] != "committed":
++        raise ContractRefusal("refused", "precondition",
++                              "historical review has no committed positive cleanup")
++    signature = manager_signature("runtime.destroy", {
++        "attempt_id": attempt["runtime_attempt_id"], "expect": fence["intent"]["assignment"],
++        "runtime_id": attempt["runtime_id"], "intake_receipt_digest": receipt["receipt_digest"],
++        "retention_policy_digest": policy})
++    found, cleaned = store.replay(operation["operation_id"], signature, kind="runtime.destroy")
++    cleaned = boundaries.document(cleaned, "a historical review cleanup",
++        required=("attempt_id", "cleanup", "state", "why", "kept", "operation", "directory_custody"))
++    if not found or cleaned["attempt_id"] != attempt["runtime_attempt_id"] \
++            or cleaned["cleanup"] != "retained" or cleaned["state"] != "absent" \
++            or cleaned["operation"] != operation \
++            or cleaned["kept"] != sorted(one["artifact_id"] for one in retained) \
++            or cleaned["directory_custody"] is None:
++        raise ContractRefusal("refused", "precondition",
++                              "historical review cleanup does not prove positive absence and retained custody")
++
++
++def _completed_review(store, attachment, *, verdict=None):
++    attempt = _attempt(store, attachment["runtime_attempt_id"])
++    historical = attempt["execution_runtime"] == "destroyed" and verdict is not None
++    if not historical:
++        attempt = _quiescent_completed(store, attachment["runtime_attempt_id"], review=True)
+     # THE REVIEWER'S OWN VERIFICATION AXIS IS NO LONGER A PREREQUISITE, and
+     # that is an owner ruling rather than a relaxation this module chose.
+     # M111752: for this milestone the implementer runs the ordinary required
+@@ -1069,6 +1156,8 @@
+                               "the frozen review result names another attempt")
+     if attempt["output"] == "sealed":
+         _custodied_review(store, attempt, result)
++    if historical:
++        _cleaned_review(store, attachment, attempt, result, verdict)
+     return attempt, result
+ 
+ 
+@@ -1093,6 +1182,15 @@
+             or line["current_checkpoint_id"] != checkpoint["checkpoint_id"]):
+         raise ContractRefusal("refused", "precondition",
+                               "a verdict applies only to the active current review")
++    if _attempt(store, attachment["runtime_attempt_id"])["execution_runtime"] == "destroyed":
++        verdict = verdict_of(store, _id("verdict", {"attachment_id": attachment_id,
++                                                    "disposition": disposition}))
++        attempt, _ = _completed_review(store, attachment, verdict=verdict)
++        if attempt["assignment_participant"] != getattr(port, "participant", None):
++            raise ContractRefusal("refused", "capability",
++                                  "the review fence session acts for another participant")
++        return _committed_act(store, VERDICT_KIND, VERDICT_KIND + ":" + attachment_id,
++                              "the historical review verdict")
+     attempt, review_result = _completed_review(store, attachment)
+     if attempt["assignment_participant"] != getattr(port, "participant", None):
+         raise ContractRefusal("refused", "capability",
+@@ -1223,8 +1321,9 @@
+             or verdict["review_fence_digest"] != digest(verdict["review_fence"]):
+         raise ContractRefusal("integrity", "digest",
+                               "integration eligibility has no exact accepted verdict")
+-    attachment = _attachment_row(store, verdict["attachment_id"])
+-    attempt, current_result = _completed_review(store, attachment)
++    verdict = verdict_of(store, verdict["verdict_id"])
++    attachment = review_of(store, verdict["attachment_id"])
++    attempt, current_result = _completed_review(store, attachment, verdict=verdict)
+     _current_fence(store, attempt, verdict["review_fence"],
+                    "the persisted review fence")
+     if attachment["state"] != "ended" \

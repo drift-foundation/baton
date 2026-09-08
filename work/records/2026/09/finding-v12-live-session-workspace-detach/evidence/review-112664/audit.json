@@ -1,0 +1,53 @@
+{
+  "claim": 112664,
+  "package_manifest_sha256": "2d829e03d3337c9eabf05d4e0d0ce01097bc185be24b991d0b3012b0ea3a78e5",
+  "handoff_manifest_sha256": "66a7f55b8c1bf042960fd8ab164106fd7304fd6b3bb8aba3a0b7431cfe130607",
+  "mismatches": [],
+  "package_files": 152,
+  "handoff_files": 93,
+  "historical_files": 191,
+  "removed_prior_inputs": [],
+  "changed_prior_inputs": {
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "old": "d7a3e63e2b9ef8b6fffc6eb219790a3df7fd58c3be2ffeb59727bf9284dfd8b1",
+      "current": "d6b3be4f99e0776d6ec402db6bfb05b4db8fd376a36b8d1c4225eb17dec83bd6"
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "old": "742121cf0ae906160375e71bf0985b26091c5a2705bf2144236e12b6eb1b243c",
+      "current": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb"
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "old": "62db37ee8cd52bf99fc4e68b766841586f921324366e9e0191fc9618b33e6765",
+      "current": "0ba2b2bb7adb9c6181cb843a4b90ddf5da6bd8dadd43ed9e6e5a5952020c2262"
+    },
+    "v12/python/src/baton_v12/worker_manager/custody.py": {
+      "old": "86fbf3cd58e958b212e45efe569472b657428395a3e9a2169d73e3ddb324dbe0",
+      "current": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6"
+    },
+    "v12/python/src/baton_v12/worker_manager/oci.py": {
+      "old": "101a2c1754cfb2ea7fc6e08783a902c4e944b33ed7b0189130aaf8c6ff79f566",
+      "current": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f"
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "old": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377",
+      "current": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6"
+    }
+  },
+  "added_inputs": [
+    "v12/python/src/baton_v12/integration/oci_delivery.py",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/DEPENDENCY-REBIND-112609.md",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_rebound_112609.py",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/rebind-112609/accepted-dependencies.json",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/rebind-112609/baseline.json",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/rebind-112609/controller.patch",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/rebind-112609/tests.patch",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-manifest.json",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_result_rebound_112609.py"
+  ],
+  "runtime_python_files": 71,
+  "retained_runtime_snapshot_files": 74,
+  "controller_only_manifest_filename_changed": true,
+  "test_only_two_import_names_changed": true,
+  "supervisor_sha256": "94c6dd20122131f2a67bcd00c50d55e94ac5b65f14d648f036d8532fcf0cca41",
+  "all_changed_and_added_runtime_match_accepted_reviews": true
+}

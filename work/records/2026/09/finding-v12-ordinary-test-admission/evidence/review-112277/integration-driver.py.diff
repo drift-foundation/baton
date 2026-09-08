@@ -1,0 +1,104 @@
+--- prior/v12/python/src/baton_v12/integration/driver.py
++++ candidate/v12/python/src/baton_v12/integration/driver.py
+@@ -447,19 +447,32 @@
+     return recorded
+ 
+ 
+-def _receipt(session, kind, basis, **members):
++def _receipt(session, kind, basis, prefix=None, **members):
++    """One separately attributable receipt, under an identity that says what
++    kind of evidence it rests on.
++
++    W112029 review [P2]: the verification receipt's identities were the generic
++    `verification-receipt` and `verification-operation` whatever the evidence
++    was, and the ordinary-tests marker existed only inside the hashed basis --
++    invisible in the opaque id an operator actually reads. The accepted plan
++    asks for an explicit prefix, so this workflow's verification identities
++    carry one. Review and approval keep theirs: what changed is which evidence
++    a VERIFICATION receipt rests on, and relabelling the other two would be
++    claiming something about acts this Work did not change.
++    """
+     verb = {"verification": "verify", "review": "review",
+             "approval": "approve"}[kind]
+     _capability(session, verb, f"the configured {kind} session")
+     participant = boundaries.text(getattr(session, "participant", None),
+                                   f"the configured {kind} participant")
++    named = prefix or kind
+     receipt_basis = dict(basis, kind=kind)
+-    receipt_id = _identity(f"{kind}-receipt", receipt_basis)
++    receipt_id = _identity(f"{named}-receipt", receipt_basis)
+     operation_basis = dict(receipt_basis, actor=participant, **members)
+     operands = {"proposal_id": basis["proposal_id"],
+                 {"verification": "verification_id", "review": "review_id",
+                  "approval": "approval_id"}[kind]: receipt_id,
+-                "operation_id": _identity(f"{kind}-operation",
++                "operation_id": _identity(f"{named}-operation",
+                                           operation_basis), **members}
+     return _authority(getattr(session, verb), f"the {kind} receipt", operands)
+ 
+@@ -503,6 +516,13 @@
+ # a word like `verified` or `certified`: what happened is that the author's own
+ # container ran the required command.
+ ORDINARY_TESTS_WORKFLOW = "ordinary-tests/1"
++
++# AND THE PREFIX THE EMITTED IDENTITIES ACTUALLY CARRY. Review [P2]: the marker
++# was hashed into the basis and therefore invisible in the opaque id an
++# operator reads, while the emitted prefix stayed the generic `verification-`
++# whatever the evidence was. It says `ordinary-tests` rather than `verified` or
++# `certified` for the same reason the workflow word does.
++ORDINARY_TESTS_PREFIX = "ordinary-tests-verification"
+ 
+ 
+ def _owned_requirements(required_tests):
+@@ -612,6 +632,19 @@
+         _refuse("the frozen result and the producing attempt do not name one "
+                 "assignment")
+     proposal = admission._proposal(authority, proposal_id)
++    # THE PROPOSAL'S WHOLE PRODUCER IDENTITY, BEFORE ANY RECEIPT. Review
++    # 2026-09-07T17-47-09Z [P1]: this compared the RESULT's assignment to the
++    # producer's and never the PROPOSAL's, so a published proposal naming
++    # another generation, participant or Work reached `_accepted_receipts` and
++    # had verification, review and approval written for it. `resolved_account`
++    # does make these comparisons -- three steps too late, after immutable
++    # receipts exist, and a later admission refusal cannot retract one.
++    if proposal["assignment_ref"] != fixed:
++        _refuse(f"the published proposal names assignment "
++                f"{name_value(proposal['assignment_ref'])} and the accepted "
++                f"checkpoint's producer is {name_value(fixed)}; a receipt is "
++                f"written about the attempt that made the candidate",
++                category="refused", code="precondition")
+     if proposal["result_id"] != result["result_id"] \
+             or proposal["result_digest"] != frozen["manifest_digest"]:
+         _refuse("the published proposal and the producer's frozen result name "
+@@ -639,6 +672,23 @@
+         _refuse(f"the accepted checkpoint records head "
+                 f"{name_value(accepted['head'])} and the producer's proposal "
+                 f"claims {name_value(claim['head'])}")
++    # AND THE REVISION THIS CANDIDATE WAS BUILT ON. Review [P1]: the proposal's
++    # target was never compared with the base the worker says it built from, so
++    # a proposal offered against another revision was receipted. The three
++    # accounts of that one fact -- the proposal's target, the worker's claimed
++    # base and the observation's own -- are compared here rather than at the
++    # canonical-target boundary, which runs after the receipts.
++    if proposal["target"] != claim["base"]:
++        _refuse(f"the published proposal is offered against target "
++                f"{name_value(proposal['target'])} and its producer built on "
++                f"{name_value(claim['base'])}; a receipt is written about the "
++                f"revision the candidate was made from", category="refused",
++                code="precondition")
++    if accepted.get("base") is not None and accepted["base"] != claim["base"]:
++        _refuse(f"the accepted checkpoint records base "
++                f"{name_value(accepted['base'])} and the producer built on "
++                f"{name_value(claim['base'])}", category="refused",
++                code="precondition")
+     return {"attempt_id": producer, "checkpoint_id": accepted["checkpoint_id"],
+             "assignment_ref": fixed,
+             "input_manifest_digest": result["input_manifest_digest"],
+@@ -753,6 +803,7 @@
+     answers = {
+         "verification": _receipt(verification, "verification",
+                                  dict(basis, **witness),
++                                 prefix=ORDINARY_TESTS_PREFIX,
+                                  observation="passed"),
+         "review": _receipt(reviewer, "review", basis,
+                            disposition="accepted"),

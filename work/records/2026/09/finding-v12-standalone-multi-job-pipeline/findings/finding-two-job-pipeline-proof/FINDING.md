@@ -82,3 +82,119 @@ requires one planned existing-test modification and one out-of-scope mutation
 fixture. The accepted candidate/review must enumerate those paths; any deletion
 or weakened production expectation must be separately explicit. No other test
 mutation is authorized.
+
+## Entry-gate revalidation — 2026-09-06 — baton.claude
+
+PLAN item 2 is the gate that has to pass before the run can be frozen, and it
+does not pass. What it finds is not interface DRIFT. Every component provider
+is closed and its recorded interface is the one this contract assumes. What is
+missing is the DEPLOYMENT HALF that would make one submission drive the
+vertical slice, and it is missing for everything except a single implementation
+worker.
+
+**The rule this record already holds is why that matters.** The control plane
+knows WHEN an act is owed and deliberately does not know HOW a deployment opens
+an Authority, delivers credentials or starts a runtime; `job_manager/
+delegation.py` states it in its own words -- "Starting a runtime needs a
+delivered workspace and a runtime adapter (W71917); freezing an output,
+deciding a verdict and importing a proposal need review and integration policy
+(W71918, W71878). Those operations exist and are not called from here." Every
+component leaf is a library plus that stated omission. W76207 supplied the
+omitted half for ONE implementation worker, as its own independently reviewed
+Work with its own configuration schema.
+
+**What exists, checked against the tree rather than against the records.**
+
+- `tools/single_worker.py` is the only production composition, and it refuses
+  to be anything else: `given["launch_role"] != "implementation"` is a policy
+  refusal, and its own header says "This is deliberately not a pool ... worker
+  choice and capacity belong to W71877."
+- It hands a frozen result to a configured **v11 review Route**. That is a
+  human/agent review through the ledger, not the containerized independent
+  reviewer this contract requires.
+- `integrate_next` has NO caller outside `baton_v12.integration` and its tests.
+  Nothing outside the package even imports the integration package.
+- `record_verdict` and `integration_checkpoint` have no caller outside the
+  Worker Manager's own `__init__` re-export and tests. No program turns an
+  accepted checkpoint into a published proposal, and no program admits one.
+
+**What the control plane does supply**, so the gap is named accurately: the
+scheduler carries both lanes, and a review stage already excludes the worker,
+participant and principal of its Job's implementation stage. Reviewer
+independence is implemented. Nothing runs it.
+
+**The consequence for this leaf's own acceptance boundary.** The contract
+requires zero ordinary operator transitions after one submission. Today the
+transitions that would have to be manual are: starting every review runtime,
+freezing each checkpoint, recording each verdict, returning the corrected line,
+publishing each proposal, and every integration. A run performed that way does
+not fail the demonstration -- it CANNOT BE the demonstration, because the thing
+being demonstrated is that nobody does those by hand.
+
+**Disposition, and why it is not "build it here".** Plan item 3 cannot be
+frozen: it must name verification commands and artifact roots that do not
+exist, and the approved test-change authority is bounded to "the exact paths
+named by the final frozen run plan". Building the missing compositions would
+also put credential, image-digest and network authority into a leaf whose
+independent review is about EVIDENCE rather than about deployment safety --
+and W76207 is this record's own precedent that one such composition is a Work
+with its own review. This leaf therefore reports the gap and asks the owner to
+place it, rather than growing to fill it.
+
+## Owner placement ruling — 2026-09-06
+
+The missing deployment composition is a separate provider under the
+standalone-pipeline milestone. This proof remains unchanged and blocked until
+that provider is independently accepted. The provider separates the
+review/correction driver from the proposal/integration driver so they may be
+implemented concurrently without overlapping files, then gives their shared
+process and configuration boundary to a final assembly leaf. This proof does
+not manually substitute for any missing ordinary transition and does not
+repair the provider inline.
+
+## 2026-09-08 — owner-approved preparation before final freeze
+
+Slawomir approved preparing contracts and measurement requirements ahead of
+provider completion. PREPARATION-2026-09-08.md collects the freeze inputs and
+their suppliers, Job roles and evidence checklist. The original contract already
+has independent plan approval in review-2026-09-04T14-10-08Z.md; final concrete
+freeze and material-delta review remain required. No live gate was removed.
+
+Open scenario clarification: accepted W71877 policy leaves injected failures
+exceptional without an operator retry, while this run forbids ordinary retries.
+The proposed third fault Job would preserve two successful integrations and
+failure containment in one submission. Owner guidance is pending; this proposal
+does not supersede the current two-Job reviewed plan or authorize extra execution.
+
+## 2026-09-08 — demonstration plan approved
+
+Slawomir approved PREPARATION-2026-09-08.md in the W71879 record, including
+two Jobs intended to complete and a third small Job carrying the deliberate
+failure, all in one submission. This supersedes the earlier pending scenario
+question and exact-two-document wording of the demonstration plan. Both successful
+integrations, required runtime overlaps, independent review/correction, scoped
+test modification, companion refusal and failure containment remain mandatory.
+No automatic retry, ordinary operator transition or stack restart repairs the run.
+The final base, exact paths/documents, deployment identities, commands, metrics
+and budgets still require the existing concrete freeze and material-delta review;
+this approval is not a claim that the demonstration ran or passed.
+
+## 2026-09-08 — parallel tuner preparation authorized
+
+Slawomir requested useful parallel work for tuner while Claude executes W110774.
+Assign one lightweight preparation Work to baton.tuner, role tuner, with no new
+dependency or duplicate dossier binding. Its exclusive write path is
+TUNER-PREFLIGHT-2026-09-08.md in this existing record; it may read accepted
+component contracts and current source to prepare the approved demonstration.
+The output names concrete Job scenarios, failure/refusal injection seams,
+measurement/resource proposals and the exact assembly-supplied freeze inputs.
+Separate confirmed APIs from pending interfaces; retain provider gates. No
+source/test/shared-plan edits, tests, runtime launches, live submission, fixture
+execution or Git mutation. This prepares the existing proof rather than creating
+a new hardening or acceptance prerequisite.
+
+Created as lightweight W115572, thread T115572. Initial canonical create was
+denied by the sandbox's read-only external ledger access; approved execution of
+the same standalone command succeeded at115572. No raw-store workaround or
+duplicate consumer was used. The existing managed tuner readiness path owns
+pickup; this prompt neither launches a second context nor claims its Work.

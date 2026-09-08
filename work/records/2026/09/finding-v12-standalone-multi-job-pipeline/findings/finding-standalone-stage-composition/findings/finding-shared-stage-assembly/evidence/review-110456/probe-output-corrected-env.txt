@@ -1,0 +1,10 @@
+Invocation: from v12/python, PYTHONPATH=src:. python3 <evidence/review-110456/probe.py>
+{
+  "conclude": "StageExecution -> real PooledManagerOperations -> worker conclude; publication unused",
+  "factory_supplies_sessions": false,
+  "integration_launch": "stage 'stage-integration' names kind 'integration'; this single worker accepts only 'implementation'",
+  "review_launch": "stage 'stage-review' names kind 'review'; this single worker accepts only 'implementation'",
+  "status_factory": "--observe names a factory whose object has no observe_exchange; an observation surface that cannot read the exchange is the default this operand exists to replace"
+}
+
+exit_code=0

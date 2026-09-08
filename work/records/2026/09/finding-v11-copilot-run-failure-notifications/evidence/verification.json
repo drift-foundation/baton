@@ -1,0 +1,10 @@
+{
+  "command": "python3 -B -m unittest tools.test_codex_copilot_notifier -v",
+  "result": "passed",
+  "tests": 28,
+  "seconds": 0.003,
+  "provenance": "Transcribed from exec tool output; local Unix socket execution approved outside sandbox.",
+  "prior_test_methods_unchanged": 13,
+  "added_test_methods": 15,
+  "live_notification_executed": false
+}

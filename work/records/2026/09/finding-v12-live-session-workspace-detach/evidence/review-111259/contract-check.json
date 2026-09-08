@@ -1,0 +1,11 @@
+{
+  "source": "https://code.claude.com/docs/en/agent-sdk/agent-loop#handle-the-result",
+  "checked_at": "2026-09-07T15-25-45Z",
+  "known_labels": [
+    "error_during_execution",
+    "error_max_turns",
+    "error_max_budget_usd",
+    "error_max_structured_output_retries"
+  ],
+  "finding": "Official documentation lists the four labels. This establishes the diagnostic allowlist only, not pinned CLI emission or historical failure cause."
+}

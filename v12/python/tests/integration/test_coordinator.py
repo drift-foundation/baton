@@ -60,9 +60,18 @@ class QueueCase(CoordinatorCase):
                        entry_id=entry_id, eligibility=eligibility(**operands))
 
     def lease(self, lease_id="lease-1", participant="baton.integrator",
-              attempt_id="attempt-1", canonical_target_id=TARGET):
+              attempt_id="attempt-1", canonical_target_id=TARGET,
+              entry_id=None):
+        if entry_id is None:
+            existing = lease_of(self.coordinator, lease_id)
+            queued = entries_of(self.coordinator, canonical_target_id,
+                                state="queued")
+            entry_id = (existing["entry_id"] if existing is not None else
+                        min(queued, key=lambda one: one["rank"])["entry_id"]
+                        if queued else "entry-absent")
         return grant_lease(self.coordinator,
                            canonical_target_id=canonical_target_id,
+                           entry_id=entry_id,
                            lease_id=lease_id,
                            integrator_participant=participant,
                            attempt_id=attempt_id)
@@ -205,7 +214,7 @@ class RankIsAllocatedInTheEnqueueTransaction(QueueCase):
         self.assertNotEqual(entry["checkpoint_digest"],
                             entry["candidate_digest"])
         self.assertNotEqual(entry["checkpoint_digest"],
-                            entry["proposal_manifest_digest"])
+                            entry["result_digest"])
         self.assertEqual(entry["eligibility"], eligibility())
 
 
@@ -227,9 +236,7 @@ class TwoAuthoritiesContendOnOneLock(QueueCase):
     def test_one_lease_is_live_across_both_authorities(self):
         granted = self.lease("lease-1")
         self.assertEqual(granted["entry"]["entry_id"], "entry-a")
-        caught = self.refusal(self.lease, "lease-2")
-        self.assertEqual((caught.category, caught.code), ("policy", "denied"))
-        self.assertIn("lease-1", caught.message)
+        self.assertIsNone(self.lease("lease-2"))
 
     def test_the_other_authority_is_offered_the_target_only_in_turn(self):
         first = self.lease("lease-1")
@@ -269,6 +276,7 @@ class OneLiveLeasePerTarget(QueueCase):
         activate_target(empty, target(canonical_target_id="target:empty"))
         self.assertIsNone(grant_lease(empty,
                                       canonical_target_id="target:empty",
+                                      entry_id="entry-1",
                                       lease_id="lease-1",
                                       integrator_participant="baton.integrator",
                                       attempt_id="attempt-1"))
@@ -305,7 +313,8 @@ class OneLiveLeasePerTarget(QueueCase):
             try:
                 barrier.wait()
                 answers[name] = grant_lease(
-                    store, canonical_target_id=TARGET, lease_id="lease-" + name,
+                    store, canonical_target_id=TARGET, entry_id="entry-1",
+                    lease_id="lease-" + name,
                     integrator_participant="baton." + name,
                     attempt_id="attempt-" + name)
             except ContractRefusal as refusal:
@@ -326,7 +335,8 @@ class OneLiveLeasePerTarget(QueueCase):
         refused = [answer for answer in answers.values()
                    if isinstance(answer, ContractRefusal)]
         self.assertEqual(len(granted), 1, answers)
-        self.assertEqual([one.code for one in refused], ["denied"])
+        self.assertEqual(refused, [])
+        self.assertEqual(sum(answer is None for answer in answers.values()), 1)
         self.assertEqual(len(self.live()), 1)
 
 
@@ -340,6 +350,7 @@ class DistinctTargetsDoNotSerializeEachOther(CoordinatorCase):
             enqueue(store, canonical_target_id=name, entry_id="entry-" + name,
                     eligibility=eligibility(checkpoint_id="c-" + name))
         leases = [grant_lease(store, canonical_target_id=name,
+                              entry_id="entry-" + name,
                               lease_id="lease-" + name,
                               integrator_participant="baton.integrator",
                               attempt_id="attempt-" + name)
@@ -527,8 +538,7 @@ class NoLeaseEndsOverUnresolvedWork(QueueCase):
 
     def test_the_next_entry_is_not_offered_over_the_refused_release(self):
         self.refusal(self.release)
-        caught = self.refusal(self.lease, "lease-2")
-        self.assertIn("already leased", caught.message)
+        self.assertIsNone(self.lease("lease-2"))
         self.assertEqual(self.states(), ["leased", "queued"])
 
     def test_a_held_entry_s_lease_is_not_released_either(self):
@@ -772,8 +782,7 @@ class NothingExpiresAndRecoveryIsExplicit(QueueCase):
         self.instants.append(LATER)
         self.assertEqual(lease_of(self.coordinator, "lease-1")["state"],
                          "live")
-        caught = self.refusal(self.lease, "lease-2")
-        self.assertEqual(caught.code, "denied")
+        self.assertIsNone(self.lease("lease-2"))
 
     def test_a_live_lease_is_not_taken_from_an_open_target(self):
         caught = self.refusal(abandon_lease, self.coordinator,
@@ -1210,6 +1219,7 @@ class TheValueValidatedIsTheValueUsed(CoordinatorCase):
                 entry_id="entry-1", eligibility=eligibility())
         self.granted = grant_lease(self.coordinator,
                                    canonical_target_id=TARGET,
+                                   entry_id="entry-1",
                                    lease_id="lease-1",
                                    integrator_participant="baton.integrator",
                                    attempt_id="attempt-1")
@@ -1431,7 +1441,8 @@ class TheGraphDoesNotDependOnWhatThisProcessREMEMBERS(CoordinatorCase):
     def test_a_fabricated_split_state_offers_no_next_entry(self):
         self.fabricate()
         caught = self.refusal(grant_lease, self.coordinator,
-                              canonical_target_id=TARGET, lease_id="lease-2",
+                              canonical_target_id=TARGET, entry_id="entry-2",
+                              lease_id="lease-2",
                               integrator_participant="baton.integrator",
                               attempt_id="attempt-2")
         self.assertEqual(caught.category, "integrity")
@@ -1506,6 +1517,7 @@ class TheWholeLifecycleIsProved(CoordinatorCase):
             enqueue(store, canonical_target_id=TARGET, entry_id=name,
                     eligibility=eligibility(checkpoint_id=checkpoint))
         granted = grant_lease(store, canonical_target_id=TARGET,
+                              entry_id="entry-1",
                               lease_id="lease-1",
                               integrator_participant="baton.integrator",
                               attempt_id="attempt-1")
@@ -1527,6 +1539,7 @@ class TheWholeLifecycleIsProved(CoordinatorCase):
         if door == "lease":
             return lease_of(store, "lease-1")
         return grant_lease(store, canonical_target_id=TARGET,
+                           entry_id="entry-2",
                            lease_id="lease-9",
                            integrator_participant="baton.integrator",
                            attempt_id="attempt-9")
@@ -1575,6 +1588,7 @@ class TheWholeLifecycleIsProved(CoordinatorCase):
             enqueue(store, canonical_target_id=TARGET, entry_id=name,
                     eligibility=eligibility(checkpoint_id=checkpoint))
         granted = grant_lease(store, canonical_target_id=TARGET,
+                              entry_id="entry-1",
                               lease_id="lease-1",
                               integrator_participant="baton.integrator",
                               attempt_id="attempt-1")
@@ -1603,6 +1617,7 @@ class TheWholeLifecycleIsProved(CoordinatorCase):
         self.assertEqual(lease_of(store, "lease-1")["state"], "released")
         self.assertEqual(target_of(store, TARGET)["fence"], 1)
         second = grant_lease(store, canonical_target_id=TARGET,
+                             entry_id="entry-2",
                              lease_id="lease-2",
                              integrator_participant="baton.integrator",
                              attempt_id="attempt-2")
@@ -1657,6 +1672,7 @@ class TheJournalIsTheDurableHistory(CoordinatorCase):
                 eligibility=eligibility(checkpoint_id="c-late")),
             "grant": lambda: grant_lease(
                 self.coordinator, canonical_target_id=TARGET,
+                entry_id="entry-late",
                 lease_id="lease-late",
                 integrator_participant="baton.integrator",
                 attempt_id="attempt-late"),
@@ -1675,6 +1691,7 @@ class TheJournalIsTheDurableHistory(CoordinatorCase):
     def integrate(self):
         """One whole integration, so there is history to delete."""
         granted = grant_lease(self.coordinator, canonical_target_id=TARGET,
+                              entry_id="entry-1",
                               lease_id="lease-1",
                               integrator_participant="baton.integrator",
                               attempt_id="attempt-1")
@@ -1691,20 +1708,17 @@ class TheJournalIsTheDurableHistory(CoordinatorCase):
 
     def test_every_operand_of_the_account_is_immutable(self):
         """The whole account, member by member, not the two the review named."""
-        for name in ("authority_uuid", "work_id", "assignment_generation",
-                     "line_id", "checkpoint_id", "verdict_id",
-                     "checkpoint_digest", "proposal_id", "candidate_digest",
-                     "proposal_manifest_digest", "profile_kind",
-                     "profile_version", "profile_account_digest",
-                     "expected_target_revision", "path_set_digest",
-                     "scope_digest"):
+        # THE ACCOUNT'S OWN MEMBERS, not a list beside it. W101714's review
+        # found this matrix naming a member the account no longer had, which is
+        # what a second copy of a member set is for.
+        from baton_v12.integration.queue import ELIGIBILITY_MEMBERS
+        for name in ELIGIBILITY_MEMBERS:
             with self.subTest(operand=name):
                 case = self.store(path=f"{self.path}.{name}")
                 activate_target(case, target())
                 enqueue(case, canonical_target_id=TARGET, entry_id="entry-1",
                         eligibility=eligibility())
-                rewritten = (2 if name in ("assignment_generation",
-                                           "profile_version")
+                rewritten = (2 if name == "assignment_generation"
                              else "rewritten")
                 case._connection.execute(
                     f"UPDATE entries SET {name} = ? WHERE entry_id = ?",
@@ -1757,6 +1771,7 @@ class TheJournalIsTheDurableHistory(CoordinatorCase):
 
     def test_a_deleted_live_lease_is_refused(self):
         grant_lease(self.coordinator, canonical_target_id=TARGET,
+                    entry_id="entry-1",
                     lease_id="lease-1",
                     integrator_participant="baton.integrator",
                     attempt_id="attempt-1")
@@ -1846,15 +1861,14 @@ class TheJournalIsTheDurableHistory(CoordinatorCase):
         self.edit("INSERT INTO entries (entry_id, canonical_target_id, rank, "
                   "authority_uuid, work_id, assignment_generation, line_id, "
                   "checkpoint_id, verdict_id, checkpoint_digest, proposal_id, "
-                  "candidate_digest, proposal_manifest_digest, profile_kind, "
-                  "profile_version, profile_account_digest, "
+                  "candidate_digest, result_id, result_digest, profile_kind, "
                   "expected_target_revision, path_set_digest, scope_digest, "
                   "state, enqueued_at) SELECT 'entry-ghost', "
                   "canonical_target_id, 9, authority_uuid, work_id, "
                   "assignment_generation, line_id, 'c-ghost', verdict_id, "
                   "checkpoint_digest, proposal_id, candidate_digest, "
-                  "proposal_manifest_digest, profile_kind, profile_version, "
-                  "profile_account_digest, expected_target_revision, "
+                  "result_id, result_digest, profile_kind, "
+                  "expected_target_revision, "
                   "path_set_digest, scope_digest, 'queued', enqueued_at "
                   "FROM entries WHERE entry_id = 'entry-1'")
         before = self.state()
@@ -1916,6 +1930,7 @@ class EveryRecordedActIsProvedWhole(CoordinatorCase):
             enqueue(store, canonical_target_id=TARGET, entry_id=name,
                     eligibility=eligibility(checkpoint_id=checkpoint))
         granted = grant_lease(store, canonical_target_id=TARGET,
+                              entry_id="entry-1",
                               lease_id="lease-1",
                               integrator_participant="baton.integrator",
                               attempt_id="attempt-1")
@@ -1936,6 +1951,7 @@ class EveryRecordedActIsProvedWhole(CoordinatorCase):
         enqueue(store, canonical_target_id=TARGET, entry_id="entry-1",
                 eligibility=eligibility())
         granted = grant_lease(store, canonical_target_id=TARGET,
+                              entry_id="entry-1",
                               lease_id="lease-1",
                               integrator_participant="baton.integrator",
                               attempt_id="attempt-1")
@@ -2115,7 +2131,8 @@ class EveryRecordedActIsProvedWhole(CoordinatorCase):
         store = self.store(path=self.path + ".empty")
         activate_target(store, target())
         self.assertIsNone(grant_lease(
-            store, canonical_target_id=TARGET, lease_id="lease-1",
+            store, canonical_target_id=TARGET, entry_id="entry-1",
+            lease_id="lease-1",
             integrator_participant="baton.integrator",
             attempt_id="attempt-1"))
         self.assertEqual(target_of(store, TARGET)["fence"], 0)
@@ -2137,14 +2154,12 @@ class EveryRecordedActIsProvedWhole(CoordinatorCase):
             "INSERT INTO entries (entry_id, canonical_target_id, rank, "
             "authority_uuid, work_id, assignment_generation, line_id, "
             "checkpoint_id, verdict_id, checkpoint_digest, proposal_id, "
-            "candidate_digest, proposal_manifest_digest, profile_kind, "
-            "profile_version, profile_account_digest, "
+            "candidate_digest, result_id, result_digest, profile_kind, "
             "expected_target_revision, path_set_digest, scope_digest, "
             "state, enqueued_at) SELECT 'entry-ghost', canonical_target_id, "
             "9, authority_uuid, work_id, assignment_generation, line_id, "
             "'c-ghost', verdict_id, checkpoint_digest, proposal_id, "
-            "candidate_digest, proposal_manifest_digest, profile_kind, "
-            "profile_version, profile_account_digest, "
+            "candidate_digest, result_id, result_digest, profile_kind, "
             "expected_target_revision, path_set_digest, scope_digest, "
             "'queued', enqueued_at FROM entries WHERE entry_id = 'entry-1'")
         before = self.durable(store)
@@ -2206,7 +2221,8 @@ class EveryRetryIsPROVEDBeforeItIsAnswered(CoordinatorCase):
         for name, checkpoint in (("entry-1", "c-1"), ("entry-2", "c-2")):
             enqueue(store, canonical_target_id=TARGET, entry_id=name,
                     eligibility=eligibility(checkpoint_id=checkpoint))
-        grant_lease(store, canonical_target_id=TARGET, lease_id="lease-1",
+        grant_lease(store, canonical_target_id=TARGET, entry_id="entry-1",
+                    lease_id="lease-1",
                     integrator_participant="baton.integrator",
                     attempt_id="attempt-1")
         settle_integrated(store, lease_id="lease-1",
@@ -2223,7 +2239,8 @@ class EveryRetryIsPROVEDBeforeItIsAnswered(CoordinatorCase):
         activate_target(store, target())
         enqueue(store, canonical_target_id=TARGET, entry_id="entry-1",
                 eligibility=eligibility())
-        grant_lease(store, canonical_target_id=TARGET, lease_id="lease-1",
+        grant_lease(store, canonical_target_id=TARGET, entry_id="entry-1",
+                    lease_id="lease-1",
                     integrator_participant="baton.integrator",
                     attempt_id="attempt-1")
         block_target(store, canonical_target_id=TARGET, entry_id="entry-1",
@@ -2246,7 +2263,8 @@ class EveryRetryIsPROVEDBeforeItIsAnswered(CoordinatorCase):
                 store, canonical_target_id=TARGET, entry_id="entry-1",
                 eligibility=eligibility(checkpoint_id="c-1")),
             "lease.grant": lambda: grant_lease(
-                store, canonical_target_id=TARGET, lease_id="lease-1",
+                store, canonical_target_id=TARGET, entry_id="entry-1",
+                lease_id="lease-1",
                 integrator_participant="baton.integrator",
                 attempt_id="attempt-1"),
             "entry.integrated": lambda: settle_integrated(
@@ -2356,6 +2374,7 @@ class EveryRetryIsPROVEDBeforeItIsAnswered(CoordinatorCase):
         enqueue(store, canonical_target_id=TARGET, entry_id="entry-1",
                 eligibility=eligibility())
         granted = grant_lease(store, canonical_target_id=TARGET,
+                              entry_id="entry-1",
                               lease_id="lease-1",
                               integrator_participant="baton.integrator",
                               attempt_id="attempt-1")
@@ -2528,6 +2547,7 @@ class TheORDERIsTheWitnessForWhatWasGENERATED(CoordinatorCase):
                 eligibility=eligibility(checkpoint_id="c-late")),
             "grant": lambda: grant_lease(
                 self.coordinator, canonical_target_id=TARGET,
+                entry_id="entry-late",
                 lease_id="lease-late",
                 integrator_participant="baton.integrator",
                 attempt_id="attempt-late"),
@@ -2574,6 +2594,7 @@ class TheORDERIsTheWitnessForWhatWasGENERATED(CoordinatorCase):
         """The same rewrite one level up: the lease row and the grant result
         agree that the second entry was taken, and rank 1 was still queued."""
         grant_lease(self.coordinator, canonical_target_id=TARGET,
+                    entry_id="entry-1",
                     lease_id="lease-1",
                     integrator_participant="baton.integrator",
                     attempt_id="attempt-1")
@@ -2589,12 +2610,13 @@ class TheORDERIsTheWitnessForWhatWasGENERATED(CoordinatorCase):
                          entry_id="entry-2"),
                          result.update(entry=retargeted)))
         caught = self.refusal(entries_of, self.coordinator, TARGET)
-        self.assertIn("took entry 'entry-2' while entry 'entry-1' stood at "
-                      "rank 1", caught.message)
+        self.assertIn("is not the result of the grant that was signed",
+                      caught.message)
 
     def test_a_grant_that_recorded_nothing_while_work_was_queued_is_refused(self):
         """The typed empty result is a CLAIM about the queue, not a shrug."""
         grant_lease(self.coordinator, canonical_target_id=TARGET,
+                    entry_id="entry-1",
                     lease_id="lease-1",
                     integrator_participant="baton.integrator",
                     attempt_id="attempt-1")
@@ -2606,14 +2628,14 @@ class TheORDERIsTheWitnessForWhatWasGENERATED(CoordinatorCase):
         self.edit("UPDATE operations SET result = 'null' "
                   "WHERE operation_id = 'lease.grant:lease-1'")
         caught = self.refusal(entries_of, self.coordinator, TARGET)
-        self.assertIn("recorded no lease while entry 'entry-1' stood at rank 1",
-                      caught.message)
+        self.assertIn("records no result", caught.message)
 
     # -- the fence is a generated decision as well --------------------------
 
     def test_a_coordinated_fence_rewrite_is_refused(self):
         """Result, lease row and target counter all moved together."""
         grant_lease(self.coordinator, canonical_target_id=TARGET,
+                    entry_id="entry-1",
                     lease_id="lease-1",
                     integrator_participant="baton.integrator",
                     attempt_id="attempt-1")
@@ -2621,6 +2643,7 @@ class TheORDERIsTheWitnessForWhatWasGENERATED(CoordinatorCase):
                      entry_id="entry-1", settlement=REFUSAL,
                      lease_id="lease-1", fence=1)
         grant_lease(self.coordinator, canonical_target_id=TARGET,
+                    entry_id="entry-2",
                     lease_id="lease-2",
                     integrator_participant="baton.integrator",
                     attempt_id="attempt-2")
@@ -2676,6 +2699,7 @@ class TheORDERIsTheWitnessForWhatWasGENERATED(CoordinatorCase):
         refuse_entry(self.coordinator, canonical_target_id=TARGET,
                      entry_id="entry-1", settlement=REFUSAL)
         first = grant_lease(self.coordinator, canonical_target_id=TARGET,
+                            entry_id="entry-2",
                             lease_id="lease-1",
                             integrator_participant="baton.integrator",
                             attempt_id="attempt-1")
@@ -2688,6 +2712,7 @@ class TheORDERIsTheWitnessForWhatWasGENERATED(CoordinatorCase):
                       canonical_target_id=TARGET, entry_id="entry-2",
                       fence=1, ending=INTEGRATED)
         second = grant_lease(self.coordinator, canonical_target_id=TARGET,
+                             entry_id="entry-3",
                              lease_id="lease-2",
                              integrator_participant="baton.integrator",
                              attempt_id="attempt-2")
@@ -2700,7 +2725,8 @@ class TheORDERIsTheWitnessForWhatWasGENERATED(CoordinatorCase):
                           ("entry-3", 3, "leased")])
         # And the exact replays still return their first outcomes.
         self.assertEqual(grant_lease(
-            self.coordinator, canonical_target_id=TARGET, lease_id="lease-2",
+            self.coordinator, canonical_target_id=TARGET, entry_id="entry-3",
+            lease_id="lease-2",
             integrator_participant="baton.integrator",
             attempt_id="attempt-2"), second)
         self.assertEqual(enqueue(self.coordinator, canonical_target_id=TARGET,
@@ -2774,10 +2800,18 @@ class TheCoordinatorVocabularyIsVCSNEUTRAL(QueueCase):
 
     # -- and the profile boundary is closed rather than opaque --------------
 
-    def test_a_profile_operand_cannot_return_through_the_account(self):
+    def test_a_member_without_a_producer_cannot_return_through_the_account(self):
         """The clarification refuses an opaque document by name, so the
         account stays closed: an operand this build does not own is refused
         rather than carried."""
+        caught = self.refusal(
+            enqueue, self.coordinator, canonical_target_id=TARGET,
+            entry_id="entry-1",
+            eligibility=eligibility(proposal_manifest_digest="sha256:x"))
+        self.assertEqual(caught.category, "integrity")
+        self.assertEqual(entries_of(self.coordinator, TARGET), [])
+
+    def test_a_git_operand_cannot_return_through_the_account_either(self):
         caught = self.refusal(
             enqueue, self.coordinator, canonical_target_id=TARGET,
             entry_id="entry-1",
@@ -2785,16 +2819,15 @@ class TheCoordinatorVocabularyIsVCSNEUTRAL(QueueCase):
         self.assertEqual(caught.category, "integrity")
         self.assertEqual(entries_of(self.coordinator, TARGET), [])
 
-    def test_the_profile_binding_is_typed_member_by_member(self):
+    def test_the_account_is_typed_member_by_member(self):
         for name, value in (("profile_kind", 7),
-                            ("profile_version", "1"),
+                            ("profile_kind", None),
                             # Zero passed `boundaries.generation`, which counts
                             # from zero, and reached the column's own `>= 1`
-                            # CHECK as a raw `IntegrityError`. True of
-                            # `assignment_generation` all along.
-                            ("profile_version", 0),
+                            # CHECK as a raw `IntegrityError`.
                             ("assignment_generation", 0),
-                            ("profile_account_digest", None)):
+                            ("assignment_generation", "1"),
+                            ("scope_digest", None)):
             with self.subTest(member=name, value=value):
                 caught = self.refusal(
                     enqueue, self.coordinator, canonical_target_id=TARGET,
@@ -2803,7 +2836,7 @@ class TheCoordinatorVocabularyIsVCSNEUTRAL(QueueCase):
                 self.assertEqual(caught.category, "integrity")
         self.assertEqual(entries_of(self.coordinator, TARGET), [])
 
-    def test_a_missing_profile_binding_never_reaches_the_queue(self):
+    def test_a_missing_member_never_reaches_the_queue(self):
         account = eligibility()
         del account["profile_kind"]
         caught = self.refusal(enqueue, self.coordinator,
@@ -2811,23 +2844,6 @@ class TheCoordinatorVocabularyIsVCSNEUTRAL(QueueCase):
                               eligibility=account)
         self.assertIn("profile_kind", caught.message)
 
-    def test_the_profile_account_is_bound_by_digest_and_not_held(self):
-        """What a repository deployment's base, head, tree and transport
-        reduce to here: a kind, a version, and the digest of an account this
-        store never reads."""
-        placed = self.place("entry-1")
-        self.assertEqual(placed["profile_kind"], "baton.repository")
-        self.assertEqual(placed["profile_version"], 1)
-        self.assertEqual(placed["profile_account_digest"],
-                         eligibility()["profile_account_digest"])
-        self.assertEqual(placed["eligibility"], eligibility())
-        # The account IS the columns, so there is no second stored document to
-        # be the uninterpretable one.
-        self.assertEqual(
-            sorted(set(schema.ENTRY_COLUMNS)
-                   - {"entry_id", "canonical_target_id", "rank", "state",
-                      "enqueued_at", "settled_at", "settlement"}),
-            sorted(eligibility()))
 
 
 class OneProofObservesOneSnapshot(CoordinatorCase):
@@ -2879,6 +2895,7 @@ class OneProofObservesOneSnapshot(CoordinatorCase):
 
     def grant(self):
         return grant_lease(self.writer, canonical_target_id=TARGET,
+                           entry_id="entry-1",
                            lease_id="lease-1",
                            integrator_participant="baton.integrator",
                            attempt_id="attempt-1")
@@ -2926,6 +2943,33 @@ class OneProofObservesOneSnapshot(CoordinatorCase):
         self.assertEqual(
             self.reader._connection.execute(
                 "PRAGMA journal_mode").fetchone()[0], "wal")
+
+    def test_the_wal_switch_is_a_request_and_a_busy_answer_is_not_one(self):
+        """The claim that WAL is requested and not required, driven.
+
+        Switching the journal mode needs the file to itself, and
+        `PRAGMA journal_mode` is one of the statements that can answer BUSY
+        without the busy handler retrying it -- so two coordinators opening one
+        store at the same instant can meet it. A correct store with a narrower
+        concurrency story is the right outcome there; a raw
+        `sqlite3.OperationalError` out of a public constructor is not.
+
+        MEASURED RATHER THAN ANTICIPATED: the sibling `ControlStore` performs
+        this switch inside `_initialize` and a parallel suite raced it exactly
+        there, which is what sent me looking at my own.
+        """
+        from baton_v12.integration.store import IntegrationStore
+        place = self.path + ".busy"
+        opener = sqlite3.connect(place, isolation_level=None)
+        self.addCleanup(opener.close)
+        opener.execute("PRAGMA journal_mode = DELETE")
+        opener.execute("CREATE TABLE keep (x INTEGER)")
+        blocker = sqlite3.connect(place, isolation_level=None, timeout=0)
+        self.addCleanup(blocker.close)
+        blocker.execute("BEGIN IMMEDIATE")
+        blocker.execute("INSERT INTO keep VALUES (1)")
+        self.assertEqual(IntegrationStore._concurrent(opener, place),
+                         "delete")
 
     def test_the_snapshot_yields_to_a_transaction_already_held(self):
         """Inside `transact` the write transaction IS the observation, and
@@ -3090,3 +3134,165 @@ class RefusedActsAreEvidenceToo(CoordinatorCase):
                          "SELECT * FROM leases",
                          "SELECT * FROM operations ORDER BY seq")],
             before)
+
+
+class EveryMemberOfTheAccountHasAProducer(QueueCase):
+    """W101491's finding and W101714's review, kept as a gate.
+
+    THE RULE: a member of an immutable evidence account needs a NAMED,
+    ACCEPTED PRODUCER before it is minted. The test is not "can this build
+    validate its type" -- `profile_version`, `profile_account_digest` and
+    `proposal_manifest_digest` were all typed, closed, cross-bound to the
+    journal and proved against the signed act, and all three were still
+    unprovable -- but "which accepted act computed it, and how does a later
+    reader recompute it from that act".
+
+    WHY THIS IS A MAP AND NOT A COUNT. The first version of this case asserted
+    that two names were absent and the tuple was fourteen long, and it passed
+    while its own title was false: `proposal_manifest_digest` was still there
+    with no producer anywhere in the accepted Python surface. Counting members
+    cannot find a member without a producer. Naming the surface and asking that
+    surface whether it offers the name can, and does it for every member rather
+    than for the ones somebody remembered.
+    """
+
+    # WHERE EACH MEMBER COMES FROM, and every surface here is read from the
+    # producing package rather than transcribed.
+    PRODUCERS = {
+        "authority_uuid": "attempt-assignment",
+        "work_id": "attempt-assignment",
+        "assignment_generation": "attempt-assignment",
+        "line_id": "checkpoint-verdict",
+        "checkpoint_id": "checkpoint-verdict",
+        "verdict_id": "checkpoint-verdict",
+        "checkpoint_digest": "checkpoint-verdict",
+        "path_set_digest": "checkpoint-verdict",
+        "proposal_id": "authority-proposal",
+        "candidate_digest": "authority-proposal",
+        "result_id": "authority-proposal",
+        "result_digest": "authority-proposal",
+        "expected_target_revision": "authority-proposal",
+        "profile_kind": "checkpoint-evidence-profile",
+        "scope_digest": "accepted-job",
+    }
+
+    def surfaces(self):
+        """What each accepted producer actually offers, asked of it directly."""
+        import sqlite3 as engine
+        from baton_v12.authority import schema as authority
+        from baton_v12.job_manager import schema as jobs
+        from baton_v12.worker_manager import attempts
+        from baton_v12.worker_manager import schema as manager
+        scratch = engine.connect(":memory:")
+        self.addCleanup(scratch.close)
+        scratch.executescript(authority.SCHEMA)
+        proposal = {row[1] for row in
+                    scratch.execute("PRAGMA table_info(proposal)")}
+        # The account's own name for the proposal's target revision; the
+        # Authority calls the column `target`, and naming that here is the
+        # cross-binding rather than hiding it.
+        proposal.add("expected_target_revision" if "target" in proposal
+                     else "")
+        # THE CHECKPOINT EVIDENCE'S OWN CLOSED MEMBER SET, read from the
+        # accepted column contract rather than manufactured. W101714's second
+        # review: this used to be the set literal `{"profile_kind"}`, so the
+        # assertion below was true of nothing -- it would have kept passing if
+        # the accepted evidence dropped `profile` entirely, which is exactly
+        # the producer question being asked.
+        #
+        # The account RENAMES the member, and naming the rename here is the
+        # cross-binding rather than hiding it: the evidence carries `profile`
+        # and the entry copies it as `profile_kind`. If that member goes, this
+        # surface offers nothing and the map above fails.
+        evidence = set(manager.LINE_CHECKPOINT_COLUMNS["evidence"].members)
+        return {
+            "attempt-assignment": set(attempts.ASSIGNMENT_COLUMNS),
+            "checkpoint-verdict": set(manager.CHECKPOINT_VERDICT_COLUMNS),
+            "authority-proposal": proposal,
+            "accepted-job": {"scope_digest"} if "test_scope" in
+            jobs.JOB_COLUMNS else set(),
+            "checkpoint-evidence-profile":
+                {"profile_kind"} if "profile" in evidence else set(),
+        }
+
+    def test_every_member_is_claimed_by_exactly_one_producer(self):
+        from baton_v12.integration.queue import ELIGIBILITY_MEMBERS
+        self.assertEqual(sorted(self.PRODUCERS), sorted(ELIGIBILITY_MEMBERS))
+
+    def test_every_producer_actually_offers_the_member(self):
+        """The check that would have caught all three. Each surface is asked
+        whether it carries the name the account says it copies."""
+        offered = self.surfaces()
+        for member, producer in sorted(self.PRODUCERS.items()):
+            with self.subTest(member=member, producer=producer):
+                self.assertIn(member, offered[producer],
+                              f"{member} claims {producer} and that surface "
+                              f"does not offer it")
+
+    def test_the_three_removed_members_have_no_producer_anywhere(self):
+        """Why they are gone, driven rather than remembered."""
+        from baton_v12.integration.queue import ELIGIBILITY_MEMBERS
+        offered = self.surfaces()
+        everywhere = set()
+        for names in offered.values():
+            everywhere |= names
+        for gone in ("profile_version", "profile_account_digest",
+                     "proposal_manifest_digest"):
+            with self.subTest(member=gone):
+                self.assertNotIn(gone, everywhere)
+                self.assertNotIn(gone, ELIGIBILITY_MEMBERS)
+
+    def test_the_profile_kind_is_one_the_producer_can_emit(self):
+        """W101714's first review: the fixture asserted `repository`, and the
+        named producer emits `generic` or `git`."""
+        from baton_v12.source_profiles import PROFILES
+        self.assertIn(eligibility()["profile_kind"], PROFILES)
+        self.assertIn(self.place("entry-1")["profile_kind"], PROFILES)
+
+    def test_the_accepted_evidence_carries_the_member_this_one_renames(self):
+        """The non-vacuity the second review asked for.
+
+        `profile_kind` is a RENAME of the accepted checkpoint evidence's
+        `profile`, and this reads W71918's own contract --
+        `LINE_CHECKPOINT_COLUMNS["evidence"].members` -- rather than a set
+        literal. If the accepted evidence ever drops `profile`, this fails
+        here AND the producer map above fails, which is the whole point: the
+        previous version of this proof would have kept passing.
+        """
+        from baton_v12.worker_manager import schema as manager
+        members = manager.LINE_CHECKPOINT_COLUMNS["evidence"].members
+        self.assertIn("profile", members)
+        self.assertNotIn("profile_kind", members)
+        self.assertEqual(self.surfaces()["checkpoint-evidence-profile"],
+                         {"profile_kind"})
+
+    def test_the_account_carries_the_exact_value_the_producer_writes(self):
+        """`checkpoint_profiles.GitCheckpointProfile.freeze` puts
+        `source_profiles.GIT_PROFILE` in the evidence's `profile` member, so
+        the account's copy is compared to that constant rather than to a word
+        this suite chose. Freezing for real needs a repository and a command
+        runner, which is Git reaching into a suite whose subject is a
+        coordinator that must not know what Git is."""
+        import inspect
+        from baton_v12 import checkpoint_profiles
+        from baton_v12.source_profiles import GIT_PROFILE
+        self.assertEqual(eligibility()["profile_kind"], GIT_PROFILE)
+        self.assertEqual(self.place("entry-1")["profile_kind"], GIT_PROFILE)
+        # And the producer really writes that constant into that member.
+        frozen = inspect.getsource(checkpoint_profiles.GitCheckpointProfile
+                                   .freeze)
+        self.assertIn('"profile": GIT_PROFILE', frozen)
+
+    def test_the_computed_digests_are_computed_the_producer_s_way(self):
+        """`path_set_digest` is `digest(paths)` -- `checkpoint_profiles` and
+        `review_cycles` both refuse evidence where it is not -- and
+        `scope_digest` is the digest of the accepted Job's own `test_scope`."""
+        from baton_v12.contracts import digest
+        from .fixtures import PATHS, TEST_SCOPE
+        placed = self.place("entry-1")
+        self.assertEqual(placed["path_set_digest"], digest(PATHS))
+        self.assertEqual(placed["scope_digest"], digest(TEST_SCOPE))
+        self.assertEqual(PATHS, sorted(set(PATHS)))
+
+    def test_the_account_the_store_returns_is_the_account_that_was_admitted(self):
+        self.assertEqual(self.place("entry-1")["eligibility"], eligibility())

@@ -1,0 +1,41 @@
+--- live_controller_restore_constructor.py
++++ live_controller_result_diagnostics.py
+@@ -32,7 +32,7 @@
+ DELAY_NS = 5_000_000_000
+ DOCKER_ENV = dict(PATH="/usr/bin:/bin", HOME="/nonexistent", DOCKER_CONFIG="/nonexistent")
+ DOCKER = ["/usr/bin/docker", "--host", "unix:///var/run/docker.sock"]
+-MANIFEST = HERE / "restore-constructor-manifest.json"
++MANIFEST = HERE / "result-diagnostics-manifest.json"
+ 
+ 
+ def digest(path):
+@@ -73,7 +73,7 @@
+         sys.exit(1)
+ 
+ import host_runner as base
+-import live_supervisor_restore as wire
++import live_supervisor_result_diagnostics as wire
+ import real_session_contract as contract
+ require = wire.require
+ 
+@@ -284,6 +284,11 @@
+ def diagnostic_frame(value, arm, operation, turn):
+     common = {"event", "arm", "operation", "turn", "stage"}
+     fields = {"monotonic_ns"} if value.get("event") == "diagnostic" else {"refusal_code", "exception_kind", "errno"}
++    if "result_fields" in value:
++        require(value.get("event") == "diagnostic" and value.get("stage") == "provider-result-validation"
++                and operation == "turn", "diagnostic-frame-invalid")
++        wire.validate_result_fields(value["result_fields"])
++        fields = fields | {"result_fields"}
+     require(set(value) == common | fields and value["event"] in ("diagnostic", "refused"), "diagnostic-frame-invalid")
+     require(value["arm"] in wire.ARMS and value["operation"] == operation
+             and (value["arm"] == arm or operation == "start" and value["arm"] == "unassigned"), "diagnostic-frame-invalid")
+@@ -570,7 +575,7 @@
+     @diagnostic_operation("start")
+     def start(self):
+         script = self.directory / "live_supervisor.py"
+-        script.write_bytes((HERE / "live_supervisor_restore.py").read_bytes())
++        script.write_bytes((HERE / "live_supervisor_result_diagnostics.py").read_bytes())
+         os.chmod(script, 0o444)
+         self.delivery = self.credentials.materialize(self.nonce)
+         credential, target = self.delivery.mounts()[0]

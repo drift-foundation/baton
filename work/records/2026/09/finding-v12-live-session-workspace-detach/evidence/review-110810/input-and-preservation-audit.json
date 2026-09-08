@@ -1,0 +1,18 @@
+{
+  "accepted_exports_unchanged": 9,
+  "claim": 110810,
+  "exact_controller_delta": "manifest basename and private-subdirectory loop variable only",
+  "inputs_matched": 125,
+  "manifest_sha256": "b6058f4774775c63113f0f9721e264dd317a4f57692b2ebfdf3264511c032c4b",
+  "prior_inputs_unchanged": 116,
+  "reviewed_files": {
+    "live_controller_restore_constructor.py": "fd551c9684b2caa4577482bd5305b5f2a8e5ed22032d821b801f1ca33305f247",
+    "live_supervisor_restore.py": "3322a0494f8dd51be1f8188e626e522ad676dfee4c380d6c939b9827e4f3082f",
+    "restore-constructor-manifest.json": "b6058f4774775c63113f0f9721e264dd317a4f57692b2ebfdf3264511c032c4b",
+    "test_restore_constructor.py": "8886cb31fac07beb81cf9ee38aa83f4edc8ccb640beda749d9639c2c4f268428"
+  },
+  "runtime_or_credentials_used": false,
+  "standalone_audit_exit": 0,
+  "tests_rerun": false,
+  "work": "W106673"
+}

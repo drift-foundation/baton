@@ -699,6 +699,64 @@ class TheProfilesAreOwnedOutsideTheManager(unittest.TestCase):
                 self.assertEqual(plan["base"], base)
                 self.assertEqual(plan["base_kind"], kind)
 
+    # -- W105575: the prepared persistent development line -------------------
+
+    def test_a_prepared_line_plans_no_step_and_consumes_the_workspace(self):
+        """The line was materialized before the runtime existed.
+
+        Its plan is therefore empty for the same reason the generic one is --
+        there is nothing to turn into somewhere the worker may work -- but its
+        source root is the WORKSPACE rather than the mount, because the
+        workspace already IS the checkout.
+        """
+        from baton_v12.source_profiles import checkout
+        base = "d" * 40
+        plan = checkout.checkout_plan(
+            SOURCE_TARGET, WORKSPACE_TARGET,
+            profile=checkout.GIT_LINE_PROFILE, declared=base)
+        self.assertEqual(plan["steps"], ())
+        self.assertEqual(plan["source_root"], WORKSPACE_TARGET)
+        self.assertEqual(plan["workspace"], WORKSPACE_TARGET)
+        self.assertEqual(plan["base"], base)
+        self.assertEqual(plan["base_kind"], "sha1")
+        # NOT THE MOUNT. A prepared line's material came from the manager's own
+        # materialization; a plan that also named the mount as a source root
+        # would be a second, unreviewed route for bytes into the candidate.
+        self.assertNotEqual(plan["source_root"], SOURCE_TARGET)
+
+    def test_a_prepared_line_without_a_base_is_refused(self):
+        from baton_v12.source_profiles import checkout
+        with self.assertRaises(checkout.ProfileRefusal):
+            checkout.checkout_plan(SOURCE_TARGET, WORKSPACE_TARGET,
+                                   profile=checkout.GIT_LINE_PROFILE)
+
+    def test_the_prepared_line_is_a_third_word_and_not_a_git_variant(self):
+        """Selection is what the assignment SAYS, so the word is in the set.
+
+        And it is not the checkpoint profile's word: `GitCheckpointProfile`
+        keeps its own `git` identity for the LINE, while this names how a
+        worker consumes the source it was mounted.
+        """
+        from baton_v12.source_profiles import checkout
+        from baton_v12.checkpoint_profiles import GitCheckpointProfile
+        self.assertIn(checkout.GIT_LINE_PROFILE, checkout.PROFILES)
+        self.assertNotEqual(checkout.GIT_LINE_PROFILE, checkout.GIT_PROFILE)
+        self.assertEqual(GitCheckpointProfile.name, checkout.GIT_PROFILE)
+        with self.assertRaises(checkout.ProfileRefusal):
+            checkout.checkout_plan(SOURCE_TARGET, WORKSPACE_TARGET,
+                                   profile="git-lines", declared="d" * 40)
+
+    def test_both_object_widths_are_accepted_for_a_prepared_line_too(self):
+        from baton_v12.source_profiles import checkout
+        for width, kind in checkout.BASE_KINDS.items():
+            with self.subTest(width=width):
+                base = "e" * width
+                plan = checkout.checkout_plan(
+                    SOURCE_TARGET, WORKSPACE_TARGET,
+                    profile=checkout.GIT_LINE_PROFILE, declared=base)
+                self.assertEqual(plan["base"], base)
+                self.assertEqual(plan["base_kind"], kind)
+
 
 class TheWorkspaceIsStorageAndScratchIsBounded(BoundaryCase):
     """Kernel-bounded scratch, a DECLARED capacity, and the rule that

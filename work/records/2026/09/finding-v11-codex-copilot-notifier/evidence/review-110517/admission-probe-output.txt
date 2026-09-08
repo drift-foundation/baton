@@ -1,0 +1,43 @@
+[
+  {
+    "flag": "blocked",
+    "refused_without_queue_or_turn": true
+  },
+  {
+    "flag": "tainted",
+    "refused_without_queue_or_turn": true
+  },
+  {
+    "flag": "orphan",
+    "refused_without_queue_or_turn": true
+  },
+  {
+    "flag": "terminalFailure",
+    "refused_without_queue_or_turn": true
+  },
+  {
+    "flag": "statusRefreshFailure",
+    "refused_without_queue_or_turn": true
+  },
+  {
+    "flag": "activeTurn",
+    "refused_without_queue_or_turn": true
+  },
+  {
+    "flag": "draining",
+    "refused_without_queue_or_turn": true
+  },
+  {
+    "flag": "stopping",
+    "refused_without_queue_or_turn": true
+  },
+  {
+    "flag": "disconnected",
+    "refused_without_queue_or_turn": true
+  },
+  {
+    "positive": "one advisory to existing thread; second refused; ordinary status shape preserved"
+  }
+]
+
+exit_code=0

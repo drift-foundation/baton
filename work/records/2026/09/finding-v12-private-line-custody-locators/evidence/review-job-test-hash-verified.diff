@@ -1,0 +1,120 @@
+--- reconstructed-and-prior-hash-verified
++++ current-candidate
+@@ -622,8 +622,8 @@
+             self.control, line_id=self.line["line_id"], attempt_id=attempt_id,
+             generation=1, worker_id="impl-worker-1", profile=self.profile)
+         self.completed(attempt_id)
+-        adapter = _Adapter("runtime-writer-attempt-1")
+         with _endings() as recorded:
++            adapter = _Adapter("runtime-writer-attempt-1", recorder=recorded)
+             answered = review_driver.end_implementation(
+                 self.control, self.port(WRITER), adapter, publication,
+                 attempt_id=attempt_id, disposition="completed", terminal=None,
+@@ -1022,14 +1022,29 @@
+     custodian_image_digest = "sha256:" + "c" * 64
+ 
+     def __init__(self, runtime_id, *, answer=None, verbs=None,
+-                 identities=review_driver.ADAPTER_IDENTITIES):
++                 identities=review_driver.ADAPTER_IDENTITIES,
++                 recorder=None, consumable=None):
+         self.runtime_id = runtime_id
+         self.answer = answer
+         self.stops = []
++        self.consumed = []
+         for verb in (verbs if verbs is not None
+                      else review_driver.RUNTIME_ADAPTER):
+             if verb != "stop":
+                 setattr(self, verb, lambda *a, **k: None)
++        # W105982: THE CONSUMPTION GATE IS AN ADAPTER VERB, so the order
++        # recorder cannot see it by patching a module function the way it sees
++        # every other step. It records itself, and `consumable` is what a case
++        # uses to make the gate refuse.
++        if hasattr(self, "prove_line_consumable"):
++            def consume(store, **named):
++                self.consumed.append(dict(named))
++                if recorder is not None:
++                    recorder.append("consume")
++                if consumable is not None:
++                    raise consumable
++                return {"line_id": "line-1"}
++            self.prove_line_consumable = consume
+         for member in review_driver.ADAPTER_IDENTITIES:
+             if member not in identities:
+                 setattr(self, member, None)
+@@ -1141,3 +1156,76 @@
+ def review_cycles_verdict():
+     from baton_v12.worker_manager import review_cycles
+     return review_cycles.record_verdict
++
++
++class TheEndingProvesTheLineBeforeItReadsIt(DriverCase):
++    """W105982: the gate's POSITION is the whole of it.
++
++    Ordinary custody normalization is the last thing an ending does and
++    addresses the ordinary attempt roots, which are not the tree the manager
++    seals. So until this gate ran, nothing had established that the manager can
++    read what it is about to read.
++    """
++
++    def ending(self, adapter=None, **operands):
++        attempt_id = self.attempt("writer-attempt-1", 1, WRITER,
++                                  "writer-principal-1")
++        writer = review_driver.prepare_implementation(
++            self.control, line_id=self.line["line_id"], attempt_id=attempt_id,
++            generation=1, worker_id="impl-worker-1", profile=self.profile)
++        self.completed(attempt_id)
++        with _endings() as recorded:
++            held = adapter or _Adapter("runtime-writer-attempt-1",
++                                       recorder=recorded, **operands)
++            try:
++                answered = review_driver.end_implementation(
++                    self.control, self.port(WRITER), held, _Seam(self),
++                    attempt_id=attempt_id, disposition="completed",
++                    terminal=None, writer_id=writer["writer_id"],
++                    generation=1, profile=self.profile,
++                    retention_disposition="retain",
++                    retention_policy_digest="sha256:" + "9" * 64,
++                    proposal={"target": "revision-1"})
++            except ContractRefusal as refused:
++                return None, recorded, held, refused
++        return answered, recorded, held, None
++
++    def test_the_gate_runs_after_the_stop_and_before_the_first_read(self):
++        _, recorded, adapter, _ = self.ending()
++        self.assertIn("consume", recorded)
++        # AFTER, because a proof taken while the worker is still writing is a
++        # proof about a tree that is still changing.
++        self.assertLess(recorded.index("quiesce"), recorded.index("consume"))
++        self.assertLess(recorded.index("observe"), recorded.index("consume"))
++        # BEFORE, because a consumer that discovers the denial halfway through
++        # sealing has already produced a partial account of somebody's work.
++        self.assertLess(recorded.index("consume"), recorded.index("freeze"))
++        self.assertLess(recorded.index("consume"), recorded.index("publish"))
++        self.assertLess(recorded.index("consume"), recorded.index("checkpoint"))
++        # AND ORDINARY CLEANUP IS STILL LAST, which is exactly why it could
++        # never have been the thing that made this line readable.
++        self.assertEqual(recorded[-1], "cleanup")
++        self.assertEqual(adapter.consumed,
++                         [{"assignment_id": "writer-attempt-1",
++                           "generation": 1}])
++
++    def test_a_refused_gate_stops_before_the_seal_and_the_publication(self):
++        answered, recorded, _, refused = self.ending(
++            consumable=ContractRefusal(
++                "runtime-observation", "identity-mismatch",
++                "this manager cannot open the development line"))
++        self.assertIsNone(answered)
++        self.assertIn("cannot open", refused.message)
++        for step in ("freeze", "intake", "retain", "publish", "checkpoint",
++                     "cleanup"):
++            self.assertNotIn(step, recorded)
++
++    def test_an_adapter_without_the_gate_refuses_before_the_stop(self):
++        verbs = [one for one in review_driver.RUNTIME_ADAPTER
++                 if one != "prove_line_consumable"]
++        adapter = _Adapter("runtime-writer-attempt-1", verbs=verbs)
++        answered, recorded, held, refused = self.ending(adapter)
++        self.assertIsNone(answered)
++        self.assertEqual(held.stops, [])
++        self.assertNotIn("quiesce", recorded)
++        self.assertIn("prove_line_consumable", refused.message)

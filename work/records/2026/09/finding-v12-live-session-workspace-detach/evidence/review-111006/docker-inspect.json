@@ -1,0 +1,7 @@
+{
+  "chunk_id": "4f813e",
+  "wall_time_seconds": 0.000002445,
+  "exit_code": 0,
+  "original_token_count": 94,
+  "output": "{\"Status\":\"exited\",\"Running\":false,\"Paused\":false,\"Restarting\":false,\"OOMKilled\":false,\"Dead\":false,\"Pid\":0,\"ExitCode\":1,\"Error\":\"\",\"StartedAt\":\"2026-09-07T14:22:34.102474752Z\",\"FinishedAt\":\"2026-09-07T14:22:34.946234071Z\"} \"sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f\" {\"baton.experiment\":\"W106673\",\"baton.run\":\"6bee0d55808f4271a507d26718705be1\"}\n"
+}

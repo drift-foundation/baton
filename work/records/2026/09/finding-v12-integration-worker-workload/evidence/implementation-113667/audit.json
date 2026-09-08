@@ -1,0 +1,63 @@
+{
+ "claim": 113667,
+ "author": "baton.claude",
+ "scope": "The remaining W110935 deliverable: workload, entry, recipe, image suite, its registry entry and the joined provider-driven proof.",
+ "revalidated_before_acting": {
+  "reviewed_hashes_from_review_113446_matched": true,
+  "four_remaining_paths_absent_before_this_claim": true,
+  "accepted_child_hashes_unchanged": true
+ },
+ "delivered": {
+  "v12/worker/integration_workload.py": "1725d917184addad6b589901db447afb5f8e7fbe2f6545d4cdd8924d0a494bc5",
+  "v12/worker/integration_entry.py": "7cb26737a5694f6e2e5eb2869c28bb5425703ba339ab3633eab388f3608a1679",
+  "v12/worker/Dockerfile.integration": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+  "v12/python/tests/manager/test_integration_image.py": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e"
+ },
+ "extended": {
+  "v12/python/tests/manager/test_integration_worker.py": "77359725e7b875ea4305e183ea56c46fb0fd783001905201211e94bd5315281a",
+  "v12/python/tools/parallel_test.py": "5bf2cbfbf29c603f07f811a1d5f968257798e1944d91bed0d97fe9aa393bf302"
+ },
+ "unchanged_accepted": {
+  "v12/worker/claude_agent.py": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+  "v12/worker/integration_contract.py": "03e346c27b6b919f00581183e301b9c5c979e89ba43adb29aa301d0ce9e735a6",
+  "v12/python/tools/integration_bundle.py": "ee7a41f545c4cf8806af31d55e318f5a256efb2b525081b118d82ad4fb8c5c20",
+  "v12/python/tests/tools/test_integration_bundle.py": "645b16f533530d108c0824d48267319b28d0bf7df001b0625c3be56523629c26"
+ },
+ "focused": {
+  "tests.manager.test_integration_worker": {"tests": 62, "failures": 0},
+  "tests.manager.test_integration_image": {"tests": 12, "failures": 0},
+  "tests.manager.test_claude_agent": {"tests": 172, "failures": 0,
+                                      "note": "unchanged, which is the check that matters for a shared accepted file this claim did not touch"},
+  "tests.tools.test_integration_bundle": {"tests": 83, "failures": 0,
+                                          "note": "the accepted child's own suite, unchanged"}
+ },
+ "joined_proof": {
+  "bundle": "tools/integration_bundle.compose_bundle over the real admission world; not a fixture shaped like one",
+  "entry": "integration_entry.main, the production composition",
+  "provider": "a separate injected PROCESS started through the adapter's own seam, performing actual edits in a disposable target, reading everything it does from the composed prompt",
+  "read_back": "the workload's own byte and mode read-back of every scheduled path",
+  "result_reader": "baton_v12.integration.runtime.observed_delivery, the manager's own",
+  "operations_proved": ["add", "edit", "edit at 100755", "delete"],
+  "negatives_proved": ["late invalid row with no write", "base-byte drift",
+                       "base-mode drift", "read-only directory",
+                       "link at a scheduled path", "add over an existing path",
+                       "revision drift", "unreadable revision",
+                       "foreign assignment", "foreign launch", "foreign role",
+                       "foreign evidence", "unaccepted review",
+                       "absent test scope", "unscheduled existing-test change",
+                       "unreadable envelope", "foreign instructions",
+                       "provider failure", "provider timeout",
+                       "missing report", "malformed report", "foreign report",
+                       "out-of-scope reported path", "partial import",
+                       "clean provider refusal after writable work",
+                       "version-control metadata mutation",
+                       "no rerun over a terminal result",
+                       "result above the delivery bound"]
+ },
+ "not_performed": [
+  "no image was built, pulled or selected",
+  "no container was started",
+  "no credential was mounted and no live provider was called",
+  "no version-control mutation of this repository of any kind"
+ ]
+}

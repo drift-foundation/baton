@@ -1,0 +1,9 @@
+Initial reviewer invocation from v12/python omitted PYTHONPATH and failed importing baton_v12 (environment setup error, not candidate failure).
+
+Corrected invocation from v12/python:
+PYTHONPATH=src python3 -m unittest tests.tools.test_stage_execution
+.............................................
+----------------------------------------------------------------------
+Ran 45 tests in 0.414s
+
+OK

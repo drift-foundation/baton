@@ -1,0 +1,34 @@
+$ PYTHONPATH=src python3 -B -m unittest tests.job_manager.test_review_driver.TheWorkerCompletionTraversesPublicCustody -v
+test_actual_completion_reaches_first_verdict_and_public_custody (tests.job_manager.test_review_driver.TheWorkerCompletionTraversesPublicCustody.test_actual_completion_reaches_first_verdict_and_public_custody) ... FAIL
+test_after_real_freeze_reentry_uses_same_completion_without_another_turn (tests.job_manager.test_review_driver.TheWorkerCompletionTraversesPublicCustody.test_after_real_freeze_reentry_uses_same_completion_without_another_turn) ... FAIL
+
+======================================================================
+FAIL: test_actual_completion_reaches_first_verdict_and_public_custody (tests.job_manager.test_review_driver.TheWorkerCompletionTraversesPublicCustody.test_actual_completion_reaches_first_verdict_and_public_custody)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_review_driver.py", line 2479, in test_actual_completion_reaches_first_verdict_and_public_custody
+    self.assertEqual(ended["outcome"], "accepted", ended["held_reason"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'held' != 'accepted'
+- held
++ accepted
+ : the checkpoint's review evidence is not one this manager can settle: refused/precondition -- a review verdict requires frozen output and passed verification
+
+======================================================================
+FAIL: test_after_real_freeze_reentry_uses_same_completion_without_another_turn (tests.job_manager.test_review_driver.TheWorkerCompletionTraversesPublicCustody.test_after_real_freeze_reentry_uses_same_completion_without_another_turn)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_review_driver.py", line 2498, in test_after_real_freeze_reentry_uses_same_completion_without_another_turn
+    self.assertEqual(ended["outcome"], "accepted", ended["held_reason"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'held' != 'accepted'
+- held
++ accepted
+ : the checkpoint's review evidence is not one this manager can settle: refused/precondition -- a review verdict requires frozen output and passed verification
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.139s
+
+FAILED (failures=2)
+
+exit_code: 1

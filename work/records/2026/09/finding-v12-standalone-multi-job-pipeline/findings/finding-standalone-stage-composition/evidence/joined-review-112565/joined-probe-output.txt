@@ -1,0 +1,9 @@
+{
+  "freeze_reentry_admitted": "queued",
+  "exact_replays": 2,
+  "missing_cleanup_refusals": [
+    "historical review has no committed positive cleanup",
+    "historical review has no committed positive cleanup"
+  ],
+  "candidate_hashes_unchanged": 13
+}

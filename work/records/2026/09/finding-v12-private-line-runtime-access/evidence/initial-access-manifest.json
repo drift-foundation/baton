@@ -1,0 +1,26 @@
+{
+  "work": "W106896",
+  "claim": 106921,
+  "recorded_at": "2026-09-07T03:31:17.070206+00:00",
+  "status": "candidate, not signed off; guard scope extension needed; live engine not enabled",
+  "base_sha256": {
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "0726da10c7e677e35d47190f9bc6a29269e342332a617e1804e83c4709184097",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "18431e40b4879d9b17e9b49ca0aedad256cbddaa6c44fca3d1c27c62fd50af06",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "d0e78475141a2cc7dd29a366dd50344a95e9942cbdfe34499fe0758aa4eb0409",
+    "v12/python/tests/manager/test_workspaces.py": "49153d9d116fcd7b01f08d9e2c1f509d9bf5f09f707549cff8f2e8079d4ac725",
+    "v12/python/tests/manager/test_review_cycles.py": "a20abe2cfb8b3e762490caec11cc418801b89f0a2ed8e1531f3685753a8c6dee",
+    "v12/python/tests/manager/test_oci.py": "ffe36a61781a6a838b29e2b6deb94f3830138bc557e4aee17b97ea28c7b52fca",
+    "v12/python/tools/parallel_test.py": "22c0cf0d39b6384326f866f76aceb5a4d422a0f02fa725e18b5dc12196456168"
+  },
+  "candidate_sha256": {
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "448c92d00cb1017b847eb8c4596a2bc98545430868057c34ea8bea80510771ba",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "3dcd0e5ade88198b6108b6909115e53dceeec11c8043b608a59e165d4b6b0446",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "de39c4550d6d9fc4302fe508c29a6fb9d8512aab3111bcadddc056fd0d15b168",
+    "v12/python/tests/manager/test_workspaces.py": "090729578dd953fd7ba70e606e504810f16a3c12c9afe349181a72a469187887",
+    "v12/python/tests/manager/test_review_cycles.py": "0234a254b9e06230f1e6448b00b71f55f476c277e29a61d103883d701cdf610f",
+    "v12/python/tests/manager/test_oci.py": "cd925ffe695465f9c0ca548de31cd4ff0845b41b191ef6e91658038addd4b0ae",
+    "v12/python/tools/parallel_test.py": "2d0522e1283b6919278ba97079e197abea1c7db5db9fa6c49f3ea343a37eaa35",
+    "v12/python/tests/manager/test_private_line_access_engine.py": "fda83858087c40216323078b1c9c2ed51adc4ca242d75ad5276db9f3c272413f"
+  },
+  "patch_sha256": "cf146c4b4a3c5725dcc49ab6fa484a0516a3da8f4be67669a4e77f03cc98f914"
+}

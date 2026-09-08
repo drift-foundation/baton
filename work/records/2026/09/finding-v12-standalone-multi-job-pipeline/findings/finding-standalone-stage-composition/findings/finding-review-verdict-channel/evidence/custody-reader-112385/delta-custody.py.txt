@@ -1,0 +1,60 @@
+--- before/v12/python/src/baton_v12/worker_manager/custody.py
++++ candidate/v12/python/src/baton_v12/worker_manager/custody.py
+@@ -1411,6 +1411,57 @@
+     return already if found else None
+ 
+ 
++def historical_directory_custody(store, assignment_id, which):
++    """Read the exact committed normalization receipt without an adapter.
++
++    The recorded image identifies the historical act; it does not select an
++    image for this deployment. Identity derivation and journal interpretation
++    stay here, with the normalization owner. No directory or helper is touched.
++    """
++    import json
++    from .store import manager_signature
++
++    boundaries.identity(assignment_id, "an assignment identity")
++    check_custody_root(which)
++    kind = "directory-custody.normalize"
++    operation_id = _custody_operation_id(assignment_id, which)
++    record = store.operation_record(operation_id)
++    if record is None or record["kind"] != kind or record["state"] != "committed":
++        raise ContractRefusal("refused", "precondition",
++                              "historical directory custody requires its committed normalization")
++    try:
++        signature = json.loads(record["signature"])
++    except (TypeError, ValueError):
++        raise ContractRefusal("integrity", "schema",
++                              "historical directory custody has an unreadable signature") from None
++    signature = boundaries.document(signature, "a historical custody signature", required=("kind", "operands"))
++    operands = boundaries.document(signature["operands"], "historical custody operands",
++        required=("attempt_id", "root", "verb", "custodian_image_digest", "workspace_store"))
++    image = boundaries.text(operands["custodian_image_digest"], "a historical custodian image identity")
++    expected = manager_signature(kind, {
++        "attempt_id": assignment_id, "root": which, "verb": "normalize",
++        "custodian_image_digest": image, "workspace_store": _recorded_store(store)})
++    found, receipt = store.replay(operation_id, expected, kind=kind)
++    receipt = boundaries.document(receipt, "a historical directory custody receipt",
++        required=("attempt_id", "root", "verb", "account", "operation"))
++    if not found or receipt["attempt_id"] != assignment_id or receipt["root"] != which \
++            or receipt["verb"] != "normalize" or receipt["operation"] != "normalize":
++        raise ContractRefusal("integrity", "schema",
++                              "historical directory custody receipt names another subject or act")
++    try:
++        account = json.loads(receipt["account"])
++    except (TypeError, ValueError):
++        raise ContractRefusal("integrity", "schema",
++                              "historical directory custody has an unreadable account") from None
++    account = boundaries.document(account, "a historical normalization account")
++    accounted, why = _accountable("normalize", account)
++    if accounted is None or accounted["custody"] != "normalize" \
++            or json.dumps(accounted, sort_keys=True) != receipt["account"]:
++        raise ContractRefusal("integrity", "schema",
++                              "historical directory custody has no exact accountable normalization")
++    return receipt
++
++
+ def _recorded_store(store):
+     from .workspaces import configured_workspace_storage
+ 

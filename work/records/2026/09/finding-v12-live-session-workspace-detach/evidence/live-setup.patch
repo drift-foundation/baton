@@ -1,0 +1,237 @@
+--- work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller.py
++++ work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_setup.py
+@@ -30,7 +30,7 @@
+ DELAY_NS = 5_000_000_000
+ DOCKER_ENV = dict(PATH="/usr/bin:/bin", HOME="/nonexistent", DOCKER_CONFIG="/nonexistent")
+ DOCKER = ["/usr/bin/docker", "--host", "unix:///var/run/docker.sock"]
+-MANIFEST = HERE / "live-package-manifest.json"
++MANIFEST = HERE / "live-setup-manifest.json"
+ 
+ 
+ def digest(path):
+@@ -47,8 +47,11 @@
+         path = REPO / relative
+         require(path.is_file() and not path.is_symlink() and digest(path) == expected, "package-drift")
+     runtime = {str(p.relative_to(REPO)) for p in (REPO / "v12/python/src/baton_v12").rglob("*.py")}
+-    require(runtime == {p for p in given["files"] if p.startswith("v12/python/src/baton_v12/")},
++    require(runtime == {p for p in given["files"] if p.startswith("v12/python/src/baton_v12/") and p.endswith(".py")},
+             "runtime-file-set-drift")
++    schemas = {"v12/python/src/baton_v12/contracts/schema/" + name for name in
++               ("worker-control-1.0.schema.json", "agent-session-1.0.schema.json")}
++    require(schemas <= given["files"].keys(), "schema-package-incomplete")
+     require(given["image"] == IMAGE, "manifest-constants")
+     return given
+ 
+@@ -109,35 +112,46 @@
+ 
+ class Credentials:
+     """Existing source reader + manager materialization, confined to this run."""
+-    def __init__(self, root, runtime):
+-        # Frozen read-only package imports; no production manager is started.
+-        require(not any(name == "baton_v12" or name.startswith("baton_v12.") for name in sys.modules), "runtime-already-imported")
+-        sys.dont_write_bytecode = True
+-        sys.path.insert(0, str(runtime / "src"))
+-        from baton_v12.worker_manager import credentials, workspaces
+-        from baton_v12.worker_manager.store import ControlStore
+-        spec = importlib.util.spec_from_file_location("fixture_user_credentials", runtime / "tools/user_credentials.py")
+-        sources = importlib.util.module_from_spec(spec)
+-        spec.loader.exec_module(sources)
++    def __init__(self):
++        # Retain lifecycle ownership before any fallible constructor operation.
++        self.store = None
++        self.deliveries = {}
++
++    def prepare(self, root, runtime, setup):
++        setup.enter("credential-imports")
++        credentials, workspaces, ControlStore, sources = runtime_apis(runtime, setup)
++        setup.enter("volatile-home-check")
+         require(any(m["target"] == "/dev/shm" and m["filesystem"] == "tmpfs" for m in base.mounts("self")),
+                 "credential-home-not-volatile")
++        setup.enter("credential-home-create", "credential_home")
+         self.place = Path(tempfile.mkdtemp(prefix="baton-w106673-credentials-", dir="/dev/shm"))
++        setup.created("credential_home", self.place)
++        setup.enter("source-registry-create", "source_registry")
+         self.registry_home = Path(tempfile.mkdtemp(prefix="baton-w106673-source-", dir="/dev/shm"))
++        setup.created("source_registry", self.registry_home)
+         registry = self.registry_home / "sources.json"
++        setup.enter("source-registry-write")
+         base.save(registry, dict(schema=sources.SCHEMA, sources=[dict(provider="claude", reference="w106673-owner-source", path=SOURCE)]))
++        setup.enter("source-registry-permissions")
+         os.chown(registry, USER, USER)
+         os.chmod(registry, 0o600)
+         os.chown(self.registry_home, USER, USER)
+         os.chmod(self.registry_home, 0o700)
++        setup.enter("source-reader-construct")
+         self.reader = sources.UserCredentialSources(str(registry), max_bearer=credentials.MAX_BEARER)
++        setup.enter("credential-home-construct")
+         self.home = credentials.CredentialHome(str(self.place))
+-        self.store = ControlStore.open(str(root / "fixture-control.sqlite3"), incarnation=uuid.uuid4().hex,
+-                                      clock=fixture_now)
++        setup.enter("fixture-store-open", "fixture_store")
++        self.store = ControlStore.open(str(root / "fixture-control.sqlite3"), incarnation=uuid.uuid4().hex, clock=fixture_now)
++        setup.created("fixture_store", root / "fixture-control.sqlite3")
++        setup.enter("fixture-group-configure")
+         workspaces.configure_workspace_group(self.store, GID)
++        setup.enter("fixture-group-read")
+         self.group = workspaces.configured_workspace_group(self.store)
+-        self.deliveries = {}
++        setup.enter("private-resource-record")
+         base.save(root / "private-resources.json", dict(credential_home=str(self.place), source_registry_home=str(self.registry_home),
+                   session_state="private arm directories; never export"))
++        setup.complete()
+ 
+     def provider(self, provider, reference):
+         with source_identity():
+@@ -154,6 +168,90 @@
+         require(shutdown_confirmed is True, "credential-release-before-shutdown")
+         self.home.tear_down(self.deliveries[attempt])
+         del self.deliveries[attempt]
++
++
++STAGES = frozenset(("created", "image-inspect", "network-inspect", "operator-groups", "runtime-snapshot",
++    "credential-imports", "source-reader-import", "volatile-home-check", "credential-home-create",
++    "source-registry-create", "source-registry-write", "source-registry-permissions", "source-reader-construct",
++    "credential-home-construct", "fixture-store-open", "fixture-group-configure", "fixture-group-read",
++    "private-resource-record", "setup-complete", "pair", "fixture-store-close"))
++
++
++def safe_exception(error, stage):
++    require(stage in STAGES, "unknown-diagnostic-stage")
++    kinds = {FileNotFoundError: "file-not-found", PermissionError: "permission-denied",
++             ModuleNotFoundError: "module-not-found", ImportError: "import-error", ValueError: "value-error",
++             TypeError: "type-error", OSError: "os-error", RuntimeError: "runtime-error",
++             subprocess.TimeoutExpired: "subprocess-timeout", wire.Refusal: "fixture-refusal"}
++    number = error.errno if isinstance(error, OSError) else None
++    if type(number) is not int or not 0 < number < 4096:
++        number = None
++    return dict(stage=stage, exception_kind=kinds.get(type(error), "other"), errno=number)
++
++
++class Setup:
++    def __init__(self, root):
++        self.root = root
++        self.paths = {}
++        self.value = dict(stage="created", construction_complete=False, store_close="not-opened",
++                          resources={name: "not-started" for name in ("credential_home", "source_registry", "fixture_store")})
++        self.persist()
++
++    def persist(self):
++        base.save(self.root / "setup.json", self.value)
++
++    def enter(self, stage, resource=None):
++        require(stage in STAGES, "unknown-setup-stage")
++        self.value["stage"] = stage
++        if resource is not None:
++            require(resource in self.value["resources"], "unknown-setup-resource")
++            self.value["resources"][resource] = "attempted"
++        self.persist()  # Intent survives failures before a constructor returns.
++
++    def created(self, resource, path):
++        require(resource in self.value["resources"], "unknown-setup-resource")
++        self.paths[resource] = str(path)
++        base.save(self.root / "setup-private.json", self.paths)
++        self.value["resources"][resource] = "created"
++        self.persist()
++
++    def complete(self):
++        self.value.update(stage="setup-complete", construction_complete=True)
++        self.persist()
++
++
++def settle_setup(credentials, setup):
++    # Close only a fixture-store object we actually received. No new directory,
++    # registry, source or orphan removal is introduced by this correction.
++    if credentials is not None and credentials.store is not None:
++        try:
++            credentials.store.close()
++            setup.value["store_close"] = "confirmed"
++        except BaseException as error:
++            setup.value["store_close"] = "unconfirmed"
++            setup.value["ending_diagnostic"] = safe_exception(error, "fixture-store-close")
++    resources = setup.value["resources"]
++    untouched = all(state == "not-started" for state in resources.values())
++    partial = not setup.value["construction_complete"] and not untouched
++    store_settled = resources["fixture_store"] == "not-started" or setup.value["store_close"] == "confirmed"
++    settled = not partial and store_settled
++    setup.value.update(partial_setup_unresolved=partial, cleanup_accounted=settled)
++    setup.persist()
++    return settled
++
++
++def runtime_apis(runtime, setup):
++    # Frozen read-only package imports; no production manager is started.
++    require(not any(name == "baton_v12" or name.startswith("baton_v12.") for name in sys.modules), "runtime-already-imported")
++    sys.dont_write_bytecode = True
++    sys.path.insert(0, str(runtime / "src"))
++    from baton_v12.worker_manager import credentials, workspaces
++    from baton_v12.worker_manager.store import ControlStore
++    setup.enter("source-reader-import")
++    spec = importlib.util.spec_from_file_location("fixture_user_credentials", runtime / "tools/user_credentials.py")
++    sources = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(sources)
++    return credentials, workspaces, ControlStore, sources
+ 
+ 
+ def process_fact(pid):
+@@ -202,7 +300,7 @@
+ 
+ def export_evidence(root):
+     """Copy only controller-owned projections; never walk private/session trees."""
+-    names = ["package.json", "network.json", "arms.json", "result.json"]
++    names = ["package.json", "network.json", "arms.json", "result.json", "setup.json"]
+     names += [f"{arm}/{name}.json" for arm in ("retained-first", "restored-first", "restored-second") for name in ("events", "gate")]
+     destination = Path(tempfile.mkdtemp(prefix="baton-w106673-live-export-", dir="/tmp"))
+     hashes = {}
+@@ -498,6 +596,7 @@
+     print(root, flush=True)
+     base.save(root / "package.json", dict(manifest_sha256=digest(MANIFEST), image=IMAGE, model=wire.MODEL))
+     fixtures = []
++    setup = Setup(root)
+     credentials = None
+     original_groups = os.getgroups()
+     began = time.monotonic()
+@@ -510,21 +609,28 @@
+     signal.signal(signal.SIGTERM, expired)
+     signal.setitimer(signal.ITIMER_REAL, 720)
+     try:
++        setup.enter("image-inspect")
+         image = json.loads(docker("image", "inspect", IMAGE))[0]
+         require(image["Id"] == IMAGE and not image["Config"].get("Volumes"), "image-missing-or-drift")
++        setup.enter("network-inspect")
+         network = json.loads(docker("network", "inspect", "bridge"))[0]
+         require(network["Name"] == "bridge" and network["Driver"] == "bridge" and network["Scope"] == "local"
+                 and not network["Internal"] and network["Options"].get("com.docker.network.bridge.default_bridge") == "true"
+                 and re.fullmatch(r"[0-9a-f]{64}", network["Id"]), "builtin-bridge-unproved")
+         base.save(root / "network.json", dict(id=network["Id"], driver="bridge", boundary="ordinary Docker outbound; not provider-only"))
++        setup.enter("operator-groups")
+         os.setgroups(sorted(set(original_groups) | {GID}))
++        setup.enter("runtime-snapshot")
+         runtime = snapshot_runtime(root, manifest)
+-        credentials = Credentials(root, runtime)
++        credentials = Credentials()
++        credentials.prepare(root, runtime, setup)
++        setup.enter("pair")
+         outcome = execute_pair(root, network["Id"], credentials, deadline, fixtures)
+     except BaseException as error:
+         # Do not serialize exception messages, stderr, transcripts or credential contents.
+         outcome["outcome"] = "failed-or-inconclusive"
+-        outcome["failure_code"] = str(error) if type(error) is wire.Refusal else "execution-refused"
++        outcome["failure_code"] = "execution-refused"
++        outcome["diagnostic"] = safe_exception(error, setup.value["stage"])
+     finally:
+         signal.setitimer(signal.ITIMER_REAL, max(0.001, overall_deadline - time.monotonic()))
+         cleanup = []
+@@ -548,11 +654,10 @@
+             except BaseException:
+                 cleanup.append(dict(nonce=fixture.nonce, confirmed=False))
+         signal.setitimer(signal.ITIMER_REAL, 0)
+-        if credentials is not None:
+-            credentials.store.close()
++        setup_settled = settle_setup(credentials, setup)
+         os.setgroups(original_groups)
+         outcome["cleanup"] = cleanup
+-        outcome["cleanup_confirmed"] = all(row["confirmed"] for row in cleanup) and (credentials is None or not credentials.deliveries)
++        outcome["cleanup_confirmed"] = setup_settled and all(row["confirmed"] for row in cleanup) and (credentials is None or not credentials.deliveries)
+         if not outcome["cleanup_confirmed"]:
+             outcome["outcome"] = "failed-or-inconclusive"
+         outcome["limitations"] = manifest["limitations"]

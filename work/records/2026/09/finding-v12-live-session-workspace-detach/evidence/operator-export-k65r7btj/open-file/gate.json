@@ -1,0 +1,21 @@
+{
+  "admissions": 1,
+  "consumed": 1,
+  "generation": 1,
+  "identity": {
+    "container": "ec518eebf9e510676825b1ead065e2fd870f3d1ea3a953bef35a27020827300b",
+    "mount_namespace": [
+      4,
+      4026532899
+    ],
+    "pid": 548339,
+    "session": "cadd7f0abc764e76b1c9664eab2c86a4",
+    "start": "40023093",
+    "workspace": [
+      43,
+      9876225
+    ]
+  },
+  "phase": "reviewed",
+  "receipt": null
+}

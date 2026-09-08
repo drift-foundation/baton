@@ -1,0 +1,22 @@
+{
+  "scope": "existing isolated fixture with its _frozen_endings substitutions; not a production failure",
+  "verdicts_before": 0,
+  "verdicts_after": 1,
+  "outcome": "accepted",
+  "reported_cleaned_up": true,
+  "reported_receipt_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+  "actual_intake_receipt": null,
+  "actual_retentions": [],
+  "steps": [
+    "quiesce",
+    "observe",
+    "freeze",
+    "correlate",
+    "intake",
+    "retain",
+    "resolve",
+    "verdict",
+    "cleanup"
+  ],
+  "terminal_is_unchanged_published_vector_completion": true
+}

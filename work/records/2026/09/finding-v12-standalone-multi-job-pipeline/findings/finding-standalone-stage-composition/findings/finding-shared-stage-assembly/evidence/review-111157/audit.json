@@ -1,0 +1,83 @@
+{
+  "candidate_hashes": {
+    "v12/python/tools/stage_execution.py": "95271d77edc044653eef59f79169c82394c5e2b30d1b5ffb1edb48b16d88da47",
+    "v12/python/tools/single_worker.py": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+    "v12/python/tests/tools/test_stage_execution.py": "16ac448aafef3a29fc7a7778613dc32281ff4b1bbe0e9a38e4cf946f23e5f8d5",
+    "v12/python/tests/tools/test_single_worker.py": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+    "v12/python/tools/parallel_test.py": "eb90384d91cb5a4afe22bc147b8113863c8cf039eb5efbcae7ed4f614870ab9e"
+  },
+  "prior_test_classes_unchanged": 25,
+  "added_test_classes": [
+    "AGenerationOutsideTheInteroperableRangeIsRefused"
+  ],
+  "progress_section_order": [
+    "## 2026-09-07 \u2014 baton.claude \u2014 the serving path, actually connected",
+    "## 2026-09-06 \u2014 baton.claude \u2014 the interface gate, run and reported",
+    "## 2026-09-07 \u2014 baton.claude \u2014 checkpoint 1: the serving factory is wired",
+    "## 2026-09-07 \u2014 baton.claude \u2014 checkpoint 1 completed: the drivers are wrapped",
+    "## 2026-09-07 \u2014 baton.claude \u2014 checkpoint 2: one Job runs the composed lifecycle",
+    "## 2026-09-07 \u2014 baton.claude \u2014 checkpoint 3: item 4's focused checks",
+    "## 2026-09-07 \u2014 baton.claude \u2014 the two ordering defects, corrected",
+    "## 2026-09-07 \u2014 baton.claude \u2014 the two bounded corrections"
+  ],
+  "progress_snapshot_sha256": "3c9f90bfd16645f34f5fafb193164888c7dc5b521b3a9a3bddfec037dc4bb7e8",
+  "boundary_probes": [
+    {
+      "member": "policy_generation",
+      "value": 9007199254740992,
+      "before": {
+        "group": null,
+        "pool": null,
+        "integration_exists": false
+      },
+      "constructed": false,
+      "category": "integrity",
+      "code": "limit",
+      "after": {
+        "group": null,
+        "pool": null,
+        "integration_exists": false
+      }
+    },
+    {
+      "member": "pool_generation",
+      "value": 9007199254740992,
+      "before": {
+        "group": null,
+        "pool": null,
+        "integration_exists": false
+      },
+      "constructed": false,
+      "category": "integrity",
+      "code": "limit",
+      "after": {
+        "group": null,
+        "pool": null,
+        "integration_exists": false
+      }
+    },
+    {
+      "member": "policy_generation",
+      "value": 9007199254740991,
+      "before": {
+        "group": null,
+        "pool": null,
+        "integration_exists": false
+      },
+      "constructed": true,
+      "after": {
+        "group": 1000,
+        "pool": {
+          "generation": 1,
+          "variant": "baton.v12.stage-execution-deployment/1",
+          "separation_class": "provider-diverse",
+          "document": "{\"schema\":\"baton.v12.worker-pool/1\",\"separation_class\":\"provider-diverse\",\"variant\":\"baton.v12.stage-execution-deployment/1\",\"workers\":[{\"eligible_kinds\":[\"implementation\"],\"lane\":\"implementation\",\"participant\":\"baton.claude\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"implementation-worker\"},{\"eligible_kinds\":[\"integration\"],\"lane\":\"implementation\",\"participant\":\"baton.integrator\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"integration-worker\"},{\"eligible_kinds\":[\"review\"],\"lane\":\"review\",\"participant\":\"baton.reviewer\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"review-worker\"}]}",
+          "digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+          "activated_at": "2026-09-02T00:00:00.000Z"
+        },
+        "integration_exists": true
+      }
+    }
+  ],
+  "limits": "Prior review did not snapshot PROGRESS, so complete historical byte equivalence is not independently established. Current order and preserved historical accounts reviewed; this snapshot enables later exact audits. No unchanged suite rerun."
+}

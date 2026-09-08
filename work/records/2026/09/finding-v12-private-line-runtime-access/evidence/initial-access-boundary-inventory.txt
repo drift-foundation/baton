@@ -1,0 +1,55 @@
+F.F......F..
+======================================================================
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+The other direction: an owner with nothing to own is also a defect.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6343, in test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attempts.py:_committed_record', 'docume[3994 chars]nt')] != []
+
+First list contains 56 additional elements.
+First extra element 0:
+('attempts.py:_committed_record', 'document', 'a committed ending record')
+
+Diff is 4334 characters long. Set self.maxDiff to None to see it. : boundary calls attributed to no entry
+
+======================================================================
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6200, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'lanes.py:_occupy_lane', 'run[11082 chars]on')] != []
+
+First list contains 174 additional elements.
+First extra element 0:
+('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes')
+
+Diff is 11808 characters long. Set self.maxDiff to None to see it. : receiving entries with no owner
+
+======================================================================
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+The anti-circularity check for the adopted member universe.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6273, in test_the_universe_sees_every_persisted_column_that_is_read
+    self.assertEqual(sorted(scanned - tracked), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "columns this build reads that the universe cannot see")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['operation_id', 'settled_at'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'operation_id'
+
+- ['operation_id', 'settled_at']
++ [] : columns this build reads that the universe cannot see
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.769s
+
+FAILED (failures=3)

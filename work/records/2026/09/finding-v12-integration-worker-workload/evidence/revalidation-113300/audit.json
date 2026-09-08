@@ -1,0 +1,29 @@
+{
+  "claim": 113300,
+  "accepted_bundle_closure": 113293,
+  "hashes": {
+    "v12/worker/integration_contract.py": "03e346c27b6b919f00581183e301b9c5c979e89ba43adb29aa301d0ce9e735a6",
+    "v12/python/tools/integration_bundle.py": "ee7a41f545c4cf8806af31d55e318f5a256efb2b525081b118d82ad4fb8c5c20",
+    "v12/python/tests/tools/test_integration_bundle.py": "645b16f533530d108c0824d48267319b28d0bf7df001b0625c3be56523629c26",
+    "v12/python/tools/parallel_test.py": "1ae0956fda4bfdb8242c8f5e0a57e7c7dd3833904042dfc7734fc0acfecc16f4",
+    "v12/worker/claude_agent.py": "65a9d8b7dda16f76665c0a620740653b43692ac315e246fd4e822fe222101817",
+    "v12/worker/baton_worker.py": "da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+    "v12/worker/Dockerfile.claude": "8f88fc3bd366b76686d9cae0e5af019ba395a39d3afb9fd78dc5c3570556e55b",
+    "v12/python/src/baton_v12/integration/runtime.py": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb"
+  },
+  "accepted_bundle_hashes_match": true,
+  "accepted_claude_agent_base_matches": true,
+  "claude_public_methods": [
+    "consider",
+    "work"
+  ],
+  "planned_new_paths_absent": [
+    "v12/worker/integration_entry.py",
+    "v12/worker/integration_workload.py",
+    "v12/worker/Dockerfile.integration",
+    "v12/python/tests/manager/test_integration_worker.py",
+    "v12/python/tests/manager/test_integration_image.py"
+  ],
+  "assertions": "passed",
+  "scope": "Revalidation and implementation handoff only; no implementation, test mutation, provider or Git mutation."
+}

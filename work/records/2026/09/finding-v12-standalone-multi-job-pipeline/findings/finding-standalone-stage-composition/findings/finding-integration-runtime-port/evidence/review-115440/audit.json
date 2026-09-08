@@ -1,0 +1,74 @@
+{
+  "claim": 115440,
+  "at": "2026-09-08T02:29:59.298634+00:00",
+  "candidate": {
+    "v12/python/tools/integration_worker.py": "c6ebab16a267b42c9adf27f4bb926099fa44fff9eebe14cd70d0514ee330587a",
+    "v12/python/tests/tools/test_integration_worker.py": "fa5119e1cfd3601f3ac3a6215d1e61638b205ac8d7c8dac25e6590bd7e13bac1",
+    "v12/python/tools/parallel_test.py": "61d0e0a1482a059c390fe356b5b14f1821aedbbcdec48ffc7624baf621a852d5",
+    "v12/python/src/baton_v12/integration/driver.py": "6af1fad3a23103353268592e38de336807239161f7346d7fa1ef915cf35034a8",
+    "v12/python/src/baton_v12/integration/__init__.py": "523bbdb2da06f6b170debcfe270bee9867ba55791b5f551be4bdca604ce44d9e",
+    "v12/python/tests/integration/test_driver.py": "cbf89cb694249f89622789334ed0fd3b32dfe4a241ee030c9896993949d9d955"
+  },
+  "test_audit": {
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "before": 21,
+      "after": 29,
+      "removed_or_renamed": [
+        "TheLiveMarkerIsBookkeepingAndNeverAuthority.test_a_status_read_needs_this_executions_own_delivery_root",
+        "TheportIsConstructedFromResolvedOperands.test_roots_that_are_not_this_deployments_directories_refuse"
+      ],
+      "added_or_renamed": [
+        "TheLiveMarkerIsBookkeepingAndNeverAuthority.test_a_status_read_needs_no_marker_and_no_preceding_start",
+        "TheStartRefusesBeforeAnythingIsExposed.test_a_grant_over_another_target_never_reaches_this_directory",
+        "TheWholeIntegrationRunsThroughThisPort.test_a_reconstructed_incarnation_holds_and_starts_no_second_writer",
+        "TheWholeIntegrationRunsThroughThisPort.test_a_repeated_tick_after_completion_duplicates_nothing",
+        "TheWholeIntegrationRunsThroughThisPort.test_an_uncertain_reconciliation_revokes_this_executions_marker",
+        "TheWholeIntegrationRunsThroughThisPort.test_observation_survives_a_lost_marker",
+        "TheWholeIntegrationRunsThroughThisPort.test_the_start_composes_the_three_binds_and_answers_running",
+        "TheWholeIntegrationRunsThroughThisPort.test_the_whole_path_imports_settles_and_releases_in_order",
+        "TheportIsConstructedFromResolvedOperands.test_a_workspace_storage_that_is_not_provisioned_refuses",
+        "TheportIsConstructedFromResolvedOperands.test_the_target_identity_is_configured_and_not_taken_from_a_grant"
+      ],
+      "changed_existing_method_AST": [
+        "TheportIsConstructedFromResolvedOperands.test_a_configured_port_holds_its_own_resolved_operands",
+        "TheportIsConstructedFromResolvedOperands.test_a_relative_or_absent_canonical_target_refuses"
+      ]
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "before": 83,
+      "after": 83,
+      "removed_or_renamed": [],
+      "added_or_renamed": [],
+      "changed_existing_method_AST": []
+    }
+  },
+  "gate_sha256": "d11f26a25a87c86090710f642b47dde26db3951de6aaf043ff0e31c834dda354",
+  "gate_tail": [
+    "----------------------------------------------------------------------",
+    "Ran 5071 tests in 277.175s",
+    "",
+    "FAILED (failures=11, errors=1, skipped=21)"
+  ],
+  "probes": {
+    "missing_credentials": {
+      "configured_delivery": null,
+      "configured_home": null,
+      "engine_start_count": 1,
+      "credential_mount_present": false,
+      "admission_outcome": "running"
+    },
+    "refresh_adapter_construction_failure": {
+      "exception": "ContractRefusal",
+      "message": "the nominated source '/tmp/v12-w110774-phii0e8e/canonical-target' is not a directory this manager can see (FileNotFoundError)",
+      "marker_retained": true
+    },
+    "worker_exit": 0,
+    "first_continuation": "integrated",
+    "post_completion_replay": {
+      "category": "refused",
+      "code": "precondition",
+      "message": "the Authority refused the approval receipt: approval receipt is immutable"
+    }
+  },
+  "limits": "Deterministic engine and provider child process; disposable plain-directory target and supplied revision seam; no live credential/provider/image/engine proof."
+}

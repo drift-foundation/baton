@@ -1,0 +1,405 @@
+--- review-114048/v12/python/tests/manager/test_integration_worker.py
++++ review-114486/v12/python/tests/manager/test_integration_worker.py
+@@ -352,6 +352,14 @@
+               "code": None}
+     if behaviour == "foreign":
+         report["bundle_digest"] = "sha256:" + "f" * 64
++    if behaviour in ("canary", "canary-outside"):
++        # EVERY PROVIDER-CONTROLLED FIELD CARRIES THE MARKER, so a case can
++        # ask whether ANY of them crossed into the manager's own document.
++        report["verification"] = {"argv": ["echo", "W110935-CANARY-ARGV"],
++                                  "status": 0}
++    if behaviour == "canary-outside":
++        report["paths"] = sorted(report["paths"]
++                                 + ["somebody/W110935-CANARY-PATH.py"])
+     if behaviour == "outside":
+         report["paths"] = sorted(report["paths"] + ["somebody/elses.py"])
+     if behaviour == "refuse":
+@@ -361,6 +369,9 @@
+     if behaviour == "unclaimed":
+         report.update({"outcome": "held", "phase": "import",
+                        "code": "provider-unable"})
++    if behaviour == "incomplete-report":
++        report.update({"phase": "preflight", "paths": [],
++                       "verification": None})
+     with open(facts["report"], "w", encoding="utf-8") as handle:
+         json.dump(report, handle)
+     return 0
+@@ -434,7 +445,8 @@
+         """The one path the accepted checkpoint actually carries."""
+         return self.producer.evidence()["paths"][0]
+ 
+-    def bundle(self, *, operation="add", mode="100644", name="bundle"):
++    def bundle(self, *, operation="add", mode="100644", base_mode=None,
++               name="bundle"):
+         """One REAL published bundle, whose single row is this operation.
+ 
+         The accepted checkpoint's path list is the world's and is not composed
+@@ -445,7 +457,7 @@
+ 
+         held = self.producer.world.owner.observed
+         path = self.reviewed()
+-        base = ({path: ("100644", self.ORIGINAL)}
++        base = ({path: (base_mode or "100644", self.ORIGINAL)}
+                 if operation in ("edit", "delete") else {})
+         head = ({path: (mode, self.CANDIDATE)}
+                 if operation in ("edit", "add") else {})
+@@ -459,9 +471,24 @@
+     ORIGINAL = b"the reviewed base\n"
+     CANDIDATE = b"the reviewed candidate\n"
+ 
+-    def target(self, *, entries=(), repository=True, name="target"):
+-        """One disposable tree, optionally a real version-controlled one."""
++    def target(self, *, entries=(), repository=True, name="target",
++               verification=0):
++        """One disposable tree, optionally a real version-controlled one.
++
++        IT CARRIES A REAL VERIFICATION COMMAND. W110935 review
++        2026-09-07T22:48:26Z [P1]: the workload used to publish `integrated`
++        on the strength of a `verification` member in the provider's report,
++        and the old fixture INVENTED that member without ever executing the
++        command. The workload now runs the accepted command itself, so the
++        target holds the actual program the accepted evidence names --
++        `python3 harness.py` — and `verification=` chooses the status a real
++        child will exit with. Nothing here is injected: these cases start a
++        real process and observe what it did.
++        """
+         place = self.place(name)
++        if verification is not None:
++            self.wrote_text(os.path.join(place, "harness.py"),
++                            f"import sys\nraise SystemExit({verification})\n")
+         for relative, payload, mode in entries:
+             whole = os.path.join(place, relative)
+             os.makedirs(os.path.dirname(whole), exist_ok=True)
+@@ -470,6 +497,13 @@
+             os.chmod(whole, mode)
+         if repository:
+             self.initialized(place)
++        return place
++
++    @staticmethod
++    def wrote_text(place, body):
++        os.makedirs(os.path.dirname(place), exist_ok=True)
++        with open(place, "w", encoding="utf-8") as handle:
++            handle.write(body)
+         return place
+ 
+     def initialized(self, place):
+@@ -570,6 +604,29 @@
+         held.update(documents or {})
+         rows = composed["paths"] if paths is None else paths
+         if paths is not None:
++            # W114085: THE AUTHORITY ACCOUNT DESCRIBES ITS OWN TABLE, so a
++            # derived table gets a derived account -- recomputed with the
++            # CONTRACT'S OWN RULE rather than a second copy of it, which is
++            # what keeps this fixture from drifting away from the reader it is
++            # feeding.
++            account = dict(held[contract.AUTHORITY_DOCUMENT])
++            scope = account["scope"]["test_scope"]
++            account["paths"] = [
++                {"path": row["path"], "operation": row["operation"],
++                 "base_mode": row["base"]["mode"] if row["base"] else None,
++                 "candidate_mode": (row["candidate"]["mode"]
++                                    if row["candidate"] else None),
++                 "requires": contract.required_authority(row, scope),
++                 "authorized_by": [
++                     {"requirement": one, "kind": "job-test-scope",
++                      "entry": next(entry for entry in scope
++                                    if row["path"] == entry
++                                    or row["path"].startswith(
++                                        entry.rstrip("/") + "/"))}
++                     for one in contract.required_authority(row, scope)]}
++                for row in rows
++                if contract.required_authority(row, scope)]
++            held[contract.AUTHORITY_DOCUMENT] = account
+             names = [one["path"] for one in rows]
+             account = dict(composed["eligibility"],
+                            path_set_digest=digest(names))
+@@ -670,16 +727,50 @@
+         self.assertEqual(self.contents(target, self.reviewed()),
+                          (self.CANDIDATE, 0o644))
+ 
+-    def test_an_edit_preserves_the_reviewed_mode_and_an_executable_one(self):
++    def test_an_edit_preserves_the_reviewed_mode(self):
++        """PRESERVING a mode, which is what an edit does when the reviewed
++        sides agree — including an existing executable one.
++
++        Review 2026-09-07T22:48:26Z [P1] is why this now says `preserves` and
++        nothing else: the case it replaced took a 0644 base to a 0755
++        candidate and called that preservation, when it is a mode CHANGE that
++        no accepted record had decided.
++        """
+         for mode, expected in (("100644", 0o644), ("100755", 0o755)):
+             with self.subTest(mode=mode):
+                 self.setUp()
+-                self.bundle(operation="edit", mode=mode)
++                self.bundle(operation="edit", mode=mode, base_mode=mode)
+                 target = self.target(entries=[(self.reviewed(),
+-                                               self.ORIGINAL, 0o644)])
++                                               self.ORIGINAL,
++                                               expected)])
+                 self.ending(self.entry(target=target), "integrated")
+                 self.assertEqual(self.contents(target, self.reviewed()),
+                                  (self.CANDIDATE, expected))
++
++    def test_a_mode_change_is_not_publishable_and_starts_no_provider(self):
++        """CANDIDATE MODE IS NOT PERMISSION, and there is nothing in this
++        build that could make it one.
++
++        W114085 established that no accepted record carries mode or executable
++        scope, so the producer refuses to publish such a candidate at all --
++        which is the fail-closed end of the review's P1. The third state it
++        names, an EXPLICITLY AUTHORIZED mode change, cannot be constructed
++        here and is not pretended to be: it needs an accepted owner that does
++        not exist, and that gap is recorded in
++        `findings/finding-import-authorization-evidence/FINDING.md`.
++        """
++        from baton_v12.contracts import ContractRefusal
++
++        target = self.target(entries=[(self.reviewed(), self.ORIGINAL,
++                                       0o644)])
++        with self.assertRaises(ContractRefusal) as caught:
++            self.bundle(operation="edit", mode="100755", base_mode="100644")
++        self.assertIn("mode-change", str(caught.exception))
++        # NOTHING RAN AND NOTHING MOVED: there is no bundle to carry through
++        # an entry, so no provider was started and the target is untouched.
++        self.assertEqual(self.commands, [])
++        self.assertEqual(self.contents(target, self.reviewed()),
++                         (self.ORIGINAL, 0o644))
+ 
+     def test_a_deletion_is_imported_as_an_absence(self):
+         self.bundle(operation="delete")
+@@ -928,19 +1019,47 @@
+         self.refused_before_the_provider("review-unaccepted", bundle=place,
+                                          target=self.target())
+ 
+-    def test_changing_an_existing_test_outside_the_scheduled_scope_refuses(
+-            self):
+-        """The semantic scope evaluation, over a real accepted Job's scope."""
++    def test_the_accepted_scope_is_the_enumeration_and_not_a_filename(self):
++        """WHAT REPLACED THE HEURISTIC, and what that costs, stated plainly.
++
++        Review 2026-09-07T22:48:26Z [P1]: "a filename heuristic also cannot
++        stand in for that reviewed enumeration". The old case asserted a
++        mechanical refusal for any path this module GUESSED was a test, which
++        is neither the accepted scope's enumeration nor the review's
++        evaluation of it. The accepted Job's scope is the enumeration, so a
++        path it names carries an `existing-test` requirement and a path it does
++        not name carries none.
++
++        THE RESIDUAL RISK IS REAL AND IS NOT HIDDEN: a test file the accepted
++        Job never scheduled is, to this runtime, an ordinary content change.
++        What now stands behind that is evidence rather than a guess -- the
++        frozen review's own documents travel in the bundle and the prompt
++        requires the provider to evaluate them before importing. Catching a
++        test change the accepted Work never scheduled is the REVIEW's
++        responsibility, and W114085's account is what makes its answer
++        readable here at all.
++        """
+         self.bundle(operation="add")
+         taken = contract.read_bundle(self.published["root"])
+         scoped = taken["evidence"]["job.json"]["test_scope"][0]
++        inside, blobs = self.row(f"{scoped}/test_scheduled.py",
++                                 operation="edit")
++        place = self.derived(paths=[inside], blobs=blobs, name="scoped")
++        account = contract.read_bundle(place)["evidence"][
++            contract.AUTHORITY_DOCUMENT]
++        self.assertEqual([one["path"] for one in account["paths"]],
++                         [inside["path"]])
++        self.assertEqual(account["paths"][0]["requires"], ["existing-test"])
++        self.assertEqual(account["paths"][0]["authorized_by"][0]["entry"],
++                         scoped)
++        # AND A PATH THE SCOPE DOES NOT NAME CARRIES NO REQUIREMENT, however
++        # much its name looks like a test.
+         outside, blobs = self.row("v12/python/tests/manager/test_elsewhere.py",
+                                   operation="edit")
+-        place = self.derived(paths=[outside], blobs=blobs)
+-        self.refused_before_the_provider("scope-unauthorized", bundle=place,
+-                                         target=self.target())
+-        self.assertTrue(outside["path"].startswith("v12/python/tests/"))
+-        self.assertFalse(outside["path"].startswith(scoped))
++        elsewhere = self.derived(paths=[outside], blobs=blobs,
++                                 name="unscheduled")
++        self.assertEqual(contract.read_bundle(elsewhere)["evidence"][
++            contract.AUTHORITY_DOCUMENT]["paths"], [])
+ 
+     def test_the_same_change_inside_the_scheduled_scope_is_admitted(self):
+         """What makes the refusal above about AUTHORITY rather than about the
+@@ -954,21 +1073,56 @@
+         target = self.target(entries=[(inside["path"], self.ROW_BASE, 0o644)])
+         self.ending(self.entry(bundle=place, target=target), "integrated")
+ 
+-    def test_a_bundle_with_no_accepted_test_scope_refuses(self):
++    def test_an_authority_account_about_another_job_refuses(self):
+         """ABSENT AND EMPTY ARE NOT ONE CLAIM, and neither is permission.
+ 
+-        A bundle whose Job projection carries no scheduled scope at all cannot
+-        authorize an existing-test change, and reading that absence as consent
+-        is the exact failure the semantic evaluation exists for.
++        W114085's account carries the accepted Job's own binding, so a bundle
++        whose account is about a different Job than the one admission resolved
++        is refused rather than read as consent.
+         """
+         self.bundle(operation="add")
+         taken = contract.read_bundle(self.published["root"])
+-        job = {name: value
+-               for name, value in taken["evidence"]["job.json"].items()
+-               if name != "test_scope"}
+-        place = self.derived(documents={"job.json": job}, name="unscoped")
++        account = dict(taken["evidence"][contract.AUTHORITY_DOCUMENT])
++        account["scope"] = dict(account["scope"],
++                                scope_digest="sha256:" + "9" * 64)
++        place = self.derived(
++            documents={contract.AUTHORITY_DOCUMENT: account}, name="unscoped")
+         self.refused_before_the_provider("scope-unauthorized", bundle=place,
+                                          target=self.target())
++
++    def test_a_bundle_with_no_accepted_verification_command_refuses(self):
++        """The command is resolved BEFORE the provider, so a bundle that
++        names none refuses without a turn rather than after one."""
++        self.bundle(operation="add")
++        taken = contract.read_bundle(self.published["root"])
++        tests = dict(taken["evidence"]["tests.json"])
++        tests["observation"] = dict(tests["observation"], argv=[])
++        place = self.derived(documents={"tests.json": tests},
++                             name="unverifiable")
++        self.refused_before_the_provider("verification-unavailable",
++                                         bundle=place, target=self.target())
++
++    def test_a_scheduled_test_change_with_no_review_document_refuses(self):
++        """A DECISION NEEDS SOMETHING TO HAVE DECIDED IT.
++
++        The accepted scope says WHICH existing tests were scheduled; the
++        frozen review is what says the change to each was actually evaluated.
++        An account that grants a scheduled test change while carrying no
++        review document at all is a scope entry standing in for the reviewed
++        evaluation it is supposed to be evidence of.
++        """
++        self.bundle(operation="add")
++        taken = contract.read_bundle(self.published["root"])
++        scoped = taken["evidence"]["job.json"]["test_scope"][0]
++        row, blobs = self.row(f"{scoped}/test_scheduled.py", operation="edit")
++        account = dict(taken["evidence"][contract.AUTHORITY_DOCUMENT])
++        account["review"] = dict(account["review"], documents=[])
++        place = self.derived(paths=[row], blobs=blobs,
++                             documents={contract.AUTHORITY_DOCUMENT: account},
++                             name="unreviewed")
++        self.refused_before_the_provider(
++            "review-unaccepted", bundle=place,
++            target=self.target(entries=[(row["path"], self.ROW_BASE, 0o644)]))
+ 
+     def test_an_added_test_needs_no_scheduled_scope(self):
+         """Repository policy: adding tests never needs case-specific consent,
+@@ -1093,6 +1247,72 @@
+         # anything, so one path is staged before the turn.
+         self.ending(self.entry(target=target), "held", "repository-mutated")
+ 
++    def test_a_failed_verification_after_a_complete_import_is_held(self):
++        """THE DEFECT REVIEW114048 FOUND, with a REAL failing process.
++
++        The import is complete, the report is well formed and claims an
++        import, and the accepted command exits non-zero over the imported
++        target. That is not an integration, and the old ending published one.
++        """
++        self.bundle(operation="add")
++        target = self.target(verification=3)
++        result = self.ending(self.entry(target=target), "held",
++                             "verification-failed")
++        self.assertEqual(result["detail"]["detail"]["status"], 3)
++        # AND THE IMPORT REALLY HAPPENED, which is what makes this a hold
++        # rather than a refusal.
++        self.assertEqual(self.contents(target, self.reviewed())[0],
++                         self.CANDIDATE)
++
++    def test_a_verification_that_cannot_run_is_held(self):
++        """`verification=None` leaves the accepted command absent from the
++        target, so the child cannot start at all -- uncertain completion after
++        a writable turn, which is held."""
++        self.bundle(operation="add")
++        self.ending(self.entry(target=self.target(verification=None)), "held",
++                    "verification-failed")
++
++    def test_a_report_that_claims_an_import_it_did_not_reach_is_held(self):
++        """`phase_and_paths_incomplete` in the reviewer's probe: a report
++        still at `preflight` naming no path, published as integrated."""
++        self.behaviour = "incomplete-report"
++        self.held("report-inconsistent")
++
++    def test_the_accepted_verification_is_the_one_that_runs(self):
++        """BOUND, not taken from the report. The published command is the
++        accepted evidence's own argv and the status is this runtime's."""
++        self.bundle(operation="add")
++        taken = contract.read_bundle(self.published["root"])
++        accepted = taken["evidence"]["tests.json"]["observation"]["argv"]
++        result = self.ending(self.entry(target=self.target()), "integrated")
++        self.assertEqual(result["detail"]["verification"],
++                         {"argv": accepted, "status": 0})
++
++    def test_no_provider_text_reaches_an_integrated_result(self):
++        """THE SUCCESS CANARY. Review 2026-09-07T22:48:26Z [P1]: the report's
++        own `verification.argv` was forwarded verbatim into the manager's
++        parsed result, and the reviewer's canary rode it across."""
++        self.behaviour = "canary"
++        self.bundle(operation="add")
++        result = self.ending(self.entry(target=self.target()), "integrated")
++        published = workload.existing_result(self.delivery.result_root)
++        self.assertNotIn(b"W110935-CANARY", published)
++        self.assertNotIn("W110935-CANARY", json.dumps(result))
++
++    def test_no_provider_text_reaches_a_held_result(self):
++        """THE HELD CANARY, on the other channel: out-of-scope paths the
++        provider named were copied into the hold's detail."""
++        self.behaviour = "canary-outside"
++        self.bundle(operation="add")
++        result = self.ending(self.entry(target=self.target()), "held",
++                             "report-outside-scope")
++        published = workload.existing_result(self.delivery.result_root)
++        self.assertNotIn(b"W110935-CANARY", published)
++        self.assertNotIn("W110935-CANARY", json.dumps(result))
++        # THE COUNT STILL CROSSES, because an operator needs to know there
++        # were any.
++        self.assertEqual(result["detail"]["detail"]["path_count"], 1)
++
+     def test_an_agent_that_answers_something_else_is_held(self):
+         class Elsewhere:
+             def invoke_provider(self, *, prompt, room):
+@@ -1129,6 +1349,39 @@
+                                contract.ASSIGNMENT_DOCUMENT))
+         self.assertEqual(self.entry(target=self.target()), 2)
+         self.assertEqual(self.commands, [])
++
++    def test_an_unreadable_result_namespace_starts_no_provider(self):
++        """THE P2, and the reviewer's own `terminal_result_behind_link`.
++
++        A correlated terminal result sits behind a SYMLINKED namespace. The
++        old reader answered `None` for every `OSError`, so the entry's
++        documented rule -- an unreadable namespace is not permission to start
++        work -- could never fire, and a second writable provider turn happened
++        over an attempt that had already answered. Now the namespace this
++        runtime cannot prove is a refusal before anything runs.
++        """
++        self.bundle(operation="add")
++        held = self.place("elsewhere-result")
++        workload.publish_result(
++            held, workload.held_result(self.assignment, "provider-uncertain",
++                                       "somebody else answered first"))
++        before = workload.existing_result(held)
++        linked = os.path.join(self.root, "linked-result")
++        os.symlink(held, linked)
++        self.assertEqual(self.entry(target=self.target(),
++                                    result_root=linked), 1)
++        # NO PROVIDER, AND THE PRIOR ANSWER IS EXACTLY WHERE IT WAS.
++        self.assertEqual(self.commands, [])
++        self.assertEqual(workload.existing_result(held), before)
++
++    def test_an_absent_result_file_in_a_proved_namespace_is_not_a_refusal(
++            self):
++        """The one ordinary absence, kept ordinary: a namespace this runtime
++        opened and proved, with no result in it yet."""
++        self.bundle(operation="add")
++        self.assertIsNone(workload.existing_result(
++            self.delivery.result_root))
++        self.ending(self.entry(target=self.target()), "integrated")
+ 
+     def test_the_published_result_is_read_only_and_never_clobbered(self):
+         self.bundle(operation="add")

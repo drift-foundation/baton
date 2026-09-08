@@ -1,0 +1,53 @@
+{
+  "cleanup": [
+    {
+      "confirmed": true,
+      "nonce": "ffc340a79239417383ff34aed88c1ff9"
+    }
+  ],
+  "cleanup_confirmed": true,
+  "diagnostic": {
+    "errno": null,
+    "exception_kind": "fixture-refusal",
+    "stage": "restoration"
+  },
+  "elapsed_seconds_before_result_export": 1.1872648780117743,
+  "failure_code": "execution-refused",
+  "future_work": "not-admitted-after-ending",
+  "limitations": [
+    "Milestones describe observations in this invocation; missing observations do not prove no dispatch or side effect occurred.",
+    "Host command write, provider user-frame write, provider result observation and validated completion are distinct boundaries.",
+    "Actual model has no validated completion observation in this invocation.",
+    "No matched comparison is established: this is separately timed restored-only evidence; accepted earlier retained proof remains separate.",
+    "Nominal turn/budget options do not establish hard billing or subscription limits; reported-cost checks occur after execution.",
+    "Ordinary bridge egress is not provider-only enforcement. Provider/cache costs and production adoption remain unproved.",
+    "One fixture run does not prove production-manager restart recovery; unknown ending outcomes keep future work closed."
+  ],
+  "observed_milestones": {
+    "actual_models": [],
+    "cli_initializations": 1,
+    "containers_created": 1,
+    "host_turn_writes_observed": 1,
+    "matched_pair_verified": false,
+    "provider_results_observed": 1,
+    "provider_turn_writes_observed": 1,
+    "restoration_verified": false,
+    "restore_initialization_observed": false,
+    "restored_correction_verified": false,
+    "retained_correction_verified": false,
+    "turn_intents": 1,
+    "validated_turn_completions": 0,
+    "verified_consumptions": 0
+  },
+  "outcome": "failed-or-inconclusive",
+  "runtime_diagnostic": {
+    "arm": "restored-first",
+    "errno": null,
+    "exception_kind": "fixture-refusal",
+    "operation": "turn",
+    "outer_operation": "turn",
+    "refusal_code": "supervisor-refused",
+    "stage": "response-observed",
+    "turn": 1
+  }
+}

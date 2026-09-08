@@ -1,0 +1,37 @@
+{
+  "probes": {
+    "intermediate_links": {
+      "evidence_directory": "BundleRefusal: evidence checkpoint.json's evidence directory is not a directory of its own inside the bundle (20); a link or a file at that name is somebody else's directory",
+      "blob_directory": "BundleRefusal: blob 087baff1fb62's blobs directory is not a directory of its own inside the bundle (20); a link or a file at that name is somebody else's directory",
+      "root_link": "BundleRefusal: the bundle root is not a directory this reader can open without following a link (20)"
+    },
+    "line_replaced_during_extraction": {
+      "initial_identity": [
+        66306,
+        47977996
+      ],
+      "replacement_identity": [
+        66306,
+        47978005
+      ],
+      "refusal": "ContractRefusal: the private line at '/home/sl/src/baton/v12/python/v12-w71917-imjnf526/storage/.\u2026 is not the directory this manager recorded",
+      "destination_exists": false,
+      "staging_exists": false
+    },
+    "manifest_limit": {
+      "paths": 252,
+      "would_be_files": 513,
+      "max_paths": 251,
+      "max_bundle_files": 512,
+      "refusal": "ContractRefusal: the accepted checkpoint names 252 reviewed paths, above the bound of 251",
+      "destination_exists": false,
+      "staging_exists": false
+    },
+    "exact_maximum": {
+      "paths": 251,
+      "manifest_files": 511,
+      "digest_matches": true,
+      "consumer_accepted": true
+    }
+  }
+}

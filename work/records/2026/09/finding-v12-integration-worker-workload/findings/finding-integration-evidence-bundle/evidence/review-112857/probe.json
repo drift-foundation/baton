@@ -1,0 +1,36 @@
+{
+  "candidate": {
+    "v12/worker/integration_contract.py": "48a83cbaff533174baf0f98a6d468f27161c8e0f09d08705a9cdfbb065362a96",
+    "v12/python/tools/integration_bundle.py": "06888022bb76798557825a87886f4e22269c0e0d0af1c67136e5aa26bdc6931d",
+    "v12/python/tests/tools/test_integration_bundle.py": "3fe32c4414702c5ec587f7216e302657083bddb58e8bf900c176fe7e6df2ac8a",
+    "v12/python/tools/parallel_test.py": "1ae0956fda4bfdb8242c8f5e0a57e7c7dd3833904042dfc7734fc0acfecc16f4"
+  },
+  "probes": {
+    "intermediate_links": {
+      "evidence_directory_accepted": true,
+      "blob_directory_accepted": true,
+      "root_link_accepted": true,
+      "blob_bytes": 15
+    },
+    "line_replaced_during_extraction": {
+      "initial_identity": [
+        66306,
+        47977962
+      ],
+      "replacement_identity": [
+        66306,
+        47977971
+      ],
+      "published": true,
+      "consumer_accepted": true
+    },
+    "manifest_limit_after_publication": {
+      "paths": 252,
+      "unique_blobs": 504,
+      "published_files": 513,
+      "failure": "the array carries more than the frozen limit of 512 entries",
+      "destination_exists": true,
+      "consumer_accepted": true
+    }
+  }
+}

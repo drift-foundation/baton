@@ -1,0 +1,207 @@
+--- review-114486/v12/python/tests/manager/test_integration_worker.py
++++ review-114828/v12/python/tests/manager/test_integration_worker.py
+@@ -290,7 +290,11 @@
+             facts["assignment_digest"] = line.rsplit(" is ", 1)[1].rstrip(".")
+         elif line.startswith("Write your bounded "):
+             facts["report"] = line.split(" report to ", 1)[1].split(" and ")[0]
+-        elif line[:2] == "  " and line.split(" ")[2:]:
++        elif line[:2] == "  " and " " in line[2:]:
++            # THE PROMPT CARRIES MORE INDENTED LINES THAN THE PATH TABLE now
++            # that it names the accepted scope and the review's documents, so
++            # anything that is not one of the three operations is skipped
++            # rather than unpacked.
+             head = line[2:]
+             operation, rest = head.split(" ", 1)
+             if operation not in ("add", "edit", "delete"):
+@@ -488,7 +492,8 @@
+         place = self.place(name)
+         if verification is not None:
+             self.wrote_text(os.path.join(place, "harness.py"),
+-                            f"import sys\nraise SystemExit({verification})\n")
++                            self.HARNESS.get(verification)
++                            or f"import sys\nraise SystemExit({verification})\n")
+         for relative, payload, mode in entries:
+             whole = os.path.join(place, relative)
+             os.makedirs(os.path.dirname(whole), exist_ok=True)
+@@ -498,6 +503,31 @@
+         if repository:
+             self.initialized(place)
+         return place
++
++    # W110935 review 2026-09-08T00:01:58Z [P1]: THE VERIFIER RUNS CANDIDATE
++    # CODE WITH WRITABLE TARGET ACCESS. These are the four things the
++    # reviewer's probe had it do before exiting zero, and every one of them
++    # used to publish `integrated` off an observation taken before it ran.
++    # They are ordinary completed subprocesses, not races -- and the last one
++    # writes a plain witness file in a disposable directory rather than
++    # running any version-control command.
++    HARNESS = {
++        "overwrite": "import pathlib\n"
++                     "pathlib.Path('round-1.txt').write_bytes("
++                     "b'the verifier wrote this\\n')\n"
++                     "raise SystemExit(0)\n",
++        "chmod": "import os\n"
++                 "os.chmod('round-1.txt', 0o755)\n"
++                 "raise SystemExit(0)\n",
++        "delete": "import os\n"
++                  "os.unlink('round-1.txt')\n"
++                  "raise SystemExit(0)\n",
++        "witness": "import os, pathlib\n"
++                   "os.makedirs('.git', exist_ok=True)\n"
++                   "pathlib.Path(os.path.join('.git', 'index'))"
++                   ".write_bytes(b'moved\\n')\n"
++                   "raise SystemExit(0)\n",
++    }
+ 
+     @staticmethod
+     def wrote_text(place, body):
+@@ -815,6 +845,61 @@
+         self.assertIn(self.published["bundle_digest"], prompt)
+         self.assertNotIn(self.launch["session"], prompt)
+ 
++    def test_the_prompt_requires_whole_candidate_test_evaluation(self):
++        """THE INSTRUCTION GAP review 2026-09-08T00:01:58Z [P1] recorded.
++
++        The prompt used to instruct evaluation of "every row below that
++        requires authority" and render only those rows, so an existing test
++        changed OUTSIDE the accepted scope produced no row and no instruction
++        to identify it. The scope enumerates GRANTS, not every existing test a
++        candidate touches -- and this asserts the instruction is there even
++        when the account is EMPTY, which is exactly the case that had none.
++        """
++        self.bundle(operation="add")
++        taken = contract.read_bundle(self.published["root"])
++        account = taken["evidence"][contract.AUTHORITY_DOCUMENT]
++        self.assertEqual(account["paths"], [])
++        self.ending(self.entry(target=self.target()), "integrated")
++        prompt = self.commands[0]["argv"][-1]
++        self.assertIn("EVALUATE THE WHOLE CANDIDATE", prompt)
++        self.assertIn("EMPTY authority account is not permission", prompt)
++        self.assertIn("Stop and report a refusal", prompt)
++        # AND THE MATERIAL THE EVALUATION NEEDS IS NAMED: the accepted scope
++        # and the frozen review's own documents.
++        for one in account["scope"]["test_scope"]:
++            self.assertIn(one, prompt)
++        for one in account["review"]["documents"]:
++            for entry in one["files"]:
++                self.assertIn(f"{one['output_name']}/{entry['path']}", prompt)
++
++    def test_an_unscheduled_existing_test_change_is_the_providers_to_refuse(
++            self):
++        """AND WHEN THE PROVIDER DOES REFUSE IT, the ending is a hold.
++
++        The candidate changes an existing test the accepted scope does not
++        name, so the account is empty and the producer granted nothing. The
++        instruction above is what makes that the provider's decision, and a
++        provider that stops rather than importing ends this turn conservatively
++        -- which is the bounded semantic behaviour this workload can prove.
++        """
++        self.behaviour = "refuse"
++        self.bundle(operation="add")
++        outside, blobs = self.row("v12/python/tests/manager/test_elsewhere.py",
++                                  operation="edit")
++        place = self.derived(paths=[outside], blobs=blobs, name="unscheduled")
++        account = contract.read_bundle(place)["evidence"][
++            contract.AUTHORITY_DOCUMENT]
++        self.assertEqual(account["paths"], [])
++        target = self.target(entries=[(outside["path"], self.ROW_BASE,
++                                       0o644)])
++        self.ending(self.entry(bundle=place, target=target), "held",
++                    "import-incomplete")
++        # THE PROVIDER REFUSED AND NOTHING WAS IMPORTED.
++        self.assertEqual(self.contents(target, outside["path"])[0],
++                         self.ROW_BASE)
++        prompt = self.commands[0]["argv"][-1]
++        self.assertIn("EVALUATE THE WHOLE CANDIDATE", prompt)
++
+     def test_a_terminal_result_never_earns_a_second_provider_turn(self):
+         self.bundle(operation="add")
+         target = self.target()
+@@ -1007,8 +1092,13 @@
+         place = self.derived(documents={
+             "review.json": dict(taken["evidence"]["review.json"],
+                                 verdict_id="verdict-somebody-elses")})
+-        self.refused_before_the_provider("evidence-uncorrelated",
+-                                         bundle=place, target=self.target())
++        # W114085's reader refuses this EARLIER than the workload's own
++        # evidence check, so the reason is the contract's and the observation
++        # names the disagreement exactly. Still refused, still no provider.
++        result = self.refused_before_the_provider(
++            "bundle-unreadable", bundle=place, target=self.target())
++        self.assertIn("not the frozen review's",
++                      result["detail"]["detail"]["observed"])
+ 
+     def test_a_review_that_did_not_accept_refuses(self):
+         self.bundle(operation="add")
+@@ -1016,8 +1106,10 @@
+         place = self.derived(documents={
+             "review.json": dict(taken["evidence"]["review.json"],
+                                 disposition="changes-requested")})
+-        self.refused_before_the_provider("review-unaccepted", bundle=place,
+-                                         target=self.target())
++        result = self.refused_before_the_provider(
++            "bundle-unreadable", bundle=place, target=self.target())
++        self.assertIn("disposition is not the frozen review's",
++                      result["detail"]["detail"]["observed"])
+ 
+     def test_the_accepted_scope_is_the_enumeration_and_not_a_filename(self):
+         """WHAT REPLACED THE HEURISTIC, and what that costs, stated plainly.
+@@ -1087,8 +1179,9 @@
+                                 scope_digest="sha256:" + "9" * 64)
+         place = self.derived(
+             documents={contract.AUTHORITY_DOCUMENT: account}, name="unscoped")
+-        self.refused_before_the_provider("scope-unauthorized", bundle=place,
+-                                         target=self.target())
++        result = self.refused_before_the_provider(
++            "bundle-unreadable", bundle=place, target=self.target())
++        self.assertIn("scope_digest", result["detail"]["detail"]["observed"])
+ 
+     def test_a_bundle_with_no_accepted_verification_command_refuses(self):
+         """The command is resolved BEFORE the provider, so a bundle that
+@@ -1120,9 +1213,11 @@
+         place = self.derived(paths=[row], blobs=blobs,
+                              documents={contract.AUTHORITY_DOCUMENT: account},
+                              name="unreviewed")
+-        self.refused_before_the_provider(
+-            "review-unaccepted", bundle=place,
++        result = self.refused_before_the_provider(
++            "bundle-unreadable", bundle=place,
+             target=self.target(entries=[(row["path"], self.ROW_BASE, 0o644)]))
++        self.assertIn("complete set the frozen review collected",
++                      result["detail"]["detail"]["observed"])
+ 
+     def test_an_added_test_needs_no_scheduled_scope(self):
+         """Repository policy: adding tests never needs case-specific consent,
+@@ -1313,6 +1408,32 @@
+         # were any.
+         self.assertEqual(result["detail"]["detail"]["path_count"], 1)
+ 
++    def test_a_verification_that_undoes_the_import_is_held(self):
++        """THE FOUR FALSE SUCCESSES review 2026-09-08T00:01:58Z [P1] found.
++
++        Each verifier below exits ZERO after changing the target: it overwrites
++        the imported file, changes its mode, deletes it, or moves the metadata
++        witness. Every one of them published `integrated` off the observation
++        taken BEFORE it ran, because a verifier executes candidate code with
++        writable target access and its exit status says nothing about whether
++        what this runtime measured is still there.
++        """
++        for action in ("overwrite", "chmod", "delete", "witness"):
++            with self.subTest(action=action):
++                self.setUp()
++                self.bundle(operation="add")
++                target = self.target(verification=action)
++                self.ending(self.entry(target=target), "held",
++                            "verification-mutated")
++
++    def test_an_unchanged_verifier_still_integrates(self):
++        """THE CONTROL. The repeated observation must not turn an ordinary
++        successful verification into a hold."""
++        self.bundle(operation="add")
++        result = self.ending(self.entry(target=self.target()), "integrated")
++        self.assertEqual(result["detail"]["imported_paths"],
++                         [self.reviewed()])
++
+     def test_an_agent_that_answers_something_else_is_held(self):
+         class Elsewhere:
+             def invoke_provider(self, *, prompt, room):

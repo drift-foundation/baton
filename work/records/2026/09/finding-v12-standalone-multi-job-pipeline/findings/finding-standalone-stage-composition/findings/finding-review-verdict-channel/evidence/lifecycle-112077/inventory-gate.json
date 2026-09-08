@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.manager.test_dependencies",
+    "tests.manager.test_contracts_inventory",
+    "tests.manager.test_boundary_inventory",
+    "-q"
+  ],
+  "exit_code": 1
+}

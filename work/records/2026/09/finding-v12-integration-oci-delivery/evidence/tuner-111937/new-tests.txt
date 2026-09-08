@@ -1,0 +1,16 @@
+test_duplicate_target_refuses_before_a_capability_is_returned (tests.manager.test_oci_integration.RecoveryRequiresTheCompleteFixedLayout.test_duplicate_target_refuses_before_a_capability_is_returned) ... ok
+test_each_fixed_access_flag_is_required (tests.manager.test_oci_integration.RecoveryRequiresTheCompleteFixedLayout.test_each_fixed_access_flag_is_required) ... ok
+test_each_fixed_container_target_is_required (tests.manager.test_oci_integration.RecoveryRequiresTheCompleteFixedLayout.test_each_fixed_container_target_is_required) ... ok
+test_every_source_device_and_inode_must_match (tests.manager.test_oci_integration.RecoveryRequiresTheCompleteFixedLayout.test_every_source_device_and_inode_must_match) ... ok
+test_exact_layout_recovers_after_grant_loss_without_publication (tests.manager.test_oci_integration.RecoveryRequiresTheCompleteFixedLayout.test_exact_layout_recovers_after_grant_loss_without_publication) ... ok
+test_fixed_entries_cannot_be_reordered (tests.manager.test_oci_integration.RecoveryRequiresTheCompleteFixedLayout.test_fixed_entries_cannot_be_reordered) ... ok
+test_foreign_assignment_and_result_roots_refuse_even_with_real_inodes (tests.manager.test_oci_integration.RecoveryRequiresTheCompleteFixedLayout.test_foreign_assignment_and_result_roots_refuse_even_with_real_inodes) ... ok
+test_missing_or_extra_source_refuses (tests.manager.test_oci_integration.RecoveryRequiresTheCompleteFixedLayout.test_missing_or_extra_source_refuses) ... ok
+test_swapping_assignment_and_result_sources_refuses (tests.manager.test_oci_integration.RecoveryRequiresTheCompleteFixedLayout.test_swapping_assignment_and_result_sources_refuses) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.083s
+
+OK
+
+exit_code: 0

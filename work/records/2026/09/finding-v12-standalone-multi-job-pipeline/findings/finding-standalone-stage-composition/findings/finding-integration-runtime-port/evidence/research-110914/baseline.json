@@ -1,0 +1,51 @@
+{
+  "claim_seq": 110914,
+  "files": {
+    "v12/python/src/baton_v12/integration/driver.py": "d7a3e63e2b9ef8b6fffc6eb219790a3df7fd58c3be2ffeb59727bf9284dfd8b1",
+    "v12/python/src/baton_v12/integration/execution.py": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+    "v12/python/src/baton_v12/integration/runtime.py": "742121cf0ae906160375e71bf0985b26091c5a2705bf2144236e12b6eb1b243c",
+    "v12/python/src/baton_v12/job_manager/delegation.py": "8bee111d72fa9c417223bbb54c130a0fc4da100773a4609c38a6c66b4f0f27e0",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "101a2c1754cfb2ea7fc6e08783a902c4e944b33ed7b0189130aaf8c6ff79f566",
+    "v12/python/tools/single_worker.py": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+    "v12/python/tools/stage_execution.py": "745a8b851193ace8099b6ae013641ef668f1b679cc73e23bd301bb8a152c5841",
+    "v12/worker/Dockerfile.claude": "8f88fc3bd366b76686d9cae0e5af019ba395a39d3afb9fd78dc5c3570556e55b",
+    "v12/worker/baton_worker.py": "da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+    "v12/worker/claude_agent.py": "5f5e553b86c143cfd5969c7737ef6811a9c9d5e97b0206a04bf17ef80bed95d8",
+    "v12/worker/dogfood_entry.py": "bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3"
+  },
+  "limitations": "No engine, provider or real target used. Mount refusals establish the ordinary boundary, not the impossibility of a separately reviewed integration extension.",
+  "ordinary_mount_refusals": {
+    "result": {
+      "category": "policy",
+      "code": "denied",
+      "message": "a mount names '<temporary-root>/result', which is not this assignment's material; a execution container may mount only inputs, workspace or a descendant of one"
+    },
+    "target": {
+      "category": "policy",
+      "code": "denied",
+      "message": "a mount names '<temporary-root>/target', which is not this assignment's material; a execution container may mount only inputs, workspace or a descendant of one"
+    }
+  },
+  "run_vector_parameters": [
+    "engine",
+    "image_digest",
+    "labels",
+    "assignment_roots",
+    "posture",
+    "mounts",
+    "credentials_delivered",
+    "launch_delivered",
+    "exchange_delivered",
+    "source_delivered",
+    "name",
+    "workspace_group",
+    "network",
+    "interactive"
+  ],
+  "unprepared_attempt": {
+    "category": "policy",
+    "code": "denied",
+    "message": "the coordinator recorded a grant to attempt 'integration-probe' and this manager holds no such attempt; absence of a record is not absence of a runtime, and a writer does not start behind a runtime nobody can account for"
+  },
+  "work": "W110774"
+}

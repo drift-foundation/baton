@@ -1,0 +1,17 @@
+{
+  "base_sha256": "1015c1ddbd038d13379665443452a9112d4655b7c4ea0199ddccf65c599384e6",
+  "candidate_sha256": "a3e50fe42f7fd191df01b407b4fb05bebe93ca5e9a59c0c7fa48f97d920393fa",
+  "patch_sha256": "2a96ed32a94d742879858d4f1ff3ce5cd8a147d282f3c2622310b0d05aa0f6a4",
+  "unchanged": [
+    "all prior manifest-bound artifacts",
+    "LocalTests",
+    "initialized",
+    "checked_container",
+    "captured",
+    "docker",
+    "IMAGE VERSION CLI LIMIT FLAGS ENV",
+    "exact initialize argv",
+    "exact Docker create/stop calls"
+  ],
+  "proposed_acceptance_delta": "record help omissions and require unchanged actual initialization; all-help-visible gate removed only for idle preflight; unexercised flags remain pending"
+}

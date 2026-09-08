@@ -1,0 +1,68 @@
+--- before/v12/python/tests/job_manager/test_review_driver.py
++++ candidate/v12/python/tests/job_manager/test_review_driver.py
+@@ -2690,3 +2690,65 @@
+                 finally:
+                     self.control._connection.execute("ROLLBACK TO damaged")
+                     self.control._connection.execute("RELEASE damaged")
++
++    def test_historical_cleanup_requires_both_exact_nested_directory_receipts(self):
++        held = self.produced()
++        ended = self.end(held)
++        operation_id = held["adapter"].destroyed_with[0]["operation"]["operation_id"]
++        original = json.loads(self.control.operation_record(operation_id)["result"])
++        nested = original["directory_custody"]
++        values = [None, {}, "not-a-receipt", [], dict(nested, extra=nested["result"])]
++        for which in ("result", "workspace"):
++            values.append({key: value for key, value in nested.items() if key != which})
++            for wrong in (None, {}, "not-a-receipt", nested["workspace" if which == "result" else "result"]):
++                values.append(dict(nested, **{which: wrong}))
++            for member, wrong in (("attempt_id", "another-attempt"), ("root", "another-root"),
++                                  ("verb", "discard"), ("operation", "inspect"), ("account", "{}")):
++                values.append(dict(nested, **{which: dict(nested[which], **{member: wrong})}))
++        for value in values:
++            with self.subTest(directory_custody=value):
++                self.control._connection.execute("SAVEPOINT damaged")
++                try:
++                    self.control._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?",
++                        (json.dumps(dict(original, directory_custody=value)), operation_id))
++                    with self.no_more_external_acts(held), mock.patch.object(held["adapter"], "normalize_directory", side_effect=AssertionError("no repeated normalization")):
++                        with self.assertRaises(ContractRefusal):
++                            review_driver.review_cycles.integration_checkpoint(self.control, ended["line_id"])
++                        replay = self.end(held)
++                        self.assertEqual(replay["outcome"], "held")
++                        self.assertFalse(replay["cleaned_up"])
++                finally:
++                    self.control._connection.execute("ROLLBACK TO damaged")
++                    self.control._connection.execute("RELEASE damaged")
++        self.assert_historical_replay(held, ended)
++
++    def test_historical_cleanup_requires_the_underlying_directory_normalization_journals(self):
++        from baton_v12.worker_manager import custody
++        held = self.produced()
++        ended = self.end(held)
++        for which in ("result", "workspace"):
++            operation_id = custody._custody_operation_id(held["attempt_id"], which)
++            recorded = self.control.operation_record(operation_id)
++            signature = json.loads(recorded["signature"])
++            receipt = json.loads(recorded["result"])
++            changes = [("operation_id", "foreign-operation"), ("kind", "runtime.destroy"), ("result", "null"),
++                       ("result", json.dumps(dict(receipt, attempt_id="another-attempt"))),
++                       ("result", json.dumps(dict(receipt, account="{}")))]
++            for member, wrong in (("attempt_id", "foreign-attempt"), ("root", "another-root"),
++                                  ("workspace_store", "/a/foreign/store"), ("verb", "discard")):
++                changes.append(("signature", json.dumps(dict(signature, operands=dict(signature["operands"], **{member: wrong})), sort_keys=True, separators=(",", ":"))))
++            for column, value in changes:
++                with self.subTest(root=which, column=column, value=value):
++                    self.control._connection.execute("SAVEPOINT damaged")
++                    try:
++                        self.control._connection.execute(f"UPDATE operations SET {column} = ? WHERE operation_id = ?", (value, operation_id))
++                        with self.no_more_external_acts(held), mock.patch.object(held["adapter"], "normalize_directory", side_effect=AssertionError("no repeated normalization")):
++                            with self.assertRaises(ContractRefusal):
++                                review_driver.review_cycles.integration_checkpoint(self.control, ended["line_id"])
++                            replay = self.end(held)
++                            self.assertEqual(replay["outcome"], "held")
++                            self.assertFalse(replay["cleaned_up"])
++                    finally:
++                        self.control._connection.execute("ROLLBACK TO damaged")
++                        self.control._connection.execute("RELEASE damaged")
++        self.assert_historical_replay(held, ended)

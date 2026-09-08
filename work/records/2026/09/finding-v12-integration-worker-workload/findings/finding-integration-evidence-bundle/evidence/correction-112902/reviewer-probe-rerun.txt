@@ -1,0 +1,29 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/worker/integration_contract.py", line 370, in _descend
+    return os.open(_component(name), _DIRECTORY, dir_fd=holder)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NotADirectoryError: [Errno 20] Not a directory: 'evidence'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/w112630/probe-rerun.py", line 36, in <module>
+    result = contract.read_bundle(case.place)
+  File "/home/sl/src/baton/v12/worker/integration_contract.py", line 516, in read_bundle
+    return _read_bundle(root, held_root)
+  File "/home/sl/src/baton/v12/worker/integration_contract.py", line 580, in _read_bundle
+    payload = _read_exact(held_root, (EVIDENCE_DIRECTORY, name),
+                          limit=MAX_EVIDENCE_BYTES,
+                          what=f"evidence {name}")
+  File "/home/sl/src/baton/v12/worker/integration_contract.py", line 382, in _read_exact
+    holder = _descend(holder, name, f"{what}'s {name} directory")
+  File "/home/sl/src/baton/v12/worker/integration_contract.py", line 372, in _descend
+    _refuse(f"{what} is not a directory of its own inside the bundle "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"({failed.errno}); a link or a file at that name is somebody "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"else's directory")
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/integration_contract.py", line 246, in _refuse
+    raise BundleRefusal(message)
+integration_contract.BundleRefusal: evidence checkpoint.json's evidence directory is not a directory of its own inside the bundle (20); a link or a file at that name is somebody else's directory

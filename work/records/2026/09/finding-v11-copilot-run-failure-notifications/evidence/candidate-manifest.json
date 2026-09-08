@@ -1,0 +1,14 @@
+{
+  "tools/codex_copilot_notifier.py": {
+    "sha256": "fa10127ab156932801e3e681782fc2acb43b6e253df02e7dc54f28a12fdad3f7",
+    "baseline_sha256": "12a3bc81ad76c4dd3becf4b893d0f26a099dad0a029ab835d131f84b0a26d214"
+  },
+  "tools/test_codex_copilot_notifier.py": {
+    "sha256": "c0707978a05a9b92cf465e7ca541005444e0b160e1ceebdd5ffa8175815b08c7",
+    "baseline_sha256": "f53967a52493e40ce2cec6acd41096c7dda1111ff457d5574ca8b2a3b0469bb4"
+  },
+  "tools/CODEX-COPILOT-NOTIFIER.md": {
+    "sha256": "503a33179e57f2a5b6f984af97b17b421d0fee4d0a92a04351a56c71552b06bf",
+    "baseline_sha256": "8518b49b9ca99e8fcf168cc73cb88b454cb7b09553136f6f60cbd4d595801331"
+  }
+}

@@ -1,0 +1,211 @@
+--- review114231/v12/worker/integration_contract.py
++++ review114618/v12/worker/integration_contract.py
+@@ -719,7 +719,8 @@
+             _refuse(f"evidence {name} is not one readable JSON document")
+ 
+     rows = _paths(envelope["paths"])
+-    review = _authority(held[AUTHORITY_DOCUMENT], rows)
++    review = _authority(held[AUTHORITY_DOCUMENT], rows, held,
++                        envelope["eligibility"])
+     return {"root": root, "envelope": envelope, "instructions": instructions,
+             "evidence": held, "review": review}
+ 
+@@ -762,8 +763,71 @@
+     return sorted(needs)
+ 
+ 
+-def _authority(account, rows):
+-    """The account, its own shape, its coverage of the table, and its bytes."""
++# -- the canonical form this reader recomputes identities in ----------------
++#
++# W114085 review 2026-09-07T23:16:55Z [P1]: the reader validated each inline
++# review text against its own declared digest and never recomputed the OUTPUT
++# TREE identity, so an account could rewrite a reviewer's words, recompute its
++# own per-file checksums, and keep the frozen output digest it claims to
++# represent. Recomputing that identity needs the canonical form the frozen
++# owner took it in, and a worker in a container cannot import
++# `baton_v12.contracts.canonical` -- so the restricted subset those documents
++# actually use is spelled here and held equal to its owner by conformance.
++
++
++def _canonical(value, depth=0):
++    if depth > 64:
++        _refuse("a measured document nests deeper than this reader digests")
++    if value is None:
++        return "null"
++    kind = type(value)
++    if kind is bool:
++        return "true" if value else "false"
++    if kind is int:
++        if value < 0 or value > 2 ** 53 - 1:
++            _refuse("a measured document carries a number outside the "
++                    "canonical value space")
++        return str(value)
++    if kind is str:
++        try:
++            value.encode("utf-16-be")
++        except UnicodeEncodeError:
++            _refuse("a measured document carries a lone UTF-16 surrogate")
++        return json.dumps(value, ensure_ascii=False)
++    if kind is list:
++        if len(value) > 512:
++            _refuse("a measured array is above the frozen canonical limit")
++        return "[" + ",".join(_canonical(one, depth + 1)
++                              for one in value) + "]"
++    if kind is dict:
++        if len(value) > 512:
++            _refuse("a measured object is above the frozen canonical limit")
++        names = sorted(value, key=lambda one: one.encode("utf-16-be"))
++        return "{" + ",".join(f"{json.dumps(one, ensure_ascii=False)}:"
++                              f"{_canonical(value[one], depth + 1)}"
++                              for one in names) + "}"
++    _refuse("a measured document carries a value canonical JSON has no "
++            "representation for")
++
++
++def canonical_digest(value):
++    """The identity the frozen owners took theirs in."""
++    from hashlib import sha256
++
++    return "sha256:" + sha256(
++        _canonical(value).encode("utf-8")).hexdigest()
++
++
++def _authority(account, rows, evidence, eligibility):
++    """The account, its own shape, its coverage of the table, and its bytes.
++
++    AND ITS BINDING TO THE PROJECTIONS IT DUPLICATES. Review
++    2026-09-07T23:16:55Z [P1]: this validated the account against ITSELF, so a
++    foreign scope identity, a rewritten review document and an entirely absent
++    materialization were each accepted beside the real, unchanged `job.json`,
++    `review.json` and eligibility they contradicted. Duplicated identities are
++    only useful if something compares them, and this is that something.
++    """
+     if type(account) is not dict or set(account) != set(AUTHORITY_MEMBERS):
+         _refuse("the authority projection carries exactly its closed members")
+     if account["schema"] != AUTHORITY_SCHEMA:
+@@ -782,13 +846,33 @@
+         _refuse("the accepted scope names more paths than this contract bounds")
+     for one in scheduled:
+         check_bundle_path(one, "a scheduled scope path")
+-
+-    review = _authority_review(account["review"])
++    # THE SCOPE IS BOUND TO ITS OWN PROJECTION AND TO ADMISSION'S ACCOUNT, and
++    # its digest is RECOMPUTED. A foreign work_id with an empty scope beside
++    # the real, unchanged `job.json` was accepted before this.
++    job = evidence.get("job.json")
++    if type(job) is not dict:
++        _refuse("this bundle carries no accepted Job projection")
++    for member in ("job_id", "stage_id", "work_id", "scope_digest"):
++        if scope[member] != job.get(member):
++            _refuse(f"the authority scope's {member} is not the accepted "
++                    f"Job's")
++    if scope["work_id"] != eligibility["work_id"] \
++            or scope["scope_digest"] != eligibility["scope_digest"]:
++        _refuse("the authority scope is not the account this admission "
++                "resolved")
++    if canonical_digest(list(scheduled)) != scope["scope_digest"]:
++        _refuse("the authority scope's paths are not the scope its own digest "
++                "names")
++    if job.get("test_scope") != list(scheduled):
++        _refuse("the authority scope and the accepted Job projection name "
++                "different scheduled paths")
++
++    review = _authority_review(account["review"], evidence)
+     _authority_paths(account["paths"], rows, scheduled)
+     return review
+ 
+ 
+-def _authority_review(review):
++def _authority_review(review, evidence):
+     """The frozen review's identity, and every materialized byte of it.
+ 
+     THE DOCUMENTS TRAVEL INSIDE THIS PROJECTION rather than as a directory of
+@@ -803,6 +887,30 @@
+     for member in ("verdict_id", "attachment_id", "disposition",
+                    "reviewer_participant", "result_id", "result_digest"):
+         _text(review[member], f"the authority review's {member}")
++    # BOUND TO THE FROZEN PROJECTION IT CLAIMS TO REPRESENT. Review
++    # 2026-09-07T23:16:55Z [P1]: a rewritten review, a foreign identity and an
++    # entirely absent materialization were each accepted beside the real,
++    # unchanged `review.json`.
++    frozen = evidence.get("review.json")
++    if type(frozen) is not dict or type(frozen.get("review_result")) is not dict:
++        _refuse("this bundle carries no frozen independent review projection")
++    for member in ("verdict_id", "attachment_id", "disposition",
++                   "reviewer_participant"):
++        if review[member] != frozen.get(member):
++            _refuse(f"the authority review's {member} is not the frozen "
++                    f"review's")
++    if review["result_id"] != frozen["review_result"].get("result_id") \
++            or review["result_digest"] != frozen.get("review_result_digest"):
++        _refuse("the authority review names another frozen result than the "
++                "one this bundle carries")
++    artifacts = frozen["review_result"].get("artifacts")
++    if type(artifacts) is not list:
++        _refuse("the frozen review projection names no collected outputs")
++    collected = {}
++    for one in artifacts:
++        if type(one) is not dict:
++            _refuse("a frozen review artifact is a document")
++        collected[one.get("output_name")] = one
+     documents = review["documents"]
+     if type(documents) is not list or len(documents) > MAX_REVIEW_OUTPUTS:
+         _refuse(f"a frozen review carries at most {MAX_REVIEW_OUTPUTS} "
+@@ -870,6 +978,29 @@
+                     f"carries {total}")
+     if names != sorted(names) or len(set(names)) != len(names):
+         _refuse("the materialized review outputs are sorted and unique")
++    # THE COMPLETE SET, AND EVERY IDENTITY RECOMPUTED FROM THE ORIGINAL BYTES.
++    # A partial materialization of a non-empty frozen review is not this
++    # review; a per-file checksum that agrees with itself is not the tree the
++    # frozen owner measured.
++    if names != sorted(collected):
++        _refuse("the materialized review outputs are not the complete set the "
++                "frozen review collected")
++    for one in documents:
++        # `recorded`, NOT `held`: `held` is this function's accumulator of the
++        # materialized bytes, and shadowing it here returned the frozen
++        # artifact where the caller expected the documents.
++        recorded = collected[one["output_name"]]
++        if one["tree_digest"] != recorded.get("content_digest") \
++                or one["bytes"] != recorded.get("bytes"):
++            _refuse(f"materialized review output {one['output_name']} does "
++                    f"not carry the identity the frozen review recorded")
++        measured = canonical_digest(
++            [{"path": entry["path"], "bytes": entry["bytes"],
++              "content_digest": "sha256:" + entry["digest"]}
++             for entry in one["files"]])
++        if measured != one["tree_digest"]:
++            _refuse(f"materialized review output {one['output_name']} does "
++                    f"not measure to the tree identity it declares")
+     return {"identity": {member: review[member]
+                          for member in AUTHORITY_REVIEW_MEMBERS
+                          if member != "documents"},
+@@ -892,6 +1023,7 @@
+         _refuse("the authority account does not name exactly the reviewed "
+                 "paths that need authority, in the table's own order")
+     supplied = {row["path"]: needs for row, needs in needed}
++    described = {row["path"]: row for row in rows}
+     for one in account:
+         if set(one) != set(AUTHORITY_PATH_MEMBERS):
+             _refuse("an authority row carries exactly its closed members")
+@@ -903,6 +1035,18 @@
+             if one[member] is not None and one[member] not in MODES:
+                 _refuse(f"authority row {path}'s {member} is a reviewed file "
+                         f"mode or null")
++        # AND EQUAL TO THE ROW IT DESCRIBES. Review 2026-09-07T23:16:55Z [P1]:
++        # these duplicated values were held to the vocabulary and never to the
++        # envelope, so an internally valid account could describe a different
++        # operation or a different pair of modes than the table it accompanies.
++        row = described[path]
++        if one["operation"] != row["operation"] \
++                or one["base_mode"] != (row["base"]["mode"] if row["base"]
++                                        else None) \
++                or one["candidate_mode"] != (row["candidate"]["mode"]
++                                             if row["candidate"] else None):
++            _refuse(f"authority row {path} does not describe the reviewed row "
++                    f"it accompanies")
+         requires = one["requires"]
+         if type(requires) is not list or requires != supplied[path]:
+             _refuse(f"authority row {path} does not state what this reviewed "

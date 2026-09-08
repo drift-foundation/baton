@@ -1,0 +1,45 @@
+{
+  "claim": 112610,
+  "source_hashes": {
+    "v12/python/src/baton_v12/checkpoint_profiles.py": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38",
+    "v12/python/src/baton_v12/integration/admission.py": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f",
+    "v12/python/src/baton_v12/integration/driver.py": "d6b3be4f99e0776d6ec402db6bfb05b4db8fd376a36b8d1c4225eb17dec83bd6",
+    "v12/python/src/baton_v12/integration/execution.py": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+    "v12/python/src/baton_v12/integration/oci_delivery.py": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+    "v12/python/src/baton_v12/integration/runtime.py": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+    "v12/python/src/baton_v12/worker_manager/output.py": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/tests/manager/test_claude_agent.py": "a6c6e57ad38dd9c24c6ad864080ed02f0106ce27a509631b52436c1f9bbf5dd7",
+    "v12/python/tools/parallel_test.py": "39b161a50e6e58ecfa6001c022532c23f9518779c85ce94c9dd1dace624318be",
+    "v12/worker/Dockerfile.claude": "8f88fc3bd366b76686d9cae0e5af019ba395a39d3afb9fd78dc5c3570556e55b",
+    "v12/worker/claude_agent.py": "65a9d8b7dda16f76665c0a620740653b43692ac315e246fd4e822fe222101817",
+    "v12/worker/dogfood_entry.py": "bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3"
+  },
+  "prior_changed": [
+    "v12/worker/claude_agent.py",
+    "v12/python/src/baton_v12/integration/runtime.py",
+    "v12/python/src/baton_v12/integration/driver.py",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py"
+  ],
+  "provider_public_methods": [
+    "consider",
+    "work"
+  ],
+  "new_path_exists": {
+    "v12/worker/integration_contract.py": false,
+    "v12/python/tools/integration_bundle.py": false,
+    "v12/python/tests/tools/test_integration_bundle.py": false,
+    "v12/worker/integration_entry.py": false,
+    "v12/worker/integration_workload.py": false,
+    "v12/worker/Dockerfile.integration": false,
+    "v12/python/tests/manager/test_integration_worker.py": false,
+    "v12/python/tests/manager/test_integration_image.py": false
+  },
+  "canonical_prerequisites": {
+    "W110772": "closed satisfying112501",
+    "W112029": "closed satisfying112567",
+    "W112039": "closed satisfying112601",
+    "W110934": "closed satisfying112242",
+    "W103083": "blocked on W110774, unclaimed at112620"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "claim": 107407,
+  "source": "/tmp/baton-w106673-session-preflight-gu8vuv0e",
+  "observations": {
+    "probe.py": {
+      "sha256": "73db1f08356e792b4e3bcb0baa871223c628491664245043b4282628ec9fc1c1"
+    },
+    "result.json": {
+      "sha256": "d5d1352531f51ec3a2a17db526dfd6e26b98f075cb96ed28f23f17fc916fe2d8",
+      "value": {
+        "outcome": "failed-or-blocked",
+        "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+        "run": "7b04d6286d094550978f0d42267bcb81",
+        "script_sha256": "73db1f08356e792b4e3bcb0baa871223c628491664245043b4282628ec9fc1c1",
+        "stage": "offline-initialization",
+        "container": "ddb4acf072f034acab95cedd729952d6b5294bd743d2fcedbb1a93fbad526f5f",
+        "cleanup": "confirmed-stopped-retained",
+        "container_exit_code": 1
+      }
+    },
+    "registration.json": {
+      "sha256": "ad8a93324a2650a5ef7fe41a06afd6e448a34228306ead7832c41c992f2c5c52",
+      "value": {
+        "outcome": "failed-or-blocked",
+        "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+        "run": "7b04d6286d094550978f0d42267bcb81",
+        "script_sha256": "73db1f08356e792b4e3bcb0baa871223c628491664245043b4282628ec9fc1c1",
+        "stage": "container-create",
+        "container": "ddb4acf072f034acab95cedd729952d6b5294bd743d2fcedbb1a93fbad526f5f"
+      }
+    }
+  },
+  "original_six_preparation_artifacts": "all hashes unchanged",
+  "runtime_rerun": false
+}

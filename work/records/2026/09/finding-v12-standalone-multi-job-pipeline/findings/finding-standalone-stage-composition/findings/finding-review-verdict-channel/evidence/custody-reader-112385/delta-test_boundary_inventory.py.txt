@@ -1,0 +1,85 @@
+--- before/v12/python/tests/manager/test_boundary_inventory.py
++++ candidate/v12/python/tests/manager/test_boundary_inventory.py
+@@ -1058,6 +1058,15 @@
+ # Checked for staleness, because a list of exceptions nobody compares to the
+ # code is a list of things somebody remembered.
+ NOT_AN_ENTRY = {
++    **{("custody.py:historical_directory_custody", kind, label):
++       "normalization-specific validation chained onto the journal's adopted "
++       "signature/result decode; test_historical_custody_journal_probes_reach_their_named_boundaries "
++       "corrupts the exact committed value and proves arrival without acts"
++       for kind, label in (("document", "a historical custody signature"),
++                           ("document", "historical custody operands"),
++                           ("text", "a historical custodian image identity"),
++                           ("document", "a historical directory custody receipt"),
++                           ("document", "a historical normalization account"))},
+     ("review_cycles.py:_cleaned_review", "document", "a historical review cleanup"):
+         "the runtime.destroy-specific document check follows the journal's "
+         "adopted operations.result decode through ControlStore.replay; it is "
+@@ -2199,6 +2208,8 @@
+     ("caller", "custody.py:normalize_directory", "which"):
+         ("custody.py:check_custody_root", "caller:which"),
+     ("caller", "custody.py:adopted_directory_custody", "which"):
++        ("custody.py:check_custody_root", "caller:which"),
++    ("caller", "custody.py:historical_directory_custody", "which"):
+         ("custody.py:check_custody_root", "caller:which"),
+     # -- W47225: the launch delivery a restarted process adopts ---------------
+     #
+@@ -6391,6 +6402,46 @@
+     probe -- an unowned adopted crossing coexisted with a green gate.
+     """
+ 
++    def test_historical_custody_journal_probes_reach_their_named_boundaries(self):
++        from unittest import mock
++        from .test_custody import OneSignedReceiptPerRoot
++        from baton_v12.worker_manager import custody
++        from baton_v12.worker_manager.store import manager_signature
++
++        fixture = OneSignedReceiptPerRoot()
++        self.addCleanup(fixture.doCleanups)
++        fixture.setUp()
++        self.addCleanup(fixture.tearDown)
++        custodian = fixture.Custodian()
++        receipt = custody.normalize_directory(fixture.store, custodian, assignment_id="attempt-1", which="result")
++        operation_id = custody._custody_operation_id("attempt-1", "result")
++        record = fixture.store.operation_record(operation_id)
++        signature = json.loads(record["signature"])
++        image_spoiled = dict(signature["operands"], custodian_image_digest=7)
++        for kind, label, column, value in (
++                ("document", "a historical custody signature", "signature", "[]"),
++                ("document", "historical custody operands", "signature", json.dumps(dict(signature, operands=[]))),
++                ("text", "a historical custodian image identity", "signature", manager_signature(signature["kind"], image_spoiled)),
++                ("document", "a historical directory custody receipt", "result", "[]"),
++                ("document", "a historical normalization account", "result", json.dumps(dict(receipt, account="[]")))):
++            with self.subTest(label=label):
++                site = "custody.py:historical_directory_custody"
++                self.assertIn((site, kind, label), NOT_AN_ENTRY)
++                self.assertIn((kind, label), {(k, found) for k, found, _ in owning_validators()[site]})
++                fixture.store._connection.execute("SAVEPOINT damaged")
++                try:
++                    fixture.store._connection.execute(f"UPDATE operations SET {column} = ? WHERE operation_id = ?", (value, operation_id))
++                    changes = fixture.store._connection.total_changes
++                    with mock.patch.object(custody, "normalize_directory", side_effect=AssertionError("no normalization")), \
++                            mock.patch.object(custody, "custody_act", side_effect=AssertionError("no helper")):
++                        self.refusing(label, lambda: custody.historical_directory_custody(fixture.store, "attempt-1", "result"))
++                    self.assertEqual(fixture.store._connection.total_changes, changes)
++                    self.assertEqual(custodian.calls, [("attempt-1", "result")])
++                finally:
++                    fixture.store._connection.execute("ROLLBACK TO damaged")
++                    fixture.store._connection.execute("RELEASE damaged")
++                self.assertEqual(custody.historical_directory_custody(fixture.store, "attempt-1", "result"), receipt)
++
+     def test_historical_cleanup_document_probe_reaches_its_named_boundary(self):
+         """The exact chained journal validator still needs a reaching probe."""
+         from tests.job_manager.test_review_driver import TheWorkerCompletionTraversesPublicCustody
+@@ -6661,6 +6712,10 @@
+ 
+         found = {
+             # The two owners this module holds directly, each at its own site.
++            (at("historical_directory_custody", "assignment_id"), "an assignment identity"):
++                ("an assignment identity", lambda: custody.historical_directory_custody(self.store, 7, "result")),
++            (at("historical_directory_custody", "which"), "a custody root name"):
++                ("a custody root name", lambda: custody.historical_directory_custody(self.store, "attempt-1", 7)),
+             (at("check_custody_operation", "operation"),
+              "a custody operation"): (
+                 "a custody operation",

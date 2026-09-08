@@ -1,0 +1,31 @@
+{
+ "prior": 72,
+ "current": 83,
+ "removed": [],
+ "changed_existing": [
+  "ThePathTableRefusesWhatItCannotAccountFor.test_a_malformed_runner_answer_refuses",
+  "ThePathTableRefusesWhatItCannotAccountFor.test_a_symlink_or_a_submodule_refuses_the_whole_proposal",
+  "ThePathTableRefusesWhatItCannotAccountFor.test_a_text_runner_is_not_this_modules_runner",
+  "ThePathTableRefusesWhatItCannotAccountFor.test_an_entry_for_another_path_refuses",
+  "ThePathTableRefusesWhatItCannotAccountFor.test_content_above_the_blob_bound_refuses_before_it_is_read",
+  "ThePathTableRefusesWhatItCannotAccountFor.test_content_that_disagrees_with_its_declared_size_refuses",
+  "ThePathTableRefusesWhatItCannotAccountFor.test_evidence_of_another_profile_or_another_shape_refuses",
+  "ThePathTableRefusesWhatItCannotAccountFor.test_more_paths_than_the_bound_refuses",
+  "ThePathTableRefusesWhatItCannotAccountFor.test_more_than_one_entry_for_one_path_refuses",
+  "TheReviewedPathTableComesFromRetainedObjects.test_the_composed_vectors_are_exactly_these",
+  "TheReviewedPathTableComesFromRetainedObjects.test_the_vectors_are_read_only_and_lock_free"
+ ],
+ "added": [
+  "TheExtractionIsBoundToOneDirectory.test_a_pathname_is_not_a_directory_this_producer_reads_through",
+  "TheExtractionIsBoundToOneDirectory.test_a_transient_swap_does_not_redirect_a_single_read",
+  "TheExtractionIsBoundToOneDirectory.test_no_composed_command_carries_the_repository_pathname",
+  "TheRootIsTraversedAndNotJustOpened.test_a_noncanonical_spelling_is_refused_before_anything_is_opened",
+  "TheRootIsTraversedAndNotJustOpened.test_a_root_reached_through_a_linked_ancestor_is_refused",
+  "TheRootIsTraversedAndNotJustOpened.test_an_alias_with_a_trailing_dot_is_refused",
+  "TheRootIsTraversedAndNotJustOpened.test_the_assignment_reader_traverses_the_same_way",
+  "TheRootIsTraversedAndNotJustOpened.test_the_valid_root_still_reads",
+  "TheSharedContentIsChargedOnce.test_content_larger_than_half_the_limit_may_be_shared",
+  "TheSharedContentIsChargedOnce.test_the_exact_unique_maximum_publishes",
+  "TheSharedContentIsChargedOnce.test_true_unique_overflow_still_refuses"
+ ]
+}

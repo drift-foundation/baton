@@ -1,0 +1,77 @@
+--- prior/v12/python/tests/manager/test_claude_agent.py
++++ candidate/v12/python/tests/manager/test_claude_agent.py
+@@ -2996,11 +2996,60 @@
+     missing is a way for integration admission to resolve that same fact from
+     the frozen result, so this asserts the observation is the adapter's own
+     read of the child it already started -- never a flag a provider set.
++
++    THE COMMAND REALLY RUNS HERE. Review 2026-09-07T17-47-09Z [P1]: the first
++    version of these cases inherited a runner that returned a
++    `CompletedProcess` for every non-Git argv, so the status in the metadata
++    was one the fixture injected and the case proved only that the member was
++    carried. `really()` below executes the task's own verification argv for
++    real, so a status of zero is a command that actually exited zero.
+     """
++
++    def really(self, **operands):
++        """The adapter's process seam with the VERIFICATION COMMAND REAL.
++
++        Git is real, as `LineCase` already makes it; the provider stays
++        injected, because a model turn is what a deterministic case cannot
++        have. The task's own command is executed with `subprocess.run` in the
++        candidate, which is the one thing the accepted contract asks this
++        observation to be about.
++        """
++        fake = self.provider(**operands)
++
++        def run(argv, **options):
++            if argv[0] == "git":
++                self.git_calls.append(list(argv))
++                return subprocess.run(list(argv), env=self.environment(),
++                                      **options)
++            if list(argv) == list(LINE_TASK["verification"]):
++                return subprocess.run(list(argv), **options)
++            return fake(argv, **options)
++
++        return run
++
++    def ran(self, **operands):
++        agent = ClaudeAgent(run=self.really(**operands),
++                            home=self.turn_scratch())
++        return agent.work({"contract": "the frozen task"}, list(DECLARED))
+ 
+     def observation(self, answered):
+         return answered["outputs"][0]["result_metadata"].get(
+             claude_agent.ORDINARY_TESTS_NAMESPACE)
++
++    def test_an_actual_passing_command_is_reported_with_its_real_status(self):
++        """The candidate's own `harness.py` is executed; nothing injects a
++        status, and a zero here is a process that exited zero."""
++        answered = self.ran(edits={"harness.py": "print('edited')\n"})
++        held = self.observation(answered)
++        self.assertEqual(held["status"], 0)
++        self.assertEqual(held["argv"], list(LINE_TASK["verification"]))
++
++    def test_an_actual_failing_command_is_reported_with_its_real_status(self):
++        """The command is made to fail by what the provider WROTE, so the
++        non-zero status comes from a real process rather than an operand."""
++        answered = self.ran(
++            edits={"harness.py": "raise SystemExit(3)\n"})
++        self.assertEqual(self.observation(answered)["status"], 3)
+ 
+     def test_a_passing_command_is_reported_with_its_actual_status(self):
+         answered = self.worked(edits={"harness.py": "print('edited')\n"})
+@@ -3016,7 +3065,12 @@
+ 
+     def test_a_failing_command_keeps_its_nonzero_status(self):
+         """Failed stays failed: this adapter reports what `wait` answered and
+-        decides nothing about it."""
++        decides nothing about it.
++
++        The status here is the fixture's, which is what makes this a check of
++        the CARRIAGE rather than of the execution; the two cases above run the
++        command for real.
++        """
+         answered = self.worked(edits={"harness.py": "print('edited')\n"},
+                                verify=1)
+         self.assertEqual(self.observation(answered)["status"], 1)

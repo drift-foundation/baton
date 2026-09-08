@@ -457,14 +457,65 @@ one Work identity, one visible state and one progress row. If both can be
 claimed, reviewed or closed independently, create two Jobs before the first is
 routed for implementation.
 
-Long message history is a decomposition warning. It is not protocol state and
-does not impose an arbitrary numeric limit, but a Work that has accumulated
-many review rounds while substantial unstarted scope remains is hiding the
-queue. At the next handoff, separate the remaining independently accountable
-outcomes instead of appending another subsystem to the same thread. A newly
-discovered trust boundary, operator surface or reusable correction normally
-deserves a child or sibling; a correction within the current acceptance result
-stays with the current Job.
+### The reviewer must split stalled Jobs or justify keeping them whole
+
+The reviewer assesses Job size at plan review and each material handback;
+do not wait for the operator to ask whether a large Job should be split.
+Implementers flag unfinished deliverables and concrete scope gaps in their
+handoffs. The reviewer combines that evidence with the candidate, remaining
+acceptance and available execution capacity. When reviews repeatedly fail to
+accept the work or expose substantial delivery gaps, **splitting is the default;
+the reviewer bears the burden of justifying an exception**.
+
+Assess a split immediately when any of these signals appears:
+
+- The plan contains two or more outcomes that can be implemented, reviewed or
+  accepted independently, especially across distinct file ownership.
+- A handback delivers one part while substantial approved scope remains
+  unstarted, or repeatedly omits the same required proof.
+- A discovered interface or capability expands the Job into another substantial
+  deliverable, or each correction round adds more work than it completes.
+- One Handler has become the queue for separable work that another eligible
+  Handler could advance, including through an explicitly scoped tuner assignment.
+
+An exposed substantial omitted deliverable triggers this rule immediately.
+Otherwise, **two successive implementation/review cycles without acceptance**
+require a split before another undivided implementation pass, unless the reviewer
+records the concrete exception below. Count partial and failed handbacks across
+reassignment; changing the Handler alone does not reset the trigger. Message
+count, elapsed time, file count and test count can prompt an earlier assessment;
+none excuses ignoring the failure or delivery-gap trigger.
+
+Record the decision in the review and current plan, using the finding to pin
+any accepted scope change. Keep it concrete:
+
+- **Split:** name each remaining acceptance result, its proposed Handler and
+  exact file ownership, the existing interface between the pieces, genuine
+  dependencies and any final joined acceptance. Preserve completed evidence
+  and say which Work retains it. Use children or siblings within dossier-depth
+  rules; never bind two Jobs to one dossier.
+- **Continue by exception:** identify the exact remaining acceptance and show,
+  from the current candidate, why no useful independently acceptable piece can
+  be separated, or which concrete shared change must be completed together.
+  Name the bounded next deliverable and reassess at its handback. "Almost done",
+  confidence in the next attempt, convenience, or unspecified coordination cost
+  is not a justification. Without this recorded evidence, split. An exception
+  does not authorize an open-ended series of further correction rounds.
+
+If only one independently acceptable outcome remains, such as one missing proof,
+the reviewer can justify keeping it in the same Job and assigning a bounded
+takeover. A small multi-file correction can qualify for the same exception;
+its indivisibility must be explained, not presumed. Defer optional features
+instead of turning them into new critical-path children. Required proof and
+joined acceptance remain visible; splitting must not make an unfinished
+capability appear complete.
+
+Recommend decomposition during a live claim, but enact it only at a safe handoff
+after the current Handler passes or releases. Use existing assignment authority
+to route the concrete pieces; where new scope or allocation needs authorization,
+request that exact decision once. This rule grants no new claim, test-change or
+route authority and introduces no extra planning-only approval cycle. The goal
+is independently finishable work that advances the campaign's stated proof.
 
 ### Capability passes preserve the big picture
 
@@ -493,12 +544,42 @@ architecture that has first earned further investment. This is engineering
 toward a useful product, not an academic pursuit of perfection detached from
 whether the whole design works.
 
+**Before running a test suite or a costly test campaign, state what new question
+it will answer and why existing evidence is insufficient.** This is required
+for implementers, reviewers, tuners and other executing roles. Apply it to suites
+and broad sweeps, and to an individual run or planned series expected to take
+about a minute or more in total. Before starting, record a concise reason,
+command/scope and approximate time budget in the Work's progress, review or
+execution plan. State the specific behavior or required gate being checked and
+what changed or remains unproved. A retrospective justification is insufficient.
+
+Quick, targeted one-off probes need no separate justification entry; report
+their results normally. Judge a campaign by its cumulative cost: a series of
+one-minute commands is expensive even if each command looks small. Do not evade
+the rule by splitting a suite into individually short invocations. Reassess the
+scope and evidence need before extending or repeating a campaign that is
+consuming more time than expected; do not keep adding runs by habit.
+
+If retained results already answer that question for the applicable bytes and
+environment, reuse them. A repeat must identify the relevant source/environment
+change, missing or unusable evidence, or required independent boundary that
+makes another execution informative. "The reviewer runs tests too", "just to
+be safe", or a routine handoff ritual is insufficient. Choose
+the smallest run that closes the stated evidence gap, then report its result
+against that question. This is an execution discipline, not a new permission
+request or a waiver of required checks; a required gate without applicable
+evidence is a valid reason to run it.
+
 Use a TWO-STAGE verification cadence. During an implementation or correction
 loop, run the smallest deterministic reproducer and focused tests that can
 answer whether that edit worked. Once the focused acceptance is green and the
 candidate is ready to hand over, run one broader relevant regression sweep.
 Do not pay for the broad sweep after every small correction, and do not pass a
 candidate merely because its focused tests passed.
+
+When an assigned component acceptance proof is still missing, complete that
+proof before another broad sweep unless the sweep answers a separate named
+blocking question. Repeating a broad red run does not replace the missing proof.
 
 Implementation and review own different evidence. The implementer records the
 exact focused and broad commands, their results, and any known baseline

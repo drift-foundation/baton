@@ -1,0 +1,16 @@
+{
+  "work": "W106673",
+  "image": "sha256:9351a9a0a697a69e156f8bd067dd5ef3f9fa9b110abbdbbda1f343c622c7adc0",
+  "repository_digest": "python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc994d3",
+  "inspection": "existing local image; no declared volumes or entrypoint; default command python3",
+  "runtime_uid": 65532,
+  "runtime_gid": 65532,
+  "workspace_gid_proposed": 65532,
+  "group_scope": "disposable operator-owned fixture only, uses fixed runtime numeric gid; no host group/account creation; owner acceptance pending",
+  "observations": [
+    "docker image ls denied socket access; no retry or escalation",
+    "exact image inspect permitted; initial format failed on absent Volumes key, corrected index lookup succeeded",
+    "getent group baton-workspace and getent group 65532 returned no record; no host changes"
+  ],
+  "execution_authorized": false
+}

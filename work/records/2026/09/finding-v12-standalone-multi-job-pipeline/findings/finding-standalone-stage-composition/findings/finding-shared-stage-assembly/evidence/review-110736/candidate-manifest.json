@@ -1,0 +1,52 @@
+{
+  "work": "W103083",
+  "handoff": 110672,
+  "claim": 110736,
+  "paths": [
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "e8f83395e121fc4c2e95352a04cbcb20eb729adfd20d7fb811e9f3c149b2bcd9",
+      "bytes": 58301
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "6e1c4d58d2360c6091327bd9c9f90cf58cdb60d5450554ae98d9280b1ca15ad8",
+      "bytes": 120652
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "eb90384d91cb5a4afe22bc147b8113863c8cf039eb5efbcae7ed4f614870ab9e",
+      "bytes": 59773
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "2b8a3bda6fc646930a0e98d3f878184754c1f150091b8b4e80a7a22c96f9d88b",
+      "bytes": 60642
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+      "bytes": 159004
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "sha256": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1",
+      "bytes": 34028
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377",
+      "bytes": 73542
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/session.py",
+      "sha256": "333cd6e44ac73e093ceb45ba3b7c639985c4220de2dc87b3266bf7cd7634948a",
+      "bytes": 16935
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/execution.py",
+      "sha256": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+      "bytes": 23878
+    }
+  ]
+}

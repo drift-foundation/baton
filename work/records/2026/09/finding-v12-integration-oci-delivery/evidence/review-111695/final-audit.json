@@ -1,0 +1,15 @@
+{
+  "candidate_still_matches": {
+    "v12/python/src/baton_v12/integration/oci_delivery.py": true,
+    "v12/python/src/baton_v12/integration/runtime.py": true,
+    "v12/python/src/baton_v12/worker_manager/oci.py": true,
+    "v12/python/tests/manager/test_oci_integration.py": true,
+    "v12/python/tests/integration/test_runtime.py": true,
+    "v12/python/tests/manager/test_dependencies.py": true,
+    "v12/python/tools/parallel_test.py": true
+  },
+  "consumer": {
+    "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+    "sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55"
+  }
+}

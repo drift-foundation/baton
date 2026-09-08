@@ -1,0 +1,9 @@
+{
+  "path": "work/records/2026/09/finding-v12-ordinary-test-admission/evidence/implementation-112071/subtree-gate-keyerror.txt",
+  "sha256": "7ea32fca54b20042b1099e0154f1068da5dc24bb68bcdbd4e018181a541d693a",
+  "reported_tests": 4815,
+  "reported_failures": 11,
+  "reported_errors": 1,
+  "reported_skips": 21,
+  "status": "Historical retained evidence only; not rerun or re-certified for current shared-tree bytes."
+}

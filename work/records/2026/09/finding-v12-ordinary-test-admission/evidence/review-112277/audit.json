@@ -1,0 +1,75 @@
+{
+  "candidate": {
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "4e4db51abf56a0774588c9bfc31e99f2bf44fc13c291e243c84eb9eb45174c65",
+      "matches": true,
+      "changed": true
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "65a9d8b7dda16f76665c0a620740653b43692ac315e246fd4e822fe222101817",
+      "matches": true,
+      "changed": false
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "054bbb355c3ad8726fc53c83d78490fac375160245dfae21c8cf3173ef4f3f39",
+      "matches": true,
+      "changed": true,
+      "added": [
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_checkpoint_recording_another_base_writes_nothing",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_different_observation_changes_the_emitted_identity",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_failing_required_command_writes_nothing",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_mismatched_requirement_writes_nothing",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_proposal_naming_another_generation_writes_nothing",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_proposal_naming_another_participant_writes_nothing",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_proposal_naming_another_work_writes_nothing",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_proposal_offered_against_another_revision_writes_nothing",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_an_unrun_required_command_writes_nothing",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_the_emitted_verification_identities_carry_the_marker",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_the_marker_is_not_a_certification_word",
+        "TheReceiptBoundaryRefusesBeforeItWritesAnything.test_the_unchanged_control_writes_exactly_three_receipts"
+      ],
+      "removed": [],
+      "changed_tests": []
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "sha256": "a6c6e57ad38dd9c24c6ad864080ed02f0106ce27a509631b52436c1f9bbf5dd7",
+      "matches": true,
+      "changed": true,
+      "added": [
+        "TheOrdinaryTestObservationIsTheActualOne.test_an_actual_failing_command_is_reported_with_its_real_status",
+        "TheOrdinaryTestObservationIsTheActualOne.test_an_actual_passing_command_is_reported_with_its_real_status"
+      ],
+      "removed": [],
+      "changed_tests": [
+        "TheOrdinaryTestObservationIsTheActualOne.test_a_failing_command_keeps_its_nonzero_status"
+      ]
+    },
+    "v12/python/tests/manager/test_dependencies.py": {
+      "sha256": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+      "matches": true,
+      "changed": false,
+      "added": [],
+      "removed": [],
+      "changed_tests": []
+    }
+  },
+  "broad_result": [
+    "Ran 4813 tests in 240.592s",
+    "",
+    "FAILED (failures=11, errors=1, skipped=21)"
+  ],
+  "broad_failures": [
+    "ERROR: test_every_v12_test_module_is_registered_exactly_once (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once)",
+    "FAIL: test_the_suite_is_one_gate_and_not_a_pile_of_files (tests.authority.test_catalog.TheMigrationChecklistIsRead.test_the_suite_is_one_gate_and_not_a_pile_of_files)",
+    "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:writer_of', 'line_writers.writer_id'), label='a persisted line writer')",
+    "FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)",
+    "FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)",
+    "FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)",
+    "FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)",
+    "FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)",
+    "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)",
+    "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_nothing_this_module_made_survives_it)",
+    "FAIL: test_no_container_of_this_suite_survives_it (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_no_container_of_this_suite_survives_it)",
+    "FAIL: test_only_this_run_s_image_tag_exists (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_only_this_run_s_image_tag_exists)"
+  ]
+}

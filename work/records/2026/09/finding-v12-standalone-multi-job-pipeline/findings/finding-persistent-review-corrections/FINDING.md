@@ -531,3 +531,59 @@ PLAN item 11's explicit test authority and weaken no lifecycle assertion.
 Only the reviewed immutable proposal may enter integration. Any changed byte,
 mode, path set, base, custody, provenance or target preflight result requires a
 new review.
+
+## 2026-09-07 — follow-up verification composition planning under W110772
+
+**Confirmed follow-up history, not a rewrite of the accepted W71918 proposal:**
+W110772's real public-custody proof reaches record_verdict with output sealed
+and verification none. Its review2026-09-07T16-11-31Z independently confirms
+that first-verdict blocker. Owner111612 assigned baton.codex claim111614 to
+trace this record's semantics and propose a bounded correction while preserving
+passed verification; this does not reopen or mutate this Work's ledger state.
+
+The passed-verification requirement added after the unrun-reviewer finding is
+still required. Its earlier mechanical-verification contract is owned by
+`baton:work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md`
+and worker-control SPEC section8.6. It concerns genuine required-suite results
+for an exact candidate, distinct from review disposition, report parsing and
+artifact custody. The W71918 tests establish the axis but do not supply a
+production producer. Authority.verify records an authorized observation; a
+separate clean verifier must actually produce and retain the detailed evidence.
+
+**Proposed follow-up:** adopt the full retained verification manifest together
+with its attributable Authority receipt, bind that evidence to the exact
+proposal/checkpoint/review attempt and result in the manager journal, then
+project passed. Accept legitimate sealed output only with cross-bound accepted
+custody. Historical eligibility after ordinary cleanup must use the committed
+verdict, verification, fence, positive cleanup and retained-result evidence;
+it must not require a destroyed runtime to regress to quiescent or allow an
+unrun reviewer to create its first verdict. Writer quiescence is unchanged.
+
+Exact proposed interfaces, seven fixed consumer paths plus bounded operand
+inventory, missing clean-verifier provider, later integration-receipt reuse,
+and focused acceptance are in
+`baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/CORRECTION-PLAN.md`.
+Ops disposition and exact producer scope precede implementation. No verification
+rule, production byte, prior test assertion or historic sign-off is superseded
+by this planning entry. W110772 owns follow-up execution and its remaining gates.
+
+## 2026-09-07 — milestone verification supersession, owner M111752
+
+**Confirmed owner ruling; follow-up recorded by baton.codex claim111746:**
+W71830 now uses ordinary implementer tests plus independent review, with additional
+reviewer checks as needed. No separate clean-verifier agent, stage or service is
+required. This explicitly supersedes the previous follow-up entry's mandatory
+clean producer and reviewer-attempt passed-axis prerequisite for this milestone.
+The accepted W71918 proposal and its original reviews remain unchanged history.
+
+W110772's FIRST-PROOF-PLAN.md at
+`baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/`
+proposes the exact correction: actual ordinary test evidence drives admission,
+no fabricated reviewer-axis passed, cross-bound sealed first verdict and exact
+historical custody after cleanup. The existing negative test's reviewer-axis
+expectation is explicitly scheduled for owner disposition; failed/unrun required
+test refusal moves to actual admission and is not deleted as a requirement.
+Isolation, independent completed review, findings/logs, exact checkpoint/fence
+and retained evidence remain. The separate clean-verifier architecture is
+deferred. Ops assigns the bounded source/test proposal before implementation.
+W71918's ledger remains terminal; W110772 owns this follow-up and its gates.

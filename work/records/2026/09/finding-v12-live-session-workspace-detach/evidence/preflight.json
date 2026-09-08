@@ -1,0 +1,41 @@
+{
+  "dedicated_workspace_group": null,
+  "docker_security": {
+    "exit": 1,
+    "stderr": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock",
+    "stdout": "null"
+  },
+  "docker_version": {
+    "exit": 1,
+    "stderr": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock",
+    "stdout": ""
+  },
+  "experiment_containers": {
+    "exit": 1,
+    "stderr": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock",
+    "stdout": ""
+  },
+  "kernel": "6.17.0-41-generic",
+  "namespaces": {
+    "mnt": "mnt:[4026533220]",
+    "pid": "pid:[4026533222]",
+    "user": "user:[4026533284]"
+  },
+  "process": {
+    "CapAmb": "0000000000000000",
+    "CapBnd": "0000000000000000",
+    "CapEff": "0000000000000000",
+    "CapInh": "0000000000000000",
+    "CapPrm": "0000000000000000",
+    "Gid": "1000\t1000\t1000\t1000",
+    "NoNewPrivs": "1",
+    "Seccomp": "2",
+    "Uid": "1000\t1000\t1000\t1000"
+  },
+  "proof": "preflight-only",
+  "tools": {
+    "mount": "/usr/bin/mount",
+    "nsenter": "/usr/bin/nsenter",
+    "umount": "/usr/bin/umount"
+  }
+}

@@ -1,0 +1,3 @@
+Recorded result from claim 107495; not a captured terminal transcript.
+python3 evidence/test_real_session_help.py: 6 tests, 0.003 seconds, OK, exit0.
+All runtime/process interactions mocked. Missing flags in fixtures are synthetic, not measured installed-image observations.

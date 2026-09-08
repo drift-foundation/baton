@@ -1,0 +1,7 @@
+{
+  "v12/python/src/baton_v12/worker_manager/review_cycles.py": "c635fc8442c2689c336501a4527d608153c6f4605affe0d4630ebdeba9e63d4f",
+  "v12/python/src/baton_v12/job_manager/review_driver.py": "fcac6d17e146bf2d89725562addb62e7d8ea5c6d1dccb2bd79f4bb29dd04d610",
+  "v12/python/tests/manager/test_review_cycles.py": "319fa540e2ec37b43ab2207da2149554367044622d84891ec46bd01ec68f557d",
+  "v12/python/tests/job_manager/test_review_driver.py": "048f79a113f7f1d9beb5d56966d923b9fbdbb65456948df7fe251d2519d764c9",
+  "v12/python/REVIEW-CYCLES.md": "e15f5f0d80e60e745039fa4bc3dd6d792ce7c179cdd1b2a4d89e990f127b9893"
+}

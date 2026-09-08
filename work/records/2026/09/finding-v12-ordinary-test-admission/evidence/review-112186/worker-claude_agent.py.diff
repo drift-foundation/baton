@@ -1,0 +1,139 @@
+--- baseline/v12/worker/claude_agent.py
++++ candidate/v12/worker/claude_agent.py
+@@ -327,6 +327,28 @@
+ CLAIM_MEMBERS = ("base", "head", "transport", "recap")
+ MAX_TRANSPORT = 128
+ 
++# W112029: THE ORDINARY-TEST OBSERVATION, and it is an OBSERVATION rather than
++# a verdict. Under owner ruling M111752 this milestone's verification is the
++# implementer running the ordinary required tests plus an independent review;
++# there is no separate clean verifier. This adapter ALREADY runs the frozen
++# task's own verification argv and publishes its answer in the result document,
++# so nothing new is executed here -- what was missing is a way for integration
++# admission to resolve that same fact from the frozen result.
++#
++# SIX CLOSED MEMBERS AND NO SEVENTH. What this turn was asked to run, which
++# exact task bytes asked for it, what actually happened, and the two objects
++# that say which candidate it happened over. There is no `passed`, no
++# `verified` and no boolean: a status is what `wait` answered, and a decision
++# about it belongs to the consumer that holds the requirements.
++#
++# WHAT MAY NEVER TRAVEL HERE, exactly as for the proposal claim: any manager
++# measurement, artifact, custody, manifest or assignment identity. And nothing
++# a MODEL wrote -- the status is this adapter's own read of a child's exit,
++# never a flag a provider was asked to set.
++ORDINARY_TESTS_NAMESPACE = "baton.git-ordinary-tests/1"
++ORDINARY_TESTS_MEMBERS = ("argv", "base", "head", "status", "task_digest",
++                          "task_id")
++
+ # -- W110772: the review turn ------------------------------------------------
+ #
+ # THE SAME CONTAINER, THE SAME IMAGE, THE SAME PROVIDER, AND A DIFFERENT JOB.
+@@ -548,7 +570,9 @@
+                                         "implementation")
+             one = produce[0]
+         proposal = os.path.join(OUTPUT_ROOT, one["path"])
+-        task = _task()
++        # W112029: THE BYTES AS WELL AS THE DOCUMENT, so the ordinary-test
++        # observation can name the exact task this turn consumed.
++        task, task_bytes = _read_task()
+         scratch = self._scratch()
+         # W71917: THE PLAN RUNS, AND IT RUNS IN THE WORKSPACE.
+         #
+@@ -704,8 +728,17 @@
+         return {"disposition": ("completed" if disposition == "candidate"
+                                 else "unable"),
+                 "outputs": [{"name": one["name"], "status": "present",
++                             # W112029: THE OBSERVATION RIDES WITH THE CLAIM,
++                             # because both are facts about the same published
++                             # candidate and admission resolves them from the
++                             # same frozen proposal output. A turn that
++                             # published nothing carries neither: there is no
++                             # candidate for either to be about.
+                              "result_metadata": (
+-                                 _claim(plan["base"], head, recap)
++                                 {**_claim(plan["base"], head, recap),
++                                  **_ordinary_tests(task, task_bytes,
++                                                    verification,
++                                                    plan["base"], head)}
+                                  if head is not None else {})}]
+                            + _absent(absent),
+                 "recap": recap}
+@@ -2235,6 +2268,45 @@
+             for relative in written}
+ 
+ 
++def _task_digest(raw):
++    """The frozen task's identity, as prefixed text a document may carry.
++
++    `_bytes_digest` answers raw bytes for an in-process comparison and is
++    deliberately left alone; this is the same hash rendered the way every other
++    digest that crosses a boundary in this campaign is rendered, because a
++    document member has to be JSON and a consumer has to be able to compare it
++    to one it computed itself.
++    """
++    import hashlib
++
++    return "sha256:" + hashlib.sha256(raw).hexdigest()
++
++
++def _ordinary_tests(task, task_bytes, verification, base, head):
++    """The actual ordinary-test observation this turn produced.
++
++    W112029. EVERY MEMBER IS ALREADY TRUE OF THIS TURN and none of it is new
++    work: the argv is the frozen task's own, the status is what this adapter
++    read from the child it already ran, the digest names the exact bytes it
++    read that task from, and the two objects are the ones the proposal claim
++    already carries.
++
++    UNRUN IS EXPLICITLY NULL RATHER THAN ABSENT OR ZERO. `_verify` is skipped
++    when the provider failed or produced no patch, and a timeout or a failed
++    start answers `None` too. All three are "this command did not produce a
++    status", and a consumer that must refuse on anything but an actual zero
++    needs to see the difference between that and a status it can compare. A
++    missing member would make the same statement by omission, which is the one
++    shape a closed reader cannot tell from a producer that forgot.
++    """
++    return {ORDINARY_TESTS_NAMESPACE: {
++        "task_id": task["task_id"],
++        "task_digest": _task_digest(task_bytes),
++        "argv": list(task["verification"]),
++        "status": None if verification is None else verification["status"],
++        "base": base, "head": head}}
++
++
+ def _claim(base, head, recap):
+     """The worker-owned proposal claim, and every member is this turn's own.
+ 
+@@ -2523,6 +2595,22 @@
+ 
+ def _task(place=None):
+     """The frozen task, held to its own closed contract."""
++    return _read_task(place)[0]
++
++
++def _read_task(place=None):
++    """The frozen task AND the exact bytes it was read from.
++
++    W112029: the ordinary-test observation binds `task_digest`, the SHA-256 of
++    the exact bounded task bytes this turn consumed, so a consumer comparing
++    its requirements against the observation compares the same document rather
++    than two readings of one path. The bytes are answered from the SAME read
++    that produced the document -- a second open would be a second file, and the
++    whole point of the digest is that it names the first one.
++
++    `_task` keeps exactly the contract it had, so every existing caller and
++    case is unchanged.
++    """
+     place = place or os.path.join(INPUT_ROOT, TASK_DOCUMENT)
+     try:
+         with open(place, "rb") as reading:
+@@ -2609,7 +2697,7 @@
+         except _profiles.ProfileRefusal as refusal:
+             raise TaskRefusal(f"{place} carries a declared_base this "
+                               f"workload cannot use: {refusal}") from None
+-    return document
++    return document, raw
+ 
+ 
+ def _prompt(task):

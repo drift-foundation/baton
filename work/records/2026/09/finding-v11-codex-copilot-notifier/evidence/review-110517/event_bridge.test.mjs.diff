@@ -1,0 +1,39 @@
+diff --git a/tools/codex-event-bridge/test/event_bridge.test.mjs b/tools/codex-event-bridge/test/event_bridge.test.mjs
+index fdb3696..f20f7b9 100644
+--- a/tools/codex-event-bridge/test/event_bridge.test.mjs
++++ b/tools/codex-event-bridge/test/event_bridge.test.mjs
+@@ -83,6 +83,34 @@ function event(target, summary = "failed") {
+   return { target, source: "build", type: "build-failed", summary };
+ }
+ 
++test("copilot admission requires an idle prompt and exact current thread/incarnation", async () => {
++  const { bridge, fake } = bridgeWithFake();
++  const state = bridge.targetStates.get("a");
++  const notification = { target: "a", source: "baton-copilot", type: "operator-attention", summary: "attention", copilotThreadId: "thread-a", copilotInstanceId: bridge.copilotInstanceId };
++  assert.equal(bridge.enqueue(notification).reason, "copilot-requires-prompt");
++  // Inject the configured identity into this isolated bridge fixture.
++  state.identity = { participant: "baton.prompt", role: "prompt" };
++  assert.equal(bridge.enqueue({ ...notification, copilotThreadId: "old-thread" }).reason, "copilot-target-changed");
++  assert.equal(bridge.enqueue({ ...notification, copilotInstanceId: "old-bridge" }).reason, "copilot-target-changed");
++  fake.emit("status", { threadId: "thread-a", status: { type: "active" } });
++  assert.equal(bridge.enqueue(notification).reason, "copilot-busy");
++  assert.equal(state.queue.length, 0);
++  fake.emit("status", { threadId: "thread-a", status: { type: "idle" } });
++  assert.equal(bridge.handleRequest({ control: "copilot-status" }).targets.a.role, "prompt");
++  assert.equal(bridge.enqueue(notification).accepted, true);
++  assert.equal(bridge.enqueue(notification).reason, "copilot-busy");
++  await new Promise((resolve) => setImmediate(resolve));
++  assert.equal(fake.starts.length, 1);
++  assert.match(fake.starts[0].text, /Do not claim, approve/);
++  assert.equal(fake.starts[0].threadId, "thread-a");
++});
++
++test("copilot advisory cannot carry a worker readiness action", () => {
++  const { bridge } = bridgeWithFake();
++  bridge.targetStates.get("a").identity = { participant: "baton.prompt", role: "prompt" };
++  assert.equal(bridge.enqueue({ target: "a", source: "baton-copilot", type: "operator-attention", summary: "attention", action: { participant: "baton.slaw", key: "work:x" } }).reason, "copilot-requires-prompt");
++});
++
+ test("deduplicates per target", () => {
+   const { bridge } = bridgeWithFake();
+   assert.equal(bridge.enqueue(event("a")).accepted, true);

@@ -1,0 +1,116 @@
+{
+  "work": "W110772",
+  "participant": "baton.tuner",
+  "claim": 112077,
+  "state": "awaiting-independent-review-with-inventory-finding",
+  "files": [
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/FINDING.md",
+      "sha256": "a6cc9b00d23c1c2902c2319e5391c2675da8510f53565a1de6400d2597a4644c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/PLAN.md",
+      "sha256": "c6d526c7acfdebf8ea08b71af60d07c0d7e978d18d14c6b90d9ae1f29dfba1d5"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/PROGRESS.md",
+      "sha256": "7f25580d41db54500963d60c94700e6b5dd8b7dc831b55ceae54fc0f6c87183c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/LIFECYCLE-PLAN.md",
+      "sha256": "5cb42c86de78c9f5cbab959278ffbcc1621ab851f166ac75d416317071bf2b3b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/baseline.json",
+      "sha256": "68c4a246d57e5893ec28d3ab688a04aa1b44bfa366080c92ea596a847fa1ad26"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/before/v12/python/REVIEW-CYCLES.md",
+      "sha256": "e15f5f0d80e60e745039fa4bc3dd6d792ce7c179cdd1b2a4d89e990f127b9893"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/before/v12/python/src/baton_v12/job_manager/review_driver.py",
+      "sha256": "fcac6d17e146bf2d89725562addb62e7d8ea5c6d1dccb2bd79f4bb29dd04d610"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/before/v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "c635fc8442c2689c336501a4527d608153c6f4605affe0d4630ebdeba9e63d4f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/before/v12/python/tests/job_manager/test_review_driver.py",
+      "sha256": "048f79a113f7f1d9beb5d56966d923b9fbdbb65456948df7fe251d2519d764c9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/before/v12/python/tests/manager/test_review_cycles.py",
+      "sha256": "319fa540e2ec37b43ab2207da2149554367044622d84891ec46bd01ec68f557d"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate/v12/python/REVIEW-CYCLES.md",
+      "sha256": "02539823dcc33b4cada0b1f72820761299f11e23321726a7cea8a51ac85bf060"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate/v12/python/src/baton_v12/job_manager/review_driver.py",
+      "sha256": "0ba2b2bb7adb9c6181cb843a4b90ddf5da6bd8dadd43ed9e6e5a5952020c2262"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate/v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "9b9e86680fedfb6f5667bd3c8cf0ec248a629d32d81e637c22414d9f6694382e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate/v12/python/tests/job_manager/test_review_driver.py",
+      "sha256": "2dc3899380331f9a954a588884cf6bdc7bc4546141dc378a3393d683a49fe83f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate/v12/python/tests/manager/test_review_cycles.py",
+      "sha256": "fe14f790dff402c36f2e96a98926641f0131a0b729753e11c18c83113a0f9a16"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/candidate.json",
+      "sha256": "1b49cca82381a65f97c414f0eda432cf62a344e11a5796ed7dd411e402a216ee"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/delta-REVIEW-CYCLES.md.txt",
+      "sha256": "19db4e45f60595c136843359b352dc32d8c184275fe1180482e88a640069ef28"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/delta-review_cycles.py.txt",
+      "sha256": "a3598b42996da9cb1bbfbe06fd2dac212e8ad0f3ed2437b83572f212ca2e6949"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/delta-review_driver.py.txt",
+      "sha256": "4ca91e34bbd0fe8e96b4ff8abc79a26358341f20cf7bcfe78cceb500f652714e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/delta-test_review_cycles.py.txt",
+      "sha256": "d924ddca7d2bf50f0af3aa7d3082c0c36dfce3e8ce9b2349572b3ea0a714d15e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/delta-test_review_driver.py.txt",
+      "sha256": "c82f66cc047cbd6f0d2c0ab3e421cd8bff418ad0ffc69d9e898940cd5f9fe87b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/focused-suites.txt",
+      "sha256": "b3ffc6b6e78f9f800dec6454074f3a381eb6f1955cda95b322d27dcc121bac6d"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/inventory-before-manifest-check.txt",
+      "sha256": "16f52a23faba6fc3fdf47159ff4330de585a9b2d75074e46bbe4742fee00fd0f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/inventory-delta.json",
+      "sha256": "cd1e55a2d20ae935c5be93fc33d705de9eb9997741e169475857bf8eab7e26dc"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/inventory-gate.json",
+      "sha256": "8127c412cc201e85dbdf8b1739c272371a06cbbb2a06769dbad930b0d69d37ce"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/inventory-gate.txt",
+      "sha256": "705f1c19d0fe4f098979b471ecf9bfeb45eeb35d9c5ef3040b104b47a156a826"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/lifecycle-112077/inventory_delta.py",
+      "sha256": "6b58e8176606abde61626efde53dc5d5e891cd48c52df433abc4d1db6ee4b69e"
+    }
+  ]
+}

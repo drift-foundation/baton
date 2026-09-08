@@ -1,0 +1,49 @@
+{
+  "work": "W110391",
+  "claim": 110517,
+  "candidate_files": [
+    {
+      "path": "tools/codex_copilot_notifier.py",
+      "sha256": "12a3bc81ad76c4dd3becf4b893d0f26a099dad0a029ab835d131f84b0a26d214",
+      "bytes": 10036,
+      "mode": "0o664"
+    },
+    {
+      "path": "tools/test_codex_copilot_notifier.py",
+      "sha256": "f53967a52493e40ce2cec6acd41096c7dda1111ff457d5574ca8b2a3b0469bb4",
+      "bytes": 8953,
+      "mode": "0o664"
+    },
+    {
+      "path": "tools/CODEX-COPILOT-NOTIFIER.md",
+      "sha256": "8518b49b9ca99e8fcf168cc73cb88b454cb7b09553136f6f60cbd4d595801331",
+      "bytes": 5446,
+      "mode": "0o664"
+    },
+    {
+      "path": "tools/codex-event-bridge/src/event_types.mjs",
+      "sha256": "e66195540ef653810b2c6501aa6362bcd92c3ea857843a80843d488eb48ff854",
+      "bytes": 7523,
+      "mode": "0o664"
+    },
+    {
+      "path": "tools/codex-event-bridge/src/event_bridge.mjs",
+      "sha256": "8882fbfe01ef7ee87855b1f68ca6f4c0deb9c416955f3f4a23d87d0345b6dcdb",
+      "bytes": 136955,
+      "mode": "0o664"
+    },
+    {
+      "path": "tools/codex-event-bridge/test/event_types.test.mjs",
+      "sha256": "8ff94bf0ea05285d46cfbe0b42fd59e523aaa37e31f59f1f6aaed13fe920d7b5",
+      "bytes": 4420,
+      "mode": "0o664"
+    },
+    {
+      "path": "tools/codex-event-bridge/test/event_bridge.test.mjs",
+      "sha256": "8ebacb53d4f34ebd1dc6cb5712a84d38f02c6631ce29cccba66a4b5a293e458f",
+      "bytes": 23531,
+      "mode": "0o664"
+    }
+  ],
+  "review_scope": "bounded notifier and additive bridge changes; no live rollout"
+}

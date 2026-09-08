@@ -1,0 +1,11 @@
+test_consumer_does_not_open_content_while_denied (__main__.GateTests.test_consumer_does_not_open_content_while_denied) ... ok
+test_loss_and_restart_discard_current_permission (__main__.GateTests.test_loss_and_restart_discard_current_permission) ... ok
+test_namespace_pin_is_the_opened_namespace (__main__.GateTests.test_namespace_pin_is_the_opened_namespace) ... ok
+test_old_and_duplicate_receipts_do_not_authorize_next_generation (__main__.GateTests.test_old_and_duplicate_receipts_do_not_authorize_next_generation) ... ok
+test_omitted_detach_denies_both (__main__.GateTests.test_omitted_detach_denies_both) ... ok
+test_partial_attachment_keeps_both_gates_closed (__main__.GateTests.test_partial_attachment_keeps_both_gates_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK

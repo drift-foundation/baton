@@ -1,0 +1,12 @@
+{
+  "files": {
+    "network.json": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+    "package.json": "5bf9235d582fee3b98654be06272f79da5cf418daaf78d471d98c7647483f784",
+    "restored-first/events.json": "59e40577a248a9c4efadb82f9f0ec283b8038bbf3eacc7e811652e791d1579f5",
+    "restored-first/gate.json": "6834417ba0413665a76a5eac78de7406e95cbce90cc4f6f5f22b680f91e388b1",
+    "result.json": "6ca0a58dfe79ee999500789a35f74cea037c3637c9468fa545bef3f99d61ffdc",
+    "setup.json": "a3861d19580255ee5fa9d6f91af511f6e0e24265ed3ec5a802394b7d0ebd5c95"
+  },
+  "original_root": "/tmp/baton-w106673-live-wy0arllg",
+  "scope": "controller-owned projections only; session, source, delivery, workspace and fixture store excluded"
+}

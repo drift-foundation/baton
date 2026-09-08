@@ -1,0 +1,382 @@
+--- before/v12/python/tests/integration/test_driver.py
++++ candidate/v12/python/tests/integration/test_driver.py
+@@ -1427,6 +1427,7 @@
+         self.owner = ReviewCycles("run")
+         self.owner.setUp()
+         self.addCleanup(self.owner.doCleanups)
++        self.addCleanup(self.owner.tearDown)
+         self.store = self.owner.store
+ 
+     def accepted_checkpoint(self):
+@@ -1457,24 +1458,350 @@
+                 self.assertNotIn(member, held)
+ 
+     def test_the_consumer_reads_that_document_without_raising(self):
+-        """The exact call that raised `KeyError`, over the owner's own answer
+-        rather than a hand-made one."""
+-        from baton_v12.contracts import ContractRefusal
+-        held = self.accepted_checkpoint()
+-        with mock.patch.object(driver, "integration_checkpoint",
+-                               return_value=held), \
+-                mock.patch.object(driver, "checkpoint_of",
+-                                  return_value={"writer_id": "writer-1"}), \
+-                mock.patch.object(driver, "writer_of",
+-                                  return_value={
+-                                      "runtime_attempt_id": "attempt-1"}), \
+-                mock.patch.object(driver, "frozen_output_of",
+-                                  return_value=None):
+-            # It reaches the producer's frozen result and refuses there, which
+-            # is a REFUSAL rather than a `KeyError`: the evidence read happened
+-            # and the shape was right.
+-            with self.assertRaises(ContractRefusal) as caught:
+-                driver.ordinary_test_evidence(
+-                    self.store, SimpleNamespace(proposal=lambda _id: {}),
+-                    line_id=held["line_id"], proposal_id="proposal-1")
+-        self.assertIn("no completed frozen result", caught.exception.message)
++        """Reach the corrected read with an actual retained producer."""
++        world = _OrdinaryAdmissionWorld(self)
++        held = driver.integration_checkpoint(world.manager, world.line_id)
++        self.assertIn("head", held["evidence"])
++        self.assertNotIn("head", held)
++        evidence = world.evidence()
++        self.assertEqual(evidence["observation"], world.observation)
++        self.assertEqual(evidence["observation"]["head"], held["evidence"]["head"])
++        self.assertEqual(evidence["observation"]["base"], held["evidence"]["base"])
++
++
++class _OrdinaryAdmissionWorld:
++    """Actual command and custody owners, real Authority receipts/admission.
++
++    Existing fixtures supply the model process, engine and manager-assignment
++    transport. The checkpoint profile holds object names read from the actual
++    worker repository. Publication and all policy receipts use minted Authority
++    sessions; no producer, custody, eligibility or admission reader is replaced.
++    """
++
++    def __init__(self, case, *, command_status=0, unrun=False):
++        import json
++        import pathlib
++        import shutil
++        import tempfile
++        from tests.manager import test_claude_agent as worker_fixture
++        from tests.job_manager import test_review_driver as lifecycle
++        from baton_v12.authority import Authority, V12
++        from baton_v12.worker_manager import (authorize_cleanup, decide_retention, freeze_checkpoint,
++            observe, reconcile_runtime, request_freeze, request_intake)
++        from baton_v12.integration import IntegrationStore, activate_target
++        from baton_v12.job_manager import JobStore, submit
++        from .fixtures import target
++
++        self.case = case
++        worker = worker_fixture.TheOrdinaryTestObservationIsTheActualOne()
++        case.addCleanup(worker.doCleanups)
++        worker.setUp()
++        self.worker = worker
++        task_bytes = pathlib.Path(worker.inputs, worker_fixture.claude_agent.TASK_DOCUMENT).read_bytes()
++        task = json.loads(task_bytes)
++        edit = "print('actual admission command')\n" if command_status == 0 else f"raise SystemExit({command_status})\n"
++        self.command_runs = []
++        actual_runner = worker.really
++        def tracked_runner(**operands):
++            actual = actual_runner(**operands)
++            def run(argv, **options):
++                answer = actual(argv, **options)
++                if list(argv) == task["verification"]:
++                    self.command_runs.append((list(argv), answer.returncode))
++                return answer
++            return run
++        worker.really = tracked_runner
++        self.answered = worker.ran(edits={"harness.py": edit}, status=1 if unrun else 0)
++        case.assertEqual(self.command_runs, [] if unrun else [(task["verification"], command_status)])
++        self.observation = worker.observation(self.answered)
++        case.assertEqual(self.observation["status"], None if unrun else command_status)
++        case.assertEqual(self.observation["argv"], task["verification"])
++        from hashlib import sha256
++        case.assertEqual(self.observation["task_digest"], "sha256:" + sha256(task_bytes).hexdigest())
++
++        owner = lifecycle.TheWorkerCompletionTraversesPublicCustody()
++        case.addCleanup(owner.doCleanups)
++        self.owner = owner
++        def line_base():
++            owner.container = tempfile.mkdtemp(prefix="ordinary-admission-", dir=owner.root)
++            owner.reviewed_source = os.path.join(owner.container, "input", "source")
++            shutil.copytree(worker.outputs, owner.reviewed_source)
++            owner.review_output = os.path.join(owner.container, "output")
++            os.makedirs(owner.review_output)
++            owner.observed = {"base": worker.base, "head": worker.git("rev-parse", "HEAD").strip(),
++                              "tree": worker.git("rev-parse", "HEAD^{tree}").strip()}
++            owner.profile = lifecycle.RealLineProfile(owner.observed)
++            return worker.base
++        owner.line_base = line_base
++        owner.setUp()
++        self.manager = owner.control
++        self.jobs = owner.jobs
++        self.line_id = owner.line["line_id"]
++        self.authority = Authority.create(os.path.join(owner.root, "ordinary-authority.sqlite3"),
++            authority_uuid=owner.AUTHORITY, clock=owner.clock)
++        case.addCleanup(self.authority.dispose)
++        self.authority.set_policy("canonical_target", worker.base)
++        self.authority.create_work(lifecycle.WORK_A, "implementation", contract=V12, operation_id="create-ordinary-work")
++        self.authority.add_route_handler("implementation", lifecycle.WRITER)
++        self.publisher = self.authority.session(lifecycle.WRITER)
++        self.assignment = self.publisher.claim({"work_id": lifecycle.WORK_A, "operation_id": "claim-ordinary-writer"})["assignment"]
++        self.sessions = {}
++        self.calls = []
++        for participant, capability, verb in (("baton.verify", "verify", "verify"),
++                ("baton.review", "review", "review"), ("baton.approve", "approve", "approve")):
++            self.authority.grant_capability(participant, capability)
++            session = self.authority.session(participant)
++            def call(operands, session=session, verb=verb):
++                self.calls.append((verb, copy.deepcopy(operands)))
++                return getattr(session, verb)(operands)
++            self.sessions[verb] = SimpleNamespace(participant=participant, receipt=session.receipt, **{verb: call})
++        self.authority_read = SimpleNamespace(proposal=self.publisher.proposal, receipt=self.publisher.receipt,
++            canonical_target=self.publisher.canonical_target, policy_generation=self.authority.policy_generation)
++        self.coordinator = IntegrationStore.open(os.path.join(owner.root, "ordinary-integration.sqlite3"), incarnation="integration-1", clock=owner.clock)
++        case.addCleanup(self.coordinator.close)
++        self.integrator = self.authority.session(PARTICIPANT)
++        self.execution_entries = []
++        self.target = "target:ordinary-admission"
++        activate_target(self.coordinator, target(self.target))
++
++        review_declarations = owner.DECLARED
++        owner.DECLARED = copy.deepcopy(worker_fixture.DECLARED)
++        owner.DECLARED[0]["type"] = "git-change-proposal"
++        owner.DECLARED[0]["constraints"]["allowed_media_types"] = ["application/octet-stream"]
++        self.port, self.adapter, assignment = owner.registered("public-writer", lifecycle.WRITER, "public-writer-principal")
++        case.assertEqual(assignment, self.assignment)
++        self.writer = lifecycle.review_driver.prepare_implementation(self.manager, line_id=self.line_id,
++            attempt_id="public-writer", generation=1, worker_id="public-writer-worker", profile=owner.profile)
++        owner.start_registered("public-writer", self.adapter, assignment)
++        shutil.copytree(os.path.join(worker.outputs, "proposal"), os.path.join(self.adapter.roots["workspace"], "proposal"))
++        with mock.patch.object(worker_fixture.baton_worker, "OUTPUT_ROOT", self.adapter.roots["workspace"]):
++            self.measured = worker_fixture.baton_worker.answered(owner.DECLARED, self.answered["outputs"])
++            self.completion = worker_fixture.baton_worker.publish_completion(assignment, self.answered["disposition"], self.measured)
++            case.assertEqual(json.loads(pathlib.Path(self.adapter.roots["workspace"], "output.json").read_text()), self.completion)
++        owner.DECLARED = review_declarations
++        self.adapter.stop({"runtime_id": self.adapter.runtime_id})
++        reconcile_runtime(self.manager, self.adapter, attempt_id="public-writer")
++        observe(self.manager, attempt_id="public-writer", axis="worker_disposition", value=self.answered["disposition"])
++        self.frozen = request_freeze(self.manager, self.port, self.adapter, attempt_id="public-writer", disposition=self.answered["disposition"])
++        self.intake = request_intake(self.manager, self.port, self.adapter, attempt_id="public-writer")
++        self.policy = "sha256:" + "9" * 64
++        decide_retention(self.manager, self.port, self.adapter, attempt_id="public-writer",
++            artifact_ids=[one["artifact_id"] for one in self.intake["artifacts"]], disposition="retain", retention_policy_digest=self.policy)
++        self.required = {"task_id": task["task_id"], "task_digest": "sha256:" + sha256(task_bytes).hexdigest(),
++                         "argv": task["verification"], "input_manifest_digest": self.adapter.input_digest}
++        self.proposal_id = "no-published-proposal"
++        if self.answered["disposition"] != "completed":
++            from baton_v12.worker_manager.attempts import finalize_quiescent_assignment
++            finalize_quiescent_assignment(self.manager, self.port, attempt_id="public-writer", reason="actual worker unable")
++            authorize_cleanup(self.manager, self.port, self.adapter, attempt_id="public-writer", retention_policy_digest=self.policy)
++            return
++        self.proposal_manifest = driver.retain_proposal(self.manager, self.publisher, attempt_id="public-writer")
++        self.published = driver.publish_candidate(self.manager, self.publisher, attempt_id="public-writer", proposal_manifest_digest=self.proposal_manifest)
++        self.proposal_id = self.published["proposal_id"]
++        checkpoint = freeze_checkpoint(self.manager, writer_id=self.writer["writer_id"], generation=1, profile=owner.profile, port=self.port)
++        authorize_cleanup(self.manager, self.port, self.adapter, attempt_id="public-writer", retention_policy_digest=self.policy)
++        port, adapter, assignment = owner.registered("public-review", lifecycle.REVIEWER, "public-review-principal")
++        attachment = lifecycle.review_driver.prepare_review(self.manager, checkpoint_id=checkpoint["checkpoint_id"],
++            attempt_id="public-review", generation=1, reviewer_worker_id="public-review-worker", profile=owner.profile)
++        owner.start_registered("public-review", adapter, assignment)
++        owner.review_output = adapter.roots["workspace"]
++        answered, measured = owner.turn("accepted")
++        owner.worker_turns += 1
++        with mock.patch.object(worker_fixture.baton_worker, "OUTPUT_ROOT", owner.review_output):
++            terminal = worker_fixture.baton_worker.publish_completion(assignment, answered["disposition"], measured)
++        self.review = {"checkpoint_id": checkpoint["checkpoint_id"], "attachment": attachment, "attempt_id": "public-review",
++                       "port": port, "adapter": adapter, "terminal": terminal, "measured": measured}
++        self.ended = owner.end(self.review)
++        case.assertEqual(self.ended["outcome"], "accepted")
++        self.jobs = JobStore.open(os.path.join(owner.root, "ordinary-jobs.sqlite3"), authority_uuid=owner.AUTHORITY, incarnation="jobs-ordinary", clock=owner.clock)
++        case.addCleanup(self.jobs.close)
++        submission = lifecycle.one_work_submission("ordinary-admission")
++        submission["jobs"][0].update(input_digest=self.adapter.input_digest, policy_digest=self.adapter.policy)
++        submit(self.jobs, submission)
++
++    def assert_retained_history(self):
++        import json
++        from pathlib import Path
++        from baton_v12.worker_manager import (frozen_output_of, intake_receipt_of, load_manifest, retentions_of)
++        from baton_v12.worker_manager.attempts import attempt_runtime_of
++        from baton_v12.worker_manager.workspaces import directory_manifest
++        case = self.case
++        frozen = frozen_output_of(self.manager, "public-writer")
++        result = load_manifest(self.manager, frozen["manifest_digest"], "resultManifest")
++        receipt = intake_receipt_of(self.manager, "public-writer")
++        case.assertEqual(result["completion_manifest_digest"], self.completion["manifest_digest"])
++        case.assertEqual(result["assignment_ref"], self.assignment)
++        case.assertEqual(result["result_id"], frozen["result_id"])
++        case.assertEqual(receipt["result_id"], frozen["result_id"])
++        case.assertEqual(receipt["custody"], "accepted")
++        case.assertEqual(result["input_manifest_digest"], self.required["input_manifest_digest"])
++        case.assertEqual(result["outputs"][0]["result_metadata"][driver.ORDINARY_TESTS_NAMESPACE], self.observation)
++        case.assertEqual(result["outputs"][0]["content_manifest"], self.measured[0]["content_manifest"])
++        retained = retentions_of(self.manager, "public-writer")
++        case.assertEqual({one["artifact_id"] for one in retained}, {one["artifact_id"] for one in receipt["artifacts"]})
++        case.assertTrue(all(one["disposition"] == "retain" for one in retained))
++        for artifact in receipt["artifacts"]:
++            place = Path(artifact["custody_locator"].removeprefix("file://"))
++            case.assertTrue(place.is_dir())
++            case.assertEqual(directory_manifest(str(place))["tree_digest"], artifact["content_digest"])
++            report = json.loads((place / "result.json").read_text())
++            case.assertEqual(None if report["verification"] is None else report["verification"]["status"], self.observation["status"])
++            case.assertEqual(report["base"], self.observation["base"])
++            case.assertEqual(report["head"], self.observation["head"])
++        case.assertEqual(attempt_runtime_of(self.manager, "public-writer")["execution_runtime"], "destroyed")
++        case.assertFalse(os.path.exists(self.adapter.roots["workspace"]))
++        case.assertEqual(len(self.adapter.destroyed_with), 1)
++        if hasattr(self, "review"):
++            self.owner.assert_owned_custody(self.review, self.ended)
++
++    def assert_no_admission(self):
++        self.case.assertEqual(self.calls, [])
++        self.case.assertEqual(self.publisher.receipts(self.proposal_id), [])
++        self.case.assertEqual(entries_of(self.coordinator, self.target), [])
++        self.case.assertEqual(self.execution_entries, [])
++
++    def evidence(self):
++        return driver.ordinary_test_evidence(self.manager, self.authority_read, line_id=self.line_id, proposal_id=self.proposal_id)
++
++    def receipts(self, required=None):
++        return driver._accepted_receipts(self.manager, self.authority_read, self.sessions["verify"],
++            self.sessions["review"], self.sessions["approve"], line_id=self.line_id, proposal_id=self.proposal_id,
++            policy_generation=self.authority.policy_generation(), required_tests=self.required if required is None else required)
++
++    def admit(self, required=None):
++        """Public admission through the durable enqueue; stop at execution."""
++        class AdmissionReached(Exception):
++            pass
++        def reached(*args, **operands):
++            entry = next(one for one in entries_of(self.coordinator, self.target) if one["entry_id"] == operands["entry_id"])
++            self.case.assertEqual(entry["state"], "queued")
++            self.execution_entries.append(entry)
++            raise AdmissionReached()
++        def no_runtime(*args):
++            raise AssertionError("this admission proof starts no integration runtime")
++        with mock.patch.object(execution, "integrate_next", side_effect=reached):
++            try:
++                driver.admit_accepted(self.coordinator, self.manager, self.jobs, self.authority_read,
++                    self.sessions["verify"], self.sessions["review"], self.sessions["approve"], self.integrator,
++                    SimpleNamespace(run=no_runtime), canonical_target_id=self.target, line_id=self.line_id,
++                    proposal_id=self.proposal_id, policy_generation=self.authority.policy_generation(), profile=profile(),
++                    attempt_id="ordinary-integrator", launch_root=os.path.join(self.owner.root, "no-runtime-delivery"),
++                    workspace_group=self.owner.group, required_tests=self.required if required is None else required)
++            except AdmissionReached:
++                return self.execution_entries[-1]
++        raise AssertionError("public admission did not reach its execution boundary")
++
++
++class TheOrdinaryCommandTraversesPublicAdmission(unittest.TestCase):
++    def test_actual_command_custody_cleanup_and_authority_admission(self):
++        world = _OrdinaryAdmissionWorld(self)
++        observed = world.evidence()
++        self.assertEqual(observed["observation"], world.observation)
++        admitted = world.admit()
++        self.assertEqual(admitted["state"], "queued")
++        self.assertEqual(admitted["eligibility"]["proposal_id"], world.proposal_id)
++
++    def test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence(self):
++        import contextlib
++        from tests.manager.test_claude_agent import ClaudeAgent
++        world = _OrdinaryAdmissionWorld(self)
++        world.assert_retained_history()
++        first = world.admit()
++        receipts = world.publisher.receipts(world.proposal_id)
++        calls = copy.deepcopy(world.calls)
++        self.assertEqual([verb for verb, _ in calls], ["verify", "review", "approve"])
++        verification = next(one for one in receipts if one["kind"] == "verification")
++        self.assertTrue(verification["receipt_id"].startswith("integration-driver.ordinary-tests-verification-receipt:"))
++        self.assertEqual(verification["disposition"], "passed")
++        self.assertEqual(verification["candidate_digest"], world.observation["head"])
++        self.assertEqual(verification["target"], world.observation["base"])
++        self.assertTrue(calls[0][1]["operation_id"].startswith("integration-driver.ordinary-tests-verification-operation:"))
++        self.assertEqual({one["kind"]: one["actor"] for one in receipts},
++                         {"verification": "baton.verify", "review": "baton.review", "approval": "baton.approve"})
++        manager_changes = world.manager._connection.total_changes
++        coordinator_changes = world.coordinator._connection.total_changes
++        with contextlib.ExitStack() as stack:
++            stack.enter_context(mock.patch.object(ClaudeAgent, "work", side_effect=AssertionError("no repeated worker")))
++            for adapter in (world.adapter, world.review["adapter"]):
++                for member in ("stop", "seal", "collect", "retain", "destroy", "normalize_directory"):
++                    stack.enter_context(mock.patch.object(adapter, member, side_effect=AssertionError("no repeated custody act")))
++            for _ in range(2):
++                self.assertEqual(world.admit(), first)
++                self.assertEqual(world.publisher.receipts(world.proposal_id), receipts)
++                self.assertEqual(world.evidence()["observation"], world.observation)
++        self.assertEqual(world.calls, calls * 3)
++        self.assertEqual(world.manager._connection.total_changes, manager_changes)
++        self.assertEqual(world.coordinator._connection.total_changes, coordinator_changes)
++        self.assertEqual(len(entries_of(world.coordinator, world.target)), 1)
++        self.assertEqual(world.command_runs, [(world.required["argv"], 0)])
++        for _, operands in calls:
++            operation = world.publisher.operation_record(operands["operation_id"])
++            self.assertEqual(operation["state"], "committed")
++
++    def test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit(self):
++        for command_status, unrun in ((3, False), (0, True)):
++            with self.subTest(command_status=command_status, unrun=unrun):
++                world = _OrdinaryAdmissionWorld(self, command_status=command_status, unrun=unrun)
++                self.assertEqual(world.answered["disposition"], "unable")
++                self.assertEqual(world.frozen["disposition"], "unable")
++                world.assert_retained_history()
++                with self.assertRaises(ContractRefusal):
++                    world.admit()
++                world.assert_no_admission()
++
++    def test_wrong_requirements_refuse_before_any_authority_receipt_or_admission(self):
++        world = _OrdinaryAdmissionWorld(self)
++        world.assert_retained_history()
++        for member, wrong in (("task_id", "another-task"), ("task_digest", "sha256:" + "f" * 64),
++                              ("argv", ["python3", "another.py"]), ("input_manifest_digest", "sha256:" + "e" * 64)):
++            with self.subTest(member=member):
++                with self.assertRaises(ContractRefusal):
++                    world.admit(dict(world.required, **{member: wrong}))
++                world.assert_no_admission()
++        self.assertEqual(world.admit()["state"], "queued")
++
++    def test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted(self):
++        world = _OrdinaryAdmissionWorld(self)
++        before = world.authority.session("baton.verify").verify({"proposal_id": world.proposal_id,
++            "verification_id": "historical-fabricated-passed", "observation": "passed", "operation_id": "historical-verification"})
++        retained = world.publisher.receipts(world.proposal_id)
++        for _ in range(2):
++            with self.assertRaises(ContractRefusal):
++                world.admit()
++            self.assertEqual(world.publisher.receipts(world.proposal_id), retained)
++            self.assertEqual(entries_of(world.coordinator, world.target), [])
++            self.assertEqual(world.execution_entries, [])
++        self.assertEqual([verb for verb, _ in world.calls], ["verify", "verify"])
++        self.assertEqual(world.publisher.receipt(world.proposal_id, "verification")["receipt_id"], "historical-fabricated-passed")
++
++    def test_a_real_proposal_from_another_producer_refuses_before_receipts(self):
++        from baton_v12.authority import V12
++        world = _OrdinaryAdmissionWorld(self)
++        other_work = "0000000a-W99"
++        other = world.authority.session("baton.other")
++        world.authority.create_work(other_work, "other", contract=V12, operation_id="create-other-producer")
++        world.authority.add_route_handler("other", "baton.other")
++        assignment = other.claim({"work_id": other_work, "operation_id": "claim-other-producer"})["assignment"]
++        world.proposal_id = "other-producer-proposal"
++        other.publish(dict({name: world.published[name] for name in
++            ("result_digest", "candidate_digest", "input_digest", "policy_digest", "target")},
++            result_id="another-producer-result", expect=assignment, proposal_id=world.proposal_id, operation_id="publish-other-producer"))
++        with self.assertRaises(ContractRefusal):
++            world.admit()
++        world.assert_no_admission()
++
++    def test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate(self):
++        world = _OrdinaryAdmissionWorld(self)
++        world.publisher.end({"expect": world.assignment, "operation_id": "release-first-producer"})
++        later = world.publisher.claim({"work_id": world.assignment["work_ref"]["work_id"], "operation_id": "claim-later-generation"})["assignment"]
++        self.assertEqual(later["participant"], world.assignment["participant"])
++        self.assertEqual(later["work_ref"], world.assignment["work_ref"])
++        self.assertEqual(later["generation"], world.assignment["generation"] + 1)
++        world.proposal_id = "later-generation-proposal"
++        world.publisher.publish(dict({name: world.published[name] for name in
++            ("result_digest", "candidate_digest", "input_digest", "policy_digest", "target")},
++            result_id="later-generation-result", expect=later, proposal_id=world.proposal_id, operation_id="publish-later-generation"))
++        with self.assertRaises(ContractRefusal) as caught:
++            world.admit()
++        self.assertIn("published proposal names assignment", str(caught.exception))
++        world.assert_no_admission()

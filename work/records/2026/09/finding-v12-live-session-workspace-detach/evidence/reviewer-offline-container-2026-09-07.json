@@ -1,0 +1,43 @@
+{
+  "provenance": "baton.codex successful standalone docker inspect, tool chunk a85b9d; fields transcribed, not a second raw capture",
+  "id": "444a9cd51de60cec40a6809e27b91ebb4a33764bf56b9f89575c6dc5b4e1ae24",
+  "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+  "state": {
+    "Dead": false,
+    "Error": "",
+    "ExitCode": 0,
+    "FinishedAt": "2026-09-07T04:55:18.207743183Z",
+    "OOMKilled": false,
+    "Paused": false,
+    "Pid": 0,
+    "Restarting": false,
+    "Running": false,
+    "StartedAt": "2026-09-07T04:55:16.743932264Z",
+    "Status": "exited"
+  },
+  "user": "65532:65532",
+  "labels": {
+    "baton.experiment": "W106673-offline-session",
+    "baton.run": "f84ff39588ae46b3ab7d1e574ab97ad3"
+  },
+  "network": "none",
+  "privileged": false,
+  "readonly_root": true,
+  "cap_drop": [
+    "ALL"
+  ],
+  "security_opt": [
+    "no-new-privileges"
+  ],
+  "mounts": [
+    {
+      "Destination": "/probe.py",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": false,
+      "Source": "/tmp/baton-w106673-session-preflight-u6nurmlz/probe.py",
+      "Type": "bind"
+    }
+  ],
+  "capture_limit": "A subsequent shell-redirection form was denied access to docker.sock; no escalation or runtime retry occurred. The successful standalone read above remains the independent observation."
+}

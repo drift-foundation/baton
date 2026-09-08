@@ -1,0 +1,48 @@
+{
+  "work": "W106673",
+  "claim": 107264,
+  "recorded_at": "2026-09-07T04:19:57.671879+00:00",
+  "source": "read-only local observations by baton.tuner",
+  "image": {
+    "id": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+    "user": "65532:65532",
+    "repo_tags": [
+      "baton-w85497-dogfood:candidate4"
+    ],
+    "installed": true,
+    "cli_version": "2.1.247 (Claude Code)",
+    "version_provenance": "baton:work/records/2026/09/finding-v12-worker-image-python-floor-and-clean-verification/evidence/gate-dogfood-image-2026-09-04d.json"
+  },
+  "host_cli_resolved_path": "/home/sl/.local/share/claude/versions/2.1.250",
+  "model": {
+    "source": "/home/sl/.claude/settings.json",
+    "member": "model",
+    "value": "claude-fable-5[1m]",
+    "only_matching_model_line_reported": true
+  },
+  "credential": {
+    "source": "/home/sl/.claude/.credentials.json",
+    "mode": "0600",
+    "uid": 1000,
+    "gid": 1000,
+    "type": "regular file",
+    "extended_acl": false,
+    "inspection": "stat and getfacl only; no content read"
+  },
+  "network": {
+    "proposed": "bridge",
+    "owner_scope": "ordinary Docker outbound, no published ports",
+    "inspection_command": "docker network inspect bridge --format {{.Id}} {{.Driver}} {{.Internal}} {{.Scope}}",
+    "inspection_exit": 1,
+    "finding": "permission denied connecting to docker API at unix:///var/run/docker.sock; no escalation or alternate wrapper"
+  },
+  "limits": {
+    "pairs": 1,
+    "user_turns": 4,
+    "seconds_per_turn": 180,
+    "seconds_overall": 900,
+    "proposed_usd_aggregate": 3,
+    "hard_cap_verified": false
+  },
+  "live_execution": "none"
+}

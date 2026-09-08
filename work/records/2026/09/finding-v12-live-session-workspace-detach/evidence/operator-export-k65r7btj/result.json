@@ -1,0 +1,11 @@
+{
+  "limitation": "helper crash and fixture gate reload; not production-manager recovery",
+  "outcome": "deterministic-proof-passed",
+  "real_agent_session": "not attempted",
+  "timings": {
+    "detach_to_consumer_ns": 66190897,
+    "reattach_to_write_ns": 79235571,
+    "restart_to_write_ns": 171169350,
+    "stop_to_consumer_ns": 3095990398
+  }
+}

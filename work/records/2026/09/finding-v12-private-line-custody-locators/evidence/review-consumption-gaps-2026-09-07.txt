@@ -1,0 +1,52 @@
+test_changed_assignment_principal_cannot_authorize_consumption (__main__.ConsumptionBoundaries.test_changed_assignment_principal_cannot_authorize_consumption) ... FAIL
+test_checkpoint_rechecks_object_after_the_authority_fence (__main__.ConsumptionBoundaries.test_checkpoint_rechecks_object_after_the_authority_fence) ... FAIL
+test_symlinks_cannot_bypass_entry_ceiling (__main__.ConsumptionBoundaries.test_symlinks_cannot_bypass_entry_ceiling) ... FAIL
+test_authority_and_work_identity_isolate_line_custody (tests.manager.test_review_cycles.ReviewCycles.test_authority_and_work_identity_isolate_line_custody) ... ok
+test_checkpoint_redundant_columns_must_match_sealed_evidence (tests.manager.test_review_cycles.ReviewCycles.test_checkpoint_redundant_columns_must_match_sealed_evidence) ... ok
+test_correction_refuses_if_the_line_no_longer_matches_its_checkpoint (tests.manager.test_review_cycles.ReviewCycles.test_correction_refuses_if_the_line_no_longer_matches_its_checkpoint) ... ok
+test_integration_requires_the_exact_accepted_verdict_row (tests.manager.test_review_cycles.ReviewCycles.test_integration_requires_the_exact_accepted_verdict_row) ... ok
+test_line_and_each_operation_replay_exactly (tests.manager.test_review_cycles.ReviewCycles.test_line_and_each_operation_replay_exactly) ... ok
+test_line_custody_is_derived_only_from_configured_storage (tests.manager.test_review_cycles.ReviewCycles.test_line_custody_is_derived_only_from_configured_storage) ... ok
+test_line_materialization_crash_resumes_only_the_recorded_operands (tests.manager.test_review_cycles.ReviewCycles.test_line_materialization_crash_resumes_only_the_recorded_operands) ... ok
+test_live_child_and_stale_progress_refuse_without_mutation (tests.manager.test_review_cycles.ReviewCycles.test_live_child_and_stale_progress_refuse_without_mutation) ... ok
+test_restart_preserves_review_to_correction_and_rejected_is_ineligible (tests.manager.test_review_cycles.ReviewCycles.test_restart_preserves_review_to_correction_and_rejected_is_ineligible) ... ok
+test_review_independence_and_exact_verdict_collision (tests.manager.test_review_cycles.ReviewCycles.test_review_independence_and_exact_verdict_collision) ... ok
+test_review_mount_revalidates_the_current_checkpoint (tests.manager.test_review_cycles.ReviewCycles.test_review_mount_revalidates_the_current_checkpoint) ... ok
+test_ten_corrections_reuse_line_and_retain_old_checkpoints (tests.manager.test_review_cycles.ReviewCycles.test_ten_corrections_reuse_line_and_retain_old_checkpoints) ... ok
+test_verdict_refuses_an_attachment_retargeted_to_another_line (tests.manager.test_review_cycles.ReviewCycles.test_verdict_refuses_an_attachment_retargeted_to_another_line) ... ok
+test_verdict_requires_quiescent_frozen_verified_findings_and_logs (tests.manager.test_review_cycles.ReviewCycles.test_verdict_requires_quiescent_frozen_verified_findings_and_logs) ... ok
+test_writer_and_review_mount_the_line_without_copying_or_sharing_output (tests.manager.test_review_cycles.ReviewCycles.test_writer_and_review_mount_the_line_without_copying_or_sharing_output) ... ok
+test_writer_is_revoked_before_profile_runs_and_crash_resumes (tests.manager.test_review_cycles.ReviewCycles.test_writer_is_revoked_before_profile_runs_and_crash_resumes) ... ok
+test_writer_race_has_one_winner_and_reserved_line_survives_cleanup (tests.manager.test_review_cycles.ReviewCycles.test_writer_race_has_one_winner_and_reserved_line_survives_cleanup) ... ok
+
+======================================================================
+FAIL: test_changed_assignment_principal_cannot_authorize_consumption (__main__.ConsumptionBoundaries.test_changed_assignment_principal_cannot_authorize_consumption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/../../work/records/2026/09/finding-v12-private-line-custody-locators/evidence/review_consumption_gaps.py", line 40, in test_changed_assignment_principal_cannot_authorize_consumption
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_checkpoint_rechecks_object_after_the_authority_fence (__main__.ConsumptionBoundaries.test_checkpoint_rechecks_object_after_the_authority_fence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/../../work/records/2026/09/finding-v12-private-line-custody-locators/evidence/review_consumption_gaps.py", line 55, in test_checkpoint_rechecks_object_after_the_authority_fence
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_symlinks_cannot_bypass_entry_ceiling (__main__.ConsumptionBoundaries.test_symlinks_cannot_bypass_entry_ceiling)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/../../work/records/2026/09/finding-v12-private-line-custody-locators/evidence/review_consumption_gaps.py", line 32, in test_symlinks_cannot_bypass_entry_ceiling
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.173s
+
+FAILED (failures=3)

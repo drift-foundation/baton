@@ -30,7 +30,9 @@ from unittest.mock import patch
 from baton_v12.contracts import ContractRefusal, held_secret
 from baton_v12.contracts import digest as contract_digest
 from baton_v12.worker_manager import sealing, workspaces
+from baton_v12.worker_manager.manifests import load_manifest, retain_manifest
 from baton_v12.worker_manager.oci import OciAdapter
+from baton_v12.worker_manager.store import ControlStore
 
 NOW = "2026-08-26T00:00:00.000Z"
 # HEX AND PREFIXED, because the worker's envelope is now validated against the
@@ -1104,6 +1106,151 @@ class TheCollectionAnswersTheFreezeRatherThanReMeasuringIt(SealingCase):
         built.seal(self.request())
         with self.assertRaises(ContractRefusal):
             built.collect(self.collected(output_names=["invented"]))
+
+
+class OpaqueWorkerMetadataSurvivesSealing(SealingCase):
+
+    def published_metadata(self, metadata, declarations=None, **overrides):
+        outputs = self.published(declarations)["outputs"]
+        for one in outputs:
+            one["result_metadata"] = metadata[one["name"]]
+        return self.published(declarations, outputs=outputs, **overrides)
+
+    def test_reordered_metadata_survives_real_result_retention_and_load(self):
+        declarations = [declaration(name="alpha", path="alpha"),
+                        declaration(name="zeta", path="zeta")]
+        self.wrote({"a.txt": b"measured alpha"}, into="alpha")
+        self.wrote({"z.txt": b"measured zeta"}, into="zeta")
+        metadata = {
+            "alpha": {"example.alpha/1": {"recap": "worker claim", "items": [1, None, True]},
+                      "example.integrity/2": {"bytes": 999, "content_digest": DIGEST}},
+            "zeta": {"example.zeta/3": {"recap": "different claim", "nested": {"value": "λ"}}},
+        }
+        outputs = self.published(declarations)["outputs"]
+        for one in outputs:
+            one["result_metadata"] = metadata[one["name"]]
+        envelope = self.published(declarations, outputs=list(reversed(outputs)))
+        sealed = self.adapter(outputs=declarations, publish=False).seal(self.request())
+        store_path = os.path.join(self.root, "retained.sqlite3")
+        store = ControlStore.open(store_path, incarnation="metadata-carrier", clock=lambda: NOW)
+        try:
+            retained = retain_manifest(store, sealed, "resultManifest")
+        finally:
+            store.close()
+        store = ControlStore.open(store_path, incarnation="metadata-reload", clock=lambda: NOW)
+        try:
+            loaded = load_manifest(store, retained["digest"], "resultManifest")
+        finally:
+            store.close()
+
+        self.assertEqual(loaded, sealed)
+        self.assertEqual({one["name"]: one["result_metadata"] for one in loaded["outputs"]}, metadata)
+        self.assertEqual(loaded["completion_manifest_digest"], envelope["manifest_digest"])
+        self.assertEqual(loaded["assignment_ref"], ASSIGNMENT)
+        self.assertEqual(loaded["freeze_operation"], self.request()["operation"])
+        self.assertEqual(loaded["manager_observed_at"], NOW)
+        self.assertEqual(loaded["input_manifest_digest"], DIGEST)
+        self.assertEqual(loaded["policy_digest"], IDENTITY["policy_digest"])
+        for one in loaded["outputs"]:
+            measured = self.measured(os.path.join(self.workspace, one["name"]))
+            self.assertEqual(one["content_manifest"], measured)
+            self.assertEqual(one["artifact"]["bytes"], measured["total_bytes"])
+            self.assertEqual(one["artifact"]["content_digest"], measured["tree_digest"])
+            self.assertEqual(one["artifact"]["artifact_id"], f"attempt-1:{one['name']}")
+            self.assertNotEqual(one["artifact"]["locator"], f"file://{self.workspace}/{one['name']}")
+
+    def test_present_and_missing_optional_outputs_keep_their_metadata(self):
+        declarations = [declaration(name="present", path="present", required=False),
+                        declaration(name="missing", path="missing", required=False)]
+        self.wrote({"optional.txt": b"present"}, into="present")
+        metadata = {"present": {"example.optional/1": {"note": "produced"}},
+                    "missing": {"example.optional/1": {"note": "no output needed"}}}
+        self.published_metadata(metadata, declarations)
+        built = self.adapter(outputs=declarations, publish=False)
+        sealed = built.seal(self.request())
+        store = ControlStore.open(os.path.join(self.root, "optional.sqlite3"), incarnation="optional", clock=lambda: NOW)
+        try:
+            retained = retain_manifest(store, sealed, "resultManifest")
+            loaded = load_manifest(store, retained["digest"], "resultManifest")
+        finally:
+            store.close()
+        by_name = {one["name"]: one for one in loaded["outputs"]}
+        self.assertEqual({name: one["result_metadata"] for name, one in by_name.items()}, metadata)
+        self.assertEqual(by_name["present"]["status"], "present")
+        self.assertIsNotNone(by_name["present"]["artifact"])
+        self.assertEqual(by_name["missing"]["status"], "missing-optional")
+        self.assertIsNone(by_name["missing"]["content_manifest"])
+        self.assertIsNone(by_name["missing"]["artifact"])
+
+        self.wrote({"late.txt": b"too late"}, into="missing")
+        self.published(declarations)
+        self.assertEqual(built.seal(self.request()), loaded)
+
+    def test_replay_preserves_metadata_after_completion_changes_or_disappears(self):
+        self.wrote({"report.txt": b"original"})
+        metadata = {"proposal": {"example.replay/1": {"recap": "original worker claim"}}}
+        self.published_metadata(metadata)
+        first = self.adapter(publish=False).seal(self.request())
+        self.assertEqual(first["outputs"][0]["result_metadata"], metadata["proposal"])
+        self.published_metadata({"proposal": {"example.replay/1": {"recap": "changed claim"}}})
+        for state in ("changed", "unavailable"):
+            with self.subTest(completion=state):
+                if state == "unavailable":
+                    os.remove(os.path.join(self.workspace, "output.json"))
+                    os.remove(os.path.join(self.workspace, "out", "report.txt"))
+                    os.rmdir(os.path.join(self.workspace, "out"))
+                restarted = self.adapter(publish=False)
+                with patch.object(sealing, "_completion_envelope", side_effect=AssertionError("replay read worker state")):
+                    self.assertEqual(restarted.seal(self.request()), first)
+
+    def test_unsuccessful_results_without_an_envelope_keep_empty_metadata(self):
+        self.wrote({"partial.txt": b"partial output"})
+        declarations = [declaration(), declaration(name="missing", path="missing", required=False)]
+        built = self.adapter(outputs=declarations, publish=False)
+        for disposition in ("unable", "plan-rejected", "cancelled"):
+            with self.subTest(disposition=disposition):
+                request = self.request(disposition=disposition, attempt_id=f"attempt-{disposition}")
+                sealed = built.seal(request)
+                self.assertNotIn("completion_manifest_digest", sealed)
+                self.assertEqual(sealed["disposition"], disposition)
+                self.assertEqual({one["name"]: one["result_metadata"] for one in sealed["outputs"]}, {"proposal": {}, "missing": {}})
+                self.assertEqual(built.seal(request), sealed)
+
+    def test_metadata_does_not_bypass_assignment_or_envelope_validation(self):
+        self.wrote({"report.txt": b"output"})
+        metadata = {"proposal": {"example.validation/1": {"note": "opaque"}}}
+        built = self.adapter(publish=False)
+        for invalid, expected in (({"assignment_ref": {**ASSIGNMENT, "generation": 2}}, "generation"),
+                                  ({"unexpected": "member"}, "schema")):
+            with self.subTest(invalid=invalid):
+                self.published_metadata(metadata, **invalid)
+                with self.assertRaises(ContractRefusal) as caught:
+                    built.seal(self.request())
+                self.assertEqual(caught.exception.code, expected)
+                self.assertFalse(os.path.exists(built._custody("attempt-1")))
+
+    def test_metadata_does_not_satisfy_a_missing_required_output(self):
+        self.wrote({"report.txt": b"output"})
+        self.published_metadata({"proposal": {"example.validation/1": {"note": "claims success"}}})
+        os.remove(os.path.join(self.workspace, "out", "report.txt"))
+        os.rmdir(os.path.join(self.workspace, "out"))
+        built = self.adapter(publish=False)
+        with self.assertRaises(ContractRefusal) as caught:
+            built.seal(self.request())
+        self.assertEqual(caught.exception.code, "precondition")
+        self.assertFalse(os.path.exists(built._custody("attempt-1")))
+
+    def test_live_secret_metadata_is_refused_before_custody(self):
+        self.wrote({"report.txt": b"safe payload"})
+        secret = "live-metadata-secret-w105574"
+        self.published_metadata({"proposal": {"example.validation/1": {"note": secret}}})
+        built = self.adapter(publish=False)
+        with held_secret(secret):
+            with self.assertRaises(ContractRefusal) as caught:
+                built.seal(self.request())
+        self.assertEqual(caught.exception.code, "secret-leak")
+        self.assertNotIn(secret, caught.exception.message)
+        self.assertFalse(os.path.exists(built._custody("attempt-1")))
 
 
 class TheDeclarationsAreOwnedAtConstruction(SealingCase):

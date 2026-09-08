@@ -1,0 +1,24 @@
+{
+  "accepted_export_hashes_unchanged": {
+    "arms.json": "44a8f68411e30cb1e631c33f624571dfdbbeaf6369af541c964e55b5e985e963",
+    "network.json": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+    "package.json": "da40f304921ead0930085e6aac12c774eb7e6b8ae49358467b8d89cc1588d7c2",
+    "restored-first/events.json": "b259c64997fe591b1fff9accecc45dc50434835f394cb090a56beefeb991b40c",
+    "restored-first/gate.json": "d5d614d197830736d112d703a3a136f7eeb059da736e5e7b07e0835013afd65b",
+    "result.json": "ba461da3d55bacc1079cd1851cb2b900d9bef08146e3d7e2cd161154c8cffe96",
+    "retained-first/events.json": "5caef6dd21a3d2c83c17d0a916d20fd6d21b9c0117c0eb982f6a9250fc85f6c9",
+    "retained-first/gate.json": "32873bbd093e1821e9f18de138ac8f403c703463ff8ede7bc9203e75cc8b7ed5",
+    "setup.json": "6b7503037c77bc9f8d0e32b265a3eea6a7ff763210eab0291d696757b4c6ba01"
+  },
+  "baseline_regression": "Two real-constructor tests against old source: one expected diagnostic-arm-invalid error; no other failures.",
+  "candidate_tests_passed": 23,
+  "controller_exact_text_delta": "Only manifest basename and private-session subdirectory loop variable/references changed.",
+  "existing_assertions_unchanged": [
+    "test_live_diagnostics.py",
+    "test_restored_only.py"
+  ],
+  "live_run": false,
+  "prior_inputs_unchanged": 116,
+  "prior_manifest_sha256": "a3f5f845c344ee9418327123cbc32de37be35701dfee5b0ba342a19005681c5a",
+  "supervisor_unchanged_sha256": "3322a0494f8dd51be1f8188e626e522ad676dfee4c380d6c939b9827e4f3082f"
+}

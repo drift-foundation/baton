@@ -1,0 +1,17 @@
+{
+  "work": "W106896",
+  "claim": 107206,
+  "recorded_at": "2026-09-07T04:07:32.883471+00:00",
+  "status": "two-path guard candidate awaiting independent review; no live engine execution",
+  "initial_manifest_sha256": "78ab1846702b53a93d1cebe1f2f7d13245fc187ff1857a56251df39605dc200e",
+  "initial_patch_sha256": "cf146c4b4a3c5725dcc49ab6fa484a0516a3da8f4be67669a4e77f03cc98f914",
+  "base_sha256": {
+    "v12/python/tests/tools/test_parallel_runner.py": "563721f5f739e8c6fdd098434d2f4bb61d7f4a90039e347e24a40d6983e15e0d",
+    "v12/python/tests/manager/test_boundary_inventory.py": "a2854898040636ae4623e6cf6257dbd192589f27f5753a25436242017dcee933"
+  },
+  "candidate_sha256": {
+    "v12/python/tests/tools/test_parallel_runner.py": "c1d5752eec92dd23527ef7ac8ac4ce6e28e9ca794677d16120cb187da6dc6d39",
+    "v12/python/tests/manager/test_boundary_inventory.py": "f660f095ab37d995169dd2cbd419a54ecc2eb2d45886e7052823698cbc3fcd1f"
+  },
+  "patch_sha256": "19df2debd00d4a6fc07bd75fdf149e49f62475cfa651cfa8022bcf0ca95768e2"
+}

@@ -1,0 +1,40 @@
+{
+  "//": "Fresh W1594 Claude ACP input; deployment-owned values stay explicit.",
+  "baton": {
+    "binary": "/home/sl/opt/baton/v11/0650c61/bin/baton",
+    "config": "/home/sl/baton-v11.14aecfb/baton.json",
+    "participant": "baton.claude",
+    "role": "impl",
+    "waitTimeoutSeconds": 60
+  },
+  "agent": {
+    "command": "/home/sl/.config/baton/acp/baton.claude/policy/launch-agent-sandboxed.sh",
+    "args": [],
+    "env": {
+      "AGENT_REAL": "/home/sl/opt/acp/claude-agent-acp/0.69.0/node_modules/.bin/claude-agent-acp",
+      "PROTECTED_PATHS_FILE": "/home/sl/.config/baton/acp/baton.claude/policy/protected-paths.txt",
+      "CLAUDE_CONFIG_DIR": "/home/sl/.local/state/acp-baton-bridge/baton.claude/claude",
+      "CLAUDE_CODE_DISABLE_BACKGROUND_TASKS": "1"
+    },
+    "cwd": "/home/sl/src/baton"
+  },
+  "session": {
+    "mode": "new",
+    "cwd": "/home/sl/src/baton"
+  },
+  "permissionMode": "bypassPermissions",
+  "policyResources": [
+    "/home/sl/.config/baton/acp/baton.claude/policy/claude/settings.json",
+    "/home/sl/.config/baton/acp/baton.claude/policy/block-git-commit.sh",
+    "/home/sl/.config/baton/acp/baton.claude/policy/git_guard.py",
+    "/home/sl/.config/baton/acp/baton.claude/policy/launch-agent-sandboxed.sh",
+    "/home/sl/.config/baton/acp/baton.claude/policy/protected-paths.txt"
+  ],
+  "stateDir": "/home/sl/baton-v11.14aecfb/run/acp/{{start.id}}/baton.claude",
+  "turnTimeoutMs": 7200000,
+  "setupTimeoutMs": 90000,
+  "retryMs": 2000,
+  "runtime": {
+    "actionOwner": "baton.slaw"
+  }
+}

@@ -1,0 +1,4 @@
+Eight help-candidate hashes match; two new scripts parse.
+Both prior manifests still match all bound artifacts.
+Three retained-run hashes match; missing names absent from retained diagnostic.
+Original LocalTests, correlation/container checks, capture/Docker/operator, six constants and exact initialize argv are AST-identical.

@@ -1,0 +1,46 @@
+--- before/v12/python/tests/manager/test_boundary_inventory.py
++++ candidate/v12/python/tests/manager/test_boundary_inventory.py
+@@ -1058,6 +1058,12 @@
+ # Checked for staleness, because a list of exceptions nobody compares to the
+ # code is a list of things somebody remembered.
+ NOT_AN_ENTRY = {
++    ("review_cycles.py:_cleaned_review", "document", "a historical review cleanup"):
++        "the runtime.destroy-specific document check follows the journal's "
++        "adopted operations.result decode through ControlStore.replay; it is "
++        "another property of that crossing, not a new caller operand. "
++        "test_historical_cleanup_document_probe_reaches_its_named_boundary "
++        "corrupts that exact committed answer and reaches this validator",
+     ("store.py:seal_refusal", "text", "a sealed refusal"):
+         "the composed seal is this build's own value on its way INTO SQLite -- "
+         "a write boundary rather than a receiving one",
+@@ -6385,6 +6391,30 @@
+     probe -- an unowned adopted crossing coexisted with a green gate.
+     """
+ 
++    def test_historical_cleanup_document_probe_reaches_its_named_boundary(self):
++        """The exact chained journal validator still needs a reaching probe."""
++        from tests.job_manager.test_review_driver import TheWorkerCompletionTraversesPublicCustody
++
++        fixture = TheWorkerCompletionTraversesPublicCustody()
++        self.addCleanup(fixture.doCleanups)
++        fixture.setUp()
++        self.addCleanup(fixture.tearDown)
++        held = fixture.produced()
++        ended = fixture.end(held)
++        fixture.assert_historical_replay(held, ended)
++        label = "a historical review cleanup"
++        self.assertIn(("review_cycles.py:_cleaned_review", "document", label), NOT_AN_ENTRY)
++        self.assertIn(("document", label),
++                      {(kind, found) for kind, found, _ in owning_validators()["review_cycles.py:_cleaned_review"]})
++        operation_id = held["adapter"].destroyed_with[0]["operation"]["operation_id"]
++        fixture.control._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?",
++                                            (json.dumps(["not a cleanup document"]), operation_id))
++        with fixture.no_more_external_acts(held):
++            self.refusing(label, lambda: review_cycles.integration_checkpoint(fixture.control, ended["line_id"]))
++            replay = fixture.end(held)
++            self.assertEqual(replay["outcome"], "held")
++            self.assertFalse(replay["cleaned_up"])
++
+     def test_line_launch_proof_has_an_exact_live_capability_probe(self):
+         entry = ("caller", "workspaces.py:AllocatedRoots.__init__", "_line_proof")
+         label = "a development-line launch proof"

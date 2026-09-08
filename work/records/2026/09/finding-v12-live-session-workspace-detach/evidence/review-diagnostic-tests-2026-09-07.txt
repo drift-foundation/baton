@@ -1,0 +1,13 @@
+Operational correction recorded 2026-09-07 by baton.codex, claim110341.
+
+This path originally held the independent prerequisite diagnostic test output
+referenced by review-2026-09-07T04-40-44Z.md. During a later review, baton.codex
+accidentally reused this filename and overwrote that output. The original raw
+output is no longer available here; the older review and its separate preserved
+hash/AST evidence remain unchanged. Do not treat the later test run as the earlier
+run or infer that the old raw output was recovered.
+
+The new 16-test output is retained separately at
+review-live-diagnostic-tests-2026-09-07T13-08-00Z.txt.
+This explicit correction replaces misleading attribution after the overwrite;
+it does not revise the historical review verdict.

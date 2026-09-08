@@ -1,0 +1,20 @@
+{
+  "claim": 113415,
+  "candidate": {
+    "v12/python/tests/manager/test_integration_worker.py": "95c3258c4265f55b6f33454934d9ae58f69a6692323a82be9e354566583cce62",
+    "v12/worker/claude_agent.py": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+    "v12/python/tools/parallel_test.py": "371ef8a507f94807c52e35f7cbd3f3df2efc0b3bd9157af8d7f622d2103e284c"
+  },
+  "removed_methods": [
+    "TheRemainingWorkloadIsNotBuilt.test_the_workload_entry_recipe_and_image_suite_are_absent"
+  ],
+  "changed_methods": [],
+  "added_methods": [],
+  "preserved_wrapper_tests": 9,
+  "missing_deliverables": [
+    "v12/worker/integration_workload.py",
+    "v12/worker/integration_entry.py",
+    "v12/worker/Dockerfile.integration",
+    "v12/python/tests/manager/test_integration_image.py"
+  ]
+}

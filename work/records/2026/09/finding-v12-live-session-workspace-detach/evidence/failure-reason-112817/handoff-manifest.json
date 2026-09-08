@@ -1,0 +1,28 @@
+{
+  "claim": 112817,
+  "execution_authorized": false,
+  "files": {
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/FAILURE-REASON-112817.md": "a8cf7a644b1637c6ab53d87cd4f9b491731049e01ebfa94ad949343269e81c99",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/FINDING.md": "48e5fb33e6892c0a13e85d27346c06ff65958b49ab130c639f4422ff56e70b41",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/PLAN.md": "eaa2ff534819619df802aaf4165bf59d99770792eb59c607f10c5e3875628e64",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/PROGRESS.md": "6502353f9b1ed77ae690548769a80e3effa53f1a3f11ebce8a063842826de1e3",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817-manifest.json": "3d4332754ab9bdce095f8a31d5e6e010550645f1fa226fc46916db523918f808",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/audit.py": "dc14d2eb55883bd0bda892c8f591b6b5dafb2de92a0ad5e66d6d6b47380292d9",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/baseline.json": "ea14ac7f4ad6234c3f22323ea18ca9fcac0db432cd914d2fd61df39c2779178f",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/before-FINDING.md": "e126a8faebdbcd18ef56c95537d84697b53c32adc7822e03f5afb10371d2d34b",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/before-PLAN.md": "4cc4ee4d7e00bdc44c971efbec44a8d2ad7bcaeb73f6358efeb57cba77cc1678",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/before-PROGRESS.md": "5f144d5deb8b0eb992c5e7b3486d4ba8567817e03184e6b11d919c59d090b3c1",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/controller.patch": "be3c51359eb3521b767ef3d1f4ac5bafc7b3ceca04fb7ff88c6799a86fdc6de4",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/focused-tests.json": "f9529337fe92f09a7efeb5613d5bc01e2aaceeec48ebfb3593495531d7e3abc4",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/source-audit.json": "a51b2bb128a6d58a8fe235b6f3204d5395ee1f1ad6b71e049a75846a084ccac6",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/standalone-audit.json": "def5e505890261e72894f89357a3853e907db05941b0ec561b89a19a8803544d",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/supervisor.patch": "fba8eca47c321701b5be68ddcc5b595c8ee90c6a4e9444d878809282cf66805c",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/transport-contract.json": "880a5bc279ac820cb1224f6c43f6e96ac92501d95120684306363553c1dcb2a9",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_failure_reason_112817.py": "a8b06a1ad33e6030dc0f126222c8250b71241ad1f399f10a228d34f4484036eb",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_failure_reason_112817.py": "fe3c8813773f2aa74a6ab07643b204c5f0e3ce5dde78dabd28b1fcde7a97623f",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_failure_reason_112817.py": "34725760c687128b084b40a795e7f883e52b4b2ce613dcf6ffbf8b2b24ad2730"
+  },
+  "owner": 112815,
+  "package_manifest_sha256": "3d4332754ab9bdce095f8a31d5e6e010550645f1fa226fc46916db523918f808",
+  "work": "W106673"
+}

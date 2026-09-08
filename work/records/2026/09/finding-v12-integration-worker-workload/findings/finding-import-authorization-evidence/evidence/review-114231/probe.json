@@ -1,0 +1,47 @@
+[
+  {
+    "case": "rewritten_review_with_original_frozen_identity",
+    "accepted": true,
+    "reader_review_identity": {
+      "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+      "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+      "disposition": "accepted",
+      "reviewer_participant": "baton.review",
+      "result_id": "result-public-review",
+      "result_digest": "sha256:e9453dedb5a261b4bbb9f1d84d19d0f465d841ef58de5083d83bf78b3e3cb356"
+    },
+    "review_file_count": 3
+  },
+  {
+    "case": "foreign_scope_identity",
+    "accepted": true,
+    "reader_review_identity": {
+      "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+      "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+      "disposition": "accepted",
+      "reviewer_participant": "baton.review",
+      "result_id": "result-public-review",
+      "result_digest": "sha256:c6723699e8174700d6b2bd70f8a9a4a556f4fa7dc7335069e7d9fe333a542af7"
+    },
+    "review_file_count": 3
+  },
+  {
+    "case": "missing_materialized_review",
+    "accepted": true,
+    "reader_review_identity": {
+      "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+      "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+      "disposition": "accepted",
+      "reviewer_participant": "baton.review",
+      "result_id": "result-public-review",
+      "result_digest": "sha256:3cf33cd5a3cfaa141bf00b137fc73501e3845345045a4866acfe788b07724c0a"
+    },
+    "review_file_count": 0
+  },
+  {
+    "case": "custody_ancestor_symlink_outside_store",
+    "published": true,
+    "outside_configured_store": true,
+    "materialized_files": 3
+  }
+]

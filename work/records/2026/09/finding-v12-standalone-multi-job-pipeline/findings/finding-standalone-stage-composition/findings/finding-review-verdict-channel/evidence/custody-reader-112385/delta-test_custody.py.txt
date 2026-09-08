@@ -1,0 +1,90 @@
+--- before/v12/python/tests/manager/test_custody.py
++++ candidate/v12/python/tests/manager/test_custody.py
+@@ -2308,6 +2308,87 @@
+             "an attempt with no act must adopt nothing")
+ 
+ 
++    def test_historical_receipts_reopen_both_roots_without_an_adapter_or_acts(self):
++        custodian = self.Custodian()
++        receipts = {which: custody.normalize_directory(self.store, custodian, assignment_id="attempt-1", which=which)
++                    for which in ("result", "workspace")}
++        changes = self.store._connection.total_changes
++        with mock.patch.object(custody, "normalize_directory", side_effect=AssertionError("historical read must not normalize")), \
++                mock.patch.object(custody, "custody_act", side_effect=AssertionError("historical read must not launch")):
++            for _ in range(2):
++                for which in ("result", "workspace"):
++                    self.assertEqual(custody.historical_directory_custody(self.store, "attempt-1", which), receipts[which])
++        self.assertEqual(self.store._connection.total_changes, changes)
++        self.assertEqual(custodian.calls, [("attempt-1", "result"), ("attempt-1", "workspace")])
++
++    def assert_historical_damage_refuses(self, column, values):
++        custodian = self.Custodian()
++        receipt = custody.normalize_directory(self.store, custodian, assignment_id="attempt-1", which="result")
++        operation_id = custody._custody_operation_id("attempt-1", "result")
++        prior_calls = list(custodian.calls)
++        for value in values:
++            with self.subTest(column=column, value=value):
++                self.store._connection.execute("SAVEPOINT damaged")
++                try:
++                    if column == "state":
++                        from baton_v12.worker_manager.store import seal_refusal
++                        sealed = seal_refusal(ContractRefusal("refused", "precondition", "test normalization refused"))
++                        self.store._connection.execute("UPDATE operations SET state = ?, result = NULL, refusal = ? WHERE operation_id = ?", (value, sealed, operation_id))
++                    else:
++                        self.store._connection.execute(f"UPDATE operations SET {column} = ? WHERE operation_id = ?", (value, operation_id))
++                    changes = self.store._connection.total_changes
++                    with mock.patch.object(custody, "normalize_directory", side_effect=AssertionError("no normalization")), \
++                            mock.patch.object(custody, "custody_act", side_effect=AssertionError("no helper")):
++                        with self.assertRaises(ContractRefusal):
++                            custody.historical_directory_custody(self.store, "attempt-1", "result")
++                    self.assertEqual(self.store._connection.total_changes, changes)
++                    self.assertEqual(custodian.calls, prior_calls)
++                finally:
++                    self.store._connection.execute("ROLLBACK TO damaged")
++                    self.store._connection.execute("RELEASE damaged")
++                self.assertEqual(custody.historical_directory_custody(self.store, "attempt-1", "result"), receipt)
++
++    def test_historical_receipt_requires_its_exact_committed_operation(self):
++        with self.assertRaises(ContractRefusal):
++            custody.historical_directory_custody(self.store, "attempt-1", "result")
++        self.assert_historical_damage_refuses("state", ("refused",))
++        self.assert_historical_damage_refuses("kind", ("directory-custody.discard", "runtime.destroy"))
++        self.assert_historical_damage_refuses("operation_id", ("foreign-operation",))
++
++    def test_historical_receipt_binds_the_signature_subject_and_recorded_store(self):
++        from baton_v12.worker_manager.store import manager_signature
++        kind = "directory-custody.normalize"
++        operands = {"attempt_id": "attempt-1", "root": "result", "verb": "normalize",
++                    "custodian_image_digest": self.Custodian.custodian_image_digest, "workspace_store": self.storage}
++        values = ["not-json", "[]", "{}", json.dumps({"kind": kind, "operands": []}),
++                  manager_signature("foreign-kind", operands)]
++        for member, wrong in (("attempt_id", "foreign-attempt"), ("root", "workspace"), ("verb", "discard"),
++                              ("workspace_store", self.storage + "-foreign"), ("custodian_image_digest", None)):
++            values.append(manager_signature(kind, dict(operands, **{member: wrong})))
++        for member in operands:
++            values.append(manager_signature(kind, {key: value for key, value in operands.items() if key != member}))
++        values.append(manager_signature(kind, dict(operands, extra="not-an-operand")))
++        self.assert_historical_damage_refuses("signature", values)
++
++    def test_historical_receipt_requires_the_closed_positive_normalization_account(self):
++        account = {"custody": "normalize", "entries": 3, "not_ours": 0, "running_as": [0, 0]}
++        receipt = {"attempt_id": "attempt-1", "root": "result", "verb": "normalize",
++                   "operation": "normalize", "account": json.dumps(account, sort_keys=True)}
++        values = ["[]", "null", "{}"]
++        for member, wrong in (("attempt_id", "foreign-attempt"), ("root", "workspace"), ("verb", "discard"),
++                              ("operation", "inspect"), ("account", None), ("account", "not-json"),
++                              ("account", "[]"), ("account", "{}")):
++            values.append(json.dumps(dict(receipt, **{member: wrong})))
++        for member in receipt:
++            values.append(json.dumps({key: value for key, value in receipt.items() if key != member}))
++        values.append(json.dumps(dict(receipt, extra="not-a-receipt-member")))
++        for wrong in ({"custody": "refused", "why": "failed"}, dict(account, custody="discard"),
++                      dict(account, entries="three"), dict(account, running_as=[0]),
++                      dict(account, extra="unexpected")):
++            values.append(json.dumps(dict(receipt, account=json.dumps(wrong, sort_keys=True))))
++        self.assert_historical_damage_refuses("result", values)
++
++
+ class TheEndingSurvivesInterruptionAtEveryDirectoryAct(CustodyCase):
+     """W43975's required matrix, at the boundary the receipts actually own.
+ 

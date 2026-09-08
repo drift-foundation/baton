@@ -1,0 +1,75 @@
+--- baseline/v12/python/tests/manager/test_claude_agent.py
++++ candidate/v12/python/tests/manager/test_claude_agent.py
+@@ -2987,3 +2987,72 @@
+         self.assertEqual(sorted(claude_agent.REVIEW_OUTPUTS),
+                          sorted((review_driver.FINDINGS_OUTPUT,
+                                  review_driver.LOGS_OUTPUT)))
++
++
++class TheOrdinaryTestObservationIsTheActualOne(LineCase):
++    """W112029: the worker already ran the required command; nothing new does.
++
++    `work/records/2026/09/finding-v12-ordinary-test-admission/`. What was
++    missing is a way for integration admission to resolve that same fact from
++    the frozen result, so this asserts the observation is the adapter's own
++    read of the child it already started -- never a flag a provider set.
++    """
++
++    def observation(self, answered):
++        return answered["outputs"][0]["result_metadata"].get(
++            claude_agent.ORDINARY_TESTS_NAMESPACE)
++
++    def test_a_passing_command_is_reported_with_its_actual_status(self):
++        answered = self.worked(edits={"harness.py": "print('edited')\n"})
++        held = self.observation(answered)
++        self.assertEqual(sorted(held),
++                         sorted(claude_agent.ORDINARY_TESTS_MEMBERS))
++        self.assertEqual(held["status"], 0)
++        self.assertEqual(held["task_id"], LINE_TASK["task_id"])
++        self.assertEqual(held["argv"], list(LINE_TASK["verification"]))
++        self.assertEqual(held["base"], self.base)
++        self.assertEqual(held["head"],
++                         self.claim(answered)["head"])
++
++    def test_a_failing_command_keeps_its_nonzero_status(self):
++        """Failed stays failed: this adapter reports what `wait` answered and
++        decides nothing about it."""
++        answered = self.worked(edits={"harness.py": "print('edited')\n"},
++                               verify=1)
++        self.assertEqual(self.observation(answered)["status"], 1)
++
++    def test_the_digest_names_the_exact_task_bytes_this_turn_read(self):
++        import hashlib
++        answered = self.worked(edits={"harness.py": "print('edited')\n"})
++        with open(os.path.join(self.inputs, claude_agent.TASK_DOCUMENT),
++                  "rb") as handle:
++            raw = handle.read()
++        self.assertEqual(self.observation(answered)["task_digest"],
++                         "sha256:" + hashlib.sha256(raw).hexdigest())
++
++    def test_the_observation_carries_no_boolean_and_no_verdict(self):
++        """There is no `passed` in it. A status is what a child exited with;
++        deciding whether that satisfies a requirement belongs to the consumer
++        that holds the requirement."""
++        answered = self.worked(edits={"harness.py": "print('edited')\n"})
++        held = self.observation(answered)
++        for absent in ("passed", "verified", "ok", "result"):
++            self.assertNotIn(absent, held)
++        # ASKED BY TYPE, because `0 == False` in Python and a status of zero is
++        # exactly the value this observation is most often carrying.
++        for name, value in held.items():
++            with self.subTest(member=name):
++                self.assertIsNot(value, True)
++                self.assertIsNot(value, False)
++
++    def test_the_proposal_claim_beside_it_is_unchanged(self):
++        """The existing four-field namespace keeps exactly its members: this
++        adds a second observation rather than widening the first."""
++        answered = self.worked(edits={"harness.py": "print('edited')\n"})
++        self.assertEqual(sorted(self.claim(answered)),
++                         sorted(claude_agent.CLAIM_MEMBERS))
++
++    def test_a_turn_that_published_nothing_carries_neither(self):
++        """No candidate, so nothing for either document to be about."""
++        answered = self.worked()
++        self.assertEqual(answered["outputs"][0]["result_metadata"], {})

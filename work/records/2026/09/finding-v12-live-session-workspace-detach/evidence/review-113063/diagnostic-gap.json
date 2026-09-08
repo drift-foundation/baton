@@ -1,0 +1,290 @@
+{
+  "claim": 113063,
+  "current_listener_discards_all_six_categories": true,
+  "cases": [
+    {
+      "synthetic_assistant_error": "authentication_failed",
+      "normalized_frames": [
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-intent"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-completed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-response-observed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-result-validation",
+          "result_fields": {
+            "subtype": "success",
+            "known_subtype": null,
+            "is_error": "true"
+          },
+          "failure_reason": {
+            "shape": "null",
+            "http_status": null
+          }
+        }
+      ],
+      "refusal": {
+        "refusal_code": "provider-result-failed",
+        "exception_kind": "fixture-refusal",
+        "errno": null
+      }
+    },
+    {
+      "synthetic_assistant_error": "billing_error",
+      "normalized_frames": [
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-intent"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-completed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-response-observed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-result-validation",
+          "result_fields": {
+            "subtype": "success",
+            "known_subtype": null,
+            "is_error": "true"
+          },
+          "failure_reason": {
+            "shape": "null",
+            "http_status": null
+          }
+        }
+      ],
+      "refusal": {
+        "refusal_code": "provider-result-failed",
+        "exception_kind": "fixture-refusal",
+        "errno": null
+      }
+    },
+    {
+      "synthetic_assistant_error": "rate_limit",
+      "normalized_frames": [
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-intent"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-completed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-response-observed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-result-validation",
+          "result_fields": {
+            "subtype": "success",
+            "known_subtype": null,
+            "is_error": "true"
+          },
+          "failure_reason": {
+            "shape": "null",
+            "http_status": null
+          }
+        }
+      ],
+      "refusal": {
+        "refusal_code": "provider-result-failed",
+        "exception_kind": "fixture-refusal",
+        "errno": null
+      }
+    },
+    {
+      "synthetic_assistant_error": "invalid_request",
+      "normalized_frames": [
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-intent"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-completed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-response-observed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-result-validation",
+          "result_fields": {
+            "subtype": "success",
+            "known_subtype": null,
+            "is_error": "true"
+          },
+          "failure_reason": {
+            "shape": "null",
+            "http_status": null
+          }
+        }
+      ],
+      "refusal": {
+        "refusal_code": "provider-result-failed",
+        "exception_kind": "fixture-refusal",
+        "errno": null
+      }
+    },
+    {
+      "synthetic_assistant_error": "server_error",
+      "normalized_frames": [
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-intent"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-completed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-response-observed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-result-validation",
+          "result_fields": {
+            "subtype": "success",
+            "known_subtype": null,
+            "is_error": "true"
+          },
+          "failure_reason": {
+            "shape": "null",
+            "http_status": null
+          }
+        }
+      ],
+      "refusal": {
+        "refusal_code": "provider-result-failed",
+        "exception_kind": "fixture-refusal",
+        "errno": null
+      }
+    },
+    {
+      "synthetic_assistant_error": "unknown",
+      "normalized_frames": [
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-intent"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-write-completed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-response-observed"
+        },
+        {
+          "event": "diagnostic",
+          "arm": "restored-first",
+          "operation": "turn",
+          "turn": 1,
+          "stage": "provider-result-validation",
+          "result_fields": {
+            "subtype": "success",
+            "known_subtype": null,
+            "is_error": "true"
+          },
+          "failure_reason": {
+            "shape": "null",
+            "http_status": null
+          }
+        }
+      ],
+      "refusal": {
+        "refusal_code": "provider-result-failed",
+        "exception_kind": "fixture-refusal",
+        "errno": null
+      }
+    }
+  ],
+  "limitation": "Synthetic documented assistant.error inputs, not recovered live frames or proof of fixed-image emission.",
+  "expected_gain": "A future closed observation of this existing top-level field could distinguish categories even when result.api_error_status is null; no raw content is needed."
+}

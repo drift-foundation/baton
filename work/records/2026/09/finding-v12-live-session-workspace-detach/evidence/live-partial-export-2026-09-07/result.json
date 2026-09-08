@@ -1,0 +1,33 @@
+{
+  "cleanup": [
+    {
+      "confirmed": true,
+      "nonce": "7454d660d057412d86e0f2f8c0fd018f"
+    },
+    {
+      "confirmed": true,
+      "nonce": "d9186c0160eb43baa41ef60356b103b3"
+    }
+  ],
+  "cleanup_confirmed": true,
+  "consumption_and_admission": "denied",
+  "diagnostic": {
+    "errno": null,
+    "exception_kind": "fixture-refusal",
+    "stage": "pair"
+  },
+  "elapsed_seconds_before_result_export": 20.26228991500102,
+  "failure_code": "execution-refused",
+  "limitations": [
+    "Preparation only: no live credentials, Docker runtime, network request or model turn executed.",
+    "Six live options and combined live argv are unverified; --max-turns was absent from accepted help.",
+    "Actual stream model claude-fable-5 is a required but unverified observation; argument is claude-fable-5[1m].",
+    "USD1 per CLI invocation / nominal USD3 is not a verified hard billing or subscription quota cap; reported-cost checks occur after execution.",
+    "Built-in bridge ID resolves at authorized run; ordinary Docker outbound is not provider-only enforcement.",
+    "One fixed-order pair cannot attribute cache, context reload, sampling or provider-internal effects.",
+    "Four user turns maximum, 180s per turn; 720s work cutoff reserves 180s ending within 900s runtime deadline. Result/export flushing follows ending.",
+    "Host SIGKILL or uninterruptible kernel operations are not guaranteed recoverable; uncertainty keeps gates closed and retains credentials.",
+    "Disposable fixture store/gate and source snapshot do not prove production-manager restart recovery or adoption."
+  ],
+  "outcome": "failed-or-inconclusive"
+}

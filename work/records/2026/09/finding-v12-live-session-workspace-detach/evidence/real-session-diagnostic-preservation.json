@@ -1,0 +1,13 @@
+{
+  "base_sha256": "73db1f08356e792b4e3bcb0baa871223c628491664245043b4282628ec9fc1c1",
+  "candidate_sha256": "1015c1ddbd038d13379665443452a9112d4655b7c4ea0199ddccf65c599384e6",
+  "patch_sha256": "f375848a5c23ae64a6ae0c881fd077353452d8ce46f527e7f89bdc3b2ffd33e3",
+  "preserved": [
+    "original script bytes",
+    "four original LocalTests methods and assertions",
+    "initialized correlation checks",
+    "checked_container identity/posture/mount guards",
+    "IMAGE VERSION CLI LIMIT FLAGS ENV",
+    "exact Docker create/stop calls"
+  ]
+}

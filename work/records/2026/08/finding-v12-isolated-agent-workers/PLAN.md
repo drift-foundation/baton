@@ -783,3 +783,26 @@ whose prerequisites have closed are actionable.
     authorized provider-image update, record the base tag and digest,
     architecture, `/etc/os-release`, language/provider versions, rationale and
     validation evidence; never inherit a moving base silently.
+38. [confirmed 2026-09-07; later M4; implementation deferred] Support direct
+    model APIs through provider-specific wrappers inside Docker, with no
+    required vendor CLI. Keep the reusable assignment/conversation/tool runner
+    separate from provider transport and preserve the existing worker
+    lifecycle and artifact contracts. This expands the earlier named-provider
+    certification direction to additional models and non-coding assignments;
+    it does not schedule an integration now. After the current standalone v12
+    critical path, scope provider selection and capability checks for the
+    proposed first API-backed research assignment through retained result.
+    See FINDING.md, "API-backed model workers without a required vendor CLI".
+    No pool changes or live provider calls are authorized by this roadmap item.
+    Deferred follow-up is now bound as W111793 at
+    `work/records/2026/09/finding-v12-api-model-adapters-and-testing/`, including
+    regression, performance, stress, fuzzing and vulnerability testing roles.
+    Created under ops for operator parking; no W71830 dependency or execution.
+39. [confirmed 2026-09-07; current scope constraint] Keep the standalone proof
+    minimal and safe. Defer the general clean-verifier service proposed during
+    W110772 planning; seek the smallest real verification arrangement through
+    existing isolated facilities alongside the concrete lifecycle correction.
+    Identify any necessary verification-contract change explicitly for owner
+    disposition. Preserve isolation, authorized writes, exact evidence binding,
+    independent review and honest results. See FINDING.md, "Minimal safe
+    standalone critical path", and W110772's current FINDING/PLAN direction.

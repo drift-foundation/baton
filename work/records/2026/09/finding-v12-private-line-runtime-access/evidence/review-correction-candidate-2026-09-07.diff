@@ -1,0 +1,54 @@
+--- reviewed-09d99499/test_private_line_access_engine.py
++++ corrected-20981569/test_private_line_access_engine.py
+@@ -489,7 +489,7 @@
+         self.assertEqual((again.st_dev, again.st_ino),
+                          (before.st_dev, before.st_ino))
+ 
+-        _adapter, facts = self.launched(
++        adapter, facts = self.launched(
+             attempt_id="writer-attempt-2", roots=delivered["roots"],
+             boundary=delivered["boundary"], program=self.CORRECTION_PROGRAM)
+         self.assertIn(fixture.group.gid, facts["groups"])
+@@ -500,7 +500,41 @@
+         self.assertEqual(facts["head"], self.head_of(line["path"]))
+         self.assertNotEqual(facts["head"], first_head)
+         self.assertEqual(self.head_of(line["path"], "HEAD~1"), first_head)
+-        # AND THE REVIEWED CHECKPOINT STILL RESOLVES to what was reviewed.
++
++        # AND THE MANAGER FINISHES THE ROUND, which is what makes this a
++        # correction rather than a container that happened to write. A second
++        # turn that stopped at file and revision checks would prove the runtime
++        # and leave the lifecycle half of the round untested.
++        fixture.complete("writer-attempt-2")
++        again_subject = adapter.prove_line_consumable(
++            fixture.store, assignment_id="writer-attempt-2", generation=2)
++        self.assertEqual(again_subject["line_path"], line["path"])
++        self.assertEqual(again_subject["line_id"], line["line_id"])
++        self.assertEqual(again_subject["pinned"],
++                         (before.st_dev, before.st_ino))
++        self.assertEqual(
++            again_subject["custody_path"],
++            os.path.join(os.path.dirname(line["path"]), "custody",
++                         "writer-attempt-2"))
++
++        # THE SECOND CHECKPOINT IS FROZEN OVER THE SECOND RUNTIME'S COMMIT.
++        corrected = fixture.freeze(second, 2)
++        evidence = corrected["evidence"]
++        self.assertEqual(evidence["head"], facts["head"])
++        self.assertEqual(evidence["base"], held["base"])
++        self.assertIn("tracked", evidence["paths"])
++        self.assertNotEqual(evidence["reference"], reference)
++        self.assertEqual(self.head_of(line["path"], evidence["reference"]),
++                         facts["head"])
++
++        # AND THE REVIEWED CHECKPOINT IS STILL AUDIT EVIDENCE, asked through
++        # the API that owns that question rather than by resolving a ref.
++        from baton_v12.worker_manager import audit_checkpoint
++        audited = audit_checkpoint(fixture.store,
++                                   checkpoint["checkpoint_id"],
++                                   fixture.profile)
++        self.assertEqual(audited["head"], first_head)
++        self.assertEqual(audited["reference"], reference)
+         self.assertEqual(self.head_of(line["path"], reference), first_head)
+         self.assertEqual((os.stat(line["path"]).st_dev,
+                           os.stat(line["path"]).st_ino),

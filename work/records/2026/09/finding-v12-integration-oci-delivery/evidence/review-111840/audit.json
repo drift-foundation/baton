@@ -1,0 +1,37 @@
+{
+  "v12/python/src/baton_v12/integration/oci_delivery.py": {
+    "expected": "4820072698107589c9deb5a2f3416a05f65b34d50b0481a2a9b1a933509a2a78",
+    "actual": "4820072698107589c9deb5a2f3416a05f65b34d50b0481a2a9b1a933509a2a78",
+    "matches": true
+  },
+  "v12/python/src/baton_v12/integration/runtime.py": {
+    "expected": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+    "actual": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+    "matches": true
+  },
+  "v12/python/src/baton_v12/worker_manager/oci.py": {
+    "expected": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+    "actual": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+    "matches": true
+  },
+  "v12/python/tests/manager/test_oci_integration.py": {
+    "expected": "0c2907f5a7a4fd926c8bee1a4db3ad575a7aabcbf4c8d44c60c1cef88a435689",
+    "actual": "0c2907f5a7a4fd926c8bee1a4db3ad575a7aabcbf4c8d44c60c1cef88a435689",
+    "matches": true
+  },
+  "v12/python/tests/integration/test_runtime.py": {
+    "expected": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+    "actual": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+    "matches": true
+  },
+  "v12/python/tests/manager/test_dependencies.py": {
+    "expected": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+    "actual": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+    "matches": true
+  },
+  "v12/python/tools/parallel_test.py": {
+    "expected": "39b161a50e6e58ecfa6001c022532c23f9518779c85ce94c9dd1dace624318be",
+    "actual": "39b161a50e6e58ecfa6001c022532c23f9518779c85ce94c9dd1dace624318be",
+    "matches": true
+  }
+}

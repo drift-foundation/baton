@@ -1,0 +1,36 @@
+{
+  "derived_bundle": true,
+  "entry_status": 0,
+  "test_scope": [
+    "v12/python/tests/job_manager"
+  ],
+  "authority_rows": [],
+  "provider_turns": 1,
+  "actual_test": "def test_invariant():\n    assert True\n",
+  "observed": {
+    "state": "answered",
+    "result": {
+      "attempt_id": "attempt-bundle",
+      "canonical_target_id": "target:ordinary-admission",
+      "detail": {
+        "imported_paths": [
+          "tests/test_unscheduled_review_114486.py"
+        ],
+        "verification": {
+          "argv": [
+            "python3",
+            "harness.py"
+          ],
+          "status": 0
+        }
+      },
+      "entry_id": "entry-bundle",
+      "fence": 1,
+      "lease_id": "lease-bundle",
+      "outcome": "integrated",
+      "schema": "baton.v12.integration-result/1"
+    },
+    "hold": null
+  },
+  "limit": "Provider fixture executes the import and does not semantically evaluate review text; this exposes missing consumer instructions/guard and does not prove a real model would comply or producer would originate this altered evidence."
+}

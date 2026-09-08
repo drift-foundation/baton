@@ -922,3 +922,197 @@ No proposal manifest or digest was supplied. Item 3b and items 4-9 remain
 outside this review and unimplemented; under the owner disposition they return
 to operations for ordered child-Work decomposition while W71878 remains their
 umbrella.
+
+## 2026-09-06 — SUPERSESSION: two members of the candidate account had no producer
+
+**This supersedes part of "2026-09-06 — item 3 seventh correction: decisions
+taken" above.** That section replaced four version-control operands with a
+closed versioned profile binding of THREE members -- `profile_kind`,
+`profile_version` and `profile_account_digest` -- and that decision was right
+about the direction and wrong about two of the three. The old text stays where
+it is: the reasoning that was superseded is how the next reader knows why the
+current rule is not the obvious one.
+
+**What went wrong.** The clarification asked for "a closed profile kind/version
+and profile-validated account or digest", and I minted three members to satisfy
+the sentence without asking who would ever PRODUCE them. Admission (W101491)
+found it immediately: it can re-read Authority's proposal, verification, review
+and approval receipts and W71918's line and checkpoint evidence, and neither
+produces a `profile_account_digest` or a `profile_version`. Both existed only
+at this coordinator's own receiving seam and in its fixtures -- which means an
+entry could only ever carry a CALLER'S CLAIM about them, and an account
+assembled from caller claims cannot support the scope-mismatch refusal this
+record requires.
+
+**The correction, member by member, checked against the tree rather than
+against this record's prose:**
+
+- `profile_account_digest` is REMOVED. The profile-shaped account that exists
+  IS W71918's checkpoint evidence -- `{base, head, tree, paths,
+  path_set_digest, profile, reference}` -- and `review_cycles.freeze` computes
+  `checkpoint_digest = digest(evidence)` and the verdict row copies it. So the
+  account is already bound by a member of this account, with a producer, and
+  cross-bound to the accepted disposition. A second member holding the digest
+  of the same document is a second owner of one fact, which is the defect this
+  record has now caught three times in other places.
+- `profile_version` is REMOVED. It has no producer, and the version that
+  matters is the one the RUNTIME profile carries in W101490's boundary. That is
+  deployment WIRING, not candidate evidence, and an immutable account
+  describing one candidate is the wrong place to keep it: a redeployment that
+  bumps a runtime profile version does not change which candidate was accepted.
+- `profile_kind` STAYS, redefined as the accepted checkpoint evidence's own
+  `profile` member -- `source_profiles`' `GENERIC_PROFILE` or `GIT_PROFILE` --
+  which is re-resolvable and is already validated where the evidence is read.
+  It is a profile NAME; what that profile means stays outside core, so the
+  VCS-neutral boundary is unchanged.
+- `scope_digest` STAYS, and this record had never named its producer either.
+  It has one: the accepted Job's `test_scope`, which `JOB_MEMBERS` requires,
+  `job_manager/submission.py` persists and `job_manager/schema.py` holds as a
+  `NOT NULL` json column. Admission re-resolves `digest(test_scope)` from the
+  Job store rather than believing a caller.
+
+**The account is therefore FOURTEEN members**, every one of them re-resolvable
+by admission from an accepted producer: `authority_uuid`, `work_id`,
+`assignment_generation`, `line_id`, `checkpoint_id`, `verdict_id`,
+`checkpoint_digest`, `proposal_id`, `candidate_digest`,
+`proposal_manifest_digest`, `profile_kind`, `expected_target_revision`,
+`path_set_digest`, `scope_digest`.
+
+**The rule this leaves behind, which is the part worth keeping.** A member of
+an immutable evidence account needs a NAMED PRODUCER before it is minted, not
+after. The test is not "can this build validate its type" -- all three of these
+were typed, and two of them were still unprovable -- but "which accepted act
+computed it, and how does a later reader recompute it from that act". A member
+that fails that test is a caller's claim wearing an account's clothes.
+
+## 2026-09-06 — W101714 first independent review: supersession incomplete
+
+The append-only review at `review-2026-09-06T12-59-53Z.md` confirms the
+mechanical removal of `profile_version` and `profile_account_digest`, but finds
+that the claimed producer audit stopped early. `proposal_manifest_digest`
+remains in the proposed account even though neither Authority's Python
+proposal nor its receipts produce it, and this record's admission child had
+already observed that the static worker-control schema supplies no accepted
+cross-binding. The new producer test only counts members, so it cannot catch
+the retained caller claim.
+
+The review also finds that the fixture's `repository` profile kind is not one
+of the `generic`/`git` values emitted by the checkpoint producer this
+supersession names, and that the actionable PLAN plus queue/schema commentary
+still state the superseded three-member, schema-version-2 contract. W101714
+therefore remains changes-requested and must not unblock admission yet. No
+immutable proposal digest was supplied or approved.
+
+## 2026-09-06 — the same rule, applied to the members I KEPT
+
+`review-2026-09-06T12-59-53Z.md` found that W101714 had applied its own rule to
+the members it removed and not to the ones it retained.
+`proposal_manifest_digest` was in exactly the state `profile_version` and
+`profile_account_digest` were in: the name exists in the frozen worker-control
+JSON schema's proposal-publish body and in this coordinator, and NO accepted
+Python operation produces it. I had assigned it to "Authority's
+proposal/verification receipts" from memory. Those documents carry
+`candidate_digest`, `result_id`, `result_digest`, `input_digest`,
+`policy_digest` and `target`; they do not carry a manifest digest.
+
+**THE ACCEPTED PUBLISH OPERATION'S OWN PAIR REPLACES IT.** `result_id` and
+`result_digest` are required operands of Authority's `publish` and columns of
+its `proposal` row -- the frozen result's identity and its content digest,
+which is what a manifest digest was reaching for. They travel together because
+half a binding is what this record already refused for `checkpoint_id` and
+`checkpoint_digest`. The account is FIFTEEN members and the store shape is
+`SCHEMA_VERSION` 4.
+
+**And one producer I had named wrongly.** The supersession above says
+`expected_target_revision` comes from "trusted target configuration through the
+coordinator's target row". It does not: the target document is a name and a
+description and carries no revision at all. Its producer is Authority's
+`publish` operand and `proposal.target` column, which is what the account
+copies.
+
+**Why the first correction missed it, and what stops the third.** The
+regression I wrote asserted that two names were absent and that the tuple was
+fourteen long. It passed while its own title was false, because COUNTING
+MEMBERS CANNOT FIND A MEMBER WITHOUT A PRODUCER. What can is naming the surface
+each member claims to come from and asking that surface whether it offers the
+name -- `attempts.ASSIGNMENT_COLUMNS`, `CHECKPOINT_VERDICT_COLUMNS`, the
+Authority `proposal` table built from its own `SCHEMA`, `JOB_COLUMNS`, and
+`source_profiles.PROFILES` -- for EVERY member rather than for the ones
+somebody remembered. That is `EveryMemberOfTheAccountHasAProducer`.
+
+The fixture also asserted a `profile_kind` of `repository`, which the named
+producer cannot emit: the accepted checkpoint evidence's `profile` member is
+`generic` or `git`. A fixture demonstrating that the coordinator accepts
+arbitrary text demonstrates something that was already true. It now spells its
+values the way their producers compute them, including
+`path_set_digest = digest(paths)` and `scope_digest = digest(test_scope)`.
+
+**The rule, restated because it took three tries to apply it completely:** the
+question is never "is this member typed" but "which accepted act computed it,
+and how does a later reader recompute it from that act" -- asked of every
+member, including the ones a correction is keeping.
+
+## 2026-09-06 — W101714 second independent review: producer proof still partial
+
+The append-only re-review at `review-2026-09-06T13-25-26Z.md` confirms that the
+unsupported `proposal_manifest_digest` is now replaced consistently by
+Authority's accepted `result_id`/`result_digest` pair and that the fixture uses
+a real profile name. It also confirms the resulting schema-version-4 account
+passes the focused suite.
+
+Two bounded gaps remain. The producer regression manufactures
+`{"profile_kind"}` instead of reading the checkpoint evidence contract, so it
+would pass even if that accepted producer stopped carrying `profile`. The
+actionable parent and admission-child plans also still require removed
+`proposal_manifest_digest` or `profile_account_digest` members despite the new
+15-member account. W101714 therefore remains changes-requested; no immutable
+proposal digest was supplied or approved.
+
+## 2026-09-06 — a proof that manufactures its own evidence proves nothing
+
+`review-2026-09-06T13-25-26Z.md` accepted the `result_id`/`result_digest`
+correction and found two [P1]s. The first is worth a rule.
+
+**THE PRODUCER MAP MANUFACTURED ONE OF ITS OWN SURFACES.** The map I built to
+stop members without producers had, for the checkpoint evidence, the literal
+`{"profile_kind"}` -- a set written by the test asserting that the test's own
+member is in it. Both profile cases would have kept passing if the accepted
+evidence dropped its `profile` member entirely, which is precisely the question
+the map exists to ask. It is the same defect as the count-only version it
+replaced, one level less obvious: A PROOF IS ONLY AS GOOD AS THE SURFACE IT
+READS, AND A SURFACE THE PROOF WRITES IS NOT ONE.
+
+The surface is now `worker_manager.schema.LINE_CHECKPOINT_COLUMNS["evidence"]
+.members`, W71918's own closed member set for the document
+`checkpoint_profiles.freeze` produces. The account RENAMES that member --
+evidence carries `profile`, the entry copies it as `profile_kind` -- and the
+rename is stated in the map rather than hidden, so if `profile` goes the
+surface offers nothing and the map fails.
+
+The value side is bound too: `freeze` writes `source_profiles.GIT_PROFILE` into
+that member, and the account's copy is compared to that constant rather than to
+a word this suite chose. Freezing for real needs a repository and a command
+runner, which would be Git reaching into a suite whose subject is a coordinator
+that must not know what Git is; the constant and the member set are the two
+halves that can be read without it, and both are read.
+
+**And two actionable plans still required removed members.** The parent's item
+4 still said "do not equate ... `proposal_manifest_digest`", and the admission
+child's plan was still BLOCKED on re-resolving `profile_account_digest` and
+still asked K for an account that no longer exists. A confirmed decision leaves
+ONE current actionable rule; two incompatible ones is worse than either, and
+this record has now had to say that twice in two rounds about the same
+correction. Both plans name the fifteen-member account and its producers, with
+the old FINDING sections kept as chronological history.
+
+## 2026-09-06 — W101714 third independent review: bounded sign-off
+
+`review-2026-09-06T13-37-51Z.md` signs off the producer-account correction with
+no findings. The profile regression now reads the accepted checkpoint-evidence
+member contract, explicitly maps `profile` to `profile_kind`, and binds the
+stored value to the producer's `GIT_PROFILE`. The parent and admission-child
+plans name the same current 15-member account and the child is unblocked.
+
+The focused coordinator/runtime gate passes 286 tests with one host-group skip.
+No immutable proposal digest was supplied, so this is a bounded semantic and
+working-tree sign-off rather than digest-bound approval of candidate bytes.

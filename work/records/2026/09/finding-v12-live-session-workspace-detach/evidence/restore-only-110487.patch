@@ -1,0 +1,272 @@
+--- work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_diagnostic.py
++++ work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_restore.py
+@@ -1,4 +1,4 @@
+-"""W106673 diagnostic candidate. --audit is read-only/offline; --run is disabled.
++"""W106673 restored-only candidate. --audit is offline; --run needs separate operator approval.
+ 
+ No arbitrary image/model/credential/network/target operands, build, pull, retry,
+ production manager invocation or live coordination-store access. Fixture-only.
+@@ -32,7 +32,7 @@
+ DELAY_NS = 5_000_000_000
+ DOCKER_ENV = dict(PATH="/usr/bin:/bin", HOME="/nonexistent", DOCKER_CONFIG="/nonexistent")
+ DOCKER = ["/usr/bin/docker", "--host", "unix:///var/run/docker.sock"]
+-MANIFEST = HERE / "live-diagnostic-manifest.json"
++MANIFEST = HERE / "restore-only-manifest.json"
+ 
+ 
+ def digest(path):
+@@ -73,7 +73,7 @@
+         sys.exit(1)
+ 
+ import host_runner as base
+-import live_supervisor_diagnostic as wire
++import live_supervisor_restore as wire
+ import real_session_contract as contract
+ require = wire.require
+ 
+@@ -176,7 +176,7 @@
+     "credential-imports", "source-reader-import", "volatile-home-check", "credential-home-create",
+     "source-registry-create", "source-registry-write", "source-registry-permissions", "source-reader-construct",
+     "credential-home-construct", "fixture-store-open", "fixture-group-configure", "fixture-group-read",
+-    "private-resource-record", "setup-complete", "pair", "fixture-store-close"))
++    "private-resource-record", "setup-complete", "restoration", "fixture-store-close"))
+ 
+ 
+ def safe_exception(error, stage):
+@@ -327,7 +327,7 @@
+         host_turn_writes_observed=0, provider_turn_writes_observed=0, provider_results_observed=0,
+         validated_turn_completions=0, verified_consumptions=0, actual_models=[],
+         retained_correction_verified=False, restore_initialization_observed=False,
+-        restored_correction_verified=False, matched_pair_verified=outcome.get("outcome") == "live-pair-passed")
++        restored_correction_verified=False, matched_pair_verified=False, restoration_verified=outcome.get("outcome") == "restored-only-passed")
+     for fixture in fixtures:
+         for event in fixture.events:
+             action = event["action"]
+@@ -357,7 +357,7 @@
+         "Milestones describe observations in this invocation; missing observations do not prove no dispatch or side effect occurred.",
+         "Host command write, provider user-frame write, provider result observation and validated completion are distinct boundaries.",
+         "Actual model was observed in a validated completion." if observed["actual_models"] else "Actual model has no validated completion observation in this invocation.",
+-        "Matched pair was verified in this invocation." if observed["matched_pair_verified"] else "No matched comparison is established by this invocation; accepted earlier retained proof remains separate evidence.",
++        "No matched comparison is established: this is separately timed restored-only evidence; accepted earlier retained proof remains separate.",
+         "Nominal turn/budget options do not establish hard billing or subscription limits; reported-cost checks occur after execution.",
+         "Ordinary bridge egress is not provider-only enforcement. Provider/cache costs and production adoption remain unproved.",
+         "One fixture run does not prove production-manager restart recovery; unknown ending outcomes keep future work closed."]
+@@ -410,7 +410,7 @@
+ def export_evidence(root):
+     """Copy only controller-owned projections; never walk private/session trees."""
+     names = ["package.json", "network.json", "arms.json", "result.json", "setup.json"]
+-    names += [f"{arm}/{name}.json" for arm in ("retained-first", "restored-first", "restored-second") for name in ("events", "gate")]
++    names += [f"{arm}/{name}.json" for arm in ("restored-first", "restored-second") for name in ("events", "gate")]
+     destination = Path(tempfile.mkdtemp(prefix="baton-w106673-live-export-", dir="/tmp"))
+     hashes = {}
+     for name in names:
+@@ -458,7 +458,7 @@
+         self.delivery = None
+         self.create_started = False
+         self.arm = name
+-        require(self.arm in wire.ARMS - {"unassigned"}, "diagnostic-arm-invalid")
++        require(self.arm in ("restored-first", "restored-second"), "diagnostic-arm-invalid")
+         self.active_turn = 0
+         self.operation = "start"
+         self.live_stage = "created"
+@@ -570,7 +570,7 @@
+     @diagnostic_operation("start")
+     def start(self):
+         script = self.directory / "live_supervisor.py"
+-        script.write_bytes((HERE / "live_supervisor_diagnostic.py").read_bytes())
++        script.write_bytes((HERE / "live_supervisor_restore.py").read_bytes())
+         os.chmod(script, 0o444)
+         self.delivery = self.credentials.materialize(self.nonce)
+         credential, target = self.delivery.mounts()[0]
+@@ -622,6 +622,7 @@
+     @diagnostic_operation("turn")
+     def turn(self, prompt):
+         self.active_turn += 1
++        require(self.active_turn <= 1, "user-turn-limit")
+         self.observe("turn-intent", "turn")
+         try:
+             self.observe("pre-turn-quiescence")
+@@ -713,55 +714,67 @@
+     return answer
+ 
+ 
+-def execute_pair(root, network, credentials, deadline, fixtures):
++def verify_restoration(row):
++    require(row["first_artifact_verified"] is True and row["correction_verified"] is True
++            and row["consumption_receipts_verified"] is True, "restoration-verification-missing")
++    require(row["old_container_shutdown_confirmed"] is True and row["final_shutdown_confirmed"] is True,
++            "restoration-stop-unconfirmed")
++    require(row["workspace_before"] == row["workspace_after"], "restoration-workspace-changed")
++    require(type(row["session_before"]) is str and wire.SESSION.fullmatch(row["session_before"])
++            and row["session_before"] == row["session_after"] == row["resume_requested"], "restoration-session-changed")
++    require(row["process_before"] != row["process_after"], "restoration-process-not-replaced")
++    require(row["image"] == IMAGE and row["model"] == wire.MODEL and row["actual_model"] == wire.ACTUAL_MODEL
++            and row["cli_version"] == wire.VERSION, "restoration-runtime-drift")
++    values = [row[key] for key in ("end_of_work_ns", "review_ready_ns", "correction_dispatch_ns",
++                                   "correction_done_ns", "verified_correction_ns")]
++    require(all(type(value) is int and value >= 0 for value in values) and values == sorted(values), "restoration-clock-order")
++    return dict(end_to_verified_correction_ns=row["verified_correction_ns"] - row["end_of_work_ns"],
++                review_readiness_ns=row["review_ready_ns"] - row["end_of_work_ns"],
++                correction_response_ns=row["correction_done_ns"] - row["correction_dispatch_ns"],
++                final_revocation_and_verification_ns=row["verified_correction_ns"] - row["correction_done_ns"])
++
++
++def execute_restoration(root, network, credentials, deadline, fixtures):
+     token = uuid.uuid4().hex
+     prompt = contract.first_prompt(token)
+-    common = dict(image=IMAGE, model=wire.MODEL, cli_version=wire.VERSION,
++    first = Fixture(root, "restored-first", network, credentials, deadline)
++    fixtures.append(first)
++    require(not list(first.workspace.iterdir()), "initial-workspace-not-empty")
++    measured(first, "initial-runtime-start", first.start)
++    before = first.process_identity()
++    _, end, _ = first.turn(prompt)
++    row = dict(image=IMAGE, model=wire.MODEL, cli_version=wire.VERSION,
+         initial_prompt_sha256=hashlib.sha256(prompt.encode()).hexdigest(),
+         correction_prompt_sha256=hashlib.sha256(contract.CORRECTION.encode()).hexdigest(),
+-        initial_bytes_sha256=hashlib.sha256(b"").hexdigest(), review_delay_ns=DELAY_NS)
+-    results = {}
+-    for arm in ("retained", "restored"):
+-        first = Fixture(root, arm + "-first", network, credentials, deadline)
+-        fixtures.append(first)
+-        require(not list(first.workspace.iterdir()), "initial-workspace-not-empty")
+-        measured(first, "initial-runtime-start", first.start)
+-        before = first.process_identity()
+-        _, end, _ = first.turn(prompt)
+-        row = dict(common, process_before=before, workspace_before=first.workspace_pin,
+-                   session_before=first.session, end_of_work_ns=end)
+-        operation = first.detach if arm == "retained" else first.shutdown
+-        receipt = measured(first, "first-detach" if arm == "retained" else "first-stop", operation)
+-        row["first_artifact_verified"] = first.consume(receipt, token, False)
+-        row["review_ready_ns"] = time.monotonic_ns()
+-        require(deadline - time.monotonic() > 5, "review-deadline")
+-        time.sleep(DELAY_NS / 1e9)
+-        if arm == "retained":
+-            current = first
+-            measured(first, "reattach", first.attach)
+-            first.quiescent()
+-        else:
+-            require(first.stopped and first.gate.value["phase"] == "reviewed", "replacement-before-reviewed-stop")
+-            first.finish()
+-            current = Fixture(root, "restored-second", network, credentials, deadline,
+-                workspace=first.workspace, session_home=first.session_home, session=first.session, resume=True)
+-            fixtures.append(current)
+-            measured(current, "replacement-start-and-initialize", current.start)
+-            row.update(old_container_shutdown_confirmed=True, resume_requested=first.session)
+-        began, done, answer = current.turn(contract.CORRECTION)
+-        row.update(correction_dispatch_ns=began, correction_done_ns=done, session_after=answer["session"],
+-                   process_after=current.process_identity(), workspace_after=base.pin(current.workspace),
+-                   actual_model=answer["actual_model"])
+-        row["correction_verified"] = current.consume(measured(current, "final-detach", current.detach), token, True)
+-        row["verified_correction_ns"] = time.monotonic_ns()
+-        row["consumption_receipts_verified"] = True
+-        if arm == "retained":
+-            row["pidfd_continuously_live"] = not select.select([current.cli_fd], [], [], 0)[0]
+-        current.shutdown()
+-        current.finish()
+-        results[arm] = row
+-        base.save(root / "arms.json", results)
+-    return dict(outcome="live-pair-passed", arms=results, timings=contract.comparable(results["retained"], results["restored"]))
++        initial_bytes_sha256=hashlib.sha256(b"").hexdigest(), review_delay_ns=DELAY_NS,
++        process_before=before, workspace_before=first.workspace_pin, session_before=first.session, end_of_work_ns=end)
++    receipt = measured(first, "first-stop", first.shutdown)
++    row["first_artifact_verified"] = first.consume(receipt, token, False)
++    row["review_ready_ns"] = time.monotonic_ns()
++    require(first.stopped and first.gate.value["phase"] == "reviewed", "replacement-before-reviewed-stop")
++    row.update(old_container_shutdown_confirmed=True, resume_requested=first.session)
++    base.save(root / "arms.json", {"restored": row})
++    require(deadline - time.monotonic() > 5, "review-deadline")
++    time.sleep(DELAY_NS / 1e9)
++    first.finish()
++    current = Fixture(root, "restored-second", network, credentials, deadline,
++        workspace=first.workspace, session_home=first.session_home, session=first.session, resume=True)
++    fixtures.append(current)
++    measured(current, "replacement-start-and-initialize", current.start)
++    began, done, answer = current.turn(contract.CORRECTION)
++    row.update(correction_dispatch_ns=began, correction_done_ns=done, session_after=answer["session"],
++               process_after=current.process_identity(), workspace_after=base.pin(current.workspace), actual_model=answer["actual_model"])
++    row["correction_verified"] = current.consume(measured(current, "final-detach", current.detach), token, True)
++    row["verified_correction_ns"] = time.monotonic_ns()
++    row["consumption_receipts_verified"] = True
++    base.save(root / "arms.json", {"restored": row})
++    current.shutdown()
++    current.finish()
++    row["final_shutdown_confirmed"] = current.stopped is True
++    timings = verify_restoration(row)
++    base.save(root / "arms.json", {"restored": row})
++    return dict(outcome="restored-only-passed", experiment="restored-only-separate-run", arms={"restored": row},
++                restoration_timings=timings, matched_comparison=False)
+ 
+ 
+ def run():
+@@ -777,14 +790,14 @@
+     credentials = None
+     original_groups = os.getgroups()
+     began = time.monotonic()
+-    deadline = began + 720  # Reserve the final 180 seconds of the 900s run for ending.
+-    overall_deadline = began + 900
++    deadline = began + 420  # Two turns plus setup/review; reserve 180 seconds for ending.
++    overall_deadline = began + 600
+     outcome = dict(outcome="failed-or-inconclusive", consumption_and_admission="denied", cleanup_confirmed=False)
+     def expired(*_):
+         raise wire.Refusal("overall-timeout")
+     signal.signal(signal.SIGALRM, expired)
+     signal.signal(signal.SIGTERM, expired)
+-    signal.setitimer(signal.ITIMER_REAL, 720)
++    signal.setitimer(signal.ITIMER_REAL, 420)
+     try:
+         setup.enter("image-inspect")
+         image = json.loads(docker("image", "inspect", IMAGE))[0]
+@@ -801,8 +814,8 @@
+         runtime = snapshot_runtime(root, manifest)
+         credentials = Credentials()
+         credentials.prepare(root, runtime, setup)
+-        setup.enter("pair")
+-        outcome = execute_pair(root, network["Id"], credentials, deadline, fixtures)
++        setup.enter("restoration")
++        outcome = execute_restoration(root, network["Id"], credentials, deadline, fixtures)
+     except BaseException as error:
+         # Do not serialize exception messages, stderr, transcripts or credential contents.
+         outcome["outcome"] = "failed-or-inconclusive"
+@@ -847,7 +860,7 @@
+         outcome["elapsed_seconds_before_result_export"] = time.monotonic() - began
+         base.save(root / "result.json", outcome)
+         print(export_evidence(root), flush=True)
+-    return 0 if outcome["outcome"] == "live-pair-passed" else 1
++    return 0 if outcome["outcome"] == "restored-only-passed" else 1
+ 
+ 
+ if __name__ == "__main__":
+@@ -861,8 +874,7 @@
+             found = audit()
+             print(json.dumps(dict(outcome="offline-hash-audit-passed", files=len(found["files"]))))
+             sys.exit(0)
+-        print('{"outcome":"execution-scope-not-selected"}')
+-        sys.exit(2)
++        sys.exit(run())
+     except Exception:
+         print('{"outcome":"refused-before-result"}')
+         sys.exit(1)
+--- work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_diagnostic.py
++++ work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_restore.py
+@@ -41,6 +41,11 @@
+ DIAGNOSTIC_STAGES = frozenset(("created", "command-validation", "provider-write-intent",
+     "provider-write-completed", "provider-response-observed", "provider-result-validation"))
+ REFUSAL_CODES = frozenset(('actual-model-drift', 'actual-model-unobserved', 'artifact-file-boundary', 'artifact-path-set', 'artifact-size-bound', 'artifact-verification-failed', 'builtin-bridge-unproved', 'choose-one-operation', 'cleanup-deadline', 'cli-exited', 'cli-host-identity-unproved', 'cli-parent-drift', 'cli-pid-reused', 'cli-pidfd-exited', 'cli-version-drift', 'command-not-allowed', 'consumer-workspace-drift', 'container-image-drift', 'container-label-drift', 'container-not-current', 'created-id-unrecognized', 'credential-home-not-volatile', 'credential-link-changed', 'credential-link-occupied', 'credential-release-before-shutdown', 'credential-slot-drift', 'diagnostic-arm-invalid', 'diagnostic-frame-invalid', 'diagnostic-frame-limit', 'diagnostic-operation-invalid', 'diagnostic-stage-invalid', 'docker-output-bound', 'docker-refused', 'duplicate-start', 'execution-scope-not-selected', 'export-file-boundary', 'fixture-only', 'host-write-incomplete', 'idle-process-tree-changed', 'image-missing-or-drift', 'init-exit-unconfirmed', 'init-exited-or-reused', 'init-session-changed', 'initial-workspace-missing', 'initial-workspace-not-empty', 'initialize-frame', 'initialize-rejected', 'input-bound', 'manifest-constants', 'namespace-survivor', 'namespace-workspace-drift', 'overall-deadline', 'overall-timeout', 'package-drift', 'process-list-shape', 'process-namespace-drift', 'process-privilege-drift', 'process-user-drift', 'process-workspace-cwd', 'prompt-bound', 'provider-result-failed', 'provider-turn-limit', 'provider-write-incomplete', 'replacement-before-reviewed-stop', 'reported-cost-limit', 'response-shape-invalid', 'result-session-changed', 'resume-input', 'review-deadline', 'runtime-already-imported', 'runtime-copy-drift', 'runtime-file-set-drift', 'runtime-mount-config-drift', 'runtime-posture-drift', 'runtime-source-symlink', 'runtime-user-drift', 'schema-package-incomplete', 'separate-root-operator-approval-required', 'session-input', 'shutdown-unconfirmed', 'stopped', 'stream-eof', 'stream-json', 'stream-line-bound', 'stream-shape', 'stream-timeout', 'stream-total-bound', 'supervisor-cli-identity-drift', 'supervisor-identity', 'supervisor-refused', 'turn-clock-order', 'turn-runtime-identity', 'unexpected-control-request', 'unexpected-idle-process-tree', 'unknown-diagnostic-stage', 'unknown-setup-resource', 'unknown-setup-stage', 'unrecognized-provider-frame', 'unsupported-namespace-posture', 'user-turn-limit'))
++
++
++REFUSAL_CODES = REFUSAL_CODES | frozenset(("restoration-verification-missing", "restoration-stop-unconfirmed",
++    "restoration-workspace-changed", "restoration-session-changed", "restoration-process-not-replaced",
++    "restoration-runtime-drift", "restoration-clock-order"))
+ 
+ 
+ def refusal_projection(error):
+@@ -143,7 +148,7 @@
+         require(command.get("arm") in ARMS - {"unassigned"}, "diagnostic-arm-invalid")
+         self.arm = command["arm"]
+         self.session = command["session"]
+-        self.limit = 1 if command["resume"] else 2
++        self.limit = 1  # Restored-only scope: exactly one possible user turn per container.
+         self.deadline = command["deadline"]
+         require(type(self.deadline) in (int, float) and math.isfinite(self.deadline)
+                 and 0 < self.deadline - time.monotonic() <= 900, "overall-deadline")

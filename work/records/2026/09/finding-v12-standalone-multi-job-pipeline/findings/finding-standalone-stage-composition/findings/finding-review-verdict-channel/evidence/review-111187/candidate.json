@@ -1,0 +1,6 @@
+{
+  "v12/worker/claude_agent.py": "4406af1acbd2e64e8daddee985fca67b4dd7a94b3b91927b06bc2dae98eac2c0",
+  "v12/python/src/baton_v12/job_manager/review_driver.py": "62db37ee8cd52bf99fc4e68b766841586f921324366e9e0191fc9618b33e6765",
+  "v12/python/tests/manager/test_claude_agent.py": "578fb990f033314f0f7f72292117bb6d2cfc8d96f6ee90e4511242cbdd6992f6",
+  "v12/python/tests/job_manager/test_review_driver.py": "21be540bbd03e44a7914582daac1125da7e8328a655ad089f7711f20158bde2b"
+}

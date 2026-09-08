@@ -1,0 +1,15 @@
+--- review-114371/tools/CODEX-COPILOT-NOTIFIER.md
++++ candidate/tools/CODEX-COPILOT-NOTIFIER.md
+@@ -104,6 +104,12 @@
+   ambiguous-start handling; no turn is interrupted or steered by the notifier.
+ - Reads again before the next send; resolved items are pruned. The model must
+   re-read canonical state because notification and execution aren't atomic.
++  Derived stale `unknown` from lease expiry is not recovery: retain only already
++  accepted failure hashes and pairing markers through expiry, including when
++  unrelated attention is delivered. Identical renewal does not notify again;
++  rejected or busy deliveries remain unacknowledged. Reported recovery, absence
++  or changed ownership prunes runtime memory; a changed failed version (including
++  a replacement incarnation) is new attention. Stale rows themselves never alert.
+ - Stores only hashes/locators as its delivery cursor (0600 atomic replacement).
+   This is not coordination authority. No direct SQLite access.
+ - Deduplication is scoped to authority, operator, prompt and bridge incarnation.

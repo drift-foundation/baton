@@ -1,0 +1,38 @@
+{
+  "changed_existing_cases": [
+    "TheBindingCompanionIsImmutableAndPrivate.test_a_conflicting_retained_binding_is_an_inspectable_refusal",
+    "TheFinalProofIsAskedImmediatelyBeforeTheEngine.test_the_unchanged_case_reaches_the_run_with_the_three_binds",
+    "TheTargetPostureIsProvedAndNeverRepaired.test_a_target_in_the_configured_group_and_group_writable_is_held"
+  ],
+  "removed_cases": [
+    "TheTargetPostureIsProvedAndNeverRepaired.test_a_target_the_runtime_group_cannot_work_in_refuses"
+  ],
+  "added_cases": [
+    "RecoveryAdoptsAndNeverRecreates.test_a_blocked_grant_still_yields_an_inspectable_boundary",
+    "RecoveryAdoptsAndNeverRecreates.test_a_recovered_boundary_may_never_start_a_runtime",
+    "RecoveryAdoptsAndNeverRecreates.test_a_recovered_source_that_moved_is_reported_not_re_resolved",
+    "RecoveryAdoptsAndNeverRecreates.test_a_recovery_for_another_target_refuses",
+    "RecoveryAdoptsAndNeverRecreates.test_a_removed_binding_is_never_silently_recreated",
+    "TheBindingCompanionIsImmutableAndPrivate.test_a_binding_whose_mode_moved_is_not_the_one_it_wrote",
+    "TheFamilyIsExecutionOnlyAndBoundToItsGrant.test_a_consent_adapter_refuses_at_construction",
+    "TheFamilyIsExecutionOnlyAndBoundToItsGrant.test_a_consent_vector_never_carries_an_integration_bind",
+    "TheFamilyIsExecutionOnlyAndBoundToItsGrant.test_a_start_for_another_participant_never_reaches_the_engine",
+    "TheFamilyIsExecutionOnlyAndBoundToItsGrant.test_a_target_containing_this_manager_s_own_roots_refuses_earlier",
+    "TheFamilyIsExecutionOnlyAndBoundToItsGrant.test_a_target_that_is_the_workspace_refuses",
+    "TheFinalProofIsAskedImmediatelyBeforeTheEngine.test_a_runtime_the_engine_describes_with_wrong_binds_is_not_success",
+    "TheFinalProofIsAskedImmediatelyBeforeTheEngine.test_an_unreadable_observation_answers_uncertainty_beside_the_id",
+    "TheNominalBoundaryIsFrozenThrough.test_mutating_the_caller_s_own_operands_changes_nothing",
+    "TheNominalBoundaryIsFrozenThrough.test_the_composed_mounts_are_unaffected_by_a_held_view",
+    "TheNominalBoundaryIsFrozenThrough.test_the_public_views_cannot_be_written_through",
+    "TheObservedMountsAreAskedOfTheEngine.test_a_bind_over_the_container_root_disagrees",
+    "TheObservedMountsAreAskedOfTheEngine.test_an_ancestor_bind_over_the_namespaces_disagrees",
+    "TheObservedMountsAreAskedOfTheEngine.test_an_unrelated_bind_is_left_alone",
+    "TheTargetPostureIsProvedAndNeverRepaired.test_composition_itself_refuses_an_incompatible_target",
+    "TheTargetPostureIsProvedAndNeverRepaired.test_group_write_without_traversal_is_not_access"
+  ],
+  "unchanged_other_test_registry_paths": {
+    "tests/integration/test_runtime.py": true,
+    "tests/manager/test_dependencies.py": true,
+    "tools/parallel_test.py": true
+  }
+}

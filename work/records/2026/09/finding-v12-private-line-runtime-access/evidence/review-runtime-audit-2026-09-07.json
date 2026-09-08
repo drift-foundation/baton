@@ -1,0 +1,61 @@
+{
+  "claim": 108160,
+  "candidate_sha256": "09d99499ebe811de16320fa930fadf30744c8b372625c7d6e794061187d5cbad",
+  "base_sha256": "d94bf33b42ab347af6ca1d57a4fdd0d06889e8f42bd0970fad40c5664843c3a6",
+  "base_provenance": "Reviewer reconstructed from candidate by removing explicit additions and restoring saved original cleanup; exact prior operator-reviewed digest match, not contemporaneous retention.",
+  "patch_sha256": "855e2f924fbd40d4206a0e0f480a70400a7c354f0b178f5b3940db6fbfb3c35b",
+  "unchanged_methods": [
+    "command",
+    "why_it_ended",
+    "test_initial_populated_line_is_writable_by_the_fixed_runtime",
+    "head_of",
+    "test_the_composed_ending_consumes_reviews_and_corrects_one_line"
+  ],
+  "prior_assertion_ASTs_preserved": "yes; cleanup loop variable normalized to prior self.container operand",
+  "custody_checkpoint_hashes_matched": 8,
+  "syntax_compiled": [
+    "module",
+    "REVIEWER_PROGRAM",
+    "CORRECTION_PROGRAM"
+  ],
+  "new_methods": [
+    "launched",
+    "test_a_correction_runtime_advances_the_same_line",
+    "test_a_reviewer_runtime_cannot_write_the_checkpoint_it_reads"
+  ],
+  "correction_calls": [
+    "self.composed_writer",
+    "self.head_of",
+    "fixture.complete",
+    "fixture.freeze",
+    "fixture.review",
+    "workspaces.assignment_workspace",
+    "review_boundary",
+    "fixture.verdict",
+    "fixture.writer",
+    "workspaces.assignment_workspace",
+    "writer_boundary",
+    "os.stat",
+    "self.assertEqual",
+    "self.launched",
+    "self.assertIn",
+    "self.assertEqual",
+    "self.assertEqual",
+    "self.assertNotEqual",
+    "self.assertEqual",
+    "self.assertEqual",
+    "self.assertEqual",
+    "self.assertEqual",
+    "Path(line['path'], 'tracked').read_text",
+    "self.head_of",
+    "self.head_of",
+    "self.head_of",
+    "Path",
+    "os.stat",
+    "os.stat",
+    "os.stat"
+  ],
+  "finding": "After correction launched() returns, no complete for writer-attempt-2, prove_line_consumable, freeze(second,2), profile.validate or audit_checkpoint executes; remaining checks only read content/stat/rev-parse.",
+  "runtime_execution": false,
+  "broad_suite_repeated": false
+}

@@ -1,0 +1,46 @@
+diff --git a/tools/codex-event-bridge/src/event_bridge.mjs b/tools/codex-event-bridge/src/event_bridge.mjs
+index 4a873c2..1e1b8a3 100644
+--- a/tools/codex-event-bridge/src/event_bridge.mjs
++++ b/tools/codex-event-bridge/src/event_bridge.mjs
+@@ -1,5 +1,6 @@
+ import { execFile } from "node:child_process";
+ import { EventEmitter } from "node:events";
++import { randomUUID } from "node:crypto";
+ import { chmod, lstat, mkdir, unlink } from "node:fs/promises";
+ import net from "node:net";
+ import { dirname } from "node:path";
+@@ -81,6 +82,7 @@ async function prepareSocketPath(path) {
+ }
+ 
+ export class EventBridge extends EventEmitter {
++  copilotInstanceId = randomUUID();
+   // W93 slice 4: `runtimeFactory` builds one runtime-lease publisher
+   // per identified target. Injectable so tests pin the exact
+   // transitions; defaulted so a deployment that already configures
+@@ -312,6 +314,13 @@ export class EventBridge extends EventEmitter {
+     }
+     const state = this.targetStates.get(event.target);
+     if (!state) return { accepted: false, reason: "unknown-target", target: event.target, globalQueueDepth: this.globalQueueDepth };
++    if (event.source === "baton-copilot" && event.type === "operator-attention") {
++      if (state.identity?.role !== "prompt" || event.action) return { accepted: false, reason: "copilot-requires-prompt" };
++      if (raw.copilotThreadId !== state.threadId || raw.copilotInstanceId !== this.copilotInstanceId) return { accepted: false, reason: "copilot-target-changed" };
++      // Coalesce at the producer; do not accumulate advice behind human turns.
++      const target = this.statusSnapshot().targets[event.target];
++      if (!target.connected || !target.deliverable || target.status !== "idle" || target.queueDepth !== 0 || state.activeTurn || state.draining || this.stopping) return { accepted: false, reason: "copilot-busy" };
++    }
+     if (Buffer.byteLength(JSON.stringify(event), "utf8") > this.config.maxEventBytes) {
+       return { accepted: false, reason: "event-too-large", target: event.target, globalQueueDepth: this.globalQueueDepth };
+     }
+@@ -491,6 +500,12 @@ export class EventBridge extends EventEmitter {
+   }
+ 
+   handleRequest(payload) {
++    if (payload?.control === "copilot-status") {
++      const status = this.statusSnapshot();
++      return { ...status, instanceId: this.copilotInstanceId,
++        targets: Object.fromEntries(Object.entries(status.targets).map(([name, target]) =>
++          [name, { ...target, role: this.targetStates.get(name).identity?.role ?? null }])) };
++    }
+     if (payload?.control === "status") return this.statusSnapshot();
+     // W93 R21: the ONE path a refresh takes, and it stops here. It
+     // never reaches `enqueue`, so it cannot become a queued message,

@@ -1,0 +1,8 @@
+test_historical_cleanup_document_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_cleanup_document_probe_reaches_its_named_boundary)
+The exact chained journal validator still needs a reaching probe. ... ok
+test_no_declared_exception_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.569s
+
+OK

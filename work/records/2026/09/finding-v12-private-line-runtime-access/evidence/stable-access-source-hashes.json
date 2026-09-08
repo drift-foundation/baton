@@ -1,0 +1,16 @@
+{
+  "observed_at": "2026-09-07T02:55:32.414779+00:00",
+  "purpose": "Read-only planning baseline, not candidate approval",
+  "sha256": {
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "0726da10c7e677e35d47190f9bc6a29269e342332a617e1804e83c4709184097",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "18431e40b4879d9b17e9b49ca0aedad256cbddaa6c44fca3d1c27c62fd50af06",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "d0e78475141a2cc7dd29a366dd50344a95e9942cbdfe34499fe0758aa4eb0409",
+    "v12/python/src/baton_v12/checkpoint_profiles.py": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38",
+    "v12/worker/dogfood_entry.py": "bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3",
+    "v12/worker/Dockerfile.claude": "8f88fc3bd366b76686d9cae0e5af019ba395a39d3afb9fd78dc5c3570556e55b",
+    "v12/python/tests/manager/test_workspaces.py": "49153d9d116fcd7b01f08d9e2c1f509d9bf5f09f707549cff8f2e8079d4ac725",
+    "v12/python/tests/manager/test_review_cycles.py": "a20abe2cfb8b3e762490caec11cc418801b89f0a2ed8e1531f3685753a8c6dee",
+    "v12/python/tests/manager/test_oci.py": "ffe36a61781a6a838b29e2b6deb94f3830138bc557e4aee17b97ea28c7b52fca",
+    "v12/python/tools/parallel_test.py": "22c0cf0d39b6384326f866f76aceb5a4d422a0f02fa725e18b5dc12196456168"
+  }
+}

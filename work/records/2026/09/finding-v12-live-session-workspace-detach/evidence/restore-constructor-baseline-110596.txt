@@ -1,0 +1,21 @@
+Expected regression failure against frozen live_controller_restore.py; no runtime invoked.
+test_actual_constructor_refuses_unsupported_arms (test_restore_constructor.ConstructorTests.test_actual_constructor_refuses_unsupported_arms) ... ok
+test_actual_fresh_and_replacement_preserve_arm_and_private_state (test_restore_constructor.ConstructorTests.test_actual_fresh_and_replacement_preserve_arm_and_private_state) ... ERROR
+
+======================================================================
+ERROR: test_actual_fresh_and_replacement_preserve_arm_and_private_state (test_restore_constructor.ConstructorTests.test_actual_fresh_and_replacement_preserve_arm_and_private_state)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_restore_constructor.py", line 32, in test_actual_fresh_and_replacement_preserve_arm_and_private_state
+    first = candidate.Fixture(root, "restored-first", "unused-network", credentials, deadline)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_restore.py", line 461, in __init__
+    require(self.arm in ("restored-first", "restored-second"), "diagnostic-arm-invalid")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_restore.py", line 32, in require
+    raise Refusal(code)
+live_supervisor_restore.Refusal: diagnostic-arm-invalid
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.003s
+
+FAILED (errors=1)

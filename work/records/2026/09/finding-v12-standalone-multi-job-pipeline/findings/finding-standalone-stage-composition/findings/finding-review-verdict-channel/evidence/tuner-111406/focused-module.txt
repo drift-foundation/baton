@@ -1,0 +1,156 @@
+$ PYTHONPATH=src python3 -B -m unittest tests.job_manager.test_review_driver -v
+test_a_claim_on_the_logs_output_still_refuses (tests.job_manager.test_review_driver.ACompetingClaimOnAnyOutputRefuses.test_a_claim_on_the_logs_output_still_refuses) ... ok
+test_a_claim_on_the_proposal_output_refuses_as_ambiguous (tests.job_manager.test_review_driver.ACompetingClaimOnAnyOutputRefuses.test_a_claim_on_the_proposal_output_refuses_as_ambiguous) ... ok
+test_a_claim_on_the_wrong_output_and_none_on_findings_refuses (tests.job_manager.test_review_driver.ACompetingClaimOnAnyOutputRefuses.test_a_claim_on_the_wrong_output_and_none_on_findings_refuses)
+Not a second opinion to weigh: a reviewer that decided somewhere ... ok
+test_a_competing_claim_holds_with_no_verdict_and_no_cleanup (tests.job_manager.test_review_driver.ACompetingClaimOnAnyOutputRefuses.test_a_competing_claim_holds_with_no_verdict_and_no_cleanup) ... ok
+test_ordinary_unrelated_metadata_on_another_output_is_untouched (tests.job_manager.test_review_driver.ACompetingClaimOnAnyOutputRefuses.test_ordinary_unrelated_metadata_on_another_output_is_untouched)
+The scan is for this namespace and nothing else; an output carrying ... ok
+test_a_foreign_line_cannot_advance_this_job (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_a_foreign_line_cannot_advance_this_job) ... ok
+test_a_job_that_is_not_a_pair_has_no_round (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_a_job_that_is_not_a_pair_has_no_round) ... ok
+test_a_line_that_asked_for_nothing_admits_no_round (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_a_line_that_asked_for_nothing_admits_no_round) ... ok
+test_a_reservation_committed_at_the_cutpoint_stops_the_round (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_a_reservation_committed_at_the_cutpoint_stops_the_round)
+Review [P0]: the allocation proof used to run before the write lock. ... ok
+test_a_round_naming_another_checkpoint_is_refused (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_a_round_naming_another_checkpoint_is_refused) ... ok
+test_a_stage_with_no_live_episode_has_no_round_to_correct (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_a_stage_with_no_live_episode_has_no_round_to_correct) ... ok
+test_a_still_reserved_allocation_holds_the_round_back (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_a_still_reserved_allocation_holds_the_round_back)
+Capacity is released by the scheduler, so the round waits for it. ... ok
+test_a_verdict_recorded_about_another_checkpoint_is_refused (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_a_verdict_recorded_about_another_checkpoint_is_refused)
+A real committed verdict, resolved, and still not this round's. ... ok
+test_a_verdict_this_manager_never_recorded_is_refused_first (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_a_verdict_this_manager_never_recorded_is_refused_first)
+Review [P0]: the FIRST round for a checkpoint used to take any ... ok
+test_an_accepted_verdict_document_asks_for_no_round (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_an_accepted_verdict_document_asks_for_no_round)
+A committed verdict, proved, and still not one that asks. ... ok
+test_an_ending_at_the_cutpoint_rolls_the_whole_round_back (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_an_ending_at_the_cutpoint_rolls_the_whole_round_back)
+Review [P0]: this used to commit HALF a correction. ... ok
+test_stages_of_two_different_works_could_never_have_been_attached (tests.job_manager.test_review_driver.ACorrectionIsRefusedBeforeItWritesAnything.test_stages_of_two_different_works_could_never_have_been_attached)
+The plan review's observation, driven against a REAL submission. ... ok
+test_an_exact_replay_returns_the_same_successors_and_writes_nothing (tests.job_manager.test_review_driver.ACorrectionRoundAdvancesBothStagesOrNeither.test_an_exact_replay_returns_the_same_successors_and_writes_nothing) ... ok
+test_both_episodes_end_and_both_successors_open (tests.job_manager.test_review_driver.ACorrectionRoundAdvancesBothStagesOrNeither.test_both_episodes_end_and_both_successors_open) ... ok
+test_one_checkpoint_earns_exactly_one_round (tests.job_manager.test_review_driver.ACorrectionRoundAdvancesBothStagesOrNeither.test_one_checkpoint_earns_exactly_one_round)
+And every operand that could have differed is now PROVED. ... ok
+test_ten_rounds_run_on_one_line_with_no_second_materialization (tests.job_manager.test_review_driver.ACorrectionRoundAdvancesBothStagesOrNeither.test_ten_rounds_run_on_one_line_with_no_second_materialization)
+The property the two-Job proof has to demonstrate. ... ok
+test_the_projection_reopens_the_implementation_and_recloses_the_review (tests.job_manager.test_review_driver.ACorrectionRoundAdvancesBothStagesOrNeither.test_the_projection_reopens_the_implementation_and_recloses_the_review)
+No new projection rule: the gate does this by itself. ... ok
+test_the_successors_are_fresh_identities_and_carry_nothing_over (tests.job_manager.test_review_driver.ACorrectionRoundAdvancesBothStagesOrNeither.test_the_successors_are_fresh_identities_and_carry_nothing_over) ... ok
+test_a_changes_requested_verdict_owes_a_round (tests.job_manager.test_review_driver.AVerdictIsRoutedAndNeverInferred.test_a_changes_requested_verdict_owes_a_round) ... ok
+test_a_rejected_verdict_is_held_with_its_reason_and_advances_nothing (tests.job_manager.test_review_driver.AVerdictIsRoutedAndNeverInferred.test_a_rejected_verdict_is_held_with_its_reason_and_advances_nothing) ... ok
+test_an_accepted_verdict_hands_on_and_schedules_nothing_here (tests.job_manager.test_review_driver.AVerdictIsRoutedAndNeverInferred.test_an_accepted_verdict_hands_on_and_schedules_nothing_here) ... ok
+test_re_entering_the_ending_records_no_second_verdict (tests.job_manager.test_review_driver.AVerdictIsRoutedAndNeverInferred.test_re_entering_the_ending_records_no_second_verdict)
+A crash after the verdict and before cleanup re-enters here. ... ok
+test_the_ending_runs_its_steps_in_the_recorded_order (tests.job_manager.test_review_driver.AVerdictIsRoutedAndNeverInferred.test_the_ending_runs_its_steps_in_the_recorded_order) ... ok
+test_a_custodian_identity_that_is_not_text_is_refused (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_custodian_identity_that_is_not_text_is_refused)
+Third review [P1]: non-null was not the rule. The custody boundary ... ok
+test_a_disposition_the_provider_does_not_have_is_not_evidence (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_disposition_the_provider_does_not_have_is_not_evidence)
+Review [P1]: a caller's malformed argument is not something a ... ok
+test_a_port_missing_a_verb_is_refused_before_the_stop (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_port_missing_a_verb_is_refused_before_the_stop) ... ok
+test_a_port_with_no_participant_is_refused_before_the_stop (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_port_with_no_participant_is_refused_before_the_stop) ... ok
+test_a_profile_that_cannot_freeze_is_refused_before_the_stop (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_profile_that_cannot_freeze_is_refused_before_the_stop) ... ok
+test_a_review_ending_compares_the_line_profile_before_the_stop (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_review_ending_compares_the_line_profile_before_the_stop)
+The same late comparison existed on the review ending. ... ok
+test_a_review_ending_derives_its_attempt_from_the_owner (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_review_ending_derives_its_attempt_from_the_owner)
+There is no second selector to cross-wire: the attachment names the ... ok
+test_a_review_ending_with_a_malformed_custodian_makes_no_stop (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_review_ending_with_a_malformed_custodian_makes_no_stop) ... ok
+test_a_session_acting_for_somebody_else_is_refused_before_the_stop (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_session_acting_for_somebody_else_is_refused_before_the_stop)
+Review [P1]: a non-null participant was proved and never compared, ... ok
+test_a_stale_generation_for_the_right_attempt_stops_nothing (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_stale_generation_for_the_right_attempt_stops_nothing) ... ok
+test_a_stop_answer_that_is_not_a_document_refuses_rather_than_faults (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_stop_answer_that_is_not_a_document_refuses_rather_than_faults) ... ok
+test_a_valid_profile_for_another_line_makes_zero_stop_calls (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_valid_profile_for_another_line_makes_zero_stop_calls)
+Third review [P1]: a fully callable `other-profile` handed to an ... ok
+test_a_writer_belonging_to_another_attempt_stops_nothing (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_a_writer_belonging_to_another_attempt_stops_nothing) ... ok
+test_an_adapter_missing_a_verb_is_refused_before_the_stop (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_an_adapter_missing_a_verb_is_refused_before_the_stop) ... ok
+test_an_adapter_with_no_custodian_identity_is_refused (tests.job_manager.test_review_driver.AnEndingProvesEveryOperandBeforeItTouchesAnything.test_an_adapter_with_no_custodian_identity_is_refused) ... ok
+test_a_reviewer_that_is_not_independent_never_gets_attached (tests.job_manager.test_review_driver.OldRoundsStayExactlyWhereTheyWere.test_a_reviewer_that_is_not_independent_never_gets_attached)
+Not this driver's rule, and that is the point of driving it. ... ok
+test_every_earlier_checkpoint_still_resolves_unchanged (tests.job_manager.test_review_driver.OldRoundsStayExactlyWhereTheyWere.test_every_earlier_checkpoint_still_resolves_unchanged) ... ok
+test_a_transport_that_is_down_still_escapes (tests.job_manager.test_review_driver.ReviewEvidenceThisManagerCannotSettleIsHeld.test_a_transport_that_is_down_still_escapes)
+`unavailable` is the one that is not a held account. ... ok
+test_ambiguous_evidence_answers_held_as_the_contract_pins (tests.job_manager.test_review_driver.ReviewEvidenceThisManagerCannotSettleIsHeld.test_ambiguous_evidence_answers_held_as_the_contract_pins)
+Review [P1]: this leaf's confirmed contract says ambiguous evidence ... ok
+test_stale_evidence_answers_held_and_leaves_the_runtime_alone (tests.job_manager.test_review_driver.ReviewEvidenceThisManagerCannotSettleIsHeld.test_stale_evidence_answers_held_and_leaves_the_runtime_alone) ... ok
+test_unreadable_evidence_answers_held_too (tests.job_manager.test_review_driver.ReviewEvidenceThisManagerCannotSettleIsHeld.test_unreadable_evidence_answers_held_too) ... ok
+test_a_refused_gate_stops_before_the_seal_and_the_publication (tests.job_manager.test_review_driver.TheEndingProvesTheLineBeforeItReadsIt.test_a_refused_gate_stops_before_the_seal_and_the_publication) ... ok
+test_an_adapter_without_the_gate_refuses_before_the_stop (tests.job_manager.test_review_driver.TheEndingProvesTheLineBeforeItReadsIt.test_an_adapter_without_the_gate_refuses_before_the_stop) ... ok
+test_the_gate_runs_after_the_stop_and_before_the_first_read (tests.job_manager.test_review_driver.TheEndingProvesTheLineBeforeItReadsIt.test_the_gate_runs_after_the_stop_and_before_the_first_read) ... ok
+test_it_runs_every_recorded_step_in_the_recorded_order (tests.job_manager.test_review_driver.TheFirstVerdictGoesThroughTheOrderedEnding.test_it_runs_every_recorded_step_in_the_recorded_order)
+ASSERTED WHOLE. The previous version filtered the expected sequence ... ok
+test_replay_from_the_freeze_cutpoint_records_no_second_verdict (tests.job_manager.test_review_driver.TheFirstVerdictGoesThroughTheOrderedEnding.test_replay_from_the_freeze_cutpoint_records_no_second_verdict)
+A manager that died between the freeze and the cleanup re-enters ... ok
+test_the_ending_records_the_first_verdict_for_this_checkpoint (tests.job_manager.test_review_driver.TheFirstVerdictGoesThroughTheOrderedEnding.test_the_ending_records_the_first_verdict_for_this_checkpoint) ... ok
+test_the_result_it_correlates_is_the_one_the_resolver_reads (tests.job_manager.test_review_driver.TheFirstVerdictGoesThroughTheOrderedEnding.test_the_result_it_correlates_is_the_one_the_resolver_reads)
+One freeze, one retained manifest, one document. The canned freeze ... ok
+test_a_seam_without_its_one_verb_refuses_before_anything_is_spent (tests.job_manager.test_review_driver.TheImplementationEndingPublishesBeforeItFences.test_a_seam_without_its_one_verb_refuses_before_anything_is_spent) ... ok
+test_the_ending_runs_its_steps_in_the_recorded_order (tests.job_manager.test_review_driver.TheImplementationEndingPublishesBeforeItFences.test_the_ending_runs_its_steps_in_the_recorded_order) ... ok
+test_the_seam_is_asked_while_the_writer_is_still_active (tests.job_manager.test_review_driver.TheImplementationEndingPublishesBeforeItFences.test_the_seam_is_asked_while_the_writer_is_still_active) ... ok
+test_the_publication_seam_is_exactly_one_verb (tests.job_manager.test_review_driver.ThePortIsTypedAndTheSeamIsOne.test_the_publication_seam_is_exactly_one_verb) ... ok
+test_the_verdict_outcomes_are_not_the_verdict_vocabulary (tests.job_manager.test_review_driver.ThePortIsTypedAndTheSeamIsOne.test_the_verdict_outcomes_are_not_the_verdict_vocabulary) ... ok
+test_a_changes_requested_claim_reaches_the_correction_round (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_a_changes_requested_claim_reaches_the_correction_round) ... ok
+test_a_rejected_claim_stays_held_and_advances_nothing (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_a_rejected_claim_stays_held_and_advances_nothing) ... ok
+test_an_accepted_claim_is_recorded_and_hands_on (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_an_accepted_claim_is_recorded_and_hands_on) ... ok
+test_the_explicit_operand_ending_is_unchanged_beside_it (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_the_explicit_operand_ending_is_unchanged_beside_it)
+`end_review` still takes a verdict, still refuses a word this ... ok
+test_the_legacy_entry_still_needs_no_terminal_at_all (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_the_legacy_entry_still_needs_no_terminal_at_all)
+The other half of the same sentence, driven rather than asserted in ... ok
+test_unresolved_evidence_holds_with_no_verdict_and_no_cleanup (tests.job_manager.test_review_driver.TheReviewEndingTakesNoCallersVerdict.test_unresolved_evidence_holds_with_no_verdict_and_no_cleanup)
+The whole reason this channel exists: silence is not a decision. ... ok
+test_a_real_changes_requested_turn_opens_the_correction_round (tests.job_manager.test_review_driver.TheReviewerDecidesAndTheManagerReadsThatDecision.test_a_real_changes_requested_turn_opens_the_correction_round) ... ok
+test_a_real_rejected_turn_stays_held (tests.job_manager.test_review_driver.TheReviewerDecidesAndTheManagerReadsThatDecision.test_a_real_rejected_turn_stays_held) ... ok
+test_a_real_review_turn_reaches_an_accepted_verdict (tests.job_manager.test_review_driver.TheReviewerDecidesAndTheManagerReadsThatDecision.test_a_real_review_turn_reaches_an_accepted_verdict) ... ok
+test_the_real_turn_produces_the_first_verdict_through_the_ending (tests.job_manager.test_review_driver.TheReviewerDecidesAndTheManagerReadsThatDecision.test_the_real_turn_produces_the_first_verdict_through_the_ending) ... ok
+test_a_terminal_naming_another_envelope_holds_after_the_freeze (tests.job_manager.test_review_driver.TheServingEndingRequiresTheWorkersCompletionEnvelope.test_a_terminal_naming_another_envelope_holds_after_the_freeze)
+The comparison is a different question from the shape, and it can ... ok
+test_a_terminal_that_is_not_a_document_refuses_before_the_stop (tests.job_manager.test_review_driver.TheServingEndingRequiresTheWorkersCompletionEnvelope.test_a_terminal_that_is_not_a_document_refuses_before_the_stop)
+It used to reach `terminal.get` as an AttributeError, after the ... ok
+test_a_terminal_with_no_completion_identity_refuses (tests.job_manager.test_review_driver.TheServingEndingRequiresTheWorkersCompletionEnvelope.test_a_terminal_with_no_completion_identity_refuses) ... ok
+test_no_terminal_refuses_before_the_stop (tests.job_manager.test_review_driver.TheServingEndingRequiresTheWorkersCompletionEnvelope.test_no_terminal_refuses_before_the_stop) ... ok
+test_a_base_the_checkpoint_does_not_record_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_base_the_checkpoint_does_not_record_is_refused) ... ok
+test_a_claim_with_another_member_is_refused_rather_than_trimmed (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_claim_with_another_member_is_refused_rather_than_trimmed) ... ok
+test_a_competing_claim_on_the_logs_output_refuses_as_ambiguous (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_competing_claim_on_the_logs_output_refuses_as_ambiguous) ... ok
+test_a_complete_claim_answers_the_reviewers_own_verdict (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_complete_claim_answers_the_reviewers_own_verdict) ... ok
+test_a_head_the_checkpoint_does_not_record_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_head_the_checkpoint_does_not_record_is_refused) ... ok
+test_a_manifest_naming_another_result_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_manifest_naming_another_result_is_refused) ... ok
+test_a_result_frozen_under_another_assignment_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_result_frozen_under_another_assignment_is_refused) ... ok
+test_a_result_frozen_under_another_generation_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_result_frozen_under_another_generation_is_refused) ... ok
+test_a_retained_manifest_that_is_absent_is_refused_as_that (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_retained_manifest_that_is_absent_is_refused_as_that) ... ok
+test_a_review_that_did_not_complete_decided_nothing (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_review_that_did_not_complete_decided_nothing) ... ok
+test_a_tree_the_checkpoint_does_not_record_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_tree_the_checkpoint_does_not_record_is_refused) ... ok
+test_a_verdict_word_this_manager_does_not_have_is_refused (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_a_verdict_word_this_manager_does_not_have_is_refused) ... ok
+test_an_absent_findings_output_leaves_nothing_to_read (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_an_absent_findings_output_leaves_nothing_to_read) ... ok
+test_an_unmeasured_findings_output_is_not_evidence (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_an_unmeasured_findings_output_is_not_evidence) ... ok
+test_no_claim_at_all_is_a_question_and_never_a_decision (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_no_claim_at_all_is_a_question_and_never_a_decision) ... ok
+test_the_reader_writes_nothing_and_repeats_itself (tests.job_manager.test_review_driver.TheVerdictIsReadFromTheFrozenResult.test_the_reader_writes_nothing_and_repeats_itself)
+A read this ending performs after the freeze, on this incarnation ... ok
+test_actual_completion_reaches_first_verdict_and_public_custody (tests.job_manager.test_review_driver.TheWorkerCompletionTraversesPublicCustody.test_actual_completion_reaches_first_verdict_and_public_custody) ... FAIL
+test_after_real_freeze_reentry_uses_same_completion_without_another_turn (tests.job_manager.test_review_driver.TheWorkerCompletionTraversesPublicCustody.test_after_real_freeze_reentry_uses_same_completion_without_another_turn) ... FAIL
+
+======================================================================
+FAIL: test_actual_completion_reaches_first_verdict_and_public_custody (tests.job_manager.test_review_driver.TheWorkerCompletionTraversesPublicCustody.test_actual_completion_reaches_first_verdict_and_public_custody)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_review_driver.py", line 2479, in test_actual_completion_reaches_first_verdict_and_public_custody
+    self.assertEqual(ended["outcome"], "accepted", ended["held_reason"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'held' != 'accepted'
+- held
++ accepted
+ : the checkpoint's review evidence is not one this manager can settle: refused/precondition -- a review verdict requires frozen output and passed verification
+
+======================================================================
+FAIL: test_after_real_freeze_reentry_uses_same_completion_without_another_turn (tests.job_manager.test_review_driver.TheWorkerCompletionTraversesPublicCustody.test_after_real_freeze_reentry_uses_same_completion_without_another_turn)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_review_driver.py", line 2498, in test_after_real_freeze_reentry_uses_same_completion_without_another_turn
+    self.assertEqual(ended["outcome"], "accepted", ended["held_reason"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'held' != 'accepted'
+- held
++ accepted
+ : the checkpoint's review evidence is not one this manager can settle: refused/precondition -- a review verdict requires frozen output and passed verification
+
+----------------------------------------------------------------------
+Ran 93 tests in 1.309s
+
+FAILED (failures=2)
+
+exit_code: 1

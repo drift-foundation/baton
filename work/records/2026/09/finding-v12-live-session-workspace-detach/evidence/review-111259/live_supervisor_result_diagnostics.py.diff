@@ -1,0 +1,79 @@
+--- live_supervisor_restore.py
++++ live_supervisor_result_diagnostics.py
+@@ -105,6 +105,48 @@
+         return value
+ 
+ 
++# Closed labels from RESULT-DIAGNOSTICS.md's recorded transport contract.
++# Their presence in this particular CLI image is an observation, not assumed.
++KNOWN_RESULT_SUBTYPES = {
++    "error_during_execution": "error_during_execution",
++    "error_max_turns": "error_max_turns",
++    "error_max_budget_usd": "error_max_budget_usd",
++    "error_max_structured_output_retries": "error_max_structured_output_retries",
++}
++RESULT_SUBTYPE_SHAPES = frozenset(("success", "missing", "known-nonsuccess", "unknown", "wrong-type"))
++RESULT_ERROR_SHAPES = frozenset(("false", "true", "missing", "wrong-type"))
++
++
++def result_fields(value):
++    """Observe only two success-predicate inputs; never copy provider prose."""
++    subtype = value.get("subtype")
++    known = None
++    if "subtype" not in value:
++        shape = "missing"
++    elif type(subtype) is not str:
++        shape = "wrong-type"
++    elif subtype == "success":
++        shape = "success"
++    elif subtype in KNOWN_RESULT_SUBTYPES:
++        shape = "known-nonsuccess"
++        known = KNOWN_RESULT_SUBTYPES[subtype]
++    else:
++        shape = "unknown"
++    error = value.get("is_error")
++    flag = "missing" if "is_error" not in value else "false" if error is False else "true" if error is True else "wrong-type"
++    return dict(subtype=shape, known_subtype=known, is_error=flag)
++
++
++def validate_result_fields(value):
++    require(type(value) is dict and set(value) == {"subtype", "known_subtype", "is_error"}, "diagnostic-frame-invalid")
++    require(type(value["subtype"]) is str and value["subtype"] in RESULT_SUBTYPE_SHAPES
++            and type(value["is_error"]) is str and value["is_error"] in RESULT_ERROR_SHAPES, "diagnostic-frame-invalid")
++    known = value["known_subtype"]
++    require((type(known) is str and known in KNOWN_RESULT_SUBTYPES) if value["subtype"] == "known-nonsuccess"
++            else known is None, "diagnostic-frame-invalid")
++    return dict(value)
++
++
+ def result_projection(value, session):
+     require(value.get("type") == "result" and value.get("subtype") == "success"
+             and value.get("is_error") is False, "provider-result-failed")
+@@ -130,11 +172,15 @@
+         self.operation = "start"
+         self.stage = "created"
+ 
+-    def observe(self, stage):
++    def observe(self, stage, result=None):
+         require(stage in DIAGNOSTIC_STAGES, "diagnostic-stage-invalid")
+         self.stage = stage
+-        print(json.dumps(dict(event="diagnostic", arm=self.arm, operation=self.operation,
+-              turn=self.turns, stage=stage, monotonic_ns=time.monotonic_ns())), flush=True)
++        projection = dict(event="diagnostic", arm=self.arm, operation=self.operation,
++                          turn=self.turns, stage=stage, monotonic_ns=time.monotonic_ns())
++        if result is not None:
++            require(stage == "provider-result-validation", "diagnostic-frame-invalid")
++            projection["result_fields"] = result_fields(result)
++        print(json.dumps(projection), flush=True)
+ 
+     def identity(self):
+         require(self.process is not None and self.process.poll() is None, "cli-exited")
+@@ -223,7 +269,7 @@
+                 self.model = value["model"]
+             elif kind == "result":
+                 self.observe("provider-response-observed")
+-                self.observe("provider-result-validation")
++                self.observe("provider-result-validation", result=value)
+                 answer = result_projection(value, self.session)
+                 require(self.model == ACTUAL_MODEL, "actual-model-unobserved")
+                 return dict(event="complete", completed_ns=time.monotonic_ns(),

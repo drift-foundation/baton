@@ -1,0 +1,149 @@
+--- prior/v12/python/tests/integration/test_driver.py
++++ candidate/v12/python/tests/integration/test_driver.py
+@@ -1020,10 +1020,21 @@
+ 
+     def setUp(self):
+         super().setUp()
++        # THE SHAPE `integration_checkpoint` ACTUALLY ANSWERS. Review
++        # 2026-09-07T18-00-22Z [P1]: the first version invented a top-level
++        # `head`, which is exactly why a reader that read one passed here and
++        # raised `KeyError` against the real owner. The objects live in
++        # `evidence`.
+         self.accepted = {"line_id": "line-1", "checkpoint_id": "cp-1",
+                          "verdict_id": "verdict-1",
+                          "checkpoint_digest": "sha256:" + "c" * 64,
+-                         "head": PRIVATE_HEAD}
++                         "evidence": {"profile": "git",
++                                      "base": PRIVATE_BASE,
++                                      "head": PRIVATE_HEAD,
++                                      "tree": "c3" * 20, "paths": ["a.py"],
++                                      "path_set_digest": digest(["a.py"]),
++                                      "reference":
++                                          "refs/baton/checkpoints/line-1/1"}}
+         self.proposal = {
+             "proposal_id": "proposal-1",
+             "assignment_ref": copy.deepcopy(self.assignment),
+@@ -1094,7 +1105,7 @@
+         self.assertIn("another candidate", caught.message)
+ 
+     def test_a_checkpoint_naming_another_head_refuses(self):
+-        self.accepted["head"] = "e" * 40
++        self.accepted["evidence"]["head"] = "e" * 40
+         self.refused(self.evidence)
+ 
+     def test_a_proposal_naming_another_result_refuses(self):
+@@ -1206,7 +1217,13 @@
+         self.accepted = {"line_id": "line-1", "checkpoint_id": "cp-1",
+                          "verdict_id": "verdict-1",
+                          "checkpoint_digest": "sha256:" + "c" * 64,
+-                         "head": PRIVATE_HEAD, "base": PRIVATE_BASE}
++                         "evidence": {"profile": "git",
++                                      "base": PRIVATE_BASE,
++                                      "head": PRIVATE_HEAD,
++                                      "tree": "c3" * 20, "paths": ["a.py"],
++                                      "path_set_digest": digest(["a.py"]),
++                                      "reference":
++                                          "refs/baton/checkpoints/line-1/1"}}
+         self.proposal = {
+             "proposal_id": "proposal-1",
+             "assignment_ref": copy.deepcopy(self.assignment),
+@@ -1290,7 +1307,7 @@
+         self.assertNoReceiptWasWritten()
+ 
+     def test_a_checkpoint_recording_another_base_writes_nothing(self):
+-        self.accepted["base"] = "e5" * 20
++        self.accepted["evidence"]["base"] = "e5" * 20
+         with self.assertRaises(ContractRefusal):
+             self.receipts()
+         self.assertNoReceiptWasWritten()
+@@ -1374,3 +1391,90 @@
+         self.verify.calls.clear()
+         self.receipts()
+         self.assertEqual(self.verify.calls[0]["operation_id"], first)
++
++
++class TheReaderConsumesTheOwnersActualAnswer(unittest.TestCase):
++    """W112029 review [P1]: the reader read a shape the owner never returns.
++
++    `integration_checkpoint` answers `line_id`, `checkpoint_id`, `verdict_id`,
++    `checkpoint_digest` and `evidence` -- with the objects INSIDE `evidence` --
++    and the first version of this consumer read a top-level `head`. It raised
++    `KeyError` the moment it met the real owner, and my own fixture hid that,
++    because the document it mocked had a shape nothing produces.
++
++    SO THIS CASE USES THE OWNER. It builds a real line, writer, checkpoint,
++    reviewer and accepted verdict through the existing accepted fixture --
++    imported and read, never edited -- and asserts the consumer's expectations
++    against the document `integration_checkpoint` actually answers. A mock is
++    what let the defect through, so a mock cannot be what proves it fixed.
++    """
++
++    def setUp(self):
++        """COMPOSED, NOT SUBCLASSED. Inheriting a live `TestCase` re-runs every
++        one of its own cases under a second name -- a defect I introduced once
++        already in this campaign -- so the accepted fixture is DRIVEN here
++        instead: its `setUp` and cleanups are run explicitly and its helpers
++        are called on the instance. The file itself is imported and read,
++        never edited.
++        """
++        # THE IMPORT IS INSIDE THE METHOD. A `TestCase` subclass bound at
++        # module level is collected by the loader, so importing the accepted
++        # fixture by name at the top would silently re-run its whole suite
++        # under this module -- the same inflation, arriving through the import
++        # rather than through inheritance.
++        from tests.manager.test_review_cycles import ReviewCycles
++
++        self.owner = ReviewCycles("run")
++        self.owner.setUp()
++        self.addCleanup(self.owner.doCleanups)
++        self.store = self.owner.store
++
++    def accepted_checkpoint(self):
++        from baton_v12.worker_manager import (integration_checkpoint,
++                                              record_verdict)
++        line = self.owner.line()
++        writer = self.owner.writer(line["line_id"], 1)
++        checkpoint = self.owner.freeze(writer, 1)
++        review = self.owner.review(checkpoint["checkpoint_id"], 1)
++        self.owner.complete("review-attempt-1", review=True)
++        record_verdict(self.store, attachment_id=review["attachment_id"],
++                       disposition="accepted", profile=self.owner.profile,
++                       port=self.owner.port("baton.review"))
++        return integration_checkpoint(self.store, line["line_id"])
++
++    def test_the_owner_answers_its_objects_inside_evidence(self):
++        held = self.accepted_checkpoint()
++        self.assertIsNotNone(held)
++        self.assertEqual(sorted(held),
++                         ["checkpoint_digest", "checkpoint_id", "evidence",
++                          "line_id", "verdict_id"])
++        # THE TWO MEMBERS THE CONSUMER READS, where the owner actually puts
++        # them -- and NOT at the top level, which is the defect restated as an
++        # assertion.
++        for member in ("base", "head"):
++            with self.subTest(member=member):
++                self.assertIn(member, held["evidence"])
++                self.assertNotIn(member, held)
++
++    def test_the_consumer_reads_that_document_without_raising(self):
++        """The exact call that raised `KeyError`, over the owner's own answer
++        rather than a hand-made one."""
++        from baton_v12.contracts import ContractRefusal
++        held = self.accepted_checkpoint()
++        with mock.patch.object(driver, "integration_checkpoint",
++                               return_value=held), \
++                mock.patch.object(driver, "checkpoint_of",
++                                  return_value={"writer_id": "writer-1"}), \
++                mock.patch.object(driver, "writer_of",
++                                  return_value={
++                                      "runtime_attempt_id": "attempt-1"}), \
++                mock.patch.object(driver, "frozen_output_of",
++                                  return_value=None):
++            # It reaches the producer's frozen result and refuses there, which
++            # is a REFUSAL rather than a `KeyError`: the evidence read happened
++            # and the shape was right.
++            with self.assertRaises(ContractRefusal) as caught:
++                driver.ordinary_test_evidence(
++                    self.store, SimpleNamespace(proposal=lambda _id: {}),
++                    line_id=held["line_id"], proposal_id="proposal-1")
++        self.assertIn("no completed frozen result", caught.exception.message)

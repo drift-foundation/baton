@@ -1,0 +1,49 @@
+{
+  "retained": {
+    "actual_model": "claude-fable-5",
+    "cli_version": "2.1.247",
+    "consumption_receipts_verified": true,
+    "correction_dispatch_ns": 410112167511318,
+    "correction_done_ns": 410118830073107,
+    "correction_prompt_sha256": "269533f6b4ca04c2a162832c24f56f719fa30ff3a8353bc6922b7b5f597495df",
+    "correction_verified": true,
+    "end_of_work_ns": 410107005825906,
+    "first_artifact_verified": true,
+    "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+    "initial_bytes_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "initial_prompt_sha256": "4c7ee07bf768383e66353a09e47d1b16677cd1f83009807798f468ab6a74d99b",
+    "model": "claude-fable-5[1m]",
+    "pidfd_continuously_live": true,
+    "process_after": [
+      "df456ca2f698778e9ad0b0d223cdfdbda123cb205e33534a7dea43ee507f689b",
+      703031,
+      "41010007",
+      [
+        4,
+        4026532903
+      ]
+    ],
+    "process_before": [
+      "df456ca2f698778e9ad0b0d223cdfdbda123cb205e33534a7dea43ee507f689b",
+      703031,
+      "41010007",
+      [
+        4,
+        4026532903
+      ]
+    ],
+    "review_delay_ns": 5000000000,
+    "review_ready_ns": 410107098113045,
+    "session_after": "feec5253-a21f-4ec6-b217-2b6ad204e188",
+    "session_before": "feec5253-a21f-4ec6-b217-2b6ad204e188",
+    "verified_correction_ns": 410118942151044,
+    "workspace_after": [
+      43,
+      10090687
+    ],
+    "workspace_before": [
+      43,
+      10090687
+    ]
+  }
+}

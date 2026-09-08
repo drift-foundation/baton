@@ -1,0 +1,37 @@
+{
+  "probes": {
+    "root_traversal": {
+      "direct_root_link": "BundleRefusal: the bundle root is not a directory this reader can reach without following a link (20); 'alias' is a link, a file or absent",
+      "root_link_with_dot": "BundleRefusal: a bundle root has one canonical spelling; '/tmp/v12-read-back-hileabpz/alias/.' is not the name the kernel would resolve it to, and a dot or a doubled separator moves a link out of the component this reader would refuse",
+      "blob_root_with_dot": "BundleRefusal: a bundle root has one canonical spelling; '/tmp/v12-read-back-hileabpz/alias/.' is not the name the kernel would resolve it to, and a dot or a doubled separator moves a link out of the component this reader would refuse",
+      "valid_root_still_reads": true
+    },
+    "ancestor_link": {
+      "through_link": "BundleRefusal: the bundle root is not a directory this reader can reach without following a link (20); 'linked-parent' is a link, a file or absent",
+      "by_its_own_name": true
+    },
+    "shared_blob_budget": {
+      "scaled_limit": 8,
+      "unique_bytes": 5,
+      "side_references": 2,
+      "producer_published": true,
+      "content_reads": 1,
+      "reader_accepts": true
+    },
+    "transient_source_swap": {
+      "substitute_identity": [
+        66306,
+        47978026
+      ],
+      "line_identity": [
+        66306,
+        47978017
+      ],
+      "same_identity_before_after": true,
+      "every_read_bound_to_the_line": true,
+      "reads": 6,
+      "no_command_named_the_pathname": true,
+      "published": true
+    }
+  }
+}

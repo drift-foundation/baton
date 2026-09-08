@@ -1,0 +1,5 @@
+{
+  "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+  "manifest_sha256": "3d4332754ab9bdce095f8a31d5e6e010550645f1fa226fc46916db523918f808",
+  "model": "claude-fable-5[1m]"
+}

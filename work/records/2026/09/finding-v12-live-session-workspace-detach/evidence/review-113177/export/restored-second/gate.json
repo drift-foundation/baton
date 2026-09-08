@@ -1,0 +1,41 @@
+{
+  "admissions": 1,
+  "consumed": 1,
+  "generation": 1,
+  "identity": {
+    "container": "607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1",
+    "mount_namespace": [
+      4,
+      4026532903
+    ],
+    "pid": 1689040,
+    "start": "45993174",
+    "workspace": [
+      43,
+      11799375
+    ]
+  },
+  "phase": "shutdown",
+  "receipt": {
+    "generation": 1,
+    "identity": {
+      "container": "607567676c8e0bc68ba304c4e821510d528344649df963317be0ce8687537cc1",
+      "mount_namespace": [
+        4,
+        4026532903
+      ],
+      "pid": 1689040,
+      "start": "45993174",
+      "workspace": [
+        43,
+        11799375
+      ]
+    },
+    "observation": {
+      "container_stopped": true,
+      "init_exited": true,
+      "survivors": []
+    },
+    "operation": "f5076de2910e4043af1ed4baaa33055b"
+  }
+}

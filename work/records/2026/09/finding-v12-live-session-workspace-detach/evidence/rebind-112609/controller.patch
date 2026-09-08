@@ -1,0 +1,11 @@
+--- live_controller_result_diagnostics.py
++++ live_controller_rebound_112609.py
+@@ -32,7 +32,7 @@
+ DELAY_NS = 5_000_000_000
+ DOCKER_ENV = dict(PATH="/usr/bin:/bin", HOME="/nonexistent", DOCKER_CONFIG="/nonexistent")
+ DOCKER = ["/usr/bin/docker", "--host", "unix:///var/run/docker.sock"]
+-MANIFEST = HERE / "result-diagnostics-manifest.json"
++MANIFEST = HERE / "result-diagnostics-rebound-112609-manifest.json"
+ 
+ 
+ def digest(path):

@@ -1,0 +1,22 @@
+test_measured_tracked_bytes_match_even_when_status_hides_the_edit (__main__.TrackedBytes.test_measured_tracked_bytes_match_even_when_status_hides_the_edit) ... FAIL
+
+======================================================================
+FAIL: test_measured_tracked_bytes_match_even_when_status_hides_the_edit (__main__.TrackedBytes.test_measured_tracked_bytes_match_even_when_status_hides_the_edit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/../../work/records/2026/09/finding-v12-concrete-worker-proposal-head/evidence/review_tracked_bytes.py", line 45, in test_measured_tracked_bytes_match_even_when_status_hides_the_edit
+    self.assertEqual(committed, payload,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+                     "path equality passed while verified tracked bytes differ")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'def _observed_readable():\n    return True\n' != 'verified payload\n'
++ verified payload
+- def _observed_readable():
+-     return True
+ : path equality passed while verified tracked bytes differ
+
+----------------------------------------------------------------------
+Ran 1 test in 0.237s
+
+FAILED (failures=1)
+{"disposition": "completed", "verification": {"argv": ["python3", "harness.py"], "status": 0}, "changed_paths": ["harness.py"], "measured_bytes": "verified payload\n", "committed_bytes": "def _observed_readable():\n    return True\n"}

@@ -1,0 +1,107 @@
+--- review-111840/v12/python/tests/manager/test_oci_integration.py
++++ tuner-111937/v12/python/tests/manager/test_oci_integration.py
+@@ -1041,5 +1041,104 @@
+                     self.assertNotIn("integration", name)
+ 
+ 
++class RecoveryRequiresTheCompleteFixedLayout(MountCase):
++    """A mode-correct companion must still describe the adopted namespaces.
++
++    Corruption is confined to private, disposable fixture evidence. Recovery
++    must refuse it before returning a capability, without repair or regrant.
++    """
++
++    def setUp(self):
++        from pathlib import Path
++        super().setUp()
++        self.original = self.boundary()
++        self.binding = Path(self.delivery.root, oci_delivery.BINDING_DOCUMENT)
++        self.original_bytes = self.binding.read_bytes()
++        self.block()
++
++    def recover(self):
++        from unittest import mock
++        with mock.patch.object(runtime, "compose_assignment", side_effect=AssertionError("recovery cannot obtain a fresh grant")), \
++                mock.patch.object(runtime, "_publish_once", side_effect=AssertionError("recovery cannot publish evidence")):
++            return oci_delivery.adopt_mount_boundary(
++                self.manager, delivery=self.delivery, target=self.target,
++                workspace_group=_group_of(self))
++
++    def damaged(self, change):
++        document = json.loads(self.original_bytes)
++        change(document["sources"])
++        self.binding.chmod(0o644)
++        self.binding.write_text(json.dumps(document, sort_keys=True, separators=(",", ":")))
++        self.binding.chmod(0o444)
++        before = self.binding.read_bytes()
++        identity = self.binding.stat()
++        self.refused(self.recover)
++        self.assertEqual(self.binding.read_bytes(), before)
++        after = self.binding.stat()
++        self.assertEqual((after.st_dev, after.st_ino, after.st_mode),
++                         (identity.st_dev, identity.st_ino, identity.st_mode))
++
++    def test_exact_layout_recovers_after_grant_loss_without_publication(self):
++        recovered = self.recover()
++        self.assertEqual(recovered.sources, self.original.sources)
++        self.assertEqual(recovered.assignment_digest, self.original.assignment_digest)
++        self.assertEqual(oci_delivery.boundary_mounts(recovered), (
++            (self.delivery.assignment_root, runtime.ASSIGNMENT_TARGET, False),
++            (self.delivery.result_root, runtime.RESULT_TARGET, True),
++            (self.canonical, oci_delivery.TARGET_TARGET, True)))
++        self.assertEqual(self.binding.read_bytes(), self.original_bytes)
++        self.assertEqual(stat.S_IMODE(self.binding.stat().st_mode), 0o444)
++        self.refused(oci_delivery.revalidate_boundary, recovered)
++
++    def test_foreign_assignment_and_result_roots_refuse_even_with_real_inodes(self):
++        foreign = os.path.join(self.root, "foreign-namespace")
++        os.mkdir(foreign)
++        identity = os.stat(foreign)
++        for index in (0, 1):
++            with self.subTest(namespace=index):
++                self.damaged(lambda sources: sources[index].update(
++                    host_source=foreign, device=identity.st_dev, inode=identity.st_ino))
++
++    def test_swapping_assignment_and_result_sources_refuses(self):
++        def exchanged(sources):
++            first, second = dict(sources[0]), dict(sources[1])
++            for key in ("host_source", "device", "inode"):
++                sources[0][key], sources[1][key] = second[key], first[key]
++        self.damaged(exchanged)
++
++    def test_each_fixed_access_flag_is_required(self):
++        for index in range(3):
++            with self.subTest(source=index):
++                self.damaged(lambda sources: sources[index].update(writable=not sources[index]["writable"]))
++
++    def test_each_fixed_container_target_is_required(self):
++        for index in range(3):
++            with self.subTest(source=index):
++                self.damaged(lambda sources: sources[index].update(container_target="/foreign"))
++
++    def test_every_source_device_and_inode_must_match(self):
++        for index in range(3):
++            for member in ("device", "inode"):
++                with self.subTest(source=index, member=member):
++                    self.damaged(lambda sources: sources[index].update({member: sources[index][member] + 1}))
++
++    def test_fixed_entries_cannot_be_reordered(self):
++        import itertools
++        for order in itertools.permutations(range(3)):
++            if order == (0, 1, 2):
++                continue
++            with self.subTest(order=order):
++                self.damaged(lambda sources: sources.__setitem__(slice(None), [sources[index] for index in order]))
++
++    def test_duplicate_target_refuses_before_a_capability_is_returned(self):
++        self.damaged(lambda sources: sources.__setitem__(0, dict(sources[2])))
++
++    def test_missing_or_extra_source_refuses(self):
++        with self.subTest(multiplicity="missing"):
++            self.damaged(lambda sources: sources.pop())
++        with self.subTest(multiplicity="extra"):
++            self.damaged(lambda sources: sources.append(dict(sources[2])))
++
++
+ if __name__ == "__main__":
+     unittest.main()

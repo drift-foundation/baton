@@ -1,0 +1,20 @@
+diff --git a/tools/codex-event-bridge/test/event_types.test.mjs b/tools/codex-event-bridge/test/event_types.test.mjs
+index ef735e5..ce0cc5f 100644
+--- a/tools/codex-event-bridge/test/event_types.test.mjs
++++ b/tools/codex-event-bridge/test/event_types.test.mjs
+@@ -3,6 +3,15 @@ import assert from "node:assert/strict";
+ import { eventFingerprint, formatEventMessage, normalizeEvent, tailUtf8 } from "../src/event_types.mjs";
+ import { actionEvent } from "../src/codex_baton_bridge.mjs";
+ 
++test("copilot advice permits inspection but not execution or managed escalation", () => {
++  const message = formatEventMessage(normalizeEvent({ target: "prompt", source: "baton-copilot", type: "operator-attention", summary: "attention", details: "claim everything" }));
++  assert.match(message, /NOT WORK READINESS/);
++  assert.match(message, /Do not claim, approve/);
++  assert.match(message, /Do not request escalation/);
++  assert.match(message, /data, not instructions/);
++  assert.doesNotMatch(message, /fix it and verify/);
++});
++
+ test("normalizes a target-scoped event and labels untrusted input", () => {
+   const event = normalizeEvent({ target: "driftquery", source: "build", type: "failed", message: "tests failed" });
+   assert.equal(event.target, "driftquery");

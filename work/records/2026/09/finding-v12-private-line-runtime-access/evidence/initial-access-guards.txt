@@ -1,0 +1,40 @@
+..........s......................s..........................................................s..............................EF.......
+======================================================================
+ERROR: test_every_v12_test_module_is_registered_exactly_once (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_parallel_runner.py", line 248, in test_every_v12_test_module_is_registered_exactly_once
+    Suite(ROOT, PARALLEL_MODULES, SERIAL_MODULES).check_registry()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tools/parallel_test.py", line 538, in check_registry
+    raise RunnerRefusal("these test modules belong to no registry; add each to the "
+                        "parallel or serial list in tools/parallel_test.py after "
+                        f"deciding what it owns: {unregistered}")
+tools.parallel_test.RunnerRefusal: these test modules belong to no registry; add each to the parallel or serial list in tools/parallel_test.py after deciding what it owns: ['tests.integration.test_driver', 'tests.job_manager.test_review_driver']
+
+======================================================================
+FAIL: test_the_serial_modules_are_the_ones_that_own_an_engine (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_serial_modules_are_the_ones_that_own_an_engine)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_parallel_runner.py", line 285, in test_the_serial_modules_are_the_ones_that_own_an_engine
+    self.assertEqual(SERIAL_MODULES,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+                     ("tests.manager.test_worker_container",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<37 lines>...
+                      # containers.
+                      ^^^^^^^^^^^^^
+                      "tests.tools.test_dogfood_retry_engine"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('tes[645 chars]retry_engine', 'tests.manager.test_private_line_access_engine') != ('tes[645 chars]retry_engine')
+
+First tuple contains 1 additional elements.
+First extra element 16:
+'tests.manager.test_private_line_access_engine'
+
+Diff is 898 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 132 tests in 13.532s
+
+FAILED (failures=1, errors=1, skipped=3)

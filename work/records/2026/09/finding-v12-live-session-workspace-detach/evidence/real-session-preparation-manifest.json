@@ -1,0 +1,20 @@
+{
+  "work": "W106673",
+  "claim": 107264,
+  "recorded_at": "2026-09-07T04:21:08.201685+00:00",
+  "status": "prerequisite candidate only; offline/live execution unperformed; full live runner pending",
+  "sha256": {
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/REAL-SESSION-PREPARATION.md": "8ad1a3c9491098c749d36df40c919dc4921edb9b6f17f5808c1e4017aa431b4b",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real_session_preflight.py": "73db1f08356e792b4e3bcb0baa871223c628491664245043b4282628ec9fc1c1",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real_session_contract.py": "1542098960ea0ba760b85f8933f23f9ec4ff457b00b3d2ca65ed862894a7c477",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real-session-inputs.json": "53183bdb7d3fedfea686017ac57992b35aabc7d6c3e480677b7c739f3e5a5226",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real-session-preflight-local-tests.txt": "6222f1e1772da916b82678f027e6d6a0741f9cc106d2bbac0a22762080795e35",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real-session-contract-local-tests.txt": "58932b9da4f0f96272ca37bb23fca183efef3a2d326033dc6dccd93864478c0e"
+  },
+  "unchanged_accepted_deterministic_scripts": {
+    "host_runner.py": "5b2eea59774c14c27574fc8b18a9979a6f3c2c2969265cf8ef1c4a944436380e",
+    "resident.py": "30d3c2a5e34c0461a2d2a15006cfe26f42d587d938a3179d61d9a874c3002496"
+  },
+  "owner_inputs": "M107302",
+  "unresolved_delivery_request": "M107310"
+}

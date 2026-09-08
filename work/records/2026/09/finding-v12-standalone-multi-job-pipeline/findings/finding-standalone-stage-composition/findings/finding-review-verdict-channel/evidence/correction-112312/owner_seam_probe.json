@@ -1,0 +1,22 @@
+{
+  "result": {
+    "positive_with_adapter": {
+      "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+      "attempt_id": "public-review",
+      "operation": "normalize",
+      "root": "result",
+      "verb": "normalize"
+    },
+    "adapter_free_refusal": "the custodian image identity this act is signed with is durable text; this is none"
+  },
+  "workspace": {
+    "positive_with_adapter": {
+      "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+      "attempt_id": "public-review",
+      "operation": "normalize",
+      "root": "workspace",
+      "verb": "normalize"
+    },
+    "adapter_free_refusal": "the custodian image identity this act is signed with is durable text; this is none"
+  }
+}

@@ -500,6 +500,10 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
                                port=port),
                 ["attachment_id", "disposition"]),
             "integration_checkpoint": ((store, "line-1"), {}, [1]),
+            # W103076: both readers take exactly one caller identity, and the
+            # sweep drives that operand for each.
+            "review_of": ((store, "attachment-1"), {}, [1]),
+            "verdict_of": ((store, "verdict-1"), {}, [1]),
             "audit_checkpoint": (
                 (store, "checkpoint-1", review_profile), {}, [1]),
             "line_status": (

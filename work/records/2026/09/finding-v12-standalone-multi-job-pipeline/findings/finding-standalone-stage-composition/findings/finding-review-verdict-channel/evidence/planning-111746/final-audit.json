@@ -1,0 +1,20 @@
+{
+  "source_test_baseline_unchanged": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": true,
+    "v12/python/src/baton_v12/job_manager/review_driver.py": true,
+    "v12/python/src/baton_v12/integration/driver.py": true,
+    "v12/worker/claude_agent.py": true,
+    "v12/python/tests/manager/test_review_cycles.py": true,
+    "v12/python/tests/job_manager/test_review_driver.py": true,
+    "v12/python/tests/integration/test_driver.py": true,
+    "v12/python/tests/manager/test_claude_agent.py": true,
+    "v12/python/REVIEW-CYCLES.md": true,
+    "v12/python/tests/manager/test_dependencies.py": true,
+    "v12/python/tools/stage_execution.py": true,
+    "v12/python/tools/single_worker.py": true,
+    "v12/python/src/baton_v12/authority/core.py": true,
+    "v12/worker/scripted_agent.py": true,
+    "v12/python/src/baton_v12/source_profiles/checkout.py": true
+  },
+  "planning_only": true
+}

@@ -1,0 +1,15 @@
+--- before/v12/python/REVIEW-CYCLES.md
++++ candidate/v12/python/REVIEW-CYCLES.md
+@@ -110,7 +110,11 @@
+ quiescent. This requires the exact ended attachment, committed verdict and fence,
+ matching frozen result, accepted intake and retained artifacts, and the matching
+ committed `runtime.destroy` operation under that receipt and retention policy.
+-The operation must prove positive runtime absence and retained cleanup. A bare
++The operation must prove positive runtime absence and retained cleanup. Its
++result and workspace custody receipts must exactly match the committed
++normalization receipts, including their attempt, root, operation and account.
++The custody owner reads and validates those records against the recorded
++workspace store without requiring an adapter or running another helper. A bare
+ `destroyed` axis, missing history or unresolved provider teardown is insufficient.
+ Destruction cannot create a first verdict.
+ 

@@ -1,0 +1,22 @@
+{
+  "work": "W105982",
+  "claim": 107590,
+  "candidate_sha256": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "34f2310512b20b4860cdbeb218bf6d9c2e506314d0ce8419a3527f726f7782d0",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "4148db65dd381b962c7cee25367af238824be6198d1bda70c9e5ed7427e255f6",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "a5ee85189d9b68cc067908c93706fc61b9561f2b4d882f2c9ce50f37920389a0",
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1",
+    "v12/python/tests/manager/test_review_cycles.py": "2afbaea65992e8c7a4695ad6ddccb376b0336b889c4d78dd12a8e86adcde53bc",
+    "v12/python/tests/manager/test_workspaces.py": "660196eb8a881250261da9f5b9e0e799104409d4726bd94016c3f639b25daefa",
+    "v12/python/tests/manager/test_oci.py": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+    "v12/python/tests/job_manager/test_review_driver.py": "2b759a9ad7ec3bb9042c4f137b36c68035c18be8e9d948caae40cf470526a1df"
+  },
+  "accepted_access_tests_prefix_preserved": {
+    "v12/python/tests/manager/test_review_cycles.py": true,
+    "v12/python/tests/manager/test_workspaces.py": true,
+    "v12/python/tests/manager/test_oci.py": false
+  },
+  "job_test_predecessor_reconstructed": false,
+  "unchanged_engine_sha256": "fda83858087c40216323078b1c9c2ed51adc4ca242d75ad5276db9f3c272413f",
+  "oci_test_preserved_with_additive_mock_import": true
+}

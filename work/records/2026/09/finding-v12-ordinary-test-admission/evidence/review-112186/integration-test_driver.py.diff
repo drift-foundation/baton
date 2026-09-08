@@ -1,0 +1,342 @@
+--- baseline/v12/python/tests/integration/test_driver.py
++++ candidate/v12/python/tests/integration/test_driver.py
+@@ -230,14 +230,28 @@
+                          "verdict_id": "verdict-1",
+                          "checkpoint_digest": "sha256:checkpoint"}
+ 
+-    def receipts(self, generation=3):
++    def receipts(self, generation=3, evidence=None):
++        """W112029: these cases measure receipt IDENTITY and replay, so the
++        evidence resolution is supplied rather than rebuilt -- this fixture has
++        no producer to read one from. The resolution itself is driven against a
++        real retained result in the admission cases below."""
+         self.authority.policy_generation = lambda: generation
++        held = evidence or {"attempt_id": "attempt-1",
++                            "checkpoint_id": "cp-1",
++                            "assignment_ref": {"generation": 1},
++                            "input_manifest_digest": "sha256:" + "1" * 64,
++                            "result_id": "result-attempt-1",
++                            "result_digest": "sha256:" + "2" * 64,
++                            "observation": observation()}
+         with mock.patch.object(driver, "integration_checkpoint",
+-                               return_value=copy.deepcopy(self.accepted)):
++                               return_value=copy.deepcopy(self.accepted)), \
++                mock.patch.object(driver, "ordinary_test_evidence",
++                                  return_value=copy.deepcopy(held)):
+             return driver._accepted_receipts(
+                 self.manager, self.authority, self.verify, self.review,
+                 self.approve, line_id="line-1", proposal_id="proposal-1",
+-                policy_generation=generation)
++                policy_generation=generation,
++                required_tests=requirements(held["input_manifest_digest"]))
+ 
+     def test_receipts_are_separate_attributable_and_replay_stable(self):
+         first = self.receipts()[2]
+@@ -259,7 +273,8 @@
+                 driver._accepted_receipts(
+                     self.manager, self.authority, self.verify, self.review,
+                     self.approve, line_id="line-1",
+-                    proposal_id="proposal-1", policy_generation=3)
++                    proposal_id="proposal-1", policy_generation=3,
++                    required_tests=requirements("sha256:" + "1" * 64))
+         self.assertEqual(self.verify.calls, [])
+ 
+     def test_changed_policy_generation_changes_the_bound_operation(self):
+@@ -278,7 +293,8 @@
+                 driver._accepted_receipts(
+                     self.manager, self.authority, self.verify, self.review,
+                     self.approve, line_id="line-1",
+-                    proposal_id="proposal-1", policy_generation=3)
++                    proposal_id="proposal-1", policy_generation=3,
++                    required_tests=requirements("sha256:" + "1" * 64))
+         self.assertEqual(self.verify.calls, [])
+ 
+ 
+@@ -295,6 +311,16 @@
+         self.approve = ReceiptSession("baton.approve", "approve")
+         self.integrator = ReceiptSession("baton.integrator", "integrate")
+         self.port = SimpleNamespace(run=mock.Mock())
++        # W112029: this fixture drives the ADMISSION composition and holds no
++        # frozen result, so the evidence resolution is supplied here and proved
++        # for real in the admission cases that own a producer.
++        self.required = requirements("sha256:" + "1" * 64)
++        self.evidence = {"attempt_id": "attempt-1", "checkpoint_id": "cp-1",
++                         "assignment_ref": {"generation": 1},
++                         "input_manifest_digest": "sha256:" + "1" * 64,
++                         "result_id": "result-attempt-1",
++                         "result_digest": "sha256:" + "2" * 64,
++                         "observation": observation()}
+         self.profile = runtime.integration_profile(
+             profile_kind="git", profile_version=1,
+             integrator_participant="baton.integrator",
+@@ -357,7 +383,8 @@
+                 self.port, canonical_target_id="target-1", line_id="line-1",
+                 proposal_id="proposal-1", policy_generation=3,
+                 profile=self.profile, attempt_id="attempt-1",
+-                launch_root="/launch", workspace_group=object())
++                launch_root="/launch", workspace_group=object(),
++                required_tests=self.required)
+             return (result, patched, integrate, publish, live, settle, hold,
+                     complete)
+ 
+@@ -442,6 +469,9 @@
+         self.assertEqual(self.integrator.calls, [])
+ 
+ 
++REPLAY_INPUT = "sha256:" + "1" * 64
++
++
+ class TerminalReleaseReplayCase(ExecutionCase):
+ 
+     def restart(self, entry, target_id):
+@@ -488,7 +518,11 @@
+                 proposal_id="proposal-1", policy_generation=1,
+                 profile=profile(), attempt_id="attempt-1",
+                 launch_root=os.path.join(self.launch, "attempt-1"),
+-                workspace_group=self.group)
++                workspace_group=self.group,
++                # W112029: this replay drives the RESTART tail rather than the
++                # evidence gate, so the resolution is supplied and the exact
++                # requirement matches it.
++                required_tests=requirements(REPLAY_INPUT))
+         return replayed, integrator, receipt, restart_port
+ 
+     def test_restart_replays_the_settled_live_lease_tail(self):
+@@ -585,6 +619,29 @@
+ CLAIM = "baton.git-proposal/1"
+ TRANSPORT = "objects.bundle"
+ RECAP = "candidate: the provider changed one path and its check passed"
++
++# W112029: one ordinary-test observation and the requirement it answers. The
++# two are separate documents on purpose -- the producer OBSERVES and the
++# deployment REQUIRES -- and the cases below drive every way they disagree.
++TASK_ID = "w112029-ordinary"
++TASK_DIGEST = "sha256:" + "7" * 64
++ARGV = ["python3", "harness.py"]
++ORDINARY = driver.ORDINARY_TESTS_NAMESPACE
++
++
++def observation(**changed):
++    held = {"task_id": TASK_ID, "task_digest": TASK_DIGEST,
++            "argv": list(ARGV), "status": 0,
++            "base": PRIVATE_BASE, "head": PRIVATE_HEAD}
++    held.update(changed)
++    return held
++
++
++def requirements(input_digest, **changed):
++    held = {"task_id": TASK_ID, "task_digest": TASK_DIGEST,
++            "argv": list(ARGV), "input_manifest_digest": input_digest}
++    held.update(changed)
++    return held
+ 
+ 
+ def _sealed(document):
+@@ -675,7 +732,12 @@
+         self.claim = {"base": PRIVATE_BASE, "head": PRIVATE_HEAD,
+                       "transport": TRANSPORT, "recap": RECAP}
+         self.publisher = LinePublisher(PRIVATE_BASE)
++        # W112029: what this producer OBSERVED and what the deployment
++        # REQUIRES, defaulted to agreement so a case that is about something
++        # else is not measuring this gate.
++        self.observed = {}
+         self.retain()
++        self.required = requirements(self.input_digest)
+ 
+     # -- the frozen result, really retained ---------------------------------
+ 
+@@ -688,7 +750,9 @@
+                       "status": "present",
+                       "content_manifest": copy.deepcopy(self.content),
+                       "artifact": copy.deepcopy(self.artifact),
+-                      "result_metadata": {CLAIM: copy.deepcopy(self.claim)}}])
++                      "result_metadata": {
++                          CLAIM: copy.deepcopy(self.claim),
++                          ORDINARY: observation(**self.observed)}}])
+         composed.update(members)
+         result = _sealed(composed)
+         self.result = result
+@@ -939,3 +1003,183 @@
+ 
+ if __name__ == "__main__":
+     unittest.main()
++
++
++class TheAdmissionNeedsActualOrdinaryTestEvidence(ProducerCase):
++    """W112029: the receipt that used to say `passed` for everything.
++
++    `_accepted_receipts` published `observation="passed"` unconditionally for
++    every accepted checkpoint. An accepted TECHNICAL REVIEW is a judgement
++    about a change; it is not a statement that the required commands ran and
++    exited zero, and publishing one as the other made the strongest receipt in
++    the protocol the least evidenced.
++
++    These drive the real reader over the really retained result this fixture
++    already builds -- no mocked observation anywhere.
++    """
++
++    def setUp(self):
++        super().setUp()
++        self.accepted = {"line_id": "line-1", "checkpoint_id": "cp-1",
++                         "verdict_id": "verdict-1",
++                         "checkpoint_digest": "sha256:" + "c" * 64,
++                         "head": PRIVATE_HEAD}
++        self.proposal = {
++            "proposal_id": "proposal-1",
++            "assignment_ref": copy.deepcopy(self.assignment),
++            "result_id": "result-attempt-1",
++            "result_digest": self.result_digest,
++            "candidate_digest": PRIVATE_HEAD,
++            "input_digest": self.input_digest,
++            "policy_digest": self.result["policy_digest"],
++            "target": PRIVATE_BASE,
++            "decision": {},
++            "published_at": "2026-09-07T02:00:00.000Z"}
++        self.authority = SimpleNamespace(
++            # THE LIVE RETAINED DIGEST, because a case that re-retains its
++            # result changes it and a proposal frozen at setUp would then be
++            # measuring staleness rather than its own subject.
++            proposal=lambda _id: dict(self.proposal,
++                                      result_digest=self.result_digest),
++            policy_generation=lambda: 3)
++
++    def evidence(self):
++        """The RETAINED result is real; the frozen summary row and the
++        checkpoint's writer are the two facts this fixture has no runtime to
++        produce, and they are supplied exactly as `produced()` already supplies
++        them for the publication producer beside this."""
++        with mock.patch.object(driver, "integration_checkpoint",
++                               return_value=copy.deepcopy(self.accepted)), \
++                mock.patch.object(driver, "checkpoint_of",
++                                  return_value={"writer_id": "writer-1"}), \
++                mock.patch.object(driver, "writer_of",
++                                  return_value={
++                                      "runtime_attempt_id": "attempt-1"}), \
++                mock.patch.object(driver, "frozen_output_of",
++                                  return_value={
++                                      "result_id": self.result["result_id"],
++                                      "disposition": "completed",
++                                      "manifest_digest": self.result_digest}), \
++                mock.patch.object(driver, "_assignment",
++                                  return_value=self.assignment):
++            return driver.ordinary_test_evidence(
++                self.store, self.authority, line_id="line-1",
++                proposal_id="proposal-1")
++
++    def refused(self, action, *operands, **named):
++        with self.assertRaises(ContractRefusal) as caught:
++            action(*operands, **named)
++        return caught.exception
++
++    # -- resolution ----------------------------------------------------------
++
++    def test_the_producers_own_observation_is_resolved_from_custody(self):
++        held = self.evidence()
++        self.assertEqual(held["attempt_id"], "attempt-1")
++        self.assertEqual(held["observation"], observation())
++        self.assertEqual(held["result_digest"], self.result_digest)
++        self.assertEqual(held["input_manifest_digest"], self.input_digest)
++
++    def test_a_result_with_no_observation_refuses(self):
++        composed = copy.deepcopy(self.result)
++        composed["outputs"][0]["result_metadata"] = {CLAIM: self.claim}
++        self.retain(outputs=composed["outputs"])
++        caught = self.refused(self.evidence)
++        self.assertIn(ORDINARY, caught.message)
++
++    def test_an_observation_over_another_candidate_refuses(self):
++        self.observed = {"head": "f" * 40}
++        self.retain()
++        caught = self.refused(self.evidence)
++        self.assertIn("another candidate", caught.message)
++
++    def test_a_checkpoint_naming_another_head_refuses(self):
++        self.accepted["head"] = "e" * 40
++        self.refused(self.evidence)
++
++    def test_a_proposal_naming_another_result_refuses(self):
++        self.proposal["result_id"] = "result-other"
++        caught = self.refused(self.evidence)
++        self.assertIn("different results", caught.message)
++
++    def test_a_proposal_naming_another_input_refuses(self):
++        self.proposal["input_digest"] = "sha256:" + "9" * 64
++        caught = self.refused(self.evidence)
++        self.assertIn("input or policy", caught.message)
++
++    # -- the decision --------------------------------------------------------
++
++    def test_an_actual_zero_for_the_exact_requirement_passes(self):
++        self.assertEqual(
++            driver._ordinary_tests_passed(self.evidence(), self.required),
++            self.required)
++
++    def test_a_nonzero_status_is_refused_as_a_failing_requirement(self):
++        self.observed = {"status": 1}
++        self.retain()
++        caught = self.refused(driver._ordinary_tests_passed, self.evidence(),
++                              self.required)
++        self.assertEqual((caught.category, caught.code), ("policy", "denied"))
++        self.assertIn("exited 1", caught.message)
++        self.assertIn("not a substitute", caught.message)
++
++    def test_an_unrun_command_is_a_different_refusal_from_a_failing_one(self):
++        """No evidence and evidence of failure are not the same answer, and
++        reporting one as the other sends an operator to the wrong place."""
++        self.observed = {"status": None}
++        self.retain()
++        caught = self.refused(driver._ordinary_tests_passed, self.evidence(),
++                              self.required)
++        self.assertEqual((caught.category, caught.code),
++                         ("refused", "precondition"))
++        self.assertIn("did not run", caught.message)
++
++    def test_a_status_zero_for_another_command_proves_nothing(self):
++        for name, changed in (("task_id", {"task_id": "another-task"}),
++                              ("task_digest",
++                               {"task_digest": "sha256:" + "0" * 64}),
++                              ("argv", {"argv": ["python3", "other.py"]})):
++            with self.subTest(member=name):
++                self.observed = changed
++                self.retain()
++                self.refused(driver._ordinary_tests_passed, self.evidence(),
++                             self.required)
++
++    def test_requirements_selected_for_another_attempt_refuse(self):
++        caught = self.refused(
++            driver._ordinary_tests_passed, self.evidence(),
++            requirements("sha256:" + "4" * 64))
++        self.assertIn("another attempt", caught.message)
++
++    def test_a_requirement_may_never_carry_an_observation(self):
++        """There is no `status` in the selection and there never will be: a
++        caller that could supply the observation would be certifying its own
++        candidate, which is the exact defect the unconditional receipt was."""
++        self.assertNotIn("status", driver.REQUIRED_TESTS_MEMBERS)
++        self.refused(driver._owned_requirements,
++                     dict(self.required, status=0))
++
++    # -- the receipt ---------------------------------------------------------
++
++    def test_the_receipt_identity_binds_the_evidence_and_the_requirement(self):
++        first = driver._identity("verification-operation", {
++            "workflow": driver.ORDINARY_TESTS_WORKFLOW,
++            "ordinary_tests": digest(observation()),
++            "required_tests": digest(self.required)})
++        second = driver._identity("verification-operation", {
++            "workflow": driver.ORDINARY_TESTS_WORKFLOW,
++            "ordinary_tests": digest(observation(status=0)),
++            "required_tests": digest(self.required)})
++        third = driver._identity("verification-operation", {
++            "workflow": driver.ORDINARY_TESTS_WORKFLOW,
++            "ordinary_tests": digest(observation(task_id="other")),
++            "required_tests": digest(self.required)})
++        self.assertEqual(first, second)
++        self.assertNotEqual(first, third)
++
++    def test_the_workflow_marker_is_not_a_certification_word(self):
++        """It says what actually happened: the author's own container ran the
++        required command. It is explicitly not a clean-verification claim."""
++        self.assertIn("ordinary-tests", driver.ORDINARY_TESTS_WORKFLOW)
++        for word in ("clean", "certified", "verified"):
++            self.assertNotIn(word, driver.ORDINARY_TESTS_WORKFLOW)

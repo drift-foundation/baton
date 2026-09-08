@@ -1,0 +1,49 @@
+--- review113374
++++ correction113398
+@@ -17,6 +17,16 @@
+ target. Those are W110935's remaining paths and none of them is started. No
+ case in this file imports a target, edits a path or composes an integration
+ result, and nothing here should be read as evidence that any of that works.
++
++AND THAT ABSENCE IS RECORDED IN THE DOSSIER, NOT ASSERTED HERE. This file
++briefly carried a case asserting the four planned files did not exist. Review
++2026-09-07T20:52:18Z [P2] is right that it was a development status check
++wearing a product regression's clothes: it would have rejected the completion
++of this very Work merely because the scheduled artifacts existed, whatever
++their correctness. PROGRESS.md and the review evidence already record what is
++and is not delivered, which is where a status belongs. It is removed, and the
++scheduled positive import/result and negative held regressions take its place
++when the workload lands.
+ """
+ 
+ import os
+@@ -168,29 +178,5 @@
+         self.refused(room="relative/room")
+         self.assertEqual(len(self.commands), before)
+ 
+-
+-class TheRemainingWorkloadIsNotBuilt(unittest.TestCase):
+-    """The absence, asserted rather than described.
+-
+-    A reviewer reading a green suite should not have to take a prose sentence
+-    for it: these are the four paths W110935 still owes and they are not on
+-    disk. When one of them lands this case fails, which is the point -- it is
+-    the reminder to bring its proof with it.
+-    """
+-
+-    def test_the_workload_entry_recipe_and_image_suite_are_absent(self):
+-        for name in ("integration_workload.py", "integration_entry.py",
+-                     "Dockerfile.integration"):
+-            with self.subTest(name=name):
+-                self.assertFalse((WORKER / name).exists(),
+-                                 f"{name} exists and this suite does not "
+-                                 f"prove it")
+-        suite = (pathlib.Path(__file__).resolve().parent
+-                 / "test_integration_image.py")
+-        self.assertFalse(suite.exists(),
+-                         "the image suite exists and this file still claims "
+-                         "the joined proof is not built")
+-
+-
+ if __name__ == "__main__":
+     unittest.main()

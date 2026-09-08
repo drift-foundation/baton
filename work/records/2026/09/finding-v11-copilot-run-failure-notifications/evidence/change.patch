@@ -1,0 +1,351 @@
+--- prior/tools/codex_copilot_notifier.py
++++ candidate/tools/codex_copilot_notifier.py
+@@ -6,6 +6,7 @@
+ """
+ 
+ import argparse
++from datetime import datetime
+ import fcntl
+ import hashlib
+ import json
+@@ -46,7 +47,7 @@
+ 
+ 
+ def baton_read(config, verb, *operands):
+-    if verb not in {"actionable-work", "obligations"}:
++    if verb not in {"actionable-work", "obligations", "incidents", "runtime"}:
+         raise ValueError("not a notifier read")
+     result = subprocess.run([config["baton"], "--config", config["baton_config"], "--participant", config["observer"], verb, *operands], capture_output=True, text=True, timeout=config["timeout_seconds"], check=False)
+     if result.returncode:
+@@ -89,7 +90,65 @@
+         else:
+             key = "obligation:" + str(row["seq"])
+         items[key] = row
++    incidents = read(config, "incidents")
++    runtime = read(config, "runtime")
++    if incidents["authority_uuid"] != authority or runtime["authority_uuid"] != authority:
++        raise ValueError("authority changed during scan")
++    for row in incidents["result"]["rows"]:
++        if row["action_owner"] != config["observer"] or not row["open"]:
++            continue
++        items["incident:" + str(row["incident"])] = {key: row.get(key) for key in (*FAILURE_IDENTITY, "first_ts", "category")}
++    for row in runtime["result"]["participants"]:
++        run = row["runtime"]
++        if run["action_owner"] != config["observer"] or run["state"] != "failed":
++            continue
++        item = {key: run.get(key) for key in (*FAILURE_IDENTITY, "since")}
++        item["participant"] = row["participant"]
++        items["runtime:" + row["participant"]] = item
+     return authority, items
++
++
++FAILURE_IDENTITY = ("participant", "incarnation", "session", "work", "episode", "cause")
++
++
++def same_failure(incident, runtime):
++    # Missing lease/transition identity must not hide independent attention.
++    if not runtime.get("incarnation") or any(incident.get(k) != runtime.get(k) for k in FAILURE_IDENTITY):
++        return False
++    try:
++        return datetime.fromisoformat(incident["first_ts"].replace("Z", "+00:00")) >= datetime.fromisoformat(runtime["since"].replace("Z", "+00:00"))
++    except (KeyError, AttributeError, TypeError, ValueError):
++        return False
++
++
++def failure_changes(items, current, seen, paired):
++    changed = {key for key in items if seen.get(key) != current[key]}
++    covered = set()
++    pairs = []
++    for runtime_key, runtime in items.items():
++        if not runtime_key.startswith("runtime:"):
++            continue
++        for incident_key, incident in items.items():
++            if not incident_key.startswith("incident:") or not same_failure(incident, runtime):
++                continue
++            pairs.append((runtime_key, incident_key))
++            if seen.get(runtime_key) == current[runtime_key] and paired.get(runtime_key) != current[runtime_key]:
++                # The runtime already notified this exact failure; a late incident
++                # adds a read locator, not a second model turn.
++                covered.add(incident_key)
++            elif seen.get(incident_key) == current[incident_key]:
++                covered.add(runtime_key)
++            else:
++                # Both are new: prefer the durable incident, but acknowledge the
++                # runtime only when that advisory is accepted.
++                changed.discard(runtime_key)
++    return sorted(changed - covered), covered, pairs
++
++
++def remember_failure_pairs(state, current, pairs):
++    for runtime_key, incident_key in pairs:
++        if all(state["seen"].get(k) == current[k] for k in (runtime_key, incident_key)):
++            state["paired"][runtime_key] = current[runtime_key]
+ 
+ 
+ def bridge_request(config, payload):
+@@ -119,10 +178,13 @@
+     scope = digest([authority, config["observer"], config["target"], config["prompt_participant"], status["instanceId"], target["threadId"]])
+     seen = state.get("seen", {}) if state.get("scope") == scope else {}
+     current = {key: digest(value) for key, value in items.items()}
+-    changed = sorted(key for key in items if seen.get(key) != current[key])
++    paired = state.get("paired", {}) if state.get("scope") == scope else {}
++    changed, covered, pairs = failure_changes(items, current, seen, paired)
+     # Prune resolved items without manufacturing a notification. Do not mark
+     # anything new seen until the socket explicitly accepts the advisory.
+-    next_state = {"scope": scope, "seen": {k: v for k, v in seen.items() if k in current}}
++    next_state = {"scope": scope, "seen": {k: v for k, v in seen.items() if k in current}, "paired": {k: v for k, v in paired.items() if current.get(k) == v}}
++    next_state["seen"].update({k: current[k] for k in covered})
++    remember_failure_pairs(next_state, current, pairs)
+     if not changed:
+         return next_state, {"status": "unchanged", "attention": len(items)}
+     if not target.get("connected") or not target.get("deliverable") or target.get("status") != "idle" or target.get("queueDepth") != 0:
+@@ -139,6 +201,7 @@
+     response = request(config, event)
+     if response.get("accepted") is True:
+         next_state["seen"] = current
++        remember_failure_pairs(next_state, current, pairs)
+         return next_state, {"status": "accepted", "changed": len(changed), "event": event["id"]}
+     return next_state, {"status": "not-accepted", "reason": response.get("reason", "unknown")}
+ 
+@@ -173,7 +236,7 @@
+     with open(str(path) + ".lock", "a") as lock:
+         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+         state = json.loads(path.read_text()) if path.exists() else {}
+-        if not isinstance(state, dict) or not isinstance(state.get("seen", {}), dict):
++        if not isinstance(state, dict) or not isinstance(state.get("seen", {}), dict) or not isinstance(state.get("paired", {}), dict):
+             raise ValueError("invalid notifier cursor; inspect it before retrying")
+         while True:
+             try:
+--- prior/tools/test_codex_copilot_notifier.py
++++ candidate/tools/test_codex_copilot_notifier.py
+@@ -16,13 +16,16 @@
+         self.config = dict(baton="/explicit/baton", baton_config="/explicit/baton.json", observer="baton.slaw", prompt_participant="baton.prompt", target="prompt", socket="/explicit/socket", state_file="/explicit/state", timeout_seconds=2, poll_seconds=30)
+         self.rows = [dict(id="a-W1", title="First", last_change_seq=4, message_count=1, progress={"children": 0}, route={"endpoint": "baton.ops"})]
+         self.obligations = []
++        self.incidents = []
++        self.runtimes = []
+         self.calls = []
+         self.status = {"instanceId": "bridge-1", "targets": {"prompt": dict(participant="baton.prompt", role="prompt", threadId="thread-1", connected=True, deliverable=True, status="idle", queueDepth=0)}}
+         self.response = {"accepted": True}
+ 
+     def read(self, config, verb, *operands):
+         self.calls.append((verb, operands))
+-        return {"authority_uuid": "authority", "result": {"rows": copy.deepcopy(self.rows), "next_after": None} if verb == "actionable-work" else copy.deepcopy(self.obligations)}
++        results = {"actionable-work": {"rows": self.rows, "next_after": None}, "obligations": self.obligations, "incidents": {"rows": self.incidents}, "runtime": {"participants": self.runtimes}}
++        return {"authority_uuid": "authority", "result": copy.deepcopy(results[verb])}
+ 
+     def request(self, config, payload):
+         if payload.get("control") == "copilot-status":
+@@ -169,5 +172,161 @@
+                 notifier.read_config(path)
+ 
+ 
++class FailureNotificationTests(unittest.TestCase):
++    # Reuse the transport fixtures, not the inherited test cases.
++    read = NotifierTests.read
++    request = NotifierTests.request
++    poll = NotifierTests.poll
++
++    def setUp(self):
++        NotifierTests.setUp(self)
++        self.rows = []  # A stranded implementation claim is not operator Work.
++        self.failed = dict(action_owner="baton.slaw", state="failed", incarnation="lease-1", session="session-1", work="a-W110935", episode=114003, cause="internal", since="2026-09-07T22:36:22Z")
++        self.incident = dict(participant="baton.claude", incident=36, open=True, first_ts="2026-09-07T22:36:22Z", category="other", **{k: v for k, v in self.failed.items() if k not in {"state", "since"}})
++
++    def add_runtime(self, **changes):
++        self.runtimes = [dict(participant="baton.claude", runtime={**self.failed, **changes})]
++
++    def events(self):
++        return [c for c in self.calls if isinstance(c, dict)]
++
++    def test_stranded_claim_incident_notifies_without_operator_work(self):
++        self.incidents = [self.incident]
++        state, result = self.poll()
++        self.assertEqual(result["status"], "accepted")
++        self.assertEqual(json.loads(self.events()[0]["details"])["changed"], ["incident:36"])
++        self.incident.update(latest_ts="later", occurrences=99, detail="private diagnostic")
++        self.assertEqual(self.poll(state)[1]["status"], "unchanged")
++        self.assertNotIn("private diagnostic", json.dumps(self.events()))
++
++    def test_runtime_without_incident_notifies_and_heartbeats_do_not(self):
++        self.add_runtime(detail="private diagnostic")
++        state, result = self.poll()
++        self.assertEqual(result["status"], "accepted")
++        self.assertEqual(json.loads(self.events()[0]["details"])["changed"], ["runtime:baton.claude"])
++        self.runtimes[0]["runtime"].update(last_contact="later", expires_at="later", stale=True, facts=[{"age_seconds": 300}])
++        self.assertEqual(self.poll(state)[1]["status"], "unchanged")
++        self.assertNotIn("private diagnostic", json.dumps(self.events()))
++
++    def test_simultaneous_failure_and_incident_emit_one_locator(self):
++        self.add_runtime()
++        self.incidents = [self.incident]
++        state, result = self.poll()
++        self.assertEqual(result["changed"], 1)
++        self.assertEqual(json.loads(self.events()[0]["details"])["changed"], ["incident:36"])
++        self.assertEqual(len(state["seen"]), 2)
++        self.assertEqual(self.poll(state)[1]["status"], "unchanged")
++
++    def test_late_incident_is_covered_by_accepted_runtime_across_reload(self):
++        self.add_runtime()
++        state, _ = self.poll()
++        self.incidents = [self.incident]
++        state, result = self.poll(json.loads(json.dumps(state)))
++        self.assertEqual(result["status"], "unchanged")
++        self.assertIn("incident:36", state["seen"])
++        self.assertEqual(len(self.events()), 1)
++
++    def test_late_runtime_and_incident_dismissal_do_not_duplicate(self):
++        self.incidents = [self.incident]
++        state, _ = self.poll()
++        self.add_runtime()
++        state, result = self.poll(state)
++        self.assertEqual(result["status"], "unchanged")
++        self.incidents = []
++        state, result = self.poll(state)
++        self.assertEqual(result["status"], "unchanged")
++        self.assertNotIn("incident:36", state["seen"])
++
++    def test_owner_filter_is_exact_for_both_sources(self):
++        self.incidents = [{**self.incident, "action_owner": "pc.slaw"}, {**self.incident, "open": False}]
++        self.add_runtime(action_owner="pc.slaw")
++        self.assertEqual(self.poll()[1]["status"], "unchanged")
++
++    def test_nonfailed_states_are_not_alerts(self):
++        for state in ("idle", "working", "offline", "waiting"):
++            with self.subTest(state=state):
++                self.add_runtime(state=state)
++                self.assertEqual(self.poll()[1]["status"], "unchanged")
++
++    def test_recurrence_after_recovery_notifies_with_same_work_and_session(self):
++        self.add_runtime()
++        self.incidents = [self.incident]
++        state, _ = self.poll()
++        self.add_runtime(state="working")
++        state, result = self.poll(state)
++        self.assertEqual(result["status"], "unchanged")
++        self.add_runtime(since="2026-09-07T22:40:00Z")
++        state, result = self.poll(state)
++        self.assertEqual(result["status"], "accepted")
++        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["runtime:baton.claude"])
++        self.incidents.append({**self.incident, "incident": 37, "first_ts": "2026-09-07T22:40:01Z"})
++        self.assertEqual(self.poll(state)[1]["status"], "unchanged")
++
++    def test_new_failure_between_polls_notifies(self):
++        self.add_runtime()
++        state, _ = self.poll()
++        self.add_runtime(since="2026-09-07T22:40:00Z")
++        self.assertEqual(self.poll(state)[1]["status"], "accepted")
++
++    def test_new_incident_after_dismissal_is_not_hidden_by_old_runtime(self):
++        self.add_runtime()
++        self.incidents = [self.incident]
++        state, _ = self.poll()
++        self.incidents = []
++        state, _ = self.poll(state)
++        self.incidents = [{**self.incident, "incident": 37, "first_ts": "2026-09-07T22:40:00Z"}]
++        state, result = self.poll(json.loads(json.dumps(state)))
++        self.assertEqual(result["status"], "accepted")
++        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["incident:37"])
++
++    def test_other_episode_or_session_incidents_are_not_hidden(self):
++        for field, value in (("episode", 114108), ("session", "other"), ("incarnation", "other"), ("cause", "credential"), ("work", "a-W2")):
++            with self.subTest(field=field):
++                self.add_runtime()
++                self.incidents = [{**self.incident, field: value}]
++                self.assertEqual(self.poll()[1]["changed"], 2)
++
++    def test_missing_correlation_never_hides_incident(self):
++        self.add_runtime(incarnation=None)
++        self.incidents = [{**self.incident, "incarnation": None}]
++        self.assertEqual(self.poll()[1]["changed"], 2)
++
++    def test_busy_failure_recovery_prunes_without_alert(self):
++        self.add_runtime()
++        self.status["targets"]["prompt"]["status"] = "active"
++        state, result = self.poll()
++        self.assertEqual(result["status"], "waiting-for-prompt")
++        self.assertEqual(state["seen"], {})
++        self.add_runtime(state="idle")
++        self.status["targets"]["prompt"]["status"] = "idle"
++        self.assertEqual(self.poll(state)[1]["status"], "unchanged")
++        self.assertEqual(self.events(), [])
++
++    def test_rejected_correlated_advisory_remains_pending(self):
++        self.add_runtime()
++        self.incidents = [self.incident]
++        self.response = {"accepted": False}
++        state, result = self.poll()
++        self.assertEqual(result["status"], "not-accepted")
++        self.assertEqual(state["seen"], {})
++        self.response = {"accepted": True}
++        self.assertEqual(self.poll(state)[1]["status"], "accepted")
++
++    def test_failed_read_or_foreign_authority_never_sends(self):
++        for verb in ("incidents", "runtime"):
++            for failure in ("read", "authority"):
++                with self.subTest(verb=verb, failure=failure):
++                    def read(config, command, *operands):
++                        if command == verb and failure == "read":
++                            raise RuntimeError("unavailable")
++                        result = self.read(config, command, *operands)
++                        if command == verb:
++                            result["authority_uuid"] = "foreign"
++                        return result
++                    with self.assertRaises((RuntimeError, ValueError)):
++                        notifier.poll(self.config, {}, read, self.request)
++                    self.assertEqual(self.events(), [])
++
++
+ if __name__ == "__main__":
+     unittest.main()
+--- prior/tools/CODEX-COPILOT-NOTIFIER.md
++++ candidate/tools/CODEX-COPILOT-NOTIFIER.md
+@@ -1,7 +1,8 @@
+ # Codex copilot notifier (v11)
+ 
+-`codex_copilot_notifier.py` observes an operator's actionable Work and pending
+-obligations through the canonical Baton CLI. It asks the existing Codex event
++`codex_copilot_notifier.py` observes an operator's actionable Work, pending
++obligations, open managed-turn incidents and failed runtimes through the canonical
++Baton CLI. It asks the existing Codex event
+ bridge to notify an existing prompt thread. It does not connect to app-server
+ directly, start another model context, claim Work, consume handler readiness,
+ or change the Baton database. Due trials owed by the operator are included.
+@@ -76,8 +77,27 @@
+ - Polls every 30 seconds by default; CLI/socket operations have timeouts.
+ - Reads all actionable-work pages. Obligations are team-wide in the CLI, so
+   the watcher filters by the resolved endpoint's operator handler membership.
++- Reads `incidents` and `runtime`, filtering both by exact `action_owner` equal
++  to the configured observer. A stranded claim can notify even when no Work is
++  offered to the operator. Incident dismissal and runtime recovery are separate:
++  an open incident remains attention after the runtime recovers.
++- Failure locators are `incident:N` and `runtime:TEAM.MEMBER`. The copilot reads
++  those canonical views and the correlated Work before recommending recovery;
++  the notifier never releases claims, dismisses incidents or inspects logs.
++- Correlates participant, incarnation, session, Work, episode and cause, requiring
++  the incident to begin at or after the runtime's failed transition. When both
++  appear, sends the incident locator once. A later matching representation is
++  silently acknowledged only if its counterpart was already accepted. Separate
++  episodes/sessions and later failed transitions notify again. No claim of atomic
++  snapshots or detection of transitions that disappear entirely between polls.
++  A cursor marker remembers when a runtime version has already been paired with
++  an incident, so a new incident after dismissal still notifies. Existing cursors
++  without this optional field remain readable.
+ - Work handoff changes, message counts and child progress can trigger advice;
+-  runtime ages, New cursors and pickup timers cannot repeatedly wake the model.
++  runtime ages/heartbeats, incident occurrence counters, New cursors and pickup
++  timers cannot repeatedly wake the model. Runtime `since` identifies state
++  transitions, not lease refreshes. Missing correlation causes separate alerts
++  rather than suppressing a potentially independent incident.
+ - Coalesces in the watcher while busy. The bridge also checks idle admission,
+   preventing an old busy observation from accumulating another advisory.
+   A human turn racing admission still uses the existing dispatcher's busy and
+@@ -109,3 +129,8 @@
+ may need explicit permission for the socket fixture. No broad suite is needed.
+ 
+ Decision/evidence: [notifier dossier](../work/records/2026/09/finding-v11-codex-copilot-notifier/FINDING.md).
++
++Failure detection extension: [W114322](../work/records/2026/09/finding-v11-copilot-run-failure-notifications/FINDING.md).
++After independent review, restart only the existing notifier process to load this
++change, keeping its config and cursor. No bridge or stack restart is required.
++The first poll offers existing unresolved incidents/failures as well as new ones.

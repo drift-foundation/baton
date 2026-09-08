@@ -1,0 +1,227 @@
+--- before/v12/python/tests/job_manager/test_review_driver.py
++++ candidate/v12/python/tests/job_manager/test_review_driver.py
+@@ -1133,7 +1133,7 @@
+             mock.patch.object(review_driver, "decide_retention",
+                               note("retain", lambda: {"disposition": "retain"})), \
+             mock.patch.object(review_driver, "authorize_cleanup",
+-                              note("cleanup")), \
++                              note("cleanup", lambda: {"state": "absent", "cleanup": "retained"})), \
+             mock.patch.object(review_driver.review_cycles, "freeze_checkpoint",
+                               checkpoint), \
+             mock.patch.object(review_driver.review_cycles, "record_verdict",
+@@ -1222,7 +1222,7 @@
+             mock.patch.object(review_driver.review_cycles, "record_verdict",
+                               verdict), \
+             mock.patch.object(review_driver, "authorize_cleanup",
+-                              note("cleanup")):
++                              note("cleanup", lambda: {"state": "absent", "cleanup": "retained"})):
+         yield recorded
+ 
+ 
+@@ -2460,11 +2460,45 @@
+             place = artifact["custody_locator"].removeprefix("file://")
+             self.assertTrue(os.path.isdir(place))
+             self.assertEqual(directory_manifest(place)["tree_digest"], artifact["content_digest"])
+-        self.assertEqual(verdict_of(self.control, ended["verdict_id"]), ended["verdict_record"])
++        persisted = verdict_of(self.control, ended["verdict_id"])
++        recorded_at = persisted.pop("recorded_at")
++        self.assertEqual(review_driver.boundaries.instant(recorded_at, "the verdict timestamp"), NOW)
++        for source, target in (("base_object", "base"), ("head_object", "head"),
++                               ("tree_object", "tree"), ("review_assignment_generation", "review_generation")):
++            persisted[target] = persisted.pop(source)
++        self.assertEqual(persisted, ended["verdict_record"])
+         self.assertEqual(self.verdicts(held), 1)
+         self.assertEqual(attempt_runtime_of(self.control, held["attempt_id"])["execution_runtime"], "destroyed")
+         self.assertEqual(len(held["adapter"].destroyed_with), 1)
+         self.assertFalse(os.path.exists(self.review_output))
++        self.assertEqual(self.worker_turns, 1)
++        self.assert_historical_replay(held, ended)
++
++    def assert_historical_replay(self, held, ended):
++        from baton_v12.worker_manager import integration_checkpoint
++        session = held["port"]._session
++        self.assertEqual(sum(kind == "cancel" for kind, _ in session.calls), 1)
++        calls = copy.deepcopy(session.calls)
++        changes = self.control._connection.total_changes
++        checkpoint = review_driver.review_cycles.checkpoint_of(self.control, held["checkpoint_id"])
++        with contextlib.ExitStack() as stack:
++            for member in ("stop", "seal", "collect", "retain", "destroy"):
++                stack.enter_context(mock.patch.object(held["adapter"], member, side_effect=AssertionError("replay makes no runtime/custody call")))
++            stack.enter_context(mock.patch.object(held["port"], "cancel", side_effect=AssertionError("replay makes no fence call")))
++            stack.enter_context(mock.patch.object(self, "turn", side_effect=AssertionError("replay makes no worker call")))
++            eligible = integration_checkpoint(self.control, ended["line_id"])
++            self.assertEqual(eligible, {"line_id": ended["line_id"], "checkpoint_id": held["checkpoint_id"],
++                "verdict_id": ended["verdict_id"], "checkpoint_digest": checkpoint["checkpoint_digest"],
++                "evidence": checkpoint["evidence"]})
++            self.assertEqual(self.end(held), ended)
++            self.assertEqual(self.end(held), ended)
++            self.assertEqual(review_driver.review_cycles.record_verdict(self.control,
++                attachment_id=held["attachment"]["attachment_id"], disposition="accepted",
++                profile=self.profile, port=held["port"]), ended["verdict_record"])
++        self.assertEqual(self.control._connection.total_changes, changes)
++        self.assertEqual(session.calls, calls)
++        self.assertEqual(self.verdicts(held), 1)
++        self.assertEqual(len(held["adapter"].destroyed_with), 1)
+         self.assertEqual(self.worker_turns, 1)
+ 
+     def test_actual_completion_reaches_first_verdict_and_public_custody(self):
+@@ -2500,3 +2534,159 @@
+         self.assertEqual(frozen_output_of(self.control, held["attempt_id"]), frozen)
+         self.assertEqual(len(held["adapter"].seals), 2)
+         self.assert_owned_custody(held, ended)
++
++    @contextlib.contextmanager
++    def no_more_external_acts(self, held):
++        calls = copy.deepcopy(held["port"]._session.calls)
++        changes = self.control._connection.total_changes
++        with contextlib.ExitStack() as stack:
++            for member in ("stop", "seal", "collect", "retain", "destroy"):
++                stack.enter_context(mock.patch.object(held["adapter"], member, side_effect=AssertionError("refusal performs no external act")))
++            stack.enter_context(mock.patch.object(held["port"], "cancel", side_effect=AssertionError("refusal must not fence")))
++            yield
++        self.assertEqual(held["port"]._session.calls, calls)
++        self.assertEqual(self.control._connection.total_changes, changes)
++
++    def custody_damage(self):
++        # Deliberate corruption of this fixture's private store. The public
++        # readers must refuse missing or contradictory owner evidence.
++        return (
++            ("missing result manifest", "DELETE FROM manifests WHERE digest = (SELECT manifest_digest FROM outputs WHERE runtime_attempt_id = 'public-review')"),
++            ("missing intake", "DELETE FROM intakes WHERE runtime_attempt_id = 'public-review'"),
++            ("foreign receipt", "UPDATE intakes SET result_id = 'foreign-result' WHERE runtime_attempt_id = 'public-review'"),
++            ("foreign manifest", "UPDATE intakes SET manifest_digest = 'sha256:foreign' WHERE runtime_attempt_id = 'public-review'"),
++            ("quarantined custody", "UPDATE intakes SET custody = 'quarantined' WHERE runtime_attempt_id = 'public-review'"),
++            ("missing artifact", "DELETE FROM intake_artifacts WHERE runtime_attempt_id = 'public-review' AND artifact_id = 'public-review:logs'"),
++            ("foreign measurement", "UPDATE intake_artifacts SET bytes = bytes + 1 WHERE runtime_attempt_id = 'public-review'"),
++            ("missing retention", "DELETE FROM retentions WHERE runtime_attempt_id = 'public-review'"),
++            ("partly retained", "DELETE FROM retentions WHERE runtime_attempt_id = 'public-review' AND artifact_id = 'public-review:logs'"),
++            ("foreign policy", "UPDATE retentions SET retention_policy_digest = 'sha256:foreign' WHERE runtime_attempt_id = 'public-review'"))
++
++    def test_first_verdict_requires_complete_matching_custody(self):
++        held = self.produced()
++        class BeforeVerdict(Exception):
++            pass
++        with mock.patch.object(review_driver.review_cycles, "record_verdict", side_effect=BeforeVerdict):
++            with self.assertRaises(BeforeVerdict):
++                self.end(held)
++        self.assertEqual(self.verdicts(held), 0)
++        for name, statement in self.custody_damage():
++            with self.subTest(evidence=name):
++                self.control._connection.execute("SAVEPOINT damaged")
++                try:
++                    self.control._connection.execute(statement)
++                    with self.no_more_external_acts(held), self.assertRaises(ContractRefusal):
++                        review_driver.review_cycles.record_verdict(self.control,
++                            attachment_id=held["attachment"]["attachment_id"], disposition="accepted",
++                            profile=self.profile, port=held["port"])
++                    self.assertEqual(self.verdicts(held), 0)
++                finally:
++                    self.control._connection.execute("ROLLBACK TO damaged")
++                    self.control._connection.execute("RELEASE damaged")
++        self.assertEqual(held["adapter"].destroyed_with, [])
++
++    def test_destroyed_without_a_verdict_cannot_create_one(self):
++        held = self.produced()
++        class BeforeVerdict(Exception):
++            pass
++        with mock.patch.object(review_driver.review_cycles, "record_verdict", side_effect=BeforeVerdict):
++            with self.assertRaises(BeforeVerdict):
++                self.end(held)
++        self.control._connection.execute("UPDATE attempts SET execution_runtime = 'destroyed', cleanup = 'retained' WHERE runtime_attempt_id = 'public-review'")
++        with self.no_more_external_acts(held):
++            replay = self.end(held)
++            self.assertEqual(replay["outcome"], "held")
++            self.assertFalse(replay["cleaned_up"])
++            self.assertIsNone(review_driver.review_cycles.integration_checkpoint(self.control, self.line["line_id"]))
++        self.assertEqual(self.verdicts(held), 0)
++        self.assertEqual(held["adapter"].destroyed_with, [])
++
++    def test_historical_eligibility_and_replay_require_the_complete_committed_history(self):
++        held = self.produced()
++        ended = self.end(held)
++        self.assertEqual(ended["outcome"], "accepted")
++        fence_operation = "attempt.finalize-quiescent:" + digest({
++            "attempt_id": held["attempt_id"], "assignment": held["terminal"]["assignment_ref"]}).split(":", 1)[1]
++        damage = self.custody_damage() + (
++            ("missing cleanup act", "DELETE FROM operations WHERE kind = 'runtime.destroy'"),
++            ("wrong cleanup kind", "UPDATE operations SET kind = 'foreign.destroy' WHERE kind = 'runtime.destroy'"),
++            ("cleanup still pending", "UPDATE attempts SET cleanup = 'pending' WHERE runtime_attempt_id = 'public-review'"),
++            ("attachment not ended", "UPDATE review_attachments SET state = 'active', ended_at = NULL WHERE runtime_attempt_id = 'public-review'"),
++            ("different runtime", "UPDATE attempts SET runtime_id = 'foreign-runtime' WHERE runtime_attempt_id = 'public-review'"),
++            ("missing frozen result", "DELETE FROM outputs WHERE runtime_attempt_id = 'public-review'"),
++            ("uncommitted verdict", "DELETE FROM operations WHERE kind = 'review-line.verdict'"),
++            ("missing committed fence", "DELETE FROM operations WHERE operation_id = '" + fence_operation + "'"))
++        for name, statement in damage:
++            with self.subTest(evidence=name):
++                self.control._connection.execute("SAVEPOINT damaged")
++                try:
++                    self.control._connection.execute(statement)
++                    with self.no_more_external_acts(held):
++                        with self.assertRaises(ContractRefusal):
++                            review_driver.review_cycles.integration_checkpoint(self.control, ended["line_id"])
++                        replay = self.end(held)
++                        self.assertEqual(replay["outcome"], "held")
++                        self.assertFalse(replay["cleaned_up"])
++                finally:
++                    self.control._connection.execute("ROLLBACK TO damaged")
++                    self.control._connection.execute("RELEASE damaged")
++        self.assertEqual(self.verdicts(held), 1)
++        self.assertEqual(len(held["adapter"].destroyed_with), 1)
++
++    def test_replay_refuses_changed_completion_disposition_and_retention_operands(self):
++        held = self.produced()
++        ended = self.end(held)
++        operands = {"attachment_id": held["attachment"]["attachment_id"], "disposition": "completed",
++            "terminal": held["terminal"], "profile": self.profile, "retention_disposition": "retain",
++            "retention_policy_digest": "sha256:" + "9" * 64}
++        for changed in ({"disposition": "unable"}, {"terminal": dict(held["terminal"], manifest_digest="sha256:foreign")},
++                        {"retention_disposition": "discard-after-intake"}, {"retention_policy_digest": "sha256:foreign"}):
++            with self.subTest(changed=changed), self.no_more_external_acts(held):
++                replay = review_driver.end_review_from_result(self.control, held["port"], held["adapter"], **dict(operands, **changed))
++                self.assertEqual(replay["outcome"], "held")
++                self.assertFalse(replay["cleaned_up"])
++        self.assertEqual(self.end(held), ended)
++
++    def test_unresolved_provider_cleanup_stays_held_after_positive_runtime_absence(self):
++        from baton_v12.worker_manager.attempts import attempt_runtime_of
++        held = self.produced()
++        held["adapter"].destroyed = {"state": "absent", "why": "runtime gone",
++            "credentials": {"lifecycle_state": "not-delivered"},
++            "launch": {"lifecycle_state": "unresolved", "why": "launch teardown remains unresolved"}}
++        ended = self.end(held)
++        self.assertEqual(ended["outcome"], "held")
++        self.assertFalse(ended["cleaned_up"])
++        self.assertEqual(self.verdicts(held), 1)
++        state = attempt_runtime_of(self.control, held["attempt_id"])
++        self.assertEqual((state["execution_runtime"], state["cleanup"]), ("destroyed", "pending"))
++        with self.no_more_external_acts(held):
++            with self.assertRaises(ContractRefusal):
++                review_driver.review_cycles.integration_checkpoint(self.control, ended["line_id"])
++            replay = self.end(held)
++            self.assertEqual(replay["outcome"], "held")
++            self.assertFalse(replay["cleaned_up"])
++        self.assertEqual(len(held["adapter"].destroyed_with), 1)
++
++    def test_cleanup_journal_must_record_positive_absence_and_exact_retained_evidence(self):
++        held = self.produced()
++        ended = self.end(held)
++        operation_id = held["adapter"].destroyed_with[0]["operation"]["operation_id"]
++        record = self.control.operation_record(operation_id)
++        original = json.loads(record["result"])
++        for changed in ({"state": "uncertain"}, {"state": "running"}, {"cleanup": "failed"},
++                        {"attempt_id": "foreign-review"}, {"kept": []}, {"directory_custody": None},
++                        {"operation": dict(original["operation"], signature_digest="sha256:foreign")}):
++            with self.subTest(changed=changed):
++                self.control._connection.execute("SAVEPOINT damaged")
++                try:
++                    self.control._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?",
++                        (json.dumps(dict(original, **changed)), operation_id))
++                    with self.no_more_external_acts(held):
++                        with self.assertRaises(ContractRefusal):
++                            review_driver.review_cycles.integration_checkpoint(self.control, ended["line_id"])
++                        replay = self.end(held)
++                        self.assertEqual(replay["outcome"], "held")
++                        self.assertFalse(replay["cleaned_up"])
++                finally:
++                    self.control._connection.execute("ROLLBACK TO damaged")
++                    self.control._connection.execute("RELEASE damaged")

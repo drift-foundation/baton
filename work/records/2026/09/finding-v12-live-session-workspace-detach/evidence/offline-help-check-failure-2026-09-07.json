@@ -1,0 +1,19 @@
+{
+  "provenance": "Operator-supplied output corroborated by baton.prompt reading retained result.json",
+  "retained_root": "/tmp/baton-w106673-session-preflight-2sv7ux6r",
+  "cleanup": "confirmed-stopped-retained",
+  "container": "102a34e0fc3cfeb599b8e384a8e74cb120e1b1df3d91887491b6abce966e78f4",
+  "container_exit_code": 1,
+  "docker_exit_code": 1,
+  "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+  "outcome": "failed-or-blocked",
+  "probe": {
+    "child_exit_code": 0,
+    "os_errno": null,
+    "outcome": "offline-transport-preflight-failed",
+    "reason": "required-flag-absent",
+    "stage": "help-check"
+  },
+  "run": "2e850fa7437d4898809fa1937e1ab713",
+  "script_sha256": "1015c1ddbd038d13379665443452a9112d4655b7c4ea0199ddccf65c599384e6"
+}

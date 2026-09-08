@@ -1,0 +1,18 @@
+{
+  "actual_commands": [
+    [
+      [
+        "python3",
+        "harness.py"
+      ],
+      0
+    ]
+  ],
+  "admitted_state": "queued",
+  "receipt_kinds": [
+    "approval",
+    "review",
+    "verification"
+  ],
+  "exact_replay": true
+}

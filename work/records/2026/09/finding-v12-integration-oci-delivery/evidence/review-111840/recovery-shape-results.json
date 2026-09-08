@@ -1,0 +1,202 @@
+{
+  "unchanged": {
+    "accepted": true,
+    "mounts": [
+      [
+        "/tmp/v12-integration-xszsl7gi/launch/integration/assignment",
+        "/run/baton/integration/assignment",
+        false
+      ],
+      [
+        "/tmp/v12-integration-xszsl7gi/launch/integration/result",
+        "/run/baton/integration/result",
+        true
+      ],
+      [
+        "/tmp/v12-integration-xszsl7gi/canonical-target",
+        "/target",
+        true
+      ]
+    ],
+    "disagreement_with_corrupt_binding": null,
+    "ordinary_observation": {
+      "state": "running",
+      "why": "the engine reports it running",
+      "mounts": [
+        {
+          "source": "/tmp/v12-integration-xszsl7gi/launch/integration/assignment",
+          "target": "/run/baton/integration/assignment",
+          "writable": false
+        },
+        {
+          "source": "/tmp/v12-integration-xszsl7gi/launch/integration/result",
+          "target": "/run/baton/integration/result",
+          "writable": true
+        },
+        {
+          "source": "/tmp/v12-integration-xszsl7gi/canonical-target",
+          "target": "/target",
+          "writable": true
+        }
+      ],
+      "candidates": [
+        {
+          "runtime_id": "runtime-1",
+          "state": "running",
+          "why": "the engine reports it running"
+        }
+      ]
+    },
+    "actual_assignment_root": "/tmp/v12-integration-xszsl7gi/launch/integration/assignment"
+  },
+  "foreign_assignment_root": {
+    "accepted": true,
+    "mounts": [
+      [
+        "/tmp/v12-integration-2r7roa94/foreign-assignment",
+        "/run/baton/integration/assignment",
+        false
+      ],
+      [
+        "/tmp/v12-integration-2r7roa94/launch/integration/result",
+        "/run/baton/integration/result",
+        true
+      ],
+      [
+        "/tmp/v12-integration-2r7roa94/canonical-target",
+        "/target",
+        true
+      ]
+    ],
+    "disagreement_with_corrupt_binding": null,
+    "ordinary_observation": {
+      "state": "running",
+      "why": "the engine reports it running",
+      "mounts": [
+        {
+          "source": "/tmp/v12-integration-2r7roa94/foreign-assignment",
+          "target": "/run/baton/integration/assignment",
+          "writable": false
+        },
+        {
+          "source": "/tmp/v12-integration-2r7roa94/launch/integration/result",
+          "target": "/run/baton/integration/result",
+          "writable": true
+        },
+        {
+          "source": "/tmp/v12-integration-2r7roa94/canonical-target",
+          "target": "/target",
+          "writable": true
+        }
+      ],
+      "candidates": [
+        {
+          "runtime_id": "runtime-1",
+          "state": "running",
+          "why": "the engine reports it running"
+        }
+      ]
+    },
+    "actual_assignment_root": "/tmp/v12-integration-2r7roa94/launch/integration/assignment"
+  },
+  "wrong_assignment_access": {
+    "accepted": true,
+    "mounts": [
+      [
+        "/tmp/v12-integration-8c8ai7nn/launch/integration/assignment",
+        "/run/baton/integration/assignment",
+        true
+      ],
+      [
+        "/tmp/v12-integration-8c8ai7nn/launch/integration/result",
+        "/run/baton/integration/result",
+        true
+      ],
+      [
+        "/tmp/v12-integration-8c8ai7nn/canonical-target",
+        "/target",
+        true
+      ]
+    ],
+    "disagreement_with_corrupt_binding": null,
+    "ordinary_observation": {
+      "state": "running",
+      "why": "the engine reports it running",
+      "mounts": [
+        {
+          "source": "/tmp/v12-integration-8c8ai7nn/launch/integration/assignment",
+          "target": "/run/baton/integration/assignment",
+          "writable": true
+        },
+        {
+          "source": "/tmp/v12-integration-8c8ai7nn/launch/integration/result",
+          "target": "/run/baton/integration/result",
+          "writable": true
+        },
+        {
+          "source": "/tmp/v12-integration-8c8ai7nn/canonical-target",
+          "target": "/target",
+          "writable": true
+        }
+      ],
+      "candidates": [
+        {
+          "runtime_id": "runtime-1",
+          "state": "running",
+          "why": "the engine reports it running"
+        }
+      ]
+    },
+    "actual_assignment_root": "/tmp/v12-integration-8c8ai7nn/launch/integration/assignment"
+  },
+  "duplicate_target": {
+    "accepted": true,
+    "mounts": [
+      [
+        "/tmp/v12-integration-4p0d0b32/canonical-target",
+        "/target",
+        true
+      ],
+      [
+        "/tmp/v12-integration-4p0d0b32/launch/integration/result",
+        "/run/baton/integration/result",
+        true
+      ],
+      [
+        "/tmp/v12-integration-4p0d0b32/canonical-target",
+        "/target",
+        true
+      ]
+    ],
+    "disagreement_with_corrupt_binding": "the live runtime carries 2 binds at '/target'; exact agreement is one",
+    "ordinary_observation": {
+      "state": "uncertain",
+      "why": "this runtime's integration mounts are not this attempt's: the live runtime carries 2 binds at '/target'; exact agreement is one",
+      "mounts": [
+        {
+          "source": "/tmp/v12-integration-4p0d0b32/canonical-target",
+          "target": "/target",
+          "writable": true
+        },
+        {
+          "source": "/tmp/v12-integration-4p0d0b32/launch/integration/result",
+          "target": "/run/baton/integration/result",
+          "writable": true
+        },
+        {
+          "source": "/tmp/v12-integration-4p0d0b32/canonical-target",
+          "target": "/target",
+          "writable": true
+        }
+      ],
+      "candidates": [
+        {
+          "runtime_id": "runtime-1",
+          "state": "running",
+          "why": "the engine reports it running"
+        }
+      ]
+    },
+    "actual_assignment_root": "/tmp/v12-integration-4p0d0b32/launch/integration/assignment"
+  }
+}

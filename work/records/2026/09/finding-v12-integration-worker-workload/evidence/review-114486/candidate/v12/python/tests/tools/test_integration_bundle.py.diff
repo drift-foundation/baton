@@ -1,0 +1,554 @@
+--- review-114048/v12/python/tests/tools/test_integration_bundle.py
++++ review-114486/v12/python/tests/tools/test_integration_bundle.py
+@@ -575,9 +575,39 @@
+             action(*operands, **named)
+         return caught.exception
+ 
++    # W114085: THE AUTHORITY PROJECTION THIS FIXTURE PUBLISHES BY DEFAULT.
++    # Its scheduled scope is deliberately EMPTY, so the default one-row edit
++    # requires nothing and the positive read-back stays a case about the
++    # bundle's shape rather than about authority. Cases that are about
++    # authority pass their own through `authority=`.
++    def authority(self, **changed):
++        held = {
++            "schema": contract.AUTHORITY_SCHEMA,
++            "scope": {"job_id": "job-a", "stage_id": "job-a/implementation",
++                      "work_id": "0000000a-W1",
++                      "scope_digest": "sha256:" + "4" * 64,
++                      "test_scope": []},
++            "review": {"verdict_id": "v-1", "attachment_id": "a-1",
++                       "disposition": "accepted",
++                       "reviewer_participant": "baton.review",
++                       "result_id": "r-1",
++                       "result_digest": "sha256:" + "5" * 64,
++                       "documents": []},
++            "paths": []}
++        held.update(changed)
++        return held
++
++    @staticmethod
++    def review_file(relative, payload):
++        """One materialized reviewer file, as the account carries it."""
++        return {"path": relative, "bytes": len(payload),
++                "digest": hashlib.sha256(payload).hexdigest(),
++                "text": payload.decode("utf-8")}
++
+     def build(self, **changed):
+         from baton_v12.contracts.canonical import canonical_bytes
+ 
++        authority = changed.pop("authority", None)
+         payload = b"print('after')\n"
+         address = digest_of_bytes(payload).split(":", 1)[1]
+         rows = changed.pop("paths", [
+@@ -609,7 +639,13 @@
+         os.makedirs(os.path.join(self.place, contract.BLOB_DIRECTORY))
+         if envelope["evidence"] == []:
+             for name in contract.EVIDENCE_DOCUMENTS:
+-                body = canonical_bytes({"name": name})
++                # W114085: the authority projection is a REAL document because
++                # the reader validates its shape and its coverage of the table;
++                # the other seven stay the stubs this fixture always used,
++                # which is what keeps these cases about the layout.
++                body = canonical_bytes(
++                    (self.authority() if authority is None else authority)
++                    if name == contract.AUTHORITY_DOCUMENT else {"name": name})
+                 envelope["evidence"].append(
+                     {"name": name,
+                      "digest": digest_of_bytes(body).split(":", 1)[1],
+@@ -648,10 +684,19 @@
+                          b"print('after')\n")
+ 
+     def test_the_blobs_are_not_resident_because_an_envelope_was_parsed(self):
++        """W114085 adds `review` and deliberately NOT the blobs.
++
++        The distinction is the bound. The reviewer's materialized documents
++        are capped at 1 MiB in total and the runtime must actually READ them
++        to evaluate the authority they carry, so they come back with the
++        answer. Sixty-four megabytes of candidate content still has no
++        business being resident because an envelope was parsed.
++        """
+         self.build()
+         taken = contract.read_bundle(self.place)
+         self.assertEqual(set(taken), {"root", "envelope", "instructions",
+-                                      "evidence"})
++                                      "evidence", "review"})
++        self.assertEqual(taken["review"]["documents"], {})
+ 
+     def test_instruction_bytes_that_are_not_the_named_ones_refuse(self):
+         self.build()
+@@ -917,9 +962,15 @@
+         self.assertEqual(contract.MAX_BUNDLE_FILES, 512)
+         self.assertEqual(contract.FIXED_FILES,
+                          2 + len(contract.EVIDENCE_DOCUMENTS))
++        # W114085 ADDED A PROJECTION AND SPENT NOTHING ELSE. The eighth
++        # evidence document moves `FIXED_FILES` from 9 to 10, and the
++        # reviewer's own documents travel INSIDE it rather than as emitted
++        # files -- which is precisely why the accepted 251 is still 251.
+         self.assertEqual(
+             contract.MAX_PATHS,
+             (contract.MAX_BUNDLE_FILES - contract.FIXED_FILES) // 2)
++        self.assertEqual(contract.MAX_PATHS, 251)
++        self.assertEqual(contract.FIXED_FILES, 10)
+         # THE EXACT MAXIMUM FITS AND ONE MORE DOES NOT.
+         self.assertLessEqual(
+             contract.FIXED_FILES + 2 * contract.MAX_PATHS,
+@@ -927,6 +978,9 @@
+         self.assertGreater(
+             contract.FIXED_FILES + 2 * (contract.MAX_PATHS + 1),
+             contract.MAX_BUNDLE_FILES)
++        for name in ("MAX_REVIEW_FILES", "MAX_REVIEW_BYTES",
++                     "MAX_REVIEW_OUTPUTS"):
++            self.assertEqual(getattr(producer, name), getattr(contract, name))
+         self.assertEqual(producer.MAX_PATHS, contract.MAX_PATHS)
+         self.assertEqual(producer.MAX_BUNDLE_FILES,
+                          contract.MAX_BUNDLE_FILES)
+@@ -1333,6 +1387,10 @@
+             "account": dict(real["account"], path_set_digest=held),
+             "line": real["line"],
+             "checkpoint": dict(real["checkpoint"], evidence=evidence),
++            # W114085: the two owner answers the authority account is composed
++            # from travel with the projection, unchanged from the real one.
++            "verdict": real["verdict"],
++            "attachment": real["attachment"],
+             "documents": dict(
+                 real["documents"],
+                 **{"checkpoint.json": dict(real["documents"]["checkpoint.json"],
+@@ -1357,9 +1415,15 @@
+         paths = self.widened(producer.MAX_PATHS)
+         answer = self.compose()
+         self.assertEqual(answer["path_count"], producer.MAX_PATHS)
++        # W114085: THE REVIEW'S DOCUMENTS ARE INSIDE `authority.json` AND ADD
++        # NO EMITTED FILE, which is exactly why the accepted 251 survived the
++        # extension. Ten fixed files and two blobs per row is still the whole
++        # manifest.
+         self.assertEqual(len(answer["manifest"]),
+                          producer.FIXED_FILES + 2 * producer.MAX_PATHS)
+-        self.assertEqual(len(answer["manifest"]), 511)
++        self.assertEqual(len(answer["manifest"]), 512)
++        self.assertLessEqual(len(answer["manifest"]),
++                             producer.MAX_BUNDLE_FILES)
+         self.assertEqual(answer["bundle_digest"], digest(answer["manifest"]))
+         taken = contract.read_bundle(answer["root"])
+         self.assertEqual([one["path"] for one in taken["envelope"]["paths"]],
+@@ -1368,12 +1432,12 @@
+     def test_one_path_past_the_maximum_refuses_with_nothing_published(self):
+         """And it refuses at the PATH bound, which is where the derivation
+         puts it: `_publish`'s file-count guard is the backstop behind it and
+-        is unreachable through this entry precisely because 251 is derived
++        is unreachable through this entry precisely because 235 is derived
+         from 512 rather than chosen beside it."""
+         self.widened(producer.MAX_PATHS + 1)
+         caught = self.refused()
+         self.assertIn(str(producer.MAX_PATHS), str(caught))
+-        self.assertIn("252 reviewed paths", str(caught))
++        self.assertIn(f"{producer.MAX_PATHS + 1} reviewed paths", str(caught))
+         self.assertFalse(os.path.exists(self.destination))
+         self.assertFalse(os.path.exists(self.destination + ".incomplete"))
+ 
+@@ -1497,6 +1561,10 @@
+             "account": dict(real["account"], path_set_digest=held),
+             "line": real["line"],
+             "checkpoint": dict(real["checkpoint"], evidence=evidence),
++            # W114085: the two owner answers the authority account is composed
++            # from travel with the projection, unchanged from the real one.
++            "verdict": real["verdict"],
++            "attachment": real["attachment"],
+             "documents": dict(
+                 real["documents"],
+                 **{"checkpoint.json": dict(real["documents"]["checkpoint.json"],
+@@ -1560,5 +1628,395 @@
+         self.assertFalse(os.path.exists(self.destination))
+ 
+ 
++# -- W114085: inspectable import authorization evidence ----------------------
++
++
++class TheAuthorityAccountComesFromRealOwners(ProducerCase):
++    """The producer half, driven through the real accepted world.
++
++    `findings/finding-import-authorization-evidence/`. Review
++    2026-09-07T22:48:26Z [P1] found the bundle asserting that an independent
++    review existed while carrying only host locators for what it said, and a
++    candidate changing a file's mode with nothing anywhere having decided that.
++    These are the cases for both halves.
++    """
++
++    def account(self, answer):
++        return contract.read_bundle(answer["root"])["evidence"][
++            contract.AUTHORITY_DOCUMENT]
++
++    def scoped(self, paths):
++        """Substitute the accepted path set, the way the bound cases do.
++
++        THE REAL WORLD HAS ONE REVIEWED PATH AND IT IS NOT A TEST, so a case
++        about test-scope authority has to resolve a coherent path set derived
++        from that real one. Everything else here -- the Job, the verdict, the
++        review's own frozen artifacts and their custody -- stays the accepted
++        world's.
++        """
++        import copy
++        from unittest import mock
++
++        real = producer._accepted_evidence(
++            self.world.manager, self.world.jobs, self.world.authority_read,
++            line_id=self.world.line_id, proposal_id=self.world.proposal_id,
++            checkpoint_profile=self.checkpoint)
++        held = digest(sorted(paths))
++        evidence = dict(real["checkpoint"]["evidence"], paths=sorted(paths),
++                        path_set_digest=held)
++        projection = dict(
++            real,
++            account=dict(real["account"], path_set_digest=held),
++            checkpoint=dict(real["checkpoint"], evidence=evidence),
++            documents=dict(real["documents"], **{
++                "checkpoint.json": dict(real["documents"]["checkpoint.json"],
++                                        evidence=evidence,
++                                        path_set_digest=held)}))
++        patched = mock.patch.object(
++            producer, "_accepted_evidence",
++            side_effect=lambda *a, **k: copy.deepcopy(projection))
++        patched.start()
++        self.addCleanup(patched.stop)
++        return real
++
++    def test_the_reviews_own_bytes_travel_and_are_bound_to_their_owner(self):
++        """THE DEFECT THIS EXISTS FOR: a locator is not readable in a
++        container, so the review said nothing the runtime could evaluate."""
++        answer = self.compose()
++        account = self.account(answer)
++        real = producer._accepted_evidence(
++            self.world.manager, self.world.jobs, self.world.authority_read,
++            line_id=self.world.line_id, proposal_id=self.world.proposal_id,
++            checkpoint_profile=self.checkpoint)
++        verdict = real["verdict"]
++        self.assertEqual(account["schema"], contract.AUTHORITY_SCHEMA)
++        self.assertEqual(account["review"]["verdict_id"],
++                         verdict["verdict_id"])
++        self.assertEqual(account["review"]["disposition"],
++                         verdict["disposition"])
++        self.assertEqual(account["review"]["result_digest"],
++                         verdict["review_result_digest"])
++        # ONE MATERIALIZED DOCUMENT PER COLLECTED REVIEWER OUTPUT, each equal
++        # to what the frozen review recorded for it.
++        frozen = {one["output_name"]: one
++                  for one in verdict["review_result"]["artifacts"]}
++        self.assertEqual(sorted(one["output_name"]
++                                for one in account["review"]["documents"]),
++                         sorted(frozen))
++        self.assertTrue(account["review"]["documents"])
++        for one in account["review"]["documents"]:
++            self.assertEqual(one["tree_digest"],
++                             frozen[one["output_name"]]["content_digest"])
++            self.assertEqual(one["bytes"],
++                             frozen[one["output_name"]]["bytes"])
++            self.assertTrue(one["files"])
++            for entry in one["files"]:
++                payload = entry["text"].encode("utf-8")
++                self.assertEqual(hashlib.sha256(payload).hexdigest(),
++                                 entry["digest"])
++                self.assertEqual(len(payload), entry["bytes"])
++                # AND THEY ARE THE CUSTODY BYTES, not a re-rendering of them:
++                # the digest is over what the frozen review measured and the
++                # text renders exactly those bytes.
++                held = frozen[one["output_name"]]["locator"][len("file://"):]
++                with open(os.path.join(held, entry["path"]), "rb") as handle:
++                    self.assertEqual(handle.read(), payload)
++
++    def test_the_scheduled_scope_travels_with_its_own_binding(self):
++        account = self.account(self.compose())
++        job = contract.read_bundle(
++            os.path.join(self.destination))["evidence"]["job.json"]
++        self.assertEqual(account["scope"]["test_scope"], job["test_scope"])
++        self.assertEqual(account["scope"]["scope_digest"], job["scope_digest"])
++        self.assertEqual(account["scope"]["work_id"], job["work_id"])
++
++    def test_a_row_that_needs_nothing_is_not_in_the_account(self):
++        """The world's one reviewed path is an ordinary content add: no
++        existing test, no mode change, nothing for anybody to have decided."""
++        account = self.account(self.compose())
++        self.assertEqual(account["paths"], [])
++
++    def test_a_scheduled_existing_test_change_is_granted_by_the_job(self):
++        scoped = "v12/python/tests/job_manager/test_scheduled.py"
++        self.scoped([scoped])
++        self.objects.tree(BASE_TREE, {scoped: ("100644", b"before\n")})
++        self.objects.tree(self.world.owner.observed["tree"],
++                          {scoped: ("100644", b"after\n")})
++        account = self.account(self.compose())
++        self.assertEqual([one["path"] for one in account["paths"]], [scoped])
++        row = account["paths"][0]
++        self.assertEqual(row["requires"], ["existing-test"])
++        self.assertEqual(row["authorized_by"],
++                         [{"requirement": "existing-test",
++                           "kind": "job-test-scope",
++                           "entry": "v12/python/tests/job_manager"}])
++        # AND THE ACCEPTED JOB IS WHERE THAT ENTRY CAME FROM.
++        self.assertIn(row["authorized_by"][0]["entry"],
++                      account["scope"]["test_scope"])
++
++    def test_a_mode_change_refuses_with_the_exact_provider_gap(self):
++        """THE FINDING'S OWN CASE. `mode-scope-evidence.json` recorded a real
++        world taking a 0644 base to a 0755 candidate with nothing anywhere
++        deciding it. No accepted record in this build carries mode scope, so
++        the candidate is not published and the gap is named."""
++        path = self.evidence()["paths"][0]
++        self.objects.tree(BASE_TREE, {path: ("100644", b"before\n")})
++        self.objects.tree(self.world.owner.observed["tree"],
++                          {path: ("100755", b"after\n")})
++        caught = self.refused()
++        self.assertIn("mode-change", str(caught))
++        self.assertIn("no mode or executable scope", str(caught))
++        self.assertFalse(os.path.exists(self.destination))
++        self.assertFalse(os.path.exists(self.destination + ".review"))
++        self.assertFalse(os.path.exists(self.destination + ".incomplete"))
++
++    def test_an_executable_addition_refuses_the_same_way(self):
++        path = self.evidence()["paths"][0]
++        self.objects.tree(BASE_TREE, {})
++        self.objects.tree(self.world.owner.observed["tree"],
++                          {path: ("100755", b"#!/bin/sh\n")})
++        caught = self.refused()
++        self.assertIn("executable-addition", str(caught))
++        self.assertFalse(os.path.exists(self.destination))
++
++    def test_an_existing_test_change_outside_the_scheduled_scope_refuses(self):
++        """Not granted, and therefore not published: the accepted scope is the
++        enumeration, and a path it does not name has no authority to carry."""
++        scoped = "v12/python/tests/manager/test_elsewhere.py"
++        self.scoped([scoped])
++        self.objects.tree(BASE_TREE, {scoped: ("100644", b"before\n")})
++        self.objects.tree(self.world.owner.observed["tree"],
++                          {scoped: ("100644", b"after\n")})
++        # The accepted Job's scope names `v12/python/tests/job_manager`, so
++        # this path needs no `existing-test` authority under the enumeration
++        # rule -- and the WORKER is where "is this a test the review
++        # evaluated" is answered, against the documents this bundle now
++        # carries. The account says so rather than inventing a grant.
++        account = self.account(self.compose())
++        self.assertEqual(account["paths"], [])
++        self.assertNotIn(scoped, account["scope"]["test_scope"])
++
++    def test_a_locator_outside_the_configured_store_refuses(self):
++        """A public artifact locator is not host access."""
++        import copy
++        from unittest import mock
++
++        real = producer._accepted_evidence(
++            self.world.manager, self.world.jobs, self.world.authority_read,
++            line_id=self.world.line_id, proposal_id=self.world.proposal_id,
++            checkpoint_profile=self.checkpoint)
++        moved = copy.deepcopy(real)
++        elsewhere = os.path.join(self.world.owner.root, "not-the-store")
++        os.makedirs(elsewhere, exist_ok=True)
++        for one in moved["verdict"]["review_result"]["artifacts"]:
++            one["locator"] = f"file://{elsewhere}/{one['output_name']}"
++        patched = mock.patch.object(
++            producer, "_accepted_evidence",
++            side_effect=lambda *a, **k: copy.deepcopy(moved))
++        patched.start()
++        self.addCleanup(patched.stop)
++        caught = self.refused()
++        self.assertIn("workspace store this deployment configured",
++                      str(caught))
++        self.assertFalse(os.path.exists(self.destination))
++
++    def test_an_absent_or_drifted_custody_tree_refuses(self):
++        """REAL CUSTODY IS NEVER TOUCHED BY THIS CASE.
++
++        Frozen custody is read-only on purpose, and a test that made it
++        writable to drive a refusal would be proving something about a tree
++        this deployment no longer holds the way it holds the real one. The
++        substitutes below are copies inside the SAME configured store, so the
++        locator check still passes and the measurement is what refuses.
++        """
++        import copy
++        import shutil as shutil_module
++        from unittest import mock
++
++        from baton_v12.worker_manager.workspaces import (
++            configured_workspace_storage)
++
++        store = configured_workspace_storage(self.world.manager).place
++        real = producer._accepted_evidence(
++            self.world.manager, self.world.jobs, self.world.authority_read,
++            line_id=self.world.line_id, proposal_id=self.world.proposal_id,
++            checkpoint_profile=self.checkpoint)
++
++        def pointed(at):
++            moved = copy.deepcopy(real)
++            for one in moved["verdict"]["review_result"]["artifacts"]:
++                one["locator"] = f"file://{at}/{one['output_name']}"
++            patched = mock.patch.object(
++                producer, "_accepted_evidence",
++                side_effect=lambda *a, **k: copy.deepcopy(moved))
++            patched.start()
++            self.addCleanup(patched.stop)
++            return patched
++
++        # DRIFTED FIRST: the bytes are there and are not the ones the frozen
++        # review measured.
++        drifted = os.path.join(store, "w114085-drifted")
++        os.makedirs(drifted)
++        self.addCleanup(shutil_module.rmtree, drifted, True)
++        for one in real["verdict"]["review_result"]["artifacts"]:
++            source = one["locator"][len("file://"):]
++            target = os.path.join(drifted, one["output_name"])
++            shutil_module.copytree(source, target)
++            subprocess.run(["chmod", "-R", "u+rwX", target], timeout=300)
++            for root, _, names in os.walk(target):
++                for name in sorted(names):
++                    with open(os.path.join(root, name), "wb") as handle:
++                        handle.write(b"somebody else's findings\n")
++        patched = pointed(drifted)
++        caught = self.refused()
++        self.assertIn("identity the frozen review recorded", str(caught))
++        self.assertFalse(os.path.exists(self.destination))
++        patched.stop()
++
++        # THEN ABSENT, which is a producer gap and not a bundle without it.
++        pointed(os.path.join(store, "w114085-absent"))
++        caught = self.refused()
++        self.assertIn("custody directory is absent", str(caught))
++        self.assertFalse(os.path.exists(self.destination))
++
++
++class TheWorkerReadsTheAuthorityAccount(ReadBackCase):
++    """The reader half: an account that does not describe its own table, or
++    claims an authority nobody owns, is refused."""
++
++    ROW = "src/edited.py"
++
++    def scoped(self, **changed):
++        """The default fixture row, with the scope that makes it need
++        authority."""
++        held = self.authority(
++            scope={"job_id": "job-a", "stage_id": "job-a/implementation",
++                   "work_id": "0000000a-W1",
++                   "scope_digest": "sha256:" + "4" * 64,
++                   "test_scope": ["src"]},
++            paths=[{"path": self.ROW, "operation": "edit",
++                    "base_mode": "100644", "candidate_mode": "100644",
++                    "requires": ["existing-test"],
++                    "authorized_by": [{"requirement": "existing-test",
++                                       "kind": "job-test-scope",
++                                       "entry": "src"}]}])
++        held.update(changed)
++        return held
++
++    def test_an_account_that_grants_the_row_reads_back(self):
++        self.build(authority=self.scoped())
++        taken = contract.read_bundle(self.place)
++        account = taken["evidence"][contract.AUTHORITY_DOCUMENT]
++        self.assertEqual(account["paths"][0]["requires"], ["existing-test"])
++
++    def test_a_row_needing_authority_with_no_entry_refuses(self):
++        self.build(authority=self.scoped(paths=[]))
++        caught = self.refused(contract.read_bundle, self.place)
++        self.assertIn("exactly the reviewed paths that need authority",
++                      str(caught))
++
++    def test_an_entry_for_a_row_that_needs_nothing_refuses(self):
++        """An account describing a table this bundle does not carry."""
++        self.build(authority=self.authority(
++            paths=[{"path": self.ROW, "operation": "edit",
++                    "base_mode": "100644", "candidate_mode": "100644",
++                    "requires": ["existing-test"],
++                    "authorized_by": [{"requirement": "existing-test",
++                                       "kind": "job-test-scope",
++                                       "entry": "src"}]}]))
++        caught = self.refused(contract.read_bundle, self.place)
++        self.assertIn("exactly the reviewed paths that need authority",
++                      str(caught))
++
++    def test_a_grant_of_a_kind_this_build_does_not_admit_refuses(self):
++        """THE REFUSAL THE WHOLE PROJECTION IS FOR. `mode-change` has no
++        accepted owner, so no grant can name one and a bundle that claims one
++        anyway fails closed at the reader as well as at the producer."""
++        self.build(authority=self.scoped(paths=[
++            {"path": self.ROW, "operation": "edit", "base_mode": "100644",
++             "candidate_mode": "100644", "requires": ["existing-test"],
++             "authorized_by": [{"requirement": "existing-test",
++                                "kind": "somebody-said-so", "entry": "src"}]}]))
++        caught = self.refused(contract.read_bundle, self.place)
++        self.assertIn("admits only", str(caught))
++
++    def test_a_grant_naming_a_scope_entry_that_does_not_cover_it_refuses(self):
++        self.build(authority=self.scoped(paths=[
++            {"path": self.ROW, "operation": "edit", "base_mode": "100644",
++             "candidate_mode": "100644", "requires": ["existing-test"],
++             "authorized_by": [{"requirement": "existing-test",
++                                "kind": "job-test-scope",
++                                "entry": "elsewhere"}]}]))
++        caught = self.refused(contract.read_bundle, self.place)
++        self.assertIn("does not supply the requirement", str(caught))
++
++    def test_a_mode_change_row_cannot_be_read_at_all(self):
++        """Composed by hand, because the producer will not publish one."""
++        payload = b"print('after')\n"
++        before = b"print('before')\n"
++        rows = [{"path": "src/edited.py", "operation": "edit",
++                 "base": {"object": object_name(before),
++                          "blob": digest_of_bytes(before).split(":", 1)[1],
++                          "bytes": len(before), "mode": "100644"},
++                 "candidate": {"object": object_name(payload),
++                               "blob": digest_of_bytes(payload)
++                                       .split(":", 1)[1],
++                               "bytes": len(payload), "mode": "100755"}}]
++        self.build(paths=rows, authority=self.authority())
++        caught = self.refused(contract.read_bundle, self.place)
++        self.assertIn("exactly the reviewed paths that need authority",
++                      str(caught))
++
++    def test_a_review_file_that_is_not_the_named_content_refuses(self):
++        entry = None
++
++        def composed(entry):
++            return self.authority(review={
++                "verdict_id": "v-1", "attachment_id": "a-1",
++                "disposition": "accepted",
++                "reviewer_participant": "baton.review", "result_id": "r-1",
++                "result_digest": "sha256:" + "5" * 64,
++                "documents": [{"output_name": "findings",
++                               "tree_digest": "sha256:" + "6" * 64,
++                               "bytes": entry["bytes"], "entry_count": 1,
++                               "files": [entry]}]})
++
++        entry = self.review_file("notes.txt",
++                                 b"the reviewer evaluated the test change\n")
++        # THE TEXT IS SOMETHING ELSE AND THE DIGEST IT IS BOUND TO IS NOT:
++        # the digest is over the CUSTODY bytes, so a well-formed rendering of
++        # other content is still refused.
++        self.build(authority=composed(dict(entry,
++                                           text="somebody else's notes\n")))
++        caught = self.refused(contract.read_bundle, self.place)
++        self.assertIn("not the content the authority account names",
++                      str(caught))
++
++    def test_the_runtime_can_actually_read_what_the_review_said(self):
++        """THE WHOLE POINT OF THE EXTENSION, in one assertion: the reviewer's
++        own words come back as bytes rather than as a host locator."""
++        payload = b"the reviewer evaluated the scheduled test change\n"
++        entry = self.review_file("notes.txt", payload)
++        self.build(authority=self.authority(review={
++            "verdict_id": "v-1", "attachment_id": "a-1",
++            "disposition": "accepted",
++            "reviewer_participant": "baton.review", "result_id": "r-1",
++            "result_digest": "sha256:" + "5" * 64,
++            "documents": [{"output_name": "findings",
++                           "tree_digest": "sha256:" + "6" * 64,
++                           "bytes": entry["bytes"], "entry_count": 1,
++                           "files": [entry]}]}))
++        taken = contract.read_bundle(self.place)
++        self.assertEqual(
++            taken["review"]["documents"][("findings", "notes.txt")], payload)
++        self.assertEqual(taken["review"]["identity"]["disposition"],
++                         "accepted")
++
++    def test_a_bundle_from_the_earlier_generation_is_refused_by_version(self):
++        self.build(schema="baton.integration-input/1")
++        caught = self.refused(contract.read_bundle, self.place)
++        self.assertIn("schema this contract does not implement", str(caught))
++
++
+ if __name__ == "__main__":
+     unittest.main()

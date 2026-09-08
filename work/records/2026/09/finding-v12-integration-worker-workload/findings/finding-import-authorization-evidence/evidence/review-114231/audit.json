@@ -1,0 +1,66 @@
+{
+  "claim": 114231,
+  "observed_at": "2026-09-07T23:17:49.596700+00:00",
+  "paths": {
+    "v12/worker/integration_contract.py": {
+      "sha256": "e4d5b2ef5b610cfb348bbb37ca3437f7f7c25a4ce6828dfd62864871b9cbf813",
+      "author_sha256": "e4d5b2ef5b610cfb348bbb37ca3437f7f7c25a4ce6828dfd62864871b9cbf813",
+      "matches": true
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "7279f3140d2f2968b7b3b2e4b45f054e1956606d8fd418abb01d89a17464e4ae",
+      "author_sha256": "7279f3140d2f2968b7b3b2e4b45f054e1956606d8fd418abb01d89a17464e4ae",
+      "matches": true
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "20fea94a5ca463197952c7228003621254262a4daaa26d60390f4d2618303468",
+      "author_sha256": "20fea94a5ca463197952c7228003621254262a4daaa26d60390f4d2618303468",
+      "matches": true
+    }
+  },
+  "test_delta": {
+    "removed": [],
+    "changed": [
+      [
+        "ReadBackCase",
+        "build"
+      ],
+      [
+        "TheWorkerReadsOnlyWhatTheEnvelopeNames",
+        "test_the_blobs_are_not_resident_because_an_envelope_was_parsed"
+      ],
+      [
+        "TheBundleBoundsAreDerivedAndReconciled",
+        "test_the_path_bound_is_derived_from_the_manifest_bound"
+      ],
+      [
+        "TheManifestIsRepresentableBeforeAnythingIsPublished",
+        "widened"
+      ],
+      [
+        "TheManifestIsRepresentableBeforeAnythingIsPublished",
+        "test_the_exact_maximum_publishes_and_measures"
+      ],
+      [
+        "TheManifestIsRepresentableBeforeAnythingIsPublished",
+        "test_one_path_past_the_maximum_refuses_with_nothing_published"
+      ],
+      [
+        "TheSharedContentIsChargedOnce",
+        "two_paths"
+      ]
+    ],
+    "added_test_count": 18
+  },
+  "retained_focused": {
+    "sha256": "67641e4427f5110a592271f7bfb4394244a6e2391401f4dc3fae60a39b25e627",
+    "summary": [
+      "Ran 175 tests in 15.117s",
+      "FAILED (failures=1, errors=1)"
+    ],
+    "failures": [
+      "ERROR: test_an_edit_preserves_the_reviewed_mode_and_an_executable_one (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_edit_preserves_the_reviewed_mode_and_an_executable_one) (mode='100755')",
+      "FAIL: test_the_same_change_inside_the_scheduled_scope_is_admitted (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_the_same_change_inside_the_scheduled_scope_is_admitted)"
+    ]
+  }
+}

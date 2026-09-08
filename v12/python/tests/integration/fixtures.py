@@ -12,7 +12,17 @@ import os
 import tempfile
 import unittest
 
+from baton_v12.contracts import digest
 from baton_v12.integration import IntegrationStore, TARGET_SCHEMA
+from baton_v12.source_profiles import GIT_PROFILE
+
+# WHAT THE NAMED PRODUCERS ACTUALLY EMIT. The profile kind is one of
+# `source_profiles.PROFILES`; the path set is the sorted, relative, canonical
+# collection `checkpoint_profiles` digests; the test scope is the accepted
+# Job's own `test_scope` list.
+PROFILE_KIND = GIT_PROFILE
+PATHS = ["src/a.py", "src/b.py"]
+TEST_SCOPE = ["v12/python/tests/integration"]
 
 NOW = "2026-09-05T00:00:00.000Z"
 LATER = "2026-09-05T00:05:00.000Z"
@@ -45,9 +55,17 @@ def eligibility(authority_uuid=UUID_A, checkpoint_id="checkpoint-1", **rest):
     targeted review of 2026-09-05 ruled that requiring them equal merely to
     manufacture a cross-binding would silently reinterpret one of them.
 
-    AND NOTHING IN IT IS A GIT OPERAND. The profile binding is the whole of
-    what a Git deployment's base, head, tree and transport reduce to here: a
-    kind, a version, and the digest of an account this store never reads.
+    AND NOTHING IN IT IS A GIT OPERAND. `profile_kind` is the accepted
+    checkpoint evidence's own profile NAME, and the profile-shaped account that
+    name belongs to is bound by `checkpoint_digest`, which W71918 computes as
+    the digest of that evidence.
+
+    EVERY MEMBER HAS A PRODUCER AND THIS FIXTURE SPELLS ITS VALUES THE WAY THAT
+    PRODUCER WOULD. W101491 found two members with no producer at all;
+    W101714's review then found a third, and found this fixture asserting a
+    profile kind the named producer cannot emit.
+    `EveryMemberOfTheAccountHasAProducer` is where that is checked rather than
+    described.
     """
     account = {"authority_uuid": authority_uuid,
                "work_id": "0000000a-W1",
@@ -58,13 +76,21 @@ def eligibility(authority_uuid=UUID_A, checkpoint_id="checkpoint-1", **rest):
                "checkpoint_digest": "sha256:" + "1" * 64,
                "proposal_id": "proposal-1",
                "candidate_digest": "sha256:" + "2" * 64,
-               "proposal_manifest_digest": "sha256:" + "3" * 64,
-               "profile_kind": "baton.repository",
-               "profile_version": 1,
-               "profile_account_digest": "sha256:" + "6" * 64,
+               "result_id": "result-1",
+               "result_digest": "sha256:" + "3" * 64,
+               # NOT AN INVENTED WORD. W101714's review found this fixture
+               # asserting `repository`, which the named producer cannot emit:
+               # the accepted checkpoint evidence's `profile` member is one of
+               # `source_profiles.PROFILES`. A fixture demonstrating that the
+               # coordinator accepts arbitrary text demonstrates something that
+               # was already true.
+               "profile_kind": PROFILE_KIND,
                "expected_target_revision": "d" * 40,
-               "path_set_digest": "sha256:" + "4" * 64,
-               "scope_digest": "sha256:" + "5" * 64}
+               # COMPUTED THE WAY THEIR PRODUCERS COMPUTE THEM, so a case that
+               # re-resolves either one compares against the real rule rather
+               # than against a constant this file chose.
+               "path_set_digest": digest(PATHS),
+               "scope_digest": digest(TEST_SCOPE)}
     account.update(rest)
     return account
 

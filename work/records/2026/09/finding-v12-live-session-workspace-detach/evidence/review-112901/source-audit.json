@@ -1,0 +1,7 @@
+{
+  "chunk_id": "9ad7ef",
+  "wall_time_seconds": 0.000002665,
+  "exit_code": 0,
+  "original_token_count": 122,
+  "output": "{\n  \"broad_suite\": false,\n  \"claim\": 112817,\n  \"existing_tests_unchanged\": true,\n  \"focused_checks\": 17,\n  \"live_run\": false,\n  \"package_inputs\": 163,\n  \"protected_files\": 305,\n  \"runtime_python_modules\": 71,\n  \"source_comparison\": \"exact except documented diagnostic blocks and candidate selectors\",\n  \"unchanged_cli_argv\": true,\n  \"unchanged_credential_custody_ending\": true,\n  \"unchanged_prior_inputs\": 152,\n  \"unchanged_result_acceptance\": true,\n  \"unchanged_turn_dispatch\": true\n}\n"
+}

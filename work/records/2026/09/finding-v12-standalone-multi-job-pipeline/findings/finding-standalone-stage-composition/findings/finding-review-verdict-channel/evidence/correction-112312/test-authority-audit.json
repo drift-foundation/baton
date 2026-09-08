@@ -1,0 +1,13 @@
+{
+  "all_existing_function_source_bytes_preserved": true,
+  "new_methods": [
+    "EveryProbeProvesItArrived.test_historical_cleanup_document_probe_reaches_its_named_boundary"
+  ],
+  "declaration_added": [
+    "NOT_AN_ENTRY: review_cycles.py:_cleaned_review / document / a historical review cleanup"
+  ],
+  "discovery_rules_changed": false,
+  "changed_paths": [
+    "v12/python/tests/manager/test_boundary_inventory.py"
+  ]
+}

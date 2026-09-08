@@ -1,0 +1,26 @@
+{
+  "normal": {
+    "exception": "ContractRefusal",
+    "message": "an engine listing entry is one record; this is a list; and the exact runtime could not be identified afterwards: an engine listing entry is one record; this is a list; this attempt's execution runtime is recorded uncertain; the start failure is journalled as 'runtime.start-failed:3dce912c89c9c767aa7ec94f473bfe7ee25f3e\u2026",
+    "engine_operations": [
+      "ps",
+      "ps"
+    ]
+  },
+  "unreadable": {
+    "exception": "ContractRefusal",
+    "message": "an engine listing entry is one record; this is a list; and the exact runtime could not be identified afterwards: an engine listing entry is one record; this is a list; this attempt's execution runtime is recorded uncertain; the start failure is journalled as 'runtime.start-failed:3dce912c89c9c767aa7ec94f473bfe7ee25f3e\u2026",
+    "engine_operations": [
+      "ps",
+      "ps"
+    ]
+  },
+  "missing_later": {
+    "exception": "ContractRefusal",
+    "message": "an engine listing entry is one record; this is a list; and the exact runtime could not be identified afterwards: an engine listing entry is one record; this is a list; this attempt's execution runtime is recorded uncertain; the start failure is journalled as 'runtime.start-failed:3dce912c89c9c767aa7ec94f473bfe7ee25f3e\u2026",
+    "engine_operations": [
+      "ps",
+      "ps"
+    ]
+  }
+}

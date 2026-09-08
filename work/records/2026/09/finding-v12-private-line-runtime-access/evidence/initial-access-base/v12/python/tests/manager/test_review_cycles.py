@@ -1,0 +1,835 @@
+import os
+import tempfile
+import threading
+import unittest
+from unittest import mock
+
+from baton_v12.contracts import ContractRefusal, digest
+from baton_v12.worker_manager import (ControlStore, attach_review,
+                                      audit_checkpoint, create_line,
+                                      freeze_checkpoint, grant_writer,
+                                      integration_checkpoint, line_of,
+                                      line_status, record_progress,
+                                      record_verdict, review_boundary,
+                                      review_of, verdict_of, writer_boundary)
+from baton_v12.worker_manager.source_boundary import (adopt_source_boundary,
+                                                       boundary_mounts,
+                                                       compose_runtime_storage_boundary,
+                                                       compose_source_boundary,
+                                                       nominate_source,
+                                                       workspace_capacity)
+from baton_v12.worker_manager.workspaces import (assignment_workspace,
+                                                 configure_workspace_storage,
+                                                 discard_execution_roots,
+                                                 discard_workspace)
+from . import input_roots
+from .disk_roots import disk_backed_under
+
+
+NOW = "2026-09-05T12:00:00.000Z"
+AUTHORITY = "0123456789abcdef0123456789abcdef"
+WORK = "01234567-W71918"
+BASE = "a" * 40
+
+
+class Port:
+    def __init__(self, participant):
+        self.participant = participant
+        self.calls = []
+
+    def cancel(self, expect, operation_id, reason, work_id, authority_uuid):
+        answer = {"operation_id": operation_id, "participant": self.participant,
+                  "generation": expect["generation"], "status": "fenced"}
+        self.calls.append((dict(expect), operation_id, reason, work_id,
+                           authority_uuid))
+        return answer
+
+
+class Profile:
+    name = "test-profile"
+
+    def __init__(self):
+        self.held = {}
+        self.freeze_calls = []
+        self.materialize_calls = 0
+        self.current_revision = None
+
+    def materialize(self, source, repository, declared_base):
+        self.materialize_calls += 1
+        if not os.path.exists(repository):
+            os.mkdir(repository)
+        return {"profile": self.name, "base": declared_base,
+                "head": declared_base}
+
+    def freeze(self, repository, *, line_id, revision, declared_base):
+        self.freeze_calls.append((repository, revision))
+        head = f"{revision:040x}"
+        paths = [f"round-{revision}.txt"]
+        evidence = {"profile": self.name, "base": declared_base,
+                    "head": head, "tree": f"{revision + 100:040x}",
+                    "paths": paths, "path_set_digest": digest(paths),
+                    "reference": f"checkpoint/{line_id}/{revision}"}
+        self.held[revision] = evidence
+        self.current_revision = revision
+        return dict(evidence)
+
+    def validate(self, repository, evidence, *, current=False):
+        revision = int(evidence["head"], 16)
+        if self.held.get(revision) != evidence:
+            raise ContractRefusal("policy", "profile-uncertified",
+                                  "checkpoint evidence is not retained")
+        if current and self.current_revision != revision:
+            raise ContractRefusal("policy", "profile-uncertified",
+                                  "the line no longer matches this checkpoint")
+        return dict(evidence)
+
+
+class ReviewCycles(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.source = os.path.join(self.temporary.name, "source")
+        self.storage = os.path.join(disk_backed_under(self), "storage")
+        os.mkdir(self.source)
+        os.mkdir(self.storage)
+        self.control_path = os.path.join(self.temporary.name, "control.sqlite3")
+        self.store = ControlStore.open(
+            self.control_path,
+            incarnation="manager-1", clock=lambda: NOW)
+        self.profile = Profile()
+        self.group = input_roots.configured_group(self.store)
+        configure_workspace_storage(self.store, self.storage)
+        self.ports = {}
+
+    def tearDown(self):
+        self.store.close()
+        self.temporary.cleanup()
+
+    def attempt(self, attempt_id, generation, participant, principal):
+        self.store._connection.execute(
+            "INSERT INTO attempts (runtime_attempt_id, adapter_name, "
+            "adapter_digest, profile_digest, created_at, work_id, "
+            "authority_uuid, assignment_participant, assignment_generation, "
+            "assignment_claim_event_seq, assignment_principal, assignment_scope, "
+            "assignment_role, assignment_grant, assignment_policy_generation) "
+            "VALUES (?, 'adapter', 'adapter-digest', 'profile-digest', ?, ?, ?, "
+            "?, ?, ?, ?, 'scope', 'role', 'grant', 1)",
+            (attempt_id, NOW, WORK, AUTHORITY, participant, generation,
+             generation, principal))
+        return attempt_id
+
+    def line(self):
+        source = nominate_source(self.source)
+        return create_line(self.store, source=source,
+                           declared_base=BASE, profile=self.profile,
+                           authority_uuid=AUTHORITY, work_id=WORK)
+
+    def port(self, participant):
+        return self.ports.setdefault(participant, Port(participant))
+
+    def complete(self, attempt_id, *, review=False, findings=True, logs=True):
+        self.store._connection.execute(
+            "UPDATE attempts SET runtime_id = ?, execution_runtime = 'quiescent', "
+            "worker_disposition = 'completed' WHERE runtime_attempt_id = ?",
+            ("runtime-" + attempt_id, attempt_id))
+        if not review:
+            return
+        self.store._connection.execute(
+            "UPDATE attempts SET output = 'frozen', verification = 'passed' "
+            "WHERE runtime_attempt_id = ?", (attempt_id,))
+        self.store._connection.execute(
+            "INSERT INTO outputs (runtime_attempt_id, result_id, disposition, "
+            "manifest_digest, freeze_operation_id, frozen_at) VALUES (?, ?, "
+            "'completed', ?, ?, ?)",
+            (attempt_id, "result-" + attempt_id, "sha256:" + "1" * 64,
+             "freeze-" + attempt_id, NOW))
+        for name, present in (("findings", findings), ("logs", logs)):
+            if present:
+                self.store._connection.execute(
+                    "INSERT INTO output_artifacts (runtime_attempt_id, output_name, "
+                    "artifact_id, media_type, bytes, content_digest, locator) "
+                    "VALUES (?, ?, ?, 'text/plain', 1, ?, ?)",
+                    (attempt_id, name, f"artifact-{name}-{attempt_id}",
+                     "sha256:" + ("2" if name == "findings" else "3") * 64,
+                     f"custody/{attempt_id}/{name}"))
+
+    def freeze(self, writer, generation):
+        attempt_id = f"writer-attempt-{generation}"
+        self.complete(attempt_id)
+        return freeze_checkpoint(
+            self.store, writer_id=writer["writer_id"], generation=generation,
+            profile=self.profile, port=self.port("baton.impl"))
+
+    def verdict(self, review, round_number, disposition):
+        self.complete(f"review-attempt-{round_number}", review=True)
+        return record_verdict(
+            self.store, attachment_id=review["attachment_id"],
+            disposition=disposition, profile=self.profile,
+            port=self.port("baton.review"))
+
+    def writer(self, line_id, round_number, based=None):
+        attempt = self.attempt(f"writer-attempt-{round_number}", round_number,
+                               "baton.impl", f"writer-{round_number}")
+        return grant_writer(self.store, line_id=line_id, attempt_id=attempt,
+                            generation=round_number,
+                            worker_id=f"worker-{round_number}",
+                            profile=self.profile,
+                            based_checkpoint_id=based)
+
+    def review(self, checkpoint_id, round_number):
+        attempt = self.attempt(f"review-attempt-{round_number}", round_number,
+                               "baton.review", f"reviewer-{round_number}")
+        return attach_review(
+            self.store, checkpoint_id=checkpoint_id, attempt_id=attempt,
+            generation=round_number,
+            reviewer_worker_id=f"review-worker-{round_number}",
+            profile=self.profile)
+
+    def test_line_and_each_operation_replay_exactly(self):
+        line = self.line()
+        self.assertEqual(self.line(), line)
+        self.assertEqual(line_status(
+            self.store, line["line_id"],
+            lambda path: {"bytes": 0, "entries": 0})["storage"],
+            {"bytes": 0, "entries": 0})
+        writer = self.writer(line["line_id"], 1)
+        replay = grant_writer(
+            self.store, line_id=line["line_id"],
+            attempt_id="writer-attempt-1", generation=1,
+            worker_id="worker-1", profile=self.profile)
+        self.assertEqual(replay, writer)
+        self.assertEqual(
+            record_progress(self.store, writer_id=writer["writer_id"],
+                            generation=1, sequence=1,
+                            document={"status": "working"}),
+            record_progress(self.store, writer_id=writer["writer_id"],
+                            generation=1, sequence=1,
+                            document={"status": "working"}))
+        checkpoint = self.freeze(writer, 1)
+        self.assertEqual(checkpoint, freeze_checkpoint(
+            self.store, writer_id=writer["writer_id"], generation=1,
+            profile=self.profile, port=self.port("baton.impl")))
+        review = self.review(checkpoint["checkpoint_id"], 1)
+        self.assertEqual(review, attach_review(
+            self.store, checkpoint_id=checkpoint["checkpoint_id"],
+            attempt_id="review-attempt-1", generation=1,
+            reviewer_worker_id="review-worker-1", profile=self.profile))
+        verdict = self.verdict(review, 1, "accepted")
+        self.assertEqual(verdict, record_verdict(
+            self.store, attachment_id=review["attachment_id"],
+            disposition="accepted", profile=self.profile,
+            port=self.port("baton.review")))
+        eligible = integration_checkpoint(self.store, line["line_id"])
+        self.assertEqual(eligible["checkpoint_id"], checkpoint["checkpoint_id"])
+
+    def test_ten_corrections_reuse_line_and_retain_old_checkpoints(self):
+        line = self.line()
+        place = line["path"]
+        identity = os.stat(place).st_ino
+        prior = None
+        checkpoints = []
+        operations = []
+        with mock.patch("os.statvfs", side_effect=AssertionError(
+                "review lines have no predictive capacity probe")):
+            for round_number in range(1, 11):
+                writer = self.writer(line["line_id"], round_number, prior)
+                progress = record_progress(
+                    self.store, writer_id=writer["writer_id"],
+                    generation=round_number, sequence=1,
+                    document={"round": round_number})
+                checkpoint = self.freeze(writer, round_number)
+                checkpoints.append(checkpoint["checkpoint_id"])
+                review = self.review(checkpoint["checkpoint_id"], round_number)
+                disposition = ("accepted" if round_number == 10
+                               else "changes-requested")
+                verdict = self.verdict(review, round_number, disposition)
+                operations.append((round_number, writer, progress, checkpoint,
+                                   review, disposition, verdict))
+                prior = checkpoint["checkpoint_id"]
+        current = line_of(self.store, line["line_id"])
+        self.assertEqual((current["revision"], current["state"]), (10, "accepted"))
+        self.assertEqual(os.stat(place).st_ino, identity)
+        self.assertEqual(self.line(), line)
+        self.assertEqual(self.profile.materialize_calls, 1)
+        for (round_number, writer, progress, checkpoint, review, disposition,
+             verdict) in operations:
+            self.assertEqual(record_progress(
+                self.store, writer_id=writer["writer_id"],
+                generation=round_number, sequence=1,
+                document={"round": round_number}), progress)
+            self.assertEqual(freeze_checkpoint(
+                self.store, writer_id=writer["writer_id"],
+                generation=round_number, profile=self.profile,
+                port=self.port("baton.impl")), checkpoint)
+            self.assertEqual(attach_review(
+                self.store, checkpoint_id=checkpoint["checkpoint_id"],
+                attempt_id=f"review-attempt-{round_number}",
+                generation=round_number,
+                reviewer_worker_id=f"review-worker-{round_number}",
+                profile=self.profile), review)
+            self.assertEqual(record_verdict(
+                self.store, attachment_id=review["attachment_id"],
+                disposition=disposition, profile=self.profile,
+                port=self.port("baton.review")), verdict)
+        for checkpoint_id in checkpoints:
+            self.assertEqual(audit_checkpoint(self.store, checkpoint_id,
+                                              self.profile)["profile"],
+                             self.profile.name)
+        self.assertEqual(self.store._connection.execute(
+            "SELECT count(*) FROM line_checkpoints").fetchone()[0], 10)
+
+    def test_writer_is_revoked_before_profile_runs_and_crash_resumes(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        original = self.profile.freeze
+        calls = 0
+
+        def crash(repository, **arguments):
+            nonlocal calls
+            calls += 1
+            state = self.store._connection.execute(
+                "SELECT state FROM line_writers WHERE writer_id = ?",
+                (writer["writer_id"],)).fetchone()[0]
+            self.assertEqual(state, "revoked")
+            if calls == 1:
+                raise RuntimeError("simulated profile crash")
+            return original(repository, **arguments)
+
+        self.profile.freeze = crash
+        self.complete("writer-attempt-1")
+        with self.assertRaisesRegex(RuntimeError, "simulated"):
+            freeze_checkpoint(self.store, writer_id=writer["writer_id"],
+                              generation=1, profile=self.profile,
+                              port=self.port("baton.impl"))
+        self.assertEqual(line_of(self.store, line["line_id"])["state"],
+                         "freezing")
+        checkpoint = freeze_checkpoint(
+            self.store, writer_id=writer["writer_id"], generation=1,
+            profile=self.profile, port=self.port("baton.impl"))
+        self.assertEqual(checkpoint["revision"], 1)
+
+    def test_line_materialization_crash_resumes_only_the_recorded_operands(self):
+        original = self.profile.materialize
+
+        def crash(source, repository, declared_base):
+            original(source, repository, declared_base)
+            raise RuntimeError("simulated materialization crash")
+
+        self.profile.materialize = crash
+        with self.assertRaisesRegex(RuntimeError, "materialization"):
+            self.line()
+        row = self.store._connection.execute(
+            "SELECT state FROM review_lines").fetchone()
+        self.assertEqual(row[0], "materializing")
+        other = os.path.join(self.temporary.name, "other-source")
+        os.mkdir(other)
+        with self.assertRaises(ContractRefusal) as caught:
+            create_line(
+                self.store,
+                source=nominate_source(other), declared_base=BASE,
+                profile=self.profile, authority_uuid=AUTHORITY, work_id=WORK)
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.profile.materialize = original
+        self.assertEqual(self.line()["state"], "idle")
+
+    def test_review_independence_and_exact_verdict_collision(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        checkpoint = self.freeze(writer, 1)
+        collisions = (
+            ("same-worker-review", "baton.other", "other-principal",
+             "worker-1", "worker"),
+            ("same-participant-review", "baton.impl", "other-principal",
+             "different-worker", "participant"),
+            ("same-principal-review", "baton.other", "writer-1",
+             "different-worker", "principal"),
+        )
+        for generation, collision in enumerate(collisions, 2):
+            attempt, participant, principal, worker_id, label = collision
+            self.attempt(attempt, generation, participant, principal)
+            with self.subTest(identity=label), self.assertRaisesRegex(
+                    ContractRefusal, label):
+                attach_review(
+                    self.store, checkpoint_id=checkpoint["checkpoint_id"],
+                    attempt_id=attempt, generation=generation,
+                    reviewer_worker_id=worker_id, profile=self.profile)
+        review = self.review(checkpoint["checkpoint_id"], 1)
+        self.verdict(review, 1, "accepted")
+        with self.assertRaises(ContractRefusal) as caught:
+            record_verdict(self.store, attachment_id=review["attachment_id"],
+                           disposition="rejected", profile=self.profile,
+                           port=self.port("baton.review"))
+        self.assertEqual(caught.exception.code, "operation-collision")
+
+    def test_checkpoint_redundant_columns_must_match_sealed_evidence(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        checkpoint = self.freeze(writer, 1)
+        self.store._connection.execute(
+            "UPDATE line_checkpoints SET checkpoint_digest = ? "
+            "WHERE checkpoint_id = ?",
+            ("sha256:" + "0" * 64, checkpoint["checkpoint_id"]))
+        with self.assertRaises(ContractRefusal) as caught:
+            audit_checkpoint(self.store, checkpoint["checkpoint_id"],
+                             self.profile)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "digest"))
+
+    def test_verdict_refuses_an_attachment_retargeted_to_another_line(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        checkpoint = self.freeze(writer, 1)
+        review = self.review(checkpoint["checkpoint_id"], 1)
+        other = create_line(
+            self.store, source=nominate_source(self.source),
+            declared_base=BASE, profile=self.profile,
+            authority_uuid="fedcba9876543210fedcba9876543210", work_id=WORK)
+        self.store._connection.execute(
+            "UPDATE review_attachments SET line_id = ? WHERE attachment_id = ?",
+            (other["line_id"], review["attachment_id"]))
+        with self.assertRaises(ContractRefusal) as caught:
+            record_verdict(self.store, attachment_id=review["attachment_id"],
+                           disposition="accepted", profile=self.profile,
+                           port=self.port("baton.review"))
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
+
+    def test_integration_requires_the_exact_accepted_verdict_row(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        checkpoint = self.freeze(writer, 1)
+        review = self.review(checkpoint["checkpoint_id"], 1)
+        verdict = self.verdict(review, 1, "accepted")
+        self.assertEqual(integration_checkpoint(
+            self.store, line["line_id"])["verdict_id"], verdict["verdict_id"])
+        self.store._connection.execute(
+            "UPDATE checkpoint_verdicts SET disposition = 'rejected' "
+            "WHERE verdict_id = ?", (verdict["verdict_id"],))
+        with self.assertRaises(ContractRefusal) as caught:
+            integration_checkpoint(self.store, line["line_id"])
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "digest"))
+
+    def test_verdict_requires_quiescent_frozen_verified_findings_and_logs(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        checkpoint = self.freeze(writer, 1)
+        review = self.review(checkpoint["checkpoint_id"], 1)
+        port = self.port("baton.review")
+        with self.assertRaisesRegex(ContractRefusal, "positively quiescent"):
+            record_verdict(
+                self.store, attachment_id=review["attachment_id"],
+                disposition="accepted", profile=self.profile, port=port)
+        self.assertEqual(port.calls, [])
+        self.complete("review-attempt-1", review=True, logs=False)
+        with self.assertRaisesRegex(ContractRefusal, "findings and logs"):
+            record_verdict(
+                self.store, attachment_id=review["attachment_id"],
+                disposition="accepted", profile=self.profile, port=port)
+        self.assertEqual(port.calls, [])
+        self.store._connection.execute(
+            "INSERT INTO output_artifacts (runtime_attempt_id, output_name, "
+            "artifact_id, media_type, bytes, content_digest, locator) VALUES "
+            "('review-attempt-1', 'logs', 'artifact-logs-review-attempt-1', "
+            "'text/plain', 1, ?, 'custody/review-attempt-1/logs')",
+            ("sha256:" + "3" * 64,))
+        self.store._connection.execute(
+            "UPDATE attempts SET verification = 'failed' "
+            "WHERE runtime_attempt_id = 'review-attempt-1'")
+        with self.assertRaisesRegex(ContractRefusal, "passed verification"):
+            record_verdict(
+                self.store, attachment_id=review["attachment_id"],
+                disposition="accepted", profile=self.profile, port=port)
+        self.assertEqual(port.calls, [])
+        self.store._connection.execute(
+            "UPDATE attempts SET verification = 'passed' "
+            "WHERE runtime_attempt_id = 'review-attempt-1'")
+        record_verdict(
+            self.store, attachment_id=review["attachment_id"],
+            disposition="accepted", profile=self.profile, port=port)
+        self.assertEqual(len(port.calls), 1)
+        self.assertIsNotNone(integration_checkpoint(self.store, line["line_id"]))
+
+    def test_live_child_and_stale_progress_refuse_without_mutation(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        self.store._connection.execute(
+            "UPDATE attempts SET runtime_id = 'runtime-writer-attempt-1', "
+            "execution_runtime = 'running', worker_disposition = 'completed' "
+            "WHERE runtime_attempt_id = 'writer-attempt-1'")
+        with self.assertRaises(ContractRefusal):
+            freeze_checkpoint(self.store, writer_id=writer["writer_id"],
+                              generation=1, profile=self.profile,
+                              port=self.port("baton.impl"))
+        self.assertEqual(line_of(self.store, line["line_id"])["state"], "writing")
+        with self.assertRaises(ContractRefusal) as caught:
+            record_progress(self.store, writer_id=writer["writer_id"],
+                            generation=2, sequence=1, document={"status": "late"})
+        self.assertEqual(caught.exception.category, "stale-assignment")
+
+    def test_writer_and_review_mount_the_line_without_copying_or_sharing_output(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        writer_roots = assignment_workspace(
+            self.group, self.storage, "writer-attempt-1")
+        with self.assertRaisesRegex(ContractRefusal, "live grant"):
+            compose_runtime_storage_boundary(
+                nominate_source(self.source), writer_roots)
+        with mock.patch("os.statvfs", side_effect=AssertionError(
+                "runtime-provided line storage is not predictively measured")):
+            writable = writer_boundary(
+                self.store, writer_id=writer["writer_id"], generation=1)
+            with self.assertRaisesRegex(ContractRefusal, "revocable live grant"):
+                compose_source_boundary(
+                    nominate_source(self.source), writable["roots"],
+                    workspace_capacity(100 * 1024 * 1024))
+            adopted = adopt_source_boundary(
+                writable["boundary"], writable["roots"], pinned=(
+                    (writable["boundary"].device,
+                     writable["boundary"].inode),
+                    (writable["boundary"].workspace_device,
+                     writable["boundary"].workspace_inode)))
+        self.assertEqual(boundary_mounts(writable["boundary"]), (
+            (self.source, "/input/source", False),
+            (line["path"], "/output", True)))
+        self.assertEqual(writable["roots"]["inputs"], writer_roots["inputs"])
+        self.assertNotEqual(writable["roots"]["workspace"],
+                            writer_roots["workspace"])
+        self.assertEqual(boundary_mounts(adopted),
+                         boundary_mounts(writable["boundary"]))
+        checkpoint = self.freeze(writer, 1)
+        with self.assertRaisesRegex(ContractRefusal, "revoked"):
+            boundary_mounts(writable["boundary"])
+        with self.assertRaisesRegex(ContractRefusal, "revoked"):
+            adopt_source_boundary(writable["boundary"], writable["roots"])
+        discard_execution_roots(self.storage, "writer-attempt-1")
+        self.assertTrue(os.path.isdir(line["path"]))
+
+        review = self.review(checkpoint["checkpoint_id"], 1)
+        review_roots = assignment_workspace(
+            self.group, self.storage, "review-attempt-1")
+        with mock.patch("os.statvfs", side_effect=AssertionError(
+                "runtime-provided line storage is not predictively measured")):
+            readonly = review_boundary(
+                self.store, attachment_id=review["attachment_id"],
+                profile=self.profile)
+        self.assertEqual(boundary_mounts(readonly["boundary"]), (
+            (line["path"], "/input/source", False),
+            (review_roots["workspace"], "/output", True)))
+        self.assertNotEqual(readonly["boundary"].source.place,
+                            readonly["boundary"].workspace)
+        self.verdict(review, 1, "accepted")
+        with self.assertRaisesRegex(ContractRefusal, "revoked"):
+            boundary_mounts(readonly["boundary"])
+        discard_execution_roots(self.storage, "review-attempt-1")
+        self.assertTrue(os.path.isdir(line["path"]))
+
+    def test_review_mount_revalidates_the_current_checkpoint(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        checkpoint = self.freeze(writer, 1)
+        review = self.review(checkpoint["checkpoint_id"], 1)
+        assignment_workspace(self.group, self.storage, "review-attempt-1")
+        self.profile.current_revision = 99
+        with self.assertRaisesRegex(ContractRefusal, "no longer matches"):
+            review_boundary(
+                self.store, attachment_id=review["attachment_id"],
+                profile=self.profile)
+
+    def test_restart_preserves_review_to_correction_and_rejected_is_ineligible(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        record_progress(self.store, writer_id=writer["writer_id"],
+                        generation=1, sequence=1, document={"status": "ready"})
+        checkpoint = self.freeze(writer, 1)
+        self.store.close()
+        self.store = ControlStore.open(
+            self.control_path, incarnation="manager-after-freeze",
+            clock=lambda: NOW)
+        review = self.review(checkpoint["checkpoint_id"], 1)
+        self.verdict(review, 1, "changes-requested")
+        self.assertIsNone(integration_checkpoint(self.store, line["line_id"]))
+        self.store.close()
+        self.store = ControlStore.open(
+            self.control_path, incarnation="manager-after-verdict",
+            clock=lambda: NOW)
+        correction = self.writer(line["line_id"], 2,
+                                 checkpoint["checkpoint_id"])
+        corrected = self.freeze(correction, 2)
+        second_review = self.review(corrected["checkpoint_id"], 2)
+        self.verdict(second_review, 2, "rejected")
+        self.assertIsNone(integration_checkpoint(self.store, line["line_id"]))
+        self.assertEqual(line_of(self.store, line["line_id"])["state"],
+                         "rejected")
+        self.assertEqual(audit_checkpoint(
+            self.store, checkpoint["checkpoint_id"], self.profile)["head"],
+            checkpoint["evidence"]["head"])
+
+    def test_correction_refuses_if_the_line_no_longer_matches_its_checkpoint(self):
+        line = self.line()
+        writer = self.writer(line["line_id"], 1)
+        checkpoint = self.freeze(writer, 1)
+        review = self.review(checkpoint["checkpoint_id"], 1)
+        self.verdict(review, 1, "changes-requested")
+        self.attempt("writer-attempt-2", 2, "baton.impl", "writer-2")
+        self.profile.current_revision = 99
+        with self.assertRaisesRegex(ContractRefusal, "no longer matches"):
+            grant_writer(
+                self.store, line_id=line["line_id"],
+                attempt_id="writer-attempt-2", generation=2,
+                worker_id="worker-2", profile=self.profile,
+                based_checkpoint_id=checkpoint["checkpoint_id"])
+        self.assertEqual(line_of(self.store, line["line_id"])["state"],
+                         "correction-ready")
+
+    def test_authority_and_work_identity_isolate_line_custody(self):
+        first = self.line()
+        source = nominate_source(self.source)
+        second = create_line(
+            self.store, source=source,
+            declared_base=BASE, profile=self.profile,
+            authority_uuid="fedcba9876543210fedcba9876543210", work_id=WORK)
+        third = create_line(
+            self.store, source=source,
+            declared_base=BASE, profile=self.profile,
+            authority_uuid=AUTHORITY, work_id="01234567-W71919")
+        self.assertEqual(len({first["line_id"], second["line_id"],
+                              third["line_id"]}), 3)
+        self.assertEqual(len({first["path"], second["path"], third["path"]}), 3)
+
+    def test_line_custody_is_derived_only_from_configured_storage(self):
+        nested_storage = os.path.join(self.source, "storage")
+        os.mkdir(nested_storage)
+        with self.assertRaises(TypeError):
+            create_line(
+                self.store, storage=nested_storage,
+                source=nominate_source(self.source), declared_base=BASE,
+                profile=self.profile, authority_uuid=AUTHORITY, work_id=WORK)
+        self.assertFalse(os.path.exists(os.path.join(
+            nested_storage, ".baton-review-lines")))
+        line = self.line()
+        self.assertTrue(line["path"].startswith(
+            os.path.join(self.storage, ".baton-review-lines") + os.sep))
+
+    def test_writer_race_has_one_winner_and_reserved_line_survives_cleanup(self):
+        line = self.line()
+        self.attempt("race-a", 1, "baton.a", "principal-a")
+        self.attempt("race-b", 2, "baton.b", "principal-b")
+        outcomes = []
+        barrier = threading.Barrier(2)
+
+        def contender(attempt, generation):
+            beside = ControlStore.open(
+                self.control_path, incarnation=f"manager-{generation + 1}",
+                clock=lambda: NOW)
+            try:
+                barrier.wait()
+                outcomes.append(grant_writer(
+                    beside, line_id=line["line_id"], attempt_id=attempt,
+                    generation=generation,
+                    worker_id=f"race-worker-{generation}",
+                    profile=self.profile))
+            except ContractRefusal as refusal:
+                outcomes.append(refusal)
+            finally:
+                beside.close()
+
+        threads = [threading.Thread(target=contender, args=("race-a", 1)),
+                   threading.Thread(target=contender, args=("race-b", 2))]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        self.assertEqual(sum(type(answer) is dict for answer in outcomes), 1)
+        self.assertEqual(sum(type(answer) is ContractRefusal
+                             for answer in outcomes), 1)
+        for identity in (".baton-review-lines", ".baton-review-lines/child",
+                         "other/../.baton-review-lines"):
+            with self.subTest(identity=identity), self.assertRaises(ContractRefusal):
+                discard_workspace(self.storage, identity)
+        self.assertTrue(os.path.isdir(line["path"]))
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+class TypedReadersAnswerRowsTheirOwnACTSExplain(unittest.TestCase):
+    """W103076: `review_of` and `verdict_of`, and why they cross-bind.
+
+    A composite outside this module has an attachment or a verdict IDENTITY and
+    must not take the attempt, line or disposition beside it as separately
+    chosen operands -- that is how one reviewer's output gets frozen and
+    another's verdict recorded. These readers are the owner's answer, and each
+    one proves the materialized row against the committed act that wrote it,
+    so a row this manager cannot explain is refused rather than projected.
+    """
+
+    # THE FIXTURE IS BORROWED BY NAME RATHER THAN BY INHERITANCE. Subclassing
+    # `ReviewCycles` would make unittest collect and re-run all seventeen of
+    # its cases under this name too -- a silent duplication that inflates every
+    # count in this suite without failing anything.
+    setUp = ReviewCycles.setUp
+    tearDown = ReviewCycles.tearDown
+    attempt = ReviewCycles.attempt
+    line = ReviewCycles.line
+    port = ReviewCycles.port
+    complete = ReviewCycles.complete
+    freeze = ReviewCycles.freeze
+    verdict = ReviewCycles.verdict
+    writer = ReviewCycles.writer
+    review = ReviewCycles.review
+
+    def round(self, number, disposition, based=None):
+        line = self.line()
+        writer = self.writer(line["line_id"], number, based=based)
+        checkpoint = self.freeze(writer, number)
+        review = self.review(checkpoint["checkpoint_id"], number)
+        verdict = self.verdict(review, number, disposition)
+        return line, checkpoint, review, verdict
+
+    def test_an_attachment_answers_its_own_runtime_attempt(self):
+        line, checkpoint, review, _ = self.round(1, "accepted")
+        answered = review_of(self.store, review["attachment_id"])
+        self.assertEqual(answered["runtime_attempt_id"], "review-attempt-1")
+        self.assertEqual(answered["checkpoint_id"],
+                         checkpoint["checkpoint_id"])
+
+    def test_an_attachment_nobody_attached_is_refused(self):
+        self.round(1, "accepted")
+        with self.assertRaises(ContractRefusal) as caught:
+            review_of(self.store, "review-nobody-attached")
+        self.assertEqual(caught.exception.category, "refused")
+
+    def test_an_attachment_row_no_committed_act_explains_is_refused(self):
+        """The cross-binding, driven: the row is real and the act is gone."""
+        line, checkpoint, review, _ = self.round(1, "accepted")
+        self.store._connection.execute(
+            "DELETE FROM operations WHERE operation_id = ?",
+            ("review-line.attach-review:" + review["attachment_id"],))
+        with self.assertRaises(ContractRefusal) as caught:
+            review_of(self.store, review["attachment_id"])
+        self.assertIn("no committed", str(caught.exception))
+
+    def test_a_verdict_answers_every_binding_it_was_recorded_with(self):
+        line, checkpoint, review, verdict = self.round(1, "changes-requested")
+        answered = verdict_of(self.store, verdict["verdict_id"])
+        self.assertEqual(answered["disposition"], "changes-requested")
+        self.assertEqual(answered["line_id"], line["line_id"])
+        self.assertEqual(answered["checkpoint_id"],
+                         checkpoint["checkpoint_id"])
+        self.assertEqual(answered["attachment_id"], review["attachment_id"])
+        self.assertEqual(answered["work_id"], WORK)
+        self.assertEqual(answered["authority_uuid"], AUTHORITY)
+
+    def test_a_verdict_nobody_recorded_is_refused(self):
+        self.round(1, "accepted")
+        with self.assertRaises(ContractRefusal) as caught:
+            verdict_of(self.store, "verdict-nobody-recorded")
+        self.assertEqual(caught.exception.category, "refused")
+
+    def test_a_verdict_row_that_disagrees_with_its_act_is_refused(self):
+        """Two accounts of one decision have no tie-break, so neither wins."""
+        _, _, _, verdict = self.round(1, "accepted")
+        self.store._connection.execute(
+            "UPDATE checkpoint_verdicts SET disposition = 'rejected' "
+            "WHERE verdict_id = ?", (verdict["verdict_id"],))
+        with self.assertRaises(ContractRefusal) as caught:
+            verdict_of(self.store, verdict["verdict_id"])
+        self.assertIn("disagree about disposition", str(caught.exception))
+
+    def test_an_attachment_whose_attempt_was_rewritten_is_refused(self):
+        """The third review's exact reproduction.
+
+        `runtime_attempt_id` is foreign-key valid for the writer's attempt too,
+        so a rewritten row stayed loadable and the reader answered it -- and a
+        composite that trusts the answer stops and freezes another lane's
+        runtime.
+        """
+        _, _, review, _ = self.round(1, "accepted")
+        self.store._connection.execute(
+            "UPDATE review_attachments SET runtime_attempt_id = "
+            "'writer-attempt-1' WHERE attachment_id = ?",
+            (review["attachment_id"],))
+        with self.assertRaises(ContractRefusal) as caught:
+            review_of(self.store, review["attachment_id"])
+        self.assertIn("runtime_attempt_id", str(caught.exception))
+
+    def test_every_immutable_attachment_member_is_bound_to_its_act(self):
+        _, _, review, _ = self.round(1, "accepted")
+        for column, value in (("assignment_generation", 9),
+                              ("reviewer_worker_id", "review-worker-9"),
+                              ("reviewer_participant", "baton.somebody"),
+                              ("reviewer_principal", "reviewer-9")):
+            with self.subTest(column=column):
+                held = self.store._connection.execute(
+                    f"SELECT {column} AS held FROM review_attachments "
+                    f"WHERE attachment_id = ?",
+                    (review["attachment_id"],)).fetchone()["held"]
+                self.store._connection.execute(
+                    f"UPDATE review_attachments SET {column} = ? "
+                    f"WHERE attachment_id = ?",
+                    (value, review["attachment_id"]))
+                with self.assertRaises(ContractRefusal) as caught:
+                    review_of(self.store, review["attachment_id"])
+                self.assertIn(column, str(caught.exception))
+                self.store._connection.execute(
+                    f"UPDATE review_attachments SET {column} = ? "
+                    f"WHERE attachment_id = ?",
+                    (held, review["attachment_id"]))
+
+    def test_a_verdict_whose_retained_digest_was_rewritten_is_refused(self):
+        """The third review's other reproduction: another well-formed SHA-256
+        was accepted, so a correction could be scheduled on a verdict whose
+        retained evidence contradicted its act."""
+        _, _, _, verdict = self.round(1, "accepted")
+        self.store._connection.execute(
+            "UPDATE checkpoint_verdicts SET review_result_digest = ? "
+            "WHERE verdict_id = ?",
+            ("sha256:" + "e" * 64, verdict["verdict_id"]))
+        with self.assertRaises(ContractRefusal) as caught:
+            verdict_of(self.store, verdict["verdict_id"])
+        self.assertEqual(caught.exception.code, "digest")
+
+    def test_a_verdict_whose_retained_fence_digest_was_rewritten_is_refused(self):
+        _, _, _, verdict = self.round(1, "accepted")
+        self.store._connection.execute(
+            "UPDATE checkpoint_verdicts SET review_fence_digest = ? "
+            "WHERE verdict_id = ?",
+            ("sha256:" + "e" * 64, verdict["verdict_id"]))
+        with self.assertRaises(ContractRefusal) as caught:
+            verdict_of(self.store, verdict["verdict_id"])
+        self.assertEqual(caught.exception.code, "digest")
+
+    def test_every_immutable_verdict_member_is_bound_to_its_act(self):
+        _, _, _, verdict = self.round(1, "accepted")
+        for column, value in (
+                ("review_assignment_generation", 9),
+                ("reviewer_worker_id", "review-worker-9"),
+                ("reviewer_participant", "baton.somebody"),
+                ("reviewer_principal", "reviewer-9"),
+                ("base_object", "b" * 40), ("head_object", "c" * 40),
+                ("tree_object", "d" * 40),
+                ("path_set_digest", "sha256:" + "f" * 64)):
+            with self.subTest(column=column):
+                held = self.store._connection.execute(
+                    f"SELECT {column} AS held FROM checkpoint_verdicts "
+                    f"WHERE verdict_id = ?",
+                    (verdict["verdict_id"],)).fetchone()["held"]
+                self.store._connection.execute(
+                    f"UPDATE checkpoint_verdicts SET {column} = ? "
+                    f"WHERE verdict_id = ?", (value, verdict["verdict_id"]))
+                with self.assertRaises(ContractRefusal) as caught:
+                    verdict_of(self.store, verdict["verdict_id"])
+                self.assertIn(column, str(caught.exception))
+                self.store._connection.execute(
+                    f"UPDATE checkpoint_verdicts SET {column} = ? "
+                    f"WHERE verdict_id = ?", (held, verdict["verdict_id"]))
+
+    def test_a_verdict_whose_act_is_gone_is_refused(self):
+        _, _, review, verdict = self.round(1, "accepted")
+        self.store._connection.execute(
+            "DELETE FROM operations WHERE operation_id = ?",
+            ("review-line.verdict:" + review["attachment_id"],))
+        with self.assertRaises(ContractRefusal) as caught:
+            verdict_of(self.store, verdict["verdict_id"])
+        self.assertIn("no committed", str(caught.exception))

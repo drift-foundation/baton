@@ -1,0 +1,18 @@
+--- review-114486/v12/worker/integration_contract.py
++++ review-114828/v12/worker/integration_contract.py
+@@ -986,9 +986,12 @@
+         _refuse("the materialized review outputs are not the complete set the "
+                 "frozen review collected")
+     for one in documents:
+-        held = collected[one["output_name"]]
+-        if one["tree_digest"] != held.get("content_digest") \
+-                or one["bytes"] != held.get("bytes"):
++        # `recorded`, NOT `held`: `held` is this function's accumulator of the
++        # materialized bytes, and shadowing it here returned the frozen
++        # artifact where the caller expected the documents.
++        recorded = collected[one["output_name"]]
++        if one["tree_digest"] != recorded.get("content_digest") \
++                or one["bytes"] != recorded.get("bytes"):
+             _refuse(f"materialized review output {one['output_name']} does "
+                     f"not carry the identity the frozen review recorded")
+         measured = canonical_digest(

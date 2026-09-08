@@ -1,0 +1,10 @@
+{
+  "v12/python/tests/integration/test_driver.py": "28cf1e1cf3d234728b33a6d1174ec222e621e3d09eca9cf0a57e6c5e5f62f6d7",
+  "v12/python/src/baton_v12/integration/driver.py": "d6b3be4f99e0776d6ec402db6bfb05b4db8fd376a36b8d1c4225eb17dec83bd6",
+  "v12/worker/claude_agent.py": "65a9d8b7dda16f76665c0a620740653b43692ac315e246fd4e822fe222101817",
+  "v12/python/tests/manager/test_claude_agent.py": "a6c6e57ad38dd9c24c6ad864080ed02f0106ce27a509631b52436c1f9bbf5dd7",
+  "v12/python/tests/manager/test_dependencies.py": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+  "v12/python/tests/job_manager/test_review_driver.py": "cb376576b1100976ec865749e6649cccd8cc1addf00210dda8c88bf801b919bc",
+  "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+  "v12/python/src/baton_v12/worker_manager/custody.py": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6"
+}

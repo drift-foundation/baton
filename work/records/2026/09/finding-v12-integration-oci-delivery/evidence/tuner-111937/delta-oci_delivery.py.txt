@@ -1,0 +1,18 @@
+--- review-111840/v12/python/src/baton_v12/integration/oci_delivery.py
++++ tuner-111937/v12/python/src/baton_v12/integration/oci_delivery.py
+@@ -507,6 +507,15 @@
+                     f"{name_value(one['container_target'])} is no longer the "
+                     f"one this binding names; a recovery reports what it "
+                     f"found rather than re-resolving it")
++    # A retained directory identity does not prove its role in the fixed plan.
++    # Compare the whole ordered sequence against the namespaces just adopted
++    # and the configured nomination, including every target and access flag.
++    # This validates retained evidence without publishing or obtaining a grant.
++    if tuple(held["sources"]) != _sources(adopted, target):
++        _denied("the retained integration mount binding differs from the "
++                "fixed assignment/result/target source layout; recovery "
++                "requires the exact ordered paths, identities, targets and "
++                "access rather than repairing the retained plan")
+     return IntegrationMountBoundary(
+         _minted=_MINT, attempt_id=held["attempt_id"],
+         canonical_target_id=held["canonical_target_id"], assignment=None,

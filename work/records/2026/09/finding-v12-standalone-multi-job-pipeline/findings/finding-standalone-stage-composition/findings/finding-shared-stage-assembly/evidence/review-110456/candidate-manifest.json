@@ -1,0 +1,41 @@
+{
+  "work": "W103083",
+  "claim": 110456,
+  "files": [
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "5f5327370f0e6ba179548e45ccf5dbfbc763d8b78e4b95b379950ba739a0b0f1",
+      "bytes": 25604
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "2f5d7d57178f356257733eb3668cb52435440b3e843578435d9409795e8d16ca",
+      "bytes": 114831
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "190bbe8d2baa542fdc9d23d6f8d5c1ce7fb478984bf7be70ee15bdca511fc290",
+      "bytes": 46033
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+      "bytes": 159004
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "eb90384d91cb5a4afe22bc147b8113863c8cf039eb5efbcae7ed4f614870ab9e",
+      "bytes": 59773
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "a745e36ac192044e53a5ea640244c77149b1fdd334e75da0e7043c511f6cbb14",
+      "bytes": 21080
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/scheduler.py",
+      "sha256": "fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457",
+      "bytes": 38153
+    }
+  ]
+}

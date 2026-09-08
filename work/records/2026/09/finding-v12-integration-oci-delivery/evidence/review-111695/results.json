@@ -1,0 +1,255 @@
+{
+  "normal": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.merge",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "integration_mounts": {
+        "runtime_id": "runtime-1",
+        "state": "running",
+        "agrees": true,
+        "why": null,
+        "mounts": [
+          {
+            "source": "/tmp/v12-integration-17l2st8w/launch/integration/assignment",
+            "target": "/run/baton/integration/assignment",
+            "writable": false
+          },
+          {
+            "source": "/tmp/v12-integration-17l2st8w/launch/integration/result",
+            "target": "/run/baton/integration/result",
+            "writable": true
+          },
+          {
+            "source": "/tmp/v12-integration-17l2st8w/canonical-target",
+            "target": "/target",
+            "writable": true
+          }
+        ]
+      }
+    },
+    "manager_start_answer_parser": {
+      "accepted": false,
+      "reason": "the adapter's start answer carries a tuple, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour"
+    },
+    "engine_operations": [
+      "ps",
+      "run",
+      "inspect"
+    ],
+    "run_calls": 1
+  },
+  "unknown_mounts": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.merge",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "integration_mounts": {
+        "runtime_id": "runtime-1",
+        "state": "running",
+        "agrees": false,
+        "why": "the engine did not report this runtime's binds, so nothing about its integration mounts is proved",
+        "mounts": null
+      }
+    },
+    "manager_start_answer_parser": {
+      "accepted": false,
+      "reason": "the adapter's start answer also carries integration_mounts, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did"
+    },
+    "engine_operations": [
+      "ps",
+      "run",
+      "inspect"
+    ],
+    "run_calls": 1
+  },
+  "ordinary_workspace_mount": {
+    "accepted": false,
+    "reason": "this integration binds '/tmp/v12-integration-us8w6488/r-workspace' at 'workspace' and '/tmp/v12-integration-us8w6488/r-workspace' at '/output'; one host directory behind two container paths is a mount plan nobody can say the effective access of; the credential delivery is not-delivered and the launch document is torn-down",
+    "engine_operations": [
+      "ps",
+      "ps"
+    ],
+    "run_calls": 0
+  },
+  "foreign_participant": {
+    "accepted": false,
+    "reason": "this start is labelled for participant 'baton.foreign' and the grant was given to 'baton.merge'; a runtime runs under the grant it was given, not beside it; the credential delivery is not-delivered and the launch document is torn-down",
+    "engine_operations": [
+      "ps",
+      "ps"
+    ],
+    "run_calls": 0
+  },
+  "late_result_mode": {
+    "accepted": false,
+    "reason": "attempt 'attempt-1''s integration result namespace is mode 0o777 and this manager established 0o2770; a delivery whose modes have moved is not the one it wrote; the credential delivery is not-delivered and the launch document is torn-down",
+    "engine_operations": [
+      "ps",
+      "ps"
+    ],
+    "run_calls": 0
+  },
+  "late_binding_mode": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.merge",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "integration_mounts": {
+        "runtime_id": "runtime-1",
+        "state": "running",
+        "agrees": true,
+        "why": null,
+        "mounts": [
+          {
+            "source": "/tmp/v12-integration-qxp69okt/launch/integration/assignment",
+            "target": "/run/baton/integration/assignment",
+            "writable": false
+          },
+          {
+            "source": "/tmp/v12-integration-qxp69okt/launch/integration/result",
+            "target": "/run/baton/integration/result",
+            "writable": true
+          },
+          {
+            "source": "/tmp/v12-integration-qxp69okt/canonical-target",
+            "target": "/target",
+            "writable": true
+          }
+        ]
+      }
+    },
+    "manager_start_answer_parser": {
+      "accepted": false,
+      "reason": "the adapter's start answer carries a tuple, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour"
+    },
+    "engine_operations": [
+      "ps",
+      "run",
+      "inspect"
+    ],
+    "run_calls": 1
+  },
+  "ordinary_observation_missing_binds": {
+    "ordinary_observation": {
+      "state": "running",
+      "why": "the engine reports it running",
+      "mounts": [],
+      "candidates": [
+        {
+          "runtime_id": "runtime-1",
+          "state": "running",
+          "why": "the engine reports it running"
+        }
+      ]
+    },
+    "integration_comparator": {
+      "runtime_id": "runtime-1",
+      "state": "running",
+      "agrees": false,
+      "why": "the live runtime carries 0 binds at '/run/baton/integration/assignment'; exact agreement is one",
+      "mounts": []
+    }
+  },
+  "recovery_blocked": {
+    "accepted": true,
+    "mounts": [
+      [
+        "/tmp/v12-integration-j7ioy353/launch/integration/assignment",
+        "/run/baton/integration/assignment",
+        false
+      ],
+      [
+        "/tmp/v12-integration-j7ioy353/launch/integration/result",
+        "/run/baton/integration/result",
+        true
+      ],
+      [
+        "/tmp/v12-integration-j7ioy353/canonical-target",
+        "/target",
+        true
+      ]
+    ],
+    "configured_target": "/tmp/v12-integration-j7ioy353/canonical-target",
+    "restart_refusal": {
+      "accepted": false,
+      "reason": "attempt 'attempt-1''s mount boundary was RECOVERED rather than composed; a read-only adoption exists to inspect and stop an exact runtime and never to start one"
+    }
+  },
+  "recovery_missing": {
+    "accepted": false,
+    "reason": "attempt 'attempt-1' has no retained integration mount binding; a recovery adopts the plan this manager recorded and never composes a replacement for it"
+  },
+  "recovery_other_configured_directory": {
+    "accepted": true,
+    "mounts": [
+      [
+        "/tmp/v12-integration-d88hdx0_/launch/integration/assignment",
+        "/run/baton/integration/assignment",
+        false
+      ],
+      [
+        "/tmp/v12-integration-d88hdx0_/launch/integration/result",
+        "/run/baton/integration/result",
+        true
+      ],
+      [
+        "/tmp/v12-integration-d88hdx0_/canonical-target",
+        "/target",
+        true
+      ]
+    ],
+    "configured_target": "/tmp/v12-integration-d88hdx0_/other-target",
+    "restart_refusal": {
+      "accepted": false,
+      "reason": "attempt 'attempt-1''s mount boundary was RECOVERED rather than composed; a read-only adoption exists to inspect and stop an exact runtime and never to start one"
+    }
+  },
+  "public_immutability": [
+    {
+      "exception": "AttributeError",
+      "message": "'mappingproxy' object has no attribute '__setitem__'"
+    },
+    {
+      "exception": "AttributeError",
+      "message": "'mappingproxy' object has no attribute '__setitem__'"
+    },
+    {
+      "exception": "AttributeError",
+      "message": "'mappingproxy' object has no attribute '__setitem__'"
+    }
+  ]
+}

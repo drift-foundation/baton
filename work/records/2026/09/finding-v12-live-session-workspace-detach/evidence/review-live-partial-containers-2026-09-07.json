@@ -1,0 +1,67 @@
+{
+  "provenance": "Independent standalone Docker inspection by baton.codex under claim 108110",
+  "containers": [
+    {
+      "id": "df456ca2f698778e9ad0b0d223cdfdbda123cb205e33534a7dea43ee507f689b",
+      "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+      "state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 1,
+        "FinishedAt": "2026-09-07T06:17:08.899581129Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-09-07T06:16:49.870484463Z",
+        "Status": "exited"
+      },
+      "user": "65532:65532",
+      "labels": {
+        "baton.experiment": "W106673",
+        "baton.run": "7454d660d057412d86e0f2f8c0fd018f"
+      },
+      "network": "fbf516198bad44bfcd84fd2fc242b7dcaa4c003fd781d66faa1b149719210096",
+      "privileged": false,
+      "readonly_root": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges"
+      ]
+    },
+    {
+      "id": "3d86c49dafeca849a138f4cd40e416722fe844d57039228669317fbc96656700",
+      "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+      "state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 1,
+        "FinishedAt": "2026-09-07T06:17:09.823623383Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-09-07T06:17:09.014185443Z",
+        "Status": "exited"
+      },
+      "user": "65532:65532",
+      "labels": {
+        "baton.experiment": "W106673",
+        "baton.run": "d9186c0160eb43baa41ef60356b103b3"
+      },
+      "network": "fbf516198bad44bfcd84fd2fc242b7dcaa4c003fd781d66faa1b149719210096",
+      "privileged": false,
+      "readonly_root": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges"
+      ]
+    }
+  ]
+}

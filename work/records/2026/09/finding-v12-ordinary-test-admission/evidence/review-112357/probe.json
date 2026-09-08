@@ -1,0 +1,54 @@
+{
+  "actual_eligibility": {
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+    "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+    "checkpoint_digest": "sha256:6dbdbdd04c1812687ae7588d7916361d7aa22e4753a3bd0e268cf83aa213edef",
+    "evidence": {
+      "base": "099f72e828d31d8565ba49a491285776c045a7dd",
+      "head": "c0518ff8dd11ef1addcc5217ea800af73d1c260e",
+      "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+      "paths": [
+        "round-1.txt"
+      ],
+      "profile": "reference",
+      "reference": "checkpoint/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+      "tree": "187c9962e6f295e91283e6ee38b7b398846002b8"
+    }
+  },
+  "positive_receipts": {
+    "verification": {
+      "proposal_id": "proposal-1",
+      "verification_id": "integration-driver.ordinary-tests-verification-receipt:7f12b7b4964d859f13c8b1f6054e01812fd42e37cbcd009333221898e73a7ba8",
+      "operation_id": "integration-driver.ordinary-tests-verification-operation:55d9f8aa011581fa2eb83939857e9443ddaa482abda5e4dedc8f14893f1dd3b4",
+      "observation": "passed"
+    },
+    "review": {
+      "proposal_id": "proposal-1",
+      "review_id": "integration-driver.review-receipt:07ba06865e6a28e8ce8b3466acf802619c75d24d71ce1142e9ed4d10eee01e13",
+      "operation_id": "integration-driver.review-operation:2f73d789aa2b7d3ffa9a4643f545327ece62c3725a150461a49ff3ea5d568627",
+      "disposition": "accepted"
+    },
+    "approval": {
+      "proposal_id": "proposal-1",
+      "approval_id": "integration-driver.approval-receipt:e13fb60381f36df85f1f3a934d26c715dabee0e43d5dda731593596abefd1491",
+      "operation_id": "integration-driver.approval-operation:5c588e0f4d9789ba39d6174ef0dd66047ef745a615c63ed42d57a4ddf21a4827",
+      "disposition": "approved",
+      "policy_generation": 3
+    }
+  },
+  "positive_calls": [
+    1,
+    1,
+    1
+  ],
+  "wrong_head": {
+    "exception": "ContractRefusal",
+    "message": "the accepted checkpoint records head 'ffffffffffffffffffffffffffffffffffffffff' and the producer's proposal claims 'c0518ff8dd11ef1addcc5217ea800af73d1c260e'"
+  },
+  "negative_calls": [
+    0,
+    0,
+    0
+  ]
+}

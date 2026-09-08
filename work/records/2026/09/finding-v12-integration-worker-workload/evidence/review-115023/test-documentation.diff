@@ -1,0 +1,77 @@
+--- joined/v12/python/tests/manager/test_integration_worker.py
++++ final/v12/python/tests/manager/test_integration_worker.py
+@@ -1112,24 +1112,35 @@
+                       result["detail"]["detail"]["observed"])
+ 
+     def test_the_accepted_scope_is_the_enumeration_and_not_a_filename(self):
+-        """WHAT REPLACED THE HEURISTIC, and what that costs, stated plainly.
++        """WHAT THE ACCOUNT'S ROWS ARE: GRANTS, and not an inventory of the
++        tests a candidate touches.
+ 
+         Review 2026-09-07T22:48:26Z [P1]: "a filename heuristic also cannot
+         stand in for that reviewed enumeration". The old case asserted a
+         mechanical refusal for any path this module GUESSED was a test, which
+         is neither the accepted scope's enumeration nor the review's
+-        evaluation of it. The accepted Job's scope is the enumeration, so a
+-        path it names carries an `existing-test` requirement and a path it does
+-        not name carries none.
+-
+-        THE RESIDUAL RISK IS REAL AND IS NOT HIDDEN: a test file the accepted
+-        Job never scheduled is, to this runtime, an ordinary content change.
+-        What now stands behind that is evidence rather than a guess -- the
+-        frozen review's own documents travel in the bundle and the prompt
+-        requires the provider to evaluate them before importing. Catching a
+-        test change the accepted Work never scheduled is the REVIEW's
+-        responsibility, and W114085's account is what makes its answer
+-        readable here at all.
++        evaluation of it. What this asserts is the producer's enumeration
++        rule: a path the accepted Job's scope names carries an `existing-test`
++        requirement and the scope entry that grants it, and a path the scope
++        does not name carries no ROW at all.
++
++        AN ABSENT ROW IS NOT PERMISSION. The residual-risk framing this
++        docstring carried is SUPERSEDED by review 2026-09-08T00:01:58Z [P1]:
++        every existing-test change a candidate actually makes still requires
++        semantic evaluation against the accepted scope and the frozen review's
++        own documents, whether or not the account grants it. The prompt
++        carries that instruction and both kinds of material for the whole
++        candidate -- asserted over an EMPTY account by
++        `test_the_prompt_requires_whole_candidate_test_evaluation`, with
++        `test_an_unscheduled_existing_test_change_is_the_providers_to_refuse`
++        driving the refusal to a conservative hold.
++
++        AND WHAT THOSE CASES ESTABLISH IS THIS RUNTIME'S OWN BEHAVIOUR. Their
++        provider is deterministic, so they prove what this workload does as
++        the CONSUMER of that evaluation -- the instruction it composes, the
++        material it carries and the ending it publishes -- and never what a
++        model judges. W114085's accepted account and frozen review documents
++        are what make the evaluation answerable inside a container at all.
+         """
+         self.bundle(operation="add")
+         taken = contract.read_bundle(self.published["root"])
+@@ -1144,8 +1155,9 @@
+         self.assertEqual(account["paths"][0]["requires"], ["existing-test"])
+         self.assertEqual(account["paths"][0]["authorized_by"][0]["entry"],
+                          scoped)
+-        # AND A PATH THE SCOPE DOES NOT NAME CARRIES NO REQUIREMENT, however
+-        # much its name looks like a test.
++        # AND A PATH THE SCOPE DOES NOT NAME CARRIES NO ROW, however much
++        # its name looks like a test: the producer declines to invent a grant,
++        # which is not this candidate being permitted to change that test.
+         outside, blobs = self.row("v12/python/tests/manager/test_elsewhere.py",
+                                   operation="edit")
+         elsewhere = self.derived(paths=[outside], blobs=blobs,
+@@ -1154,8 +1166,11 @@
+             contract.AUTHORITY_DOCUMENT]["paths"], [])
+ 
+     def test_the_same_change_inside_the_scheduled_scope_is_admitted(self):
+-        """What makes the refusal above about AUTHORITY rather than about the
+-        word "test": the accepted Job's own scope names this directory."""
++        """What makes the account above about AUTHORITY rather than about the
++        word "test": the accepted Job's own scope names this directory, so the
++        same change that earned no row outside it earns a granted one here.
++        The provider's own evaluation of the whole candidate is unchanged by
++        that grant."""
+         self.bundle(operation="add")
+         taken = contract.read_bundle(self.published["root"])
+         scoped = taken["evidence"]["job.json"]["test_scope"][0]

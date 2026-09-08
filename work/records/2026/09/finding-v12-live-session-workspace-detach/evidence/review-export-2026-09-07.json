@@ -1,0 +1,136 @@
+{
+  "outcome": "export-consistency-checks-passed",
+  "exported_files": 18,
+  "scenarios": {
+    "happy": {
+      "events": 25,
+      "container": "13a2c3118c3895a4c1a753a937a0a85b281b5a62161c99c712f176dd6f1d8dbc",
+      "pid": 547414,
+      "session": "eafca8f1dd1ac87fab29b6d861464f7c",
+      "workspace": [
+        43,
+        9876175
+      ],
+      "mount_ids": [
+        "372",
+        "483"
+      ],
+      "consumed": 2,
+      "gate_denials": 1,
+      "final_phase": "shutdown"
+    },
+    "open-file": {
+      "events": 15,
+      "container": "ec518eebf9e510676825b1ead065e2fd870f3d1ea3a953bef35a27020827300b",
+      "pid": 548339,
+      "session": "cadd7f0abc764e76b1c9664eab2c86a4",
+      "workspace": [
+        43,
+        9876225
+      ],
+      "mount_ids": [
+        "482"
+      ],
+      "consumed": 1,
+      "gate_denials": 2,
+      "final_phase": "reviewed"
+    },
+    "cwd": {
+      "events": 15,
+      "container": "4590055caa7ef14a909dd5f4c15ed343675d3164b8e0487f37a74f6cc503a613",
+      "pid": 548757,
+      "session": "354ea63608ec3e534997859b9a2870a9",
+      "workspace": [
+        43,
+        9876250
+      ],
+      "mount_ids": [
+        "482"
+      ],
+      "consumed": 1,
+      "gate_denials": 2,
+      "final_phase": "reviewed"
+    },
+    "omitted": {
+      "events": 12,
+      "container": "a50a3437e6fbdf073e1488f948339cde4f8fb1a1a4d419bb449c188e13e669bf",
+      "pid": 549256,
+      "session": "4e53e2c67ea1df9aaf5a12e13b352158",
+      "workspace": [
+        43,
+        9876285
+      ],
+      "mount_ids": [
+        "483"
+      ],
+      "consumed": 1,
+      "gate_denials": 2,
+      "final_phase": "reviewed"
+    },
+    "before": {
+      "events": 15,
+      "container": "0ddb74e56a3fe79e029fbbdc738f73db38771e2e6bfa81edd0c545d239ea699e",
+      "pid": 549582,
+      "session": "7a099a6b4d7f47b82eb516b1594c173a",
+      "workspace": [
+        43,
+        9876306
+      ],
+      "mount_ids": [
+        "482"
+      ],
+      "consumed": 1,
+      "gate_denials": 2,
+      "final_phase": "reviewed"
+    },
+    "after": {
+      "events": 15,
+      "container": "9e758273452a9c4376493dcd1cee13344bb286a8ca7ed479a82a53f9355484a3",
+      "pid": 550102,
+      "session": "d4609389042692fd60fc009d9a041f8c",
+      "workspace": [
+        43,
+        9876371
+      ],
+      "mount_ids": [
+        "482"
+      ],
+      "consumed": 1,
+      "gate_denials": 2,
+      "final_phase": "reviewed"
+    },
+    "stop-start-one": {
+      "events": 10,
+      "container": "931a2dca2d6438e177a088fa516088d2b7c52b33de4fb5682e7f6ab1a1432197",
+      "pid": 550556,
+      "session": "6cda5825aced97915ceb122f7d45c94f",
+      "workspace": [
+        43,
+        9876396
+      ],
+      "mount_ids": [
+        "482"
+      ],
+      "consumed": 1,
+      "gate_denials": 0,
+      "final_phase": "reviewed"
+    },
+    "stop-start-two": {
+      "events": 8,
+      "container": "6e6455044b54bb8b480b40eef55aa0e390552b4b32849c1c5f4dc80da5638f8a",
+      "pid": 550909,
+      "session": "1c000f39befeb1f253b89f86a3e42ca8",
+      "workspace": [
+        43,
+        9876396
+      ],
+      "mount_ids": [
+        "482"
+      ],
+      "consumed": 0,
+      "gate_denials": 0,
+      "final_phase": "shutdown"
+    }
+  },
+  "limitations": "Operator-exported observations and reviewed runner; no protected-original hashes, new OS run, real Claude session or production-manager recovery."
+}

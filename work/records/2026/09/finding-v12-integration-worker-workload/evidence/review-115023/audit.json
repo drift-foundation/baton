@@ -1,0 +1,59 @@
+{
+  "claim": 115023,
+  "at": "2026-09-08T01:16:50.260738+00:00",
+  "paths": {
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "unchanged_since_join": true
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "unchanged_since_join": true
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "unchanged_since_join": false
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "unchanged_since_join": true
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "unchanged_since_join": true
+    },
+    "v12/python/tools/parallel_test.py": {
+      "sha256": "5bf2cbfbf29c603f07f811a1d5f968257798e1944d91bed0d97fe9aa393bf302",
+      "unchanged_since_join": true
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "unchanged_since_join": true
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "unchanged_since_join": true
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "unchanged_since_join": true
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "unchanged_since_join": true
+    }
+  },
+  "tests": {
+    "before": 77,
+    "after": 77,
+    "changed_methods_including_docstrings": [
+      "TheEvidenceMustBeThisCandidatesOwn.test_the_accepted_scope_is_the_enumeration_and_not_a_filename",
+      "TheEvidenceMustBeThisCandidatesOwn.test_the_same_change_inside_the_scheduled_scope_is_admitted"
+    ],
+    "added": [],
+    "removed": [],
+    "whole_file_executable_AST_identical": true
+  },
+  "matches_author_test_hash": true,
+  "progress_sha256": "30817c53c13c025a2ca428e0f4730eb4853bd1b45a5a65262f0b18d12a0fde41"
+}

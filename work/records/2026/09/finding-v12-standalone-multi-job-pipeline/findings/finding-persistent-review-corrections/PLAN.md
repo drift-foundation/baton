@@ -1,5 +1,23 @@
 # Plan
 
+## Current follow-up index — 2026-09-07, W110772
+
+The historical implementation/integration plan below is preserved. W110772
+owns the custody/verification correction. Owner M111752 supersedes the earlier
+mandatory clean-verifier producer and reviewer-axis certification prerequisite
+for W71830: ordinary implementer tests plus independent review are the current
+workflow. The proposed `FIRST-PROOF-PLAN.md` at
+`baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/`
+specifies bound ordinary-test evidence at admission, sealed first verdict, actual
+freeze replay and historical eligibility after positive cleanup. It explicitly
+names the changed reviewer-axis test expectation and preserves failed/unrun
+required-test refusal at admission. Ops must assign that bounded source/test
+scope before implementation. No passed axis is fabricated and no new verifier
+is scheduled. The older CORRECTION-PLAN.md is deferred history. This index
+neither reopens W71918 nor releases any gate.
+
+## Historical implementation plan
+
 1. [review-ahead complete 2026-09-04] Re-read the controlling private-line
    ruling, current Job Manager stage/episode contracts, source/workspace
    provider contract, assignment-private cleanup boundary, and Authority

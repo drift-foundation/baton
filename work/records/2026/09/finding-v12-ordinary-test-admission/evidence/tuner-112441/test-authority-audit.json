@@ -1,0 +1,27 @@
+{
+  "owner": 112439,
+  "changed_existing_definitions": [
+    "TheReaderConsumesTheOwnersActualAnswer.setUp",
+    "TheReaderConsumesTheOwnersActualAnswer.test_the_consumer_reads_that_document_without_raising"
+  ],
+  "added_definitions": [
+    "_OrdinaryAdmissionWorld.__init__",
+    "_OrdinaryAdmissionWorld.assert_retained_history",
+    "_OrdinaryAdmissionWorld.assert_no_admission",
+    "_OrdinaryAdmissionWorld.evidence",
+    "_OrdinaryAdmissionWorld.receipts",
+    "_OrdinaryAdmissionWorld.admit",
+    "TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission",
+    "TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence",
+    "TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit",
+    "TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission",
+    "TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted",
+    "TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts",
+    "TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate"
+  ],
+  "all_other_existing_definitions_source_unchanged": true,
+  "all_unowned_paths_byte_identical": true,
+  "changed_paths": [
+    "v12/python/tests/integration/test_driver.py"
+  ]
+}

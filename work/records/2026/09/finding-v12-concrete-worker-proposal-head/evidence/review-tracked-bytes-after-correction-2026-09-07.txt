@@ -1,0 +1,6 @@
+test_measured_tracked_bytes_match_even_when_status_hides_the_edit (__main__.TrackedBytes.test_measured_tracked_bytes_match_even_when_status_hides_the_edit) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.202s
+
+OK

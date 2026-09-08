@@ -1,0 +1,479 @@
+--- review-114486/v12/python/tests/tools/test_integration_bundle.py
++++ review-114828/v12/python/tests/tools/test_integration_bundle.py
+@@ -575,27 +575,80 @@
+             action(*operands, **named)
+         return caught.exception
+ 
+-    # W114085: THE AUTHORITY PROJECTION THIS FIXTURE PUBLISHES BY DEFAULT.
+-    # Its scheduled scope is deliberately EMPTY, so the default one-row edit
+-    # requires nothing and the positive read-back stays a case about the
+-    # bundle's shape rather than about authority. Cases that are about
+-    # authority pass their own through `authority=`.
++    # W114085: THE AUTHORITY PROJECTION THIS FIXTURE PUBLISHES BY DEFAULT, and
++    # after review 2026-09-07T23:16:55Z [P1] it no longer stands alone. The
++    # reader binds the account's duplicated identities to `job.json`,
++    # `review.json` and the eligibility account, so this fixture publishes all
++    # of them as ONE coherent set -- which is what makes each negative case
++    # below a case about the ONE thing it changes.
++    #
++    # The scheduled scope is deliberately EMPTY by default, so the default
++    # one-row edit requires nothing and the positive read-back stays a case
++    # about the bundle's shape rather than about authority.
++
++    WORK = "0000000a-W1"
++    JOB = "job-a"
++    STAGE = "job-a/implementation"
++
++    def scope_account(self, scope=()):
++        from baton_v12.contracts import digest
++
++        return {"job_id": self.JOB, "stage_id": self.STAGE,
++                "work_id": self.WORK, "scope_digest": digest(list(scope)),
++                "test_scope": list(scope)}
++
++    def review_account(self, documents=()):
++        return {"verdict_id": "v-1", "attachment_id": "a-1",
++                "disposition": "accepted",
++                "reviewer_participant": "baton.review",
++                "result_id": "r-1",
++                "result_digest": "sha256:" + "5" * 64,
++                "documents": list(documents)}
++
+     def authority(self, **changed):
+-        held = {
+-            "schema": contract.AUTHORITY_SCHEMA,
+-            "scope": {"job_id": "job-a", "stage_id": "job-a/implementation",
+-                      "work_id": "0000000a-W1",
+-                      "scope_digest": "sha256:" + "4" * 64,
+-                      "test_scope": []},
+-            "review": {"verdict_id": "v-1", "attachment_id": "a-1",
+-                       "disposition": "accepted",
+-                       "reviewer_participant": "baton.review",
+-                       "result_id": "r-1",
+-                       "result_digest": "sha256:" + "5" * 64,
+-                       "documents": []},
+-            "paths": []}
++        held = {"schema": contract.AUTHORITY_SCHEMA,
++                "scope": self.scope_account(),
++                "review": self.review_account(),
++                "paths": []}
+         held.update(changed)
+         return held
++
++    def projections(self, account):
++        """The `job.json` and `review.json` this account has to agree with."""
++        scope = account["scope"]
++        review = account["review"]
++        return {
++            "job.json": {"job_id": scope["job_id"],
++                         "stage_id": scope["stage_id"],
++                         "work_id": scope["work_id"],
++                         "scope_digest": scope["scope_digest"],
++                         "test_scope": list(scope["test_scope"])},
++            "review.json": {
++                "verdict_id": review["verdict_id"],
++                "attachment_id": review["attachment_id"],
++                "disposition": review["disposition"],
++                "reviewer_participant": review["reviewer_participant"],
++                "review_result_digest": review["result_digest"],
++                "review_result": {
++                    "result_id": review["result_id"],
++                    "artifacts": [{"output_name": one["output_name"],
++                                   "content_digest": one["tree_digest"],
++                                   "bytes": one["bytes"]}
++                                  for one in review["documents"]]}}}
++
++    @staticmethod
++    def measured(files):
++        """The tree identity the frozen owner would have recorded."""
++        from baton_v12.contracts import digest
++
++        return digest([{"path": one["path"], "bytes": one["bytes"],
++                        "content_digest": "sha256:" + one["digest"]}
++                       for one in files])
++
++    def review_output(self, name, files):
++        return {"output_name": name, "tree_digest": self.measured(files),
++                "bytes": sum(one["bytes"] for one in files),
++                "entry_count": len(files), "files": list(files)}
+ 
+     @staticmethod
+     def review_file(relative, payload):
+@@ -608,6 +661,9 @@
+         from baton_v12.contracts.canonical import canonical_bytes
+ 
+         authority = changed.pop("authority", None)
++        # THE PROJECTIONS THE ACCOUNT MUST AGREE WITH, overridable so a case
++        # can move the ACCOUNT while the owners it duplicates stay real.
++        pinned = changed.pop("projections", None)
+         payload = b"print('after')\n"
+         address = digest_of_bytes(payload).split(":", 1)[1]
+         rows = changed.pop("paths", [
+@@ -637,15 +693,21 @@
+         envelope.update(changed)
+         os.makedirs(os.path.join(self.place, contract.EVIDENCE_DIRECTORY))
+         os.makedirs(os.path.join(self.place, contract.BLOB_DIRECTORY))
++        composed = self.authority() if authority is None else authority
++        agreeing = (self.projections(composed) if pinned is None
++                    else pinned)
++        envelope["eligibility"] = dict(
++            envelope["eligibility"], work_id=composed["scope"]["work_id"],
++            scope_digest=composed["scope"]["scope_digest"])
+         if envelope["evidence"] == []:
+             for name in contract.EVIDENCE_DOCUMENTS:
+-                # W114085: the authority projection is a REAL document because
+-                # the reader validates its shape and its coverage of the table;
+-                # the other seven stay the stubs this fixture always used,
+-                # which is what keeps these cases about the layout.
++                # W114085: the authority projection and the two projections it
++                # is BOUND TO are real documents, because the reader compares
++                # them; the other five stay the stubs this fixture always
++                # used, which is what keeps these cases about the layout.
+                 body = canonical_bytes(
+-                    (self.authority() if authority is None else authority)
+-                    if name == contract.AUTHORITY_DOCUMENT else {"name": name})
++                    composed if name == contract.AUTHORITY_DOCUMENT
++                    else agreeing.get(name, {"name": name}))
+                 envelope["evidence"].append(
+                     {"name": name,
+                      "digest": digest_of_bytes(body).split(":", 1)[1],
+@@ -1432,7 +1494,7 @@
+     def test_one_path_past_the_maximum_refuses_with_nothing_published(self):
+         """And it refuses at the PATH bound, which is where the derivation
+         puts it: `_publish`'s file-count guard is the backstop behind it and
+-        is unreachable through this entry precisely because 235 is derived
++        is unreachable through this entry precisely because 251 is derived
+         from 512 rather than chosen beside it."""
+         self.widened(producer.MAX_PATHS + 1)
+         caught = self.refused()
+@@ -1779,9 +1841,18 @@
+         self.assertIn("executable-addition", str(caught))
+         self.assertFalse(os.path.exists(self.destination))
+ 
+-    def test_an_existing_test_change_outside_the_scheduled_scope_refuses(self):
+-        """Not granted, and therefore not published: the accepted scope is the
+-        enumeration, and a path it does not name has no authority to carry."""
++    def test_a_change_outside_the_scheduled_scope_carries_no_grant(self):
++        """WHAT THE PRODUCER OBSERVES, and it is not a refusal.
++
++        Review 2026-09-07T23:16:55Z: the earlier name said this refuses and it
++        does not -- it publishes, with an EMPTY account, because the accepted
++        scope is the enumeration and a path it does not name carries no
++        `existing-test` requirement for this producer to grant. Prefix
++        membership does not establish that an out-of-scope changed test is
++        ordinary source either; evaluating an actual changed test against the
++        materialized review is the PARENT's consumption boundary, and an empty
++        account grants nothing there.
++        """
+         scoped = "v12/python/tests/manager/test_elsewhere.py"
+         self.scoped([scoped])
+         self.objects.tree(BASE_TREE, {scoped: ("100644", b"before\n")})
+@@ -1876,8 +1947,178 @@
+         # THEN ABSENT, which is a producer gap and not a bundle without it.
+         pointed(os.path.join(store, "w114085-absent"))
+         caught = self.refused()
+-        self.assertIn("custody directory is absent", str(caught))
++        self.assertIn("is a link, a file or absent", str(caught))
+         self.assertFalse(os.path.exists(self.destination))
++
++
++class TheCustodyRootIsHeldAndNotResolved(ProducerCase):
++    """W114085 review 2026-09-07T23:16:55Z [P1]: lexical containment is not
++    containment, and a public helper that `realpath`s its root before its own
++    safe walk does not prove the root was inside anything.
++    """
++
++    def storage(self):
++        from baton_v12.worker_manager.workspaces import (
++            configured_workspace_storage)
++
++        return configured_workspace_storage(self.world.manager).place
++
++    def pointed(self, at):
++        """Substitute only the retained artifact locators, nothing else."""
++        import copy
++        from unittest import mock
++
++        real = producer._accepted_evidence(
++            self.world.manager, self.world.jobs, self.world.authority_read,
++            line_id=self.world.line_id, proposal_id=self.world.proposal_id,
++            checkpoint_profile=self.checkpoint)
++        moved = copy.deepcopy(real)
++        for one in moved["verdict"]["review_result"]["artifacts"]:
++            one["locator"] = f"file://{at}/{one['output_name']}"
++        patched = mock.patch.object(
++            producer, "_accepted_evidence",
++            side_effect=lambda *a, **k: copy.deepcopy(moved))
++        patched.start()
++        self.addCleanup(patched.stop)
++        return real
++
++    def elsewhere(self, real, name):
++        """Review-owned copies OUTSIDE configured storage, same bytes."""
++        import shutil as shutil_module
++
++        place = os.path.join(self.world.owner.root, name)
++        os.makedirs(place)
++        for one in real["verdict"]["review_result"]["artifacts"]:
++            shutil_module.copytree(one["locator"][len("file://"):],
++                                   os.path.join(place, one["output_name"]))
++        return place
++
++    def test_an_ancestor_symlink_out_of_the_store_is_refused(self):
++        """THE REVIEWER'S OWN PROBE, `custody_ancestor_symlink_outside_store`.
++
++        The locator sits under a link INSIDE configured storage that points at
++        identical bytes outside it. Every digest matches, so nothing downstream
++        of the traversal can notice; only the traversal can.
++        """
++        real = self.pointed(os.path.join(self.storage(), "review-link-114231"))
++        outside = self.elsewhere(real, "outside-the-store")
++        linked = os.path.join(self.storage(), "review-link-114231")
++        os.symlink(outside, linked)
++        self.addCleanup(os.unlink, linked)
++        caught = self.refused()
++        self.assertIn("without following a link", str(caught))
++        self.assertFalse(os.path.exists(self.destination))
++
++    def test_a_symlinked_custody_root_itself_is_refused(self):
++        real = self.pointed(self.storage())
++        outside = self.elsewhere(real, "outside-root")
++        for one in real["verdict"]["review_result"]["artifacts"]:
++            linked = os.path.join(self.storage(), one["output_name"])
++            if os.path.lexists(linked):
++                continue
++            os.symlink(os.path.join(outside, one["output_name"]), linked)
++            self.addCleanup(os.unlink, linked)
++        caught = self.refused()
++        self.assertIn("without following a link", str(caught))
++        self.assertFalse(os.path.exists(self.destination))
++
++    def test_a_link_inside_the_custody_tree_is_refused(self):
++        """The descendant case, which the previous helper did cover -- kept so
++        this module owns the whole traversal rather than half of it."""
++        import shutil as shutil_module
++
++        real = self.pointed(os.path.join(self.storage(), "held-custody"))
++        place = os.path.join(self.storage(), "held-custody")
++        os.makedirs(place)
++        self.addCleanup(shutil_module.rmtree, place, True)
++        for one in real["verdict"]["review_result"]["artifacts"]:
++            target = os.path.join(place, one["output_name"])
++            shutil_module.copytree(one["locator"][len("file://"):], target)
++            subprocess.run(["chmod", "-R", "u+rwX", target], timeout=300)
++            os.symlink("/etc/hostname", os.path.join(target, "smuggled.txt"))
++        caught = self.refused()
++        self.assertIn("neither a directory nor a regular file", str(caught))
++        self.assertFalse(os.path.exists(self.destination))
++
++    def test_a_swap_at_the_copy_boundary_does_not_redirect_the_read(self):
++        """THE BOUNDED TRANSIENT-SWAP PROBE, at the actual read boundary.
++
++        The directory the walk HELD is replaced by a link to other content
++        after the descriptor is open. A descriptor names one inode for as long
++        as it is open, so the read that follows is of the tree that was
++        proved -- and the measurement still refuses, because what was proved is
++        no longer what the frozen review recorded either way.
++        """
++        import shutil as shutil_module
++
++        real = self.pointed(os.path.join(self.storage(), "swapped"))
++        place = os.path.join(self.storage(), "swapped")
++        os.makedirs(place)
++        self.addCleanup(shutil_module.rmtree, place, True)
++        names = []
++        for one in real["verdict"]["review_result"]["artifacts"]:
++            target = os.path.join(place, one["output_name"])
++            shutil_module.copytree(one["locator"][len("file://"):], target)
++            subprocess.run(["chmod", "-R", "u+rwX", target], timeout=300)
++            names.append(target)
++        holder = producer._held_directory(names[0],
++                                          "the probe's custody tree")
++        try:
++            # THE SWAP LANDS AFTER THE WALK AND BEFORE THE READ. The proved
++            # directory is MOVED ASIDE rather than removed, so its inode still
++            # has its files and the only question left is which of the two the
++            # read reaches.
++            outside = self.elsewhere(real, "swap-target")
++            # The copies inherit frozen custody's read-only modes, so the
++            # planted file needs a writable directory of its own.
++            subprocess.run(["chmod", "-R", "u+rwX", outside], timeout=300)
++            with open(os.path.join(outside, os.path.basename(names[0]),
++                                   "smuggled.txt"), "wb") as handle:
++                handle.write(b"content the read must never reach\n")
++            os.rename(names[0], names[0] + ".moved")
++            os.symlink(os.path.join(outside, os.path.basename(names[0])),
++                       names[0])
++            self.addCleanup(os.unlink, names[0])
++            measured = producer._measured_tree(holder,
++                                               "the probe's custody tree")
++        finally:
++            os.close(holder)
++        # THE DESCRIPTOR STILL NAMES WHAT IT PROVED: the original files are
++        # what came back, and the file planted behind the link did not.
++        self.assertTrue(measured["entries"])
++        self.assertNotIn("smuggled.txt",
++                         [one["path"] for one in measured["entries"]])
++        # AND A LATER COMPOSITION THROUGH THE NAME REFUSES, because the name
++        # is now a link.
++        caught = self.refused()
++        self.assertIn("without following a link", str(caught))
++
++    def test_the_measurement_equals_the_public_owners_on_a_link_free_tree(
++            self):
++        """THE CONFORMANCE THAT MAKES THE OWNER GAP SAFE.
++
++        No public capability measures through a HELD directory, so this module
++        walks and measures itself -- and the identity it computes has to be the
++        one `workspaces.directory_manifest` would have computed, or the frozen
++        review's `content_digest` could never match.
++        """
++        from baton_v12.worker_manager.workspaces import directory_manifest
++
++        place = os.path.join(self.world.owner.root, "plain-tree")
++        os.makedirs(os.path.join(place, "nested"))
++        for relative, payload in (("one.txt", b"first\n"),
++                                  ("nested/two.txt", b"second\n"),
++                                  ("nested/three.bin", bytes(range(32)))):
++            with open(os.path.join(place, relative), "wb") as handle:
++                handle.write(payload)
++        expected = directory_manifest(place)
++        holder = producer._held_directory(place, "a plain tree")
++        try:
++            measured = producer._measured_tree(holder, "a plain tree")
++        finally:
++            os.close(holder)
++        for member in ("entries", "entry_count", "total_bytes", "tree_digest"):
++            self.assertEqual(measured[member], expected[member], member)
+ 
+ 
+ class TheWorkerReadsTheAuthorityAccount(ReadBackCase):
+@@ -1890,10 +2131,7 @@
+         """The default fixture row, with the scope that makes it need
+         authority."""
+         held = self.authority(
+-            scope={"job_id": "job-a", "stage_id": "job-a/implementation",
+-                   "work_id": "0000000a-W1",
+-                   "scope_digest": "sha256:" + "4" * 64,
+-                   "test_scope": ["src"]},
++            scope=self.scope_account(["src"]),
+             paths=[{"path": self.ROW, "operation": "edit",
+                     "base_mode": "100644", "candidate_mode": "100644",
+                     "requires": ["existing-test"],
+@@ -1970,16 +2208,12 @@
+     def test_a_review_file_that_is_not_the_named_content_refuses(self):
+         entry = None
+ 
+-        def composed(entry):
+-            return self.authority(review={
+-                "verdict_id": "v-1", "attachment_id": "a-1",
+-                "disposition": "accepted",
+-                "reviewer_participant": "baton.review", "result_id": "r-1",
+-                "result_digest": "sha256:" + "5" * 64,
+-                "documents": [{"output_name": "findings",
+-                               "tree_digest": "sha256:" + "6" * 64,
+-                               "bytes": entry["bytes"], "entry_count": 1,
+-                               "files": [entry]}]})
++        def composed(entry, *, measured=None):
++            output = self.review_output("findings", [entry])
++            if measured is not None:
++                output["tree_digest"] = measured
++            return self.authority(
++                review=self.review_account([output]))
+ 
+         entry = self.review_file("notes.txt",
+                                  b"the reviewer evaluated the test change\n")
+@@ -1997,21 +2231,84 @@
+         own words come back as bytes rather than as a host locator."""
+         payload = b"the reviewer evaluated the scheduled test change\n"
+         entry = self.review_file("notes.txt", payload)
+-        self.build(authority=self.authority(review={
+-            "verdict_id": "v-1", "attachment_id": "a-1",
+-            "disposition": "accepted",
+-            "reviewer_participant": "baton.review", "result_id": "r-1",
+-            "result_digest": "sha256:" + "5" * 64,
+-            "documents": [{"output_name": "findings",
+-                           "tree_digest": "sha256:" + "6" * 64,
+-                           "bytes": entry["bytes"], "entry_count": 1,
+-                           "files": [entry]}]}))
++        self.build(authority=self.authority(
++            review=self.review_account([self.review_output("findings",
++                                                           [entry])])))
+         taken = contract.read_bundle(self.place)
+         self.assertEqual(
+             taken["review"]["documents"][("findings", "notes.txt")], payload)
+         self.assertEqual(taken["review"]["identity"]["disposition"],
+                          "accepted")
+ 
++    def test_a_rewritten_review_keeping_the_frozen_identity_refuses(self):
++        """THE REVIEWER'S `rewritten_review_with_original_frozen_identity`.
++
++        One reviewer text is replaced and its own per-file checksum and count
++        are recomputed, so the account agrees with ITSELF -- while the frozen
++        output tree digest and result identity it claims are untouched. The
++        reader now recomputes that tree identity from the file records, so an
++        account that agrees with itself and not with the review it represents
++        is refused.
++        """
++        entry = self.review_file("notes.txt", b"what the review said\n")
++        output = self.review_output("findings", [entry])
++        replaced = self.review_file("notes.txt", b"what it did not say\n")
++        # THE FILE RECORD IS INTERNALLY CONSISTENT and the declared tree
++        # identity is the ORIGINAL one.
++        rewritten = dict(output, files=[replaced],
++                         bytes=replaced["bytes"], entry_count=1)
++        self.build(authority=self.authority(
++            review=self.review_account([rewritten])))
++        caught = self.refused(contract.read_bundle, self.place)
++        self.assertIn("does not measure to the tree identity it declares",
++                      str(caught))
++
++    def test_a_foreign_scope_identity_beside_the_real_job_refuses(self):
++        """THE REVIEWER'S `foreign_scope_identity`: an unrelated work id and
++        an empty scope, accepted before beside the real, unchanged Job."""
++        real = self.authority()
++        composed = dict(real)
++        # The account keeps its own coherent digest; only the identity moves,
++        # so nothing inside the account itself notices -- and the Job and
++        # review projections beside it stay the real, unchanged ones.
++        composed["scope"] = dict(self.scope_account(),
++                                 work_id="0000000b-W9", job_id="job-elsewhere")
++        self.build(authority=composed,
++                   projections=self.projections(real))
++        caught = self.refused(contract.read_bundle, self.place)
++        self.assertIn("is not the accepted Job's", str(caught))
++
++    def test_a_missing_materialization_of_a_nonempty_review_refuses(self):
++        """THE REVIEWER'S `missing_materialized_review`: every output removed
++        while `review.json` still names the frozen artifacts.
++
++        The projections are PINNED to the account that has its documents, so
++        the frozen review keeps naming what the stripped account no longer
++        carries -- which is exactly the disagreement, with one thing changed.
++        """
++        entry = self.review_file("notes.txt", b"what the review said\n")
++        real = self.authority(
++            review=self.review_account([self.review_output("findings",
++                                                           [entry])]))
++        stripped = dict(real, review=dict(real["review"], documents=[]))
++        self.build(authority=stripped, projections=self.projections(real))
++        caught = self.refused(contract.read_bundle, self.place)
++        self.assertIn("complete set the frozen review collected", str(caught))
++
++    def test_an_account_row_that_misdescribes_its_envelope_row_refuses(self):
++        """Internally valid values, different from the table they accompany,
++        with every owner identity left intact."""
++        for changed in ({"operation": "add"}, {"base_mode": "100755"},
++                        {"candidate_mode": "100755"}):
++            with self.subTest(changed=changed):
++                self.setUp()
++                held = self.scoped()
++                held["paths"][0].update(changed)
++                self.build(authority=held)
++                caught = self.refused(contract.read_bundle, self.place)
++                self.assertIn("does not describe the reviewed row",
++                              str(caught))
++
+     def test_a_bundle_from_the_earlier_generation_is_refused_by_version(self):
+         self.build(schema="baton.integration-input/1")
+         caught = self.refused(contract.read_bundle, self.place)

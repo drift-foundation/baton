@@ -1,0 +1,862 @@
+{
+  "assertions": "passed",
+  "claim": 113063,
+  "current_inputs": {
+    "v12/python/src/baton_v12/__init__.py": {
+      "actual": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0",
+      "expected": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/authority/__init__.py": {
+      "actual": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066",
+      "expected": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/authority/api.py": {
+      "actual": "7a0343dd8aa9253092e59f34e3c6f3f18ec932de0e6b1408f01ff4d2b882b80d",
+      "expected": "7a0343dd8aa9253092e59f34e3c6f3f18ec932de0e6b1408f01ff4d2b882b80d",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/authority/core.py": {
+      "actual": "26a8a7a91b3bc7d9859bf9f5a747d9fda6ef88cdb5fe430bff1310d007c1d013",
+      "expected": "26a8a7a91b3bc7d9859bf9f5a747d9fda6ef88cdb5fe430bff1310d007c1d013",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/authority/errors.py": {
+      "actual": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce",
+      "expected": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/authority/identity.py": {
+      "actual": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189",
+      "expected": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/authority/labels.py": {
+      "actual": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec",
+      "expected": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/authority/principals.py": {
+      "actual": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30",
+      "expected": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/authority/schema.py": {
+      "actual": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb",
+      "expected": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/authority/session.py": {
+      "actual": "333cd6e44ac73e093ceb45ba3b7c639985c4220de2dc87b3266bf7cd7634948a",
+      "expected": "333cd6e44ac73e093ceb45ba3b7c639985c4220de2dc87b3266bf7cd7634948a",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/authority/store.py": {
+      "actual": "9967f4660841cfddf67280ff59f730c2e36f18a28936a0b0c8600d9fe370e651",
+      "expected": "9967f4660841cfddf67280ff59f730c2e36f18a28936a0b0c8600d9fe370e651",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/checkpoint_profiles.py": {
+      "actual": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38",
+      "expected": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/contracts/__init__.py": {
+      "actual": "9d3a0e050eb09cf5ee593577c1bf1e89c27b900ff275e6a77905d6c368cf98fe",
+      "expected": "9d3a0e050eb09cf5ee593577c1bf1e89c27b900ff275e6a77905d6c368cf98fe",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/contracts/canonical.py": {
+      "actual": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8",
+      "expected": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/contracts/errors.py": {
+      "actual": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50",
+      "expected": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/contracts/frozen.py": {
+      "actual": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed",
+      "expected": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/contracts/manifest.py": {
+      "actual": "53324c97c84911e571ddcffacbc8d4a312f4bdd6b0fa6649bc00c0a205071acc",
+      "expected": "53324c97c84911e571ddcffacbc8d4a312f4bdd6b0fa6649bc00c0a205071acc",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/contracts/pod.py": {
+      "actual": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99",
+      "expected": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/contracts/schema/agent-session-1.0.schema.json": {
+      "actual": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+      "expected": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json": {
+      "actual": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "expected": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/contracts/secrets.py": {
+      "actual": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b",
+      "expected": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/contracts/validate.py": {
+      "actual": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+      "expected": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/eventing.py": {
+      "actual": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486",
+      "expected": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "actual": "c2c749ce5d2c1ecadb5d8b0e1ae5ea2943a650779af88ca04dcc9b0b41f97dbd",
+      "expected": "c2c749ce5d2c1ecadb5d8b0e1ae5ea2943a650779af88ca04dcc9b0b41f97dbd",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "actual": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f",
+      "expected": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "actual": "d6b3be4f99e0776d6ec402db6bfb05b4db8fd376a36b8d1c4225eb17dec83bd6",
+      "expected": "d6b3be4f99e0776d6ec402db6bfb05b4db8fd376a36b8d1c4225eb17dec83bd6",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/execution.py": {
+      "actual": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+      "expected": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/oci_delivery.py": {
+      "actual": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+      "expected": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/queue.py": {
+      "actual": "2e8a153ddcdf15fcd597f51a7c81ce0405ee7b64fad9b2f3b6cf416c40489be7",
+      "expected": "2e8a153ddcdf15fcd597f51a7c81ce0405ee7b64fad9b2f3b6cf416c40489be7",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/recovery.py": {
+      "actual": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "expected": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "actual": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "expected": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "actual": "d0df79b9674e1a92b7011747c0ddcd42116804a4b6f8e05526150d329557c968",
+      "expected": "d0df79b9674e1a92b7011747c0ddcd42116804a4b6f8e05526150d329557c968",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "actual": "ee558081e8ad4db2edc928495c79691581ed2a1646f75b793bbaf17db0ff548a",
+      "expected": "ee558081e8ad4db2edc928495c79691581ed2a1646f75b793bbaf17db0ff548a",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/__init__.py": {
+      "actual": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6",
+      "expected": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/delegation.py": {
+      "actual": "8bee111d72fa9c417223bbb54c130a0fc4da100773a4609c38a6c66b4f0f27e0",
+      "expected": "8bee111d72fa9c417223bbb54c130a0fc4da100773a4609c38a6c66b4f0f27e0",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/documents.py": {
+      "actual": "e00d5804311e08826d289ac74063f64b13645be7607691ae3359a6380b8c9987",
+      "expected": "e00d5804311e08826d289ac74063f64b13645be7607691ae3359a6380b8c9987",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/episodes.py": {
+      "actual": "8778a130946625307d36f4af280161783d8cafbe3f236e8e8f3881ac2e4955e0",
+      "expected": "8778a130946625307d36f4af280161783d8cafbe3f236e8e8f3881ac2e4955e0",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/manager.py": {
+      "actual": "9b1341a98ff468647f037f0d68c7057495d8cdcae2d97e43786bb52a6ff073a9",
+      "expected": "9b1341a98ff468647f037f0d68c7057495d8cdcae2d97e43786bb52a6ff073a9",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/projection.py": {
+      "actual": "1354712ad0f05131f55460e79f0dc732d92ea15fce1bcc9681462fb8690c1248",
+      "expected": "1354712ad0f05131f55460e79f0dc732d92ea15fce1bcc9681462fb8690c1248",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "actual": "0ba2b2bb7adb9c6181cb843a4b90ddf5da6bd8dadd43ed9e6e5a5952020c2262",
+      "expected": "0ba2b2bb7adb9c6181cb843a4b90ddf5da6bd8dadd43ed9e6e5a5952020c2262",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/scheduler.py": {
+      "actual": "fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457",
+      "expected": "fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/schema.py": {
+      "actual": "1c291ddf1cd62a989fb1bd66a64a5a794ddddeb26fb92731f9ee08ddbf5915e8",
+      "expected": "1c291ddf1cd62a989fb1bd66a64a5a794ddddeb26fb92731f9ee08ddbf5915e8",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/store.py": {
+      "actual": "5413efe1d7d25af780cba4fe421ffb4205b4e0e684ffdda1f794d3cf0d650954",
+      "expected": "5413efe1d7d25af780cba4fe421ffb4205b4e0e684ffdda1f794d3cf0d650954",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/submission.py": {
+      "actual": "c80845d9615ec0db5e0d0d2e21d72fd7833b47985f6d5be59630a11500bd512e",
+      "expected": "c80845d9615ec0db5e0d0d2e21d72fd7833b47985f6d5be59630a11500bd512e",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/source_profiles/__init__.py": {
+      "actual": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "expected": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/source_profiles/checkout.py": {
+      "actual": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "expected": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/__init__.py": {
+      "actual": "965dd3599ad627a2f22b66ed37fac31041ccd8a342fab853a0ca1ca866b38d8b",
+      "expected": "965dd3599ad627a2f22b66ed37fac31041ccd8a342fab853a0ca1ca866b38d8b",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "actual": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "expected": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/authority_port.py": {
+      "actual": "ae68d53a97498deb50d8d932547d7bf2a4436735d0b84b41d86b870a8918e79d",
+      "expected": "ae68d53a97498deb50d8d932547d7bf2a4436735d0b84b41d86b870a8918e79d",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": {
+      "actual": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+      "expected": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/credentials.py": {
+      "actual": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df",
+      "expected": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/custody.py": {
+      "actual": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6",
+      "expected": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/documents.py": {
+      "actual": "3c67406e5b234d043581cb4b2d2cabb871e7e3ec9ac51a190a185f855395655f",
+      "expected": "3c67406e5b234d043581cb4b2d2cabb871e7e3ec9ac51a190a185f855395655f",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/events.py": {
+      "actual": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5",
+      "expected": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/exchange.py": {
+      "actual": "1fbff4e8bd73c44b658e5fc7ec0b5595ada498813ec5247ae2032c32543f35ce",
+      "expected": "1fbff4e8bd73c44b658e5fc7ec0b5595ada498813ec5247ae2032c32543f35ce",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/handshake.py": {
+      "actual": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e",
+      "expected": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/intake.py": {
+      "actual": "be9bafa313b15e3a12d443fc7f704049b504b05835812e1e41ebcf391c5e99d9",
+      "expected": "be9bafa313b15e3a12d443fc7f704049b504b05835812e1e41ebcf391c5e99d9",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/interrogation.py": {
+      "actual": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+      "expected": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/lanes.py": {
+      "actual": "72fa035958dbd4f1c08b4824aa4fff3fe5178f94790e550224f72fcc0c08f285",
+      "expected": "72fa035958dbd4f1c08b4824aa4fff3fe5178f94790e550224f72fcc0c08f285",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/launch.py": {
+      "actual": "6546008fb4970b406d2a56adffc4f6a36c8c18f62e488a9b0ac74307059d7647",
+      "expected": "6546008fb4970b406d2a56adffc4f6a36c8c18f62e488a9b0ac74307059d7647",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/manifests.py": {
+      "actual": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866",
+      "expected": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/oci.py": {
+      "actual": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+      "expected": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/offers.py": {
+      "actual": "218dfcb11408ccd0c634a5f9cda2ae833c8de8560cc8557d75b1e88e662d7f8b",
+      "expected": "218dfcb11408ccd0c634a5f9cda2ae833c8de8560cc8557d75b1e88e662d7f8b",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/output.py": {
+      "actual": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+      "expected": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/posture_slots.py": {
+      "actual": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+      "expected": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "actual": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+      "expected": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/schema.py": {
+      "actual": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "expected": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/sealing.py": {
+      "actual": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+      "expected": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/sessions.py": {
+      "actual": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+      "expected": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/source_boundary.py": {
+      "actual": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "expected": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/store.py": {
+      "actual": "a692a6021e57544e6c92cba89611e9e0ca3fe87ca72ca748c8155843b6a93b32",
+      "expected": "a692a6021e57544e6c92cba89611e9e0ca3fe87ca72ca748c8155843b6a93b32",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/worker_entry.py": {
+      "actual": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba",
+      "expected": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": {
+      "actual": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+      "expected": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+      "matches": true
+    },
+    "v12/python/tools/user_credentials.py": {
+      "actual": "6b5cf07f59c3484a1e08a96f65726ebc9eef3d317a77090071fd13f4f151c61b",
+      "expected": "6b5cf07f59c3484a1e08a96f65726ebc9eef3d317a77090071fd13f4f151c61b",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/DEPENDENCY-REBIND-112609.md": {
+      "actual": "5e024c68289f9343c7c9315b40edf2df5452eb2dd4d3e113197b5c63d906dcc2",
+      "expected": "5e024c68289f9343c7c9315b40edf2df5452eb2dd4d3e113197b5c63d906dcc2",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/FAILURE-REASON-112817.md": {
+      "actual": "a8cf7a644b1637c6ab53d87cd4f9b491731049e01ebfa94ad949343269e81c99",
+      "expected": "a8cf7a644b1637c6ab53d87cd4f9b491731049e01ebfa94ad949343269e81c99",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/LIVE-DIAGNOSTICS.md": {
+      "actual": "bdad9d5387bb81c21acc2f95d2670f3312da06e973b0aaca64579eb82447be5b",
+      "expected": "bdad9d5387bb81c21acc2f95d2670f3312da06e973b0aaca64579eb82447be5b",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/LIVE-PACKAGE.md": {
+      "actual": "cbeb1b26266ed1c40c7dae2d2d7cc043dd5c54c44b9a52a0e87947e6850078d9",
+      "expected": "cbeb1b26266ed1c40c7dae2d2d7cc043dd5c54c44b9a52a0e87947e6850078d9",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/LIVE-SETUP-CORRECTION.md": {
+      "actual": "23bd1b6a76339061494bf45de12576754c67d10805d253cbe3af97b1deed64e9",
+      "expected": "23bd1b6a76339061494bf45de12576754c67d10805d253cbe3af97b1deed64e9",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/RESTORED-CONSTRUCTOR-CORRECTION.md": {
+      "actual": "94836ad19c1e23839213e1b95ef1e1ab0f9f2b2e5ddeac7abb9fc752afb4f530",
+      "expected": "94836ad19c1e23839213e1b95ef1e1ab0f9f2b2e5ddeac7abb9fc752afb4f530",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/RESTORED-ONLY.md": {
+      "actual": "ad65a563cf82602309baece1a69c8ed17034dcd3ac85aa0e60837155f9688173",
+      "expected": "ad65a563cf82602309baece1a69c8ed17034dcd3ac85aa0e60837155f9688173",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/RESULT-DIAGNOSTICS.md": {
+      "actual": "b82c49d5afd663c8c7e75aa8d0cb8e1cefa4e1d5af645aa1a4b1af318c8a2f06",
+      "expected": "b82c49d5afd663c8c7e75aa8d0cb8e1cefa4e1d5af645aa1a4b1af318c8a2f06",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/audit_result_diagnostics_111078.py": {
+      "actual": "e739ff5b0a18a53712a6f57193ec0f07ce152bb3f5e81832a3bd9e151491a99b",
+      "expected": "e739ff5b0a18a53712a6f57193ec0f07ce152bb3f5e81832a3bd9e151491a99b",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/audit.py": {
+      "actual": "dc14d2eb55883bd0bda892c8f591b6b5dafb2de92a0ad5e66d6d6b47380292d9",
+      "expected": "dc14d2eb55883bd0bda892c8f591b6b5dafb2de92a0ad5e66d6d6b47380292d9",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/baseline.json": {
+      "actual": "ea14ac7f4ad6234c3f22323ea18ca9fcac0db432cd914d2fd61df39c2779178f",
+      "expected": "ea14ac7f4ad6234c3f22323ea18ca9fcac0db432cd914d2fd61df39c2779178f",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/controller.patch": {
+      "actual": "be3c51359eb3521b767ef3d1f4ac5bafc7b3ceca04fb7ff88c6799a86fdc6de4",
+      "expected": "be3c51359eb3521b767ef3d1f4ac5bafc7b3ceca04fb7ff88c6799a86fdc6de4",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/focused-tests.json": {
+      "actual": "f9529337fe92f09a7efeb5613d5bc01e2aaceeec48ebfb3593495531d7e3abc4",
+      "expected": "f9529337fe92f09a7efeb5613d5bc01e2aaceeec48ebfb3593495531d7e3abc4",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/supervisor.patch": {
+      "actual": "fba8eca47c321701b5be68ddcc5b595c8ee90c6a4e9444d878809282cf66805c",
+      "expected": "fba8eca47c321701b5be68ddcc5b595c8ee90c6a4e9444d878809282cf66805c",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/transport-contract.json": {
+      "actual": "880a5bc279ac820cb1224f6c43f6e96ac92501d95120684306363553c1dcb2a9",
+      "expected": "880a5bc279ac820cb1224f6c43f6e96ac92501d95120684306363553c1dcb2a9",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/host_runner.py": {
+      "actual": "5b2eea59774c14c27574fc8b18a9979a6f3c2c2969265cf8ef1c4a944436380e",
+      "expected": "5b2eea59774c14c27574fc8b18a9979a6f3c2c2969265cf8ef1c4a944436380e",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-diagnostic-input-audit.json": {
+      "actual": "0515574bb451f8ce6e01b67cecfb8f63cf6a860e92547f56fb669207beabae57",
+      "expected": "0515574bb451f8ce6e01b67cecfb8f63cf6a860e92547f56fb669207beabae57",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-diagnostic-manifest.json": {
+      "actual": "2ef942b1f58f95ff3ff59d4815e01688ee45d3dd8b10713331c6e0844335b5b3",
+      "expected": "2ef942b1f58f95ff3ff59d4815e01688ee45d3dd8b10713331c6e0844335b5b3",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-diagnostic-tests.txt": {
+      "actual": "9ccb362525c1b03a9424519d46b8d9c52ce37dc4ef6c7666625a8292407323de",
+      "expected": "9ccb362525c1b03a9424519d46b8d9c52ce37dc4ef6c7666625a8292407323de",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-diagnostic.patch": {
+      "actual": "af7d8a94a46d634587436969d017a731ee4e9bf7c16dbaab984290be5277261c",
+      "expected": "af7d8a94a46d634587436969d017a731ee4e9bf7c16dbaab984290be5277261c",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-package-manifest.json": {
+      "actual": "eea4e949548c2301e4c45f815a60380b8edda1adbbc4c4f75dd6420ac496402b",
+      "expected": "eea4e949548c2301e4c45f815a60380b8edda1adbbc4c4f75dd6420ac496402b",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-package-preservation.json": {
+      "actual": "57be1d2385642ab599b6bbf63a1b5748ec3b24f250860248e16b46da90805653",
+      "expected": "57be1d2385642ab599b6bbf63a1b5748ec3b24f250860248e16b46da90805653",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-package-tests.txt": {
+      "actual": "69bf301ee26e777b018e3ae1a99ccdf75346e1ef29a60239fcc452c3f8c423d6",
+      "expected": "69bf301ee26e777b018e3ae1a99ccdf75346e1ef29a60239fcc452c3f8c423d6",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/PROVENANCE.json": {
+      "actual": "9031e49b4c86f2f137c4430f98e0784b9f330aa886f384342b0cdac9c6a5e949",
+      "expected": "9031e49b4c86f2f137c4430f98e0784b9f330aa886f384342b0cdac9c6a5e949",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/arms.json": {
+      "actual": "44a8f68411e30cb1e631c33f624571dfdbbeaf6369af541c964e55b5e985e963",
+      "expected": "44a8f68411e30cb1e631c33f624571dfdbbeaf6369af541c964e55b5e985e963",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/network.json": {
+      "actual": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+      "expected": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/package.json": {
+      "actual": "da40f304921ead0930085e6aac12c774eb7e6b8ae49358467b8d89cc1588d7c2",
+      "expected": "da40f304921ead0930085e6aac12c774eb7e6b8ae49358467b8d89cc1588d7c2",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/restored-first/events.json": {
+      "actual": "b259c64997fe591b1fff9accecc45dc50434835f394cb090a56beefeb991b40c",
+      "expected": "b259c64997fe591b1fff9accecc45dc50434835f394cb090a56beefeb991b40c",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/restored-first/gate.json": {
+      "actual": "d5d614d197830736d112d703a3a136f7eeb059da736e5e7b07e0835013afd65b",
+      "expected": "d5d614d197830736d112d703a3a136f7eeb059da736e5e7b07e0835013afd65b",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/result.json": {
+      "actual": "ba461da3d55bacc1079cd1851cb2b900d9bef08146e3d7e2cd161154c8cffe96",
+      "expected": "ba461da3d55bacc1079cd1851cb2b900d9bef08146e3d7e2cd161154c8cffe96",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/retained-first/events.json": {
+      "actual": "5caef6dd21a3d2c83c17d0a916d20fd6d21b9c0117c0eb982f6a9250fc85f6c9",
+      "expected": "5caef6dd21a3d2c83c17d0a916d20fd6d21b9c0117c0eb982f6a9250fc85f6c9",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/retained-first/gate.json": {
+      "actual": "32873bbd093e1821e9f18de138ac8f403c703463ff8ede7bc9203e75cc8b7ed5",
+      "expected": "32873bbd093e1821e9f18de138ac8f403c703463ff8ede7bc9203e75cc8b7ed5",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/setup.json": {
+      "actual": "6b7503037c77bc9f8d0e32b265a3eea6a7ff763210eab0291d696757b4c6ba01",
+      "expected": "6b7503037c77bc9f8d0e32b265a3eea6a7ff763210eab0291d696757b4c6ba01",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-setup-input-audit.json": {
+      "actual": "b00d04b5d95e9f4e5ba5664589dd4fe98695d2134fac2c4572db53dfea3658c0",
+      "expected": "b00d04b5d95e9f4e5ba5664589dd4fe98695d2134fac2c4572db53dfea3658c0",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-setup-manifest.json": {
+      "actual": "c0ec6a1d820894f9a6064b6289824f20fdf296e6e2ea7599df9f22108cbb1b30",
+      "expected": "c0ec6a1d820894f9a6064b6289824f20fdf296e6e2ea7599df9f22108cbb1b30",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-setup-reproduction.json": {
+      "actual": "74a5418bf88a2aa1606fa1339b48b2b7b917836dff8eb238104563261643b72e",
+      "expected": "74a5418bf88a2aa1606fa1339b48b2b7b917836dff8eb238104563261643b72e",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-setup-tests.txt": {
+      "actual": "cc6e6859b74dd19d208856a606988e28f8f7b25413550c3f7184ba89aea1eda4",
+      "expected": "cc6e6859b74dd19d208856a606988e28f8f7b25413550c3f7184ba89aea1eda4",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-setup.patch": {
+      "actual": "7c1214004d77468dd8fe186b033d628e207bd050a468ebd92e60876e238ac4ca",
+      "expected": "7c1214004d77468dd8fe186b033d628e207bd050a468ebd92e60876e238ac4ca",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller.py": {
+      "actual": "f9500d4a3537a7b10201f6399cb901c899cd728ad397d1d9258a16632abd555d",
+      "expected": "f9500d4a3537a7b10201f6399cb901c899cd728ad397d1d9258a16632abd555d",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_diagnostic.py": {
+      "actual": "bfe220010a6a07e72dd80c0745c8213ebf9fa581fbb5422b008fce7561ee35e3",
+      "expected": "bfe220010a6a07e72dd80c0745c8213ebf9fa581fbb5422b008fce7561ee35e3",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_failure_reason_112817.py": {
+      "actual": "a8b06a1ad33e6030dc0f126222c8250b71241ad1f399f10a228d34f4484036eb",
+      "expected": "a8b06a1ad33e6030dc0f126222c8250b71241ad1f399f10a228d34f4484036eb",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_rebound_112609.py": {
+      "actual": "2ce81534d65f8f82d4797e4f4b0ce9afd903aca2df154d567db3fd6eaeeea92d",
+      "expected": "2ce81534d65f8f82d4797e4f4b0ce9afd903aca2df154d567db3fd6eaeeea92d",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_restore.py": {
+      "actual": "f3fa2435ab3a90643fa2fdf4e9cd58d9ca5bc6f114c0ad032fa8dcca0310ed51",
+      "expected": "f3fa2435ab3a90643fa2fdf4e9cd58d9ca5bc6f114c0ad032fa8dcca0310ed51",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_restore_constructor.py": {
+      "actual": "fd551c9684b2caa4577482bd5305b5f2a8e5ed22032d821b801f1ca33305f247",
+      "expected": "fd551c9684b2caa4577482bd5305b5f2a8e5ed22032d821b801f1ca33305f247",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_result_diagnostics.py": {
+      "actual": "d19221fd610320c8bb2d87ff225eedd609694b9a46133a2402b5c903d21e9251",
+      "expected": "d19221fd610320c8bb2d87ff225eedd609694b9a46133a2402b5c903d21e9251",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_setup.py": {
+      "actual": "ade171ca071c78ce992aab76462b6fa7e906be90dfedbd22cba019ceff54e485",
+      "expected": "ade171ca071c78ce992aab76462b6fa7e906be90dfedbd22cba019ceff54e485",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor.py": {
+      "actual": "6a9d4fb65bd95757b9d0b4133ccc7f9a2945c9e9ba612ae7c0403c51507767db",
+      "expected": "6a9d4fb65bd95757b9d0b4133ccc7f9a2945c9e9ba612ae7c0403c51507767db",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_diagnostic.py": {
+      "actual": "e2f909cd74008ba155be39aa93bca4757cf5e600296f4ec9ff938ee0b097d621",
+      "expected": "e2f909cd74008ba155be39aa93bca4757cf5e600296f4ec9ff938ee0b097d621",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_failure_reason_112817.py": {
+      "actual": "fe3c8813773f2aa74a6ab07643b204c5f0e3ce5dde78dabd28b1fcde7a97623f",
+      "expected": "fe3c8813773f2aa74a6ab07643b204c5f0e3ce5dde78dabd28b1fcde7a97623f",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_restore.py": {
+      "actual": "3322a0494f8dd51be1f8188e626e522ad676dfee4c380d6c939b9827e4f3082f",
+      "expected": "3322a0494f8dd51be1f8188e626e522ad676dfee4c380d6c939b9827e4f3082f",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_result_diagnostics.py": {
+      "actual": "94c6dd20122131f2a67bcd00c50d55e94ac5b65f14d648f036d8532fcf0cca41",
+      "expected": "94c6dd20122131f2a67bcd00c50d55e94ac5b65f14d648f036d8532fcf0cca41",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real_session_contract.py": {
+      "actual": "1542098960ea0ba760b85f8933f23f9ec4ff457b00b3d2ca65ed862894a7c477",
+      "expected": "1542098960ea0ba760b85f8933f23f9ec4ff457b00b3d2ca65ed862894a7c477",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/rebind-112609/accepted-dependencies.json": {
+      "actual": "631c4286163b3d07b18550d4ee5098db21743eb485ffc8cee82f4ace08bc1cb1",
+      "expected": "631c4286163b3d07b18550d4ee5098db21743eb485ffc8cee82f4ace08bc1cb1",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/rebind-112609/baseline.json": {
+      "actual": "6519b23d95f4ce46d01fa00bcb2e64b630c2dc4f4b09dfd1482c48f646c91ef5",
+      "expected": "6519b23d95f4ce46d01fa00bcb2e64b630c2dc4f4b09dfd1482c48f646c91ef5",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/rebind-112609/controller.patch": {
+      "actual": "5d9cc00e071de7bef5c1c8c77ecd7f7dc7c4f415cc55cdb3f2514a6ac889e400",
+      "expected": "5d9cc00e071de7bef5c1c8c77ecd7f7dc7c4f415cc55cdb3f2514a6ac889e400",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/rebind-112609/tests.patch": {
+      "actual": "f2bd622e835a4c170c8af7cc57a87e0abbe6a71bb5601ce47c9a5c2482c23425",
+      "expected": "f2bd622e835a4c170c8af7cc57a87e0abbe6a71bb5601ce47c9a5c2482c23425",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/resident.py": {
+      "actual": "30d3c2a5e34c0461a2d2a15006cfe26f42d587d938a3179d61d9a874c3002496",
+      "expected": "30d3c2a5e34c0461a2d2a15006cfe26f42d587d938a3179d61d9a874c3002496",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-constructor-110596.patch": {
+      "actual": "4ac5a5715570e2c51cf9d7308e785e68e4c9494d25f1b6babdd70672271b635d",
+      "expected": "4ac5a5715570e2c51cf9d7308e785e68e4c9494d25f1b6babdd70672271b635d",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-constructor-baseline-110596.txt": {
+      "actual": "5447cc9fff7fa8188b387843ec298e882f6f633d43c61f2c1289ca181d461298",
+      "expected": "5447cc9fff7fa8188b387843ec298e882f6f633d43c61f2c1289ca181d461298",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-constructor-input-audit-110596.json": {
+      "actual": "b20b24bab25c34e67e533fc311290dae481888d6bcf75e6126d337f70179c8a5",
+      "expected": "b20b24bab25c34e67e533fc311290dae481888d6bcf75e6126d337f70179c8a5",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-constructor-manifest.json": {
+      "actual": "b6058f4774775c63113f0f9721e264dd317a4f57692b2ebfdf3264511c032c4b",
+      "expected": "b6058f4774775c63113f0f9721e264dd317a4f57692b2ebfdf3264511c032c4b",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-constructor-tests-110596.txt": {
+      "actual": "daac54b368d6570ddc1a01c40f3258884299ae314723f2f644d48d0c77b37f98",
+      "expected": "daac54b368d6570ddc1a01c40f3258884299ae314723f2f644d48d0c77b37f98",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-only-110487.patch": {
+      "actual": "6c06a13bec7a47de45ff65f1558af44b377fd364400a36739547acbb817e0c60",
+      "expected": "6c06a13bec7a47de45ff65f1558af44b377fd364400a36739547acbb817e0c60",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-only-input-audit-110487.json": {
+      "actual": "9de4bac943e65c895294369a59648c28e9f21542c0e112a5c2f9424bd2aba86b",
+      "expected": "9de4bac943e65c895294369a59648c28e9f21542c0e112a5c2f9424bd2aba86b",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-only-manifest.json": {
+      "actual": "a3f5f845c344ee9418327123cbc32de37be35701dfee5b0ba342a19005681c5a",
+      "expected": "a3f5f845c344ee9418327123cbc32de37be35701dfee5b0ba342a19005681c5a",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-only-tests-110487.txt": {
+      "actual": "a151a209b74def21af146a971ab0c5fa8ecbe9b0071ab1308fedc82a87398869",
+      "expected": "a151a209b74def21af146a971ab0c5fa8ecbe9b0071ab1308fedc82a87398869",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-111078.patch": {
+      "actual": "74937c121ba65508e8efcb197c3c2eed5e956c1e385a77ef0bde180c6f3e1567",
+      "expected": "74937c121ba65508e8efcb197c3c2eed5e956c1e385a77ef0bde180c6f3e1567",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-baseline-111078.json": {
+      "actual": "2c5272c2985e060d8f4f2a1c4a6c47d672b55a933d3e9864fbf90e09d6844e25",
+      "expected": "2c5272c2985e060d8f4f2a1c4a6c47d672b55a933d3e9864fbf90e09d6844e25",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-focused-111078.txt": {
+      "actual": "eb5f9114770df87f52e11f3c1294b91565a0c4c7d8fa335888129e882d5e07cb",
+      "expected": "eb5f9114770df87f52e11f3c1294b91565a0c4c7d8fa335888129e882d5e07cb",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-manifest.json": {
+      "actual": "bb2f29412486a2ed3846e9c7235f1481e5cb62e16b7a6889ca3fbbc8b9d1c0fd",
+      "expected": "bb2f29412486a2ed3846e9c7235f1481e5cb62e16b7a6889ca3fbbc8b9d1c0fd",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-diagnostics-rebound-112609-manifest.json": {
+      "actual": "2d829e03d3337c9eabf05d4e0d0ce01097bc185be24b991d0b3012b0ea3a78e5",
+      "expected": "2d829e03d3337c9eabf05d4e0d0ce01097bc185be24b991d0b3012b0ea3a78e5",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/result-subtype-contract-111078.json": {
+      "actual": "5225b5b9ad88e7b272f018ea7ff23015589033cfb224c6358fa4f4f35bd44a68",
+      "expected": "5225b5b9ad88e7b272f018ea7ff23015589033cfb224c6358fa4f4f35bd44a68",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-111006/export/PROVENANCE.json": {
+      "actual": "2ffe132dc604f6319c724933f21c382df708ff018d05314f517bc13a2fd871f7",
+      "expected": "2ffe132dc604f6319c724933f21c382df708ff018d05314f517bc13a2fd871f7",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-111006/export/network.json": {
+      "actual": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+      "expected": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-111006/export/package.json": {
+      "actual": "5bf9235d582fee3b98654be06272f79da5cf418daaf78d471d98c7647483f784",
+      "expected": "5bf9235d582fee3b98654be06272f79da5cf418daaf78d471d98c7647483f784",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-111006/export/restored-first/events.json": {
+      "actual": "59e40577a248a9c4efadb82f9f0ec283b8038bbf3eacc7e811652e791d1579f5",
+      "expected": "59e40577a248a9c4efadb82f9f0ec283b8038bbf3eacc7e811652e791d1579f5",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-111006/export/restored-first/gate.json": {
+      "actual": "6834417ba0413665a76a5eac78de7406e95cbce90cc4f6f5f22b680f91e388b1",
+      "expected": "6834417ba0413665a76a5eac78de7406e95cbce90cc4f6f5f22b680f91e388b1",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-111006/export/result.json": {
+      "actual": "6ca0a58dfe79ee999500789a35f74cea037c3637c9468fa545bef3f99d61ffdc",
+      "expected": "6ca0a58dfe79ee999500789a35f74cea037c3637c9468fa545bef3f99d61ffdc",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-111006/export/setup.json": {
+      "actual": "a3861d19580255ee5fa9d6f91af511f6e0e24265ed3ec5a802394b7d0ebd5c95",
+      "expected": "a3861d19580255ee5fa9d6f91af511f6e0e24265ed3ec5a802394b7d0ebd5c95",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_failure_reason_112817.py": {
+      "actual": "34725760c687128b084b40a795e7f883e52b4b2ce613dcf6ffbf8b2b24ad2730",
+      "expected": "34725760c687128b084b40a795e7f883e52b4b2ce613dcf6ffbf8b2b24ad2730",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_live_diagnostics.py": {
+      "actual": "4c4ea71a39f6e445b75c2aa10da2777eae26547470174c78a52c2818354439ab",
+      "expected": "4c4ea71a39f6e445b75c2aa10da2777eae26547470174c78a52c2818354439ab",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_live_package.py": {
+      "actual": "6b7f705efd97ecda1c8ed682b6b3516e213fadcce5002197baca55b667b5ee6b",
+      "expected": "6b7f705efd97ecda1c8ed682b6b3516e213fadcce5002197baca55b667b5ee6b",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_live_setup.py": {
+      "actual": "be89f955f47fdb83e9111219adea9f3606825bac50be72050ca421be509985be",
+      "expected": "be89f955f47fdb83e9111219adea9f3606825bac50be72050ca421be509985be",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_restore_constructor.py": {
+      "actual": "8886cb31fac07beb81cf9ee38aa83f4edc8ccb640beda749d9639c2c4f268428",
+      "expected": "8886cb31fac07beb81cf9ee38aa83f4edc8ccb640beda749d9639c2c4f268428",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_restored_only.py": {
+      "actual": "d4874e79eed4a35b87513749ff0f917cdc02858008c1cc2cbf70a0aa2071d1d2",
+      "expected": "d4874e79eed4a35b87513749ff0f917cdc02858008c1cc2cbf70a0aa2071d1d2",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_result_diagnostics.py": {
+      "actual": "6d33bbae0af087739486abe377fdca71571014b03fc4a30698c3260febfb432e",
+      "expected": "6d33bbae0af087739486abe377fdca71571014b03fc4a30698c3260febfb432e",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_result_rebound_112609.py": {
+      "actual": "96bbabb5831252532d65171109c1cff3bab9811667b7d425f8dc48e91f1eb4ce",
+      "expected": "96bbabb5831252532d65171109c1cff3bab9811667b7d425f8dc48e91f1eb4ce",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/review-2026-09-07T13-42-14Z.md": {
+      "actual": "3c90f7e605741eecc4bf5773f274632450fa7643bc39060ab46f1a9f6b5791e9",
+      "expected": "3c90f7e605741eecc4bf5773f274632450fa7643bc39060ab46f1a9f6b5791e9",
+      "matches": true
+    },
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/review-2026-09-07T14-50-28Z.md": {
+      "actual": "56aaf9e0b88bf19ee193f2e9743723067d14fa950b704c85dab1350aba45ba52",
+      "expected": "56aaf9e0b88bf19ee193f2e9743723067d14fa950b704c85dab1350aba45ba52",
+      "matches": true
+    }
+  },
+  "current_matches": 163,
+  "current_total": 163,
+  "event_count": 39,
+  "export_sha256": {
+    "PROVENANCE.json": "948c33694186721caaf7b8ebaf093a5130b0bdd26ca023449ae7b1a3f9114c53",
+    "network.json": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+    "package.json": "ba204721882b88292e925e70dbb1557fac33c368e0b53f165fc899f33c03b0a9",
+    "restored-first/events.json": "8e3394bb4ded605143b2ca94509e53ca650237864a025d2d4e460c17e4b66262",
+    "restored-first/gate.json": "cf1ca41236c0eb024dbcd820d247da60f0609686a84b5bef6dc7cf0f43287a4e",
+    "result.json": "bd1ad9c98e67d9e30900b6c7313109d365dc24873061cbbc7cd87c7c3e7cf2c5",
+    "setup.json": "a3861d19580255ee5fa9d6f91af511f6e0e24265ed3ec5a802394b7d0ebd5c95"
+  },
+  "failure_reason": {
+    "http_status": null,
+    "shape": "null"
+  },
+  "local_write_to_result_ns": 456640530,
+  "milestones": {
+    "actual_models": [],
+    "cli_initializations": 1,
+    "containers_created": 1,
+    "host_turn_writes_observed": 1,
+    "matched_pair_verified": false,
+    "provider_results_observed": 1,
+    "provider_turn_writes_observed": 1,
+    "restoration_verified": false,
+    "restore_initialization_observed": false,
+    "restored_correction_verified": false,
+    "retained_correction_verified": false,
+    "turn_intents": 1,
+    "validated_turn_completions": 0,
+    "verified_consumptions": 0
+  },
+  "owner_handoff": 113059,
+  "package_sha256": "3d4332754ab9bdce095f8a31d5e6e010550645f1fa226fc46916db523918f808",
+  "provenance_limit": "Supplied export hashes and reviewed source; protected originals not inspected. Historical cleanup remains controller attestation except separately retained exact Docker stopped-state observation.",
+  "result_fields": {
+    "is_error": "true",
+    "known_subtype": null,
+    "subtype": "success"
+  }
+}

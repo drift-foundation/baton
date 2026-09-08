@@ -1,0 +1,401 @@
+{
+  "unchanged": {
+    "accepted": true,
+    "receipts": {
+      "verification": {
+        "proposal_id": "proposal-1",
+        "verification_id": "integration-driver.verification-receipt:d33d27d98d2d1eb7dd20d9c8356c82902570b7bd66bdba1ff53e16f8b8e68729",
+        "operation_id": "integration-driver.verification-operation:b556524566ec766f68c6ffbfe099babead9f031fcb6383c615044ca59bcafa30",
+        "observation": "passed"
+      },
+      "review": {
+        "proposal_id": "proposal-1",
+        "review_id": "integration-driver.review-receipt:8d9084a8a35cefe4c597e6ea504fddf44cbcab8b9c4eb83c77becc6e5c9aff7d",
+        "operation_id": "integration-driver.review-operation:646b9d0a13bdc913030ec41ce3274468797ca82b4130bf6a30cc2770ce4a3cde",
+        "disposition": "accepted"
+      },
+      "approval": {
+        "proposal_id": "proposal-1",
+        "approval_id": "integration-driver.approval-receipt:505f814d4a6fafa8f3d37f69fa883a9c15dfa78fae1c33309c24fbe68fe6d619",
+        "operation_id": "integration-driver.approval-operation:9c30af1ea2889c535e0f1d6d15c33e9374524d1f77f6038d0760366c7e283200",
+        "disposition": "approved",
+        "policy_generation": 3
+      }
+    },
+    "actual_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "observed_base": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "calls": {
+      "verify": [
+        {
+          "proposal_id": "proposal-1",
+          "verification_id": "integration-driver.verification-receipt:d33d27d98d2d1eb7dd20d9c8356c82902570b7bd66bdba1ff53e16f8b8e68729",
+          "operation_id": "integration-driver.verification-operation:b556524566ec766f68c6ffbfe099babead9f031fcb6383c615044ca59bcafa30",
+          "observation": "passed"
+        }
+      ],
+      "review": [
+        {
+          "proposal_id": "proposal-1",
+          "review_id": "integration-driver.review-receipt:8d9084a8a35cefe4c597e6ea504fddf44cbcab8b9c4eb83c77becc6e5c9aff7d",
+          "operation_id": "integration-driver.review-operation:646b9d0a13bdc913030ec41ce3274468797ca82b4130bf6a30cc2770ce4a3cde",
+          "disposition": "accepted"
+        }
+      ],
+      "approve": [
+        {
+          "proposal_id": "proposal-1",
+          "approval_id": "integration-driver.approval-receipt:505f814d4a6fafa8f3d37f69fa883a9c15dfa78fae1c33309c24fbe68fe6d619",
+          "operation_id": "integration-driver.approval-operation:9c30af1ea2889c535e0f1d6d15c33e9374524d1f77f6038d0760366c7e283200",
+          "disposition": "approved",
+          "policy_generation": 3
+        }
+      ]
+    }
+  },
+  "foreign_generation": {
+    "accepted": true,
+    "receipts": {
+      "verification": {
+        "proposal_id": "proposal-1",
+        "verification_id": "integration-driver.verification-receipt:d33d27d98d2d1eb7dd20d9c8356c82902570b7bd66bdba1ff53e16f8b8e68729",
+        "operation_id": "integration-driver.verification-operation:b556524566ec766f68c6ffbfe099babead9f031fcb6383c615044ca59bcafa30",
+        "observation": "passed"
+      },
+      "review": {
+        "proposal_id": "proposal-1",
+        "review_id": "integration-driver.review-receipt:8d9084a8a35cefe4c597e6ea504fddf44cbcab8b9c4eb83c77becc6e5c9aff7d",
+        "operation_id": "integration-driver.review-operation:646b9d0a13bdc913030ec41ce3274468797ca82b4130bf6a30cc2770ce4a3cde",
+        "disposition": "accepted"
+      },
+      "approval": {
+        "proposal_id": "proposal-1",
+        "approval_id": "integration-driver.approval-receipt:505f814d4a6fafa8f3d37f69fa883a9c15dfa78fae1c33309c24fbe68fe6d619",
+        "operation_id": "integration-driver.approval-operation:9c30af1ea2889c535e0f1d6d15c33e9374524d1f77f6038d0760366c7e283200",
+        "disposition": "approved",
+        "policy_generation": 3
+      }
+    },
+    "actual_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 2,
+      "participant": "baton.claude"
+    },
+    "proposal_target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "observed_base": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "calls": {
+      "verify": [
+        {
+          "proposal_id": "proposal-1",
+          "verification_id": "integration-driver.verification-receipt:d33d27d98d2d1eb7dd20d9c8356c82902570b7bd66bdba1ff53e16f8b8e68729",
+          "operation_id": "integration-driver.verification-operation:b556524566ec766f68c6ffbfe099babead9f031fcb6383c615044ca59bcafa30",
+          "observation": "passed"
+        }
+      ],
+      "review": [
+        {
+          "proposal_id": "proposal-1",
+          "review_id": "integration-driver.review-receipt:8d9084a8a35cefe4c597e6ea504fddf44cbcab8b9c4eb83c77becc6e5c9aff7d",
+          "operation_id": "integration-driver.review-operation:646b9d0a13bdc913030ec41ce3274468797ca82b4130bf6a30cc2770ce4a3cde",
+          "disposition": "accepted"
+        }
+      ],
+      "approve": [
+        {
+          "proposal_id": "proposal-1",
+          "approval_id": "integration-driver.approval-receipt:505f814d4a6fafa8f3d37f69fa883a9c15dfa78fae1c33309c24fbe68fe6d619",
+          "operation_id": "integration-driver.approval-operation:9c30af1ea2889c535e0f1d6d15c33e9374524d1f77f6038d0760366c7e283200",
+          "disposition": "approved",
+          "policy_generation": 3
+        }
+      ]
+    }
+  },
+  "foreign_participant": {
+    "accepted": true,
+    "receipts": {
+      "verification": {
+        "proposal_id": "proposal-1",
+        "verification_id": "integration-driver.verification-receipt:d33d27d98d2d1eb7dd20d9c8356c82902570b7bd66bdba1ff53e16f8b8e68729",
+        "operation_id": "integration-driver.verification-operation:b556524566ec766f68c6ffbfe099babead9f031fcb6383c615044ca59bcafa30",
+        "observation": "passed"
+      },
+      "review": {
+        "proposal_id": "proposal-1",
+        "review_id": "integration-driver.review-receipt:8d9084a8a35cefe4c597e6ea504fddf44cbcab8b9c4eb83c77becc6e5c9aff7d",
+        "operation_id": "integration-driver.review-operation:646b9d0a13bdc913030ec41ce3274468797ca82b4130bf6a30cc2770ce4a3cde",
+        "disposition": "accepted"
+      },
+      "approval": {
+        "proposal_id": "proposal-1",
+        "approval_id": "integration-driver.approval-receipt:505f814d4a6fafa8f3d37f69fa883a9c15dfa78fae1c33309c24fbe68fe6d619",
+        "operation_id": "integration-driver.approval-operation:9c30af1ea2889c535e0f1d6d15c33e9374524d1f77f6038d0760366c7e283200",
+        "disposition": "approved",
+        "policy_generation": 3
+      }
+    },
+    "actual_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.other"
+    },
+    "proposal_target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "observed_base": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "calls": {
+      "verify": [
+        {
+          "proposal_id": "proposal-1",
+          "verification_id": "integration-driver.verification-receipt:d33d27d98d2d1eb7dd20d9c8356c82902570b7bd66bdba1ff53e16f8b8e68729",
+          "operation_id": "integration-driver.verification-operation:b556524566ec766f68c6ffbfe099babead9f031fcb6383c615044ca59bcafa30",
+          "observation": "passed"
+        }
+      ],
+      "review": [
+        {
+          "proposal_id": "proposal-1",
+          "review_id": "integration-driver.review-receipt:8d9084a8a35cefe4c597e6ea504fddf44cbcab8b9c4eb83c77becc6e5c9aff7d",
+          "operation_id": "integration-driver.review-operation:646b9d0a13bdc913030ec41ce3274468797ca82b4130bf6a30cc2770ce4a3cde",
+          "disposition": "accepted"
+        }
+      ],
+      "approve": [
+        {
+          "proposal_id": "proposal-1",
+          "approval_id": "integration-driver.approval-receipt:505f814d4a6fafa8f3d37f69fa883a9c15dfa78fae1c33309c24fbe68fe6d619",
+          "operation_id": "integration-driver.approval-operation:9c30af1ea2889c535e0f1d6d15c33e9374524d1f77f6038d0760366c7e283200",
+          "disposition": "approved",
+          "policy_generation": 3
+        }
+      ]
+    }
+  },
+  "foreign_work": {
+    "accepted": true,
+    "receipts": {
+      "verification": {
+        "proposal_id": "proposal-1",
+        "verification_id": "integration-driver.verification-receipt:d33d27d98d2d1eb7dd20d9c8356c82902570b7bd66bdba1ff53e16f8b8e68729",
+        "operation_id": "integration-driver.verification-operation:b556524566ec766f68c6ffbfe099babead9f031fcb6383c615044ca59bcafa30",
+        "observation": "passed"
+      },
+      "review": {
+        "proposal_id": "proposal-1",
+        "review_id": "integration-driver.review-receipt:8d9084a8a35cefe4c597e6ea504fddf44cbcab8b9c4eb83c77becc6e5c9aff7d",
+        "operation_id": "integration-driver.review-operation:646b9d0a13bdc913030ec41ce3274468797ca82b4130bf6a30cc2770ce4a3cde",
+        "disposition": "accepted"
+      },
+      "approval": {
+        "proposal_id": "proposal-1",
+        "approval_id": "integration-driver.approval-receipt:505f814d4a6fafa8f3d37f69fa883a9c15dfa78fae1c33309c24fbe68fe6d619",
+        "operation_id": "integration-driver.approval-operation:9c30af1ea2889c535e0f1d6d15c33e9374524d1f77f6038d0760366c7e283200",
+        "disposition": "approved",
+        "policy_generation": 3
+      }
+    },
+    "actual_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "01234567-W999"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "observed_base": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "calls": {
+      "verify": [
+        {
+          "proposal_id": "proposal-1",
+          "verification_id": "integration-driver.verification-receipt:d33d27d98d2d1eb7dd20d9c8356c82902570b7bd66bdba1ff53e16f8b8e68729",
+          "operation_id": "integration-driver.verification-operation:b556524566ec766f68c6ffbfe099babead9f031fcb6383c615044ca59bcafa30",
+          "observation": "passed"
+        }
+      ],
+      "review": [
+        {
+          "proposal_id": "proposal-1",
+          "review_id": "integration-driver.review-receipt:8d9084a8a35cefe4c597e6ea504fddf44cbcab8b9c4eb83c77becc6e5c9aff7d",
+          "operation_id": "integration-driver.review-operation:646b9d0a13bdc913030ec41ce3274468797ca82b4130bf6a30cc2770ce4a3cde",
+          "disposition": "accepted"
+        }
+      ],
+      "approve": [
+        {
+          "proposal_id": "proposal-1",
+          "approval_id": "integration-driver.approval-receipt:505f814d4a6fafa8f3d37f69fa883a9c15dfa78fae1c33309c24fbe68fe6d619",
+          "operation_id": "integration-driver.approval-operation:9c30af1ea2889c535e0f1d6d15c33e9374524d1f77f6038d0760366c7e283200",
+          "disposition": "approved",
+          "policy_generation": 3
+        }
+      ]
+    }
+  },
+  "foreign_base": {
+    "accepted": true,
+    "receipts": {
+      "verification": {
+        "proposal_id": "proposal-1",
+        "verification_id": "integration-driver.verification-receipt:8d99ec590b46d8029e2150777474ea182c00dd45150859aa6b06a8a6bf446a5a",
+        "operation_id": "integration-driver.verification-operation:997424f146c245795f75140ddde20561ac3123935ed6f59a58cb823ed1948079",
+        "observation": "passed"
+      },
+      "review": {
+        "proposal_id": "proposal-1",
+        "review_id": "integration-driver.review-receipt:442222fb108d1daad6a42f683700dea7b626301976e3f74f77e188af2619dba5",
+        "operation_id": "integration-driver.review-operation:6ddc812263d6b7823146fc9ef7d0f80b9e8474183fac6ba2c3341bfa8101457a",
+        "disposition": "accepted"
+      },
+      "approval": {
+        "proposal_id": "proposal-1",
+        "approval_id": "integration-driver.approval-receipt:926bb08dca80fe398e22d7c22885266ea08d2c1f674e329562cba4a4f8455319",
+        "operation_id": "integration-driver.approval-operation:7456ea65c8a62370e0aa5f63d647d7e0b7b153c9f305fcfacf878a3dd4cbb5a5",
+        "disposition": "approved",
+        "policy_generation": 3
+      }
+    },
+    "actual_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_target": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "observed_base": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "calls": {
+      "verify": [
+        {
+          "proposal_id": "proposal-1",
+          "verification_id": "integration-driver.verification-receipt:8d99ec590b46d8029e2150777474ea182c00dd45150859aa6b06a8a6bf446a5a",
+          "operation_id": "integration-driver.verification-operation:997424f146c245795f75140ddde20561ac3123935ed6f59a58cb823ed1948079",
+          "observation": "passed"
+        }
+      ],
+      "review": [
+        {
+          "proposal_id": "proposal-1",
+          "review_id": "integration-driver.review-receipt:442222fb108d1daad6a42f683700dea7b626301976e3f74f77e188af2619dba5",
+          "operation_id": "integration-driver.review-operation:6ddc812263d6b7823146fc9ef7d0f80b9e8474183fac6ba2c3341bfa8101457a",
+          "disposition": "accepted"
+        }
+      ],
+      "approve": [
+        {
+          "proposal_id": "proposal-1",
+          "approval_id": "integration-driver.approval-receipt:926bb08dca80fe398e22d7c22885266ea08d2c1f674e329562cba4a4f8455319",
+          "operation_id": "integration-driver.approval-operation:7456ea65c8a62370e0aa5f63d647d7e0b7b153c9f305fcfacf878a3dd4cbb5a5",
+          "disposition": "approved",
+          "policy_generation": 3
+        }
+      ]
+    }
+  },
+  "failed": {
+    "accepted": false,
+    "reason": "the required tests for task 'w112029-ordinary' exited 1 in this producer's container; a failing required command is not admitted and an accepted technical review is not a substitute",
+    "actual_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "observed_base": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "calls": {
+      "verify": [],
+      "review": [],
+      "approve": []
+    }
+  },
+  "unrun": {
+    "accepted": false,
+    "reason": "the required tests for task 'w112029-ordinary' did not run in this producer's container, so nothing about them is proved; an accepted technical review is not a substitute",
+    "actual_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_assignment": {
+      "work_ref": {
+        "authority_uuid": "43c55d4b1234567890abcdef12345678",
+        "work_id": "43c55d4b-W1439"
+      },
+      "generation": 1,
+      "participant": "baton.claude"
+    },
+    "proposal_target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "observed_base": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "calls": {
+      "verify": [],
+      "review": [],
+      "approve": []
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "unchanged": {
+    "eligibility_accepted": true,
+    "reason": null,
+    "replay_outcome": "accepted",
+    "replay_cleaned_up": true,
+    "replay_equal": true,
+    "original_custody": {
+      "result": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "result",
+        "verb": "normalize"
+      },
+      "workspace": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "workspace",
+        "verb": "normalize"
+      }
+    },
+    "tested_custody": {
+      "result": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "result",
+        "verb": "normalize"
+      },
+      "workspace": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "workspace",
+        "verb": "normalize"
+      }
+    },
+    "destroy_calls": 1,
+    "worker_turns": 1
+  },
+  "empty_custody": {
+    "eligibility_accepted": true,
+    "reason": null,
+    "replay_outcome": "accepted",
+    "replay_cleaned_up": true,
+    "replay_equal": true,
+    "original_custody": {
+      "result": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "result",
+        "verb": "normalize"
+      },
+      "workspace": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "workspace",
+        "verb": "normalize"
+      }
+    },
+    "tested_custody": {},
+    "destroy_calls": 1,
+    "worker_turns": 1
+  },
+  "scalar_custody": {
+    "eligibility_accepted": true,
+    "reason": null,
+    "replay_outcome": "accepted",
+    "replay_cleaned_up": true,
+    "replay_equal": true,
+    "original_custody": {
+      "result": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "result",
+        "verb": "normalize"
+      },
+      "workspace": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "workspace",
+        "verb": "normalize"
+      }
+    },
+    "tested_custody": "not-a-receipt",
+    "destroy_calls": 1,
+    "worker_turns": 1
+  },
+  "missing_workspace_custody": {
+    "eligibility_accepted": true,
+    "reason": null,
+    "replay_outcome": "accepted",
+    "replay_cleaned_up": true,
+    "replay_equal": true,
+    "original_custody": {
+      "result": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "result",
+        "verb": "normalize"
+      },
+      "workspace": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "workspace",
+        "verb": "normalize"
+      }
+    },
+    "tested_custody": {
+      "result": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "result",
+        "verb": "normalize"
+      }
+    },
+    "destroy_calls": 1,
+    "worker_turns": 1
+  },
+  "foreign_custody": {
+    "eligibility_accepted": true,
+    "reason": null,
+    "replay_outcome": "accepted",
+    "replay_cleaned_up": true,
+    "replay_equal": true,
+    "original_custody": {
+      "result": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "result",
+        "verb": "normalize"
+      },
+      "workspace": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "workspace",
+        "verb": "normalize"
+      }
+    },
+    "tested_custody": {
+      "result": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "public-review",
+        "operation": "normalize",
+        "root": "result",
+        "verb": "normalize"
+      },
+      "workspace": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+        "attempt_id": "another-attempt",
+        "operation": "normalize",
+        "root": "workspace",
+        "verb": "normalize"
+      }
+    },
+    "destroy_calls": 1,
+    "worker_turns": 1
+  }
+}

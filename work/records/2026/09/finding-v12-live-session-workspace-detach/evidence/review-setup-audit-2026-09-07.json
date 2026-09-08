@@ -1,0 +1,49 @@
+{
+  "work": "W106673",
+  "claim": 108038,
+  "reviewed_at": "2026-09-07T06:10:40.964090+00:00",
+  "new_manifest_sha256": "c0ec6a1d820894f9a6064b6289824f20fdf296e6e2ea7599df9f22108cbb1b30",
+  "candidate_hashes_verified": 90,
+  "original_inputs_unchanged": 80,
+  "unchanged_ast": [
+    "Fixture",
+    "check_tree",
+    "digest",
+    "docker",
+    "execute_pair",
+    "fixture_now",
+    "measured",
+    "process_fact",
+    "read_artifacts",
+    "require",
+    "snapshot_runtime",
+    "source_identity"
+  ],
+  "unchanged_credential_methods": [
+    "provider",
+    "materialize",
+    "release"
+  ],
+  "import_comparison": {
+    "original": {
+      "manifest_sha256": "eea4e949548c2301e4c45f815a60380b8edda1adbbc4c4f75dd6420ac496402b",
+      "observation": {
+        "outcome": "refused",
+        "kind": "file-not-found",
+        "errno": 2,
+        "missing_worker_schema": true
+      }
+    },
+    "corrected": {
+      "manifest_sha256": "c0ec6a1d820894f9a6064b6289824f20fdf296e6e2ea7599df9f22108cbb1b30",
+      "observation": {
+        "outcome": "imports-passed",
+        "credential_construction": false,
+        "source_read": false
+      }
+    }
+  },
+  "protected_originals_inspected": false,
+  "runtime_run": false,
+  "real_source_read": false
+}

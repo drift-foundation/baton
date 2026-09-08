@@ -1,0 +1,22 @@
+{
+  "retained_root": "/tmp/baton-w106673-session-preflight-gu8vuv0e",
+  "provenance": "Operator supplied output; baton.prompt independently read retained result/registration and exact-container logs/state",
+  "result": {
+    "cleanup": "confirmed-stopped-retained",
+    "container": "ddb4acf072f034acab95cedd729952d6b5294bd743d2fcedbb1a93fbad526f5f",
+    "container_exit_code": 1,
+    "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+    "outcome": "failed-or-blocked",
+    "run": "7b04d6286d094550978f0d42267bcb81",
+    "script_sha256": "73db1f08356e792b4e3bcb0baa871223c628491664245043b4282628ec9fc1c1",
+    "stage": "offline-initialization"
+  },
+  "container_stdout": {"outcome": "offline-transport-preflight-failed"},
+  "state": {
+    "Status": "exited", "Running": false, "OOMKilled": false,
+    "Pid": 0, "ExitCode": 1, "Error": "",
+    "StartedAt": "2026-09-07T04:30:21.523670655Z",
+    "FinishedAt": "2026-09-07T04:30:21.716211326Z"
+  },
+  "cause": "unknown: inner and outer exception handlers suppress reason; provider stderr discarded"
+}

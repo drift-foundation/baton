@@ -1,0 +1,53 @@
+{
+ "claim": 114090,
+ "author": "baton.claude",
+ "work": "W114085",
+ "scope": "The inspectable import authorization evidence extension: the eighth evidence projection, the review's materialized documents, and the refusal for authority no accepted record supplies.",
+ "revalidated_before_acting": {
+  "owned_hashes_matched_review_114048": true,
+  "v12/worker/integration_contract.py": "03e346c27b6b919f00581183e301b9c5c979e89ba43adb29aa301d0ce9e735a6",
+  "v12/python/tools/integration_bundle.py": "ee7a41f545c4cf8806af31d55e318f5a256efb2b525081b118d82ad4fb8c5c20",
+  "v12/python/tests/tools/test_integration_bundle.py": "645b16f533530d108c0824d48267319b28d0bf7df001b0625c3be56523629c26",
+  "design_pinned_in_finding_before_edits": true
+ },
+ "delivered": {
+  "v12/worker/integration_contract.py": "e4d5b2ef5b610cfb348bbb37ca3437f7f7c25a4ce6828dfd62864871b9cbf813",
+  "v12/python/tools/integration_bundle.py": "7279f3140d2f2968b7b3b2e4b45f054e1956606d8fd418abb01d89a17464e4ae",
+  "v12/python/tests/tools/test_integration_bundle.py": "20fea94a5ca463197952c7228003621254262a4daaa26d60390f4d2618303468"
+ },
+ "schema": {
+  "bundle": "baton.integration-input/1 -> baton.integration-input/2",
+  "authority": "baton.integration-authority/1",
+  "evidence_documents": 8,
+  "fixed_files": 10,
+  "max_paths": 251,
+  "max_paths_note": "unchanged from the accepted number, because the review's documents travel inside their projection rather than as emitted files"
+ },
+ "focused": {
+  "tests.tools.test_integration_bundle": {"tests": 101, "failures": 0,
+                                          "was": 83},
+  "tests.manager.test_integration_image": {"tests": 12, "failures": 0},
+  "tests.manager.test_integration_worker": {
+   "tests": 62, "failures": 1, "errors": 1,
+   "note": "PARENT-OWNED and not editable under this Work; both are cases review114048 already ruled must change"}
+ },
+ "known_parent_failures": [
+  {"case": "TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_edit_preserves_the_reviewed_mode_and_an_executable_one[100755]",
+   "why": "the producer now refuses to publish a 0644 -> 0755 candidate; review114048 P1 says candidate mode is not permission",
+   "owner": "W110935's scheduled correction"},
+  {"case": "TheEvidenceMustBeThisCandidatesOwn.test_the_same_change_inside_the_scheduled_scope_is_admitted",
+   "why": "the parent's derived-bundle helper copies the authority account unchanged while replacing the path table, so the account no longer describes its own table",
+   "owner": "W110935's worker-side consumption of the account"}
+ ],
+ "provider_gap_reported": {
+  "requirement": ["mode-change", "executable-addition"],
+  "finding": "no accepted record in this build carries mode or executable scope; JOB_COLUMNS is job_id, submission_id, ordinal, input_digest, policy_digest, test_scope, terminal_policy",
+  "behaviour": "the producer refuses to publish such a candidate and the reader refuses one that claims such a grant; no authority is invented",
+  "next_capability": "widening job_manager to carry mode scope is generic-core work this follow-up is not authorized to do"
+ },
+ "not_performed": [
+  "no parent source, parent test, registry or generic-core file was edited",
+  "no broad source gate was re-run for this candidate; the delta from the retained runs is the two named parent cases plus the 18 added here",
+  "no live provider, image build or selection, container, or version-control mutation of any kind"
+ ]
+}

@@ -1,0 +1,40 @@
+{
+  "no_terminal": {
+    "outcome": "accepted",
+    "verdict": "accepted",
+    "cleaned_up": true,
+    "steps": [
+      "quiesce",
+      "observe",
+      "freeze",
+      "intake",
+      "retain",
+      "verdict",
+      "cleanup"
+    ]
+  },
+  "malformed_terminal": {
+    "exception": "AttributeError",
+    "detail": "'str' object has no attribute 'get'"
+  },
+  "competing_proposal": {
+    "findings_claim": "accepted",
+    "proposal_claim": "rejected",
+    "reader_verdict": "accepted",
+    "retained_manifest_valid": true
+  },
+  "report_valid": {
+    "adopted": true
+  },
+  "report_deeply_nested": {
+    "adopted": false
+  },
+  "report_surrogate": {
+    "adopted": true,
+    "publication_exception": "UnicodeEncodeError"
+  },
+  "fifo_report": {
+    "timed_out_seconds": 2,
+    "conclusion": "report open blocked before regular-file validation; probe child killed and waited by subprocess.run"
+  }
+}

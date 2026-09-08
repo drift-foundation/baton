@@ -86,3 +86,15 @@ The canonical JSON boolean `blocking` is sufficient for this scheduling
 slice. A compact TUI spelling may be designed later from usage evidence; its
 absence does not delay the ordering correction or the fresh-authority
 restart.
+
+## Superseded for human-facing Work lists — 2026-09-06
+
+Item 5 of the confirmed first-cut ruling required human Work lists and
+participant readiness to share one ordering. That part is superseded for
+human-facing lists by
+`work/records/2026/09/finding-v11-stable-job-list-order/FINDING.md`.
+
+The blocker preference remains valid for machine dispatch. It must no longer
+reorder already-visible rows in the Jobs list as Work moves between queued,
+active, review, blocked, or parked states. Human presentation and machine
+pickup now have deliberately different ordering needs.

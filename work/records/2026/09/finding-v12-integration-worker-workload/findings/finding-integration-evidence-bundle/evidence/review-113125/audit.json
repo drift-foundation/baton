@@ -1,0 +1,118 @@
+{
+  "claim": 113125,
+  "candidate": {
+    "v12/worker/integration_contract.py": "03e346c27b6b919f00581183e301b9c5c979e89ba43adb29aa301d0ce9e735a6",
+    "v12/python/tools/integration_bundle.py": "ee7a41f545c4cf8806af31d55e318f5a256efb2b525081b118d82ad4fb8c5c20",
+    "v12/python/tests/tools/test_integration_bundle.py": "645b16f533530d108c0824d48267319b28d0bf7df001b0625c3be56523629c26",
+    "v12/python/tools/parallel_test.py": "1ae0956fda4bfdb8242c8f5e0a57e7c7dd3833904042dfc7734fc0acfecc16f4"
+  },
+  "historical_candidate_snapshots": "all match",
+  "test_delta": {
+    "before": 72,
+    "after": 83,
+    "removed": [],
+    "added": [
+      "TheExtractionIsBoundToOneDirectory.test_a_pathname_is_not_a_directory_this_producer_reads_through",
+      "TheExtractionIsBoundToOneDirectory.test_a_transient_swap_does_not_redirect_a_single_read",
+      "TheExtractionIsBoundToOneDirectory.test_no_composed_command_carries_the_repository_pathname",
+      "TheRootIsTraversedAndNotJustOpened.test_a_noncanonical_spelling_is_refused_before_anything_is_opened",
+      "TheRootIsTraversedAndNotJustOpened.test_a_root_reached_through_a_linked_ancestor_is_refused",
+      "TheRootIsTraversedAndNotJustOpened.test_an_alias_with_a_trailing_dot_is_refused",
+      "TheRootIsTraversedAndNotJustOpened.test_the_assignment_reader_traverses_the_same_way",
+      "TheRootIsTraversedAndNotJustOpened.test_the_valid_root_still_reads",
+      "TheSharedContentIsChargedOnce.test_content_larger_than_half_the_limit_may_be_shared",
+      "TheSharedContentIsChargedOnce.test_the_exact_unique_maximum_publishes",
+      "TheSharedContentIsChargedOnce.test_true_unique_overflow_still_refuses"
+    ],
+    "changed": [
+      "ThePathTableRefusesWhatItCannotAccountFor.test_a_malformed_runner_answer_refuses",
+      "ThePathTableRefusesWhatItCannotAccountFor.test_a_symlink_or_a_submodule_refuses_the_whole_proposal",
+      "ThePathTableRefusesWhatItCannotAccountFor.test_a_text_runner_is_not_this_modules_runner",
+      "ThePathTableRefusesWhatItCannotAccountFor.test_an_entry_for_another_path_refuses",
+      "ThePathTableRefusesWhatItCannotAccountFor.test_content_above_the_blob_bound_refuses_before_it_is_read",
+      "ThePathTableRefusesWhatItCannotAccountFor.test_content_that_disagrees_with_its_declared_size_refuses",
+      "ThePathTableRefusesWhatItCannotAccountFor.test_evidence_of_another_profile_or_another_shape_refuses",
+      "ThePathTableRefusesWhatItCannotAccountFor.test_more_paths_than_the_bound_refuses",
+      "ThePathTableRefusesWhatItCannotAccountFor.test_more_than_one_entry_for_one_path_refuses",
+      "TheReviewedPathTableComesFromRetainedObjects.test_the_composed_vectors_are_exactly_these",
+      "TheReviewedPathTableComesFromRetainedObjects.test_the_vectors_are_read_only_and_lock_free"
+    ]
+  },
+  "real_git_vector_probe": {
+    "revision": "e213de76102cbf35c96a39544738f74e0f4f00fb",
+    "tree": "6ba1ab2d9ac967db73ec28f04b71b3c1a93ef88d",
+    "path": "AGENTS.md",
+    "mode": "100644",
+    "object": "47090793bc5cbb73d28e88986065702ba61df8bf",
+    "bytes": 17658,
+    "content_sha256": "253e17657e89d07a164f643f060bfbe62093cebc8a0b54deb0966c4955911709",
+    "object_hash_verified": true,
+    "cwd": "child fchdir on inherited directory descriptor",
+    "calls": [
+      {
+        "argv": [
+          "git",
+          "--no-optional-locks",
+          "rev-parse",
+          "--verify",
+          "HEAD"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 41,
+        "stderr_bytes": 0
+      },
+      {
+        "argv": [
+          "git",
+          "--no-optional-locks",
+          "rev-parse",
+          "--verify",
+          "e213de76102cbf35c96a39544738f74e0f4f00fb^{tree}"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 41,
+        "stderr_bytes": 0
+      },
+      {
+        "argv": [
+          "git",
+          "--no-optional-locks",
+          "ls-tree",
+          "--full-tree",
+          "-z",
+          "6ba1ab2d9ac967db73ec28f04b71b3c1a93ef88d",
+          "--",
+          "AGENTS.md"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 63,
+        "stderr_bytes": 0
+      },
+      {
+        "argv": [
+          "git",
+          "--no-optional-locks",
+          "cat-file",
+          "-s",
+          "47090793bc5cbb73d28e88986065702ba61df8bf"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 6,
+        "stderr_bytes": 0
+      },
+      {
+        "argv": [
+          "git",
+          "--no-optional-locks",
+          "cat-file",
+          "blob",
+          "47090793bc5cbb73d28e88986065702ba61df8bf"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 17658,
+        "stderr_bytes": 0
+      }
+    ],
+    "limits": "Existing committed object and all four vectors only; not full real-owner bundle composition or production-runner acceptance."
+  }
+}

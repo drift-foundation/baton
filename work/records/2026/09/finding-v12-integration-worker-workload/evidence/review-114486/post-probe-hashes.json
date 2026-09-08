@@ -1,0 +1,42 @@
+{
+  "v12/worker/integration_workload.py": {
+    "sha256": "54a2298804ea24cb2a402a7247d55c8b056fcaa6eafd288cf82a73a9afb065e1",
+    "matches_snapshot": true
+  },
+  "v12/worker/integration_entry.py": {
+    "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+    "matches_snapshot": true
+  },
+  "v12/python/tests/manager/test_integration_worker.py": {
+    "sha256": "ab4e8168e42b19d342c402a43edd3fa1b667b4e8f54648fadb84e37ef949ed03",
+    "matches_snapshot": true
+  },
+  "v12/worker/Dockerfile.integration": {
+    "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+    "matches_snapshot": true
+  },
+  "v12/python/tests/manager/test_integration_image.py": {
+    "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+    "matches_snapshot": true
+  },
+  "v12/python/tools/parallel_test.py": {
+    "sha256": "5bf2cbfbf29c603f07f811a1d5f968257798e1944d91bed0d97fe9aa393bf302",
+    "matches_snapshot": true
+  },
+  "v12/worker/claude_agent.py": {
+    "sha256": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+    "matches_snapshot": true
+  },
+  "v12/worker/integration_contract.py": {
+    "sha256": "2f8b42eb4f82949e97c2ef660d6fa5d39384eaeb6d5688f3bb90be715175fcf2",
+    "matches_snapshot": false
+  },
+  "v12/python/tools/integration_bundle.py": {
+    "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+    "matches_snapshot": true
+  },
+  "v12/python/tests/tools/test_integration_bundle.py": {
+    "sha256": "7634f0da22d6b9bcfe28877b046a37e357e7567845ef495e30d5da44f74ba11d",
+    "matches_snapshot": false
+  }
+}

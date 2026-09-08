@@ -1,0 +1,22 @@
+--- work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_restore.py
++++ work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_restore_constructor.py
+@@ -32,7 +32,7 @@
+ DELAY_NS = 5_000_000_000
+ DOCKER_ENV = dict(PATH="/usr/bin:/bin", HOME="/nonexistent", DOCKER_CONFIG="/nonexistent")
+ DOCKER = ["/usr/bin/docker", "--host", "unix:///var/run/docker.sock"]
+-MANIFEST = HERE / "restore-only-manifest.json"
++MANIFEST = HERE / "restore-constructor-manifest.json"
+ 
+ 
+ def digest(path):
+@@ -447,8 +447,8 @@
+         if session_home is None:
+             self.session_home.mkdir(mode=0o700)
+             os.chown(self.session_home, GID, GID)
+-            for name in ("work", "home", "cache"):
+-                place = self.session_home / name
++            for subdirectory in ("work", "home", "cache"):
++                place = self.session_home / subdirectory
+                 place.mkdir(mode=0o700)
+                 os.chown(place, GID, GID)
+         self.session = session or str(uuid.uuid4())

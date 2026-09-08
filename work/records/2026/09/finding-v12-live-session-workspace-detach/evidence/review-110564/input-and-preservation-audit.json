@@ -1,0 +1,668 @@
+{
+  "work": "W106673",
+  "claim": 110564,
+  "manifest_sha256": "a3f5f845c344ee9418327123cbc32de37be35701dfee5b0ba342a19005681c5a",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/__init__.py",
+      "expected": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0",
+      "actual": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/__init__.py",
+      "expected": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066",
+      "actual": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/api.py",
+      "expected": "7a0343dd8aa9253092e59f34e3c6f3f18ec932de0e6b1408f01ff4d2b882b80d",
+      "actual": "7a0343dd8aa9253092e59f34e3c6f3f18ec932de0e6b1408f01ff4d2b882b80d"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/core.py",
+      "expected": "26a8a7a91b3bc7d9859bf9f5a747d9fda6ef88cdb5fe430bff1310d007c1d013",
+      "actual": "26a8a7a91b3bc7d9859bf9f5a747d9fda6ef88cdb5fe430bff1310d007c1d013"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/errors.py",
+      "expected": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce",
+      "actual": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/identity.py",
+      "expected": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189",
+      "actual": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/labels.py",
+      "expected": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec",
+      "actual": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/principals.py",
+      "expected": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30",
+      "actual": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/schema.py",
+      "expected": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb",
+      "actual": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/session.py",
+      "expected": "333cd6e44ac73e093ceb45ba3b7c639985c4220de2dc87b3266bf7cd7634948a",
+      "actual": "333cd6e44ac73e093ceb45ba3b7c639985c4220de2dc87b3266bf7cd7634948a"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/store.py",
+      "expected": "9967f4660841cfddf67280ff59f730c2e36f18a28936a0b0c8600d9fe370e651",
+      "actual": "9967f4660841cfddf67280ff59f730c2e36f18a28936a0b0c8600d9fe370e651"
+    },
+    {
+      "path": "v12/python/src/baton_v12/checkpoint_profiles.py",
+      "expected": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38",
+      "actual": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/__init__.py",
+      "expected": "9d3a0e050eb09cf5ee593577c1bf1e89c27b900ff275e6a77905d6c368cf98fe",
+      "actual": "9d3a0e050eb09cf5ee593577c1bf1e89c27b900ff275e6a77905d6c368cf98fe"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/canonical.py",
+      "expected": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8",
+      "actual": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/errors.py",
+      "expected": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50",
+      "actual": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/frozen.py",
+      "expected": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed",
+      "actual": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/manifest.py",
+      "expected": "53324c97c84911e571ddcffacbc8d4a312f4bdd6b0fa6649bc00c0a205071acc",
+      "actual": "53324c97c84911e571ddcffacbc8d4a312f4bdd6b0fa6649bc00c0a205071acc"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/pod.py",
+      "expected": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99",
+      "actual": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "expected": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+      "actual": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+      "expected": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "actual": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/secrets.py",
+      "expected": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b",
+      "actual": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/validate.py",
+      "expected": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+      "actual": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/eventing.py",
+      "expected": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486",
+      "actual": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/__init__.py",
+      "expected": "c2c749ce5d2c1ecadb5d8b0e1ae5ea2943a650779af88ca04dcc9b0b41f97dbd",
+      "actual": "c2c749ce5d2c1ecadb5d8b0e1ae5ea2943a650779af88ca04dcc9b0b41f97dbd"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/admission.py",
+      "expected": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f",
+      "actual": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/driver.py",
+      "expected": "d7a3e63e2b9ef8b6fffc6eb219790a3df7fd58c3be2ffeb59727bf9284dfd8b1",
+      "actual": "d7a3e63e2b9ef8b6fffc6eb219790a3df7fd58c3be2ffeb59727bf9284dfd8b1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/execution.py",
+      "expected": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+      "actual": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/queue.py",
+      "expected": "2e8a153ddcdf15fcd597f51a7c81ce0405ee7b64fad9b2f3b6cf416c40489be7",
+      "actual": "2e8a153ddcdf15fcd597f51a7c81ce0405ee7b64fad9b2f3b6cf416c40489be7"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/recovery.py",
+      "expected": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "actual": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/runtime.py",
+      "expected": "742121cf0ae906160375e71bf0985b26091c5a2705bf2144236e12b6eb1b243c",
+      "actual": "742121cf0ae906160375e71bf0985b26091c5a2705bf2144236e12b6eb1b243c"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/schema.py",
+      "expected": "d0df79b9674e1a92b7011747c0ddcd42116804a4b6f8e05526150d329557c968",
+      "actual": "d0df79b9674e1a92b7011747c0ddcd42116804a4b6f8e05526150d329557c968"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/store.py",
+      "expected": "ee558081e8ad4db2edc928495c79691581ed2a1646f75b793bbaf17db0ff548a",
+      "actual": "ee558081e8ad4db2edc928495c79691581ed2a1646f75b793bbaf17db0ff548a"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/__init__.py",
+      "expected": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6",
+      "actual": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "expected": "8bee111d72fa9c417223bbb54c130a0fc4da100773a4609c38a6c66b4f0f27e0",
+      "actual": "8bee111d72fa9c417223bbb54c130a0fc4da100773a4609c38a6c66b4f0f27e0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "expected": "e00d5804311e08826d289ac74063f64b13645be7607691ae3359a6380b8c9987",
+      "actual": "e00d5804311e08826d289ac74063f64b13645be7607691ae3359a6380b8c9987"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/episodes.py",
+      "expected": "8778a130946625307d36f4af280161783d8cafbe3f236e8e8f3881ac2e4955e0",
+      "actual": "8778a130946625307d36f4af280161783d8cafbe3f236e8e8f3881ac2e4955e0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/manager.py",
+      "expected": "9b1341a98ff468647f037f0d68c7057495d8cdcae2d97e43786bb52a6ff073a9",
+      "actual": "9b1341a98ff468647f037f0d68c7057495d8cdcae2d97e43786bb52a6ff073a9"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "expected": "1354712ad0f05131f55460e79f0dc732d92ea15fce1bcc9681462fb8690c1248",
+      "actual": "1354712ad0f05131f55460e79f0dc732d92ea15fce1bcc9681462fb8690c1248"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "expected": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1",
+      "actual": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/scheduler.py",
+      "expected": "fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457",
+      "actual": "fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/schema.py",
+      "expected": "1c291ddf1cd62a989fb1bd66a64a5a794ddddeb26fb92731f9ee08ddbf5915e8",
+      "actual": "1c291ddf1cd62a989fb1bd66a64a5a794ddddeb26fb92731f9ee08ddbf5915e8"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/store.py",
+      "expected": "5413efe1d7d25af780cba4fe421ffb4205b4e0e684ffdda1f794d3cf0d650954",
+      "actual": "5413efe1d7d25af780cba4fe421ffb4205b4e0e684ffdda1f794d3cf0d650954"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/submission.py",
+      "expected": "c80845d9615ec0db5e0d0d2e21d72fd7833b47985f6d5be59630a11500bd512e",
+      "actual": "c80845d9615ec0db5e0d0d2e21d72fd7833b47985f6d5be59630a11500bd512e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/source_profiles/__init__.py",
+      "expected": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "actual": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+    },
+    {
+      "path": "v12/python/src/baton_v12/source_profiles/checkout.py",
+      "expected": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "actual": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/__init__.py",
+      "expected": "965dd3599ad627a2f22b66ed37fac31041ccd8a342fab853a0ca1ca866b38d8b",
+      "actual": "965dd3599ad627a2f22b66ed37fac31041ccd8a342fab853a0ca1ca866b38d8b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "expected": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "actual": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/authority_port.py",
+      "expected": "ae68d53a97498deb50d8d932547d7bf2a4436735d0b84b41d86b870a8918e79d",
+      "actual": "ae68d53a97498deb50d8d932547d7bf2a4436735d0b84b41d86b870a8918e79d"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/boundaries.py",
+      "expected": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+      "actual": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/credentials.py",
+      "expected": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df",
+      "actual": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "expected": "86fbf3cd58e958b212e45efe569472b657428395a3e9a2169d73e3ddb324dbe0",
+      "actual": "86fbf3cd58e958b212e45efe569472b657428395a3e9a2169d73e3ddb324dbe0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+      "expected": "3c67406e5b234d043581cb4b2d2cabb871e7e3ec9ac51a190a185f855395655f",
+      "actual": "3c67406e5b234d043581cb4b2d2cabb871e7e3ec9ac51a190a185f855395655f"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/events.py",
+      "expected": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5",
+      "actual": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/exchange.py",
+      "expected": "1fbff4e8bd73c44b658e5fc7ec0b5595ada498813ec5247ae2032c32543f35ce",
+      "actual": "1fbff4e8bd73c44b658e5fc7ec0b5595ada498813ec5247ae2032c32543f35ce"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/handshake.py",
+      "expected": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e",
+      "actual": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "expected": "be9bafa313b15e3a12d443fc7f704049b504b05835812e1e41ebcf391c5e99d9",
+      "actual": "be9bafa313b15e3a12d443fc7f704049b504b05835812e1e41ebcf391c5e99d9"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/interrogation.py",
+      "expected": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+      "actual": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/lanes.py",
+      "expected": "72fa035958dbd4f1c08b4824aa4fff3fe5178f94790e550224f72fcc0c08f285",
+      "actual": "72fa035958dbd4f1c08b4824aa4fff3fe5178f94790e550224f72fcc0c08f285"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "expected": "6546008fb4970b406d2a56adffc4f6a36c8c18f62e488a9b0ac74307059d7647",
+      "actual": "6546008fb4970b406d2a56adffc4f6a36c8c18f62e488a9b0ac74307059d7647"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/manifests.py",
+      "expected": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866",
+      "actual": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "expected": "101a2c1754cfb2ea7fc6e08783a902c4e944b33ed7b0189130aaf8c6ff79f566",
+      "actual": "101a2c1754cfb2ea7fc6e08783a902c4e944b33ed7b0189130aaf8c6ff79f566"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/offers.py",
+      "expected": "218dfcb11408ccd0c634a5f9cda2ae833c8de8560cc8557d75b1e88e662d7f8b",
+      "actual": "218dfcb11408ccd0c634a5f9cda2ae833c8de8560cc8557d75b1e88e662d7f8b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/output.py",
+      "expected": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+      "actual": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/posture_slots.py",
+      "expected": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+      "actual": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "expected": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377",
+      "actual": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+      "expected": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "actual": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/sealing.py",
+      "expected": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+      "actual": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/sessions.py",
+      "expected": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+      "actual": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/source_boundary.py",
+      "expected": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "actual": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/store.py",
+      "expected": "a692a6021e57544e6c92cba89611e9e0ca3fe87ca72ca748c8155843b6a93b32",
+      "actual": "a692a6021e57544e6c92cba89611e9e0ca3fe87ca72ca748c8155843b6a93b32"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/worker_entry.py",
+      "expected": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba",
+      "actual": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "expected": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+      "actual": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9"
+    },
+    {
+      "path": "v12/python/tools/user_credentials.py",
+      "expected": "6b5cf07f59c3484a1e08a96f65726ebc9eef3d317a77090071fd13f4f151c61b",
+      "actual": "6b5cf07f59c3484a1e08a96f65726ebc9eef3d317a77090071fd13f4f151c61b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/LIVE-DIAGNOSTICS.md",
+      "expected": "bdad9d5387bb81c21acc2f95d2670f3312da06e973b0aaca64579eb82447be5b",
+      "actual": "bdad9d5387bb81c21acc2f95d2670f3312da06e973b0aaca64579eb82447be5b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/LIVE-PACKAGE.md",
+      "expected": "cbeb1b26266ed1c40c7dae2d2d7cc043dd5c54c44b9a52a0e87947e6850078d9",
+      "actual": "cbeb1b26266ed1c40c7dae2d2d7cc043dd5c54c44b9a52a0e87947e6850078d9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/LIVE-SETUP-CORRECTION.md",
+      "expected": "23bd1b6a76339061494bf45de12576754c67d10805d253cbe3af97b1deed64e9",
+      "actual": "23bd1b6a76339061494bf45de12576754c67d10805d253cbe3af97b1deed64e9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/RESTORED-ONLY.md",
+      "expected": "ad65a563cf82602309baece1a69c8ed17034dcd3ac85aa0e60837155f9688173",
+      "actual": "ad65a563cf82602309baece1a69c8ed17034dcd3ac85aa0e60837155f9688173"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/host_runner.py",
+      "expected": "5b2eea59774c14c27574fc8b18a9979a6f3c2c2969265cf8ef1c4a944436380e",
+      "actual": "5b2eea59774c14c27574fc8b18a9979a6f3c2c2969265cf8ef1c4a944436380e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-diagnostic-input-audit.json",
+      "expected": "0515574bb451f8ce6e01b67cecfb8f63cf6a860e92547f56fb669207beabae57",
+      "actual": "0515574bb451f8ce6e01b67cecfb8f63cf6a860e92547f56fb669207beabae57"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-diagnostic-manifest.json",
+      "expected": "2ef942b1f58f95ff3ff59d4815e01688ee45d3dd8b10713331c6e0844335b5b3",
+      "actual": "2ef942b1f58f95ff3ff59d4815e01688ee45d3dd8b10713331c6e0844335b5b3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-diagnostic-tests.txt",
+      "expected": "9ccb362525c1b03a9424519d46b8d9c52ce37dc4ef6c7666625a8292407323de",
+      "actual": "9ccb362525c1b03a9424519d46b8d9c52ce37dc4ef6c7666625a8292407323de"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-diagnostic.patch",
+      "expected": "af7d8a94a46d634587436969d017a731ee4e9bf7c16dbaab984290be5277261c",
+      "actual": "af7d8a94a46d634587436969d017a731ee4e9bf7c16dbaab984290be5277261c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-package-manifest.json",
+      "expected": "eea4e949548c2301e4c45f815a60380b8edda1adbbc4c4f75dd6420ac496402b",
+      "actual": "eea4e949548c2301e4c45f815a60380b8edda1adbbc4c4f75dd6420ac496402b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-package-preservation.json",
+      "expected": "57be1d2385642ab599b6bbf63a1b5748ec3b24f250860248e16b46da90805653",
+      "actual": "57be1d2385642ab599b6bbf63a1b5748ec3b24f250860248e16b46da90805653"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-package-tests.txt",
+      "expected": "69bf301ee26e777b018e3ae1a99ccdf75346e1ef29a60239fcc452c3f8c423d6",
+      "actual": "69bf301ee26e777b018e3ae1a99ccdf75346e1ef29a60239fcc452c3f8c423d6"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/PROVENANCE.json",
+      "expected": "9031e49b4c86f2f137c4430f98e0784b9f330aa886f384342b0cdac9c6a5e949",
+      "actual": "9031e49b4c86f2f137c4430f98e0784b9f330aa886f384342b0cdac9c6a5e949"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/arms.json",
+      "expected": "44a8f68411e30cb1e631c33f624571dfdbbeaf6369af541c964e55b5e985e963",
+      "actual": "44a8f68411e30cb1e631c33f624571dfdbbeaf6369af541c964e55b5e985e963"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/network.json",
+      "expected": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+      "actual": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/package.json",
+      "expected": "da40f304921ead0930085e6aac12c774eb7e6b8ae49358467b8d89cc1588d7c2",
+      "actual": "da40f304921ead0930085e6aac12c774eb7e6b8ae49358467b8d89cc1588d7c2"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/restored-first/events.json",
+      "expected": "b259c64997fe591b1fff9accecc45dc50434835f394cb090a56beefeb991b40c",
+      "actual": "b259c64997fe591b1fff9accecc45dc50434835f394cb090a56beefeb991b40c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/restored-first/gate.json",
+      "expected": "d5d614d197830736d112d703a3a136f7eeb059da736e5e7b07e0835013afd65b",
+      "actual": "d5d614d197830736d112d703a3a136f7eeb059da736e5e7b07e0835013afd65b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/result.json",
+      "expected": "ba461da3d55bacc1079cd1851cb2b900d9bef08146e3d7e2cd161154c8cffe96",
+      "actual": "ba461da3d55bacc1079cd1851cb2b900d9bef08146e3d7e2cd161154c8cffe96"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/retained-first/events.json",
+      "expected": "5caef6dd21a3d2c83c17d0a916d20fd6d21b9c0117c0eb982f6a9250fc85f6c9",
+      "actual": "5caef6dd21a3d2c83c17d0a916d20fd6d21b9c0117c0eb982f6a9250fc85f6c9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/retained-first/gate.json",
+      "expected": "32873bbd093e1821e9f18de138ac8f403c703463ff8ede7bc9203e75cc8b7ed5",
+      "actual": "32873bbd093e1821e9f18de138ac8f403c703463ff8ede7bc9203e75cc8b7ed5"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-partial-export-2026-09-07/setup.json",
+      "expected": "6b7503037c77bc9f8d0e32b265a3eea6a7ff763210eab0291d696757b4c6ba01",
+      "actual": "6b7503037c77bc9f8d0e32b265a3eea6a7ff763210eab0291d696757b4c6ba01"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-setup-input-audit.json",
+      "expected": "b00d04b5d95e9f4e5ba5664589dd4fe98695d2134fac2c4572db53dfea3658c0",
+      "actual": "b00d04b5d95e9f4e5ba5664589dd4fe98695d2134fac2c4572db53dfea3658c0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-setup-manifest.json",
+      "expected": "c0ec6a1d820894f9a6064b6289824f20fdf296e6e2ea7599df9f22108cbb1b30",
+      "actual": "c0ec6a1d820894f9a6064b6289824f20fdf296e6e2ea7599df9f22108cbb1b30"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-setup-reproduction.json",
+      "expected": "74a5418bf88a2aa1606fa1339b48b2b7b917836dff8eb238104563261643b72e",
+      "actual": "74a5418bf88a2aa1606fa1339b48b2b7b917836dff8eb238104563261643b72e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-setup-tests.txt",
+      "expected": "cc6e6859b74dd19d208856a606988e28f8f7b25413550c3f7184ba89aea1eda4",
+      "actual": "cc6e6859b74dd19d208856a606988e28f8f7b25413550c3f7184ba89aea1eda4"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live-setup.patch",
+      "expected": "7c1214004d77468dd8fe186b033d628e207bd050a468ebd92e60876e238ac4ca",
+      "actual": "7c1214004d77468dd8fe186b033d628e207bd050a468ebd92e60876e238ac4ca"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller.py",
+      "expected": "f9500d4a3537a7b10201f6399cb901c899cd728ad397d1d9258a16632abd555d",
+      "actual": "f9500d4a3537a7b10201f6399cb901c899cd728ad397d1d9258a16632abd555d"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_diagnostic.py",
+      "expected": "bfe220010a6a07e72dd80c0745c8213ebf9fa581fbb5422b008fce7561ee35e3",
+      "actual": "bfe220010a6a07e72dd80c0745c8213ebf9fa581fbb5422b008fce7561ee35e3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_restore.py",
+      "expected": "f3fa2435ab3a90643fa2fdf4e9cd58d9ca5bc6f114c0ad032fa8dcca0310ed51",
+      "actual": "f3fa2435ab3a90643fa2fdf4e9cd58d9ca5bc6f114c0ad032fa8dcca0310ed51"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_controller_setup.py",
+      "expected": "ade171ca071c78ce992aab76462b6fa7e906be90dfedbd22cba019ceff54e485",
+      "actual": "ade171ca071c78ce992aab76462b6fa7e906be90dfedbd22cba019ceff54e485"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor.py",
+      "expected": "6a9d4fb65bd95757b9d0b4133ccc7f9a2945c9e9ba612ae7c0403c51507767db",
+      "actual": "6a9d4fb65bd95757b9d0b4133ccc7f9a2945c9e9ba612ae7c0403c51507767db"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_diagnostic.py",
+      "expected": "e2f909cd74008ba155be39aa93bca4757cf5e600296f4ec9ff938ee0b097d621",
+      "actual": "e2f909cd74008ba155be39aa93bca4757cf5e600296f4ec9ff938ee0b097d621"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_restore.py",
+      "expected": "3322a0494f8dd51be1f8188e626e522ad676dfee4c380d6c939b9827e4f3082f",
+      "actual": "3322a0494f8dd51be1f8188e626e522ad676dfee4c380d6c939b9827e4f3082f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real_session_contract.py",
+      "expected": "1542098960ea0ba760b85f8933f23f9ec4ff457b00b3d2ca65ed862894a7c477",
+      "actual": "1542098960ea0ba760b85f8933f23f9ec4ff457b00b3d2ca65ed862894a7c477"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/resident.py",
+      "expected": "30d3c2a5e34c0461a2d2a15006cfe26f42d587d938a3179d61d9a874c3002496",
+      "actual": "30d3c2a5e34c0461a2d2a15006cfe26f42d587d938a3179d61d9a874c3002496"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-only-110487.patch",
+      "expected": "6c06a13bec7a47de45ff65f1558af44b377fd364400a36739547acbb817e0c60",
+      "actual": "6c06a13bec7a47de45ff65f1558af44b377fd364400a36739547acbb817e0c60"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-only-input-audit-110487.json",
+      "expected": "9de4bac943e65c895294369a59648c28e9f21542c0e112a5c2f9424bd2aba86b",
+      "actual": "9de4bac943e65c895294369a59648c28e9f21542c0e112a5c2f9424bd2aba86b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/restore-only-tests-110487.txt",
+      "expected": "a151a209b74def21af146a971ab0c5fa8ecbe9b0071ab1308fedc82a87398869",
+      "actual": "a151a209b74def21af146a971ab0c5fa8ecbe9b0071ab1308fedc82a87398869"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_live_diagnostics.py",
+      "expected": "4c4ea71a39f6e445b75c2aa10da2777eae26547470174c78a52c2818354439ab",
+      "actual": "4c4ea71a39f6e445b75c2aa10da2777eae26547470174c78a52c2818354439ab"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_live_package.py",
+      "expected": "6b7f705efd97ecda1c8ed682b6b3516e213fadcce5002197baca55b667b5ee6b",
+      "actual": "6b7f705efd97ecda1c8ed682b6b3516e213fadcce5002197baca55b667b5ee6b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_live_setup.py",
+      "expected": "be89f955f47fdb83e9111219adea9f3606825bac50be72050ca421be509985be",
+      "actual": "be89f955f47fdb83e9111219adea9f3606825bac50be72050ca421be509985be"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_restored_only.py",
+      "expected": "d4874e79eed4a35b87513749ff0f917cdc02858008c1cc2cbf70a0aa2071d1d2",
+      "actual": "d4874e79eed4a35b87513749ff0f917cdc02858008c1cc2cbf70a0aa2071d1d2"
+    }
+  ],
+  "prior_bound_inputs_preserved": 108,
+  "exports": [
+    {
+      "path": "arms.json",
+      "expected": "44a8f68411e30cb1e631c33f624571dfdbbeaf6369af541c964e55b5e985e963",
+      "actual": "44a8f68411e30cb1e631c33f624571dfdbbeaf6369af541c964e55b5e985e963"
+    },
+    {
+      "path": "network.json",
+      "expected": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+      "actual": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5"
+    },
+    {
+      "path": "package.json",
+      "expected": "da40f304921ead0930085e6aac12c774eb7e6b8ae49358467b8d89cc1588d7c2",
+      "actual": "da40f304921ead0930085e6aac12c774eb7e6b8ae49358467b8d89cc1588d7c2"
+    },
+    {
+      "path": "restored-first/events.json",
+      "expected": "b259c64997fe591b1fff9accecc45dc50434835f394cb090a56beefeb991b40c",
+      "actual": "b259c64997fe591b1fff9accecc45dc50434835f394cb090a56beefeb991b40c"
+    },
+    {
+      "path": "restored-first/gate.json",
+      "expected": "d5d614d197830736d112d703a3a136f7eeb059da736e5e7b07e0835013afd65b",
+      "actual": "d5d614d197830736d112d703a3a136f7eeb059da736e5e7b07e0835013afd65b"
+    },
+    {
+      "path": "result.json",
+      "expected": "ba461da3d55bacc1079cd1851cb2b900d9bef08146e3d7e2cd161154c8cffe96",
+      "actual": "ba461da3d55bacc1079cd1851cb2b900d9bef08146e3d7e2cd161154c8cffe96"
+    },
+    {
+      "path": "retained-first/events.json",
+      "expected": "5caef6dd21a3d2c83c17d0a916d20fd6d21b9c0117c0eb982f6a9250fc85f6c9",
+      "actual": "5caef6dd21a3d2c83c17d0a916d20fd6d21b9c0117c0eb982f6a9250fc85f6c9"
+    },
+    {
+      "path": "retained-first/gate.json",
+      "expected": "32873bbd093e1821e9f18de138ac8f403c703463ff8ede7bc9203e75cc8b7ed5",
+      "actual": "32873bbd093e1821e9f18de138ac8f403c703463ff8ede7bc9203e75cc8b7ed5"
+    },
+    {
+      "path": "setup.json",
+      "expected": "6b7503037c77bc9f8d0e32b265a3eea6a7ff763210eab0291d696757b4c6ba01",
+      "actual": "6b7503037c77bc9f8d0e32b265a3eea6a7ff763210eab0291d696757b4c6ba01"
+    }
+  ],
+  "controller_ast_preservation": {
+    "Credentials": true,
+    "Setup": true,
+    "snapshot_runtime": true,
+    "runtime_apis": true,
+    "source_identity": true,
+    "settle_setup": true,
+    "read_artifacts": true,
+    "process_fact": true,
+    "check_tree": true,
+    "Fixture.identity": true,
+    "Fixture.inspect": true,
+    "Fixture.quiescent": true,
+    "Fixture.reply": true,
+    "Fixture.command": true,
+    "Fixture.detach": true,
+    "Fixture.attach": true,
+    "Fixture.consume": true,
+    "Fixture.shutdown": true,
+    "Fixture.finish": true
+  },
+  "supervisor_ast_preservation": {
+    "argv": true,
+    "Lines": true,
+    "result_projection": true,
+    "Supervisor.identity": true,
+    "Supervisor.send": true,
+    "Supervisor.turn": true,
+    "Supervisor.command": true,
+    "Supervisor.close": true,
+    "main": true
+  },
+  "constructor_defect_reproduced_in_both_candidates": true
+}

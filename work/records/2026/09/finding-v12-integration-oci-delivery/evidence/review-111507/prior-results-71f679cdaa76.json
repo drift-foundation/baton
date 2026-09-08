@@ -1,0 +1,196 @@
+{
+  "target_mode_755": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.merge",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run"
+    ],
+    "run_calls": 1,
+    "target_mode": "0o755",
+    "result_mode": "0o2770"
+  },
+  "late_result_mode": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.merge",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run"
+    ],
+    "run_calls": 1,
+    "target_mode": "0o2775",
+    "result_mode": "0o777"
+  },
+  "foreign_participant": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.foreign",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run"
+    ],
+    "run_calls": 1,
+    "target_mode": "0o2775",
+    "result_mode": "0o2770"
+  },
+  "workspace_equals_target": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.merge",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run"
+    ],
+    "run_calls": 1,
+    "target_mode": "0o2770",
+    "result_mode": "0o2770",
+    "target_binds": [
+      [
+        "/tmp/v12-integration-q1o2xrqs/canonical-target",
+        "/output",
+        true
+      ],
+      [
+        "/tmp/v12-integration-q1o2xrqs/canonical-target",
+        "/target",
+        true
+      ]
+    ]
+  },
+  "missing_observed_mounts": {
+    "accepted": true,
+    "answer": {
+      "runtime_id": "runtime-1",
+      "labels": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+        "work_id": "2b077949-W4",
+        "participant": "baton.merge",
+        "generation": 1,
+        "principal": "principal:org-a",
+        "effective_scope": "scope:deployment",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "adapter_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    "engine_operations": [
+      "ps",
+      "run"
+    ],
+    "run_calls": 1,
+    "target_mode": "0o2775",
+    "result_mode": "0o2770",
+    "observation": {
+      "state": "running",
+      "why": "the engine reports it running",
+      "mounts": [],
+      "candidates": [
+        {
+          "runtime_id": "runtime-1",
+          "state": "running",
+          "why": "the engine reports it running"
+        }
+      ]
+    },
+    "optional_helper": {
+      "runtime_id": "runtime-1",
+      "state": "running",
+      "agrees": false,
+      "why": "the live runtime carries 0 binds at '/run/baton/integration/assignment'; exact agreement is one",
+      "mounts": []
+    }
+  },
+  "reconstruct_after_block": {
+    "reconstructed": false,
+    "reason": "target 'target:mainline' is not open at fence 1; the grant this caller holds has been superseded or the target is blocked",
+    "old_boundary_still_available_only_in_old_process": "attempt-1"
+  },
+  "reconstruct_missing_binding": {
+    "reconstructed": true,
+    "missing_binding_recreated": true,
+    "same_bytes": true
+  },
+  "observed_ancestor_shadow": {
+    "disagreement": null
+  },
+  "nominal_boundary_is_shallow_frozen": {
+    "nested_mutations_accepted": true,
+    "mounts": [
+      [
+        "/tmp/v12-integration-ys9zgjdv/launch/integration/assignment",
+        "/run/baton/integration/assignment",
+        false
+      ],
+      [
+        "/tmp/v12-integration-ys9zgjdv/launch/integration/result",
+        "/run/baton/integration/result",
+        true
+      ],
+      [
+        "/tmp/v12-integration-ys9zgjdv/canonical-target",
+        "/target",
+        false
+      ]
+    ],
+    "participant": "baton.foreign"
+  },
+  "writable_published_assignment": {
+    "composed": true,
+    "assignment_mode": "0o666"
+  }
+}

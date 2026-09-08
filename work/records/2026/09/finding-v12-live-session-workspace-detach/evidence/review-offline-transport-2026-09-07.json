@@ -1,0 +1,29 @@
+{
+  "work": "W106673",
+  "claim": 107622,
+  "observed_at": "2026-09-07T05:07:12.555128+00:00",
+  "retained_root": "/tmp/baton-w106673-session-preflight-u6nurmlz",
+  "sha256": {
+    "result.json": "c11f75096a5ee9d2335210024b93ac26de0b30955e5af692c00204dc58fe4de4",
+    "registration.json": "4b31fae9677ff8240e0d5514beba8972661597c1eea6ef65068626c66e537b62",
+    "probe.py": "a3e50fe42f7fd191df01b407b4fb05bebe93ca5e9a59c0c7fa48f97d920393fa"
+  },
+  "result_matches_owner_export": true,
+  "registration_matches_owner_export": true,
+  "eight_candidate_hashes_match": true,
+  "container_identity_matches": true,
+  "flags_checked": 14,
+  "missing_help_flags": [
+    "--max-turns"
+  ],
+  "unexercised_flags": [
+    "--resume",
+    "--session-id",
+    "--max-turns",
+    "--max-budget-usd",
+    "--model",
+    "--dangerously-skip-permissions"
+  ],
+  "initialization_ns": 204277488,
+  "outcome": "offline initializer evidence accepted; real session remains unproved"
+}

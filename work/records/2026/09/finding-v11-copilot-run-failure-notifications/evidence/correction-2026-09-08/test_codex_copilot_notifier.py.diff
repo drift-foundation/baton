@@ -1,0 +1,138 @@
+--- review-114371/tools/test_codex_copilot_notifier.py
++++ candidate/tools/test_codex_copilot_notifier.py
+@@ -327,6 +327,135 @@
+                         notifier.poll(self.config, {}, read, self.request)
+                     self.assertEqual(self.events(), [])
+ 
++    def expire_runtime(self, **changes):
++        self.add_runtime(**dict(state="unknown", provenance="derived", stale=True, cause=None, since="2026-09-07T22:38:00Z", **changes))
++
++    def test_accepted_failure_survives_expiry_reload_and_identical_renewal(self):
++        self.add_runtime()
++        state, _ = self.poll()
++        accepted = copy.deepcopy(state)
++        self.expire_runtime()
++        state, result = self.poll(state)
++        self.assertEqual(result, {"status": "unchanged", "attention": 0})
++        self.assertEqual(state, accepted)
++        self.add_runtime(last_contact="2026-09-07T22:39:00Z")
++        # Even an accepting transport past its dedup window must receive no retry.
++        state, result = self.poll(json.loads(json.dumps(state)))
++        self.assertEqual(result["status"], "unchanged")
++        self.assertEqual(len(self.events()), 1)
++
++    def test_unrelated_delivery_during_expiry_preserves_accepted_failure(self):
++        self.add_runtime()
++        state, _ = self.poll()
++        accepted_runtime = state["seen"]["runtime:baton.claude"]
++        self.expire_runtime()
++        self.rows = [dict(id="a-W2", last_change_seq=7)]
++        state, result = self.poll(state)
++        self.assertEqual(result["status"], "accepted")
++        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["work:a-W2"])
++        self.assertEqual(state["seen"]["runtime:baton.claude"], accepted_runtime)
++        self.add_runtime()
++        self.assertEqual(self.poll(state)[1]["status"], "unchanged")
++        self.assertEqual(len(self.events()), 2)
++
++    def test_paired_expiry_dismissal_renewal_and_new_incident(self):
++        self.add_runtime()
++        self.incidents = [self.incident]
++        state, _ = self.poll()
++        accepted_pair = copy.deepcopy(state["paired"])
++        self.expire_runtime()
++        self.incidents = []
++        self.rows = [dict(id="a-W2", last_change_seq=7)]
++        state, result = self.poll(state)
++        self.assertEqual(result["status"], "accepted")
++        self.assertNotIn("incident:36", state["seen"])
++        self.assertEqual(state["paired"], accepted_pair)
++        self.add_runtime()
++        state, result = self.poll(json.loads(json.dumps(state)))
++        self.assertEqual(result["status"], "unchanged")
++        self.assertEqual(len(self.events()), 2)
++        self.incidents = [{**self.incident, "incident": 37, "first_ts": "2026-09-07T22:40:00Z"}]
++        state, result = self.poll(state)
++        self.assertEqual(result["status"], "accepted")
++        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["incident:37"])
++
++    def test_expiry_never_acknowledges_rejected_or_busy_attention(self):
++        for delivery in ("rejected", "busy"):
++            for paired in (False, True):
++                with self.subTest(delivery=delivery, paired=paired):
++                    self.setUp()
++                    self.add_runtime()
++                    self.incidents = [self.incident] if paired else []
++                    self.response = {"accepted": delivery != "rejected"}
++                    self.status["targets"]["prompt"]["status"] = "active" if delivery == "busy" else "idle"
++                    state, _ = self.poll()
++                    self.assertEqual(state["seen"], {})
++                    self.expire_runtime()
++                    state, _ = self.poll(state)
++                    self.assertEqual(state["seen"], {})
++                    self.assertEqual(state["paired"], {})
++                    self.add_runtime()
++                    self.response = {"accepted": True}
++                    self.status["targets"]["prompt"]["status"] = "idle"
++                    state, result = self.poll(state)
++                    self.assertEqual(result["status"], "accepted")
++                    self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["incident:36" if paired else "runtime:baton.claude"])
++                    self.assertEqual(self.poll(state)[1]["status"], "unchanged")
++
++    def test_only_derived_expiry_preserves_memory_and_recovery_allows_failure(self):
++        for ending in ("reported-unknown", "working", "offline", "absent", "other-owner"):
++            with self.subTest(ending=ending):
++                self.setUp()
++                self.add_runtime()
++                self.incidents = [self.incident]
++                state, _ = self.poll()
++                self.expire_runtime()
++                state, _ = self.poll(state)
++                if ending == "absent":
++                    self.runtimes = []
++                elif ending == "other-owner":
++                    self.expire_runtime(action_owner="pc.slaw")
++                else:
++                    self.add_runtime(state="unknown" if ending == "reported-unknown" else ending, provenance="reported", stale=False)
++                state, result = self.poll(state)
++                self.assertEqual(result["status"], "unchanged")
++                self.assertNotIn("runtime:baton.claude", state["seen"])
++                self.assertEqual(state["paired"], {})
++                self.add_runtime(since="2026-09-07T22:40:00Z")
++                self.assertEqual(self.poll(state)[1]["status"], "accepted")
++
++    def test_stale_replacement_does_not_cover_its_failed_report(self):
++        self.add_runtime()
++        self.incidents = [self.incident]
++        state, _ = self.poll()
++        self.expire_runtime(incarnation="lease-2")
++        state, result = self.poll(state)
++        self.assertEqual(result["status"], "unchanged")
++        self.add_runtime(incarnation="lease-2")
++        state, result = self.poll(state)
++        self.assertEqual(result["status"], "accepted")
++        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["runtime:baton.claude"])
++        self.assertEqual(state["paired"], {})
++
++    def test_first_observed_expiry_is_not_attention_or_acceptance(self):
++        self.expire_runtime()
++        state, result = self.poll()
++        self.assertEqual(result, {"status": "unchanged", "attention": 0})
++        self.assertEqual(state["seen"], {})
++        self.assertEqual(state["paired"], {})
++        self.assertEqual(self.events(), [])
++        self.add_runtime()
++        self.assertEqual(self.poll(state)[1]["status"], "accepted")
++
++    def test_new_failure_transition_after_expiry_notifies(self):
++        self.add_runtime()
++        state, _ = self.poll()
++        self.expire_runtime()
++        state, _ = self.poll(state)
++        self.add_runtime(since="2026-09-07T22:40:00Z")
++        self.assertEqual(self.poll(state)[1]["status"], "accepted")
++        self.assertNotEqual(self.events()[0]["id"], self.events()[1]["id"])
++
+ 
+ if __name__ == "__main__":
+     unittest.main()

@@ -1,0 +1,23 @@
+--- review114618/v12/worker/integration_contract.py
++++ review114869/v12/worker/integration_contract.py
+@@ -903,6 +903,20 @@
+             or review["result_digest"] != frozen.get("review_result_digest"):
+         _refuse("the authority review names another frozen result than the "
+                 "one this bundle carries")
++    # AND THE RETAINED RESULT IS THE ONE ITS OWN DIGEST NAMES. Review
++    # 2026-09-08T00:20:14Z [P1]: the artifacts below were trusted because the
++    # two declared copies of the result identity agreed, and BOTH copies
++    # travel in this bundle -- so a reviewer's collected output could be
++    # rewritten with its matching artifact row, or every output removed
++    # outright, while the original result id and digest were kept and the
++    # reader returned the invented text. A digest that is never recomputed is
++    # a claim about the evidence rather than a measurement of it. The frozen
++    # owner takes exactly this comparison before it trusts the same document
++    # (`worker_manager/review_cycles.py`, `checkpoint_verdict`).
++    if canonical_digest(frozen["review_result"]) \
++            != frozen["review_result_digest"]:
++        _refuse("the frozen review result is not the result its own digest "
++                "names")
+     artifacts = frozen["review_result"].get("artifacts")
+     if type(artifacts) is not list:
+         _refuse("the frozen review projection names no collected outputs")

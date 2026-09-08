@@ -1,0 +1,135 @@
+{
+  "current_candidate": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377",
+      "matches_accepted": true
+    },
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": {
+      "sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+      "matches_accepted": true
+    },
+    "v12/python/src/baton_v12/worker_manager/oci.py": {
+      "sha256": "b3940f22ad19a04eb96cdf1f50573877d95182b2e038610b68d2c7be16f43d18",
+      "matches_accepted": false
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "fcac6d17e146bf2d89725562addb62e7d8ea5c6d1dccb2bd79f4bb29dd04d610",
+      "matches_accepted": false
+    },
+    "v12/python/tests/manager/test_review_cycles.py": {
+      "sha256": "5e24cc14c4fe134f23664229dda84736954d72b3f21dc1ebd2aae666fce961de",
+      "matches_accepted": true
+    },
+    "v12/python/tests/manager/test_workspaces.py": {
+      "sha256": "8874973c44e83f1ccbf0c1a19fc3ac1953f220c9312d551ca0e9fe63175935d5",
+      "matches_accepted": true
+    },
+    "v12/python/tests/manager/test_oci.py": {
+      "sha256": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+      "matches_accepted": true
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "sha256": "65b9e9fef04d30f36a16070fea8096f4ee19f4caef56b4132832881703a15f4a",
+      "matches_accepted": false
+    }
+  },
+  "retained_candidate": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377",
+      "matches_accepted": true
+    },
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": {
+      "sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+      "matches_accepted": true
+    },
+    "v12/python/src/baton_v12/worker_manager/oci.py": {
+      "sha256": "101a2c1754cfb2ea7fc6e08783a902c4e944b33ed7b0189130aaf8c6ff79f566",
+      "matches_accepted": true
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1",
+      "matches_accepted": true
+    },
+    "v12/python/tests/manager/test_review_cycles.py": {
+      "sha256": "5e24cc14c4fe134f23664229dda84736954d72b3f21dc1ebd2aae666fce961de",
+      "matches_accepted": true
+    },
+    "v12/python/tests/manager/test_workspaces.py": {
+      "sha256": "8874973c44e83f1ccbf0c1a19fc3ac1953f220c9312d551ca0e9fe63175935d5",
+      "matches_accepted": true
+    },
+    "v12/python/tests/manager/test_oci.py": {
+      "sha256": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+      "matches_accepted": true
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "sha256": "2b759a9ad7ec3bb9042c4f137b36c68035c18be8e9d948caae40cf470526a1df",
+      "matches_accepted": true
+    }
+  },
+  "runtime_evidence": {
+    "fixture_sha256": "20981569e64054222404b4765d3114c4dbb7630c02aa70e81ac7ee0ec06ae2d7",
+    "matches_final_review": true,
+    "module_call_names": [
+      "GitCheckpointProfile",
+      "OciAdapter",
+      "Path",
+      "StableLineLifecycle",
+      "addCleanup",
+      "append",
+      "assertEqual",
+      "assertFalse",
+      "assertIn",
+      "assertIsNotNone",
+      "assertNotEqual",
+      "assertRegex",
+      "assertTrue",
+      "assignment_of",
+      "assignment_workspace",
+      "audit_checkpoint",
+      "chmod",
+      "command",
+      "complete",
+      "composed_writer",
+      "create_line",
+      "dirname",
+      "exists",
+      "freeze",
+      "get",
+      "geteuid",
+      "head_of",
+      "items",
+      "join",
+      "labels",
+      "launched",
+      "loads",
+      "materialize",
+      "mkdir",
+      "nominate_source",
+      "prove_line_consumable",
+      "read_text",
+      "realpath",
+      "review",
+      "review_boundary",
+      "rstrip",
+      "run",
+      "setUp",
+      "skipTest",
+      "sorted",
+      "start",
+      "startswith",
+      "stat",
+      "str",
+      "strip",
+      "type",
+      "uuid4",
+      "verdict",
+      "why_it_ended",
+      "write_text",
+      "writer",
+      "writer_boundary"
+    ],
+    "custody_chain_call_names_present": [],
+    "note": "Static call inventory plus manual review of imported StableLineLifecycle.complete/freeze/verdict; not runtime tracing. Runtime checkpoint freeze differs from result sealing."
+  }
+}

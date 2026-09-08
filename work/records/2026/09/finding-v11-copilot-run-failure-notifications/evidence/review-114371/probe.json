@@ -1,0 +1,49 @@
+{
+  "stale_lease": {
+    "initial": {
+      "status": "accepted",
+      "changed": 1,
+      "event": "copilot:6cc940d044d1eb370cd6249bf7a24a1e8bd219f8c85f7aee0a867ba6bf782de6"
+    },
+    "expired": {
+      "status": "unchanged",
+      "attention": 0
+    },
+    "seen_after_expiry": {},
+    "same_failure_renewal": {
+      "status": "not-accepted",
+      "reason": "duplicate"
+    },
+    "same_failure_after_bridge_dedup_window": {
+      "status": "accepted",
+      "changed": 1,
+      "event": "copilot:6cc940d044d1eb370cd6249bf7a24a1e8bd219f8c85f7aee0a867ba6bf782de6"
+    },
+    "delivery_attempt_count": 3,
+    "all_attempts_same_event_id": true,
+    "locators": [
+      [
+        "runtime:baton.claude"
+      ],
+      [
+        "runtime:baton.claude"
+      ],
+      [
+        "runtime:baton.claude"
+      ]
+    ]
+  },
+  "reported_recovery_control": {
+    "recovery": {
+      "status": "unchanged",
+      "attention": 0
+    },
+    "new_failure": {
+      "status": "accepted",
+      "changed": 1,
+      "event": "copilot:bdc83149da60934780fdc9496e092631002e7ef723bdbb91350a7bda7e609211"
+    },
+    "distinct_ids": true
+  },
+  "transport": "in-process test seam models bridge duplicate refusal then acceptance after its finite dedup window; no real advisory sent"
+}

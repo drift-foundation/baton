@@ -1,0 +1,194 @@
+{
+  "freeze_reentry_to_admission": {
+    "before": [
+      "quiesce",
+      "observe",
+      "freeze"
+    ],
+    "after": [
+      "quiesce",
+      "observe",
+      "freeze",
+      "correlate",
+      "intake",
+      "retain",
+      "resolve",
+      "verdict",
+      "cleanup"
+    ],
+    "retained_frozen": {
+      "attempt_id": "public-review",
+      "result_id": "result-public-review",
+      "disposition": "completed",
+      "manifest_digest": "sha256:25f946b312667586cd6b8eaec11eb1781b28e6e663f85a60d0b8623dee590d80",
+      "freeze_operation_id": "output.freeze:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+      "frozen_at": "2026-09-02T00:00:00.000Z",
+      "artifacts": [
+        {
+          "output_name": "findings",
+          "artifact_id": "public-review:findings",
+          "media_type": "application/octet-stream",
+          "bytes": 135,
+          "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-s6l8pny1/storage/public-review/custody/findings"
+        },
+        {
+          "output_name": "logs",
+          "artifact_id": "public-review:logs",
+          "media_type": "application/octet-stream",
+          "bytes": 406,
+          "content_digest": "sha256:ce653b2d7785406d6a4515f842de4f14964257e03037c7ddacbc9ece4667e725",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-s6l8pny1/storage/public-review/custody/logs"
+        }
+      ]
+    },
+    "actual_commands": [
+      [
+        [
+          "python3",
+          "harness.py"
+        ],
+        0
+      ]
+    ],
+    "observation": {
+      "task_id": "w105575-private-line",
+      "task_digest": "sha256:481abbb7664a5c593cd7a067321d8c632670ab7b090d1a8ad840c2706d27c143",
+      "argv": [
+        "python3",
+        "harness.py"
+      ],
+      "status": 0,
+      "base": "38d33edbfdd7cbdba22b34bbda74f572e82a5968",
+      "head": "196b4e329987dd15587a125770eac012118179e7"
+    },
+    "required_tests": {
+      "task_id": "w105575-private-line",
+      "task_digest": "sha256:481abbb7664a5c593cd7a067321d8c632670ab7b090d1a8ad840c2706d27c143",
+      "argv": [
+        "python3",
+        "harness.py"
+      ],
+      "input_manifest_digest": "sha256:4ebe2b651be8c31a2bec3d559185d744811d321e95d890656bb4b500516fbb2e"
+    },
+    "admitted": {
+      "entry_id": "integration-driver.entry:19a41c8b136cae34cac87e966fcc718c9fb99b8437a1d5c5691294390364961a",
+      "canonical_target_id": "target:ordinary-admission",
+      "rank": 1,
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "assignment_generation": 1,
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+      "checkpoint_digest": "sha256:350b5a6da72680e5ddc48ccddcba9d07cfc594e504994963d416f7d09434eec4",
+      "proposal_id": "integration-driver.proposal:88240838e9113a6da5e495ffdcb28663c0f3f5d0e1fb4ba6480b643fd7eedbe1",
+      "candidate_digest": "196b4e329987dd15587a125770eac012118179e7",
+      "result_id": "result-public-writer",
+      "result_digest": "sha256:8e2ed8a14c67cc14a001b7025d213df9fa8a973eae10194fb50964c462b70dbc",
+      "profile_kind": "reference",
+      "expected_target_revision": "38d33edbfdd7cbdba22b34bbda74f572e82a5968",
+      "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+      "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28",
+      "state": "queued",
+      "enqueued_at": "2026-09-02T00:00:00.000Z",
+      "settled_at": null,
+      "settlement": null,
+      "eligibility": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "assignment_generation": 1,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+        "checkpoint_digest": "sha256:350b5a6da72680e5ddc48ccddcba9d07cfc594e504994963d416f7d09434eec4",
+        "proposal_id": "integration-driver.proposal:88240838e9113a6da5e495ffdcb28663c0f3f5d0e1fb4ba6480b643fd7eedbe1",
+        "candidate_digest": "196b4e329987dd15587a125770eac012118179e7",
+        "result_id": "result-public-writer",
+        "result_digest": "sha256:8e2ed8a14c67cc14a001b7025d213df9fa8a973eae10194fb50964c462b70dbc",
+        "profile_kind": "reference",
+        "expected_target_revision": "38d33edbfdd7cbdba22b34bbda74f572e82a5968",
+        "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+        "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28"
+      }
+    },
+    "authority_receipts": [
+      {
+        "receipt_id": "integration-driver.approval-receipt:c2bb237ffb477eea784e7f879baa89e6dd25d2a519b63f4791334640559e91a0",
+        "kind": "approval",
+        "proposal_id": "integration-driver.proposal:88240838e9113a6da5e495ffdcb28663c0f3f5d0e1fb4ba6480b643fd7eedbe1",
+        "actor": "baton.approve",
+        "disposition": "approved",
+        "candidate_digest": "196b4e329987dd15587a125770eac012118179e7",
+        "target": "38d33edbfdd7cbdba22b34bbda74f572e82a5968",
+        "policy_generation": 6,
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "decision": {
+          "endpoint": "baton.approve",
+          "principal": "principal:baton.approve",
+          "effective_scope": "scope:deployment",
+          "role": "approve",
+          "grant": "direct",
+          "policy_generation": 6
+        }
+      },
+      {
+        "receipt_id": "integration-driver.review-receipt:e3d3934673569f35c43a7e992af0faceb84d08def18646bb682a6d41666c9696",
+        "kind": "review",
+        "proposal_id": "integration-driver.proposal:88240838e9113a6da5e495ffdcb28663c0f3f5d0e1fb4ba6480b643fd7eedbe1",
+        "actor": "baton.review",
+        "disposition": "accepted",
+        "candidate_digest": "196b4e329987dd15587a125770eac012118179e7",
+        "target": "38d33edbfdd7cbdba22b34bbda74f572e82a5968",
+        "policy_generation": null,
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "decision": {
+          "endpoint": "baton.review",
+          "principal": "principal:baton.review",
+          "effective_scope": "scope:deployment",
+          "role": "review",
+          "grant": "direct",
+          "policy_generation": 6
+        }
+      },
+      {
+        "receipt_id": "integration-driver.ordinary-tests-verification-receipt:69ef766d110452cff4bd2a27f4a9c89edd0604b14a7660f9d495cb620c1c5a9c",
+        "kind": "verification",
+        "proposal_id": "integration-driver.proposal:88240838e9113a6da5e495ffdcb28663c0f3f5d0e1fb4ba6480b643fd7eedbe1",
+        "actor": "baton.verify",
+        "disposition": "passed",
+        "candidate_digest": "196b4e329987dd15587a125770eac012118179e7",
+        "target": "38d33edbfdd7cbdba22b34bbda74f572e82a5968",
+        "policy_generation": null,
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "decision": {
+          "endpoint": "baton.verify",
+          "principal": "principal:baton.verify",
+          "effective_scope": "scope:deployment",
+          "role": "verify",
+          "grant": "direct",
+          "policy_generation": 6
+        }
+      }
+    ],
+    "exact_replays": 2,
+    "authority_operation_records_unchanged": true,
+    "manager_and_coordinator_writes_on_replay": 0,
+    "review_turns": 1,
+    "writer_destroy_calls": 1,
+    "review_destroy_calls": 1
+  },
+  "missing_cleanup_before_admission": {
+    "removed_fixture_operation": "runtime.destroy:ca757d8e1558ea3bc4a5c26cd613848214145126d83d5fd788bbe06101a6835b",
+    "reasons": [
+      "historical review has no committed positive cleanup",
+      "historical review has no committed positive cleanup"
+    ],
+    "authority_receipt_calls": [],
+    "execution_entries": [],
+    "manager_and_coordinator_writes": 0,
+    "attempts": 2
+  },
+  "candidate_hashes_unchanged": 13,
+  "boundary": "Real durable admission; deterministic transport/profile fixtures; no integration execution."
+}

@@ -1,0 +1,307 @@
+--- baseline/v12/python/src/baton_v12/integration/driver.py
++++ candidate/v12/python/src/baton_v12/integration/driver.py
+@@ -20,7 +20,9 @@
+ from ..worker_manager.attempts import assignment_of
+ from ..worker_manager.manifests import load_manifest, retain_manifest
+ from ..worker_manager.output import frozen_output_of
+-from ..worker_manager.review_cycles import integration_checkpoint
++from ..worker_manager.review_cycles import (checkpoint_of,
++                                            integration_checkpoint,
++                                            writer_of)
+ from . import admission, execution, recovery, runtime
+ from .admission import admit_candidate, resolved_account
+ from .queue import entries_of, lease_of, live_grant, target_of
+@@ -462,8 +464,237 @@
+     return _authority(getattr(session, verb), f"the {kind} receipt", operands)
+ 
+ 
++
++# -- W112029: the ordinary-test observation, and what it may authorize --------
++#
++# `work/records/2026/09/finding-v12-ordinary-test-admission/`.
++#
++# WHAT WAS WRONG, AND IT WAS ONE WORD. `_accepted_receipts` published the
++# Authority's verification receipt with `observation="passed"` unconditionally,
++# for every accepted checkpoint, whatever any test had done. An accepted
++# TECHNICAL REVIEW is a human-or-model judgement about a change; it is not a
++# statement that the required commands ran and exited zero, and publishing one
++# as the other made the strongest receipt in the protocol the least evidenced.
++#
++# WHAT REPLACES IT IS NOT A NEW PRODUCER. Owner ruling M111752: this milestone's
++# verification is the implementer running the ordinary required tests plus an
++# independent review. The worker ALREADY runs the frozen task's own verification
++# argv, and W112029's worker half exposes that same answer on the frozen
++# proposal output. So this reads an observation somebody already made rather
++# than commissioning one, and it says so in the receipt's own identity.
++#
++# AND IT IS HONEST ABOUT WHAT IT IS. This is author-container testing plus
++# independent review. It is NOT clean candidate-merge certification, no part of
++# it claims to be, and the ordinary-tests marker in the operation identity is
++# there so a later reader cannot mistake one for the other.
++
++ORDINARY_TESTS_NAMESPACE = "baton.git-ordinary-tests/1"
++ORDINARY_TESTS_MEMBERS = ("argv", "base", "head", "status", "task_digest",
++                          "task_id")
++
++# WHAT A DEPLOYMENT SUPPLIES AS ITS REQUIREMENT, and every member of it is a
++# SELECTION rather than an answer. There is no `status` here and there never
++# will be: a caller that could supply the observation would be certifying its
++# own candidate, which is the exact defect the unconditional `passed` was.
++REQUIRED_TESTS_MEMBERS = ("argv", "input_manifest_digest", "task_digest",
++                          "task_id")
++
++# The marker that rides in the receipt and operation identity. Deliberately not
++# a word like `verified` or `certified`: what happened is that the author's own
++# container ran the required command.
++ORDINARY_TESTS_WORKFLOW = "ordinary-tests/1"
++
++
++def _owned_requirements(required_tests):
++    """The deployment's closed required-test selection.
++
++    W103083 derives this from the implementation task bytes it already holds
++    for this Job's producer, including correction attempts. It is trusted
++    configuration in exactly the sense the integration profile is: this module
++    proves the OBSERVATION against it and never the other way round.
++    """
++    held = boundaries.document(required_tests, "a required-test selection",
++                               required=REQUIRED_TESTS_MEMBERS)
++    boundaries.identity(held["task_id"], "a required-test task id")
++    boundaries.text(held["task_digest"], "a required-test task digest")
++    boundaries.text(held["input_manifest_digest"],
++                    "a required-test input manifest digest")
++    argv = held["argv"]
++    if type(argv) is not list or not argv \
++            or not all(type(one) is str and one for one in argv):
++        _refuse("a required-test selection names its command as a non-empty "
++                "list of words; a command this module would have to assemble "
++                "from a string is a shell, and there is no shell here")
++    return held
++
++
++def _observation_of(output):
++    """The worker's own ordinary-test observation, adopted and never extended.
++
++    ADOPTED AS A CLOSED DOCUMENT, for `_claim_of`'s reason: the members this
++    reader would be tempted to accept are exactly the ones it must read from
++    their owners. There is no `passed` in it and no boolean; a status is what
++    the worker's `wait` answered, and deciding about it is this module's job.
++    """
++    metadata = output["result_metadata"]
++    if type(metadata) is not dict \
++            or ORDINARY_TESTS_NAMESPACE not in metadata:
++        _refuse(f"the frozen proposal output carries no "
++                f"{name_value(ORDINARY_TESTS_NAMESPACE)} observation; what the "
++                f"required tests did is the producer's own fact and this "
++                f"module will not assume it", category="refused",
++                code="precondition")
++    held = boundaries.document(metadata[ORDINARY_TESTS_NAMESPACE],
++                               "a worker ordinary-test observation",
++                               required=ORDINARY_TESTS_MEMBERS)
++    boundaries.identity(held["task_id"], "an observed task id")
++    boundaries.text(held["task_digest"], "an observed task digest")
++    for member in ("base", "head"):
++        boundaries.text(held[member], f"an observed {member} object")
++    argv = held["argv"]
++    if type(argv) is not list or not argv \
++            or not all(type(one) is str and one for one in argv):
++        _refuse("an ordinary-test observation names its command as a "
++                "non-empty list of words")
++    status = held["status"]
++    # UNRUN IS `None` AND IS NOT A FAILURE TO PARSE. The worker writes null
++    # when the command did not produce a status at all -- skipped, timed out,
++    # or unable to start -- and all three are "no evidence", which is a
++    # different refusal from "evidence of a non-zero exit".
++    if status is not None \
++            and (type(status) is bool or type(status) is not int):
++        _refuse("an ordinary-test observation's status is a whole number or "
++                "null")
++    return held
++
++
++def ordinary_test_evidence(manager, authority, *, line_id, proposal_id):
++    """The observation an accepted checkpoint's own producer actually made.
++
++    PUBLIC AND READ-ONLY. It writes nothing and decides nothing: it resolves
++    the accepted checkpoint's producer, re-reads that attempt's frozen result
++    and retained manifest through their accepted owners, and answers the
++    worker's observation cross-bound to the proposal the Authority holds.
++
++    EVERY IDENTITY IS COMPARED THROUGH AN OWNER. The retained proposal manifest
++    names the result and the assignment; the frozen summary names the same
++    result; the published proposal names the same candidate and input and
++    policy digests; and the observation's own base and head are the ones the
++    proposal manifest recorded. A consumer that skipped any of these would be
++    reading SOME container's test result rather than this candidate's.
++
++    IT SURVIVES ORDINARY CLEANUP, which is the property that makes it usable at
++    admission: every fact above comes from a retained manifest or a durable
++    row, and none from a runtime, a workspace or an output directory that
++    cleanup removes.
++    """
++    accepted = integration_checkpoint(manager, line_id)
++    if accepted is None:
++        _refuse(f"development line {name_value(line_id)} has no accepted "
++                f"integration checkpoint", category="refused",
++                code="precondition")
++    writer = writer_of(
++        manager, checkpoint_of(
++            manager, accepted["checkpoint_id"])["writer_id"])
++    producer = writer["runtime_attempt_id"]
++    frozen = frozen_output_of(manager, producer)
++    if frozen is None or frozen["disposition"] != "completed":
++        _refuse(f"the accepted checkpoint's producer "
++                f"{name_value(producer)} has no completed frozen result",
++                category="refused", code="precondition")
++    result = _manifest(manager, frozen["manifest_digest"], "resultManifest",
++                       "result manifest")
++    if result["result_id"] != frozen["result_id"]:
++        _refuse("the frozen result summary and its retained manifest name "
++                "different results")
++    fixed = _assignment(manager, producer)
++    if result["assignment_ref"] != fixed:
++        _refuse("the frozen result and the producing attempt do not name one "
++                "assignment")
++    proposal = admission._proposal(authority, proposal_id)
++    if proposal["result_id"] != result["result_id"] \
++            or proposal["result_digest"] != frozen["manifest_digest"]:
++        _refuse("the published proposal and the producer's frozen result name "
++                "different results; the observation must be about the "
++                "candidate this admission is for")
++    if proposal["input_digest"] != result["input_manifest_digest"] \
++            or proposal["policy_digest"] != result["policy_digest"]:
++        _refuse("the published proposal and the frozen result name different "
++                "input or policy identities")
++    output = _one_output(result)
++    claim = _claim_of(output)
++    observed = _observation_of(output)
++    for member in ("base", "head"):
++        if observed[member] != claim[member]:
++            _refuse(f"the ordinary-test observation says it ran over {member} "
++                    f"{name_value(observed[member])} and the proposal claim "
++                    f"names {name_value(claim[member])}; an observation about "
++                    f"another candidate is not this one's evidence")
++    if _object_name(claim["head"],
++                    "the worker's proposal head")["hex"] \
++            != proposal["candidate_digest"]:
++        _refuse("the proposal claim's head and the published candidate digest "
++                "disagree")
++    if accepted["head"] != claim["head"]:
++        _refuse(f"the accepted checkpoint records head "
++                f"{name_value(accepted['head'])} and the producer's proposal "
++                f"claims {name_value(claim['head'])}")
++    return {"attempt_id": producer, "checkpoint_id": accepted["checkpoint_id"],
++            "assignment_ref": fixed,
++            "input_manifest_digest": result["input_manifest_digest"],
++            "result_id": result["result_id"],
++            "result_digest": frozen["manifest_digest"],
++            "observation": observed}
++
++
++def _ordinary_tests_passed(evidence, requirements):
++    """Whether these EXACT requirements actually ran and exited zero.
++
++    THE ONLY ROUTE TO A `passed` RECEIPT, and every clause is a way an
++    observation can be about something else: another task, another version of
++    the same task, another command, or another attempt's inputs. A status of
++    zero for a command nobody required proves nothing about the requirement.
++
++    A NON-ZERO STATUS AND AN UNRUN COMMAND ARE BOTH REFUSALS AND ARE NOT THE
++    SAME ONE. The first is evidence that the required tests failed; the second
++    is the absence of evidence. Neither may be admitted, and reporting one as
++    the other would tell an operator to look in the wrong place.
++    """
++    held = _owned_requirements(requirements)
++    observed = evidence["observation"]
++    for member in ("task_id", "task_digest"):
++        if observed[member] != held[member]:
++            _refuse(f"the required tests name {member} "
++                    f"{name_value(held[member])} and this producer observed "
++                    f"{name_value(observed[member])}; an observation of "
++                    f"another task is not evidence about this requirement",
++                    category="refused", code="precondition")
++    if list(observed["argv"]) != list(held["argv"]):
++        _refuse(f"the required tests name the command "
++                f"{name_value(' '.join(held['argv']))} and this producer "
++                f"observed {name_value(' '.join(observed['argv']))}",
++                category="refused", code="precondition")
++    if evidence["input_manifest_digest"] != held["input_manifest_digest"]:
++        _refuse("the required tests were selected for another attempt's input "
++                "manifest", category="refused", code="precondition")
++    if observed["status"] is None:
++        _refuse(f"the required tests for task "
++                f"{name_value(held['task_id'])} did not run in this "
++                f"producer's container, so nothing about them is proved; an "
++                f"accepted technical review is not a substitute",
++                category="refused", code="precondition")
++    if observed["status"] != 0:
++        _refuse(f"the required tests for task {name_value(held['task_id'])} "
++                f"exited {observed['status']} in this producer's container; a "
++                f"failing required command is not admitted and an accepted "
++                f"technical review is not a substitute", category="policy",
++                code="denied")
++    return held
++
++
+ def _accepted_receipts(manager, authority, verification, reviewer, approver,
+-                       *, line_id, proposal_id, policy_generation):
++                       *, line_id, proposal_id, policy_generation,
++                       required_tests):
+     _capability(authority, "proposal", "the Authority")
+     _capability(authority, "policy_generation", "the Authority")
+     for session, kind, verb in ((verification, "verification", "verify"),
+@@ -493,6 +724,18 @@
+                 "integration checkpoint", category="refused",
+                 code="precondition")
+     proposal = admission._proposal(authority, proposal_id)
++    # THE EVIDENCE IS PROVED BEFORE ANY RECEIPT SIDE EFFECT. Nothing below this
++    # line is reached by a candidate whose required tests failed, did not run,
++    # or were somebody else's -- so a refusal here writes no verification,
++    # review or approval receipt and admits nothing.
++    evidence = ordinary_test_evidence(manager, authority, line_id=line_id,
++                                      proposal_id=proposal_id)
++    requirements = _ordinary_tests_passed(evidence, required_tests)
++    witness = {"workflow": ORDINARY_TESTS_WORKFLOW,
++               "ordinary_tests": digest(evidence["observation"]),
++               "required_tests": digest(requirements),
++               "producer_attempt_id": evidence["attempt_id"],
++               "result_digest": evidence["result_digest"]}
+     basis = {"proposal_id": proposal_id,
+              "candidate_digest": proposal["candidate_digest"],
+              "target": proposal["target"],
+@@ -500,8 +743,16 @@
+              "checkpoint_id": accepted["checkpoint_id"],
+              "verdict_id": accepted["verdict_id"],
+              "checkpoint_digest": accepted["checkpoint_digest"]}
++    # W112029: THE VERIFICATION RECEIPT IS EVIDENCE-DRIVEN. `observation` was
++    # the literal `passed` for every accepted checkpoint; it is now published
++    # only after `_ordinary_tests_passed` has proved an actual status-zero run
++    # of the EXACT required command by this candidate's own producer, and the
++    # receipt and operation identities carry the observation and requirement
++    # digests plus an ordinary-tests marker so the receipt says what kind of
++    # evidence it rests on.
+     answers = {
+-        "verification": _receipt(verification, "verification", basis,
++        "verification": _receipt(verification, "verification",
++                                 dict(basis, **witness),
+                                  observation="passed"),
+         "review": _receipt(reviewer, "review", basis,
+                            disposition="accepted"),
+@@ -647,7 +898,7 @@
+ def admit_accepted(store, manager, jobs, authority, verification, reviewer,
+                    approver, integrator, port, *, canonical_target_id,
+                    line_id, proposal_id, policy_generation, profile,
+-                   attempt_id, launch_root, workspace_group):
++                   attempt_id, launch_root, workspace_group, required_tests):
+     """Write accepted receipts and drive or adopt one serialized integration.
+ 
+     No identity or fence is accepted from the caller.  Entry and lease
+@@ -679,7 +930,7 @@
+     accepted, proposal, receipts = _accepted_receipts(
+         manager, authority, verification, reviewer, approver,
+         line_id=line_id, proposal_id=proposal_id,
+-        policy_generation=policy_generation)
++        policy_generation=policy_generation, required_tests=required_tests)
+ 
+     account = resolved_account(manager, jobs, authority, line_id=line_id,
+                                proposal_id=proposal_id)

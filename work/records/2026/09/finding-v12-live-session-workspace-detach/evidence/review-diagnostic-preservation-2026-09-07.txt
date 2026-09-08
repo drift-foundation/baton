@@ -1,0 +1,4 @@
+All seven diagnostic artifact hashes match; both new scripts parse.
+All six original preparation artifacts unchanged.
+All three readable retained-run files match input audit.
+Original LocalTests, initialize/container checks, six runtime constants and create/stop calls are AST-identical.

@@ -1,0 +1,77 @@
+{
+  "claim": 115739,
+  "at": "2026-09-08T03:17:23.577363+00:00",
+  "candidate": {
+    "v12/python/tools/integration_worker.py": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796",
+    "v12/python/tests/tools/test_integration_worker.py": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+    "v12/python/tools/parallel_test.py": "61d0e0a1482a059c390fe356b5b14f1821aedbbcdec48ffc7624baf621a852d5",
+    "v12/python/src/baton_v12/integration/driver.py": "c1f55d7b8416ce29bd3024ead709852145c1d885af4bba3e5c47a498abcfd887",
+    "v12/python/src/baton_v12/integration/__init__.py": "523bbdb2da06f6b170debcfe270bee9867ba55791b5f551be4bdca604ce44d9e",
+    "v12/python/tests/integration/test_driver.py": "cbf89cb694249f89622789334ed0fd3b32dfe4a241ee030c9896993949d9d955"
+  },
+  "tests": {
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "before": 37,
+      "after": 40,
+      "removed": [],
+      "added": [
+        "ThePreparationUsesTheManagersOwnOwners.test_a_replayed_preparation_reuses_the_exact_prepared_credential",
+        "TheWholeIntegrationRunsThroughThisPort.test_a_failed_witness_read_during_refresh_revokes_the_marker",
+        "TheWholeIntegrationRunsThroughThisPort.test_a_preparation_after_a_start_refuses_and_keeps_its_custody"
+      ],
+      "changed": []
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "before": 83,
+      "after": 83,
+      "removed": [],
+      "added": [],
+      "changed": []
+    }
+  },
+  "accepted_providers_match_excluding_shared_registry": {
+    "v12/python/src/baton_v12/integration/oci_delivery.py": true,
+    "v12/python/src/baton_v12/integration/runtime.py": true,
+    "v12/python/src/baton_v12/worker_manager/oci.py": true,
+    "v12/python/tests/integration/test_runtime.py": true,
+    "v12/python/tests/manager/test_dependencies.py": true,
+    "v12/python/tests/manager/test_oci_integration.py": true,
+    "v12/worker/integration_workload.py": true,
+    "v12/worker/integration_entry.py": true,
+    "v12/python/tests/manager/test_integration_worker.py": true,
+    "v12/worker/Dockerfile.integration": true,
+    "v12/python/tests/manager/test_integration_image.py": true,
+    "v12/worker/claude_agent.py": true,
+    "v12/worker/integration_contract.py": true,
+    "v12/python/tools/integration_bundle.py": true,
+    "v12/python/tests/tools/test_integration_bundle.py": true
+  },
+  "gate_sha256": "e84d6560d90d7724d93d4d18e2bf91a5ad968e2e80a68bc336f5c90f32f4d968",
+  "gate_tail": [
+    "----------------------------------------------------------------------",
+    "Ran 5082 tests in 302.870s",
+    "",
+    "FAILED (failures=11, errors=1, skipped=21)"
+  ],
+  "probes": {
+    "same_process_running_reprepare": {
+      "succeeded": true
+    },
+    "fresh_process_running_reprepare": {
+      "succeeded": false,
+      "exception": "ContractRefusal",
+      "message": "attempt 'integrator-attempt''s runtime is 'running' and this execution prepared no credential for it; preparation mints a bearer only for an attempt whose runtime has not started, and the custody of a runtime this process did not start is not this process's to discard"
+    },
+    "discard_calls": 0,
+    "additional_provider_calls": 0,
+    "credential_record_preserved": true,
+    "runtime": "running",
+    "witness_failure": {
+      "succeeded": false,
+      "exception": "ContractRefusal",
+      "message": "review witness read unavailable"
+    },
+    "marker_after_failure": false
+  },
+  "limits": "No suite or live deployment; unchanged whole-path and release-tail evidence is reused from earlier reviews."
+}

@@ -1,0 +1,197 @@
+--- review114618/v12/python/tests/tools/test_integration_bundle.py
++++ review114869/v12/python/tests/tools/test_integration_bundle.py
+@@ -597,13 +597,32 @@
+                 "work_id": self.WORK, "scope_digest": digest(list(scope)),
+                 "test_scope": list(scope)}
+ 
++    @staticmethod
++    def frozen_result(review):
++        """The retained result the frozen owner digested, artifacts and all.
++
++        ONE SPELLING FOR BOTH HALVES: the account's `result_digest` and
++        `review.json`'s `review_result_digest` are the identity of THIS
++        document, so a fixture that composes it once cannot drift from itself.
++        """
++        return {"result_id": review["result_id"],
++                "artifacts": [{"output_name": one["output_name"],
++                               "content_digest": one["tree_digest"],
++                               "bytes": one["bytes"]}
++                              for one in review["documents"]]}
++
+     def review_account(self, documents=()):
+-        return {"verdict_id": "v-1", "attachment_id": "a-1",
++        # W114085 review 2026-09-08T00:20:14Z [P1]: the result digest here was
++        # the literal `sha256:555...`, an identity that measures NOTHING -- so
++        # the positive read-back could not have noticed that the reader never
++        # recomputed it. It is now the actual digest of the result this
++        # fixture retains, taken with the frozen owner's own canonical form.
++        held = {"verdict_id": "v-1", "attachment_id": "a-1",
+                 "disposition": "accepted",
+                 "reviewer_participant": "baton.review",
+                 "result_id": "r-1",
+-                "result_digest": "sha256:" + "5" * 64,
+                 "documents": list(documents)}
++        return dict(held, result_digest=digest(self.frozen_result(held)))
+ 
+     def authority(self, **changed):
+         held = {"schema": contract.AUTHORITY_SCHEMA,
+@@ -629,12 +648,7 @@
+                 "disposition": review["disposition"],
+                 "reviewer_participant": review["reviewer_participant"],
+                 "review_result_digest": review["result_digest"],
+-                "review_result": {
+-                    "result_id": review["result_id"],
+-                    "artifacts": [{"output_name": one["output_name"],
+-                                   "content_digest": one["tree_digest"],
+-                                   "bytes": one["bytes"]}
+-                                  for one in review["documents"]]}}}
++                "review_result": self.frozen_result(review)}}
+ 
+     @staticmethod
+     def measured(files):
+@@ -1951,6 +1965,145 @@
+         self.assertFalse(os.path.exists(self.destination))
+ 
+ 
++    # -- the frozen result's own identity, recomputed ----------------------
++    #
++    # W114085 review 2026-09-08T00:20:14Z [P1]: the account's artifacts were
++    # trusted because the two declared copies of the result identity agreed,
++    # and both of them travel inside the bundle. These are the reviewer's own
++    # `rewritten_output` and `removed_outputs` probes, built from real
++    # producer output and read by the real worker reader.
++
++    def derived(self, name, alter):
++        """A writable copy of one real published bundle, with `alter` applied.
++
++        A PUBLISHED BUNDLE IS READ-ONLY ON PURPOSE and is never made writable
++        here: this copies it file by file into a disposable directory, changes
++        the two documents the case is about, and rewrites their envelope
++        references so the copy is internally well formed. The tampering is
++        about the review's IDENTITY, and leaving an envelope checksum wrong
++        would make these cases about that instead.
++        """
++        from baton_v12.contracts.canonical import canonical_bytes
++
++        source = self.compose()["root"]
++        root = os.path.join(self.world.owner.root, name)
++        for base, _, names in os.walk(source):
++            held = os.path.join(root, os.path.relpath(base, source))
++            os.makedirs(held, exist_ok=True)
++            for one in sorted(names):
++                with open(os.path.join(base, one), "rb") as handle:
++                    payload = handle.read()
++                with open(os.path.join(held, one), "wb") as writer:
++                    writer.write(payload)
++
++        def document(relative):
++            with open(os.path.join(root, relative), "rb") as handle:
++                return json.loads(handle.read())
++
++        place = os.path.join(contract.EVIDENCE_DIRECTORY,
++                             contract.AUTHORITY_DOCUMENT)
++        authority = document(place)
++        review = document(os.path.join(contract.EVIDENCE_DIRECTORY,
++                                       "review.json"))
++        alter(authority, review)
++        envelope = document(contract.ENVELOPE_DOCUMENT)
++        for one, held in ((contract.AUTHORITY_DOCUMENT, authority),
++                          ("review.json", review)):
++            payload = canonical_bytes(held)
++            with open(os.path.join(root, contract.EVIDENCE_DIRECTORY, one),
++                      "wb") as writer:
++                writer.write(payload)
++            named = next(entry for entry in envelope["evidence"]
++                         if entry["name"] == one)
++            named.update(bytes=len(payload),
++                         digest=hashlib.sha256(payload).hexdigest())
++        with open(os.path.join(root, contract.ENVELOPE_DOCUMENT),
++                  "wb") as writer:
++            writer.write(canonical_bytes(envelope))
++        return root
++
++    def test_the_retained_result_measures_to_the_digest_it_declares(self):
++        """THE REAL-OWNER POSITIVE, and the conformance underneath it.
++
++        An untouched bundle reads back, its retained result measures to the
++        identity it declares, and the worker's own canonical form answers what
++        the frozen owner's does -- which is what makes the two negatives below
++        about tampering rather than about two spellings of one digest.
++        """
++        answer = self.compose()
++        review = contract.read_bundle(answer["root"])["evidence"]["review.json"]
++        self.assertEqual(digest(review["review_result"]),
++                         review["review_result_digest"])
++        self.assertEqual(contract.canonical_digest(review["review_result"]),
++                         review["review_result_digest"])
++        documents = self.account(answer)["review"]["documents"]
++        self.assertTrue(documents)
++        self.assertTrue(all(one["files"] for one in documents))
++
++    def test_a_rewritten_output_under_the_original_identity_refuses(self):
++        """THE REVIEWER'S `rewritten_output`: one collected reviewer file is
++        replaced, its own checksums and its matching frozen artifact row are
++        recomputed to agree, and the result id and BOTH copies of its digest
++        are kept. Every comparison the reader already made still passes, and
++        the invented text came back as the review's own words.
++        """
++        invented = (b"REVIEW114618 invented permission under the original "
++                    b"result identity\n")
++        retained = []
++
++        def rewritten(authority, review):
++            retained.append(review["review_result_digest"])
++            output = authority["review"]["documents"][0]
++            entry = output["files"][0]
++            output["bytes"] += len(invented) - entry["bytes"]
++            entry.update(text=invented.decode("utf-8"), bytes=len(invented),
++                         digest=hashlib.sha256(invented).hexdigest())
++            output["tree_digest"] = digest(
++                [{"path": one["path"], "bytes": one["bytes"],
++                  "content_digest": "sha256:" + one["digest"]}
++                 for one in output["files"]])
++            artifact = next(one for one in review["review_result"]["artifacts"]
++                            if one["output_name"] == output["output_name"])
++            artifact.update(content_digest=output["tree_digest"],
++                            bytes=output["bytes"])
++
++        root = self.derived("rewritten-output", rewritten)
++        with self.assertRaises(contract.BundleRefusal) as caught:
++            contract.read_bundle(root)
++        self.assertIn("not the result its own digest names", str(caught.exception))
++        # AND THE IDENTITY REALLY WAS PRESERVED, so this is the missing
++        # measurement and not one of the comparisons that already existed.
++        with open(os.path.join(root, contract.EVIDENCE_DIRECTORY,
++                               "review.json"), "rb") as handle:
++            after = json.loads(handle.read())
++        self.assertEqual(after["review_result_digest"], retained[0])
++        self.assertNotEqual(digest(after["review_result"]), retained[0])
++
++    def test_the_outputs_removed_under_the_original_identity_refuse(self):
++        """THE REVIEWER'S `removed_outputs`: a non-empty frozen review is
++        emptied on BOTH sides, so the complete-set comparison agrees with
++        itself and the reader answered zero files for a review that collected
++        some. The retained identity is what says how many there were.
++        """
++        retained = []
++
++        def removed(authority, review):
++            retained.append(review["review_result_digest"])
++            self.assertTrue(authority["review"]["documents"])
++            authority["review"]["documents"] = []
++            review["review_result"]["artifacts"] = []
++
++        root = self.derived("removed-outputs", removed)
++        with self.assertRaises(contract.BundleRefusal) as caught:
++            contract.read_bundle(root)
++        self.assertIn("not the result its own digest names", str(caught.exception))
++        with open(os.path.join(root, contract.EVIDENCE_DIRECTORY,
++                               "review.json"), "rb") as handle:
++            after = json.loads(handle.read())
++        self.assertEqual(after["review_result_digest"], retained[0])
++        self.assertEqual(after["review_result"]["artifacts"], [])
++
++
+ class TheCustodyRootIsHeldAndNotResolved(ProducerCase):
+     """W114085 review 2026-09-07T23:16:55Z [P1]: lexical containment is not
+     containment, and a public helper that `realpath`s its root before its own

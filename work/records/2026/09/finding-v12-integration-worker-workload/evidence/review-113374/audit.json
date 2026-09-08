@@ -1,0 +1,17 @@
+{
+  "claim": 113374,
+  "candidate": {
+    "v12/worker/claude_agent.py": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+    "v12/python/tests/manager/test_integration_worker.py": "047df6ff39ba413acaad3990ed9bad5379fbce27717534d7d90d8d71aa43c467",
+    "v12/python/tools/parallel_test.py": "371ef8a507f94807c52e35f7cbd3f3df2efc0b3bd9157af8d7f622d2103e284c"
+  },
+  "existing_claude_bytes_preserved_after_removing_only_wrapper": true,
+  "existing_registry_bytes_preserved_after_removing_only_one_entry": true,
+  "three_child_source_test_files_unchanged": {
+    "v12/worker/integration_contract.py": true,
+    "v12/python/tools/integration_bundle.py": true,
+    "v12/python/tests/tools/test_integration_bundle.py": true
+  },
+  "registry_is_intentionally_changed": "Handoff four child files unchanged claim is inaccurate: registry changed by the authorized additive entry.",
+  "initial_test_invocation": "Missing PYTHONPATH=src caused41 ModuleNotFoundError errors in182 tests; reviewer invocation error, corrected below."
+}

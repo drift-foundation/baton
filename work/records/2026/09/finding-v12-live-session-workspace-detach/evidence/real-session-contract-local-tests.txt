@@ -1,0 +1,9 @@
+test_comparison_rejects_replacement_disguised_as_retention (__main__.ContractTests.test_comparison_rejects_replacement_disguised_as_retention) ... ok
+test_comparison_rejects_unrestored_new_conversation (__main__.ContractTests.test_comparison_rejects_unrestored_new_conversation) ... ok
+test_comparison_rejects_unsafe_consumption_and_unequal_inputs (__main__.ContractTests.test_comparison_rejects_unsafe_consumption_and_unequal_inputs) ... ok
+test_verifier_requires_correction_and_remembered_token (__main__.ContractTests.test_verifier_requires_correction_and_remembered_token) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK

@@ -1,0 +1,21 @@
+--- review-114048/v12/worker/integration_entry.py
++++ review-114486/v12/worker/integration_entry.py
+@@ -52,7 +52,8 @@
+          assignment_root=contract.ASSIGNMENT_TARGET,
+          result_root=contract.RESULT_TARGET,
+          bundle_root=contract.BUNDLE_TARGET,
+-         target_root=TARGET_TARGET, scratch=None, revision=None):
++         target_root=TARGET_TARGET, scratch=None, revision=None,
++         verify=None):
+     """Read the delivery, run the workload, publish exactly one result."""
+     try:
+         launch = baton_worker.launched(baton_worker.read_launch(launch_place),
+@@ -89,7 +90,7 @@
+         document = workload.integrate(
+             agent=agent, assignment=assignment, launch=launch,
+             bundle_root=bundle_root, target_root=target_root,
+-            result_root=result_root, revision=revision,
++            result_root=result_root, revision=revision, verify=verify,
+             scratch=_scratch(scratch))
+     except workload.WorkloadRefusal:
+         # NO RESULT CAN BE COMPOSED. `integrate` answers a document for every

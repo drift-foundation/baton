@@ -1,0 +1,46 @@
+--- live_supervisor_result_diagnostics.py
++++ live_supervisor_failure_reason_112817.py
+@@ -147,6 +147,35 @@
+     return dict(value)
+ 
+ 
++# One documented result field; fixed values only, never provider prose.
++KNOWN_API_ERROR_STATUSES = frozenset((400, 401, 402, 403, 404, 409, 413, 429, 500, 504, 529))
++API_ERROR_STATUS_SHAPES = frozenset(("missing", "null", "known", "unknown", "wrong-type"))
++
++
++def failure_reason(value):
++    status = value.get("api_error_status")
++    if "api_error_status" not in value:
++        shape = "missing"
++    elif status is None:
++        shape = "null"
++    elif type(status) is not int:
++        shape = "wrong-type"
++    elif status in KNOWN_API_ERROR_STATUSES:
++        shape = "known"
++    else:
++        shape = "unknown"
++    return dict(shape=shape, http_status=status if shape == "known" else None)
++
++
++def validate_failure_reason(value):
++    require(type(value) is dict and set(value) == {"shape", "http_status"}, "diagnostic-frame-invalid")
++    require(type(value["shape"]) is str and value["shape"] in API_ERROR_STATUS_SHAPES, "diagnostic-frame-invalid")
++    status = value["http_status"]
++    require((type(status) is int and status in KNOWN_API_ERROR_STATUSES) if value["shape"] == "known"
++            else status is None, "diagnostic-frame-invalid")
++    return dict(value)
++
++
+ def result_projection(value, session):
+     require(value.get("type") == "result" and value.get("subtype") == "success"
+             and value.get("is_error") is False, "provider-result-failed")
+@@ -180,6 +209,7 @@
+         if result is not None:
+             require(stage == "provider-result-validation", "diagnostic-frame-invalid")
+             projection["result_fields"] = result_fields(result)
++            projection["failure_reason"] = failure_reason(result)
+         print(json.dumps(projection), flush=True)
+ 
+     def identity(self):

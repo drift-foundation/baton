@@ -1,0 +1,32 @@
+{
+  "unchanged": {
+    "eligibility_accepted": true,
+    "replay_outcome": "accepted",
+    "replay_cleaned_up": true,
+    "replay_equal": true
+  },
+  "empty_custody": {
+    "eligibility_accepted": false,
+    "replay_outcome": "held",
+    "replay_cleaned_up": false,
+    "replay_equal": false
+  },
+  "scalar_custody": {
+    "eligibility_accepted": false,
+    "replay_outcome": "held",
+    "replay_cleaned_up": false,
+    "replay_equal": false
+  },
+  "missing_workspace_custody": {
+    "eligibility_accepted": false,
+    "replay_outcome": "held",
+    "replay_cleaned_up": false,
+    "replay_equal": false
+  },
+  "foreign_custody": {
+    "eligibility_accepted": false,
+    "replay_outcome": "held",
+    "replay_cleaned_up": false,
+    "replay_equal": false
+  }
+}

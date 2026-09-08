@@ -1,0 +1,72 @@
+{
+  "path_rows": [
+    {
+      "base": {
+        "blob": "1d5ab8f9f99ddb233df49cf337a0f7d3c5149b8868b57f1c08b4e51251a7ac16",
+        "bytes": 18,
+        "mode": "100644",
+        "object": "ef80d6d290a531be30f1212d4eec578ac648f3ed"
+      },
+      "candidate": {
+        "blob": "0cb6afbd39943934a1e84103003e59b6c42c1028e88c1d32018ed89edfdb2762",
+        "bytes": 23,
+        "mode": "100755",
+        "object": "22e9f5c249796e2faa6e0442116236cb44d52a8f"
+      },
+      "operation": "edit",
+      "path": "round-1.txt"
+    }
+  ],
+  "job": {
+    "input_digest": "sha256:4ebe2b651be8c31a2bec3d559185d744811d321e95d890656bb4b500516fbb2e",
+    "job_id": "job-a",
+    "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28",
+    "stage_id": "job-a/implementation",
+    "stage_kind": "implementation",
+    "submission_id": "ordinary-admission",
+    "terminal_policy": "report-and-hold",
+    "test_scope": [
+      "v12/python/tests/job_manager"
+    ],
+    "work_id": "0000000a-W1"
+  },
+  "review": {
+    "assignment_generation": 1,
+    "attachment_id": "review-bd1a5da08b5289825844ac54659d92c18b237a6fe2f9b14b8cfb1008ff2f2d4e",
+    "disposition": "accepted",
+    "recorded_at": "2026-09-02T00:00:00.000Z",
+    "review_result": {
+      "artifacts": [
+        {
+          "artifact_id": "public-review:findings",
+          "bytes": 135,
+          "content_digest": "sha256:05aa729fac2b9dea3747c47b2f684f4480857cf2fea711a80e57488cb6b90ecf",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-tuk_9gp1/storage/public-review/custody/findings",
+          "media_type": "application/octet-stream",
+          "output_name": "findings"
+        },
+        {
+          "artifact_id": "public-review:logs",
+          "bytes": 406,
+          "content_digest": "sha256:8943a619562634f663453f792e5fd8e2676ccff3e3066e4ded786b4d96dd9c6b",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-tuk_9gp1/storage/public-review/custody/logs",
+          "media_type": "application/octet-stream",
+          "output_name": "logs"
+        }
+      ],
+      "attempt_id": "public-review",
+      "disposition": "completed",
+      "freeze_operation_id": "output.freeze:6409c0ecce5fb0d68d4822362cd2a7a2be635b2bbe4244c26a167676ba8e75e8",
+      "frozen_at": "2026-09-02T00:00:00.000Z",
+      "manifest_digest": "sha256:aa45331eb887b79e60709eeab8c92b9a511f2f0d5ee656c779a4eb2c83b57edf",
+      "result_id": "result-public-review"
+    },
+    "review_result_digest": "sha256:316535a34ed87fccab263467cfe21dc14d98406fab0af85eb6810bce99f7d5e5",
+    "reviewer_participant": "baton.review",
+    "reviewer_principal": "public-review-principal",
+    "reviewer_worker_id": "public-review-worker",
+    "state": "ended",
+    "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8"
+  }
+}

@@ -12,8 +12,11 @@ and each must refuse the other.
 
 import os
 import sqlite3
+import threading
 import unittest
+from unittest import mock
 
+import baton_v12.job_manager.store as store_module
 from baton_v12.contracts import ContractRefusal
 from baton_v12.job_manager import (SCHEMA_VERSION, STORE_KIND, JobStore,
                                    episodes,
@@ -115,6 +118,217 @@ class Ownership(JobManagerCase):
 
         with self.assertRaises(ContractRefusal):
             JobStore.open(self.job_path, authority_uuid=UUID, incarnation="jobs-1", clock=broken)
+
+
+class WalIsAPostOwnershipRequest(JobManagerCase):
+
+    def open_descriptors(self, path):
+        target = os.path.realpath(path)
+        found = 0
+        for entry in os.listdir("/proc/self/fd"):
+            try:
+                if os.path.realpath(f"/proc/self/fd/{entry}") == target:
+                    found += 1
+            except OSError:
+                continue
+        return found
+
+    def bytes_at(self, path):
+        with open(path, "rb") as reading:
+            return reading.read()
+
+    def test_busy_after_initialization_keeps_the_bound_store_usable_and_a_later_open_retries(self):
+        real_connect = sqlite3.connect
+        committed = threading.Event()
+        blocked = threading.Event()
+        release = threading.Event()
+        failures = []
+
+        class PausedAfterCommit(sqlite3.Connection):
+            def execute(self, statement, parameters=(), /):
+                answer = super().execute(statement, parameters)
+                if statement == "COMMIT":
+                    committed.set()
+                    if not blocked.wait(10):
+                        raise AssertionError("the competing writer never acquired its lock")
+                return answer
+
+        def instrumented_connect(*arguments, **named):
+            named["factory"] = PausedAfterCommit
+            return real_connect(*arguments, **named)
+
+        def hold_writer():
+            connection = None
+            try:
+                if not committed.wait(10):
+                    raise AssertionError("the initializer never committed")
+                connection = real_connect(self.job_path, isolation_level=None,
+                                          timeout=0)
+                connection.execute("BEGIN IMMEDIATE")
+                blocked.set()
+                if not release.wait(10):
+                    raise AssertionError("the competing writer was never released")
+                connection.execute("ROLLBACK")
+            except BaseException as failure:
+                failures.append(failure)
+                blocked.set()
+            finally:
+                if connection is not None:
+                    connection.close()
+
+        thread = threading.Thread(target=hold_writer)
+        thread.start()
+        opened = None
+        try:
+            with mock.patch.object(store_module.sqlite3, "connect",
+                                   instrumented_connect):
+                opened = JobStore.open(self.job_path, authority_uuid=UUID,
+                                       incarnation="jobs-1", clock=self.clock)
+            self.assertTrue(blocked.is_set(), "the competing writer is not real")
+            self.assertTrue(thread.is_alive(), "the competing writer ended before open returned")
+            self.assertEqual(opened.authority_uuid, UUID)
+            self.assertEqual(opened._connection.execute(
+                "SELECT value FROM meta WHERE key = 'authority_uuid'").fetchone()[0],
+                UUID)
+            self.assertNotEqual(opened._connection.execute(
+                "PRAGMA journal_mode").fetchone()[0].lower(), "wal")
+        finally:
+            release.set()
+            thread.join(10)
+            if opened is not None:
+                opened.close()
+        self.assertFalse(thread.is_alive(), "the competing writer did not finish")
+        if failures:
+            raise failures[0]
+
+        reopened = self.store(incarnation="jobs-2")
+        self.assertEqual(reopened._connection.execute(
+            "PRAGMA journal_mode").fetchone()[0].lower(), "wal")
+
+    def test_structured_locked_is_tolerated_without_reading_its_prose(self):
+        self.store().close()
+        calls = []
+        failure = sqlite3.OperationalError("this prose does not say locked")
+        failure.sqlite_errorcode = sqlite3.SQLITE_LOCKED | (7 << 8)
+        real_connect = sqlite3.connect
+
+        class LockedWal(sqlite3.Connection):
+            def execute(self, statement, parameters=(), /):
+                if statement == "PRAGMA journal_mode = WAL":
+                    calls.append(statement)
+                    raise failure
+                return super().execute(statement, parameters)
+
+        def instrumented_connect(*arguments, **named):
+            named["factory"] = LockedWal
+            return real_connect(*arguments, **named)
+
+        with mock.patch.object(store_module.sqlite3, "connect",
+                               instrumented_connect):
+            opened = JobStore.open(self.job_path, authority_uuid=UUID,
+                                   incarnation="jobs-2", clock=self.clock)
+        self.addCleanup(opened.close)
+        self.assertEqual(calls, ["PRAGMA journal_mode = WAL"])
+        self.assertEqual(opened.authority_uuid, UUID)
+
+    def test_non_contention_wal_failure_escapes_unchanged_and_closes_the_handle(self):
+        self.store().close()
+        failure = sqlite3.OperationalError("a storage fault")
+        failure.sqlite_errorcode = sqlite3.SQLITE_IOERR
+        real_connect = sqlite3.connect
+
+        class BrokenWal(sqlite3.Connection):
+            def execute(self, statement, parameters=(), /):
+                if statement == "PRAGMA journal_mode = WAL":
+                    raise failure
+                return super().execute(statement, parameters)
+
+        def instrumented_connect(*arguments, **named):
+            named["factory"] = BrokenWal
+            return real_connect(*arguments, **named)
+
+        before = self.open_descriptors(self.job_path)
+        with mock.patch.object(store_module.sqlite3, "connect",
+                               instrumented_connect):
+            with self.assertRaises(sqlite3.OperationalError) as caught:
+                JobStore.open(self.job_path, authority_uuid=UUID,
+                              incarnation="jobs-2", clock=self.clock)
+        self.assertIs(caught.exception, failure)
+        self.assertEqual(self.open_descriptors(self.job_path), before)
+
+    def test_busy_prose_without_a_structured_code_is_not_tolerated(self):
+        self.store().close()
+        failure = sqlite3.OperationalError("database is locked")
+        real_connect = sqlite3.connect
+
+        class UnclassifiedWal(sqlite3.Connection):
+            def execute(self, statement, parameters=(), /):
+                if statement == "PRAGMA journal_mode = WAL":
+                    raise failure
+                return super().execute(statement, parameters)
+
+        def instrumented_connect(*arguments, **named):
+            named["factory"] = UnclassifiedWal
+            return real_connect(*arguments, **named)
+
+        before = self.open_descriptors(self.job_path)
+        with mock.patch.object(store_module.sqlite3, "connect",
+                               instrumented_connect):
+            with self.assertRaises(sqlite3.OperationalError) as caught:
+                JobStore.open(self.job_path, authority_uuid=UUID,
+                              incarnation="jobs-2", clock=self.clock)
+        self.assertIs(caught.exception, failure)
+        self.assertEqual(self.open_descriptors(self.job_path), before)
+
+    def test_unowned_incompatible_or_differently_bound_stores_get_no_wal_request(self):
+        control = ControlStore.open(self.control_path, incarnation="manager-1",
+                                    clock=self.clock)
+        control.close()
+
+        foreign = os.path.join(self.root, "foreign-before-wal.sqlite3")
+        connection = sqlite3.connect(foreign, isolation_level=None)
+        connection.execute("CREATE TABLE foreign_state (id INTEGER)")
+        connection.close()
+
+        incompatible = os.path.join(self.root, "incompatible-before-wal.sqlite3")
+        connection = JobStore.open(incompatible, authority_uuid=UUID,
+                                   incarnation="jobs-1", clock=self.clock)
+        connection._connection.execute(
+            "UPDATE meta SET value = '99' WHERE key = 'schema_version'")
+        connection.close()
+
+        other_uuid = "1" * 31 + "b"
+        differently_bound = os.path.join(self.root, "other-authority.sqlite3")
+        connection = JobStore.open(differently_bound,
+                                   authority_uuid=other_uuid,
+                                   incarnation="jobs-1", clock=self.clock)
+        connection.close()
+
+        paths = (self.control_path, foreign, incompatible, differently_bound)
+        before = {path: self.bytes_at(path) for path in paths}
+        wal_requests = []
+        real_connect = sqlite3.connect
+
+        class WatchingConnection(sqlite3.Connection):
+            def execute(self, statement, parameters=(), /):
+                if statement == "PRAGMA journal_mode = WAL":
+                    wal_requests.append(statement)
+                return super().execute(statement, parameters)
+
+        def instrumented_connect(*arguments, **named):
+            named["factory"] = WatchingConnection
+            return real_connect(*arguments, **named)
+
+        with mock.patch.object(store_module.sqlite3, "connect",
+                               instrumented_connect):
+            for path in paths:
+                with self.subTest(path=os.path.basename(path)):
+                    with self.assertRaises(ContractRefusal):
+                        JobStore.open(path, authority_uuid=UUID,
+                                      incarnation="jobs-2", clock=self.clock)
+        self.assertEqual(wal_requests, [])
+        for path in paths:
+            self.assertEqual(self.bytes_at(path), before[path])
 
 
 class Journal(JobManagerCase):

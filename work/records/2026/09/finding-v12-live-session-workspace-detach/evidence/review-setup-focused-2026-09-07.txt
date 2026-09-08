@@ -1,0 +1,14 @@
+test_actual_prepare_retains_allocations_when_store_open_raises (test_live_setup.SetupTests.test_actual_prepare_retains_allocations_when_store_open_raises) ... ok
+test_corrected_snapshot_imports_in_fresh_system_python (test_live_setup.SetupTests.test_corrected_snapshot_imports_in_fresh_system_python) ... ok
+test_early_import_failure_is_proved_before_resource_attempt (test_live_setup.SetupTests.test_early_import_failure_is_proved_before_resource_attempt) ... ok
+test_exception_projection_omits_text_paths_and_custom_type_names (test_live_setup.SetupTests.test_exception_projection_omits_text_paths_and_custom_type_names) ... ok
+test_export_includes_safe_setup_but_never_private_setup_paths (test_live_setup.SetupTests.test_export_includes_safe_setup_but_never_private_setup_paths) ... ok
+test_full_run_reports_partial_setup_even_with_no_fixture (test_live_setup.SetupTests.test_full_run_reports_partial_setup_even_with_no_fixture) ... ok
+test_partial_constructor_intent_is_durable_and_never_claims_settled (test_live_setup.SetupTests.test_partial_constructor_intent_is_durable_and_never_claims_settled) ... ok
+test_received_store_closes_after_partial_constructor_failure (test_live_setup.SetupTests.test_received_store_closes_after_partial_constructor_failure) ... ok
+test_store_close_failure_cannot_replace_original_diagnostic_or_claim_success (test_live_setup.SetupTests.test_store_close_failure_cannot_replace_original_diagnostic_or_claim_success) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.214s
+
+OK

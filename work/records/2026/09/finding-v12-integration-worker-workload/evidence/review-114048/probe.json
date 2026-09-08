@@ -1,0 +1,222 @@
+{
+  "boundary": "Real producer, entry, provider child and manager result reader; plain disposable target; injected revision; no Git process",
+  "cases": [
+    {
+      "name": "verification_failed",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "target_imported": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "-m",
+                "compileall",
+                "-q",
+                "."
+              ],
+              "status": 1
+            }
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      },
+      "synthetic_canary_published": false
+    },
+    {
+      "name": "verification_unfinished",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "target_imported": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "-m",
+                "compileall",
+                "-q",
+                "."
+              ],
+              "status": null
+            }
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      },
+      "synthetic_canary_published": false
+    },
+    {
+      "name": "verification_missing",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "target_imported": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": null
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      },
+      "synthetic_canary_published": false
+    },
+    {
+      "name": "provider_argv_canary",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "target_imported": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": {
+              "argv": [
+                "check",
+                "REVIEW_CANARY_114048"
+              ],
+              "status": 0
+            }
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      },
+      "synthetic_canary_published": true
+    },
+    {
+      "name": "outside_path_canary",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "target_imported": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {
+              "observed": "the provider reports changing a path the accepted table does not name",
+              "path_count": 1,
+              "paths": [
+                "REVIEW_CANARY_114048"
+              ]
+            },
+            "reason": "report-outside-scope"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "held",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      },
+      "synthetic_canary_published": true
+    },
+    {
+      "name": "phase_and_paths_incomplete",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "target_imported": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "-m",
+                "compileall",
+                "-q",
+                "."
+              ],
+              "status": 0
+            }
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      },
+      "synthetic_canary_published": false
+    },
+    {
+      "name": "terminal_result_behind_link",
+      "entry_status": 1,
+      "provider_turns": 1,
+      "target_imported": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {},
+            "reason": "prior-turn"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "held",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      },
+      "synthetic_canary_published": false
+    }
+  ]
+}

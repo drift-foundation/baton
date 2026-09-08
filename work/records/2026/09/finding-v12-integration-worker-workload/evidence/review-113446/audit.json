@@ -1,0 +1,19 @@
+{
+  "claim": 113446,
+  "source_handoff": 113443,
+  "reviewed_hashes": {
+    "v12/python/tests/manager/test_integration_worker.py": "95c3258c4265f55b6f33454934d9ae58f69a6692323a82be9e354566583cce62",
+    "v12/worker/claude_agent.py": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+    "v12/python/tools/parallel_test.py": "371ef8a507f94807c52e35f7cbd3f3df2efc0b3bd9157af8d7f622d2103e284c"
+  },
+  "missing_deliverables": {
+    "v12/worker/integration_workload.py": true,
+    "v12/worker/integration_entry.py": true,
+    "v12/worker/Dockerfile.integration": true,
+    "v12/python/tests/manager/test_integration_image.py": true
+  },
+  "progress_correction_appended": true,
+  "reported_blocker": "Implementer turn working capacity; not independently measurable by repository review",
+  "repository_or_authority_blocker_reported": false,
+  "verification": "Hash/absence checks only; no source delta requiring repeat tests"
+}

@@ -1,0 +1,141 @@
+--- previous/src/baton_v12/worker_manager/oci.py
+
++++ current/src/baton_v12/worker_manager/oci.py
+
+@@ -1033,5 +1033,5 @@
+
+ 
+ 
+-def _integration_mounts(integration_delivered):
++def _integration_mounts(integration_delivered, posture=None, others=()):
+     """W110934: THE FENCED INTEGRATION FAMILY, three fixed binds and no fourth.
+ 
+@@ -1064,4 +1064,16 @@
+
+         _denied(f"an integration delivery is the mount boundary this manager "
+                 f"composed; this is {name_value(integration_delivered)}")
++    # EXECUTION POSTURE, LIKE EVERY OTHER MOUNT FAMILY. Review
++    # 2026-09-07T16-04-48Z [P1]: this family was appended independently of the
++    # posture restrictions, so a CONSENT runtime -- which mounts nothing, holds
++    # no supplementary group and exists to be asked a question -- was started
++    # with a writable result namespace and a writable canonical target. A
++    # consent container with write access to the canonical target is the
++    # opposite of what that posture means.
++    if posture != "execution":
++        _denied(f"an integration delivery is composed for an execution "
++                f"runtime and this start is {name_value(posture)}; a consent "
++                f"runtime mounts nothing, and a writable target behind one "
++                f"would be a grant with no execution to justify it")
+     composed = []
+     for source, target, writable in oci_delivery.boundary_mounts(
+@@ -1082,4 +1094,14 @@
+
+                 f"three container paths are constants of this contract rather "
+                 f"than operands")
++    # AND NO HOST DIRECTORY IS BOUND TWICE UNDER TWO NAMES. Review [P1]: the
++    # container targets are fixed and distinct, which establishes nothing about
++    # the HOST -- a start bound one directory writable at `/output` and
++    # writable at `/target`, with the ordinary workspace rules applying to one
++    # of those names and none of them applying to the other. The comparison is
++    # over host paths, in both containment directions, against every family
++    # already in this vector.
++    oci_delivery._no_overlap(
++        [{"host_source": one[0], "container_target": one[1]}
++         for one in composed], others)
+     return tuple(composed)
+ 
+@@ -1293,5 +1315,22 @@
+
+     # root and a canonical target that swallowed `/input` or the credential
+     # root would decide what the runtime reads there.
+-    integration_composed = _integration_mounts(integration_delivered)
++    integration_composed = _integration_mounts(
++        integration_delivered, posture,
++        # THE ASSIGNMENT ROOTS THEMSELVES, whether or not a mount names them.
++        # Review [P1]: `assigned` is empty when no `mounts` operand is
++        # supplied, so a target aliasing the workspace was compared against
++        # nothing. The roots are this assignment's host directories however
++        # the vector happens to mount them.
++        [(canonical_source(place, "an assignment root"), name)
++         for name, place in sorted(roots.items())]
++        + [(canonical_source(one[0], "a mount source"), one[1])
++             for one in (tuple(assigned)
++                       + tuple((source, target, False) for source, target
++                               in _credential_mounts(credentials_delivered))
++                       + ((_launch_mount(launch_delivered) + (False,),)
++                          if launch_delivered is not None else ())
++                       + tuple(_exchange_mounts(exchange_delivered))
++                       + tuple(_source_mount(source_delivered, assigned,
++                                             roots)))])
+     for source, target, writable in integration_composed:
+         for taken in ([one[1] for one in assigned]
+@@ -1716,4 +1755,9 @@
+
+         # package and a module-scope import of its submodule is a cycle.
+         self.integration_delivery = integration_delivery
++        if integration_delivery is not None and self.posture != "execution":
++            _denied(f"an integration mount boundary is composed for an "
++                    f"execution runtime and this adapter is "
++                    f"{name_value(self.posture)}; a consent runtime mounts "
++                    f"nothing at all")
+         # W6634: THE DECLARED OUTPUTS, OWNED AT CONSTRUCTION like everything
+         # else that is assignment-scoped and fixed. What may be collected is
+@@ -2159,5 +2203,5 @@
+
+             # `_refused_start` like every other pre-engine exit, so a
+             # materialized credential is settled rather than stranded.
+-            self._prove_integration_boundary()
++            self._prove_integration_boundary(labels)
+         except ContractRefusal as refusal:
+             self._refused_start(labels, refusal.message)
+@@ -2211,9 +2255,33 @@
+
+             except ContractRefusal as refusal:
+                 self._refused_start(labels, refusal.message)
++        # W110934 review [P1]: THE MOUNTS ARE OBSERVED, NOT ASSUMED FROM THE
++        # ARGV. A returned identity says the engine created something; it says
++        # nothing about what that something holds, and until this existed a
++        # start answered success while ordinary observation reported a running
++        # runtime with no integration binds at all.
++        #
++        # THE TWO OUTCOMES ARE DIFFERENT AND STAY DIFFERENT. A container the
++        # engine positively describes with the WRONG binds is a start this
++        # manager will not report as successful, so it takes the same
++        # post-create settlement every other exit here takes. An observation
++        # this adapter could not READ proves nothing either way: the runtime id
++        # is answered with the uncertainty beside it rather than suppressed,
++        # because a caller that cannot name the container cannot stop it, and
++        # inventing a teardown from an unreadable answer is the automatic
++        # recovery this boundary does not have.
++        if self.integration_delivery is not None:
++            observed = self.integration_mounts_agree(runtime_id)
++            if not observed["agrees"] and observed["mounts"] is not None:
++                self._refused_start(
++                    labels,
++                    f"the started runtime does not carry this integration's "
++                    f"mounts: {observed['why']}")
++            return {"runtime_id": runtime_id, "labels": labels,
++                    "integration_mounts": observed}
+         return {"runtime_id": runtime_id, "labels": labels}
+ 
+     # -- W110934: the fenced integration boundary ----------------------------
+ 
+-    def _prove_integration_boundary(self):
++    def _prove_integration_boundary(self, labels):
+         """The final grant, assignment and filesystem proof before the engine.
+ 
+@@ -2229,5 +2297,12 @@
+
+         from ..integration import oci_delivery
+ 
+-        return oci_delivery.revalidate_boundary(self.integration_delivery)
++        # THE LABELLED PARTICIPANT CROSSES, because the boundary comparing
++        # its own stored assignment against a fresh composition through its own
++        # profile is the document agreeing with itself. Review [P1]: one engine
++        # runtime was started labelled `baton.foreign` under a grant held by
++        # somebody else, and every check passed because none of them asked who
++        # this start was for.
++        return oci_delivery.revalidate_boundary(
++            self.integration_delivery, participant=labels["participant"])
+ 
+     def integration_mounts_agree(self, runtime_id):

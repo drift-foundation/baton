@@ -1,0 +1,774 @@
+test_every_v12_test_module_is_registered_exactly_once (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once) ... ERROR
+test_the_suite_is_one_gate_and_not_a_pile_of_files (tests.authority.test_catalog.TheMigrationChecklistIsRead.test_the_suite_is_one_gate_and_not_a_pile_of_files) ... FAIL
+test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) ... 
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:writer_of', 'line_writers.writer_id'), label='a persisted line writer') ... FAIL
+test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe) ... FAIL
+test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+Every entry has a probe today, so relaxing the check changes no ... FAIL
+test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+The other direction: an owner with nothing to own is also a defect. ... FAIL
+test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator) ... FAIL
+test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+The anti-circularity check for the adopted member universe. ... FAIL
+
+======================================================================
+ERROR: test_every_v12_test_module_is_registered_exactly_once (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_parallel_runner.py", line 248, in test_every_v12_test_module_is_registered_exactly_once
+    Suite(ROOT, PARALLEL_MODULES, SERIAL_MODULES).check_registry()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tools/parallel_test.py", line 574, in check_registry
+    raise RunnerRefusal("these test modules belong to no registry; add each to the "
+                        "parallel or serial list in tools/parallel_test.py after "
+                        f"deciding what it owns: {unregistered}")
+tools.parallel_test.RunnerRefusal: these test modules belong to no registry; add each to the parallel or serial list in tools/parallel_test.py after deciding what it owns: ['tests.integration.test_driver', 'tests.job_manager.test_review_driver']
+
+======================================================================
+FAIL: test_the_suite_is_one_gate_and_not_a_pile_of_files (tests.authority.test_catalog.TheMigrationChecklistIsRead.test_the_suite_is_one_gate_and_not_a_pile_of_files)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_catalog.py", line 142, in test_the_suite_is_one_gate_and_not_a_pile_of_files
+    self.assertEqual(files, ["test_assignment.py", "test_boundary.py",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             "test_catalog.py",
+                             ^^^^^^^^^^^^^^^^^^
+    ...<17 lines>...
+                             # Work labels to port.
+                             ^^^^^^^^^^^^^^^^^^^^^^
+                             "test_work_labels.py"])
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['tes[196 chars]tore.py', 'test_work_label_exposure.py', 'test_work_labels.py'] != ['tes[196 chars]tore.py', 'test_work_labels.py']
+
+First differing element 10:
+'test_work_label_exposure.py'
+'test_work_labels.py'
+
+First list contains 1 additional elements.
+First extra element 11:
+'test_work_labels.py'
+
+  ['test_assignment.py',
+   'test_boundary.py',
+   'test_catalog.py',
+   'test_claim_result.py',
+   'test_contract.py',
+   'test_identity.py',
+   'test_operations.py',
+   'test_principal_scope.py',
+   'test_session.py',
+   'test_store.py',
+-  'test_work_label_exposure.py',
+   'test_work_labels.py']
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:writer_of', 'line_writers.writer_id'), label='a persisted line writer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4952, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7016, in run
+    review_cycles.writer_of(self.store, "writer-probe")
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 68, in writer_of
+    raise ContractRefusal("refused", "precondition",
+                          f"no line writer {name_value(writer_id)}")
+baton_v12.contracts.errors.ContractRefusal: no line writer 'writer-probe'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7496, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4958, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a persisted line writer' not found in "no line writer 'writer-probe'" : refused, but not at 'a persisted line writer': no line writer 'writer-probe'
+
+======================================================================
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7461, in test_every_owned_entry_has_exactly_one_probe
+    self.assertEqual(sorted(wanted - declared), [], "owned, never probed")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[6137 chars]te")] != []
+
+First list contains 61 additional elements.
+First extra element 0:
+(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), 'a persisted attempt')
+
++ []
+- [(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'),
+-   'a persisted attempt'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.declared_output'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.policy'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.workspace'),
+-   'a retained agent-session profile'),
+-  (('adopted', 'intake.py:retentions_of', 'retentions.retain_operation_id'),
+-   'a persisted retention'),
+-  (('adopted',
+-    'review_cycles.py:integration_checkpoint',
+-    'integration_eligibility.verdict_id'),
+-   'a checkpoint verdict identity'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.authority_uuid'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.generation'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.participant'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.posture'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.profile_digest'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.runtime_attempt_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.work_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta'),
+-   "the configured workspace group's record"),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta.value'),
+-   "the configured workspace group's record"),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.target'),
+-   "the runtime adapter's start"),
+-  (('caller', 'exchange.py:ExchangeDelivery.__init__', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'exchange.py:ExchangeDelivery.__init__', 'root'),
+-   'an exchange delivery root'),
+-  (('caller', 'exchange.py:adopt', 'root'), 'an exchange delivery root'),
+-  (('caller', 'exchange.py:materialize', 'root'), 'an exchange delivery root'),
+-  (('caller', 'exchange.py:publish_command', 'document'), 'an exchange command'),
+-  (('caller', 'exchange.py:publish_command', 'document.attempt_id'),
+-   'an exchange command'),
+-  (('caller', 'exchange.py:publish_command', 'document.sequence_id'),
+-   'an exchange command'),
+-  (('caller', 'exchange.py:sequence_of', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'exchange.py:worker_operation_id', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'intake.py:abandon_attempt', 'adapter'),
+-   "the runtime adapter's abandoned-attempt destroy"),
+-  (('caller', 'intake.py:abandon_attempt', 'attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'intake.py:abandon_attempt', 'reason'), 'an abandonment reason'),
+-  (('caller', 'intake.py:abandon_attempt', 'retention_policy_digest'),
+-   'a retention policy digest'),
+-  (('caller', 'oci.py:OciAdapter.destroy', 'command.runtime_attempt_id'),
+-   'a destroy command'),
+-  (('caller', 'oci.py:OciAdapter.destroy_abandoned', 'command'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_abandoned',
+-    'command.runtime_attempt_id'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller', 'oci.py:OciAdapter.destroy_abandoned', 'command.runtime_id'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_failed_start',
+-    'command.runtime_attempt_id'),
+-   'a failed-start destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_refused_session',
+-    'command.runtime_attempt_id'),
+-   'a refused-session destroy command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command'), 'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.artifact_ids'),
+-   'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.disposition'),
+-   'a retention disposition'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.runtime_attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'oci.py:OciAdapter.start', 'request.input_root'),
+-   'a start request'),
+-  (('caller', 'oci.py:canonical_source', 'place'), 'a host path'),
+-  (('caller', 'oci.py:canonical_target', 'place'), 'a container path'),
+-  (('caller', 'oci.py:exec_vector', 'runtime_id'), 'a runtime id'),
+-  (('caller', 'review_cycles.py:consumption_subject', 'attempt_id'),
+-   'a runtime attempt identity'),
+-  (('caller', 'review_cycles.py:consumption_subject', 'generation'),
+-   'an assignment generation'),
+-  (('caller', 'workspaces.py:check_workspace_storage', 'place'),
+-   'the configured workspace store'),
+-  (('caller', 'workspaces.py:compose_input_root', 'assignment'),
+-   "the manager's own assignment"),
+-  (('caller', 'workspaces.py:compose_input_root', 'runtime_attempt_id'),
+-   'a runtime attempt identity'),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy'),
+-   'a  teardown ending'),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned'),
+-   'a  teardown ending'),
+-  (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned'),
+-   'an abandoned-attempt destroy observation'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.runtime_id'),
+-   'an observed runtime id'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.state'),
+-   "a destroy observation's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.why'),
+-   "a destroy observation's reason"),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start'),
+-   'a  teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session'),
+-   'a  teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session.lifecycle_state'),
+-   "a  teardown ending's state")] : owned, never probed
+
+======================================================================
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+Every entry has a probe today, so relaxing the check changes no
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7525, in test_the_missing_probe_check_can_actually_fail
+    self.assertEqual(sorted(wanted - declared), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[6137 chars]te")] != []
+
+First list contains 61 additional elements.
+First extra element 0:
+(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), 'a persisted attempt')
+
++ []
+- [(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'),
+-   'a persisted attempt'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.declared_output'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.policy'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.workspace'),
+-   'a retained agent-session profile'),
+-  (('adopted', 'intake.py:retentions_of', 'retentions.retain_operation_id'),
+-   'a persisted retention'),
+-  (('adopted',
+-    'review_cycles.py:integration_checkpoint',
+-    'integration_eligibility.verdict_id'),
+-   'a checkpoint verdict identity'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.authority_uuid'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.generation'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.participant'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.posture'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.profile_digest'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.runtime_attempt_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.work_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta'),
+-   "the configured workspace group's record"),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta.value'),
+-   "the configured workspace group's record"),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.target'),
+-   "the runtime adapter's start"),
+-  (('caller', 'exchange.py:ExchangeDelivery.__init__', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'exchange.py:ExchangeDelivery.__init__', 'root'),
+-   'an exchange delivery root'),
+-  (('caller', 'exchange.py:adopt', 'root'), 'an exchange delivery root'),
+-  (('caller', 'exchange.py:materialize', 'root'), 'an exchange delivery root'),
+-  (('caller', 'exchange.py:publish_command', 'document'), 'an exchange command'),
+-  (('caller', 'exchange.py:publish_command', 'document.attempt_id'),
+-   'an exchange command'),
+-  (('caller', 'exchange.py:publish_command', 'document.sequence_id'),
+-   'an exchange command'),
+-  (('caller', 'exchange.py:sequence_of', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'exchange.py:worker_operation_id', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'intake.py:abandon_attempt', 'adapter'),
+-   "the runtime adapter's abandoned-attempt destroy"),
+-  (('caller', 'intake.py:abandon_attempt', 'attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'intake.py:abandon_attempt', 'reason'), 'an abandonment reason'),
+-  (('caller', 'intake.py:abandon_attempt', 'retention_policy_digest'),
+-   'a retention policy digest'),
+-  (('caller', 'oci.py:OciAdapter.destroy', 'command.runtime_attempt_id'),
+-   'a destroy command'),
+-  (('caller', 'oci.py:OciAdapter.destroy_abandoned', 'command'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_abandoned',
+-    'command.runtime_attempt_id'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller', 'oci.py:OciAdapter.destroy_abandoned', 'command.runtime_id'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_failed_start',
+-    'command.runtime_attempt_id'),
+-   'a failed-start destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_refused_session',
+-    'command.runtime_attempt_id'),
+-   'a refused-session destroy command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command'), 'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.artifact_ids'),
+-   'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.disposition'),
+-   'a retention disposition'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.runtime_attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'oci.py:OciAdapter.start', 'request.input_root'),
+-   'a start request'),
+-  (('caller', 'oci.py:canonical_source', 'place'), 'a host path'),
+-  (('caller', 'oci.py:canonical_target', 'place'), 'a container path'),
+-  (('caller', 'oci.py:exec_vector', 'runtime_id'), 'a runtime id'),
+-  (('caller', 'review_cycles.py:consumption_subject', 'attempt_id'),
+-   'a runtime attempt identity'),
+-  (('caller', 'review_cycles.py:consumption_subject', 'generation'),
+-   'an assignment generation'),
+-  (('caller', 'workspaces.py:check_workspace_storage', 'place'),
+-   'the configured workspace store'),
+-  (('caller', 'workspaces.py:compose_input_root', 'assignment'),
+-   "the manager's own assignment"),
+-  (('caller', 'workspaces.py:compose_input_root', 'runtime_attempt_id'),
+-   'a runtime attempt identity'),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy'),
+-   'a  teardown ending'),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned'),
+-   'a  teardown ending'),
+-  (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned'),
+-   'an abandoned-attempt destroy observation'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.runtime_id'),
+-   'an observed runtime id'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.state'),
+-   "a destroy observation's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.why'),
+-   "a destroy observation's reason"),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start'),
+-   'a  teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session'),
+-   'a  teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session.lifecycle_state'),
+-   "a  teardown ending's state")]
+
+======================================================================
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+The other direction: an owner with nothing to own is also a defect.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6372, in test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attempts.py:_committed_record', 'docume[3911 chars]nt')] != []
+
+First list contains 55 additional elements.
+First extra element 0:
+('attempts.py:_committed_record', 'document', 'a committed ending record')
+
++ []
+- [('attempts.py:_committed_record', 'document', 'a committed ending record'),
+-  ('attempts.py:_plan_agrees', 'document', 'a declared runtime mount'),
+-  ('custody.py:_reconciled', 'identity', 'a listed runtime id'),
+-  ('exchange.py:_instant', 'instant', "a worker document's "),
+-  ('exchange.py:_value', 'text', 'an exchange document value'),
+-  ('intake.py:_abandon_intent', 'document', 'a committed abandonment record'),
+-  ('intake.py:_abandoned_destroy_operation',
+-   'text',
+-   'an abandonment record digest'),
+-  ('intake.py:_chosen', 'identity', 'an artifact id'),
+-  ('intake.py:_compared', 'document', 'a collected artifact'),
+-  ('intake.py:_compared', 'identity', 'a collected result id'),
+-  ('intake.py:_compared', 'identity', 'an artifact id'),
+-  ('intake.py:_compared', 'text', 'a content digest'),
+-  ('intake.py:_compared', 'text', 'a custody locator'),
+-  ('intake.py:_custody_capable',
+-   'text',
+-   'the custodian image identity custody acts are signed with'),
+-  ('intake.py:_failed_start_record',
+-   'document',
+-   'a committed failed-start record'),
+-  ('intake.py:_refused_session_record',
+-   'document',
+-   'a committed refusal record'),
+-  ('interrogation.py:_diagnostics', 'text', 'a probe diagnostic name'),
+-  ('lanes.py:_occupy_lane', 'text', 'a lane occupancy reason'),
+-  ('lanes.py:_release_lane', 'text', 'a lane release reason'),
+-  ('oci.py:OciAdapter._bound_orphan', 'identity', ' runtime attempt id'),
+-  ('oci.py:OciAdapter._custodied', 'text', 'a retained artifact id'),
+-  ('oci.py:OciAdapter._mounts_the_authorized_root',
+-   'document',
+-   'a runtime mount'),
+-  ('oci.py:OciAdapter._quiesced', 'document', 'a seal authorization context'),
+-  ('oci.py:OciAdapter._removed', 'identity', ' runtime id'),
+-  ('oci.py:OciAdapter.list', 'identity', 'a listed runtime id'),
+-  ('oci.py:_decoded', 'text', 'an engine document'),
+-  ('oci.py:_exchange_mounts', 'text', 'an exchange delivery target'),
+-  ('oci.py:_image_identity', 'text', 'a runtime image'),
+-  ('oci.py:_label_value', 'text', 'a runtime label'),
+-  ('oci.py:_mounts', 'document', 'a runtime mount'),
+-  ('oci.py:_whole', 'text', 'a generation label'),
+-  ('oci.py:exec_vector', 'text', 'an exec program word'),
+-  ('posture_slots.py:_occupy_slot', 'instant', 'a slot movement instant'),
+-  ('posture_slots.py:_release_slot_in', 'instant', 'a slot movement instant'),
+-  ('posture_slots.py:_require_slot_recovery_in',
+-   'instant',
+-   'a slot movement instant'),
+-  ('review_cycles.py:_evidence', 'document', 'persisted checkpoint evidence'),
+-  ('review_cycles.py:_evidence', 'text', 'a persisted checkpoint evidence path'),
+-  ('review_cycles.py:_evidence', 'text', "persisted checkpoint evidence's "),
+-  ('review_cycles.py:_fence', 'document', 'a persisted assignment fence'),
+-  ('review_cycles.py:_line_place', 'text', "the manager's workspace storage"),
+-  ('review_cycles.py:_profile',
+-   'capability',
+-   "a checkpoint profile's  capability"),
+-  ('review_cycles.py:_profile', 'text', 'a checkpoint profile name'),
+-  ('review_cycles.py:_review_result', 'document', 'a frozen review artifact'),
+-  ('review_cycles.py:_review_result', 'document', 'a frozen review result'),
+-  ('review_cycles.py:_review_result', 'identity', 'a frozen review output name'),
+-  ('review_cycles.py:_review_result', 'identity', "a frozen review result's "),
+-  ('review_cycles.py:_review_result',
+-   'instant',
+-   "a frozen review result's frozen_at"),
+-  ('review_cycles.py:create_line', 'text', 'a materialized line head'),
+-  ('review_cycles.py:freeze_checkpoint',
+-   'document',
+-   'persisted checkpoint evidence'),
+-  ('review_cycles.py:freeze_checkpoint',
+-   'text',
+-   'a persisted checkpoint evidence path'),
+-  ('review_cycles.py:freeze_checkpoint',
+-   'text',
+-   "persisted checkpoint evidence's "),
+-  ('worker_entry.py:converse', 'identity', 'a worker-entry operation identity'),
+-  ('workspaces.py:_committed_workspace_group',
+-   'document',
+-   'the committed workspace group configuration'),
+-  ('workspaces.py:_committed_workspace_storage',
+-   'document',
+-   'the committed workspace store configuration'),
+-  ('workspaces.py:_granted_roots',
+-   'capability',
+-   'an assignment roots live grant')] : boundary calls attributed to no entry
+
+======================================================================
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6229, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'lanes.py:_occupy_lane', 'run[11864 chars]on')] != []
+
+First list contains 185 additional elements.
+First extra element 0:
+('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes')
+
++ []
+- [('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes'),
+-  ('adopted', 'review_cycles.py:consumption_subject', 'line_writers'),
+-  ('adopted', 'review_cycles.py:consumption_subject', 'line_writers.writer_id'),
+-  ('adopted', 'workspaces.py:_configured_storage', 'meta'),
+-  ('adopted', 'workspaces.py:_configured_storage', 'meta.value'),
+-  ('caller', 'attempts.py:assignment_of', 'attempt_id'),
+-  ('caller', 'attempts.py:attempt_activity_of', 'attempt_id'),
+-  ('caller', 'attempts.py:attempt_runtime_of', 'attempt_id'),
+-  ('caller', 'attempts.py:attempt_start_failure_of', 'attempt_id'),
+-  ('caller', 'attempts.py:authorize_input_root', 'attempt_id'),
+-  ('caller', 'attempts.py:authorize_input_root', 'inputs'),
+-  ('caller', 'attempts.py:label_context', 'attempt_id'),
+-  ('caller', 'attempts.py:observe_activity', 'attempt_id'),
+-  ('caller', 'attempts.py:observe_activity', 'bytes_observed'),
+-  ('caller', 'attempts.py:request_runtime_start', 'inputs'),
+-  ('caller', 'attempts.py:start_failure_operation_id', 'attempt'),
+-  ('caller',
+-   'attempts.py:start_failure_operation_id',
+-   'attempt.assignment_generation'),
+-  ('caller',
+-   'attempts.py:start_failure_operation_id',
+-   'attempt.assignment_participant'),
+-  ('caller', 'attempts.py:start_failure_operation_id', 'attempt.authority_uuid'),
+-  ('caller', 'attempts.py:start_failure_operation_id', 'attempt.profile_digest'),
+-  ('caller',
+-   'attempts.py:start_failure_operation_id',
+-   'attempt.runtime_attempt_id'),
+-  ('caller', 'attempts.py:start_failure_operation_id', 'attempt.work_id'),
+-  ('caller', 'authority_port.py:AuthorityPort.claim', 'role'),
+-  ('caller', 'authority_port.py:AuthorityPort.claim', 'scope'),
+-  ('caller', 'authority_port.py:AuthorityPort.settle_operation', 'role'),
+-  ('caller', 'authority_port.py:AuthorityPort.settle_operation', 'scope'),
+-  ('caller', 'credentials.py:CredentialHome.adopt', 'workspace_group'),
+-  ('caller', 'credentials.py:CredentialHome.materialize', 'workspace_group'),
+-  ('caller', 'credentials.py:OrphanTeardown.__init__', 'homes'),
+-  ('caller', 'documents.py:abandon_intent', 'members'),
+-  ('caller', 'documents.py:abandoned_destroy_command', 'members'),
+-  ('caller', 'documents.py:abandonment', 'members'),
+-  ('caller', 'documents.py:directory_custody_settled', 'members'),
+-  ('caller', 'documents.py:failed_start_destroy_command', 'members'),
+-  ('caller', 'documents.py:freeze_requested', 'members'),
+-  ('caller', 'documents.py:frozen_output', 'members'),
+-  ('caller', 'documents.py:manifest_retained', 'members'),
+-  ('caller', 'documents.py:operation', 'members'),
+-  ('caller', 'documents.py:output_answer', 'members'),
+-  ('caller', 'documents.py:output_artifact', 'members'),
+-  ('caller', 'documents.py:posture_slot', 'members'),
+-  ('caller', 'documents.py:provider_session_adopted', 'members'),
+-  ('caller', 'documents.py:refused_session_destroy_command', 'members'),
+-  ('caller', 'documents.py:result_frozen', 'members'),
+-  ('caller', 'documents.py:runtime_preparation_failed', 'members'),
+-  ('caller', 'documents.py:runtime_start_failed', 'members'),
+-  ('caller', 'documents.py:session_closed', 'members'),
+-  ('caller', 'documents.py:session_observed', 'members'),
+-  ('caller', 'documents.py:session_opened', 'members'),
+-  ('caller', 'documents.py:session_quiescence_requested', 'members'),
+-  ('caller', 'documents.py:session_reconciled', 'members'),
+-  ('caller', 'documents.py:session_ref', 'members'),
+-  ('caller', 'documents.py:session_unsupported_version', 'members'),
+-  ('caller', 'documents.py:slot_moved', 'members'),
+-  ('caller', 'documents.py:transport_lost', 'members'),
+-  ('caller', 'exchange.py:adopt', 'attempt_id'),
+-  ('caller', 'exchange.py:adopt', 'workspace_group'),
+-  ('caller', 'exchange.py:command_document', 'attempt_id'),
+-  ('caller', 'exchange.py:command_document', 'session'),
+-  ('caller', 'exchange.py:discard', 'root'),
+-  ('caller', 'exchange.py:materialize', 'attempt_id'),
+-  ('caller', 'exchange.py:materialize', 'workspace_group'),
+-  ('caller', 'exchange.py:observation', 'delivery'),
+-  ('caller', 'exchange.py:observation', 'document.accepted_at'),
+-  ('caller', 'exchange.py:observation', 'document.answered'),
+-  ('caller', 'exchange.py:observation', 'document.disposition'),
+-  ('caller', 'exchange.py:observation', 'document.ending'),
+-  ('caller', 'exchange.py:observation', 'document.fault_code'),
+-  ('caller', 'exchange.py:observation', 'document.manifest_digest'),
+-  ('caller', 'exchange.py:observation', 'document.operation'),
+-  ('caller', 'exchange.py:observation', 'document.operation_id'),
+-  ('caller', 'exchange.py:observation', 'document.state'),
+-  ('caller', 'exchange.py:publish_command', 'delivery'),
+-  ('caller', 'exchange.py:state_document', 'operation'),
+-  ('caller', 'exchange.py:worker_operation_id', 'operation'),
+-  ('caller', 'handshake.py:settle_unsupported_version', 'adapter'),
+-  ('caller', 'handshake.py:settle_unsupported_version', 'agent'),
+-  ('caller',
+-   'handshake.py:settle_unsupported_version',
+-   'agent_protocol_version'),
+-  ('caller',
+-   'handshake.py:settle_unsupported_version',
+-   'agent_session_capabilities'),
+-  ('caller', 'handshake.py:settle_unsupported_version', 'session_ref'),
+-  ('caller', 'handshake.py:settle_unsupported_version', 'session_ref.posture'),
+-  ('caller',
+-   'handshake.py:settle_unsupported_version',
+-   'session_ref.provider_session_id'),
+-  ('caller',
+-   'handshake.py:settle_unsupported_version',
+-   'session_ref.runtime_attempt_id'),
+-  ('caller',
+-   'handshake.py:settle_unsupported_version',
+-   'session_ref.session_epoch'),
+-  ('caller', 'handshake.py:unsupported_version_operation_id', 'session_ref'),
+-  ('caller',
+-   'handshake.py:unsupported_version_operation_id',
+-   'session_ref.posture'),
+-  ('caller',
+-   'handshake.py:unsupported_version_operation_id',
+-   'session_ref.provider_session_id'),
+-  ('caller',
+-   'handshake.py:unsupported_version_operation_id',
+-   'session_ref.runtime_attempt_id'),
+-  ('caller',
+-   'handshake.py:unsupported_version_operation_id',
+-   'session_ref.session_epoch'),
+-  ('caller', 'intake.py:authorize_refused_session_cleanup', 'session_ref'),
+-  ('caller',
+-   'intake.py:authorize_refused_session_cleanup',
+-   'session_ref.posture'),
+-  ('caller',
+-   'intake.py:authorize_refused_session_cleanup',
+-   'session_ref.provider_session_id'),
+-  ('caller',
+-   'intake.py:authorize_refused_session_cleanup',
+-   'session_ref.session_epoch'),
+-  ('caller', 'lanes.py:lane_reference', 'attempt'),
+-  ('caller', 'lanes.py:lane_reference', 'attempt.assignment_principal'),
+-  ('caller', 'lanes.py:lane_reference', 'attempt.assignment_scope'),
+-  ('caller', 'lanes.py:lane_reference', 'attempt.authority_uuid'),
+-  ('caller', 'lanes.py:lane_reference', 'attempt.runtime_attempt_id'),
+-  ('caller', 'lanes.py:lane_reference', 'attempt.work_id'),
+-  ('caller', 'lanes.py:runtime_lane', 'attempt_id'),
+-  ('caller', 'lanes.py:runtime_lane', 'row.holder'),
+-  ('caller', 'lanes.py:runtime_lane', 'row.lane_id'),
+-  ('caller', 'lanes.py:runtime_lane', 'row.principal'),
+-  ('caller', 'lanes.py:runtime_lane', 'row.reason'),
+-  ('caller', 'launch.py:LaunchDelivery.__init__', 'delivery'),
+-  ('caller', 'launch.py:adopt', 'transport'),
+-  ('caller', 'launch.py:adopt', 'workspace_group'),
+-  ('caller', 'launch.py:launch_document', 'transport'),
+-  ('caller', 'launch.py:materialize', 'transport'),
+-  ('caller', 'launch.py:materialize', 'workspace_group'),
+-  ('caller', 'launch.py:members_for', 'document'),
+-  ('caller', 'launch.py:members_for', 'document.schema'),
+-  ('caller', 'oci.py:OciAdapter.__init__', 'credential_home'),
+-  ('caller', 'oci.py:OciAdapter.__init__', 'credential_orphan'),
+-  ('caller', 'oci.py:OciAdapter.__init__', 'integration_delivery'),
+-  ('caller', 'oci.py:OciAdapter.__init__', 'interactive'),
+-  ('caller', 'oci.py:OciAdapter.__init__', 'network'),
+-  ('caller', 'oci.py:OciAdapter.__init__', 'workspace_group'),
+-  ('caller', 'oci.py:OciAdapter.integration_mounts_agree', 'runtime_id'),
+-  ('caller', 'oci.py:OciAdapter.normalize_directory', 'assignment_id'),
+-  ('caller', 'oci.py:OciAdapter.normalize_directory', 'which'),
+-  ('caller', 'oci.py:OciAdapter.prove_line_consumable', 'assignment_id'),
+-  ('caller', 'oci.py:OciAdapter.prove_line_consumable', 'generation'),
+-  ('caller', 'oci.py:OciAdapter.seal', 'request.context'),
+-  ('caller', 'oci.py:OciAdapter.seal', 'request.context.effective_scope'),
+-  ('caller', 'oci.py:OciAdapter.seal', 'request.context.principal'),
+-  ('caller', 'oci.py:OciAdapter.start', 'labels.participant'),
+-  ('caller', 'oci.py:canonical_source', 'what'),
+-  ('caller', 'oci.py:canonical_target', 'what'),
+-  ('caller', 'oci.py:exec_vector', 'engine'),
+-  ('caller', 'oci.py:run_vector', 'exchange_delivered'),
+-  ('caller', 'oci.py:run_vector', 'integration_delivered'),
+-  ('caller', 'oci.py:run_vector', 'interactive'),
+-  ('caller', 'oci.py:run_vector', 'source_delivered'),
+-  ('caller', 'oci.py:run_vector', 'workspace_group'),
+-  ('caller', 'review_cycles.py:consumption_subject', 'answer.authority_uuid'),
+-  ('caller', 'review_cycles.py:consumption_subject', 'answer.generation'),
+-  ('caller', 'review_cycles.py:consumption_subject', 'answer.participant'),
+-  ('caller', 'review_cycles.py:consumption_subject', 'answer.principal'),
+-  ('caller', 'review_cycles.py:consumption_subject', 'answer.work_id'),
+-  ('caller', 'review_cycles.py:review_of', 'attachment_id'),
+-  ('caller', 'review_cycles.py:verdict_of', 'verdict_id'),
+-  ('caller', 'sessions.py:close_agent_session', 'session_ref.posture'),
+-  ('caller', 'sessions.py:close_agent_session', 'session_ref.session_epoch'),
+-  ('caller', 'sessions.py:handle_transport_loss', 'session_ref.posture'),
+-  ('caller', 'sessions.py:handle_transport_loss', 'session_ref.session_epoch'),
+-  ('caller', 'source_boundary.py:SourceBoundary.__init__', 'guard'),
+-  ('caller', 'workspaces.py:AllocatedRoots.__init__', '_grant'),
+-  ('caller', 'workspaces.py:AllocatedRoots.__init__', '_grant_required'),
+-  ('caller', 'workspaces.py:AllocatedRoots.__init__', '_minted'),
+-  ('caller', 'workspaces.py:AllocatedRoots.__init__', 'made'),
+-  ('caller', 'workspaces.py:WorkspaceGroup.__init__', '_minted'),
+-  ('caller', 'workspaces.py:WorkspaceGroup.__init__', 'gid'),
+-  ('caller', 'workspaces.py:WorkspaceStorage.__init__', '_minted'),
+-  ('caller', 'workspaces.py:WorkspaceStorage.__init__', 'place'),
+-  ('caller', 'workspaces.py:adopt_workspace_group', 'gid'),
+-  ('caller', 'workspaces.py:adopt_workspace_group', 'roots'),
+-  ('caller', 'workspaces.py:adopt_workspace_group', 'roots.workspace'),
+-  ('caller', 'workspaces.py:adopted_assignment_workspace', 'assignment_id'),
+-  ('caller', 'workspaces.py:assignment_workspace', 'assignment_id'),
+-  ('caller', 'workspaces.py:assignment_workspace', 'workspace_group'),
+-  ('caller', 'workspaces.py:check_workspace_group', 'gid'),
+-  ('caller', 'workspaces.py:check_workspace_group', 'what'),
+-  ('caller', 'workspaces.py:check_workspace_storage', 'what'),
+-  ('caller', 'workspaces.py:configure_workspace_group', 'gid'),
+-  ('caller', 'workspaces.py:configure_workspace_storage', 'place'),
+-  ('caller', 'workspaces.py:copied_manifest', 'admits'),
+-  ('caller', 'workspaces.py:copied_manifest', 'into'),
+-  ('caller', 'workspaces.py:copied_manifest', 'max_bytes'),
+-  ('caller', 'workspaces.py:copied_manifest', 'max_entries'),
+-  ('caller', 'workspaces.py:copied_manifest', 'root'),
+-  ('caller', 'workspaces.py:discard_execution_roots', 'assignment_id'),
+-  ('caller', 'workspaces.py:discard_tree', 'place'),
+-  ('caller', 'workspaces.py:discard_workspace', 'assignment_id'),
+-  ('caller', 'workspaces.py:prove_workspace_group', 'gid'),
+-  ('caller', 'workspaces.py:prove_workspace_group', 'place'),
+-  ('caller', 'workspaces.py:prove_workspace_group', 'what'),
+-  ('caller', 'workspaces.py:read_input_root', 'inputs'),
+-  ('injected', 'attempts.py:_observed', 'adapter.observe'),
+-  ('injected', 'authority_port.py:AuthorityPort.claim', 'claim.claim_event'),
+-  ('injected', 'authority_port.py:AuthorityPort.claim', 'claim.decision.grant'),
+-  ('injected',
+-   'authority_port.py:AuthorityPort.claim',
+-   'claim.decision.policy_generation'),
+-  ('injected',
+-   'authority_port.py:AuthorityPort.settle_operation',
+-   'settle_operation.result.claim_event'),
+-  ('injected',
+-   'authority_port.py:AuthorityPort.settle_operation',
+-   'settle_operation.result.decision.grant'),
+-  ('injected',
+-   'authority_port.py:AuthorityPort.settle_operation',
+-   'settle_operation.result.decision.policy_generation')] : receiving entries with no owner
+
+======================================================================
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+The anti-circularity check for the adopted member universe.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6302, in test_the_universe_sees_every_persisted_column_that_is_read
+    self.assertEqual(sorted(scanned - tracked), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "columns this build reads that the universe cannot see")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['operation_id', 'settled_at'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'operation_id'
+
+- ['operation_id', 'settled_at']
++ [] : columns this build reads that the universe cannot see
+
+----------------------------------------------------------------------
+Ran 8 tests in 3.516s
+
+FAILED (failures=7, errors=1)

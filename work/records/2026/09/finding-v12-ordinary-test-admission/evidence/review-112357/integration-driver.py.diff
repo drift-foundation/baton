@@ -1,0 +1,43 @@
+--- prior/v12/python/src/baton_v12/integration/driver.py
++++ candidate/v12/python/src/baton_v12/integration/driver.py
+@@ -668,9 +668,26 @@
+             != proposal["candidate_digest"]:
+         _refuse("the proposal claim's head and the published candidate digest "
+                 "disagree")
+-    if accepted["head"] != claim["head"]:
++    # THE CHECKPOINT'S OBJECTS LIVE IN ITS `evidence`, which is the shape
++    # `integration_checkpoint` actually answers. Review 2026-09-07T18-00-22Z
++    # [P1]: this read a top-level `head`, so the reader raised `KeyError` the
++    # moment it met the real owner -- and my own fixture hid it, because the
++    # document it mocked had a shape the owner never returns. The public
++    # eligibility schema is unchanged; the consumer is.
++    evidence = boundaries.document(accepted.get("evidence"),
++                                   "an accepted checkpoint's evidence",
++                                   optional=("profile", "base", "head", "tree",
++                                             "paths", "path_set_digest",
++                                             "reference"))
++    for member in ("base", "head"):
++        if member not in evidence:
++            _refuse(f"the accepted checkpoint's evidence records no "
++                    f"{member}; a receipt is written about objects this "
++                    f"manager can name", category="refused",
++                    code="precondition")
++    if evidence["head"] != claim["head"]:
+         _refuse(f"the accepted checkpoint records head "
+-                f"{name_value(accepted['head'])} and the producer's proposal "
++                f"{name_value(evidence['head'])} and the producer's proposal "
+                 f"claims {name_value(claim['head'])}")
+     # AND THE REVISION THIS CANDIDATE WAS BUILT ON. Review [P1]: the proposal's
+     # target was never compared with the base the worker says it built from, so
+@@ -684,9 +701,9 @@
+                 f"{name_value(claim['base'])}; a receipt is written about the "
+                 f"revision the candidate was made from", category="refused",
+                 code="precondition")
+-    if accepted.get("base") is not None and accepted["base"] != claim["base"]:
++    if evidence["base"] != claim["base"]:
+         _refuse(f"the accepted checkpoint records base "
+-                f"{name_value(accepted['base'])} and the producer built on "
++                f"{name_value(evidence['base'])} and the producer built on "
+                 f"{name_value(claim['base'])}", category="refused",
+                 code="precondition")
+     return {"attempt_id": producer, "checkpoint_id": accepted["checkpoint_id"],

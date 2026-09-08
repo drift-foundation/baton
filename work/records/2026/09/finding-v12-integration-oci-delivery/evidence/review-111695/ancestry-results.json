@@ -1,0 +1,20 @@
+{
+  "accepted": false,
+  "reason": "the started runtime does not carry this integration's mounts: the live bind at '/target' comes from '/tmp/v12-integration-xxt6nu7l/target-parent-moved/target' and this plan binds '/tmp/v12-integration-xxt6nu7l/target-parent/target'; the credential delivery is not-delivered and the launch document is torn-down",
+  "engine_operations": [
+    "ps",
+    "run",
+    "inspect",
+    "ps"
+  ],
+  "run_calls": 1,
+  "target_mounts": [
+    [
+      "/tmp/v12-integration-xxt6nu7l/target-parent-moved/target",
+      "/target",
+      true
+    ]
+  ],
+  "nominated_path": "/tmp/v12-integration-xxt6nu7l/target-parent/target",
+  "resolved_path": "/tmp/v12-integration-xxt6nu7l/target-parent-moved/target"
+}

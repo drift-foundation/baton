@@ -1,0 +1,93 @@
+Command: PYTHONPATH=src python3 -m unittest tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe -v
+test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+The other direction: an owner with nothing to own is also a defect. ... FAIL
+test_every_named_constructor_exists_and_owns_what_it_holds (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds)
+An exception has to point at a constructor that is THERE. ... ok
+test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator) ... FAIL
+test_every_site_is_lexical (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical)
+Module, class and function -- because a name alone collapses methods. ... ok
+test_no_declared_exception_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale) ... ok
+test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) ... ok
+test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice)
+4bz forbids blanket revalidation, and this is where it shows. ... ok
+test_the_double_ownership_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail) ... ok
+test_the_universe_is_not_derived_from_the_validators (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators)
+The property that distinguishes this from what it replaces. ... ok
+test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+The anti-circularity check for the adopted member universe. ... FAIL
+test_the_universe_sees_the_engine_answer_and_every_consumed_member (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_the_engine_answer_and_every_consumed_member)
+The branch join must not hide members of an injected answer. ... ok
+test_variadic_public_parameters_are_receiving_entries_too (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too) ... ok
+test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe) ... FAIL
+
+======================================================================
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+The other direction: an owner with nothing to own is also a defect.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6355, in test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attempts.py:_committed_record', 'docume[3911 chars]nt')] != []
+
+First list contains 55 additional elements.
+First extra element 0:
+('attempts.py:_committed_record', 'document', 'a committed ending record')
+
+Diff is 4240 characters long. Set self.maxDiff to None to see it. : boundary calls attributed to no entry
+
+======================================================================
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6212, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'lanes.py:_occupy_lane', 'run[10952 chars]on')] != []
+
+First list contains 172 additional elements.
+First extra element 0:
+('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes')
+
+Diff is 11672 characters long. Set self.maxDiff to None to see it. : receiving entries with no owner
+
+======================================================================
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+The anti-circularity check for the adopted member universe.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6285, in test_the_universe_sees_every_persisted_column_that_is_read
+    self.assertEqual(sorted(scanned - tracked), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "columns this build reads that the universe cannot see")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['operation_id', 'settled_at'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'operation_id'
+
+- ['operation_id', 'settled_at']
++ [] : columns this build reads that the universe cannot see
+
+======================================================================
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7376, in test_every_owned_entry_has_exactly_one_probe
+    self.assertEqual(sorted(wanted - declared), [], "owned, never probed")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[5943 chars]te")] != []
+
+First list contains 59 additional elements.
+First extra element 0:
+(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), 'a persisted attempt')
+
+Diff is 6536 characters long. Set self.maxDiff to None to see it. : owned, never probed
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.764s
+
+FAILED (failures=4)
+
+Exit code: 1

@@ -1,0 +1,28 @@
+{
+  "work": "W105706",
+  "claim": 108214,
+  "candidate_path": "v12/python/tests/manager/test_private_line_access_engine.py",
+  "candidate_sha256": "20981569e64054222404b4765d3114c4dbb7630c02aa70e81ac7ee0ec06ae2d7",
+  "base_sha256": "09d99499ebe811de16320fa930fadf30744c8b372625c7d6e794061187d5cbad",
+  "patch_sha256": "88c68951dfd10e87bb6a3c02e1897531841e5dc6538e86522bf3795531c0bc59",
+  "all_other_methods_AST_equal": true,
+  "correction_prior_body_preserved": "exact AST after removing one new lifecycle block and normalizing retained adapter binding",
+  "custody_hashes_matched": 8,
+  "source_test_hashes": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "101a2c1754cfb2ea7fc6e08783a902c4e944b33ed7b0189130aaf8c6ff79f566",
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1",
+    "v12/python/tests/manager/test_review_cycles.py": "5e24cc14c4fe134f23664229dda84736954d72b3f21dc1ebd2aae666fce961de",
+    "v12/python/tests/manager/test_workspaces.py": "8874973c44e83f1ccbf0c1a19fc3ac1953f220c9312d551ca0e9fe63175935d5",
+    "v12/python/tests/manager/test_oci.py": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+    "v12/python/tests/job_manager/test_review_driver.py": "2b759a9ad7ec3bb9042c4f137b36c68035c18be8e9d948caae40cf470526a1df",
+    "v12/python/src/baton_v12/checkpoint_profiles.py": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38",
+    "v12/python/tests/manager/test_checkpoint_profiles.py": "0938cb6cffac68336ebbec06311bb464c093be626c73d8708908ed0c9241a3f0"
+  },
+  "focused_verification": "One real-Git checkpoint history test passed; no OCI runtime or broad suite run",
+  "operator_methods": [
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_reviewer_runtime_cannot_write_the_checkpoint_it_reads",
+    "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_correction_runtime_advances_the_same_line"
+  ]
+}

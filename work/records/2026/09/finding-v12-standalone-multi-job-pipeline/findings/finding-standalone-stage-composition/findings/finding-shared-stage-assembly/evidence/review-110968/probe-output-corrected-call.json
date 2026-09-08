@@ -1,0 +1,122 @@
+{
+  "claim_seq": 110968,
+  "files": {
+    "v12/python/tests/tools/test_single_worker.py": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+    "v12/python/tests/tools/test_stage_execution.py": "36263bef626fd14abf7aeaa022c0fc721b16ee0a783ca3b34176d451cf97e8f5",
+    "v12/python/tools/parallel_test.py": "eb90384d91cb5a4afe22bc147b8113863c8cf039eb5efbcae7ed4f614870ab9e",
+    "v12/python/tools/single_worker.py": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+    "v12/python/tools/stage_execution.py": "745a8b851193ace8099b6ae013641ef668f1b679cc73e23bd301bb8a152c5841"
+  },
+  "limitations": "Local fixture Authority and stores, deterministic engine, no daemon/provider or canonical target. Existing reported suites were not rerun.",
+  "probes": [
+    {
+      "after": {
+        "group": null,
+        "integration_exists": false,
+        "pool": null
+      },
+      "before": {
+        "group": null,
+        "integration_exists": false,
+        "pool": null
+      },
+      "case": "no-grant",
+      "constructed": false,
+      "refusal": {
+        "category": "policy",
+        "code": "denied",
+        "message": "'baton.not-configured' writes this deployment's approval receipt and holds no approve capability in scope:deployment; a receipt is written by the configured actor and the actor is authorized here rather than with somebody's candidate already published"
+      }
+    },
+    {
+      "after": {
+        "group": null,
+        "integration_exists": false,
+        "pool": null
+      },
+      "before": {
+        "group": null,
+        "integration_exists": false,
+        "pool": null
+      },
+      "case": "malformed-actor",
+      "constructed": false,
+      "refusal": {
+        "category": "refused",
+        "code": "capability",
+        "message": "this deployment's approval actor 'not-an-address' is not one this Authority mints a session for: a session is bound to one participant is 'not-an-address'; a participant is team.member"
+      }
+    },
+    {
+      "after": {
+        "group": null,
+        "integration_exists": false,
+        "pool": null
+      },
+      "before": {
+        "group": null,
+        "integration_exists": false,
+        "pool": null
+      },
+      "case": "pool-generation",
+      "constructed": false,
+      "refusal": {
+        "category": "refused",
+        "code": "operation-collision",
+        "message": "activating this deployment's pool would answer generation 1 and the configuration names 4; a deployment resuming against a pool that has moved on refuses before it activates one rather than after"
+      }
+    },
+    {
+      "after": {
+        "group": 1000,
+        "integration_exists": true,
+        "pool": {
+          "activated_at": "2026-09-02T00:00:00.000Z",
+          "digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+          "document": "{\"schema\":\"baton.v12.worker-pool/1\",\"separation_class\":\"provider-diverse\",\"variant\":\"baton.v12.stage-execution-deployment/1\",\"workers\":[{\"eligible_kinds\":[\"implementation\"],\"lane\":\"implementation\",\"participant\":\"baton.claude\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"implementation-worker\"},{\"eligible_kinds\":[\"integration\"],\"lane\":\"implementation\",\"participant\":\"baton.integrator\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"integration-worker\"},{\"eligible_kinds\":[\"review\"],\"lane\":\"review\",\"participant\":\"baton.reviewer\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"review-worker\"}]}",
+          "generation": 1,
+          "separation_class": "provider-diverse",
+          "variant": "baton.v12.stage-execution-deployment/1"
+        }
+      },
+      "before": {
+        "group": null,
+        "integration_exists": false,
+        "pool": null
+      },
+      "case": "valid",
+      "constructed": true,
+      "grants": {
+        "approval": true,
+        "integrator": true,
+        "review": true,
+        "verification": true
+      }
+    },
+    {
+      "after": {
+        "group": 1000,
+        "integration_exists": true,
+        "pool": {
+          "activated_at": "2026-09-02T00:00:00.000Z",
+          "digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+          "document": "{\"schema\":\"baton.v12.worker-pool/1\",\"separation_class\":\"provider-diverse\",\"variant\":\"baton.v12.stage-execution-deployment/1\",\"workers\":[{\"eligible_kinds\":[\"implementation\"],\"lane\":\"implementation\",\"participant\":\"baton.claude\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"implementation-worker\"},{\"eligible_kinds\":[\"integration\"],\"lane\":\"implementation\",\"participant\":\"baton.integrator\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"integration-worker\"},{\"eligible_kinds\":[\"review\"],\"lane\":\"review\",\"participant\":\"baton.reviewer\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"review-worker\"}]}",
+          "generation": 1,
+          "separation_class": "provider-diverse",
+          "variant": "baton.v12.stage-execution-deployment/1"
+        }
+      },
+      "authority_refusal": {
+        "message": "the approve operands carries an integer outside the interoperable range; a durable operand every consumer can read back is bounded by \u00b19007199254740991",
+        "type": "Refusal"
+      },
+      "before": {
+        "group": null,
+        "integration_exists": false,
+        "pool": null
+      },
+      "case": "policy-too-wide",
+      "constructed": true
+    }
+  ]
+}

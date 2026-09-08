@@ -1,0 +1,24 @@
+{
+  "work": "W112039",
+  "claim": 112565,
+  "owner_instruction": 112547,
+  "provider_reviews": {
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/review-2026-09-07T18-28-43Z.md": "aa374a28bac7ccef5b5849680cee9669db089f3157b40e8502ccd06cfefe3bc3",
+    "work/records/2026/09/finding-v12-ordinary-test-admission/review-2026-09-07T18-38-59Z.md": "3e7455a56d028df9efa49d7e21920a44ca81cc940fba303f7dec1e6d629473dc"
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "0ba2b2bb7adb9c6181cb843a4b90ddf5da6bd8dadd43ed9e6e5a5952020c2262",
+    "v12/python/tests/manager/test_review_cycles.py": "fe14f790dff402c36f2e96a98926641f0131a0b729753e11c18c83113a0f9a16",
+    "v12/python/tests/job_manager/test_review_driver.py": "cb376576b1100976ec865749e6649cccd8cc1addf00210dda8c88bf801b919bc",
+    "v12/python/REVIEW-CYCLES.md": "8a1a61911e6c7c6810593fdb73e04e733e83d02825c28eec088eb86e39b37629",
+    "v12/python/tests/manager/test_boundary_inventory.py": "190cc788c7d12ae22f7b1d0c6cf8cd6bb4ebd488ea2988e21ca3907a0e212270",
+    "v12/python/src/baton_v12/worker_manager/custody.py": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6",
+    "v12/python/tests/manager/test_custody.py": "bb4cf40d5d7001e14d164e18ba3d803ed04d15ebdb18dd3328f857e890dd600a",
+    "v12/python/tests/integration/test_driver.py": "3aeb9fad7e75d958070c7086cbfeeccf9098ff4f9714f1bff1be69a6a5988907",
+    "v12/python/src/baton_v12/integration/driver.py": "d6b3be4f99e0776d6ec402db6bfb05b4db8fd376a36b8d1c4225eb17dec83bd6",
+    "v12/worker/claude_agent.py": "65a9d8b7dda16f76665c0a620740653b43692ac315e246fd4e822fe222101817",
+    "v12/python/tests/manager/test_claude_agent.py": "a6c6e57ad38dd9c24c6ad864080ed02f0106ce27a509631b52436c1f9bbf5dd7",
+    "v12/python/tests/manager/test_dependencies.py": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130"
+  }
+}

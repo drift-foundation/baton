@@ -1,0 +1,72 @@
+{
+  "work": "W110934",
+  "claim": 111937,
+  "participant": "baton.tuner",
+  "state": "awaiting-independent-review",
+  "files": [
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/FINDING.md",
+      "sha256": "495786ccd53457b3b577d32e3c8f1889e54956de5c10a46db41c4ce22d02d5b8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/PLAN.md",
+      "sha256": "c3fb80f2c05927c507f32411fe6281564df3831c6311508cb8d746c4ccfd3c47"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/PROGRESS.md",
+      "sha256": "d3eaf5a27f6467287fbff9bf0c02544acf751d02f9093bc8dc84ec8c9f616cbc"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/baseline.json",
+      "sha256": "bd1987cb276c09a3d869a674b46a08b7fc861dce1790d57d53dd51f370ed569c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/candidate/v12/python/src/baton_v12/integration/oci_delivery.py",
+      "sha256": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/candidate/v12/python/tests/manager/test_oci_integration.py",
+      "sha256": "822bae5cb51c7f664c1f351aff9147957c930db3251c2e932330a7a125d301a6"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/candidate.json",
+      "sha256": "910fe52492e5e2996c2d9676be62a1c96ab6176f79a00fbed926a2acb94e2ee8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/delta-oci_delivery.py.txt",
+      "sha256": "6554f2b74e0626072170b14ccf6e9fe605efb2c027f6852c037a6d948d48f57b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/delta-test_oci_integration.py.txt",
+      "sha256": "8d4793233e4b0d92aa68858ef2e089143d3d94d57d08b682ffda027930a57a3b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/manager-results.json",
+      "sha256": "5a0afaf467be40a50df11fdffdeab67bd7e11445df29f4be3ee1329a596c26a1"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/manager_path.py",
+      "sha256": "e5f50d4df13f0ec2859bf072a25316c929756560111b16ac3d965190f9b67e44"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/mount-module.txt",
+      "sha256": "5b3c7cc91fe4fdc78e5ca4e20e8c3d4fa3f22768bc2d61f234a51bf511364bab"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/new-tests.txt",
+      "sha256": "50216e97a6ef2db80bb956ca2e735546a833721af638169606e0332fdeda184d"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/recovery-before.json",
+      "sha256": "00ea304821a68ab89687d8c74b6b2744d227e24e6fbdc094b6e596a2d8fff588"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/recovery-shape-results.json",
+      "sha256": "4aa04c98c72dd144ff824f76530265b58217c9c19d1d19c6463d04077845bd91"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-integration-oci-delivery/evidence/tuner-111937/recovery_shape.py",
+      "sha256": "0b40159c69c3b69d1ce33c34c9677ab6459d7f855e2af2eadb7d244004ddece4"
+    }
+  ]
+}

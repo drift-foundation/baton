@@ -1,0 +1,87 @@
+{
+  "public_provider_methods": [
+    "consider",
+    "work"
+  ],
+  "integration_assignment_consumers": [],
+  "accepted_generic_result_claims": {
+    "integrated": {
+      "schema": "baton.v12.integration-result/1",
+      "attempt_id": "attempt-1",
+      "lease_id": "lease-1",
+      "canonical_target_id": "target:mainline",
+      "entry_id": "entry-1",
+      "fence": 1,
+      "outcome": "integrated",
+      "detail": {
+        "imported_paths": [
+          "src/a.py"
+        ],
+        "verification": {
+          "synthetic": true
+        }
+      }
+    },
+    "refused": {
+      "schema": "baton.v12.integration-result/1",
+      "attempt_id": "attempt-1",
+      "lease_id": "lease-1",
+      "canonical_target_id": "target:mainline",
+      "entry_id": "entry-1",
+      "fence": 1,
+      "outcome": "refused",
+      "detail": {
+        "reason": "scope",
+        "detail": {
+          "observed": "synthetic"
+        }
+      }
+    },
+    "held": {
+      "schema": "baton.v12.integration-result/1",
+      "attempt_id": "attempt-1",
+      "lease_id": "lease-1",
+      "canonical_target_id": "target:mainline",
+      "entry_id": "entry-1",
+      "fence": 1,
+      "outcome": "held",
+      "detail": {
+        "reason": "uncertain",
+        "detail": {
+          "observed": "synthetic"
+        }
+      }
+    }
+  },
+  "refusals": {
+    "foreign-attempt": {
+      "category": "policy",
+      "code": "denied"
+    },
+    "wrong-fence": {
+      "category": "policy",
+      "code": "denied"
+    },
+    "unsupported-outcome": {
+      "category": "integrity",
+      "code": "schema"
+    },
+    "extra-member": {
+      "category": "integrity",
+      "code": "schema"
+    }
+  },
+  "source_hashes": {
+    "v12/worker/claude_agent.py": "4406af1acbd2e64e8daddee985fca67b4dd7a94b3b91927b06bc2dae98eac2c0",
+    "v12/worker/dogfood_entry.py": "bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3",
+    "v12/worker/Dockerfile.claude": "8f88fc3bd366b76686d9cae0e5af019ba395a39d3afb9fd78dc5c3570556e55b",
+    "v12/python/src/baton_v12/integration/runtime.py": "742121cf0ae906160375e71bf0985b26091c5a2705bf2144236e12b6eb1b243c",
+    "v12/python/src/baton_v12/integration/execution.py": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+    "v12/python/src/baton_v12/integration/admission.py": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f",
+    "v12/python/src/baton_v12/integration/driver.py": "d7a3e63e2b9ef8b6fffc6eb219790a3df7fd58c3be2ffeb59727bf9284dfd8b1",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377",
+    "v12/python/src/baton_v12/worker_manager/output.py": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+    "v12/python/src/baton_v12/checkpoint_profiles.py": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38"
+  },
+  "limitations": "Public generic result adoption accepts synthetic claims without observing target bytes or a provider; that is its documented boundary, not integration proof. No engine, credential, provider, Git mutation or actual target operation."
+}

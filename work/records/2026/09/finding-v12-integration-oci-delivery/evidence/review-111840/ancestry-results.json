@@ -1,0 +1,12 @@
+{
+  "accepted": false,
+  "reason": "the bound /target source at '/tmp/v12-integration-b9tgjfry/target-parent/target' resolves to '/tmp/v12-integration-b9tgjfry/target-parent-moved/target'; a link at an ancestor is a directory somebody else chose and the engine binds what the kernel resolves rather than what this manager spelled; the credential delivery is not-delivered and the launch document is torn-down",
+  "engine_operations": [
+    "ps",
+    "ps"
+  ],
+  "run_calls": 0,
+  "target_mounts": [],
+  "nominated_path": "/tmp/v12-integration-b9tgjfry/target-parent/target",
+  "resolved_path": "/tmp/v12-integration-b9tgjfry/target-parent-moved/target"
+}

@@ -1,0 +1,297 @@
+--- review114231/v12/python/tools/integration_bundle.py
++++ review114618/v12/python/tools/integration_bundle.py
+@@ -142,6 +142,8 @@
+ MAX_BLOB_BYTES = 64 * 1024 * 1024
+ MAX_EVIDENCE_BYTES = 1024 * 1024
+ MAX_REVIEW_OUTPUTS = 8
++# HOW DEEP A COLLECTED REVIEWER OUTPUT MAY NEST.
++MAX_REVIEW_DEPTH = 8
+ MAX_REVIEW_FILES = 32
+ MAX_REVIEW_BYTES = 1024 * 1024
+ 
+@@ -618,7 +620,143 @@
+             "tests.json": tests}}
+ 
+ 
+-def _review_documents(manager, verdict, scratch):
++def _held_directory(path, what):
++    """One descriptor for `path`, walked from `/` a component at a time.
++
++    W114085 review 2026-09-07T23:16:55Z [P1]. The first version compared the
++    locator's LEXICAL prefix with the configured store and then handed the
++    pathname to `workspaces.copied_manifest`, whose `_real` resolves the root
++    with `realpath` before its own descriptor-safe walk begins. That walk is
++    safe for DESCENDANTS and says nothing about the root or its ancestors, so
++    a symlink anywhere above the custody directory was followed -- and the
++    reviewer's probe published a bundle whose review files came from outside
++    configured storage entirely.
++
++    THE OWNER GAP, RECORDED RATHER THAN WORKED AROUND: no public capability in
++    this build measures or copies a tree through a HELD directory identity.
++    `directory_manifest` and `copied_manifest` both take a pathname and
++    realpath it. Editing them is generic-core work this Work is not authorized
++    to do, so this module walks and measures through its own descriptors, and
++    a conformance case holds its measurement equal to `directory_manifest`'s
++    on a tree with no links at all.
++
++    `realpath` IS DELIBERATELY NOT USED. It resolves a link and hands back the
++    target, which ACCEPTS the escape rather than refusing it.
++    """
++    if type(path) is not str or not path or not os.path.isabs(path) \
++            or os.path.normpath(path) != path or path.startswith("//"):
++        _refuse(f"{what} is one canonical absolute path",
++                category="integrity", code="path")
++    holder = os.open("/", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
++    opened = [holder]
++    try:
++        for name in [one for one in path.split("/") if one]:
++            try:
++                holder = os.open(name, os.O_RDONLY | os.O_DIRECTORY
++                                 | os.O_NOFOLLOW, dir_fd=holder)
++            except OSError as failed:
++                _denied(f"{what} is not reachable without following a link "
++                        f"({failed.errno}); {name!r} is a link, a file or "
++                        f"absent")
++            opened.append(holder)
++        return opened.pop()
++    finally:
++        for one in opened:
++            os.close(one)
++
++
++def _measured_tree(holder, what, *, prefix="", entries=None, content=None,
++                   depth=0):
++    """Every regular file under a HELD directory, measured as it is read.
++
++    ONE PASS AND NO SECOND LOOK. The bytes that are digested are the bytes
++    that are kept: there is no measure-then-reopen window for a replacement to
++    land in, which is the shape `copied_manifest` exists to provide and the
++    reason this does not measure with one call and read with another.
++
++    THE SPELLING IS `directory_manifest`'S, deliberately: relative paths sorted
++    bytewise, `digest_of_bytes` per file, and `digest(entries)` as the tree
++    identity -- because the frozen review recorded its `content_digest` with
++    that owner and a second spelling here would be a comparison that could
++    never succeed.
++    """
++    entries = [] if entries is None else entries
++    content = {} if content is None else content
++    if depth > MAX_REVIEW_DEPTH:
++        _refuse(f"{what} nests deeper than this contract measures")
++    for name in sorted(os.listdir(holder)):
++        held = os.stat(name, dir_fd=holder, follow_symlinks=False)
++        relative = name if not prefix else f"{prefix}/{name}"
++        if stat.S_ISDIR(held.st_mode):
++            try:
++                child = os.open(name, os.O_RDONLY | os.O_DIRECTORY
++                                | os.O_NOFOLLOW, dir_fd=holder)
++            except OSError as failed:
++                _denied(f"{what} carries {relative!r}, which is not a "
++                        f"directory this reader can enter without following a "
++                        f"link ({failed.errno})")
++            try:
++                _measured_tree(child, what, prefix=relative, entries=entries,
++                               content=content, depth=depth + 1)
++            finally:
++                os.close(child)
++            continue
++        if not stat.S_ISREG(held.st_mode):
++            _denied(f"{what} carries {relative!r}, which is neither a "
++                    f"directory nor a regular file; custody this producer "
++                    f"cannot account for is not custody it publishes")
++        if len(entries) >= MAX_REVIEW_FILES:
++            _refuse(f"{what} holds more than the bound of "
++                    f"{MAX_REVIEW_FILES} files")
++        payload = _read_held(holder, name, relative, what)
++        entries.append({"path": relative, "bytes": len(payload),
++                        "content_digest": digest_of_bytes(payload)})
++        content[relative] = payload
++    entries.sort(key=lambda one: one["path"].encode("utf-8"))
++    total = sum(one["bytes"] for one in entries)
++    if total > MAX_REVIEW_BYTES:
++        _refuse(f"{what} holds {total} bytes, above the bound of "
++                f"{MAX_REVIEW_BYTES}")
++    return {"entries": entries, "entry_count": len(entries),
++            "total_bytes": total, "tree_digest": digest(entries),
++            "content": content}
++
++
++def _read_held(holder, name, relative, what):
++    """One regular file, proved on the descriptor that reads it."""
++    try:
++        handle = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
++                         dir_fd=holder)
++    except OSError as failed:
++        _denied(f"{what} carries {relative!r}, which is not readable as an "
++                f"ordinary file ({failed.errno})")
++    try:
++        held = os.fstat(handle)
++        if not stat.S_ISREG(held.st_mode):
++            _denied(f"{what} carries {relative!r}, which is not a regular "
++                    f"file")
++        if held.st_size > MAX_REVIEW_BYTES:
++            _refuse(f"{what} carries {relative!r} at {held.st_size} bytes, "
++                    f"above the bound of {MAX_REVIEW_BYTES}")
++        os.set_blocking(handle, True)
++        payload = b""
++        while True:
++            chunk = os.read(handle, 65536)
++            if not chunk:
++                break
++            payload += chunk
++            if len(payload) > MAX_REVIEW_BYTES:
++                _refuse(f"{what} carries {relative!r} above the bound of "
++                        f"{MAX_REVIEW_BYTES}")
++        if len(payload) != held.st_size:
++            _refuse(f"{what} carries {relative!r}, which changed size while "
++                    f"it was read")
++        return payload
++    finally:
++        os.close(handle)
++
++
++def _review_documents(manager, verdict):
+     """Every byte of the frozen independent review, out of manager custody.
+ 
+     W114085. WHAT WAS MISSING AND WHY IT MATTERS. `review.json` carried the
+@@ -628,24 +766,16 @@
+     gave the runtime no way to read what it said, which is exactly the
+     authority a scheduled existing-test change needs.
+ 
+-    THE LOCATOR IS CHECKED, NEVER TRUSTED. A public artifact locator is not
+-    host access: it is held to the canonical locator grammar, required to be a
+-    `file://` path with no authority, and required to sit INSIDE the one
+-    directory `configured_workspace_storage` says this deployment allocates
+-    attempts under -- the deployment's own cross-checked record rather than a
+-    string that arrived with the material. A locator outside it refuses before
+-    anything is opened.
+-
+-    AND THE COPY IS THE MEASUREMENT. `workspaces.copied_manifest` measures and
+-    copies in ONE no-follow pass, which is the owner W26283 wrote precisely
+-    because measuring with one walk and copying with a second reads through a
+-    link a race put in between. The copy is this producer's own private tree,
+-    so the bytes read back from it afterwards are bytes nothing else can have
+-    changed, and each is still checked against the digest that pass recorded.
++    THE LOCATOR IS CHECKED, NEVER TRUSTED, AND CONTAINMENT IS PHYSICAL. The
++    configured store and the custody directory are each walked from `/` one
++    component at a time with `O_NOFOLLOW`, so neither can be reached through a
++    link; only then does lexical containment mean anything, because a
++    link-free path that is lexically inside a link-free root IS inside it.
++    Every byte is then read through the descriptor that walk produced.
+     """
+     from baton_v12.contracts.manifest import check_uri
+     from baton_v12.worker_manager.workspaces import (
+-        configured_workspace_storage, copied_manifest)
++        configured_workspace_storage)
+ 
+     frozen = verdict["review_result"]
+     artifacts = frozen["artifacts"]
+@@ -653,6 +783,9 @@
+         _refuse(f"a frozen review carries at most {MAX_REVIEW_OUTPUTS} "
+                 f"collected outputs; this one carries {len(artifacts)}")
+     storage = configured_workspace_storage(manager).place
++    # THE STORE ITSELF, PROVED FIRST. A configured store reached through a
++    # link is a store this deployment cannot hold anything to.
++    os.close(_held_directory(storage, "the configured workspace store"))
+     documents = []
+     held = {}
+     counted = 0
+@@ -663,21 +796,21 @@
+                 or name in (".", ".."):
+             _refuse("a collected review output is named by one ordinary name")
+         check_uri(artifact["locator"], f"review output {name}'s locator")
++        if not artifact["locator"].startswith("file:///"):
++            _gap(f"review output {name} is not held at a local custody path")
+         place = artifact["locator"][len("file://"):]
+-        if not artifact["locator"].startswith("file:///") \
+-                or os.path.normpath(place) != place \
++        what = f"review output {name}'s custody directory"
++        if os.path.normpath(place) != place \
+                 or not (place == storage
+                         or place.startswith(storage.rstrip("/") + "/")):
+             _gap(f"review output {name} is held at {name_value(place)}, which "
+                  f"is not inside the workspace store this deployment "
+                  f"configured; a public locator is not host access")
+-        if not os.path.isdir(place):
+-            _gap(f"review output {name}'s custody directory is absent; the "
+-                 f"frozen review's own bytes are what this bundle must carry "
+-                 f"and no other reader stands in for them")
+-        into = os.path.join(scratch, name)
+-        copied = copied_manifest(place, into, max_entries=MAX_REVIEW_FILES,
+-                                 max_bytes=MAX_REVIEW_BYTES)
++        holder = _held_directory(place, what)
++        try:
++            copied = _measured_tree(holder, what)
++        finally:
++            os.close(holder)
+         if copied["tree_digest"] != artifact["content_digest"] \
+                 or copied["total_bytes"] != artifact["bytes"]:
+             _drifted(f"review output {name} does not measure to the identity "
+@@ -690,12 +823,7 @@
+                     f"{MAX_REVIEW_FILES} and {MAX_REVIEW_BYTES}")
+         files = []
+         for entry in copied["entries"]:
+-            with open(os.path.join(into, entry["path"]), "rb") as reading:
+-                payload = reading.read()
+-            if digest_of_bytes(payload) != entry["content_digest"] \
+-                    or len(payload) != entry["bytes"]:
+-                _drifted(f"review file {name}/{entry['path']} is not the "
+-                         f"content this pass measured")
++            payload = copied["content"][entry["path"]]
+             try:
+                 rendered = payload.decode("utf-8")
+             except UnicodeDecodeError:
+@@ -882,24 +1010,6 @@
+                 f"stopped and an operator decides what happened to it",
+                 category="refused", code="operation-collision")
+     return staging
+-
+-
+-def _scratch(place):
+-    """One private tree beside the destination, this producer's own.
+-
+-    THE SAME RULES AS THE STAGING NAME, for the same reason: an existing one
+-    means a previous publication stopped here and an operator decides what
+-    happened to it, rather than this call reusing a directory it did not make.
+-    It is created at 0700 and removed whichever way the composition ends, and
+-    nothing consumable ever exists at it.
+-    """
+-    scratch = place + ".review"
+-    if os.path.lexists(scratch):
+-        _refuse(f"{name_value(scratch)} already exists; a previous "
+-                f"publication stopped and an operator decides what happened "
+-                f"to it", category="refused", code="operation-collision")
+-    os.mkdir(scratch, STAGING_DIR)
+-    return scratch
+ 
+ 
+ def _discard(staging):
+@@ -1081,20 +1191,14 @@
+ 
+     # W114085: THE REVIEW'S OWN BYTES AND THE AUTHORITY ACCOUNT, both composed
+     # BEFORE anything is staged, so a candidate whose authority no accepted
+-    # record supplies refuses with nothing on disk. The scratch tree is this
+-    # producer's own, created beside the destination under the same rules the
+-    # staging name follows, and removed whichever way this ends.
+-    scratch = _scratch(destination)
+-    try:
+-        review = _review_documents(manager, resolved["verdict"], scratch)
+-        authority = _authority_account(resolved["documents"]["job.json"],
+-                                       resolved["verdict"],
+-                                       resolved["attachment"], review,
+-                                       table["paths"])
+-    except BaseException:
+-        _discard(scratch)
+-        raise
+-    _discard(scratch)
++    # record supplies refuses with nothing on disk. Nothing is copied to get
++    # them: the custody tree is measured and read in one descriptor-bound
++    # pass, so there is no scratch directory and no second look.
++    review = _review_documents(manager, resolved["verdict"])
++    authority = _authority_account(resolved["documents"]["job.json"],
++                                   resolved["verdict"],
++                                   resolved["attachment"], review,
++                                   table["paths"])
+ 
+     documents = dict(resolved["documents"])
+     documents[AUTHORITY_DOCUMENT] = authority

@@ -1,0 +1,259 @@
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:writer_of', 'line_writers.writer_id'), label='a persisted line writer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4952, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7016, in run
+    review_cycles.writer_of(self.store, "writer-probe")
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 68, in writer_of
+    raise ContractRefusal("refused", "precondition",
+                          f"no line writer {name_value(writer_id)}")
+baton_v12.contracts.errors.ContractRefusal: no line writer 'writer-probe'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7496, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4958, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a persisted line writer' not found in "no line writer 'writer-probe'" : refused, but not at 'a persisted line writer': no line writer 'writer-probe'
+
+======================================================================
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7461, in test_every_owned_entry_has_exactly_one_probe
+    self.assertEqual(sorted(wanted - declared), [], "owned, never probed")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[6137 chars]te")] != []
+
+First list contains 61 additional elements.
+First extra element 0:
+(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), 'a persisted attempt')
+
+Diff is 6744 characters long. Set self.maxDiff to None to see it. : owned, never probed
+
+======================================================================
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+Every entry has a probe today, so relaxing the check changes no
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7525, in test_the_missing_probe_check_can_actually_fail
+    self.assertEqual(sorted(wanted - declared), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[6137 chars]te")] != []
+
+First list contains 61 additional elements.
+First extra element 0:
+(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), 'a persisted attempt')
+
++ []
+- [(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'),
+-   'a persisted attempt'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.declared_output'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.policy'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.workspace'),
+-   'a retained agent-session profile'),
+-  (('adopted', 'intake.py:retentions_of', 'retentions.retain_operation_id'),
+-   'a persisted retention'),
+-  (('adopted',
+-    'review_cycles.py:integration_checkpoint',
+-    'integration_eligibility.verdict_id'),
+-   'a checkpoint verdict identity'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.authority_uuid'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.generation'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.participant'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.posture'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.profile_digest'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.runtime_attempt_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.work_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta'),
+-   "the configured workspace group's record"),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta.value'),
+-   "the configured workspace group's record"),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.target'),
+-   "the runtime adapter's start"),
+-  (('caller', 'exchange.py:ExchangeDelivery.__init__', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'exchange.py:ExchangeDelivery.__init__', 'root'),
+-   'an exchange delivery root'),
+-  (('caller', 'exchange.py:adopt', 'root'), 'an exchange delivery root'),
+-  (('caller', 'exchange.py:materialize', 'root'), 'an exchange delivery root'),
+-  (('caller', 'exchange.py:publish_command', 'document'), 'an exchange command'),
+-  (('caller', 'exchange.py:publish_command', 'document.attempt_id'),
+-   'an exchange command'),
+-  (('caller', 'exchange.py:publish_command', 'document.sequence_id'),
+-   'an exchange command'),
+-  (('caller', 'exchange.py:sequence_of', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'exchange.py:worker_operation_id', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'intake.py:abandon_attempt', 'adapter'),
+-   "the runtime adapter's abandoned-attempt destroy"),
+-  (('caller', 'intake.py:abandon_attempt', 'attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'intake.py:abandon_attempt', 'reason'), 'an abandonment reason'),
+-  (('caller', 'intake.py:abandon_attempt', 'retention_policy_digest'),
+-   'a retention policy digest'),
+-  (('caller', 'oci.py:OciAdapter.destroy', 'command.runtime_attempt_id'),
+-   'a destroy command'),
+-  (('caller', 'oci.py:OciAdapter.destroy_abandoned', 'command'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_abandoned',
+-    'command.runtime_attempt_id'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller', 'oci.py:OciAdapter.destroy_abandoned', 'command.runtime_id'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_failed_start',
+-    'command.runtime_attempt_id'),
+-   'a failed-start destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_refused_session',
+-    'command.runtime_attempt_id'),
+-   'a refused-session destroy command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command'), 'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.artifact_ids'),
+-   'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.disposition'),
+-   'a retention disposition'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.runtime_attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'oci.py:OciAdapter.start', 'request.input_root'),
+-   'a start request'),
+-  (('caller', 'oci.py:canonical_source', 'place'), 'a host path'),
+-  (('caller', 'oci.py:canonical_target', 'place'), 'a container path'),
+-  (('caller', 'oci.py:exec_vector', 'runtime_id'), 'a runtime id'),
+-  (('caller', 'review_cycles.py:consumption_subject', 'attempt_id'),
+-   'a runtime attempt identity'),
+-  (('caller', 'review_cycles.py:consumption_subject', 'generation'),
+-   'an assignment generation'),
+-  (('caller', 'workspaces.py:check_workspace_storage', 'place'),
+-   'the configured workspace store'),
+-  (('caller', 'workspaces.py:compose_input_root', 'assignment'),
+-   "the manager's own assignment"),
+-  (('caller', 'workspaces.py:compose_input_root', 'runtime_attempt_id'),
+-   'a runtime attempt identity'),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy'),
+-   'a  teardown ending'),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned'),
+-   'a  teardown ending'),
+-  (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned'),
+-   'an abandoned-attempt destroy observation'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.runtime_id'),
+-   'an observed runtime id'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.state'),
+-   "a destroy observation's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.why'),
+-   "a destroy observation's reason"),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start'),
+-   'a  teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start.lifecycle_state'),
+-   "a  teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session'),
+-   'a  teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session.lifecycle_state'),
+-   "a  teardown ending's state")]
+
+======================================================================
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+The other direction: an owner with nothing to own is also a defect.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6372, in test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attempts.py:_committed_record', 'docume[3911 chars]nt')] != []
+
+First list contains 55 additional elements.
+First extra element 0:
+('attempts.py:_committed_record', 'document', 'a committed ending record')
+
+Diff is 4240 characters long. Set self.maxDiff to None to see it. : boundary calls attributed to no entry
+
+======================================================================
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6229, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'lanes.py:_occupy_lane', 'run[11864 chars]on')] != []
+
+First list contains 185 additional elements.
+First extra element 0:
+('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes')
+
+Diff is 12623 characters long. Set self.maxDiff to None to see it. : receiving entries with no owner
+
+======================================================================
+FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+The anti-circularity check for the adopted member universe.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6302, in test_the_universe_sees_every_persisted_column_that_is_read
+    self.assertEqual(sorted(scanned - tracked), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "columns this build reads that the universe cannot see")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['operation_id', 'settled_at'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'operation_id'
+
+- ['operation_id', 'settled_at']
++ [] : columns this build reads that the universe cannot see
+
+----------------------------------------------------------------------
+Ran 178 tests in 6.920s
+
+FAILED (failures=6, skipped=1)

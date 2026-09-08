@@ -1,0 +1,140 @@
+{
+  "claim": 114978,
+  "at": "2026-09-08T01:10:49.176467+00:00",
+  "paths": {
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "matches_independent_acceptance": true
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "matches_independent_acceptance": true
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "74a39f8a84b28efb8f97663413d9bb3729da1474ae2a8e9d7f47a8c2327e9b2b",
+      "matches_independent_acceptance": true
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "matches_independent_acceptance": true
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "matches_independent_acceptance": true
+    },
+    "v12/python/tools/parallel_test.py": {
+      "sha256": "5bf2cbfbf29c603f07f811a1d5f968257798e1944d91bed0d97fe9aa393bf302",
+      "matches_independent_acceptance": true
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "matches_independent_acceptance": true
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "matches_independent_acceptance": true
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "matches_independent_acceptance": true
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "matches_independent_acceptance": true
+    }
+  },
+  "boundary": "real accepted producer, real entry, injected provider subprocess, actual verification subprocess and public manager result parser; disposable plain target and injected revision, no Git or engine operation",
+  "cases": [
+    {
+      "case": "control",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "target_unchanged": false,
+      "declared_result_digest": "sha256:79769a2a8bcab3c6865b0f71dd51f03d8d8834fd0679414c23ffe342a2810e43",
+      "actual_result_digest": "sha256:79769a2a8bcab3c6865b0f71dd51f03d8d8834fd0679414c23ffe342a2810e43",
+      "identity_preserved": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "imported_paths": [
+              "round-1.txt"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "harness.py"
+              ],
+              "status": 0
+            }
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "integrated",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "rewritten-output",
+      "entry_status": 0,
+      "provider_turns": 0,
+      "target_unchanged": true,
+      "declared_result_digest": "sha256:37095328a1a0295c9b6c6a032770ccb649067b134c3cdb87c7ae316e6a04cbc9",
+      "actual_result_digest": "sha256:1247ecf9f9ac82fde345febc2cd9e2c5b39f98cdd1a1325a598ced25f48a6cfc",
+      "identity_preserved": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {
+              "observed": "the frozen review result is not the result its own digest names"
+            },
+            "reason": "bundle-unreadable"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "refused",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "removed-outputs",
+      "entry_status": 0,
+      "provider_turns": 0,
+      "target_unchanged": true,
+      "declared_result_digest": "sha256:e016e6ed354f012311c6564df13ee3fedfc28f3c655efa9d4837fc6ebb0fe372",
+      "actual_result_digest": "sha256:aea47a77f03df4e161b68a19fca38d5a4b413852eca9c6c309f500fb0474a3ca",
+      "identity_preserved": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {
+              "observed": "the frozen review result is not the result its own digest names"
+            },
+            "reason": "bundle-unreadable"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "refused",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    }
+  ],
+  "post_probe_hashes_match": true
+}

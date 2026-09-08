@@ -19,6 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from unittest import mock
 
 import baton_v12.worker_manager as worker_manager
+import baton_v12.worker_manager.store as store_module
 from baton_v12.contracts import ContractRefusal, ERROR_CODES
 from baton_v12.worker_manager import (ControlStore, SCHEMA_VERSION, STORE_KIND,
                                       manager_signature, revive_refusal,
@@ -395,6 +396,197 @@ class OwnershipBeforeAdoption(StoreCase):
         store.close()
         self.assertEqual(self.open_descriptors(path), before,
                          "a closed store kept its handle")
+
+
+class WalIsAPostOwnershipRequest(StoreCase):
+
+    def open_descriptors(self, path):
+        target = os.path.realpath(path)
+        found = 0
+        for entry in os.listdir("/proc/self/fd"):
+            try:
+                if os.path.realpath(f"/proc/self/fd/{entry}") == target:
+                    found += 1
+            except OSError:
+                continue
+        return found
+
+    def test_busy_after_initialization_keeps_the_store_usable_and_a_later_open_retries(self):
+        real_connect = sqlite3.connect
+        committed = threading.Event()
+        blocked = threading.Event()
+        release = threading.Event()
+        failures = []
+
+        class PausedAfterCommit(sqlite3.Connection):
+            def execute(self, statement, parameters=(), /):
+                answer = super().execute(statement, parameters)
+                if statement == "COMMIT":
+                    committed.set()
+                    if not blocked.wait(10):
+                        raise AssertionError("the competing writer never acquired its lock")
+                return answer
+
+        def instrumented_connect(*arguments, **named):
+            named["factory"] = PausedAfterCommit
+            return real_connect(*arguments, **named)
+
+        def hold_writer():
+            connection = None
+            try:
+                if not committed.wait(10):
+                    raise AssertionError("the initializer never committed")
+                connection = real_connect(self.path, isolation_level=None,
+                                          timeout=0)
+                connection.execute("BEGIN IMMEDIATE")
+                blocked.set()
+                if not release.wait(10):
+                    raise AssertionError("the competing writer was never released")
+                connection.execute("ROLLBACK")
+            except BaseException as failure:
+                failures.append(failure)
+                blocked.set()
+            finally:
+                if connection is not None:
+                    connection.close()
+
+        thread = threading.Thread(target=hold_writer)
+        thread.start()
+        opened = None
+        try:
+            with mock.patch.object(store_module.sqlite3, "connect",
+                                   instrumented_connect):
+                opened = ControlStore.open(self.path, incarnation="manager-1",
+                                           clock=lambda: NOW)
+            self.assertTrue(blocked.is_set(), "the competing writer is not real")
+            self.assertTrue(thread.is_alive(), "the competing writer ended before open returned")
+            self.assertEqual(opened._connection.execute(
+                "SELECT value FROM meta WHERE key = 'store_kind'").fetchone()[0],
+                STORE_KIND)
+            self.assertNotEqual(opened._connection.execute(
+                "PRAGMA journal_mode").fetchone()[0].lower(), "wal")
+        finally:
+            release.set()
+            thread.join(10)
+            if opened is not None:
+                opened.close()
+        self.assertFalse(thread.is_alive(), "the competing writer did not finish")
+        if failures:
+            raise failures[0]
+
+        reopened = self.store()
+        self.assertEqual(reopened._connection.execute(
+            "PRAGMA journal_mode").fetchone()[0].lower(), "wal")
+
+    def test_structured_locked_is_tolerated_without_reading_its_prose(self):
+        self.store().close()
+        calls = []
+        failure = sqlite3.OperationalError("this prose does not say locked")
+        failure.sqlite_errorcode = sqlite3.SQLITE_LOCKED | (7 << 8)
+        real_connect = sqlite3.connect
+
+        class LockedWal(sqlite3.Connection):
+            def execute(self, statement, parameters=(), /):
+                if statement == "PRAGMA journal_mode = WAL":
+                    calls.append(statement)
+                    raise failure
+                return super().execute(statement, parameters)
+
+        def instrumented_connect(*arguments, **named):
+            named["factory"] = LockedWal
+            return real_connect(*arguments, **named)
+
+        with mock.patch.object(store_module.sqlite3, "connect",
+                               instrumented_connect):
+            opened = ControlStore.open(self.path, incarnation="manager-2",
+                                       clock=lambda: NOW)
+        self.addCleanup(opened.close)
+        self.assertEqual(calls, ["PRAGMA journal_mode = WAL"])
+        self.assertEqual(opened._connection.execute(
+            "SELECT value FROM meta WHERE key = 'store_kind'").fetchone()[0],
+            STORE_KIND)
+
+    def test_non_contention_wal_failure_escapes_unchanged_and_closes_the_handle(self):
+        self.store().close()
+        failure = sqlite3.OperationalError("a storage fault")
+        failure.sqlite_errorcode = sqlite3.SQLITE_IOERR
+        real_connect = sqlite3.connect
+
+        class BrokenWal(sqlite3.Connection):
+            def execute(self, statement, parameters=(), /):
+                if statement == "PRAGMA journal_mode = WAL":
+                    raise failure
+                return super().execute(statement, parameters)
+
+        def instrumented_connect(*arguments, **named):
+            named["factory"] = BrokenWal
+            return real_connect(*arguments, **named)
+
+        before = self.open_descriptors(self.path)
+        with mock.patch.object(store_module.sqlite3, "connect",
+                               instrumented_connect):
+            with self.assertRaises(sqlite3.OperationalError) as caught:
+                ControlStore.open(self.path, incarnation="manager-2",
+                                  clock=lambda: NOW)
+        self.assertIs(caught.exception, failure)
+        self.assertEqual(self.open_descriptors(self.path), before)
+
+    def test_busy_prose_without_a_structured_code_is_not_tolerated(self):
+        self.store().close()
+        failure = sqlite3.OperationalError("database is locked")
+        real_connect = sqlite3.connect
+
+        class UnclassifiedWal(sqlite3.Connection):
+            def execute(self, statement, parameters=(), /):
+                if statement == "PRAGMA journal_mode = WAL":
+                    raise failure
+                return super().execute(statement, parameters)
+
+        def instrumented_connect(*arguments, **named):
+            named["factory"] = UnclassifiedWal
+            return real_connect(*arguments, **named)
+
+        before = self.open_descriptors(self.path)
+        with mock.patch.object(store_module.sqlite3, "connect",
+                               instrumented_connect):
+            with self.assertRaises(sqlite3.OperationalError) as caught:
+                ControlStore.open(self.path, incarnation="manager-2",
+                                  clock=lambda: NOW)
+        self.assertIs(caught.exception, failure)
+        self.assertEqual(self.open_descriptors(self.path), before)
+
+    def test_foreign_or_incompatible_stores_are_refused_before_the_wal_request(self):
+        foreign = self.foreign_store(
+            "foreign-before-wal.sqlite3",
+            ["CREATE TABLE foreign_state (id INTEGER)"])
+        incompatible = self.foreign_store("incompatible-before-wal.sqlite3", [
+            "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)",
+            f"INSERT INTO meta VALUES ('store_kind', '{STORE_KIND}')",
+            "INSERT INTO meta VALUES ('schema_version', '99')"])
+        before = {path: self.bytes_at(path) for path in (foreign, incompatible)}
+        wal_requests = []
+        real_connect = sqlite3.connect
+
+        class WatchingConnection(sqlite3.Connection):
+            def execute(self, statement, parameters=(), /):
+                if statement == "PRAGMA journal_mode = WAL":
+                    wal_requests.append(statement)
+                return super().execute(statement, parameters)
+
+        def instrumented_connect(*arguments, **named):
+            named["factory"] = WatchingConnection
+            return real_connect(*arguments, **named)
+
+        with mock.patch.object(store_module.sqlite3, "connect",
+                               instrumented_connect):
+            for path in (foreign, incompatible):
+                with self.subTest(path=os.path.basename(path)):
+                    with self.assertRaises(ContractRefusal):
+                        ControlStore.open(path, incarnation="manager-1",
+                                          clock=lambda: NOW)
+        self.assertEqual(wal_requests, [])
+        for path in (foreign, incompatible):
+            self.assertEqual(self.bytes_at(path), before[path])
 
 
 class OneAtomicBoundary(StoreCase):

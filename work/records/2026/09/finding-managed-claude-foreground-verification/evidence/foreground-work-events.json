@@ -1,0 +1,260 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.prompt",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "events": [
+      {
+        "actor": "baton.claude",
+        "claim_interval": {
+          "claim_seq": 114798,
+          "claimant": "baton.claude",
+          "elapsed_seconds": 247,
+          "end_kind": "return",
+          "end_seq": 114825,
+          "ended_at": "2026-09-08T00:44:49Z",
+          "started_at": "2026-09-08T00:40:42Z"
+        },
+        "kind": "claim",
+        "payload": {
+          "claimant": "baton.claude",
+          "from_phase": "queued",
+          "phase": "active",
+          "phase_now": [
+            {
+              "phase": "active",
+              "work": "2b077949-W110935"
+            }
+          ],
+          "resolution": {
+            "endpoint": "baton.impl",
+            "generation": 8,
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "work": "2b077949-W110935"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 247,
+          "end_kind": "return",
+          "end_seq": 114825,
+          "ended_at": "2026-09-08T00:44:49Z",
+          "open": false,
+          "phase": "active",
+          "start_seq": 114798,
+          "started_at": "2026-09-08T00:40:42Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 114798,
+        "ts": "2026-09-08T00:40:42Z"
+      },
+      {
+        "actor": "baton.claude",
+        "claim_interval": {
+          "claim_seq": 114798,
+          "claimant": "baton.claude",
+          "elapsed_seconds": 247,
+          "end_kind": "return",
+          "end_seq": 114825,
+          "ended_at": "2026-09-08T00:44:49Z",
+          "started_at": "2026-09-08T00:40:42Z"
+        },
+        "kind": "return",
+        "payload": {
+          "authorization": {
+            "endpoint": "baton.impl",
+            "generation": 8,
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "comment": "Both P1s of review-2026-09-08T00-01-58Z.md are corrected and delivered; claim114742 changed no byte and only revalidated and handed off what claim114631 built but never passed (RUNNER-DIAGNOSIS incident 39). Parent hashes unchanged: integration_workload.py b2dfbafb\u2026, integration_entry.py 0885dda0\u2026, tests/manager/test_integration_worker.py 74a39f8a\u2026. (1) The bounded witness and the complete scheduled-path read-back are repeated AFTER run_verification returns 0 and immediately before success is composed (integration_workload.py:1258-1271); any mismatch, missing candidate or moved witness is verification-mutated and held with nothing repaired, and the pre-verification checks are kept. test_a_verification_that_undoes_the_import_is_held drives all four of your probe actions as real completed processes through the real entry, with test_an_unchanged_verifier_still_integrates as the control. (2) compose_prompt now instructs evaluation of the WHOLE candidate, renders the accepted scope and every frozen review document by name, and states that an EMPTY authority account is not permission; the instruction is present whether or not the account has rows. Proven on a real composed prompt over an empty account, plus the consumer's conservative ending when a provider refuses an unscheduled existing-test change. What this establishes is the instruction and the material, not model obedience; the fixture provider performs no semantic evaluation, and PROGRESS says so. VERIFICATION: 371 focused tests in 29.088s, OK, run this turn against W114085's CURRENT bytes (2f8b42eb\u2026, c7a60dcc\u2026, e2f17517\u2026) \u2014 the exact three your child review 2026-09-08T00:20:14Z measured \u2014 so the four parent reason expectations PLAN item 3 scheduled are already correct in the tree and the four added failures in the child's 5025-test gate are closed. No broad rerun: the question was scoped to the four modules that exercise these bytes; the eleven historical failures, the registry error and W114077/W114516 remain unwaived. NOT JOINED: W114085 still carries your open frozen-result digest P1 and its corrected bytes are not in the tree, so this is the parent's correction against the child's current reviewed bytes and no joined sign-off is claimed. I am claiming W114085 next for that digest binding; if it moves a refusal reason again, the parent fixture adaptation is this Work's under PLAN item 3. No image, container, credential, live provider or Git mutation.",
+          "consumed_next": true,
+          "destination_phase": "queued",
+          "next_resolution": {
+            "endpoint": "baton.impl",
+            "generation": 8,
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "pass_resolution": {
+            "endpoint": "baton.bug",
+            "generation": 8,
+            "handlers": [
+              "codex"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "phase_now": [
+            {
+              "phase": "queued",
+              "work": "2b077949-W110935"
+            }
+          ],
+          "route_selected": "rview",
+          "set_next": "baton.impl",
+          "work": "2b077949-W110935"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 34,
+          "end_kind": "claim",
+          "end_seq": 114828,
+          "ended_at": "2026-09-08T00:45:23Z",
+          "open": false,
+          "phase": "queued",
+          "start_seq": 114825,
+          "started_at": "2026-09-08T00:44:49Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 114825,
+        "ts": "2026-09-08T00:44:49Z"
+      },
+      {
+        "actor": "baton.codex",
+        "claim_interval": {
+          "claim_seq": 114828,
+          "claimant": "baton.codex",
+          "elapsed_seconds": 322,
+          "end_kind": "add_dependency",
+          "end_seq": 114862,
+          "ended_at": "2026-09-08T00:50:45Z",
+          "started_at": "2026-09-08T00:45:23Z"
+        },
+        "kind": "claim",
+        "payload": {
+          "claimant": "baton.codex",
+          "from_phase": "queued",
+          "phase": "active",
+          "phase_now": [
+            {
+              "phase": "active",
+              "work": "2b077949-W110935"
+            }
+          ],
+          "resolution": {
+            "endpoint": "baton.bug",
+            "generation": 8,
+            "handlers": [
+              "codex"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "work": "2b077949-W110935"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 322,
+          "end_kind": "add_dependency",
+          "end_seq": 114862,
+          "ended_at": "2026-09-08T00:50:45Z",
+          "open": false,
+          "phase": "active",
+          "start_seq": 114828,
+          "started_at": "2026-09-08T00:45:23Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 114828,
+        "ts": "2026-09-08T00:45:23Z"
+      },
+      {
+        "actor": "baton.codex",
+        "claim_interval": {
+          "claim_seq": 114828,
+          "claimant": "baton.codex",
+          "elapsed_seconds": 322,
+          "end_kind": "add_dependency",
+          "end_seq": 114862,
+          "ended_at": "2026-09-08T00:50:45Z",
+          "started_at": "2026-09-08T00:45:23Z"
+        },
+        "kind": "add_dependency",
+        "payload": {
+          "authorization": {
+            "endpoint": "baton.bug",
+            "generation": 8,
+            "handlers": [
+              "codex"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "blocker": "2b077949-W114085",
+          "blocker_status": "open",
+          "gate_now": [
+            {
+              "gate_work": "2b077949-W114085",
+              "kind": "work",
+              "obligation": null,
+              "work": "2b077949-W110935"
+            }
+          ],
+          "phase_now": [
+            {
+              "phase": "block",
+              "work": "2b077949-W110935"
+            }
+          ],
+          "rationale": "Review114828 accepts local corrections but final joined workload acceptance requires the independently accepted complete frozen-review result binding. Child owns that correction; retain parent reviewer routing and revalidate accepted child bytes before final join. Exact review baton:work/records/2026/09/finding-v12-integration-worker-workload/review-2026-09-08T00-48-39Z.md.",
+          "released_claims": [
+            {
+              "claimant": "baton.codex",
+              "from_phase": "active",
+              "work": "2b077949-W110935"
+            }
+          ],
+          "work": "2b077949-W110935"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 517,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "open": true,
+          "phase": "block",
+          "start_seq": 114862,
+          "started_at": "2026-09-08T00:50:45Z"
+        },
+        "references": [],
+        "related": [
+          {
+            "role": "blocker",
+            "work": "2b077949-W114085"
+          }
+        ],
+        "roles": [
+          "consumer"
+        ],
+        "seq": 114862,
+        "ts": "2026-09-08T00:50:45Z"
+      }
+    ],
+    "local_id": "W110935",
+    "next_after": null,
+    "next_before": null,
+    "title": "V12: Supply the concrete integration worker workload",
+    "work": "2b077949-W110935"
+  },
+  "snapshot_seq": 114913
+}

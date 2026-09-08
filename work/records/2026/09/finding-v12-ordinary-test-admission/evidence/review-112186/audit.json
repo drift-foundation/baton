@@ -1,0 +1,82 @@
+{
+  "candidate": {
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "d05c59ede048826b125396ab3b7256b701b4726b5ef9124329d4d192d8037ed7",
+      "matches_handoff": true,
+      "changed": true
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "65a9d8b7dda16f76665c0a620740653b43692ac315e246fd4e822fe222101817",
+      "matches_handoff": true,
+      "changed": true
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "d496f499c2d0ba9ea489996471af0acedced15ccab3a3cfc75c565638b074586",
+      "matches_handoff": true,
+      "changed": true,
+      "added_tests": [
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_a_checkpoint_naming_another_head_refuses",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_a_nonzero_status_is_refused_as_a_failing_requirement",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_a_proposal_naming_another_input_refuses",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_a_proposal_naming_another_result_refuses",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_a_requirement_may_never_carry_an_observation",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_a_result_with_no_observation_refuses",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_a_status_zero_for_another_command_proves_nothing",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_an_actual_zero_for_the_exact_requirement_passes",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_an_observation_over_another_candidate_refuses",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_an_unrun_command_is_a_different_refusal_from_a_failing_one",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_requirements_selected_for_another_attempt_refuse",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_the_producers_own_observation_is_resolved_from_custody",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_the_receipt_identity_binds_the_evidence_and_the_requirement",
+        "TheAdmissionNeedsActualOrdinaryTestEvidence.test_the_workflow_marker_is_not_a_certification_word"
+      ],
+      "removed_tests": [],
+      "changed_tests": [
+        "AcceptedReceiptCase.test_no_receipt_is_written_without_an_accepted_checkpoint",
+        "AcceptedReceiptCase.test_the_pinned_generation_must_be_the_authoritys_current_one"
+      ]
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "sha256": "e6e26f42348d67c82a80d7cf8ceada6ca701a312da8eb65a7d60fcea7c0ac5f1",
+      "matches_handoff": true,
+      "changed": true,
+      "added_tests": [
+        "TheOrdinaryTestObservationIsTheActualOne.test_a_failing_command_keeps_its_nonzero_status",
+        "TheOrdinaryTestObservationIsTheActualOne.test_a_passing_command_is_reported_with_its_actual_status",
+        "TheOrdinaryTestObservationIsTheActualOne.test_a_turn_that_published_nothing_carries_neither",
+        "TheOrdinaryTestObservationIsTheActualOne.test_the_digest_names_the_exact_task_bytes_this_turn_read",
+        "TheOrdinaryTestObservationIsTheActualOne.test_the_observation_carries_no_boolean_and_no_verdict",
+        "TheOrdinaryTestObservationIsTheActualOne.test_the_proposal_claim_beside_it_is_unchanged"
+      ],
+      "removed_tests": [],
+      "changed_tests": []
+    },
+    "v12/python/tests/manager/test_dependencies.py": {
+      "sha256": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+      "matches_handoff": true,
+      "changed": false,
+      "added_tests": [],
+      "removed_tests": [],
+      "changed_tests": []
+    }
+  },
+  "broad_outcome": [
+    "Ran 4799 tests in 239.403s",
+    "",
+    "FAILED (failures=11, errors=1, skipped=21)"
+  ],
+  "broad_failures": [
+    "ERROR: test_every_v12_test_module_is_registered_exactly_once (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once)",
+    "FAIL: test_the_suite_is_one_gate_and_not_a_pile_of_files (tests.authority.test_catalog.TheMigrationChecklistIsRead.test_the_suite_is_one_gate_and_not_a_pile_of_files)",
+    "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:writer_of', 'line_writers.writer_id'), label='a persisted line writer')",
+    "FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)",
+    "FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)",
+    "FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)",
+    "FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)",
+    "FAIL: test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)",
+    "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)",
+    "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_output_custody_engine.CustodyIsTakenOfWhatARealWorkerWrote.test_nothing_this_module_made_survives_it)",
+    "FAIL: test_no_container_of_this_suite_survives_it (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_no_container_of_this_suite_survives_it)",
+    "FAIL: test_only_this_run_s_image_tag_exists (tests.manager.test_worker_container.TheGateLeavesTheEngineAsItFoundIt.test_only_this_run_s_image_tag_exists)"
+  ]
+}

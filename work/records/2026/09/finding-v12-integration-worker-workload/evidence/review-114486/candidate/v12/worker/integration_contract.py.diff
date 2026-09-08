@@ -1,0 +1,507 @@
+--- review-114048/v12/worker/integration_contract.py
++++ review-114486/v12/worker/integration_contract.py
+@@ -56,7 +56,12 @@
+ 
+ # -- the fixed bundle layout ------------------------------------------------
+ 
+-BUNDLE_SCHEMA = "baton.integration-input/1"
++# W114085 MOVED THIS TO `/2`, and the version is in the NAME for this campaign's
++# standing reason: an eighth evidence projection is not material a `/1` reader
++# may ignore, because the evidence tuple is CLOSED. A reader from the other
++# generation is refused by an equality test rather than left to discover that
++# the account it was handed answers a question it does not know how to ask.
++BUNDLE_SCHEMA = "baton.integration-input/2"
+ 
+ # WHERE THE BUNDLE IS BOUND, and it is the accepted read-only nominated source
+ # rather than a fourth integration namespace. W110934 ruled that `/input/source`
+@@ -109,6 +114,9 @@
+ # workload's instructions require the model to evaluate, and "absent" and
+ # "empty" are not the same claim.
+ #
++#   authority.json  W114085: what authorizes each row that needs authorizing,
++#                   from the accepted Job's scheduled scope and the frozen
++#                   review, with the reviewer's own materialized documents
+ #   job.json        the accepted Job row and its test scope (Job store)
+ #   checkpoint.json `checkpoint_of`, the frozen checkpoint row
+ #   review.json     `verdict_of` plus `review_of`, the frozen independent review
+@@ -116,12 +124,76 @@
+ #   receipts.json   the Authority's verification, review and approval receipts
+ #   result.json     `frozen_output_of` plus the retained result manifest
+ #   tests.json      `driver.ordinary_test_evidence`, the producer's observation
+-EVIDENCE_DOCUMENTS = ("checkpoint.json", "job.json", "proposal.json",
+-                      "receipts.json", "result.json", "review.json",
+-                      "tests.json")
++EVIDENCE_DOCUMENTS = ("authority.json", "checkpoint.json", "job.json",
++                      "proposal.json", "receipts.json", "result.json",
++                      "review.json", "tests.json")
+ 
+ EVIDENCE_MEMBERS = ("name", "digest", "bytes")
+ FILE_MEMBERS = ("digest", "bytes")
++
++# -- W114085: what authorizes a row that needs authorizing -------------------
++#
++# WHY THIS EXISTS AT ALL. Review 2026-09-07T22:48:26Z [P1] found the workload
++# accepting a generic accepted disposition plus prefix membership in a path
++# list as import authority, and a candidate taking a 0644 base to a 0755
++# candidate with nothing anywhere saying that mode change was reviewed.
++# Candidate bytes and candidate modes are what the proposal IS; they cannot
++# also be the permission to import it.
++#
++# WHAT THIS DOCUMENT IS AND IS NOT. It is the PRODUCER'S STATEMENT of what the
++# accepted records say about each row that needs saying-about, bound to the
++# owners that said it. It is not a verdict: the workload still decides the
++# import, and this contract still answers no opinion about whether a runtime
++# should proceed. What it does refuse is a bundle whose own account does not
++# cover its own path table -- internal consistency, which is this reader's
++# whole job.
++
++AUTHORITY_DOCUMENT = "authority.json"
++AUTHORITY_SCHEMA = "baton.integration-authority/1"
++AUTHORITY_MEMBERS = ("schema", "scope", "review", "paths")
++
++# THE ACCEPTED JOB'S OWN ANSWER, re-spelled so one document answers "what
++# authorizes this row" without a reader joining two projections.
++AUTHORITY_SCOPE_MEMBERS = ("job_id", "stage_id", "work_id", "scope_digest",
++                           "test_scope")
++
++# THE FROZEN INDEPENDENT REVIEW, plus the documents actually materialized.
++AUTHORITY_REVIEW_MEMBERS = ("verdict_id", "attachment_id", "disposition",
++                            "reviewer_participant", "result_id",
++                            "result_digest", "documents")
++AUTHORITY_OUTPUT_MEMBERS = ("output_name", "tree_digest", "bytes",
++                            "entry_count", "files")
++# ONE MATERIALIZED REVIEWER FILE. `digest` and `bytes` are taken over the
++# ORIGINAL CUSTODY BYTES and `text` is what this document can render of
++# them, so the account stays bound to what the frozen review measured
++# whatever the rendering is. A reviewer output that is not UTF-8 refuses at
++# the producer rather than being wrapped into readability here.
++AUTHORITY_FILE_MEMBERS = ("path", "digest", "bytes", "text")
++
++# ONE ROW OF THE ACCOUNT. `requires` says what this row needs and
++# `authorized_by` says what supplies it; a requirement with no supplier is a
++# bundle that is not published, and a supplier for a requirement the row does
++# not carry is an account that does not describe its own table.
++AUTHORITY_PATH_MEMBERS = ("path", "operation", "base_mode", "candidate_mode",
++                          "requires", "authorized_by")
++AUTHORITY_GRANT_MEMBERS = ("requirement", "kind", "entry")
++
++# THE CLOSED REQUIREMENT VOCABULARY.
++#
++# `existing-test` is an edit or a delete of a path the accepted Job's own
++# scheduled scope names -- the scope IS the enumeration, so membership is both
++# what makes the authority necessary and what supplies it.
++#
++# `mode-change` and `executable-addition` HAVE NO ACCEPTED OWNER IN THIS BUILD,
++# which is the gap W114085 reports rather than papers over: the Job carries
++# `test_scope` and nothing else per-path, and no other accepted record names a
++# mode. A candidate carrying either is refused by the producer before anything
++# is published, and a bundle that claims one anyway is refused here.
++REQUIREMENTS = ("executable-addition", "existing-test", "mode-change")
++
++# AND THE ONLY KIND OF GRANT THIS BUILD KNOWS. A second kind is a second
++# accepted owner, which is a decision with a record, not a string added here.
++AUTHORITY_KINDS = ("job-test-scope",)
+ 
+ # ONE PATH ROW. `base` and `candidate` are the two sides, and exactly one of
+ # them is null for an add or a delete.
+@@ -172,14 +244,28 @@
+ # from.
+ MAX_BUNDLE_FILES = 512
+ 
+-# THE NINE FILES EVERY BUNDLE HAS: one envelope, one instructions document and
+-# the seven evidence projections.
++# THE TEN FILES EVERY BUNDLE HAS: one envelope, one instructions document and
++# the eight evidence projections. W114085 made it ten from nine.
+ FIXED_FILES = 2 + len(EVIDENCE_DOCUMENTS)
+ 
++# W114085: THE REVIEWER'S DOCUMENTS TRAVEL INSIDE THEIR OWN PROJECTION, so the
++# bound that actually holds them is `MAX_EVIDENCE_BYTES` above. These bound the
++# ACCOUNT: how many collected outputs, how many files across them, and how many
++# bytes of rendered review one bundle carries.
++MAX_REVIEW_OUTPUTS = 8
++MAX_REVIEW_FILES = 32
++MAX_REVIEW_BYTES = 1024 * 1024
++
+ # AND THE PATH BOUND IS DERIVED FROM THOSE TWO. An edit whose two sides differ
+-# emits two blobs, so the worst case is 2 per row; 9 + 2*251 is 511 files and
+-# 252 rows would be 513. Review 2026-09-07T19:29:28Z [P1] found 512 admitting
+-# exactly that bundle -- the digest refused AFTER the files were published.
++# emits two blobs, so the worst case is 2 per row; 10 + 2*251 is 512 files and
++# 252 rows would be 514. Review 2026-09-07T19:29:28Z [P1] found the earlier
++# arithmetic admitting a bundle whose digest refused AFTER the files were
++# published, which is why this is derived rather than chosen.
++#
++# W114085 ADDED A PROJECTION AND SPENT NOTHING ELSE. The eighth evidence
++# document moves `FIXED_FILES` from 9 to 10 and the reviewer's documents travel
++# INSIDE it, so the accepted 251 is unchanged -- which is the whole reason they
++# are not a directory of emitted files.
+ MAX_PATHS = (MAX_BUNDLE_FILES - FIXED_FILES) // 2
+ 
+ # THE OUTER RESULT'S BOUND, which is `runtime.MAX_DELIVERY_BYTES`. Held equal
+@@ -632,9 +718,364 @@
+         except ValueError:
+             _refuse(f"evidence {name} is not one readable JSON document")
+ 
+-    _paths(envelope["paths"])
++    rows = _paths(envelope["paths"])
++    review = _authority(held[AUTHORITY_DOCUMENT], rows, held,
++                        envelope["eligibility"])
+     return {"root": root, "envelope": envelope, "instructions": instructions,
+-            "evidence": held}
++            "evidence": held, "review": review}
++
++
++# -- W114085: the authority account, and the review bytes it names -----------
++
++
++def _within_scope(path, scope):
++    """Whether one path is inside one scheduled scope entry.
++
++    A COMPONENT BOUNDARY, because a scope entry is a directory: `tests/a`
++    admits `tests/a/one.py` and does not admit `tests/abc.py`. Equality alone
++    would refuse every genuine scheduled change, and a bare `startswith` would
++    admit a sibling whose name merely begins the same way.
++    """
++    return any(path == one or path.startswith(one.rstrip("/") + "/")
++               for one in scope)
++
++
++def required_authority(row, scope):
++    """What one reviewed path row needs somebody to have decided.
++
++    THE RULES ARE ABOUT THE ROW AND THE ACCEPTED SCOPE, and about nothing else.
++    No filename is inspected: review 2026-09-07T22:48:26Z [P1] is explicit that
++    a filename heuristic cannot stand in for a reviewed enumeration, so the
++    accepted Job's own scheduled scope is both what makes a test change need
++    authority and what supplies it.
++    """
++    needs = set()
++    base, candidate = row["base"], row["candidate"]
++    if row["operation"] in ("edit", "delete") \
++            and _within_scope(row["path"], scope):
++        needs.add("existing-test")
++    if base is not None and candidate is not None \
++            and base["mode"] != candidate["mode"]:
++        needs.add("mode-change")
++    if base is None and candidate is not None \
++            and candidate["mode"] == "100755":
++        needs.add("executable-addition")
++    return sorted(needs)
++
++
++# -- the canonical form this reader recomputes identities in ----------------
++#
++# W114085 review 2026-09-07T23:16:55Z [P1]: the reader validated each inline
++# review text against its own declared digest and never recomputed the OUTPUT
++# TREE identity, so an account could rewrite a reviewer's words, recompute its
++# own per-file checksums, and keep the frozen output digest it claims to
++# represent. Recomputing that identity needs the canonical form the frozen
++# owner took it in, and a worker in a container cannot import
++# `baton_v12.contracts.canonical` -- so the restricted subset those documents
++# actually use is spelled here and held equal to its owner by conformance.
++
++
++def _canonical(value, depth=0):
++    if depth > 64:
++        _refuse("a measured document nests deeper than this reader digests")
++    if value is None:
++        return "null"
++    kind = type(value)
++    if kind is bool:
++        return "true" if value else "false"
++    if kind is int:
++        if value < 0 or value > 2 ** 53 - 1:
++            _refuse("a measured document carries a number outside the "
++                    "canonical value space")
++        return str(value)
++    if kind is str:
++        try:
++            value.encode("utf-16-be")
++        except UnicodeEncodeError:
++            _refuse("a measured document carries a lone UTF-16 surrogate")
++        return json.dumps(value, ensure_ascii=False)
++    if kind is list:
++        if len(value) > 512:
++            _refuse("a measured array is above the frozen canonical limit")
++        return "[" + ",".join(_canonical(one, depth + 1)
++                              for one in value) + "]"
++    if kind is dict:
++        if len(value) > 512:
++            _refuse("a measured object is above the frozen canonical limit")
++        names = sorted(value, key=lambda one: one.encode("utf-16-be"))
++        return "{" + ",".join(f"{json.dumps(one, ensure_ascii=False)}:"
++                              f"{_canonical(value[one], depth + 1)}"
++                              for one in names) + "}"
++    _refuse("a measured document carries a value canonical JSON has no "
++            "representation for")
++
++
++def canonical_digest(value):
++    """The identity the frozen owners took theirs in."""
++    from hashlib import sha256
++
++    return "sha256:" + sha256(
++        _canonical(value).encode("utf-8")).hexdigest()
++
++
++def _authority(account, rows, evidence, eligibility):
++    """The account, its own shape, its coverage of the table, and its bytes.
++
++    AND ITS BINDING TO THE PROJECTIONS IT DUPLICATES. Review
++    2026-09-07T23:16:55Z [P1]: this validated the account against ITSELF, so a
++    foreign scope identity, a rewritten review document and an entirely absent
++    materialization were each accepted beside the real, unchanged `job.json`,
++    `review.json` and eligibility they contradicted. Duplicated identities are
++    only useful if something compares them, and this is that something.
++    """
++    if type(account) is not dict or set(account) != set(AUTHORITY_MEMBERS):
++        _refuse("the authority projection carries exactly its closed members")
++    if account["schema"] != AUTHORITY_SCHEMA:
++        _refuse("the authority projection declares another schema")
++
++    scope = account["scope"]
++    if type(scope) is not dict or set(scope) != set(AUTHORITY_SCOPE_MEMBERS):
++        _refuse("the authority scope carries exactly the accepted Job's "
++                "closed members")
++    for member in ("job_id", "stage_id", "work_id", "scope_digest"):
++        _text(scope[member], f"the authority scope's {member}")
++    scheduled = scope["test_scope"]
++    if type(scheduled) is not list:
++        _refuse("an accepted Job's scheduled scope is an array of paths")
++    if len(scheduled) > MAX_PATHS:
++        _refuse("the accepted scope names more paths than this contract bounds")
++    for one in scheduled:
++        check_bundle_path(one, "a scheduled scope path")
++    # THE SCOPE IS BOUND TO ITS OWN PROJECTION AND TO ADMISSION'S ACCOUNT, and
++    # its digest is RECOMPUTED. A foreign work_id with an empty scope beside
++    # the real, unchanged `job.json` was accepted before this.
++    job = evidence.get("job.json")
++    if type(job) is not dict:
++        _refuse("this bundle carries no accepted Job projection")
++    for member in ("job_id", "stage_id", "work_id", "scope_digest"):
++        if scope[member] != job.get(member):
++            _refuse(f"the authority scope's {member} is not the accepted "
++                    f"Job's")
++    if scope["work_id"] != eligibility["work_id"] \
++            or scope["scope_digest"] != eligibility["scope_digest"]:
++        _refuse("the authority scope is not the account this admission "
++                "resolved")
++    if canonical_digest(list(scheduled)) != scope["scope_digest"]:
++        _refuse("the authority scope's paths are not the scope its own digest "
++                "names")
++    if job.get("test_scope") != list(scheduled):
++        _refuse("the authority scope and the accepted Job projection name "
++                "different scheduled paths")
++
++    review = _authority_review(account["review"], evidence)
++    _authority_paths(account["paths"], rows, scheduled)
++    return review
++
++
++def _authority_review(review, evidence):
++    """The frozen review's identity, and every materialized byte of it.
++
++    THE DOCUMENTS TRAVEL INSIDE THIS PROJECTION rather than as a directory of
++    emitted files, which is what keeps the bundle's layout, its depth and its
++    accepted 251-path bound exactly where they were. `digest` and `bytes` are
++    over the ORIGINAL custody bytes, so the account stays bound to what the
++    frozen review measured whatever this document renders of it.
++    """
++    if type(review) is not dict \
++            or set(review) != set(AUTHORITY_REVIEW_MEMBERS):
++        _refuse("the authority review carries exactly its closed members")
++    for member in ("verdict_id", "attachment_id", "disposition",
++                   "reviewer_participant", "result_id", "result_digest"):
++        _text(review[member], f"the authority review's {member}")
++    # BOUND TO THE FROZEN PROJECTION IT CLAIMS TO REPRESENT. Review
++    # 2026-09-07T23:16:55Z [P1]: a rewritten review, a foreign identity and an
++    # entirely absent materialization were each accepted beside the real,
++    # unchanged `review.json`.
++    frozen = evidence.get("review.json")
++    if type(frozen) is not dict or type(frozen.get("review_result")) is not dict:
++        _refuse("this bundle carries no frozen independent review projection")
++    for member in ("verdict_id", "attachment_id", "disposition",
++                   "reviewer_participant"):
++        if review[member] != frozen.get(member):
++            _refuse(f"the authority review's {member} is not the frozen "
++                    f"review's")
++    if review["result_id"] != frozen["review_result"].get("result_id") \
++            or review["result_digest"] != frozen.get("review_result_digest"):
++        _refuse("the authority review names another frozen result than the "
++                "one this bundle carries")
++    artifacts = frozen["review_result"].get("artifacts")
++    if type(artifacts) is not list:
++        _refuse("the frozen review projection names no collected outputs")
++    collected = {}
++    for one in artifacts:
++        if type(one) is not dict:
++            _refuse("a frozen review artifact is a document")
++        collected[one.get("output_name")] = one
++    documents = review["documents"]
++    if type(documents) is not list or len(documents) > MAX_REVIEW_OUTPUTS:
++        _refuse(f"a frozen review carries at most {MAX_REVIEW_OUTPUTS} "
++                f"materialized outputs")
++    held = {}
++    counted = 0
++    measured = 0
++    names = []
++    for one in documents:
++        if type(one) is not dict \
++                or set(one) != set(AUTHORITY_OUTPUT_MEMBERS):
++            _refuse("a materialized review output carries its closed members")
++        name = _component(one["output_name"])
++        names.append(name)
++        _text(one["tree_digest"], f"review output {name}'s tree digest")
++        _count(one["bytes"], f"review output {name}'s byte count",
++               MAX_REVIEW_BYTES)
++        files = one["files"]
++        if type(files) is not list:
++            _refuse(f"review output {name} names its files in an array")
++        _count(one["entry_count"], f"review output {name}'s entry count",
++               MAX_REVIEW_FILES)
++        if len(files) != one["entry_count"]:
++            _refuse(f"review output {name} declares {one['entry_count']} "
++                    f"entries and names {len(files)}")
++        seen = []
++        total = 0
++        for entry in files:
++            if type(entry) is not dict \
++                    or set(entry) != set(AUTHORITY_FILE_MEMBERS):
++                _refuse("a materialized review file carries its closed "
++                        "members")
++            relative = check_bundle_path(entry["path"],
++                                         f"review output {name}'s file")
++            _hex64(entry["digest"], f"review file {relative}'s digest")
++            _count(entry["bytes"], f"review file {relative}'s byte count",
++                   MAX_REVIEW_BYTES)
++            counted += 1
++            if counted > MAX_REVIEW_FILES:
++                _refuse(f"a bundle materializes at most {MAX_REVIEW_FILES} "
++                        f"review files")
++            rendered = entry["text"]
++            if type(rendered) is not str:
++                _refuse(f"review file {name}/{relative} renders its content "
++                        f"as text")
++            payload = rendered.encode("utf-8")
++            if len(payload) != entry["bytes"] \
++                    or sha256_hex(payload) != entry["digest"]:
++                _refuse(f"review file {name}/{relative} is not the content the "
++                        f"authority account names")
++            seen.append(relative)
++            total += len(payload)
++            measured += len(payload)
++            if measured > MAX_REVIEW_BYTES:
++                _refuse(f"a bundle materializes at most {MAX_REVIEW_BYTES} "
++                        f"review bytes")
++            held[(name, relative)] = payload
++        # BYTEWISE SORTED AND UNIQUE, which is the order the producer's own
++        # measurement is taken in; another order is another digest.
++        if seen != sorted(seen, key=lambda one: one.encode("utf-8")) \
++                or len(set(seen)) != len(seen):
++            _refuse(f"review output {name}'s files are sorted and unique")
++        if total != one["bytes"]:
++            _refuse(f"review output {name} declares {one['bytes']} bytes and "
++                    f"carries {total}")
++    if names != sorted(names) or len(set(names)) != len(names):
++        _refuse("the materialized review outputs are sorted and unique")
++    # THE COMPLETE SET, AND EVERY IDENTITY RECOMPUTED FROM THE ORIGINAL BYTES.
++    # A partial materialization of a non-empty frozen review is not this
++    # review; a per-file checksum that agrees with itself is not the tree the
++    # frozen owner measured.
++    if names != sorted(collected):
++        _refuse("the materialized review outputs are not the complete set the "
++                "frozen review collected")
++    for one in documents:
++        held = collected[one["output_name"]]
++        if one["tree_digest"] != held.get("content_digest") \
++                or one["bytes"] != held.get("bytes"):
++            _refuse(f"materialized review output {one['output_name']} does "
++                    f"not carry the identity the frozen review recorded")
++        measured = canonical_digest(
++            [{"path": entry["path"], "bytes": entry["bytes"],
++              "content_digest": "sha256:" + entry["digest"]}
++             for entry in one["files"]])
++        if measured != one["tree_digest"]:
++            _refuse(f"materialized review output {one['output_name']} does "
++                    f"not measure to the tree identity it declares")
++    return {"identity": {member: review[member]
++                         for member in AUTHORITY_REVIEW_MEMBERS
++                         if member != "documents"},
++            "documents": held}
++
++
++def _authority_paths(account, rows, scheduled):
++    """The account covers this table's rows, EXACTLY, and grants each one.
++
++    A ROW THAT NEEDS NOTHING HAS NO ENTRY, so an account that names one is
++    describing a table this bundle does not carry. A row that needs something
++    and has no entry is the case this whole projection exists for.
++    """
++    if type(account) is not list:
++        _refuse("the authority path account is an array")
++    needed = [(row, required_authority(row, scheduled)) for row in rows]
++    expected = [row["path"] for row, needs in needed if needs]
++    if [one.get("path") if type(one) is dict else None
++            for one in account] != expected:
++        _refuse("the authority account does not name exactly the reviewed "
++                "paths that need authority, in the table's own order")
++    supplied = {row["path"]: needs for row, needs in needed}
++    described = {row["path"]: row for row in rows}
++    for one in account:
++        if set(one) != set(AUTHORITY_PATH_MEMBERS):
++            _refuse("an authority row carries exactly its closed members")
++        path = one["path"]
++        if one["operation"] not in OPERATIONS:
++            _refuse(f"authority row {path} names an operation outside "
++                    f"{OPERATIONS}")
++        for member in ("base_mode", "candidate_mode"):
++            if one[member] is not None and one[member] not in MODES:
++                _refuse(f"authority row {path}'s {member} is a reviewed file "
++                        f"mode or null")
++        # AND EQUAL TO THE ROW IT DESCRIBES. Review 2026-09-07T23:16:55Z [P1]:
++        # these duplicated values were held to the vocabulary and never to the
++        # envelope, so an internally valid account could describe a different
++        # operation or a different pair of modes than the table it accompanies.
++        row = described[path]
++        if one["operation"] != row["operation"] \
++                or one["base_mode"] != (row["base"]["mode"] if row["base"]
++                                        else None) \
++                or one["candidate_mode"] != (row["candidate"]["mode"]
++                                             if row["candidate"] else None):
++            _refuse(f"authority row {path} does not describe the reviewed row "
++                    f"it accompanies")
++        requires = one["requires"]
++        if type(requires) is not list or requires != supplied[path]:
++            _refuse(f"authority row {path} does not state what this reviewed "
++                    f"row actually requires")
++        grants = one["authorized_by"]
++        if type(grants) is not list \
++                or [entry.get("requirement") if type(entry) is dict else None
++                    for entry in grants] != requires:
++            _refuse(f"authority row {path} grants exactly one authority per "
++                    f"requirement, in the same order")
++        for grant in grants:
++            if set(grant) != set(AUTHORITY_GRANT_MEMBERS):
++                _refuse("an authority grant carries its closed members")
++            if grant["requirement"] not in REQUIREMENTS:
++                _refuse(f"authority row {path} names a requirement outside "
++                        f"{REQUIREMENTS}")
++            if grant["kind"] not in AUTHORITY_KINDS:
++                # THE REFUSAL THIS PROJECTION IS FOR. `mode-change` and
++                # `executable-addition` have no accepted owner in this build,
++                # so no grant can name one, so a candidate carrying either
++                # cannot be published or read. That is the reported provider
++                # gap, failing closed.
++                _refuse(f"authority row {path} claims a grant of kind "
++                        f"{grant['kind']!r}, and this build admits only "
++                        f"{AUTHORITY_KINDS}; an authority with no accepted "
++                        f"owner is not one this contract invents")
++            entry = _text(grant["entry"], f"authority row {path}'s grant")
++            if grant["requirement"] != "existing-test" \
++                    or entry not in scheduled \
++                    or not _within_scope(path, [entry]):
++                _refuse(f"authority row {path}'s grant does not supply the "
++                        f"requirement it claims")
+ 
+ 
+ def bundle_blob(root, side):

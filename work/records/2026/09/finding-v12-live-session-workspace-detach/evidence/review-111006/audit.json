@@ -1,0 +1,99 @@
+{
+  "copied_hashes": {
+    "PROVENANCE.json": "2ffe132dc604f6319c724933f21c382df708ff018d05314f517bc13a2fd871f7",
+    "network.json": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+    "package.json": "5bf9235d582fee3b98654be06272f79da5cf418daaf78d471d98c7647483f784",
+    "restored-first/events.json": "59e40577a248a9c4efadb82f9f0ec283b8038bbf3eacc7e811652e791d1579f5",
+    "restored-first/gate.json": "6834417ba0413665a76a5eac78de7406e95cbce90cc4f6f5f22b680f91e388b1",
+    "result.json": "6ca0a58dfe79ee999500789a35f74cea037c3637c9468fa545bef3f99d61ffdc",
+    "setup.json": "a3861d19580255ee5fa9d6f91af511f6e0e24265ed3ec5a802394b7d0ebd5c95"
+  },
+  "candidate_files_checked": 125,
+  "candidate_mismatches": [
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "expected": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1",
+      "observed": "62db37ee8cd52bf99fc4e68b766841586f921324366e9e0191fc9618b33e6765"
+    }
+  ],
+  "exact_container": "be2128294703ae231d61dbd2578aa9a289cc3e31d6e76d536b7c9d4a3f580154",
+  "observations": [
+    {
+      "action": "supervisor-observation",
+      "arm": "restored-first",
+      "event": "diagnostic",
+      "monotonic_ns": 439244629805923,
+      "operation": "turn",
+      "stage": "provider-write-intent",
+      "supervisor_monotonic_ns": 439244629649642,
+      "turn": 1
+    },
+    {
+      "action": "supervisor-observation",
+      "arm": "restored-first",
+      "event": "diagnostic",
+      "monotonic_ns": 439244630397092,
+      "operation": "turn",
+      "stage": "provider-write-completed",
+      "supervisor_monotonic_ns": 439244629675410,
+      "turn": 1
+    },
+    {
+      "action": "supervisor-observation",
+      "arm": "restored-first",
+      "event": "diagnostic",
+      "monotonic_ns": 439245044155240,
+      "operation": "turn",
+      "stage": "provider-response-observed",
+      "supervisor_monotonic_ns": 439245044011743,
+      "turn": 1
+    },
+    {
+      "action": "supervisor-observation",
+      "arm": "restored-first",
+      "event": "diagnostic",
+      "monotonic_ns": 439245044694893,
+      "operation": "turn",
+      "stage": "provider-result-validation",
+      "supervisor_monotonic_ns": 439245044045926,
+      "turn": 1
+    },
+    {
+      "action": "supervisor-observation",
+      "arm": "restored-first",
+      "errno": null,
+      "event": "refused",
+      "exception_kind": "fixture-refusal",
+      "monotonic_ns": 439245045196225,
+      "operation": "turn",
+      "refusal_code": "provider-result-failed",
+      "stage": "provider-result-validation",
+      "turn": 1
+    }
+  ],
+  "result_projection_probe": {
+    "different-subtype": {
+      "refusal_code": "provider-result-failed",
+      "exception_kind": "fixture-refusal",
+      "errno": null
+    },
+    "error-true": {
+      "refusal_code": "provider-result-failed",
+      "exception_kind": "fixture-refusal",
+      "errno": null
+    },
+    "error-missing": {
+      "refusal_code": "provider-result-failed",
+      "exception_kind": "fixture-refusal",
+      "errno": null
+    },
+    "subtype-missing": {
+      "refusal_code": "provider-result-failed",
+      "exception_kind": "fixture-refusal",
+      "errno": null
+    }
+  },
+  "protected_originals_read": false,
+  "provider_calls": 0,
+  "limitations": "Export hashes validate readable projections against supplied provenance; original protected bytes and historical credential teardown are not independently inspected."
+}

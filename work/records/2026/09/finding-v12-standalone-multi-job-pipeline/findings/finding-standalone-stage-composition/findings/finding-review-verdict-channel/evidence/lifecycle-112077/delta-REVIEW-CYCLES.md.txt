@@ -1,0 +1,52 @@
+--- before/v12/python/REVIEW-CYCLES.md
++++ candidate/v12/python/REVIEW-CYCLES.md
+@@ -33,12 +33,24 @@
+ checkpoint evidence remains resolvable. Only an `accepted` verdict creates an
+ integration-eligibility row. A verdict requires the reviewer's exact runtime
+ to be positively quiescent, its disposition to be `completed`, its output to
+-be frozen, and its verification to be `passed`. The result must retain
+-separate `findings` and `logs` outputs. The manager fences the review assignment
++be frozen or sealed, and its result to retain separate `findings` and `logs`
++outputs. Sealed output additionally requires accepted intake for the exact
++result and manifest, matching artifact identities and measurements, and a
++retained decision for every review artifact. The manager fences the review assignment
+ and binds that fence and the frozen-result summary—including the manifest
+ digest locating the retained result—to the verdict. Eligibility is revalidated
+ against that exact checkpoint, completed review attempt, result, fence, and
+ verdict rather than the mutable line path.
++
++For the current W71830 milestone, ordinary implementer tests and independent
++technical review replace the prerequisite for a separate clean verifier. The
++reviewer's verification axis is preserved as recorded, including `none`,
++`failed` or `unable`; recording a technical verdict does not certify required
++tests or set that axis to `passed`. Integration admission separately checks
++the exact retained ordinary-test evidence against the trusted test requirements.
++An accepted technical review alone does not establish passed tests or authorize
++integration. The separate ordinary-test admission implementation is owned by
++W112029, and W112039 gates joined acceptance of both capabilities.
+ 
+ ## Deployment wiring
+ 
+@@ -93,6 +105,22 @@
+ operation retries replay, while reuse with changed operands refuses as an
+ operation collision.
+ 
++After successful ordinary cleanup, eligibility and exact review-ending replay
++read retained history instead of asking the destroyed runtime to become
++quiescent. This requires the exact ended attachment, committed verdict and fence,
++matching frozen result, accepted intake and retained artifacts, and the matching
++committed `runtime.destroy` operation under that receipt and retention policy.
++The operation must prove positive runtime absence and retained cleanup. A bare
++`destroyed` axis, missing history or unresolved provider teardown is insufficient.
++Destruction cannot create a first verdict.
++
++The ending compares the original completion and retention operands on replay
++and returns the same verdict account without another worker, fence, freeze,
++intake or destroy call. An unsettled cleanup remains held. Retained custody
++bytes remain outside the disposable execution roots and can be reopened after
++cleanup. This covers immediate completion replay; it does not introduce an
++automatic restart or recovery service.
++
+ The Worker Manager schema is version 18. It has the repository's standing
+ fresh-store rollout boundary: older control stores are refused, not migrated or
+ guessed across.

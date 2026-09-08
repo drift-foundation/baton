@@ -1,0 +1,63 @@
+{
+  "claim_seq": 110843,
+  "end_review_required_keywords": [
+    "attachment_id",
+    "disposition",
+    "verdict",
+    "profile",
+    "retention_disposition",
+    "retention_policy_digest"
+  ],
+  "files": {
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "bytes": 41495,
+      "sha256": "d7a3e63e2b9ef8b6fffc6eb219790a3df7fd58c3be2ffeb59727bf9284dfd8b1"
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "bytes": 34028,
+      "sha256": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1"
+    },
+    "v12/python/src/baton_v12/worker_manager/manifests.py": {
+      "bytes": 7243,
+      "sha256": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866"
+    },
+    "v12/python/src/baton_v12/worker_manager/output.py": {
+      "bytes": 31447,
+      "sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d"
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "bytes": 73542,
+      "sha256": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377"
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "bytes": 60637,
+      "sha256": "2b759a9ad7ec3bb9042c4f137b36c68035c18be8e9d948caae40cf470526a1df"
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "bytes": 129533,
+      "sha256": "0d9acad00c7a1e41cae10cdfe4fbccd5bc898ce1ef3f1aafaf4597f43520ac51"
+    },
+    "v12/python/tools/single_worker.py": {
+      "bytes": 121157,
+      "sha256": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "bytes": 69444,
+      "sha256": "745a8b851193ace8099b6ae013641ef668f1b679cc73e23bd301bb8a152c5841"
+    },
+    "v12/worker/baton_worker.py": {
+      "bytes": 98926,
+      "sha256": "da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923"
+    },
+    "v12/worker/claude_agent.py": {
+      "bytes": 133573,
+      "sha256": "5f5e553b86c143cfd5969c7737ef6811a9c9d5e97b0206a04bf17ef80bed95d8"
+    }
+  },
+  "note": "This reproduces the worker declaration refusal and inspects the existing ending signature; it does not prove the proposed provider works.",
+  "review_declarations": {
+    "reason": "this dogfood workload declares exactly one output and this assignment declares 2",
+    "refused": true
+  },
+  "work": "W110772"
+}

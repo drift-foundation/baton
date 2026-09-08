@@ -1,0 +1,39 @@
+{
+  "allowlist": [
+    400,
+    401,
+    402,
+    403,
+    404,
+    409,
+    413,
+    429,
+    500,
+    504,
+    529
+  ],
+  "field": "result.api_error_status",
+  "historical_status_unknown": true,
+  "interpretation": "CLI-reported status only; no raw error text or inferred credential/provider cause.",
+  "observed_date": "2026-09-07",
+  "selected_cli": "2.1.247",
+  "selected_cli_field_emission_observed": false,
+  "source_kind": "official SDK source and API documentation",
+  "sources": [
+    {
+      "observation": "Optional integer identifying the failed API HTTP status for success subtype plus true error flag; SDK comment dates CLI emission to 2.1.110.",
+      "symbol": "ResultMessage.api_error_status",
+      "url": "https://raw.githubusercontent.com/anthropics/claude-agent-sdk-python/main/src/claude_agent_sdk/types.py"
+    },
+    {
+      "observation": "Passes the top-level api_error_status field into ResultMessage.",
+      "symbol": "parse_message result branch",
+      "url": "https://raw.githubusercontent.com/anthropics/claude-agent-sdk-python/main/src/claude_agent_sdk/_internal/message_parser.py"
+    },
+    {
+      "observation": "Enumerates the fixed HTTP statuses selected by this projection.",
+      "symbol": "HTTP errors",
+      "url": "https://platform.claude.com/docs/en/api/errors"
+    }
+  ]
+}

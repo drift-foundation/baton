@@ -1,0 +1,368 @@
+{
+  "observed_at": "2026-09-08T03:40:00.701Z",
+  "containers": [
+    {
+      "id": "395d0a8f58dd436d76bf2c7c26ea4eaace084b394a3f48938a51e1c51d168baf",
+      "name": "/baton-w6633-test-ad84cd27dea3",
+      "created": "2026-09-05T05:31:11.002705671Z",
+      "state": "exited",
+      "started": "2026-09-05T05:31:11.012492834Z",
+      "finished": "2026-09-05T05:31:21.082645165Z",
+      "exit_code": 137,
+      "image_id": "sha256:db9f397171153338ce068b46a7c9ab48c79b80d9f1ad1db4c149541a5eb8199b",
+      "image_reference": "baton-w6633-test:7dc2c25ca26c"
+    },
+    {
+      "id": "efdcafca65a199c9be14d4011d3ddd5ce9407c55eca4f3c2a4dc819b6244730e",
+      "name": "/baton-runtime.start-2e95e279c646d45582f6c1f22061d4b855a882105418686145b33994b80508cc",
+      "created": "2026-09-04T08:37:00.688985185Z",
+      "state": "exited",
+      "started": "2026-09-04T08:37:00.70591705Z",
+      "finished": "2026-09-04T09:10:41.548713688Z",
+      "exit_code": 1,
+      "image_id": "sha256:30117fe6f1b65c0e5315a04a19638f146f05b504b7fa756215a235fca2df388a",
+      "image_reference": "sha256:30117fe6f1b65c0e5315a04a19638f146f05b504b7fa756215a235fca2df388a"
+    },
+    {
+      "id": "b393d82dc7476936a23bea6972fb4ee788b7ba9cd58453d39cb1ec968ea3438c",
+      "name": "/baton-runtime.start-89f9305e5e2bf70601d92e394c0e6783ab0c9c927558db5e3f2912934785dc65",
+      "created": "2026-09-04T08:04:01.367102932Z",
+      "state": "exited",
+      "started": "2026-09-04T08:04:01.384208519Z",
+      "finished": "2026-09-04T08:08:51.702585711Z",
+      "exit_code": 137,
+      "image_id": "sha256:896884b237a14d2397a9851dc1692cb34bedb46a367c2544de9e7499fd9bc124",
+      "image_reference": "sha256:896884b237a14d2397a9851dc1692cb34bedb46a367c2544de9e7499fd9bc124"
+    },
+    {
+      "id": "c4c12927cd8857d1860ac157baf7aee9bb69bb03adc01613fdd4bfbddc08e75b",
+      "name": "/baton-runtime.start-e4a5f5ea06c648b01a4d2ca389daa508e193cecfe31bcac606a7e9c5a0956eec",
+      "created": "2026-09-04T02:16:38.956020273Z",
+      "state": "exited",
+      "started": "2026-09-04T02:16:38.973112556Z",
+      "finished": "2026-09-04T08:02:19.95712944Z",
+      "exit_code": 137,
+      "image_id": "sha256:896884b237a14d2397a9851dc1692cb34bedb46a367c2544de9e7499fd9bc124",
+      "image_reference": "sha256:896884b237a14d2397a9851dc1692cb34bedb46a367c2544de9e7499fd9bc124"
+    },
+    {
+      "id": "c56bb606df41391f9d583ca1823e8abbe30134dc9705a745e73e909c605665f1",
+      "name": "/baton-runtime.start-b2e8b10586ac133f7f33f01bc8063109e11860573af189eb4e7c5059a42a08b7",
+      "created": "2026-09-02T13:13:17.304040564Z",
+      "state": "exited",
+      "started": "2026-09-02T13:13:17.354395679Z",
+      "finished": "2026-09-02T13:39:14.294194689Z",
+      "exit_code": 137,
+      "image_id": "sha256:896884b237a14d2397a9851dc1692cb34bedb46a367c2544de9e7499fd9bc124",
+      "image_reference": "sha256:896884b237a14d2397a9851dc1692cb34bedb46a367c2544de9e7499fd9bc124"
+    },
+    {
+      "id": "f448e8cdf95b9a3d1c54954cabe3f1d9a0711d23d2ad1d743aa42b377ba5ae15",
+      "name": "/baton-runtime.start-e95eb8ff1a61e81ef00a8d85728787bf1b7463fef054f090852e46a54edf7ee6",
+      "created": "2026-09-01T19:02:33.448119371Z",
+      "state": "exited",
+      "started": "2026-09-01T19:02:33.46469416Z",
+      "finished": "2026-09-01T19:30:11.378158454Z",
+      "exit_code": 137,
+      "image_id": "sha256:b471399a7dcb8300795fe884c471b817ec1d61644130d66ec12fbd4fef76c003",
+      "image_reference": "sha256:b471399a7dcb8300795fe884c471b817ec1d61644130d66ec12fbd4fef76c003"
+    },
+    {
+      "id": "94753a3a1c5a93c17609ab6b4654a61346dead63d1d258ad5bf9cbcf7dd2f4de",
+      "name": "/baton-runtime.start-0644a8d783369fd5d6ddd86782e82c93dcb1871d1a929f68c7b1dd3613a082f9",
+      "created": "2026-09-01T14:17:07.454363214Z",
+      "state": "exited",
+      "started": "2026-09-01T14:17:07.470795237Z",
+      "finished": "2026-09-01T14:39:21.953295695Z",
+      "exit_code": 137,
+      "image_id": "sha256:b471399a7dcb8300795fe884c471b817ec1d61644130d66ec12fbd4fef76c003",
+      "image_reference": "sha256:b471399a7dcb8300795fe884c471b817ec1d61644130d66ec12fbd4fef76c003"
+    },
+    {
+      "id": "c48d892d8c9483b049176e0fb1dc3892f47de0532c28a3c5f66afeea1917b3d5",
+      "name": "/baton-runtime.start-0fa4eebd2156968d927983066fe648d75b138ac4d5f7f7544ff4a8f87579705a",
+      "created": "2026-08-31T18:33:10.813681701Z",
+      "state": "exited",
+      "started": "2026-08-31T18:33:10.830806504Z",
+      "finished": "2026-09-01T00:37:45.672806534Z",
+      "exit_code": 137,
+      "image_id": "sha256:8af96742a89489ae974943284fcc65a5fd58e02263a9ae2142b3d0afa4f9c0e6",
+      "image_reference": "sha256:8af96742a89489ae974943284fcc65a5fd58e02263a9ae2142b3d0afa4f9c0e6"
+    },
+    {
+      "id": "afed4c76aebe339911ab353021227f94cb8c635e9b46ed1e4ba2f642f4d7d334",
+      "name": "/baton-runtime.start-d35e93cb054be8d24b4dbc4b91b1b203a8a2044b6a5a76a5937d43f287c515a9",
+      "created": "2026-08-31T17:56:09.407126018Z",
+      "state": "exited",
+      "started": "2026-08-31T17:56:09.458431372Z",
+      "finished": "2026-08-31T18:29:01.079874978Z",
+      "exit_code": 137,
+      "image_id": "sha256:8af96742a89489ae974943284fcc65a5fd58e02263a9ae2142b3d0afa4f9c0e6",
+      "image_reference": "sha256:8af96742a89489ae974943284fcc65a5fd58e02263a9ae2142b3d0afa4f9c0e6"
+    },
+    {
+      "id": "ab6ece5db883ca1857dd263bb502baf16b91fd412574f3f0eaf0b5c59faaa8e8",
+      "name": "/baton-runtime.start-9de04abc3c3a2ec82e7801db9d0101b403c0d5b89837ba9b10223cb0ab5b80e2",
+      "created": "2026-08-30T20:05:38.837077914Z",
+      "state": "exited",
+      "started": "2026-08-30T20:05:38.846680783Z",
+      "finished": "2026-08-30T20:06:09.050073825Z",
+      "exit_code": 137,
+      "image_id": "sha256:150c24f1b46168dd461c031769c49ec1699480c6b7a841ca156f34493cd8d5c9",
+      "image_reference": "sha256:150c24f1b46168dd461c031769c49ec1699480c6b7a841ca156f34493cd8d5c9"
+    },
+    {
+      "id": "63b377bde77c1d9302691aeefb2329c5fe8b85f1de65335edbf62701f50a8ca7",
+      "name": "/baton-runtime.start-f9e98299eae9b3589691f8ca786df298652f9d1fd78d6b7215ea67e486e14029",
+      "created": "2026-08-30T20:04:45.66436969Z",
+      "state": "exited",
+      "started": "2026-08-30T20:04:45.673953563Z",
+      "finished": "2026-08-30T20:05:15.88351705Z",
+      "exit_code": 137,
+      "image_id": "sha256:15549ca47a384a658efd5754fdf79cf218195b3090336a5aaa839dde437008b4",
+      "image_reference": "sha256:15549ca47a384a658efd5754fdf79cf218195b3090336a5aaa839dde437008b4"
+    },
+    {
+      "id": "ea5250d1ac276f85597a11af6dad462fec43eadaeb5b559a3eedfaa00466975b",
+      "name": "/baton-runtime.start-57d4ea40d154fd2ec5e91012988aff55ed1be599f6a2963a13c0c332c976491d",
+      "created": "2026-08-30T19:47:06.008702791Z",
+      "state": "exited",
+      "started": "2026-08-30T19:47:06.018073866Z",
+      "finished": "2026-08-30T19:47:36.174869991Z",
+      "exit_code": 137,
+      "image_id": "sha256:dbbdcc9a1147b1ae2bb1ec968aeaa82df9de16da603aec6cfd5ad83a47f48580",
+      "image_reference": "sha256:dbbdcc9a1147b1ae2bb1ec968aeaa82df9de16da603aec6cfd5ad83a47f48580"
+    },
+    {
+      "id": "0de5a0a2770c5a33493fe4a180978b74699a6c50e7938b5bee42d3c4e0590fee",
+      "name": "/baton-runtime.start-f10f4afe35dc36b876e478f8644b575ddb199ada57549d73b4390c5431d645c3",
+      "created": "2026-08-30T19:41:40.16159617Z",
+      "state": "exited",
+      "started": "2026-08-30T19:41:40.171411729Z",
+      "finished": "2026-08-30T19:42:10.32831544Z",
+      "exit_code": 137,
+      "image_id": "sha256:388095bdf37c58d196f54950433dbce154e6f74f1b9c4af6cb03956c09f7bb41",
+      "image_reference": "sha256:388095bdf37c58d196f54950433dbce154e6f74f1b9c4af6cb03956c09f7bb41"
+    },
+    {
+      "id": "66b26a48683c6936a59f058dd38bb829ea8458a60f5ede40fd2a4c88b04efdc1",
+      "name": "/baton-runtime.start-2aab75afbe6766cca7d143dfb902931d6cd449228b73d012e84b5378e75f2b8f",
+      "created": "2026-08-30T19:40:51.214891867Z",
+      "state": "exited",
+      "started": "2026-08-30T19:40:51.22432211Z",
+      "finished": "2026-08-30T19:41:21.376398536Z",
+      "exit_code": 137,
+      "image_id": "sha256:3919cecdc84f23204839890d33c1c70f4e9abc28f1f73e33e923e7a8800ae97c",
+      "image_reference": "sha256:3919cecdc84f23204839890d33c1c70f4e9abc28f1f73e33e923e7a8800ae97c"
+    },
+    {
+      "id": "f9432329ba863f2d635c3756202fbe5df5c75a776891ca8230d26623a81b190c",
+      "name": "/baton-runtime.start-942d7ce78cbcdad35703137e49f361c16deb7d68b19d9db2796c49f8dd65a9f5",
+      "created": "2026-08-30T19:40:13.731207695Z",
+      "state": "exited",
+      "started": "2026-08-30T19:40:13.740771406Z",
+      "finished": "2026-08-30T19:40:43.938384228Z",
+      "exit_code": 137,
+      "image_id": "sha256:61bb7d83193a11e8e5f9f719d2787cbfd00c76661b0887b074c906be29a526bc",
+      "image_reference": "sha256:61bb7d83193a11e8e5f9f719d2787cbfd00c76661b0887b074c906be29a526bc"
+    },
+    {
+      "id": "14555ec69c3048d34f6e46c9877500dc5984b88f4a589f253983669203886935",
+      "name": "/baton-runtime.start-fe34d69910212ef6e92abb7e471b329cac812e122eb11f684c3af5b149b8852e",
+      "created": "2026-08-30T19:36:52.655990583Z",
+      "state": "exited",
+      "started": "2026-08-30T19:36:52.666613653Z",
+      "finished": "2026-08-30T19:37:22.85616626Z",
+      "exit_code": 137,
+      "image_id": "sha256:e0f99ea9fce7d4b0a00933fa1edf6279d3c00ac839758f482d45a032b0aa4682",
+      "image_reference": "sha256:e0f99ea9fce7d4b0a00933fa1edf6279d3c00ac839758f482d45a032b0aa4682"
+    },
+    {
+      "id": "0270c78ae43a9024baa068dfa6834f57a6ebc2bff7b09f0cb910eb75b8c16ab3",
+      "name": "/baton-runtime.start-4ce5610a875ef480ea5fabb2214c18f93f6203432076746a0e97fab66d94d554",
+      "created": "2026-08-30T19:36:22.366788289Z",
+      "state": "exited",
+      "started": "2026-08-30T19:36:22.376318818Z",
+      "finished": "2026-08-30T19:36:52.57521088Z",
+      "exit_code": 137,
+      "image_id": "sha256:e0f99ea9fce7d4b0a00933fa1edf6279d3c00ac839758f482d45a032b0aa4682",
+      "image_reference": "sha256:e0f99ea9fce7d4b0a00933fa1edf6279d3c00ac839758f482d45a032b0aa4682"
+    },
+    {
+      "id": "9e13e19f34d84d8942ebb8afa6f98ae3f695f135598102a4ce35da2cc7f3707b",
+      "name": "/baton-runtime.start-1abb7c5bd810222fc6751ae4ebd00ee8a86d3a6f1a037a5b51a6d1ae409914ba",
+      "created": "2026-08-30T19:35:45.34267072Z",
+      "state": "exited",
+      "started": "2026-08-30T19:35:45.353018648Z",
+      "finished": "2026-08-30T19:36:15.5430691Z",
+      "exit_code": 137,
+      "image_id": "sha256:dd0eac72da741929e62a0be361dfc7611453dffe689fa26f725731e9e445756a",
+      "image_reference": "sha256:dd0eac72da741929e62a0be361dfc7611453dffe689fa26f725731e9e445756a"
+    },
+    {
+      "id": "dc7a04cb4fb7995ff4591858688be76013649dead98b08f392fdccc4d240cfc6",
+      "name": "/baton-runtime.start-ebd7803f463e4833fa7fc799a4db12c52b1830f963dbe139faa03c85f9dd42f8",
+      "created": "2026-08-30T19:35:15.055146751Z",
+      "state": "exited",
+      "started": "2026-08-30T19:35:15.064694221Z",
+      "finished": "2026-08-30T19:35:45.262734024Z",
+      "exit_code": 137,
+      "image_id": "sha256:dd0eac72da741929e62a0be361dfc7611453dffe689fa26f725731e9e445756a",
+      "image_reference": "sha256:dd0eac72da741929e62a0be361dfc7611453dffe689fa26f725731e9e445756a"
+    },
+    {
+      "id": "2a29be44a23e341980eab0af3158de092161f7b8b7919b7b23cccc0d854bb1bb",
+      "name": "/baton-runtime.start-362695243db45bf3f8508963e7b7ed45d972ae1c02d30cd89049a71a3ccf7cad",
+      "created": "2026-08-30T19:34:30.995345315Z",
+      "state": "exited",
+      "started": "2026-08-30T19:34:31.004904698Z",
+      "finished": "2026-08-30T19:35:01.164714963Z",
+      "exit_code": 137,
+      "image_id": "sha256:34cd72394f5b169c2007704ddf1464a0c4aaa5b1386af49ec1d496dfd7afb607",
+      "image_reference": "sha256:34cd72394f5b169c2007704ddf1464a0c4aaa5b1386af49ec1d496dfd7afb607"
+    },
+    {
+      "id": "cd0ea10f2563f99c49c7bd6968180df6b505d398608a2691c21f39ff95fe5b5a",
+      "name": "/baton-runtime.start-1d7fb1334aeaddf029b1cfdda821ed2a54c2bc6f03631479578a7d93aa08a981",
+      "created": "2026-08-30T19:34:00.710622758Z",
+      "state": "exited",
+      "started": "2026-08-30T19:34:00.720144351Z",
+      "finished": "2026-08-30T19:34:30.920306695Z",
+      "exit_code": 137,
+      "image_id": "sha256:34cd72394f5b169c2007704ddf1464a0c4aaa5b1386af49ec1d496dfd7afb607",
+      "image_reference": "sha256:34cd72394f5b169c2007704ddf1464a0c4aaa5b1386af49ec1d496dfd7afb607"
+    },
+    {
+      "id": "f904b27511acc56aaa6aae88963dcc88a8b031a282dc14bbc14aa0ed4486328f",
+      "name": "/baton-runtime.start-9601b7520a5a9d18060ef383f63261aba503a15692453c1d25c98b81562914b6",
+      "created": "2026-08-30T19:33:22.754748858Z",
+      "state": "exited",
+      "started": "2026-08-30T19:33:22.764510206Z",
+      "finished": "2026-08-30T19:33:52.966797834Z",
+      "exit_code": 137,
+      "image_id": "sha256:03aa665619ba2ba7f94e00f61a3cd453adc7cf9af557c0027b593b4a7b5fe4c5",
+      "image_reference": "sha256:03aa665619ba2ba7f94e00f61a3cd453adc7cf9af557c0027b593b4a7b5fe4c5"
+    },
+    {
+      "id": "fb4db5d794dd77e826c71ea54c66cfd5e6e56b0503246bb5617debb33f46dc68",
+      "name": "/baton-runtime.start-3cb707882d0f2831039790dfdacf260c6c4727d063b0396d38817b832215150e",
+      "created": "2026-08-30T19:32:52.471833074Z",
+      "state": "exited",
+      "started": "2026-08-30T19:32:52.481694869Z",
+      "finished": "2026-08-30T19:33:22.676873394Z",
+      "exit_code": 137,
+      "image_id": "sha256:03aa665619ba2ba7f94e00f61a3cd453adc7cf9af557c0027b593b4a7b5fe4c5",
+      "image_reference": "sha256:03aa665619ba2ba7f94e00f61a3cd453adc7cf9af557c0027b593b4a7b5fe4c5"
+    },
+    {
+      "id": "aa7f994457520761e6d3657faa663ff6dc957bc86cd84a729a1203e12a2bc7b8",
+      "name": "/baton-runtime.start-a7ca541c619965a74430bf42f266a116630edfb83f857a81be3929730133f3cb",
+      "created": "2026-08-30T19:32:04.589529239Z",
+      "state": "exited",
+      "started": "2026-08-30T19:32:04.599580015Z",
+      "finished": "2026-08-30T19:32:34.799877302Z",
+      "exit_code": 137,
+      "image_id": "sha256:f02e13b77338d6963f4d40b54b303c92494ed7130492269bf4b15921c4ce13c2",
+      "image_reference": "sha256:f02e13b77338d6963f4d40b54b303c92494ed7130492269bf4b15921c4ce13c2"
+    },
+    {
+      "id": "e28977056d22910d9fdbee358a40ab43cf69f72154d27d8c24d70a204c5e600d",
+      "name": "/baton-runtime.start-78ab3eb1e9e938ecea338f4af72b135b32d8402ba2cbf31be1ab48d555152cad",
+      "created": "2026-08-30T19:31:34.347575637Z",
+      "state": "exited",
+      "started": "2026-08-30T19:31:34.357236949Z",
+      "finished": "2026-08-30T19:32:04.51463113Z",
+      "exit_code": 137,
+      "image_id": "sha256:f02e13b77338d6963f4d40b54b303c92494ed7130492269bf4b15921c4ce13c2",
+      "image_reference": "sha256:f02e13b77338d6963f4d40b54b303c92494ed7130492269bf4b15921c4ce13c2"
+    },
+    {
+      "id": "7f72e05385ed316f059ba0248adeb99fd623df414e5ed17d1ba51ecf08e44cd6",
+      "name": "/baton-runtime.start-9e58857ca6672f85e816e8547476ce9c8612ed7f348857c496dfd3eccf21b9ba",
+      "created": "2026-08-30T19:30:19.279064709Z",
+      "state": "exited",
+      "started": "2026-08-30T19:30:19.28862325Z",
+      "finished": "2026-08-30T19:30:49.439738798Z",
+      "exit_code": 137,
+      "image_id": "sha256:4e2528931bc91b02eb29a2ae90a332cb414e2153f67fa95b4da87c8a54ebb675",
+      "image_reference": "sha256:4e2528931bc91b02eb29a2ae90a332cb414e2153f67fa95b4da87c8a54ebb675"
+    },
+    {
+      "id": "b34ded7c67bbac66e2e5b4ae76723374d72c8a9b1dd47a51ce77b23143981ef5",
+      "name": "/baton-runtime.start-35e13cacc1f79481828739386eb4fac369e3e29a98bd5ae713c33c698b6226e6",
+      "created": "2026-08-30T19:25:34.923047324Z",
+      "state": "exited",
+      "started": "2026-08-30T19:25:34.932359057Z",
+      "finished": "2026-08-30T19:26:05.125539869Z",
+      "exit_code": 137,
+      "image_id": "sha256:fd5a2cbaf04c192e082a41fb08280e56eac6f6dde9d01a67203896f1751aff8a",
+      "image_reference": "sha256:fd5a2cbaf04c192e082a41fb08280e56eac6f6dde9d01a67203896f1751aff8a"
+    },
+    {
+      "id": "ed580f82dbff4ff9d998e4879d5a8afbeb39ca03fd4f4e240496c37117c1f2de",
+      "name": "/baton-runtime.start-6eea734e63ff5a238515e59c9a11799cc5670ab9c887cbdf940ca3c4c4a73a93",
+      "created": "2026-08-30T19:24:26.083739319Z",
+      "state": "exited",
+      "started": "2026-08-30T19:24:26.093524092Z",
+      "finished": "2026-08-30T19:24:56.288775069Z",
+      "exit_code": 137,
+      "image_id": "sha256:de7d5c64d319f62c4894293fc4106d8df55de9eb475fcc8cc5170058ceaef300",
+      "image_reference": "sha256:de7d5c64d319f62c4894293fc4106d8df55de9eb475fcc8cc5170058ceaef300"
+    },
+    {
+      "id": "7664c92d879d042678f4f1374494eae57a3e6caf3c9eaa166b7712557018fc75",
+      "name": "/baton-runtime.start-1831f6d8ed59bf69854d865067a362076ea55cccc30a6d322b3326b53390bcdc",
+      "created": "2026-08-30T19:23:15.429396223Z",
+      "state": "exited",
+      "started": "2026-08-30T19:23:15.439152061Z",
+      "finished": "2026-08-30T19:23:45.63966719Z",
+      "exit_code": 137,
+      "image_id": "sha256:f4c106258ab4f36131170bae9235eabe08fe5fb589e5e0fad9a61224c54d75f7",
+      "image_reference": "sha256:f4c106258ab4f36131170bae9235eabe08fe5fb589e5e0fad9a61224c54d75f7"
+    },
+    {
+      "id": "ab49972f72f90d5b926ce182ae2e88c1a5a60fe69129309cb91f5dc48a6ff504",
+      "name": "/baton-runtime.start-ea55d15bb57d8d07514b3fa0f01ef37b55167cba311965d674c6d24afe017af3",
+      "created": "2026-08-30T19:22:36.394248409Z",
+      "state": "exited",
+      "started": "2026-08-30T19:22:36.404362093Z",
+      "finished": "2026-08-30T19:23:06.595029506Z",
+      "exit_code": 137,
+      "image_id": "sha256:ec1134b4706d410fd5d935a9e0047cf01c45b6e28921e7c791aa7929d9f4ba65",
+      "image_reference": "sha256:ec1134b4706d410fd5d935a9e0047cf01c45b6e28921e7c791aa7929d9f4ba65"
+    },
+    {
+      "id": "249f54847f1c21ae08a9872995a9f11fc98afa6182fae3aebb52dcb0e6678ab9",
+      "name": "/baton-runtime.start-33302972ecd220e08da02a657b78e374c57431708ff987c3d24c1c6699878e2e",
+      "created": "2026-08-30T19:22:06.121141812Z",
+      "state": "exited",
+      "started": "2026-08-30T19:22:06.130506784Z",
+      "finished": "2026-08-30T19:22:36.321895496Z",
+      "exit_code": 137,
+      "image_id": "sha256:ec1134b4706d410fd5d935a9e0047cf01c45b6e28921e7c791aa7929d9f4ba65",
+      "image_reference": "sha256:ec1134b4706d410fd5d935a9e0047cf01c45b6e28921e7c791aa7929d9f4ba65"
+    },
+    {
+      "id": "f1d10152c0e2d05ff8c23a65417128c87d482f6f1375ac1299bfc64255d96527",
+      "name": "/baton-runtime.start-f2ce33323d9ffea8ab530018282ab57843741ca84b1e74fcd1bbe22d9a95b50f",
+      "created": "2026-08-30T19:21:11.334993369Z",
+      "state": "exited",
+      "started": "2026-08-30T19:21:11.344227788Z",
+      "finished": "2026-08-30T19:21:41.552260848Z",
+      "exit_code": 137,
+      "image_id": "sha256:13fdfc0a898ee6b8aed1abf5f89cf3f7a605c307dbb05a486b5317bf735baeba",
+      "image_reference": "sha256:13fdfc0a898ee6b8aed1abf5f89cf3f7a605c307dbb05a486b5317bf735baeba"
+    }
+  ],
+  "image": {
+    "id": "sha256:db9f397171153338ce068b46a7c9ab48c79b80d9f1ad1db4c149541a5eb8199b",
+    "created": "1970-01-01T00:00:00Z",
+    "tags": [
+      "baton-w6633-test:7dc2c25ca26c",
+      "baton-w81857-exchange:1",
+      "baton-w81857-exchange:2"
+    ]
+  },
+  "tags": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock\n",
+  "limits": "Read-only standalone Docker calls. No environment, logs, commands, credentials or mount source paths retained. Nested Docker subprocess denied; no escalation."
+}

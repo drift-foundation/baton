@@ -1,0 +1,40 @@
+{
+  "contract_allowlist_matches": true,
+  "current_review_driver_import_has_no_execution": true,
+  "definition_audits": {
+    "live_controller_result_diagnostics.py": {
+      "added_definitions": [],
+      "changed_existing_definitions": [
+        "Fixture.start",
+        "diagnostic_frame"
+      ],
+      "unchanged_definitions": 49
+    },
+    "live_supervisor_result_diagnostics.py": {
+      "added_definitions": [
+        "result_fields",
+        "validate_result_fields"
+      ],
+      "changed_existing_definitions": [
+        "Supervisor.observe",
+        "Supervisor.turn"
+      ],
+      "unchanged_definitions": 14
+    }
+  },
+  "exact_original_restoration_and_ending": true,
+  "exact_original_result_acceptance": true,
+  "exact_original_runtime_argv": true,
+  "historical_dossier_files_unchanged": 167,
+  "live_run": false,
+  "prior_inputs": 125,
+  "rebound_dependencies": [
+    {
+      "expected": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1",
+      "observed": "62db37ee8cd52bf99fc4e68b766841586f921324366e9e0191fc9618b33e6765",
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py"
+    }
+  ],
+  "runtime_file_set_unchanged": true,
+  "unchanged_prior_inputs": 124
+}

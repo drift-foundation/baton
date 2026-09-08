@@ -1,0 +1,64 @@
+{
+  "claim": 112459,
+  "manifest_sha256": "9855df426d5838c34697d48960c9ccd4417d79db388c12a0870aede438e3fad4",
+  "candidate": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "0ba2b2bb7adb9c6181cb843a4b90ddf5da6bd8dadd43ed9e6e5a5952020c2262",
+    "v12/python/tests/manager/test_review_cycles.py": "fe14f790dff402c36f2e96a98926641f0131a0b729753e11c18c83113a0f9a16",
+    "v12/python/tests/job_manager/test_review_driver.py": "cb376576b1100976ec865749e6649cccd8cc1addf00210dda8c88bf801b919bc",
+    "v12/python/REVIEW-CYCLES.md": "8a1a61911e6c7c6810593fdb73e04e733e83d02825c28eec088eb86e39b37629",
+    "v12/python/tests/manager/test_boundary_inventory.py": "190cc788c7d12ae22f7b1d0c6cf8cd6bb4ebd488ea2988e21ca3907a0e212270",
+    "v12/python/src/baton_v12/worker_manager/custody.py": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6",
+    "v12/python/tests/manager/test_custody.py": "bb4cf40d5d7001e14d164e18ba3d803ed04d15ebdb18dd3328f857e890dd600a"
+  },
+  "evidence": {
+    "baseline.json": "a967b366c0e6cd873da981d5ef46340fc5eec68f6f8fc0219d52074ccbd5139d",
+    "candidate.json": "2439f928d3a46ab4882f8904a7b62da174799b46e7a23f2a9431828363af1e6d",
+    "delta-REVIEW-CYCLES.md.txt": "c50017ba6bc521c534b1a9343823ae4053f651139379d5763b0cbca9166c786b",
+    "delta-custody.py.txt": "ed46ed0409dcc09baae9fb22d09e201804cdd8618237861e6bc2d0fe3bdc3bcf",
+    "delta-review_cycles.py.txt": "0a37feebc52b4b3702b7938c6f18b6f490e9e7c625486af0b48bb0bcf898c749",
+    "delta-review_driver.py.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "delta-test_boundary_inventory.py.txt": "e7a188a9d025b7f9104315d535b7f724f9a7c33f83c25a7be9feb87c20470f85",
+    "delta-test_custody.py.txt": "223c964eccad2e2655b9f10c3b01aa7f9e94b6e0761e8216116a6c75079cf0f6",
+    "delta-test_review_cycles.py.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "delta-test_review_driver.py.txt": "2fcee26018e38240d01b54e0c982f00f795c59b9130c7ccd2a411dd286a8b766",
+    "focused-suites.txt": "218ea4aaded1db1eabd2d865f95664e331085d22e8e8cf02f1f00e238540d2f5",
+    "inventory-delta.json": "fbdfa250219d449a52694638c1536dfdafb662aeec1ca693566360d40e2201e3",
+    "inventory-gate.txt": "a26f0db3ab1a4c178e35e5416ae0b52ba7364e354fe66019f6d938374bf99cdb",
+    "inventory_delta.py": "d450fedb843d4d0852e91f27d95da17966933f7facdf8c9a2a6d332ad4dab995",
+    "probe.json": "1e72a61bf2d827c569a34360227547607878b1f8497598ac571803b1d7a0d039",
+    "probe.py": "1d4bc52597d105b0b8c9f187e6914196723c7fe672d8be09ab2c1643753a727c",
+    "test-authority-audit.json": "fda369c8be83ced39a6dc77bb7d57ee73a3e96ec724220c77a7d716787e55ab7"
+  },
+  "existing_tests": {
+    "v12/python/tests/manager/test_review_cycles.py": {
+      "changed": [],
+      "added": []
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "changed": [],
+      "added": [
+        "TheWorkerCompletionTraversesPublicCustody.test_historical_cleanup_requires_both_exact_nested_directory_receipts",
+        "TheWorkerCompletionTraversesPublicCustody.test_historical_cleanup_requires_the_underlying_directory_normalization_journals"
+      ]
+    },
+    "v12/python/tests/manager/test_boundary_inventory.py": {
+      "changed": [
+        "EveryProbeProvesItArrived.custody_probes"
+      ],
+      "added": [
+        "EveryProbeProvesItArrived.test_historical_custody_journal_probes_reach_their_named_boundaries"
+      ]
+    },
+    "v12/python/tests/manager/test_custody.py": {
+      "changed": [],
+      "added": [
+        "OneSignedReceiptPerRoot.assert_historical_damage_refuses",
+        "OneSignedReceiptPerRoot.test_historical_receipt_binds_the_signature_subject_and_recorded_store",
+        "OneSignedReceiptPerRoot.test_historical_receipt_requires_its_exact_committed_operation",
+        "OneSignedReceiptPerRoot.test_historical_receipt_requires_the_closed_positive_normalization_account",
+        "OneSignedReceiptPerRoot.test_historical_receipts_reopen_both_roots_without_an_adapter_or_acts"
+      ]
+    }
+  }
+}

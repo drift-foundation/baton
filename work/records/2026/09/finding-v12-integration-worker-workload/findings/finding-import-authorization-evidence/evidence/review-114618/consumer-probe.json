@@ -1,0 +1,101 @@
+{
+  "boundary": "Real producer/entry/parser, derived malformed evidence, plain disposable target and revision seam; no Git, engine or provider process",
+  "cases": [
+    {
+      "case": "disposition",
+      "entry_status": 0,
+      "provider_turns": 0,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {
+              "observed": "the authority review's disposition is not the frozen review's"
+            },
+            "reason": "bundle-unreadable"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "refused",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "missing_documents",
+      "entry_status": 0,
+      "provider_turns": 0,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {
+              "observed": "the materialized review outputs are not the complete set the frozen review collected"
+            },
+            "reason": "bundle-unreadable"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "refused",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "scope",
+      "entry_status": 0,
+      "provider_turns": 0,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {
+              "observed": "the authority scope's scope_digest is not the accepted Job's"
+            },
+            "reason": "bundle-unreadable"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "refused",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "verdict",
+      "entry_status": 0,
+      "provider_turns": 0,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {
+              "observed": "the authority review's verdict_id is not the frozen review's"
+            },
+            "reason": "bundle-unreadable"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "refused",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    }
+  ]
+}

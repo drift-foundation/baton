@@ -1,0 +1,68 @@
+{
+  "ordinary_mount_refusals": {
+    "assignment": {
+      "category": "policy",
+      "code": "denied"
+    },
+    "result": {
+      "category": "policy",
+      "code": "denied"
+    },
+    "target": {
+      "category": "policy",
+      "code": "denied"
+    }
+  },
+  "blocked_target_recompose": {
+    "category": "policy",
+    "code": "denied"
+  },
+  "stale_assignment_publication_replay": false,
+  "stale_assignment_digest_unchanged": true,
+  "vector_parameters": [
+    "engine",
+    "image_digest",
+    "labels",
+    "assignment_roots",
+    "posture",
+    "mounts",
+    "credentials_delivered",
+    "launch_delivered",
+    "exchange_delivered",
+    "source_delivered",
+    "name",
+    "workspace_group",
+    "network",
+    "interactive"
+  ],
+  "adapter_parameters": [
+    "engine",
+    "run",
+    "identity",
+    "assignment_roots",
+    "posture",
+    "mounts",
+    "outputs",
+    "input_manifest_digest",
+    "credential_delivery",
+    "credential_home",
+    "credential_orphan",
+    "launch_delivery",
+    "source_delivery",
+    "workspace_group",
+    "network",
+    "interactive"
+  ],
+  "source_hashes": {
+    "v12/python/src/baton_v12/worker_manager/oci.py": "101a2c1754cfb2ea7fc6e08783a902c4e944b33ed7b0189130aaf8c6ff79f566",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+    "v12/python/src/baton_v12/worker_manager/source_boundary.py": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+    "v12/python/src/baton_v12/integration/runtime.py": "742121cf0ae906160375e71bf0985b26091c5a2705bf2144236e12b6eb1b243c",
+    "v12/python/src/baton_v12/integration/queue.py": "2e8a153ddcdf15fcd597f51a7c81ce0405ee7b64fad9b2f3b6cf416c40489be7",
+    "v12/python/src/baton_v12/integration/execution.py": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+    "v12/python/tests/manager/test_dependencies.py": "232fbc05cb6a0da28b8f3cfdcf430c001453285da92eb62e0d261c42bff90c18",
+    "v12/python/tests/integration/test_runtime.py": "925b7dd4ae8eba7d2c375186c74859632276da3f83da3bb6734c3c7c82268c66",
+    "v12/python/tests/integration/fixtures.py": "4cd22c4ce19e77aa42992d8f7f93528e391fc00d80931ad5acc335f776acea9d"
+  },
+  "limits": "No engine/provider/real target. Publication replay is deliberately not grant validation; this demonstrates why a delivery or digest alone cannot authorize a mount."
+}

@@ -1186,6 +1186,12 @@ RETURNS_NO_CONSTRUCTED_ARTEFACT = {
     "attach_review": "answers the journalled closed review attachment",
     "record_verdict": "answers the journalled full evidence-bound verdict",
     "integration_checkpoint": "returns walked accepted-checkpoint evidence",
+    # W103076: the two typed readers a composite outside this module uses to
+    # bind an attachment to its attempt and a verdict to its decision. Both
+    # answer an owned row cross-bound to the committed act that wrote it, and
+    # neither carries a bearer, a credential or any injected text.
+    "review_of": "returns the owned attachment row its attach act explains",
+    "verdict_of": "returns the owned verdict row its record act explains",
     "audit_checkpoint": "returns evidence revalidated by the injected profile",
     "line_status": "returns walked line state and a closed numeric storage reading",
     "writer_boundary": "returns manager-minted local roots and mount capabilities",

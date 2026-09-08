@@ -1,0 +1,57 @@
+{
+  "claim": 112077,
+  "sha256": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "9b9e86680fedfb6f5667bd3c8cf0ec248a629d32d81e637c22414d9f6694382e",
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "0ba2b2bb7adb9c6181cb843a4b90ddf5da6bd8dadd43ed9e6e5a5952020c2262",
+    "v12/python/tests/manager/test_review_cycles.py": "fe14f790dff402c36f2e96a98926641f0131a0b729753e11c18c83113a0f9a16",
+    "v12/python/tests/job_manager/test_review_driver.py": "2dc3899380331f9a954a588884cf6bdc7bc4546141dc378a3393d683a49fe83f",
+    "v12/python/REVIEW-CYCLES.md": "02539823dcc33b4cada0b1f72820761299f11e23321726a7cea8a51ac85bf060"
+  },
+  "test_changes": {
+    "v12/python/tests/manager/test_review_cycles.py": {
+      "changed_existing_definitions": [
+        "ReviewCycles.test_verdict_requires_quiescent_frozen_verified_findings_and_logs"
+      ],
+      "new_definitions": [
+        "ReviewCycles.test_each_reviewer_axis_records_a_fresh_verdict_without_changing_the_axis"
+      ],
+      "removed_definitions": [],
+      "replaced_assertions": {
+        "ReviewCycles.test_verdict_requires_quiescent_frozen_verified_findings_and_logs": [
+          "self.assertEqual(held, axis)"
+        ]
+      }
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "changed_existing_definitions": [
+        "_endings",
+        "_frozen_endings",
+        "TheWorkerCompletionTraversesPublicCustody.assert_owned_custody"
+      ],
+      "new_definitions": [
+        "TheWorkerCompletionTraversesPublicCustody.assert_historical_replay",
+        "TheWorkerCompletionTraversesPublicCustody.custody_damage",
+        "TheWorkerCompletionTraversesPublicCustody.no_more_external_acts",
+        "TheWorkerCompletionTraversesPublicCustody.test_cleanup_journal_must_record_positive_absence_and_exact_retained_evidence",
+        "TheWorkerCompletionTraversesPublicCustody.test_destroyed_without_a_verdict_cannot_create_one",
+        "TheWorkerCompletionTraversesPublicCustody.test_first_verdict_requires_complete_matching_custody",
+        "TheWorkerCompletionTraversesPublicCustody.test_historical_eligibility_and_replay_require_the_complete_committed_history",
+        "TheWorkerCompletionTraversesPublicCustody.test_replay_refuses_changed_completion_disposition_and_retention_operands",
+        "TheWorkerCompletionTraversesPublicCustody.test_unresolved_provider_cleanup_stays_held_after_positive_runtime_absence"
+      ],
+      "removed_definitions": [],
+      "replaced_assertions": {
+        "TheWorkerCompletionTraversesPublicCustody.assert_owned_custody": [
+          "self.assertEqual(verdict_of(self.control, ended['verdict_id']), ended['verdict_record'])"
+        ]
+      }
+    }
+  },
+  "focused_tests": {
+    "total": 170,
+    "passed": 170,
+    "manager": 71,
+    "driver": 99
+  },
+  "whitespace_check": "all added lines checked against retained baseline"
+}

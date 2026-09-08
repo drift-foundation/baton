@@ -1,0 +1,9 @@
+{
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": "0726da10c7e677e35d47190f9bc6a29269e342332a617e1804e83c4709184097",
+  "v12/python/src/baton_v12/worker_manager/review_cycles.py": "18431e40b4879d9b17e9b49ca0aedad256cbddaa6c44fca3d1c27c62fd50af06",
+  "v12/python/src/baton_v12/worker_manager/oci.py": "d0e78475141a2cc7dd29a366dd50344a95e9942cbdfe34499fe0758aa4eb0409",
+  "v12/python/tests/manager/test_workspaces.py": "49153d9d116fcd7b01f08d9e2c1f509d9bf5f09f707549cff8f2e8079d4ac725",
+  "v12/python/tests/manager/test_review_cycles.py": "a20abe2cfb8b3e762490caec11cc418801b89f0a2ed8e1531f3685753a8c6dee",
+  "v12/python/tests/manager/test_oci.py": "ffe36a61781a6a838b29e2b6deb94f3830138bc557e4aee17b97ea28c7b52fca",
+  "v12/python/tools/parallel_test.py": "22c0cf0d39b6384326f866f76aceb5a4d422a0f02fa725e18b5dc12196456168"
+}

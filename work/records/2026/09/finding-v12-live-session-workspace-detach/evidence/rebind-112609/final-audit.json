@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/rebind-112609/audit.py"
+  ],
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": {
+    "added_dependencies": 1,
+    "all_prior_inputs_retained": true,
+    "all_prior_test_assertions_unchanged": true,
+    "changed_dependencies": 6,
+    "claim": 112609,
+    "controller_only_manifest_filename_changed": true,
+    "fresh_snapshot_import_passed": true,
+    "live_run": false,
+    "manifest_inputs": 152,
+    "manifest_sha256": "2d829e03d3337c9eabf05d4e0d0ce01097bc185be24b991d0b3012b0ea3a78e5",
+    "offline_checks": 40,
+    "production_bytes_unchanged_since_claim": true,
+    "protected_historical_files": 191,
+    "runtime_python_files": 71,
+    "supervisor_unchanged": true
+  }
+}

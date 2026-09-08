@@ -1,0 +1,50 @@
+{
+  "actual_eligibility": {
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+    "verdict_id": "verdict-a99ffa13eee2a8d980262e9929a33a90ae2e8a1de043b3e5325b91dee793fbd8",
+    "checkpoint_digest": "sha256:0f84ee0286b8865a78eb617da7df2445c30908f91cb3ac10731a0bac5fc76744",
+    "evidence": {
+      "base": "964bf7c851d28e655ec9a2c142055282acab1a2e",
+      "head": "152518968c695f8f7d889b4080fae4a499b8525f",
+      "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+      "paths": [
+        "round-1.txt"
+      ],
+      "profile": "reference",
+      "reference": "checkpoint/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+      "tree": "187c9962e6f295e91283e6ee38b7b398846002b8"
+    }
+  },
+  "actual_keys": [
+    "checkpoint_digest",
+    "checkpoint_id",
+    "evidence",
+    "line_id",
+    "verdict_id"
+  ],
+  "evidence_keys": [
+    "base",
+    "head",
+    "path_set_digest",
+    "paths",
+    "profile",
+    "reference",
+    "tree"
+  ],
+  "consumer_outcome": {
+    "exception": "KeyError",
+    "message": "'head'"
+  },
+  "receipt_calls": [
+    0,
+    0,
+    0
+  ],
+  "control_emitted_verification": {
+    "proposal_id": "proposal-1",
+    "verification_id": "integration-driver.ordinary-tests-verification-receipt:d33d27d98d2d1eb7dd20d9c8356c82902570b7bd66bdba1ff53e16f8b8e68729",
+    "operation_id": "integration-driver.ordinary-tests-verification-operation:b556524566ec766f68c6ffbfe099babead9f031fcb6383c615044ca59bcafa30",
+    "observation": "passed"
+  }
+}

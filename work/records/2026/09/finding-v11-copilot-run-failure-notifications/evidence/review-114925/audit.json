@@ -1,0 +1,51 @@
+{
+  "claim": 114925,
+  "at": "2026-09-08T01:02:29.202681+00:00",
+  "paths": {
+    "tools/codex_copilot_notifier.py": {
+      "sha256": "155589dcb664cc555340a716317e58c5ddfab77f609601f5684e83a8fb4cbaaf",
+      "matches_manifest": true,
+      "matches_snapshot": true,
+      "baseline_matches": true
+    },
+    "tools/test_codex_copilot_notifier.py": {
+      "sha256": "1e206e0148fb17abf44c9005e74f7167ec1ccff0b8b07dcbe1e786a57126a015",
+      "matches_manifest": true,
+      "matches_snapshot": true,
+      "baseline_matches": true
+    },
+    "tools/CODEX-COPILOT-NOTIFIER.md": {
+      "sha256": "e61849dcf90feb9ae53cc416696c0cccdb9567e7e7d4d72d704720be3943b155",
+      "matches_manifest": true,
+      "matches_snapshot": true,
+      "baseline_matches": true
+    }
+  },
+  "tests": {
+    "prior": 28,
+    "current": 36,
+    "changed": [],
+    "removed": [],
+    "added": [
+      "FailureNotificationTests.test_accepted_failure_survives_expiry_reload_and_identical_renewal",
+      "FailureNotificationTests.test_expiry_never_acknowledges_rejected_or_busy_attention",
+      "FailureNotificationTests.test_first_observed_expiry_is_not_attention_or_acceptance",
+      "FailureNotificationTests.test_new_failure_transition_after_expiry_notifies",
+      "FailureNotificationTests.test_only_derived_expiry_preserves_memory_and_recovery_allows_failure",
+      "FailureNotificationTests.test_paired_expiry_dismissal_renewal_and_new_incident",
+      "FailureNotificationTests.test_stale_replacement_does_not_cover_its_failed_report",
+      "FailureNotificationTests.test_unrelated_delivery_during_expiry_preserves_accepted_failure"
+    ]
+  },
+  "author_verification": {
+    "sha256": "3ea279090e950ffebe84c3a6b1c31585b8357c76734d981d848c1bb00d2d6a78",
+    "summary": [
+      "Ran 36 tests in 0.004s",
+      "OK"
+    ]
+  },
+  "canonical_source_hashes": {
+    "src/baton_work/projection.py": "b2efb4d0d6a145d693694c9936e0fdbd6e95c186faf860f0bed48d55fc64e51f",
+    "src/baton_work/transitions.py": "eb063b64dba416999d3485d89f20fba5f3e4826edad46dc8e969457522214d60"
+  }
+}

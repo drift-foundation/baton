@@ -1,0 +1,66 @@
+{
+  "work": "W105706",
+  "review_claim": 110251,
+  "reviewed_at": "2026-09-07T12:52:22.653163+00:00",
+  "provenance": "Independent review of owner-reported operator outcomes recorded in canonical T105706 and owning FINDING; not a duplicate execution or independently captured original stdout.",
+  "setup": {
+    "image": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+    "workspace_gid": 1001,
+    "runtime_uid_gid": "65532:65532",
+    "creation": "explicit cooperative umask 0002, demonstration only"
+  },
+  "runs": [
+    {
+      "message": 108016,
+      "tests": 1,
+      "elapsed_seconds": 0.236,
+      "result": "OK",
+      "checkpoint": "initial populated-line runtime access",
+      "fixture_sha256": "9e3d79c26ac5820040272da55f4e4d050ae30eb92a01b244736050af9460acfc"
+    },
+    {
+      "message": 108081,
+      "tests": 1,
+      "elapsed_seconds": 0.235,
+      "result": "OK",
+      "checkpoint": "confirmed-stop host custody/checkpoint/review-boundary/correction admission",
+      "fixture_sha256": "d94bf33b42ab347af6ca1d57a4fdd0d06889e8f42bd0970fad40c5664843c3a6"
+    },
+    {
+      "approval_message": 110235,
+      "message": 110248,
+      "tests": 2,
+      "elapsed_seconds": 0.79,
+      "result": "OK",
+      "checkpoint": "actual RO reviewer and same-line runtime correction with second consumption/current checkpoint validation/historical audit",
+      "fixture_sha256": "20981569e64054222404b4765d3114c4dbb7630c02aa70e81ac7ee0ec06ae2d7",
+      "selectors": [
+        "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_reviewer_runtime_cannot_write_the_checkpoint_it_reads",
+        "tests.manager.test_private_line_access_engine.InitialPrivateLineEngine.test_a_correction_runtime_advances_the_same_line"
+      ]
+    }
+  ],
+  "current_hashes": {
+    "v12/python/tests/manager/test_private_line_access_engine.py": "20981569e64054222404b4765d3114c4dbb7630c02aa70e81ac7ee0ec06ae2d7",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "e085f0a0020b23a08650e8b60db78e27bb5ee9d273ae89474099481462f0d377",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "101a2c1754cfb2ea7fc6e08783a902c4e944b33ed7b0189130aaf8c6ff79f566",
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "78ddccdf39cf46882f72dbe12b7b1501322f7da7689eb071ac3012a5f5f4b7a1",
+    "v12/python/tests/manager/test_review_cycles.py": "5e24cc14c4fe134f23664229dda84736954d72b3f21dc1ebd2aae666fce961de",
+    "v12/python/tests/manager/test_workspaces.py": "8874973c44e83f1ccbf0c1a19fc3ac1953f220c9312d551ca0e9fe63175935d5",
+    "v12/python/tests/manager/test_oci.py": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+    "v12/python/tests/job_manager/test_review_driver.py": "2b759a9ad7ec3bb9042c4f137b36c68035c18be8e9d948caae40cf470526a1df",
+    "v12/python/src/baton_v12/checkpoint_profiles.py": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38",
+    "v12/python/tests/manager/test_checkpoint_profiles.py": "0938cb6cffac68336ebbec06311bb464c093be626c73d8708908ed0c9241a3f0"
+  },
+  "retained_candidate_byte_identical": true,
+  "runtime_or_broad_tests_repeated": false,
+  "acceptance": "Configured file/Git access demonstration accepted; recommend owner satisfying closure.",
+  "limitations": [
+    "Owner-reported outcomes; original stdout, runtime IDs and per-run raw observations were not separately exported to this reviewer.",
+    "Fixture stop/PID0/cleanup assertions passed according to operator result; no fresh Docker inspection claimed.",
+    "Synthetic disposition/fence/verdict builders do not establish standalone Authority/provider/model integration.",
+    "Explicit demonstration creation mask does not establish production defaults.",
+    "No experimental detach adoption or production stop-policy change."
+  ]
+}

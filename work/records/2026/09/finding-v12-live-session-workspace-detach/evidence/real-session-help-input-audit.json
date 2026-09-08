@@ -1,0 +1,44 @@
+{
+  "probe.py": {
+    "sha256": "1015c1ddbd038d13379665443452a9112d4655b7c4ea0199ddccf65c599384e6"
+  },
+  "result.json": {
+    "sha256": "70f38c3f51cdf893718130f7799ef113605c60922b2d80113a981633e0df200d",
+    "value": {
+      "outcome": "failed-or-blocked",
+      "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+      "run": "2e850fa7437d4898809fa1937e1ab713",
+      "script_sha256": "1015c1ddbd038d13379665443452a9112d4655b7c4ea0199ddccf65c599384e6",
+      "stage": "offline-initialization",
+      "container": "102a34e0fc3cfeb599b8e384a8e74cb120e1b1df3d91887491b6abce966e78f4",
+      "docker_exit_code": 1,
+      "probe": {
+        "child_exit_code": 0,
+        "os_errno": null,
+        "outcome": "offline-transport-preflight-failed",
+        "reason": "required-flag-absent",
+        "stage": "help-check"
+      },
+      "failure": {
+        "outcome": "offline-transport-preflight-failed",
+        "stage": "offline-initialization",
+        "reason": "inside-probe-failed",
+        "child_exit_code": null,
+        "os_errno": null
+      },
+      "cleanup": "confirmed-stopped-retained",
+      "container_exit_code": 1
+    }
+  },
+  "registration.json": {
+    "sha256": "1a19f01e1ca7c974536ff8b372f6fb6578c9603ab36f0a2a365c72d664a7b3ab",
+    "value": {
+      "outcome": "failed-or-blocked",
+      "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+      "run": "2e850fa7437d4898809fa1937e1ab713",
+      "script_sha256": "1015c1ddbd038d13379665443452a9112d4655b7c4ea0199ddccf65c599384e6",
+      "stage": "container-create",
+      "container": "102a34e0fc3cfeb599b8e384a8e74cb120e1b1df3d91887491b6abce966e78f4"
+    }
+  }
+}

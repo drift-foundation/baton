@@ -1,0 +1,120 @@
+--- review-114486/v12/worker/integration_workload.py
++++ review-114828/v12/worker/integration_workload.py
+@@ -127,6 +127,7 @@
+ HOLD_REASONS = ("provider-failed", "report-missing", "report-unreadable",
+                 "report-foreign", "report-outside-scope", "report-inconsistent",
+                 "import-incomplete", "verification-failed",
++                "verification-mutated",
+                 "repository-mutated", "provider-uncertain", "result-oversized")
+ 
+ 
+@@ -887,7 +888,8 @@
+ 
+ def compose_prompt(*, instructions, bundle_root, target_root, report_place,
+                    assignment, assignment_digest, bundle_digest, rows,
+-                   authority=None, verification=None):
++                   authority=None, scope=(), documents=(),
++                   verification=None):
+     """The one prompt this workload hands a provider.
+ 
+     EVERY PATH IS RENDERED FROM THE VALIDATED TABLE and nothing else. The
+@@ -930,17 +932,49 @@
+     # a finding with nothing behind it. The account and the review's own
+     # documents are named here, from the validated projection only.
+     if authority is not None:
+-        lines += ["", "Before importing, read the accepted authority account "
+-                      f"at {bundle_root}/{contract.EVIDENCE_DIRECTORY}/"
+-                      f"{contract.AUTHORITY_DOCUMENT} and the independent "
+-                      f"review documents it carries. Every row below that "
+-                      f"requires authority names the accepted record that "
+-                      f"supplies it; satisfy yourself that the review "
+-                      f"actually evaluated each such change before importing "
+-                      f"it, and stop and report a refusal if it did not."]
+-        for row in authority:
+-            lines.append(f"  {row['path']} requires "
+-                         f"{', '.join(row['requires'])}")
++        # THE WHOLE CANDIDATE, NOT THE POPULATED ROWS. Review
++        # 2026-09-08T00:01:58Z [P1]: this instructed evaluation of "every row
++        # below that requires authority" and rendered only those rows, so an
++        # existing test changed OUTSIDE the accepted scope produced no row and
++        # no instruction to identify it -- and the scope enumerates GRANTS,
++        # not every existing test a candidate touches. An empty account is not
++        # permission, and it now says so.
++        lines += ["",
++                  f"Before importing anything, read the accepted authority "
++                  f"account at {bundle_root}/{contract.EVIDENCE_DIRECTORY}/"
++                  f"{contract.AUTHORITY_DOCUMENT} and the independent review "
++                  f"documents it carries.",
++                  "",
++                  "EVALUATE THE WHOLE CANDIDATE, not only the rows listed as "
++                  "requiring authority. For EVERY path in the table above, "
++                  "decide for yourself whether it is an EXISTING TEST. For "
++                  "each one that is:",
++                  "  - establish that the accepted scheduled scope below "
++                  "names it, and",
++                  "  - read the frozen independent review's own documents and "
++                  "establish that the review actually evaluated that change.",
++                  "An existing test the scheduled scope does not name, or one "
++                  "the review did not evaluate, is NOT authorized however "
++                  "ordinary its content looks. An EMPTY authority account is "
++                  "not permission for anything: it means no row was "
++                  "pre-granted, not that nothing needs deciding. Stop and "
++                  "report a refusal rather than importing such a change.",
++                  "",
++                  "The accepted scheduled test scope is:"]
++        lines += [f"  {one}" for one in scope] or ["  (the accepted Job "
++                                                   "scheduled no test change "
++                                                   "at all)"]
++        lines += ["", "The frozen independent review's documents are:"]
++        lines += [f"  {one['output_name']}/{entry['path']}"
++                  for one in documents for entry in one["files"]] \
++            or ["  (none, so no existing-test change can be evaluated and "
++                "any such change must be refused)"]
++        if authority:
++            lines += ["", "These rows were pre-granted by the accepted "
++                          "records, and still require your evaluation above:"]
++            for row in authority:
++                lines.append(f"  {row['path']} requires "
++                             f"{', '.join(row['requires'])}")
+     if verification is not None:
+         lines += ["", f"After importing, the scheduled verification "
+                       f"{' '.join(verification)} is run over the target by "
+@@ -1152,6 +1186,8 @@
+                 assignment_digest=correlated["envelope"]["assignment_digest"],
+                 bundle_digest=correlated["bundle_digest"], rows=rows,
+                 authority=correlated["authority"]["paths"],
++                scope=correlated["authority"]["scope"]["test_scope"],
++                documents=correlated["authority"]["review"]["documents"],
+                 verification=accepted)
+ 
+             started = True
+@@ -1211,7 +1247,28 @@
+                       f"successfully over the imported target "
+                       f"({observed['why'] or 'exit ' + str(observed['status'])})",
+                       {"status": observed["status"]})
+-            return _integrated_result(fixed, imported,
++            # AND THE IMPORT IS OBSERVED AGAIN, AFTER IT. Review
++            # 2026-09-08T00:01:58Z [P1]: the verifier executes candidate code
++            # with writable target access, so its exit 0 says nothing about
++            # whether the candidate this runtime measured BEFORE it is still
++            # there. Four probes overwrote, chmodded, deleted and altered the
++            # witness and every one published `integrated` off the earlier
++            # observation. The success this composes is the state after
++            # everything this runtime ran, and a mismatch is held rather than
++            # repaired.
++            if _repository_witness(holder) != witness:
++                _hold("verification-mutated",
++                      "the target's version-control metadata moved while the "
++                      "accepted verification ran")
++            settled, unsettled, _ = _verified(holder, rows)
++            if unsettled or settled != imported:
++                _hold("verification-mutated",
++                      "the imported candidate is not what this runtime "
++                      "measured once the accepted verification had run",
++                      {"paths": unsettled[:MAX_NAMED_PATHS],
++                       "imported": len(settled),
++                       "missing": len(unsettled)})
++            return _integrated_result(fixed, settled,
+                                       {"argv": observed["argv"],
+                                        "status": observed["status"]})
+         finally:

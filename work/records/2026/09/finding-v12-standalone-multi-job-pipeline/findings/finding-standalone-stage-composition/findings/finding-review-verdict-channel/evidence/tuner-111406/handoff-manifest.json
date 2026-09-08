@@ -1,0 +1,59 @@
+{
+  "work": "W110772",
+  "participant": "baton.tuner",
+  "claim": 111406,
+  "state": "acceptance-blocked-awaiting-independent-review",
+  "test_result": {
+    "total": 93,
+    "passed": 91,
+    "new_failures": 2
+  },
+  "original_test_bytes_preserved": true,
+  "added_lines_have_no_trailing_whitespace": true,
+  "files": [
+    {
+      "path": "v12/python/tests/job_manager/test_review_driver.py",
+      "sha256": "048f79a113f7f1d9beb5d56966d923b9fbdbb65456948df7fe251d2519d764c9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/FINDING.md",
+      "sha256": "95f723274f235a6bf28574645ced50d70adc02b2e785461196093466ec86a874"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/PLAN.md",
+      "sha256": "ce26419ea70deadcdb1ff9034f25fa96cc7775f07a9f3fc3715868ce5c694165"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/PROGRESS.md",
+      "sha256": "44f162caf6ed31008deb1257cde768306dbde630c8e73d30fe51e9e1523d930e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/tuner-111406/baseline.json",
+      "sha256": "e1f0c881376bc9719f52fa9a661b5e9d1ef259086de394b4069c92e987d0a2cf"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/tuner-111406/candidate.json",
+      "sha256": "742708c6f853f086d07dd37200b9e0aab403491f3fad6b3faf775a020f7a62c5"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/tuner-111406/custody-blocker-probe.json",
+      "sha256": "3a7ad6987def59d3533d4e6cadbdf94929530b46eae414091604b7b481683bc0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/tuner-111406/custody-blocker-probe.py",
+      "sha256": "add96d566a4b9c8d0b6cb6d72df860e7f9832139dfbea56959dcbf4a43e29f96"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/tuner-111406/focused-module.txt",
+      "sha256": "2e25b35ec0f5254ed4d1240ed8d065ec69e5ea32a046b5f5ad0bfa7ac67ac010"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/tuner-111406/joined-proof.txt",
+      "sha256": "8c65f59e4b6ed457fc22d627acd98669f702d66ec8db1a8b411a98ac89f82731"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/tuner-111406/test_review_driver-before.py",
+      "sha256": "65b9e9fef04d30f36a16070fea8096f4ee19f4caef56b4132832881703a15f4a"
+    }
+  ]
+}

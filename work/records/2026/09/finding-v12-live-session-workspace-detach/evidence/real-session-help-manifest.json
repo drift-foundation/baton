@@ -1,0 +1,17 @@
+{
+  "work": "W106673",
+  "claim": 107495,
+  "recorded_at": "2026-09-07T04:49:35.213928+00:00",
+  "status": "help-observation and acceptance-change proposal; no runtime rerun",
+  "base_sha256": "1015c1ddbd038d13379665443452a9112d4655b7c4ea0199ddccf65c599384e6",
+  "sha256": {
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/OFFLINE-HELP-CHECKPOINT.md": "3c58a5f48428234fee08c41a0dc75798d675ab62dd41fca06d4ce1e7df7def09",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real_session_preflight_help.py": "a3e50fe42f7fd191df01b407b4fb05bebe93ca5e9a59c0c7fa48f97d920393fa",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_real_session_help.py": "b92eda8d3baac0f002805221a8bb79f1f3b5cbfcf5e76d5eb5648156a30e808f",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real-session-help.patch": "2a96ed32a94d742879858d4f1ff3ce5cd8a147d282f3c2622310b0d05aa0f6a4",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real-session-help-input-audit.json": "ecacd8836672a33c3a9c73e0c0a662a5ba2b4b4371877541776c71c9a0e7b43e",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real-session-help-preservation.json": "5f8f3c71b5ae80f255cac1a736640c1b03dcc1886e9ffbe6f0870e6ae71a2488",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real-session-help-new-tests.txt": "9462538ea7546c45595831e970535d9778b8bc5fba9ebc30ac3363a495d1e776",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/real-session-help-original-tests.txt": "6222f1e1772da916b82678f027e6d6a0741f9cc106d2bbac0a22762080795e35"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "claim": 113125,
+  "calls": 6,
+  "pathname_content_during_read": "replacement",
+  "descriptor_content_during_read": "original",
+  "published_from_proved_directory": true,
+  "worker_readback": true,
+  "limitation": "Disposable real-owner world with deterministic Git object answers; the marker read itself uses the actual supplied directory descriptor during substitution."
+}

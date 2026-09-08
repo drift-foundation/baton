@@ -1,0 +1,5 @@
+{
+  "boundary": "ordinary Docker outbound; not provider-only",
+  "driver": "bridge",
+  "id": "fbf516198bad44bfcd84fd2fc242b7dcaa4c003fd781d66faa1b149719210096"
+}

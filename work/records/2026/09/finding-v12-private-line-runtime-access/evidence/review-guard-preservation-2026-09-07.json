@@ -1,0 +1,20 @@
+{
+  "result": "pass",
+  "assertions_and_existing_executable_structure": "unchanged",
+  "approved_additions": {
+    "new_methods": 2,
+    "new_table_or_probe_entries": 4,
+    "new_serial_member": 1
+  },
+  "guard_hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": {
+      "before": "a2854898040636ae4623e6cf6257dbd192589f27f5753a25436242017dcee933",
+      "after": "f660f095ab37d995169dd2cbd419a54ecc2eb2d45886e7052823698cbc3fcd1f"
+    },
+    "v12/python/tests/tools/test_parallel_runner.py": {
+      "before": "563721f5f739e8c6fdd098434d2f4bb61d7f4a90039e347e24a40d6983e15e0d",
+      "after": "c1d5752eec92dd23527ef7ac8ac4ce6e28e9ca794677d16120cb187da6dc6d39"
+    }
+  },
+  "reviewed_initial_candidate_paths_unchanged": 8
+}

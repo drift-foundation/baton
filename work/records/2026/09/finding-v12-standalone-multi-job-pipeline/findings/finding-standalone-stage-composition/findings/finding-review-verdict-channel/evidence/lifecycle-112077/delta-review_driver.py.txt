@@ -1,0 +1,110 @@
+--- before/v12/python/src/baton_v12/job_manager/review_driver.py
++++ candidate/v12/python/src/baton_v12/job_manager/review_driver.py
+@@ -53,6 +53,7 @@
+ from ..contracts.errors import name_value
+ from ..worker_manager import (attempts, authorize_cleanup, boundaries,
+                               decide_retention, frozen_output_of,
++                              intake_receipt_of, retentions_of,
+                               load_manifest, observe, reconcile_runtime,
+                               request_freeze, request_intake,
+                               review_cycles)
+@@ -671,16 +672,21 @@
+     attempt_id = attachment["runtime_attempt_id"]
+     _profile_of_the_line(control, profile, attachment["line_id"])
+     _acting_for(control, port, attempt_id)
+-    _quiesced(control, adapter, attempt_id)
+-    observe(control, attempt_id=attempt_id, axis="worker_disposition",
+-            value=disposition)
+-    frozen = request_freeze(control, port, adapter, attempt_id=attempt_id,
+-                            disposition=disposition)
+-    _correlated(control, frozen, terminal, attempt_id)
+-    receipt, held, decided = _collected(
+-        control, port, adapter, attempt_id=attempt_id,
+-        retention_disposition=retention_disposition,
+-        retention_policy_digest=retention_policy_digest)
++    historical = attempts.attempt_runtime_of(control, attempt_id)["execution_runtime"] == "destroyed"
++    if historical:
++        frozen, receipt, held = {}, {}, []
++        decided = {"disposition": retention_disposition}
++    else:
++        _quiesced(control, adapter, attempt_id)
++        observe(control, attempt_id=attempt_id, axis="worker_disposition",
++                value=disposition)
++        frozen = request_freeze(control, port, adapter, attempt_id=attempt_id,
++                                disposition=disposition)
++        _correlated(control, frozen, terminal, attempt_id)
++        receipt, held, decided = _collected(
++            control, port, adapter, attempt_id=attempt_id,
++            retention_disposition=retention_disposition,
++            retention_policy_digest=retention_policy_digest)
+     # UNBOUND UNTIL RESOLVED, and the held document below reports exactly what
+     # is known. `end_review`'s resolver answers its caller's operand before
+     # anything can fail, so that entry point still reports the verdict it was
+@@ -688,6 +694,26 @@
+     # verdict to report and `null` is the honest answer rather than a guess.
+     verdict = None
+     try:
++        if historical:
++            # The owner proves the ended verdict and positive cleanup below.
++            # Read custody and compare replay operands before asking it; none
++            # of these readers can restart, refence or destroy the runtime.
++            if disposition != "completed":
++                _refuse("historical review replay requires its completed disposition")
++            frozen = frozen_output_of(control, attempt_id) or {}
++            if not frozen:
++                _refuse("historical review replay has no retained frozen result")
++            _correlated(control, frozen, terminal, attempt_id)
++            receipt = intake_receipt_of(control, attempt_id) or {}
++            if not receipt:
++                _refuse("historical review replay has no accepted intake receipt")
++            held = list(receipt["artifacts"])
++            retained = retentions_of(control, attempt_id)
++            if not retained or any(one["disposition"] != retention_disposition
++                                   or one["retention_policy_digest"] != retention_policy_digest
++                                   for one in retained):
++                _refuse("historical review replay names different retention operands",
++                        code="operation-collision")
+         verdict = resolve(frozen)
+         recorded = review_cycles.record_verdict(
+             control, attachment_id=attachment_id, disposition=verdict,
+@@ -703,9 +729,9 @@
+         return {"attempt_id": attempt_id, "attachment_id": attachment_id,
+                 "verdict": verdict, "verdict_id": None, "verdict_record": None,
+                 "line_id": None, "checkpoint_id": None,
+-                "result_id": frozen["result_id"],
+-                "manifest_digest": frozen["manifest_digest"],
+-                "receipt_digest": receipt["receipt_digest"],
++                "result_id": frozen.get("result_id"),
++                "manifest_digest": frozen.get("manifest_digest"),
++                "receipt_digest": receipt.get("receipt_digest"),
+                 "artifacts": sorted(one["artifact_id"] for one in held),
+                 "retention": decided["disposition"], "outcome": "held",
+                 "held_reason": f"the checkpoint's review evidence is not one "
+@@ -713,9 +739,15 @@
+                                f"{refusal.category}/{refusal.code} -- "
+                                f"{refusal}",
+                 "cleaned_up": False}
+-    authorize_cleanup(control, port, adapter, attempt_id=attempt_id,
+-                      retention_policy_digest=retention_policy_digest)
+-    if verdict == "accepted":
++    cleaned_up = True
++    if not historical:
++        cleanup = authorize_cleanup(control, port, adapter, attempt_id=attempt_id,
++                                    retention_policy_digest=retention_policy_digest)
++        cleaned_up = (type(cleanup) is dict and cleanup.get("state") == "absent"
++                      and cleanup.get("cleanup") in ("retained", "complete"))
++    if not cleaned_up:
++        outcome, reason = "held", "runtime cleanup has not positively settled"
++    elif verdict == "accepted":
+         outcome, reason = "accepted", None
+     elif verdict == "changes-requested":
+         outcome, reason = "correction", None
+@@ -731,7 +763,7 @@
+             "verdict_record": recorded,
+             "line_id": recorded["line_id"],
+             "checkpoint_id": recorded["checkpoint_id"],
+-            "cleaned_up": True,
++            "cleaned_up": cleaned_up,
+             "result_id": frozen["result_id"],
+             "manifest_digest": frozen["manifest_digest"],
+             "receipt_digest": receipt["receipt_digest"],

@@ -1,0 +1,79 @@
+--- previous/v12/python/src/baton_v12/worker_manager/oci.py
+
++++ current/v12/python/src/baton_v12/worker_manager/oci.py
+
+@@ -2276,8 +2276,15 @@
+
+                     labels,
+                     f"the started runtime does not carry this integration's "
+                     f"mounts: {observed['why']}")
+-            return {"runtime_id": runtime_id, "labels": labels,
+-                    "integration_mounts": observed}
++        # THE ANSWER KEEPS ITS CLOSED CONTRACT. Review 2026-09-07T16-34-08Z
++        # [P1]: this carried the observation back as an extra member, and
++        # `attempts._started` -- the real consumer, one call after
++        # `request_runtime_start` -- admits `runtime_id` and `labels` and
++        # nothing else, so every integration start refused at the parser after
++        # the container existed. An UNREADABLE observation therefore travels
++        # the way every other runtime uncertainty travels in this manager: as
++        # `observe`'s own state, which `attempts._observed` already consumes.
++        # See `observe` below.
+         return {"runtime_id": runtime_id, "labels": labels}
+ 
+     # -- W110934: the fenced integration boundary ----------------------------
+@@ -2303,7 +2310,8 @@
+
+         # somebody else, and every check passed because none of them asked who
+         # this start was for.
+         return oci_delivery.revalidate_boundary(
+-            self.integration_delivery, participant=labels["participant"])
++            self.integration_delivery, participant=labels["participant"],
++            workspace_group=self.workspace_group)
+ 
+     def integration_mounts_agree(self, runtime_id):
+         """Whether a live runtime's binds ARE this attempt's integration plan.
+@@ -3438,6 +3446,43 @@
+
+         # twice, and the target is carried as a candidate record of its own so
+         # a caller composing a report never has to reconstruct one.
+         found = _running_state(state.get("Running"))
++        # W110934 review 2026-09-07T16-34-08Z [P1]: AN INTEGRATION RUNTIME
++        # WHOSE BINDS ARE NOT THIS PLAN'S IS NOT SIMPLY `running`.
++        #
++        # `attempts._observed` consumes `state` and `why` and deliberately
++        # ignores `mounts`, and it is right to: mounts are not a runtime axis.
++        # So a container inspected running with NO integration binds at all was
++        # reconciled as an ordinary healthy runtime, and the comparator that
++        # could have said otherwise was optional and uncalled. Carrying the
++        # answer as an extra member does not help either -- the start answer's
++        # own consumer refuses unknown members.
++        #
++        # THE CARRIER IS THEREFORE THE STATE ITSELF, which is the one thing
++        # every consumer of this method already reads. Missing, foreign or
++        # unreadable integration binds make the observation `uncertain` with
++        # the reason attached, which is exactly the manager's existing
++        # vocabulary for "this is not evidence I can act on" -- and `uncertain`
++        # never stands for absence, so nothing is released and no assignment is
++        # advanced on it.
++        #
++        # POSITIVE IDENTITY EVIDENCE IS PRESERVED. The runtime id, the
++        # candidate record and the observed mounts all still travel, so an
++        # operator can still name and stop this exact container -- and stopping
++        # it depends on no fresh grant, which is the property this must not
++        # take away.
++        if self.integration_delivery is not None \
++                and found["state"] != "absent":
++            from ..integration import oci_delivery
++
++            why = oci_delivery.observed_disagreement(self.integration_delivery,
++                                                     mounts)
++            if why is not None:
++                return {"state": "uncertain",
++                        "why": f"this runtime's integration mounts are not "
++                               f"this attempt's: {why}",
++                        "mounts": mounts,
++                        "candidates": ({"runtime_id": runtime_id,
++                                        **found},)}
+         return {"state": found["state"], "why": found["why"],
+                 "mounts": mounts,
+                 "candidates": ({"runtime_id": runtime_id, **found},)}

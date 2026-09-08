@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/test_result_rebound_112609.py"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "test_actual_failed_turns_preserve_fields_before_unchanged_refusal (__main__.ResultDiagnosticsTests.test_actual_failed_turns_preserve_fields_before_unchanged_refusal) ... ok\ntest_actual_success_transport_keeps_summary_and_validated_completion (__main__.ResultDiagnosticsTests.test_actual_success_transport_keeps_summary_and_validated_completion) ... ok\ntest_all_field_shapes_are_independent_and_closed (__main__.ResultDiagnosticsTests.test_all_field_shapes_are_independent_and_closed) ... ok\ntest_legacy_diagnostics_remain_readable_without_fabricated_summary (__main__.ResultDiagnosticsTests.test_legacy_diagnostics_remain_readable_without_fabricated_summary) ... ok\ntest_no_summary_for_assistant_text_or_missing_result (__main__.ResultDiagnosticsTests.test_no_summary_for_assistant_text_or_missing_result) ... ok\ntest_success_fields_do_not_waive_session_turn_cost_or_model_checks (__main__.ResultDiagnosticsTests.test_success_fields_do_not_waive_session_turn_cost_or_model_checks) ... ok\ntest_summary_cannot_cross_arm_operation_turn_stage_or_order (__main__.ResultDiagnosticsTests.test_summary_cannot_cross_arm_operation_turn_stage_or_order) ... ok\ntest_summary_requires_exact_keys_closed_values_and_consistent_known_label (__main__.ResultDiagnosticsTests.test_summary_requires_exact_keys_closed_values_and_consistent_known_label) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.008s\n\nOK\n"
+}

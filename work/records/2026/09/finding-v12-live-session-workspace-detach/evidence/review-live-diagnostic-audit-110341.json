@@ -1,0 +1,52 @@
+{
+  "claim": 110341,
+  "candidate_manifest_sha256": "2ef942b1f58f95ff3ff59d4815e01688ee45d3dd8b10713331c6e0844335b5b3",
+  "candidate_inputs_matched": 108,
+  "prior_inputs_preserved": 90,
+  "accepted_exports_preserved": 9,
+  "host_AST_preserved": [
+    "Credentials",
+    "Setup",
+    "audit",
+    "check_tree",
+    "digest",
+    "docker",
+    "execute_pair",
+    "export_evidence",
+    "fixture_now",
+    "measured",
+    "process_fact",
+    "read_artifacts",
+    "require",
+    "runtime_apis",
+    "safe_exception",
+    "settle_setup",
+    "snapshot_runtime",
+    "source_identity"
+  ],
+  "gated_method_bodies_preserved": [
+    "consume",
+    "detach",
+    "event",
+    "finish",
+    "identity",
+    "inspect",
+    "process_identity",
+    "quiescent",
+    "shutdown",
+    "tree"
+  ],
+  "supervisor_AST_preserved": [
+    "argv",
+    "Lines",
+    "result_projection",
+    "require",
+    "Supervisor.identity",
+    "Supervisor.close"
+  ],
+  "public_main_has_no_run_call": true,
+  "controller_sha256": "bfe220010a6a07e72dd80c0745c8213ebf9fa581fbb5422b008fce7561ee35e3",
+  "supervisor_sha256": "e2f909cd74008ba155be39aa93bca4757cf5e600296f4ec9ff938ee0b097d621",
+  "independent_tests": "16 passed in0.005s; review-live-diagnostic-tests-2026-09-07T13-08-00Z.txt",
+  "recording_incident": "Older review-diagnostic-tests-2026-09-07.txt was accidentally overwritten during this review; original output unavailable, forwarding correction records loss. Not one of 108 candidate inputs, 90 prior bound inputs or nine accepted runtime exports."
+}

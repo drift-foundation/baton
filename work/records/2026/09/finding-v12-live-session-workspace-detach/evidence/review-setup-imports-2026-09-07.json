@@ -1,0 +1,19 @@
+{
+  "original": {
+    "manifest_sha256": "eea4e949548c2301e4c45f815a60380b8edda1adbbc4c4f75dd6420ac496402b",
+    "observation": {
+      "outcome": "refused",
+      "kind": "file-not-found",
+      "errno": 2,
+      "missing_worker_schema": true
+    }
+  },
+  "corrected": {
+    "manifest_sha256": "c0ec6a1d820894f9a6064b6289824f20fdf296e6e2ea7599df9f22108cbb1b30",
+    "observation": {
+      "outcome": "imports-passed",
+      "credential_construction": false,
+      "source_read": false
+    }
+  }
+}

@@ -1,0 +1,17 @@
+--- 
++++ 
+@@ -234,6 +234,14 @@
+     # every case owns one temporary root, the process seam is a recording
+     # callable and no provider, credential, engine or network is reached.
+     "tests.manager.test_integration_worker",
++    # W110935: the integration image's recipe and the layout it copies.
++    # PARALLEL, and it is the deterministic half on purpose: it reads the
++    # recipe and stages the exact file set that recipe copies into one
++    # temporary directory per case, then imports it with a child interpreter.
++    # No engine, daemon, image, container, network, credential or shared name
++    # -- building or selecting an artefact is a deployment act and this suite
++    # deliberately performs neither.
++    "tests.manager.test_integration_image",
+     # W112630: the immutable integration evidence bundle. PARALLEL, and it
+     # starts nothing: the version control is a deterministic read-only runner
+     # over real temporary files, the bundle is published into one disposable

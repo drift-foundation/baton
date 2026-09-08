@@ -1,0 +1,331 @@
+--- 
++++ 
+@@ -101,7 +101,7 @@
+ # nobody declared. `tests/tools/test_integration_bundle.py` asserts every
+ # constant below equals the worker contract's, which fails the moment either
+ # side moves.
+-BUNDLE_SCHEMA = "baton.integration-input/1"
++BUNDLE_SCHEMA = "baton.integration-input/2"
+ ENVELOPE_DOCUMENT = "integration.json"
+ INSTRUCTIONS_DOCUMENT = "instructions.txt"
+ EVIDENCE_DIRECTORY = "evidence"
+@@ -109,19 +109,41 @@
+ ENVELOPE_MEMBERS = ("schema", "assignment_digest", "launch", "eligibility",
+                     "checkpoint", "evidence", "instructions", "paths")
+ LAUNCH_MEMBERS = ("schema", "role", "digest")
+-EVIDENCE_DOCUMENTS = ("checkpoint.json", "job.json", "proposal.json",
+-                      "receipts.json", "result.json", "review.json",
+-                      "tests.json")
++EVIDENCE_DOCUMENTS = ("authority.json", "checkpoint.json", "job.json",
++                      "proposal.json", "receipts.json", "result.json",
++                      "review.json", "tests.json")
+ EVIDENCE_MEMBERS = ("name", "digest", "bytes")
+ PATH_MEMBERS = ("path", "operation", "base", "candidate")
+ SIDE_MEMBERS = ("object", "blob", "bytes", "mode")
+ OPERATIONS = ("add", "delete", "edit")
+ MODES = ("100644", "100755")
+ 
++# W114085: the authority account's closed shapes, mirrored from the worker
++# contract and held equal by the conformance case below.
++AUTHORITY_DOCUMENT = "authority.json"
++AUTHORITY_SCHEMA = "baton.integration-authority/1"
++AUTHORITY_MEMBERS = ("schema", "scope", "review", "paths")
++AUTHORITY_SCOPE_MEMBERS = ("job_id", "stage_id", "work_id", "scope_digest",
++                           "test_scope")
++AUTHORITY_REVIEW_MEMBERS = ("verdict_id", "attachment_id", "disposition",
++                            "reviewer_participant", "result_id",
++                            "result_digest", "documents")
++AUTHORITY_OUTPUT_MEMBERS = ("output_name", "tree_digest", "bytes",
++                            "entry_count", "files")
++AUTHORITY_FILE_MEMBERS = ("path", "digest", "bytes", "text")
++AUTHORITY_PATH_MEMBERS = ("path", "operation", "base_mode", "candidate_mode",
++                          "requires", "authorized_by")
++AUTHORITY_GRANT_MEMBERS = ("requirement", "kind", "entry")
++REQUIREMENTS = ("executable-addition", "existing-test", "mode-change")
++AUTHORITY_KINDS = ("job-test-scope",)
++
+ MAX_ENVELOPE_BYTES = 1024 * 1024
+ MAX_INSTRUCTION_BYTES = 64 * 1024
+ MAX_BLOB_BYTES = 64 * 1024 * 1024
+ MAX_EVIDENCE_BYTES = 1024 * 1024
++MAX_REVIEW_OUTPUTS = 8
++MAX_REVIEW_FILES = 32
++MAX_REVIEW_BYTES = 1024 * 1024
+ 
+ # EVERY FILE ONE BUNDLE MAY HOLD, and `MAX_PATHS` DERIVED FROM IT rather than
+ # chosen. The publication manifest is one array with one entry per emitted
+@@ -132,6 +154,10 @@
+ # from 252 two-sided edits and only then refused, leaving a consumable
+ # destination and no digest. Nine files are fixed and an edit emits at most two
+ # blobs, so the ceiling is (512 - 9) // 2.
++#
++# W114085 ADDED THE EIGHTH PROJECTION AND SPENT NOTHING ELSE: ten files are
++# fixed rather than nine, and the reviewer's documents travel INSIDE
++# `authority.json` rather than as emitted files, so the accepted 251 stands.
+ MAX_BUNDLE_FILES = 512
+ FIXED_FILES = 2 + len(EVIDENCE_DOCUMENTS)
+ MAX_PATHS = (MAX_BUNDLE_FILES - FIXED_FILES) // 2
+@@ -545,6 +571,13 @@
+         "account": account,
+         "line": line,
+         "checkpoint": accepted,
++        # W114085: THE TWO OWNER ANSWERS THE AUTHORITY ACCOUNT IS BUILT FROM,
++        # returned rather than re-read. `_accepted_evidence` is the ONE
++        # re-resolution this producer performs and it already holds both; a
++        # second read of either would be a second account of one decision, and
++        # the whole point of this function is that there is only one.
++        "verdict": verdict,
++        "attachment": attachment,
+         "documents": {
+             "checkpoint.json": {
+                 "checkpoint_id": checkpoint["checkpoint_id"],
+@@ -583,6 +616,197 @@
+                 "review_result_digest": verdict["review_result_digest"],
+                 "recorded_at": verdict["recorded_at"]},
+             "tests.json": tests}}
++
++
++def _review_documents(manager, verdict, scratch):
++    """Every byte of the frozen independent review, out of manager custody.
++
++    W114085. WHAT WAS MISSING AND WHY IT MATTERS. `review.json` carried the
++    reviewer's frozen output REFERENCES -- an artifact id, a tree digest and a
++    `file://` locator into manager custody -- and a container cannot read a
++    host path. So the bundle asserted that an independent review existed and
++    gave the runtime no way to read what it said, which is exactly the
++    authority a scheduled existing-test change needs.
++
++    THE LOCATOR IS CHECKED, NEVER TRUSTED. A public artifact locator is not
++    host access: it is held to the canonical locator grammar, required to be a
++    `file://` path with no authority, and required to sit INSIDE the one
++    directory `configured_workspace_storage` says this deployment allocates
++    attempts under -- the deployment's own cross-checked record rather than a
++    string that arrived with the material. A locator outside it refuses before
++    anything is opened.
++
++    AND THE COPY IS THE MEASUREMENT. `workspaces.copied_manifest` measures and
++    copies in ONE no-follow pass, which is the owner W26283 wrote precisely
++    because measuring with one walk and copying with a second reads through a
++    link a race put in between. The copy is this producer's own private tree,
++    so the bytes read back from it afterwards are bytes nothing else can have
++    changed, and each is still checked against the digest that pass recorded.
++    """
++    from baton_v12.contracts.manifest import check_uri
++    from baton_v12.worker_manager.workspaces import (
++        configured_workspace_storage, copied_manifest)
++
++    frozen = verdict["review_result"]
++    artifacts = frozen["artifacts"]
++    if type(artifacts) is not list or len(artifacts) > MAX_REVIEW_OUTPUTS:
++        _refuse(f"a frozen review carries at most {MAX_REVIEW_OUTPUTS} "
++                f"collected outputs; this one carries {len(artifacts)}")
++    storage = configured_workspace_storage(manager).place
++    documents = []
++    held = {}
++    counted = 0
++    measured = 0
++    for artifact in sorted(artifacts, key=lambda one: one["output_name"]):
++        name = artifact["output_name"]
++        if type(name) is not str or not name or "/" in name \
++                or name in (".", ".."):
++            _refuse("a collected review output is named by one ordinary name")
++        check_uri(artifact["locator"], f"review output {name}'s locator")
++        place = artifact["locator"][len("file://"):]
++        if not artifact["locator"].startswith("file:///") \
++                or os.path.normpath(place) != place \
++                or not (place == storage
++                        or place.startswith(storage.rstrip("/") + "/")):
++            _gap(f"review output {name} is held at {name_value(place)}, which "
++                 f"is not inside the workspace store this deployment "
++                 f"configured; a public locator is not host access")
++        if not os.path.isdir(place):
++            _gap(f"review output {name}'s custody directory is absent; the "
++                 f"frozen review's own bytes are what this bundle must carry "
++                 f"and no other reader stands in for them")
++        into = os.path.join(scratch, name)
++        copied = copied_manifest(place, into, max_entries=MAX_REVIEW_FILES,
++                                 max_bytes=MAX_REVIEW_BYTES)
++        if copied["tree_digest"] != artifact["content_digest"] \
++                or copied["total_bytes"] != artifact["bytes"]:
++            _drifted(f"review output {name} does not measure to the identity "
++                     f"the frozen review recorded for it")
++        counted += copied["entry_count"]
++        measured += copied["total_bytes"]
++        if counted > MAX_REVIEW_FILES or measured > MAX_REVIEW_BYTES:
++            _refuse(f"this review materializes {counted} files and "
++                    f"{measured} bytes, above the bounds of "
++                    f"{MAX_REVIEW_FILES} and {MAX_REVIEW_BYTES}")
++        files = []
++        for entry in copied["entries"]:
++            with open(os.path.join(into, entry["path"]), "rb") as reading:
++                payload = reading.read()
++            if digest_of_bytes(payload) != entry["content_digest"] \
++                    or len(payload) != entry["bytes"]:
++                _drifted(f"review file {name}/{entry['path']} is not the "
++                         f"content this pass measured")
++            try:
++                rendered = payload.decode("utf-8")
++            except UnicodeDecodeError:
++                # NOT WRAPPED INTO READABILITY. A reviewer's evaluation of a
++                # test change is prose; a review document this producer cannot
++                # decode is an operator's case, and encoding it would publish
++                # something no runtime can actually read and evaluate.
++                _gap(f"review file {name}/{entry['path']} is not UTF-8 text; "
++                     f"this build carries the independent review's own words "
++                     f"and does not encode material it cannot render")
++            files.append({"path": entry["path"], "bytes": entry["bytes"],
++                          "digest": _address(payload), "text": rendered})
++            held[(name, entry["path"])] = payload
++        documents.append({"output_name": name,
++                          "tree_digest": copied["tree_digest"],
++                          "bytes": copied["total_bytes"],
++                          "entry_count": copied["entry_count"],
++                          "files": files})
++    return {"documents": documents, "content": held}
++
++
++def _authority_account(job, verdict, attachment, review, table):
++    """What the accepted records say about each row that needs saying-about.
++
++    W114085. THE PRODUCER STATES; IT DOES NOT DECIDE. Every grant here names an
++    accepted owner's own answer -- today the accepted Job's scheduled test
++    scope, which `job_manager/documents` calls "the bounded test-change
++    authority a later reviewer and integrator check a proposal against". The
++    workload still decides the import.
++
++    AND WHERE NO OWNER EXISTS, THIS REFUSES. A mode change and an executable
++    addition have no accepted scope anywhere in this build: the Job carries
++    `test_scope` and nothing else per-path. Publishing such a candidate would
++    mean either shipping an unauthorized change or inventing the authority for
++    it, so the bundle is not published and the gap is named exactly.
++    """
++    scope = list(job["test_scope"])
++    rows = []
++    for row in table:
++        requires = _required_authority(row, scope)
++        if not requires:
++            continue
++        grants = []
++        for requirement in requires:
++            entry = _grant(requirement, row["path"], scope)
++            if entry is None:
++                _gap(f"reviewed path {name_value(row['path'])} requires "
++                     f"{requirement} authority and no accepted record in this "
++                     f"build supplies it; the accepted Job carries a test "
++                     f"scope and no mode or executable scope, so this "
++                     f"candidate is refused rather than published without the "
++                     f"authority it needs")
++            grants.append({"requirement": requirement,
++                           "kind": "job-test-scope", "entry": entry})
++        rows.append({"path": row["path"], "operation": row["operation"],
++                     "base_mode": row["base"]["mode"] if row["base"] else None,
++                     "candidate_mode": (row["candidate"]["mode"]
++                                        if row["candidate"] else None),
++                     "requires": requires, "authorized_by": grants})
++    return {"schema": AUTHORITY_SCHEMA,
++            "scope": {"job_id": job["job_id"], "stage_id": job["stage_id"],
++                      "work_id": job["work_id"],
++                      "scope_digest": job["scope_digest"],
++                      "test_scope": scope},
++            "review": {"verdict_id": verdict["verdict_id"],
++                       "attachment_id": verdict["attachment_id"],
++                       "disposition": verdict["disposition"],
++                       "reviewer_participant":
++                           attachment["reviewer_participant"],
++                       "result_id": verdict["review_result"]["result_id"],
++                       "result_digest": verdict["review_result_digest"],
++                       "documents": review["documents"]},
++            "paths": rows}
++
++
++def _within_scope(path, scope):
++    """A scope entry is a directory, matched at a COMPONENT boundary."""
++    return any(path == one or path.startswith(one.rstrip("/") + "/")
++               for one in scope)
++
++
++def _required_authority(row, scope):
++    """What one reviewed row needs somebody to have decided, and nothing else.
++
++    NO FILENAME IS INSPECTED. The accepted scope is the enumeration, so
++    membership in it is both what makes a test change need authority and what
++    supplies it; a heuristic over names would be this producer inventing the
++    reviewed enumeration it is supposed to be carrying.
++    """
++    needs = set()
++    base, candidate = row["base"], row["candidate"]
++    if row["operation"] in ("edit", "delete") and _within_scope(row["path"],
++                                                                scope):
++        needs.add("existing-test")
++    if base is not None and candidate is not None \
++            and base["mode"] != candidate["mode"]:
++        needs.add("mode-change")
++    if base is None and candidate is not None \
++            and candidate["mode"] == "100755":
++        needs.add("executable-addition")
++    return sorted(needs)
++
++
++def _grant(requirement, path, scope):
++    """The accepted entry that supplies one requirement, or None."""
++    if requirement != "existing-test":
++        return None
++    for one in scope:
++        if _within_scope(path, [one]):
++            return one
++    return None
+ 
+ 
+ def _checked_operands(*, integration_profile, assignment, launch,
+@@ -658,6 +882,24 @@
+                 f"stopped and an operator decides what happened to it",
+                 category="refused", code="operation-collision")
+     return staging
++
++
++def _scratch(place):
++    """One private tree beside the destination, this producer's own.
++
++    THE SAME RULES AS THE STAGING NAME, for the same reason: an existing one
++    means a previous publication stopped here and an operator decides what
++    happened to it, rather than this call reusing a directory it did not make.
++    It is created at 0700 and removed whichever way the composition ends, and
++    nothing consumable ever exists at it.
++    """
++    scratch = place + ".review"
++    if os.path.lexists(scratch):
++        _refuse(f"{name_value(scratch)} already exists; a previous "
++                f"publication stopped and an operator decides what happened "
++                f"to it", category="refused", code="operation-collision")
++    os.mkdir(scratch, STAGING_DIR)
++    return scratch
+ 
+ 
+ def _discard(staging):
+@@ -837,7 +1079,25 @@
+             != account["path_set_digest"]:
+         _refuse("the composed path table is not the accepted path set")
+ 
+-    documents = resolved["documents"]
++    # W114085: THE REVIEW'S OWN BYTES AND THE AUTHORITY ACCOUNT, both composed
++    # BEFORE anything is staged, so a candidate whose authority no accepted
++    # record supplies refuses with nothing on disk. The scratch tree is this
++    # producer's own, created beside the destination under the same rules the
++    # staging name follows, and removed whichever way this ends.
++    scratch = _scratch(destination)
++    try:
++        review = _review_documents(manager, resolved["verdict"], scratch)
++        authority = _authority_account(resolved["documents"]["job.json"],
++                                       resolved["verdict"],
++                                       resolved["attachment"], review,
++                                       table["paths"])
++    except BaseException:
++        _discard(scratch)
++        raise
++    _discard(scratch)
++
++    documents = dict(resolved["documents"])
++    documents[AUTHORITY_DOCUMENT] = authority
+     files = []
+     references = []
+     for name in EVIDENCE_DOCUMENTS:

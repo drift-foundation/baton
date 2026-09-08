@@ -1,0 +1,55 @@
+{
+  "claim": 112989,
+  "candidate": {
+    "v12/worker/integration_contract.py": "29e64f0bbd66ef03cec0816c9bc4be5d6064633a315381ba73b460a0175a09d0",
+    "v12/python/tools/integration_bundle.py": "e75c551007fd9ac4c35cf67ed6fd4aab8236dcac0c751258da5c06d1d951808f",
+    "v12/python/tests/tools/test_integration_bundle.py": "a74733983d927474b92b26f5bea0360143f2088ba491334460d5791f16548095",
+    "v12/python/tools/parallel_test.py": "1ae0956fda4bfdb8242c8f5e0a57e7c7dd3833904042dfc7734fc0acfecc16f4"
+  },
+  "historical_candidates_preserved": true,
+  "probes": {
+    "root_traversal": {
+      "direct_root_link_refuses": true,
+      "root_link_with_dot_accepted": true,
+      "ancestor_link_accepted": true,
+      "blob_root_with_dot_accepted": true
+    },
+    "shared_blob_budget": {
+      "scaled_limit": 8,
+      "unique_bytes": 5,
+      "side_reference_bytes": 10,
+      "reader_accepts": true,
+      "producer_refuses": "the reviewed candidate needs more than the bound of 8 blob bytes; an oversized proposal refuses and is never truncated"
+    },
+    "transient_source_swap": {
+      "published": true,
+      "same_identity_before_after": true,
+      "scope": "deterministic pathname-runner seam; no real Git or incorrect content claim"
+    }
+  },
+  "test_methods": {
+    "prior": 55,
+    "current": 72,
+    "removed": [],
+    "changed_existing": [],
+    "added": [
+      "TheBundleBoundsAreDerivedAndReconciled.test_one_content_shared_by_two_rows_is_counted_once",
+      "TheBundleBoundsAreDerivedAndReconciled.test_the_path_bound_is_derived_from_the_manifest_bound",
+      "TheBundleBoundsAreDerivedAndReconciled.test_two_byte_counts_for_one_content_address_refuse",
+      "TheManifestIsRepresentableBeforeAnythingIsPublished.test_a_retry_after_that_refusal_is_not_blocked_by_leftovers",
+      "TheManifestIsRepresentableBeforeAnythingIsPublished.test_an_evidence_projection_above_its_bound_refuses",
+      "TheManifestIsRepresentableBeforeAnythingIsPublished.test_one_path_past_the_maximum_refuses_with_nothing_published",
+      "TheManifestIsRepresentableBeforeAnythingIsPublished.test_the_exact_maximum_publishes_and_measures",
+      "TheProducerLooksAgainAfterItHasRead.test_a_line_replaced_during_extraction_refuses",
+      "TheProducerLooksAgainAfterItHasRead.test_an_accepted_account_that_drifts_during_extraction_refuses",
+      "TheProducerLooksAgainAfterItHasRead.test_an_eligibility_withdrawn_during_extraction_refuses",
+      "TheProducerLooksAgainAfterItHasRead.test_the_unchanged_world_still_composes",
+      "TheReaderProvesEveryComponentAndNotJustTheLast.test_a_substituted_directory_does_not_become_reachable",
+      "TheReaderProvesEveryComponentAndNotJustTheLast.test_a_symlink_naming_the_whole_bundle_root_is_refused",
+      "TheReaderProvesEveryComponentAndNotJustTheLast.test_a_symlinked_blob_directory_is_refused",
+      "TheReaderProvesEveryComponentAndNotJustTheLast.test_a_symlinked_evidence_directory_is_refused",
+      "TheReaderProvesEveryComponentAndNotJustTheLast.test_an_ordinary_file_where_a_directory_belongs_is_refused",
+      "TheReaderProvesEveryComponentAndNotJustTheLast.test_the_assignment_namespace_is_read_the_same_way"
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+--- work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/evidence/review-111187/candidate/v12/python/src/baton_v12/job_manager/review_driver.py
++++ v12/python/src/baton_v12/job_manager/review_driver.py
+@@ -607,6 +607,20 @@
+     this channel exists to prevent.
+     """
+     _typed(adapter, port, profile, REVIEW_PROFILE)
++    # THE TERMINAL IS REQUIRED HERE AND ITS SHAPE IS OWNED BEFORE THE FIRST
++    # EXTERNAL ACT. REVIEW 2026-09-07T15-19-16Z [P1]: this handed the operand
++    # straight through, and `_correlated` reads `None` as permission to skip
++    # correlation -- so the serving entry reached an accepted verdict and a
++    # cleaned-up attempt having compared the worker's completion envelope
++    # against nothing at all. A string got worse treatment: it reached
++    # `terminal.get` as a raw `AttributeError`, after the stop and the freeze.
++    #
++    # THE LEGACY ENTRY KEEPS ITS CONTRACT and that is not in tension with this.
++    # `end_review` was accepted without a terminal and a caller that already
++    # holds a decision is not claiming to have correlated anything; this entry
++    # reads its verdict out of a frozen result, so the evidence that the result
++    # is the one the worker finished is exactly what it cannot do without.
++    _own_terminal(terminal)
+     return _ended_review(
+         control, port, adapter, attachment_id=attachment_id,
+         disposition=disposition, terminal=terminal, profile=profile,
+@@ -614,6 +628,27 @@
+         retention_policy_digest=retention_policy_digest,
+         resolve=lambda _frozen: review_verdict_from_result(
+             control, attachment_id=attachment_id)["verdict"])
++
++
++def _own_terminal(terminal):
++    """The worker's completion envelope, owned before anything is spent on it.
++
++    A SHAPE CHECK AND NOT A COMPARISON. What this proves is that there is a
++    terminal and that it carries a completion identity this ending can compare;
++    WHETHER it names the envelope this manager validated is `_correlated`'s,
++    after the freeze, because there is nothing to compare against until then.
++    Splitting them is what lets the shape refuse while nothing has happened and
++    the comparison refuse against real evidence.
++    """
++    if type(terminal) is not dict:
++        _refuse(f"a review ending that reads its verdict from the frozen "
++                f"result is given the worker's completion terminal, and this "
++                f"is {name_value(terminal)}; the result a verdict is read out "
++                f"of is the one the worker said it finished",
++                category="integrity", code="schema")
++    boundaries.identity(terminal.get("manifest_digest"),
++                        "a review terminal's completion manifest digest")
++    return terminal
+ 
+ 
+ def _ended_review(control, port, adapter, *, attachment_id, disposition,
+@@ -768,14 +803,31 @@
+     a second opinion to weigh against the findings one; it is a reviewer
+     answering twice, which is exactly the ambiguity `held` exists for.
+     """
+-    logs = _claim_output(result, LOGS_OUTPUT)
+-    if type(logs["result_metadata"]) is dict \
+-            and REVIEW_CLAIM_NAMESPACE in logs["result_metadata"]:
++    # THE WHOLE OUTPUT SET IS SCANNED, not the one other output this reader
++    # happened to think of. REVIEW 2026-09-07T15-19-16Z [P1]: this checked
++    # `logs` alone, so a schema-valid result carrying `accepted` on findings
++    # and `rejected` on the proposal output was read as `accepted` -- and the
++    # common manifest a shared Job declares names `proposal` expressly, so
++    # that is not a hypothetical shape. Which outputs exist is the manifest's
++    # to say and this reader's to walk; naming the ones to exclude is how the
++    # next output added becomes a second opinion nobody looks for.
++    _claim_output(result, LOGS_OUTPUT)
++    competing = sorted(
++        one["name"] for one in result["outputs"]
++        if one["name"] != FINDINGS_OUTPUT
++        and type(one.get("result_metadata")) is dict
++        and REVIEW_CLAIM_NAMESPACE in one["result_metadata"])
++    if competing:
++        # WORDED WITHOUT ASSERTING WHERE THE OTHER ONE IS. A claim on the
++        # proposal and none on findings is this same refusal, and a message
++        # saying "as well as its findings one" would be describing a document
++        # that does not exist.
+         _refuse(f"the frozen review result carries a "
+-                f"{name_value(REVIEW_CLAIM_NAMESPACE)} claim on its "
+-                f"{name_value(LOGS_OUTPUT)} output as well as its "
+-                f"{name_value(FINDINGS_OUTPUT)} one; one review decides once",
+-                category="ambiguous", code="collection")
++                f"{name_value(REVIEW_CLAIM_NAMESPACE)} claim on "
++                f"{', '.join(name_value(one) for one in competing)}; a "
++                f"verdict is read from {name_value(FINDINGS_OUTPUT)} and one "
++                f"review decides once", category="ambiguous",
++                code="collection")
+     output = _claim_output(result, FINDINGS_OUTPUT)
+     metadata = output["result_metadata"]
+     if type(metadata) is not dict or REVIEW_CLAIM_NAMESPACE not in metadata:

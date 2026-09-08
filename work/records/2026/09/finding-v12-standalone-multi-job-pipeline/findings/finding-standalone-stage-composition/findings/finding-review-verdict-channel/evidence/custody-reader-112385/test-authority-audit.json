@@ -1,0 +1,35 @@
+{
+  "v12/python/tests/manager/test_review_cycles.py": {
+    "changed_existing_definitions": [],
+    "added_definitions": [],
+    "all_existing_test_methods_source_unchanged": true
+  },
+  "v12/python/tests/job_manager/test_review_driver.py": {
+    "changed_existing_definitions": [],
+    "added_definitions": [
+      "TheWorkerCompletionTraversesPublicCustody.test_historical_cleanup_requires_both_exact_nested_directory_receipts",
+      "TheWorkerCompletionTraversesPublicCustody.test_historical_cleanup_requires_the_underlying_directory_normalization_journals"
+    ],
+    "all_existing_test_methods_source_unchanged": true
+  },
+  "v12/python/tests/manager/test_boundary_inventory.py": {
+    "changed_existing_definitions": [
+      "EveryProbeProvesItArrived.custody_probes"
+    ],
+    "added_definitions": [
+      "EveryProbeProvesItArrived.test_historical_custody_journal_probes_reach_their_named_boundaries"
+    ],
+    "all_existing_test_methods_source_unchanged": true
+  },
+  "v12/python/tests/manager/test_custody.py": {
+    "changed_existing_definitions": [],
+    "added_definitions": [
+      "OneSignedReceiptPerRoot.test_historical_receipts_reopen_both_roots_without_an_adapter_or_acts",
+      "OneSignedReceiptPerRoot.assert_historical_damage_refuses",
+      "OneSignedReceiptPerRoot.test_historical_receipt_requires_its_exact_committed_operation",
+      "OneSignedReceiptPerRoot.test_historical_receipt_binds_the_signature_subject_and_recorded_store",
+      "OneSignedReceiptPerRoot.test_historical_receipt_requires_the_closed_positive_normalization_account"
+    ],
+    "all_existing_test_methods_source_unchanged": true
+  }
+}

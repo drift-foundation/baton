@@ -1,0 +1,34 @@
+{
+  "claim": 114371,
+  "observed_at": "2026-09-07T23:41:57.224716+00:00",
+  "paths": {
+    "tools/codex_copilot_notifier.py": {
+      "sha256": "fa10127ab156932801e3e681782fc2acb43b6e253df02e7dc54f28a12fdad3f7",
+      "matches_manifest": true,
+      "matches_snapshot": true,
+      "baseline_matches": true
+    },
+    "tools/test_codex_copilot_notifier.py": {
+      "sha256": "c0707978a05a9b92cf465e7ca541005444e0b160e1ceebdd5ffa8175815b08c7",
+      "matches_manifest": true,
+      "matches_snapshot": true,
+      "baseline_matches": true
+    },
+    "tools/CODEX-COPILOT-NOTIFIER.md": {
+      "sha256": "503a33179e57f2a5b6f984af97b17b421d0fee4d0a92a04351a56c71552b06bf",
+      "matches_manifest": true,
+      "matches_snapshot": true,
+      "baseline_matches": true
+    }
+  },
+  "tests": {
+    "prior_count": 13,
+    "added_count": 15,
+    "all_prior_AST_identical": true
+  },
+  "canonical_source_hashes": {
+    "src/baton_work/projection.py": "b2efb4d0d6a145d693694c9936e0fdbd6e95c186faf860f0bed48d55fc64e51f",
+    "src/baton_work/transitions.py": "eb063b64dba416999d3485d89f20fba5f3e4826edad46dc8e969457522214d60",
+    "tools/codex-event-bridge/src/event_bridge.mjs": "8882fbfe01ef7ee87855b1f68ca6f4c0deb9c416955f3f4a23d87d0345b6dcdb"
+  }
+}

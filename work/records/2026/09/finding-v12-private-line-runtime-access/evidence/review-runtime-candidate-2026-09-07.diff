@@ -1,0 +1,249 @@
+--- d94bf33b-reconstructed/test_private_line_access_engine.py
++++ 09d99499-reviewed/test_private_line_access_engine.py
+@@ -32,6 +32,10 @@
+         self.addCleanup(self.fixture.doCleanups)
+         self.addCleanup(self.fixture.tearDown)
+         self.container = None
++        # EVERY container this case starts, so a composed proof that launches
++        # three of them removes three. `self.container` stays the most recent,
++        # which is what the failure diagnostic reads.
++        self.containers = []
+         self.run_nonce = uuid.uuid4().hex
+         self.addCleanup(self.cleanup_runtime)
+         image = json.loads(self.command(["docker", "image", "inspect", self.image]))[0]
+@@ -78,13 +82,77 @@
+         return "\n".join(lines)
+ 
+     def cleanup_runtime(self):
+-        if self.container is None:
+-            return
+-        found = json.loads(self.command(["docker", "inspect", self.container]))[0]
+-        self.assertEqual(found["Id"], self.container)
+-        self.assertEqual(found["Image"], self.image)
+-        self.assertEqual(found["Config"]["Labels"].get("baton.initial-access"), self.run_nonce)
+-        self.command(["docker", "rm", "--force", self.container])
++        for container in (self.containers
++                          or ([self.container] if self.container else [])):
++            found = json.loads(self.command(["docker", "inspect", container]))[0]
++            self.assertEqual(found["Id"], container)
++            self.assertEqual(found["Image"], self.image)
++            self.assertEqual(found["Config"]["Labels"].get("baton.initial-access"), self.run_nonce)
++            self.command(["docker", "rm", "--force", container])
++
++    def launched(self, *, attempt_id, roots, boundary, program):
++        """Start ONE more fixed-identity runtime over already-composed roots.
++
++        The initial writer turn composes its own launch inline and is left
++        exactly as it was proved; this is the same composition for the reviewer
++        and the correction, whose roots and boundary their own accepted
++        lifecycle operations produced. Nothing here chooses a mount: `/input`
++        and `/output` are the roots it was handed, and the read-only source
++        comes from the boundary.
++        """
++        from baton_v12.worker_manager.attempts import assignment_of
++
++        fixture = self.fixture
++        labels = {**assignment_of(fixture.store, attempt_id),
++                  "profile_digest": "sha256:" + "b" * 64,
++                  "policy_digest": "sha256:" + "d" * 64,
++                  "adapter_digest": "sha256:" + "c" * 64}
++        identity = {name: labels[name] for name in
++                    ("profile_digest", "policy_digest", "adapter_digest")}
++        identity["image_digest"] = self.image
++        home = Path(fixture.temporary.name, "launch-" + attempt_id)
++        home.mkdir()
++        delivery = launch.materialize(str(home), attempt_id=attempt_id,
++                                      session="initial-access",
++                                      contract="fixture", role="implementer")
++
++        def engine(argv):
++            if "run" in argv:
++                self.assertEqual(argv[-1], self.image)
++                argv = [*argv[:-1], "--pull=never", "--label",
++                        "baton.initial-access=" + self.run_nonce,
++                        "--entrypoint=python3", self.image, "-c", program]
++            result = subprocess.run(argv, stdin=subprocess.DEVNULL,
++                                    capture_output=True, text=True, timeout=300)
++            if "run" in argv and result.returncode == 0:
++                candidate = result.stdout.strip()
++                self.assertRegex(candidate, r"^[0-9a-f]{64}$")
++                self.container = candidate
++                self.containers.append(candidate)
++            return {"status": result.returncode, "stdout": result.stdout,
++                    "stderr": result.stderr}
++
++        adapter = oci.OciAdapter(
++            "docker", engine, identity=identity, assignment_roots=roots,
++            posture="execution", workspace_group=fixture.group,
++            launch_delivery=delivery, source_delivery=boundary,
++            mounts=[{"source": roots["inputs"], "target": "/input",
++                     "writable": False},
++                    {"source": roots["workspace"], "target": "/output",
++                     "writable": True}])
++        adapter.start({"labels": labels,
++                       "operation_id": "initial-access-" + attempt_id,
++                       "input_root": roots["inputs"]})
++        container = self.container
++        self.assertIsNotNone(container)
++        ended = self.command(["docker", "wait", container])
++        self.assertEqual(ended, "0", self.why_it_ended(ended))
++        stopped = json.loads(self.command(["docker", "inspect", container]))[0]
++        self.assertFalse(stopped["State"]["Running"])
++        self.assertEqual(stopped["State"]["Pid"], 0)
++        facts = json.loads(self.command(["docker", "logs", container]))
++        self.assertEqual((facts["uid"], facts["gid"]), (65532, 65532))
++        return adapter, facts
+ 
+     def composed_writer(self):
+         """One real writer turn, up to and including its confirmed stop.
+@@ -164,6 +232,7 @@
+                 candidate = result.stdout.strip()
+                 self.assertRegex(candidate, r"^[0-9a-f]{64}$")
+                 self.container = candidate
++                self.containers.append(candidate)
+             return {"status": result.returncode, "stdout": result.stdout, "stderr": result.stderr}
+ 
+         roots = delivered["roots"]
+@@ -298,3 +367,142 @@
+         # AND REVISION ONE STAYS RESOLVABLE after the line is handed on.
+         self.assertEqual(self.head_of(line["path"], evidence["reference"]),
+                          runtime_head)
++
++    # -- the two remaining runtime stages ------------------------------------
++
++    REVIEWER_PROGRAM = r"""
++import errno,json,os,pathlib
++os.umask(0o002)
++line=pathlib.Path('/input/source')
++denied={}
++for name in ('tracked','.git/HEAD'):
++    try:
++        with (line/name).open('a') as f: f.write('reviewer\n')
++    except OSError as e:
++        denied[name]=e.errno
++    else:
++        raise AssertionError('the reviewer wrote %s' % name)
++try:
++    (line/'reviewer-new').write_text('reviewer\n')
++except OSError as e:
++    denied['reviewer-new']=e.errno
++else:
++    raise AssertionError('the reviewer created a new path in the checkpoint')
++out=pathlib.Path('/output')
++(out/'findings').write_text('reviewed\n')
++print(json.dumps({'uid':os.getuid(),'gid':os.getgid(),'groups':os.getgroups(),
++                  'denied':denied,'read':(line/'tracked').read_text()}))
++"""
++
++    CORRECTION_PROGRAM = r"""
++import json,os,pathlib,subprocess
++os.umask(0o002)
++p=pathlib.Path('/output')
++with (p/'tracked').open('a') as f: f.write('correction\n')
++git=['git','-c','safe.directory=/output','-C','/output']
++subprocess.run(git+['add','tracked'],check=True,stdout=subprocess.DEVNULL)
++subprocess.run(git+['-c','user.name=fixture','-c','user.email=fixture@example.invalid',
++                    'commit','-m','correction'],check=True,stdout=subprocess.DEVNULL)
++head=subprocess.run(git+['rev-parse','HEAD'],check=True,capture_output=True,text=True)
++print(json.dumps({'uid':os.getuid(),'gid':os.getgid(),'groups':os.getgroups(),
++                  'head':head.stdout.strip()}))
++"""
++
++    def test_a_reviewer_runtime_cannot_write_the_checkpoint_it_reads(self):
++        """The read-only half, proved by a real runtime rather than a mode bit.
++
++        A reviewer is handed the line as its SOURCE and its own attempt
++        workspace as its output. What must be true is that the same fixed
++        identity that could write this tree as the writer cannot write it as
++        the reviewer — including the private metadata, which is where a
++        reviewer could otherwise rewrite the very history it is judging.
++        """
++        held = self.composed_writer()
++        fixture, line, writer = held["fixture"], held["line"], held["writer"]
++        runtime_head = self.head_of(line["path"])
++        fixture.complete("writer-attempt-1")
++        checkpoint = fixture.freeze(writer, 1)
++
++        from baton_v12.worker_manager import review_boundary, workspaces
++        review = fixture.review(checkpoint["checkpoint_id"], 1)
++        workspaces.assignment_workspace(fixture.group, fixture.storage,
++                                        "review-attempt-1")
++        readonly = review_boundary(fixture.store,
++                                   attachment_id=review["attachment_id"],
++                                   profile=fixture.profile)
++        _adapter, facts = self.launched(
++            attempt_id="review-attempt-1", roots=readonly["roots"],
++            boundary=readonly["boundary"], program=self.REVIEWER_PROGRAM)
++
++        # EVERY WRITE REFUSED, and by the filesystem rather than by politeness.
++        self.assertIn(fixture.group.gid, facts["groups"])
++        self.assertEqual(sorted(facts["denied"]),
++                         [".git/HEAD", "reviewer-new", "tracked"])
++        for name, errno_seen in facts["denied"].items():
++            self.assertEqual(errno_seen, 30, name)     # EROFS
++        # AND IT COULD READ what it was given, and write its OWN output.
++        self.assertEqual(facts["read"], "initial\nruntime\n")
++        self.assertEqual(
++            Path(readonly["roots"]["workspace"], "findings").read_text(),
++            "reviewed\n")
++
++        # THE LINE IS UNTOUCHED: same object, same mode, same history.
++        self.assertEqual(Path(line["path"], "tracked").read_text(),
++                         "initial\nruntime\n")
++        self.assertFalse(Path(line["path"], "reviewer-new").exists())
++        self.assertEqual(os.stat(line["path"]).st_mode & 0o7777, 0o2775)
++        self.assertEqual(self.head_of(line["path"]), runtime_head)
++
++    def test_a_correction_runtime_advances_the_same_line(self):
++        """The correction half: one private history, not a second checkout.
++
++        The second writer is a fresh container with the same fixed identity,
++        and what it must find is the FIRST runtime's bytes — because the line
++        was never recloned. What must survive its commit is the frozen
++        checkpoint the reviewer examined.
++        """
++        held = self.composed_writer()
++        fixture, line, writer = held["fixture"], held["line"], held["writer"]
++        before = held["before"]
++        first_head = self.head_of(line["path"])
++        fixture.complete("writer-attempt-1")
++        checkpoint = fixture.freeze(writer, 1)
++        reference = checkpoint["evidence"]["reference"]
++
++        from baton_v12.worker_manager import (review_boundary, workspaces,
++                                              writer_boundary)
++        review = fixture.review(checkpoint["checkpoint_id"], 1)
++        workspaces.assignment_workspace(fixture.group, fixture.storage,
++                                        "review-attempt-1")
++        review_boundary(fixture.store, attachment_id=review["attachment_id"],
++                        profile=fixture.profile)
++        fixture.verdict(review, 1, "changes-requested")
++        second = fixture.writer(line["line_id"], 2,
++                                checkpoint["checkpoint_id"])
++        workspaces.assignment_workspace(fixture.group, fixture.storage,
++                                        "writer-attempt-2")
++        delivered = writer_boundary(fixture.store,
++                                    writer_id=second["writer_id"],
++                                    generation=2)
++        # THE CORRECTION IS MOUNTED AT THE SAME OBJECT, not at a new clone.
++        again = os.stat(delivered["roots"]["workspace"])
++        self.assertEqual((again.st_dev, again.st_ino),
++                         (before.st_dev, before.st_ino))
++
++        _adapter, facts = self.launched(
++            attempt_id="writer-attempt-2", roots=delivered["roots"],
++            boundary=delivered["boundary"], program=self.CORRECTION_PROGRAM)
++        self.assertIn(fixture.group.gid, facts["groups"])
++
++        # IT FOUND THE FIRST RUNTIME'S WORK and continued it.
++        self.assertEqual(Path(line["path"], "tracked").read_text(),
++                         "initial\nruntime\ncorrection\n")
++        self.assertEqual(facts["head"], self.head_of(line["path"]))
++        self.assertNotEqual(facts["head"], first_head)
++        self.assertEqual(self.head_of(line["path"], "HEAD~1"), first_head)
++        # AND THE REVIEWED CHECKPOINT STILL RESOLVES to what was reviewed.
++        self.assertEqual(self.head_of(line["path"], reference), first_head)
++        self.assertEqual((os.stat(line["path"]).st_dev,
++                          os.stat(line["path"]).st_ino),
++                         (before.st_dev, before.st_ino))
++        self.assertEqual(os.stat(line["path"]).st_mode & 0o7777, 0o2775)

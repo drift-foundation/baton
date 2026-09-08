@@ -247,3 +247,186 @@ or integration policy. W71917 remains the first ordinary self-hosted v12
 workload and replaces the bootstrap workspace boundary with its approved
 immutable-source and persistent-workspace contract. W71877 remains approved
 but does not start implementation ahead of this bootstrap and W71917.
+
+## Production stage-composition placement — 2026-09-06
+
+The clean two-Job proof revalidated every accepted provider and found no
+interface drift. It found a missing production composition instead: the
+control plane can schedule implementation and review, but the only production
+launcher drives one implementation worker and hands its result back to a v11
+review Route. No production path launches the independent review runtime,
+freezes and records its verdict, returns a changes-requested checkpoint to the
+same private line, publishes the accepted proposal, or invokes serialized
+integration.
+
+The owner approved a separate high-priority composition provider under this
+milestone. The proof remains an evidence-only leaf and must not absorb
+credential, image, network, or deployment authority merely to make itself
+pass. The provider is decomposed into a review/correction driver, a disjoint
+proposal/integration driver, and a final shared composition assembly. The
+first two may proceed concurrently under explicit path ownership; the shared
+assembly follows them and is owned by the primary implementer. The two-Job
+proof waits on the accepted provider and then reruns its entry gate unchanged.
+
+## W71830 delivery takes precedence over speculative features — confirmed 2026-09-07
+
+Slawomir emphasized that reaching W71830 is the immediate priority and that
+delivery is being delayed by features whose necessity has not been demonstrated.
+The critical path stays minimal and safe. A proposed addition must identify
+the concrete failure or missing indispensable capability that prevents this
+record's accepted standalone proof, and use the smallest correction that
+resolves it. Generality, extensibility and hypothetical future failures do not
+by themselves justify another prerequisite. Reuse accepted components and
+existing evidence; keep optional improvements deferred in their owning records.
+
+The general clean-verifier service proposed during W110772 planning is the
+specific scope expansion being corrected. Its full service design is deferred;
+W110772 must return the smallest honest verification arrangement and concrete
+sealed-result/cleanup correction. Any necessary change to an existing acceptance
+contract must be stated explicitly, with its limitation, rather than silently
+manufacturing passing evidence. Isolation, authorized target access, independent
+review and exact retained candidate/result evidence remain first-proof needs.
+
+This confirms and strengthens the existing minimal-slice/non-goals boundary;
+it does not add another architecture or planning milestone. Finish the necessary
+stage composition, perform the accepted two-Job proof through W71879, and use
+its observed failures to decide what further work is needed. W110934's OCI
+safety review continues. W110772 scope-correction message111720 and its current
+FINDING/PLAN carry the immediate coordination. Recorded by baton.prompt from
+Slawomir's interactive direction; no implementation or execution grant added.
+
+## Current verification is implementer testing plus review — confirmed 2026-09-07
+
+Slawomir clarified the exact current delivery boundary: the implementer runs
+the ordinary required tests (for example, `just test`), and the independent
+reviewer may run additional or broader tests as needed. That is the verification
+workflow for now. No separate verification agent, Job stage, service or clean
+certification producer is required for W71830. The subsequently discussed
+model-operated verification stage is a future option, not scheduled work.
+
+This supersedes the earlier unresolved instruction to find a separate minimum
+verification arrangement for this milestone, and defers the earlier clean
+verification-context prerequisite insofar as it would require that additional
+stage or producer before W71830. Ordinary test evidence and independent review
+remain required; their results must be reported honestly. They must not be
+represented as a separate clean certification that did not occur.
+
+W110772 must reconcile its existing verification gate and documentation with
+this explicit milestone decision alongside the actual sealed-output and
+post-cleanup corrections. Do not clear the gate by synthesizing a passed
+observation or reinstate a verifier project to preserve an obsolete milestone
+assumption. The active Handler owns the corresponding detailed decision/plan
+updates and bounded source/test proposal. Keep evidence history and identify
+the exact changed expectations; this ruling is not blanket test-edit authority.
+Recorded by baton.prompt while W110772 is actively held by baton.codex.
+
+## Reviewer owns proactive decomposition judgment — confirmed 2026-09-07
+
+Slawomir requested a standing EFFECTIVE-BATON rule so he need not repeatedly
+notice oversized Jobs and request a split himself. He selected the reviewer
+as the best owner of that judgment and authorized the documentation change.
+The W110772 partial handbacks, its explicit lifecycle/ordinary-test split and
+the later proof-only takeover motivate this rule; they do not add another
+milestone or change any current claim.
+
+Clarify the guide's existing "Campaigns contain bounded Jobs" rule: reviewers
+assess decomposition at initial plan review and when a material partial
+handback, scope expansion or independent deliverable appears. By the second
+implementation/review cycle that leaves substantial accepted work incomplete,
+record a split-or-continue decision without waiting for an operator prompt.
+This is a mandatory judgment point, not a mandatory numeric split. A narrow
+converging correction can remain whole with a concrete reason and next outcome;
+reassignment alone does not reset the incomplete-handback count.
+
+The decision distinguishes independently acceptable outcomes from one coherent
+multi-file correction, proposes exact ownership/dependencies and one joined
+acceptance check where needed, and considers other eligible capacity or a
+bounded tuner assignment. Required proof stays with its promised capability;
+optional features remain deferred. Do not add Work merely to hide incomplete
+acceptance or make the critical path appear shorter.
+
+Existing claim, scope and route authority remains unchanged. The reviewer may
+enact an already authorized split at a safe handoff; otherwise it returns one
+concrete allocation for the exact additional authority needed. Do not rewrite
+scope underneath a live Handler or introduce a new planning-only approval loop.
+Recorded by baton.prompt before editing docs/EFFECTIVE-BATON.md.
+
+### Same-session clarification — splitting is the default after failure or gaps
+
+Slawomir corrected the burden of proof: repeated unsuccessful reviews or exposed
+substantial work gaps must trigger splitting, rather than require someone to
+prove a split would help. This supersedes the open-ended split-or-continue
+framing above. The reviewer must either split at the safe handoff or record a
+specific justified exception before routing another undivided implementation
+pass. Two successive non-accepting implementation/review cycles are the latest
+decision point; an exposed substantial omitted deliverable triggers it earlier.
+
+A continue exception must identify the exact remaining acceptance and evidence
+that no useful independent piece can be separated, or a concrete shared change
+that must be completed together. State the bounded next deliverable and reassess
+at its handback. Confidence, convenience, vague coordination cost or "almost
+done" do not discharge that burden. Reassignment does not reset the trigger.
+Existing claim/scope authority and the minimum safe milestone boundary remain.
+
+## State the evidence need before running tests — confirmed 2026-09-07
+
+Slawomir approved making "before running tests, state what new question the run
+answers" an explicit EFFECTIVE-BATON requirement. This strengthens the existing
+two-stage cadence and reviewer evidence-reuse rules; it does not require another
+approval or waive any required verification gate.
+
+Before a test command or a named batch answering one question, every executing
+role records the concrete question, selected scope and why existing evidence
+does not answer it for the current candidate. The reason precedes execution;
+routine role-based repetition, habit or reassurance is insufficient. Reuse
+adequate retained evidence and choose the smallest run that resolves an actual
+gap. A repeat must identify the relevant changed bytes/environment, missing or
+unusable evidence, or independently required boundary that makes it informative.
+
+W112029's repeated broad sweeps while its assigned component proof remained
+absent illustrate the scheduling problem. Finish the missing focused acceptance
+before another broad sweep unless that sweep answers a separate named blocking
+question. Record results against the stated question and retain unresolved
+failures honestly. This is an agent operating rule, not new CLI enforcement.
+Recorded by baton.prompt before the guide edit.
+
+### Same-session clarification — focus on cumulative test cost
+
+Slawomir clarified that the mandatory pre-run justification targets larger
+tests, suites and series of tests that consume material time. Quick targeted
+one-off probes usually need no separate ceremony. This supersedes the universal
+per-command wording above. Apply the requirement to suites, broad sweeps and
+any individual run or planned series expected to consume about a minute or
+more; assess cumulative cost rather than treating each command as an exemption.
+State an approximate budget and the evidence question before that campaign,
+then reassess repeated or growing campaigns before spending more time. Reuse
+valid evidence; report cheap probes normally without a separate justification
+entry for each. No required gate or failed result is waived.
+
+## 2026-09-08 — critical-path preparation approved
+
+Slawomir approved preparing the next port/assembly handoff and demonstration
+checklist while the current worker review finishes. W110774's bound record now
+owns HANDOFF-CONTRACT-2026-09-08.md and the separately approved normal-continuation
+driver extension. W103083 retains shared assembly and one-Job custody proof.
+Implementation follows existing claims and accepted-provider gates; this ruling
+adds no separate Work or review campaign. Every acceptance recommendation should
+include the exact operator closure command and identify what closure releases.
+
+The proof preparation is in findings/finding-two-job-pipeline-proof/
+PREPARATION-2026-09-08.md. It is a pre-freeze checklist, not a passed run or live
+execution authority. The possible third fault Job is explicitly proposed pending
+owner guidance; earlier approved acceptance requirements remain in force.
+
+## 2026-09-08 — demonstration plan approved
+
+Slawomir approved PREPARATION-2026-09-08.md in the W71879 record, including
+two Jobs intended to complete and a third small Job carrying the deliberate
+failure, all in one submission. This supersedes the earlier pending scenario
+question and exact-two-document wording of the demonstration plan. Both successful
+integrations, required runtime overlaps, independent review/correction, scoped
+test modification, companion refusal and failure containment remain mandatory.
+No automatic retry, ordinary operator transition or stack restart repairs the run.
+The final base, exact paths/documents, deployment identities, commands, metrics
+and budgets still require the existing concrete freeze and material-delta review;
+this approval is not a claim that the demonstration ran or passed.

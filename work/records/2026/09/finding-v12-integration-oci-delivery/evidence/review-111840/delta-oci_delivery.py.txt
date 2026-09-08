@@ -1,0 +1,142 @@
+--- previous/v12/python/src/baton_v12/integration/oci_delivery.py
+
++++ current/v12/python/src/baton_v12/integration/oci_delivery.py
+
+@@ -218,12 +218,27 @@
+
+ 
+ 
+ def _directory_identity(place, what):
+-    """One existing directory's device and inode, proved no-follow.
++    """One existing directory's device and inode, proved no-follow AND with
++    the spelling the kernel actually resolves.
+ 
+     The same question `nominate_source` asks and the same one this module has
+     to re-ask before the engine: a path re-pointed at another tree resolves to
+     the same characters and a different inode.
+-    """
++
++    REVIEW 2026-09-07T16-34-08Z [P1]: `O_NOFOLLOW` binds the FINAL component
++    only, so a symlink at an ANCESTOR was followed and the inode underneath was
++    identical -- the reviewer moved a target's parent, put a link at its old
++    name, and the start reached one run against the re-resolved path. The
++    engine canonicalizes the source it is given, so the spelling this manager
++    holds must already be the one the kernel resolves to; that is the check a
++    no-follow open at the leaf cannot make, and it is `nominate_source`'s own
++    rule applied at every later use point.
++    """
++    if os.path.realpath(place) != place:
++        _denied(f"{what} at {name_value(place)} resolves to "
++                f"{name_value(os.path.realpath(place))}; a link at an ancestor "
++                f"is a directory somebody else chose and the engine binds what "
++                f"the kernel resolves rather than what this manager spelled")
+     try:
+         opened = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
+     except OSError as failure:
+@@ -312,16 +327,27 @@
+
+     establish this: two different container paths is exactly the arrangement,
+     and the question is about the HOST.
+     """
+-    places = [(one["host_source"], one["container_target"])
+-              for one in sources] + list(extra)
+-    for index, (host, container) in enumerate(places):
+-        for other_host, other_container in places[index + 1:]:
+-            if _overlaps(host, other_host):
+-                _denied(f"this integration binds {name_value(host)} at "
+-                        f"{name_value(container)} and {name_value(other_host)} "
+-                        f"at {name_value(other_container)}; one host directory "
+-                        f"behind two container paths is a mount plan nobody "
+-                        f"can say the effective access of")
++    # REVIEW 2026-09-07T16-34-08Z [P1]: this compared every pair in the
++    # CONCATENATION, so the two lists were also compared against each other --
++    # and an assignment root is legitimately represented twice, once as the
++    # logical root and once as the ordinary mount composed from it. A valid
++    # `/output` bind therefore collided with its own workspace root. The same
++    # rule threatened the accepted source-under-input nesting.
++    #
++    # SO THE PAIRS ARE THE INTEGRATION SOURCES AMONG THEMSELVES, and each
++    # integration source against each other capability. Relationships among
++    # the ordinary families stay with the owners that already decide them.
++    mine = [(one["host_source"], one["container_target"]) for one in sources]
++    pairs = [(mine[index], one) for index in range(len(mine))
++             for one in mine[index + 1:]] \
++        + [(one, other) for one in mine for other in extra]
++    for (host, container), (other_host, other_container) in pairs:
++        if _overlaps(host, other_host):
++            _denied(f"this integration binds {name_value(host)} at "
++                    f"{name_value(container)} and {name_value(other_host)} "
++                    f"at {name_value(other_container)}; one host directory "
++                    f"behind two container paths is a mount plan nobody "
++                    f"can say the effective access of")
+ 
+ 
+ def _binding(boundary_members):
+@@ -453,6 +479,25 @@
+
+                 f"{name_value(held['attempt_id'])} and target "
+                 f"{name_value(held['canonical_target_id'])}; a recovery adopts "
+                 f"the plan recorded for the delivery it was handed")
++    # THE SUPPLIED NOMINATION IS THE ONE THIS BINDING RECORDED. Review [P2]:
++    # only the opaque id was compared, so a DIFFERENT real directory nominated
++    # under the same id was accepted -- the recovered object pointed at one
++    # tree while its mounts still named another. Configuration drift is
++    # refused rather than presented as an exact recovery.
++    recorded = {one["container_target"]: one for one in held["sources"]}
++    bound = recorded.get(TARGET_TARGET)
++    if bound is None:
++        _refuse(f"the retained mount binding records no "
++                f"{name_value(TARGET_TARGET)} source",
++                category="refused", code="precondition")
++    if (target.source.place, target.source.device, target.source.inode) \
++            != (bound["host_source"], bound["device"], bound["inode"]):
++        _denied(f"this deployment now nominates "
++                f"{name_value(target.source.place)} for target "
++                f"{name_value(target.canonical_target_id)} and the retained "
++                f"binding recorded {name_value(bound['host_source'])}; a "
++                f"recovery reports the plan it found rather than the one the "
++                f"configuration currently describes")
+     for one in held["sources"]:
+         device, inode = _directory_identity(
+             one["host_source"], f"the recorded {one['container_target']} "
+@@ -586,7 +631,7 @@
+
+                  for one in boundary._sources)
+ 
+ 
+-def revalidate_boundary(boundary, *, participant=None):
++def revalidate_boundary(boundary, *, participant=None, workspace_group=None):
+     """The FINAL proof, immediately before the engine is asked to run.
+ 
+     THIS IS A CUTPOINT AND NOT REVOCATION, and the distinction is the whole of
+@@ -643,6 +688,18 @@
+
+     # about its mode or its group -- and a result namespace changed to 0777
+     # during the duplicate lookup still reached the engine. `adopt_delivery`
+     # is the accepted owner of exactly those questions, so it is asked again.
++    # THE GROUP THE ADAPTER ACTUALLY HOLDS, compared against the one this plan
++    # was proved under. Review [P1]: storing the boundary's own group and
++    # checking it against itself is not that comparison -- the container is
++    # given the ADAPTER's group, and until this crossed nothing established
++    # that the two were the same grant.
++    if workspace_group is not None \
++            and workspaces.check_workspace_group(workspace_group.gid) \
++            != workspaces.check_workspace_group(boundary.workspace_group.gid):
++        _denied(f"this mount plan was proved under group "
++                f"{boundary.workspace_group.gid} and the runtime is given "
++                f"{workspace_group.gid}; the namespaces the container must "
++                f"answer in are the ones it holds a share of")
+     if runtime.adopt_delivery(_delivery_root(boundary.delivery),
+                               attempt_id=boundary.attempt_id,
+                               workspace_group=boundary.workspace_group) is None:
+@@ -658,7 +715,8 @@
+
+                     f"one this mount plan proved; a replaced source is refused "
+                     f"rather than re-resolved")
+     raw = runtime._read_bounded(boundary.delivery.root, BINDING_DOCUMENT,
+-                                what="the integration mount binding")
++                                what="the integration mount binding",
++                                mode=runtime.ASSIGNMENT_FILE)
+     if raw != runtime._payload(_binding({
+             "attempt_id": boundary.attempt_id,
+             "assignment_digest": boundary.assignment_digest,

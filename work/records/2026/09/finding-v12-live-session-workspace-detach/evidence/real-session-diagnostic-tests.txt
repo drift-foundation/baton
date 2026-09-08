@@ -1,0 +1,5 @@
+Recorded results from claim 107407; not a captured terminal transcript.
+python3 evidence/test_real_session_diagnostics.py: 11 tests, 0.003s, OK, exit0.
+python3 evidence/real_session_preflight_diagnostic.py --self-test: 4 tests, 0.000s, OK, exit0.
+All subprocess/Docker fault-path tests are mocked. No CLI or Docker runtime launched.
+Both new Python files parse; original assertion and runtime-input AST preservation checks pass.

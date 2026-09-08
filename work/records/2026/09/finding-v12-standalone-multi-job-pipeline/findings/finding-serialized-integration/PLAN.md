@@ -25,8 +25,9 @@
    PROGRESS.md preserves the implementation gate's original evidence.
 3. [bounded implementation accepted 2026-09-06 after the eighth correction;
    both P1 boundaries of the seventh correction's review passed independent
-   re-review. W71878 returns to baton.ops under the owner disposition. Carries
-   the two owner VCS-neutrality clarifications of 2026-09-06]
+   re-review. W71878 returned to baton.ops under the owner disposition. The
+   later W101714 producer-account correction received bounded independent
+   sign-off in `review-2026-09-06T13-37-51Z.md`]
    Introduce a stable canonical-target identity
    separate from the mutable expected/current revision. Define immutable,
    Authority-namespaced queue entries, transactionally allocated enqueue rank,
@@ -57,11 +58,16 @@
    whose W71918 custody eligibility and Authority proposal/verification/review/
    approval eligibility both validate and whose corresponding Authority, Work,
    assignment, candidate/artifact, target-revision and path/scope operands
-   describe one candidate. Retain each surface's exact identities and differently defined
-   digests; do not equate `checkpoint_digest` with `candidate_digest` or
-   `proposal_manifest_digest`. Exact replay returns the same rank; stale
-   checkpoint, changed operands, incomplete authority or mismatched scope
-   refuses before enqueue.
+   describe one candidate. Re-resolve every member of the FIFTEEN-member
+   account from its named accepted producer -- the attempt's assignment;
+   W71918's checkpoint verdict and the `profile` member of its evidence, which
+   the account copies as `profile_kind`; Authority's `publish` operation and
+   `proposal` row; and the accepted Job's `test_scope` -- and never from a
+   caller operand. Retain each surface's exact identities and differently
+   defined digests; do not equate `checkpoint_digest` with `candidate_digest`
+   or `result_digest`. Exact replay returns the same rank; stale checkpoint,
+   changed operands, incomplete authority or mismatched scope refuses before
+   enqueue.
 5. [pending implementation] Compose the live lease with the sole trusted
    target-integration runtime. Revalidate both eligibility surfaces and target
    revision. Before mutation, an ordinary policy/scope/target failure
@@ -367,6 +373,23 @@ assembly during that decomposition. Tuner Work is limited to explicitly
 disjoint leaf paths behind a boundary already recorded by K; a required seam
 change returns to K rather than being made independently by the tuner.
 
+## Bounded continuation after the item-3 checkpoint
+
+- [ledger created; ready for K] `findings/finding-generic-integration-runtime/`
+  — K owns the shared generic integration runtime boundary.
+- [ledger created; ready for tuner] `findings/finding-accepted-candidate-admission/`
+  — tuner-suitable, disjoint admission behind K's boundary; may proceed beside
+  the runtime leaf.
+- [ledger created; waits for both leaves above]
+  `findings/finding-fenced-model-integration/` — K owns the shared assembly and
+  clean model-driven integration path.
+- [ledger created; waits for fenced integration]
+  `findings/finding-manual-integration-recovery/` — tuner-suitable,
+  disjoint operator-held diagnostics behind K's boundary.
+- The existing sibling `finding-two-job-pipeline-proof/` owns the final
+  end-to-end proof after W71878 and its bounded children are accepted; do not
+  create a duplicate verification leaf here.
+
 The seventh review's two [P0]s are corrected, and the two owner clarifications
 of 2026-09-06 are carried out in the same round because they change the same
 schema.
@@ -387,13 +410,28 @@ relationship before returning anything. The required ordering is unchanged: the
 journal is asked before a now-ended live grant is checked.
 
 The core vocabulary is VCS-neutral. `base_object`, `head_object`, `tree_object`
-and `transport_ref` leave the eligibility account, `checkout` leaves the target
-document, and a closed versioned binding — `profile_kind`, `profile_version`,
-`profile_account_digest` — replaces them. `TARGET_SCHEMA` is
-`baton.v12.integration-target/2` and the store is `SCHEMA_VERSION` 2, with no
-migration invented. `TheCoordinatorVocabularyIsVCSNEUTRAL` is a gate over the
-column and member names rather than a comment, because the way that vocabulary
-arrived the first time is that each operand looked locally reasonable.
+and `transport_ref` leave the eligibility account, and `checkout` leaves the
+target document. `TARGET_SCHEMA` is `baton.v12.integration-target/2` and
+`TheCoordinatorVocabularyIsVCSNEUTRAL` is a gate over the column and member
+names rather than a comment, because the way that vocabulary arrived the first
+time is that each operand looked locally reasonable.
+
+THE ACCOUNT AS IT NOW STANDS, after W101714 and the three findings of
+`review-2026-09-06T12-59-53Z.md`, is FIFTEEN members, every one of them offered
+by a named accepted producer: `authority_uuid`, `work_id`,
+`assignment_generation` from the attempt's assignment; `line_id`,
+`checkpoint_id`, `verdict_id`, `checkpoint_digest`, `path_set_digest` from
+W71918's checkpoint verdict; `proposal_id`, `candidate_digest`, `result_id`,
+`result_digest`, `expected_target_revision` from Authority's `publish`
+operation and its `proposal` row; `profile_kind` from the accepted checkpoint
+evidence's own `profile` member; and `scope_digest` from the accepted Job's
+`test_scope`. `profile_version`, `profile_account_digest` and
+`proposal_manifest_digest` are gone, all three for one reason: no accepted
+Python operation produces them, so an entry could carry only a caller's claim.
+The store shape is `SCHEMA_VERSION` 4, with no migration invented.
+`EveryMemberOfTheAccountHasAProducer` asks each named surface whether it
+actually offers the member, rather than counting the tuple -- which is how the
+third one survived the first correction.
 
 Three defects were found by the new matrices rather than by the review, and are
 corrected here: a settlement carried on a `queued` or `leased` entry document

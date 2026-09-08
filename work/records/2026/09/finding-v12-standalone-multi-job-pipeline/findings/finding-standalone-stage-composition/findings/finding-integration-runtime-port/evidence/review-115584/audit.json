@@ -1,0 +1,80 @@
+{
+  "claim": 115584,
+  "at": "2026-09-08T02:53:32.263701+00:00",
+  "candidate": {
+    "v12/python/tools/integration_worker.py": "d34a289148cf87e3be750d14905d432819c750d806f0fd63e0758df379b0fe08",
+    "v12/python/tests/tools/test_integration_worker.py": "2bbcc064ae9a0c3bbc53b76d101c17a6043d5f49460561ac287f2cebf3a1bd49",
+    "v12/python/tools/parallel_test.py": "61d0e0a1482a059c390fe356b5b14f1821aedbbcdec48ffc7624baf621a852d5",
+    "v12/python/src/baton_v12/integration/driver.py": "c1f55d7b8416ce29bd3024ead709852145c1d885af4bba3e5c47a498abcfd887",
+    "v12/python/src/baton_v12/integration/__init__.py": "523bbdb2da06f6b170debcfe270bee9867ba55791b5f551be4bdca604ce44d9e",
+    "v12/python/tests/integration/test_driver.py": "cbf89cb694249f89622789334ed0fd3b32dfe4a241ee030c9896993949d9d955"
+  },
+  "test_audit": {
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "before": 29,
+      "after": 36,
+      "removed": [],
+      "added": [
+        "TheWholeIntegrationRunsThroughThisPort.test_a_failed_observation_construction_revokes_the_marker",
+        "TheWholeIntegrationRunsThroughThisPort.test_a_reconstructed_port_also_drains_that_release_tail",
+        "TheWholeIntegrationRunsThroughThisPort.test_a_repeated_tick_replays_the_terminal_answer",
+        "TheWholeIntegrationRunsThroughThisPort.test_a_settled_entry_replays_its_live_release_tail",
+        "TheWholeIntegrationRunsThroughThisPort.test_an_unavailable_credential_refuses_before_writable_exposure",
+        "TheWholeIntegrationRunsThroughThisPort.test_the_start_mounts_this_attempts_own_credential_slot",
+        "TheportIsConstructedFromResolvedOperands.test_an_unconfigured_or_foreign_credential_resolution_refuses"
+      ],
+      "changed": []
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "before": 83,
+      "after": 83,
+      "removed": [],
+      "added": [],
+      "changed": []
+    }
+  },
+  "gate_sha256": "185c4c717e35f33ae3e8ee445de9967360f5c27570ec2ec321270294c695ef99",
+  "gate_tail": [
+    "----------------------------------------------------------------------",
+    "Ran 5078 tests in 268.037s",
+    "",
+    "FAILED (failures=11, errors=1, skipped=21)"
+  ],
+  "probes": {
+    "failed_observation": {
+      "exception": "ContractRefusal",
+      "message": "the nominated source '/tmp/v12-w110774-hkq8kqml/canonical-target' is not a directory this manager can see (FileNotFoundError)"
+    },
+    "marker_after_failure": false,
+    "worker_exit": 0,
+    "interrupted_completion": {
+      "exception": "ContractRefusal",
+      "message": "review release interruption"
+    },
+    "stranded_lease": "live",
+    "restart_tail_outcome": "integrated",
+    "final_lease": "released",
+    "repeat_outcome": "integrated",
+    "engine_starts": 1,
+    "credential_failure": {
+      "admission": {
+        "exception": "ContractRefusal",
+        "message": "review unavailable synthetic credential"
+      },
+      "initial_runtime": "not-started",
+      "entry_states": [
+        "leased"
+      ],
+      "refresh": {
+        "answer": {
+          "attempt_id": "integrator-attempt",
+          "decision": "uncertain",
+          "why": "the adapter reports no runtime and this attempt names none; a second start would risk two runtimes for one assignment"
+        }
+      },
+      "final_runtime": "uncertain",
+      "engine_starts": 0,
+      "target_unchanged": true
+    }
+  }
+}

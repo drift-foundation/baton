@@ -1,0 +1,20 @@
+{
+  "v12/python/tests/integration/test_runtime.py": {
+    "predecessor_sha256": "925b7dd4ae8eba7d2c375186c74859632276da3f83da3bb6734c3c7c82268c66",
+    "expected": "925b7dd4ae8eba7d2c375186c74859632276da3f83da3bb6734c3c7c82268c66",
+    "matches": true,
+    "removed_only_new_class": true
+  },
+  "v12/python/tests/manager/test_dependencies.py": {
+    "predecessor_sha256": "232fbc05cb6a0da28b8f3cfdcf430c001453285da92eb62e0d261c42bff90c18",
+    "expected": "232fbc05cb6a0da28b8f3cfdcf430c001453285da92eb62e0d261c42bff90c18",
+    "matches": true,
+    "removed_only_operand_and_comment": true
+  },
+  "v12/python/tools/parallel_test.py": {
+    "removed_only_registration_and_comment": true,
+    "matches_retained_predecessor": true,
+    "predecessor_sha256": "eb90384d91cb5a4afe22bc147b8113863c8cf039eb5efbcae7ed4f614870ab9e",
+    "reconstructed_sha256": "eb90384d91cb5a4afe22bc147b8113863c8cf039eb5efbcae7ed4f614870ab9e"
+  }
+}

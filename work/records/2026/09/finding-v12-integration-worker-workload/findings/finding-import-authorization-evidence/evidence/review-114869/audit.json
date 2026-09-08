@@ -1,0 +1,45 @@
+{
+  "claim": 114869,
+  "paths": {
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "matches_author": true,
+      "changed": true
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "matches_author": true,
+      "changed": false
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "matches_author": true,
+      "changed": true
+    }
+  },
+  "tests": {
+    "old": 110,
+    "new": 113,
+    "changed": [],
+    "removed": [],
+    "added": [
+      "TheAuthorityAccountComesFromRealOwners.test_a_rewritten_output_under_the_original_identity_refuses",
+      "TheAuthorityAccountComesFromRealOwners.test_the_outputs_removed_under_the_original_identity_refuse",
+      "TheAuthorityAccountComesFromRealOwners.test_the_retained_result_measures_to_the_digest_it_declares"
+    ]
+  },
+  "parent_hashes": {
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "matches_parent_review": true
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "matches_parent_review": true
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "74a39f8a84b28efb8f97663413d9bb3729da1474ae2a8e9d7f47a8c2327e9b2b",
+      "matches_parent_review": true
+    }
+  }
+}

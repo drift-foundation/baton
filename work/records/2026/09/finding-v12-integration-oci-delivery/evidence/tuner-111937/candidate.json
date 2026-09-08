@@ -1,0 +1,22 @@
+{
+  "claim": 111937,
+  "sha256": {
+    "v12/python/src/baton_v12/integration/oci_delivery.py": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+    "v12/python/src/baton_v12/integration/runtime.py": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+    "v12/python/tests/integration/test_runtime.py": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+    "v12/python/tests/manager/test_dependencies.py": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+    "v12/python/tests/manager/test_oci_integration.py": "822bae5cb51c7f664c1f351aff9147957c930db3251c2e932330a7a125d301a6",
+    "v12/python/tools/parallel_test.py": "39b161a50e6e58ecfa6001c022532c23f9518779c85ce94c9dd1dace624318be"
+  },
+  "changed_paths": [
+    "v12/python/src/baton_v12/integration/oci_delivery.py",
+    "v12/python/tests/manager/test_oci_integration.py"
+  ],
+  "all_prior_test_bytes_preserved": true,
+  "added_test_methods": 9,
+  "focused_mount_tests": 78,
+  "all_focused_mount_tests_pass": true,
+  "copied_reviewer_probe_outcomes_checked": true,
+  "added_lines_have_no_trailing_whitespace": true
+}

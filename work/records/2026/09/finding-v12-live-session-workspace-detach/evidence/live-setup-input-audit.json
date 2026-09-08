@@ -1,0 +1,29 @@
+{
+  "original_manifest_sha256": "eea4e949548c2301e4c45f815a60380b8edda1adbbc4c4f75dd6420ac496402b",
+  "original_inputs_unchanged": 80,
+  "exported_hashes_verified": {
+    "network.json": "09ed852e06371c451ad39bf1f0964af6f262d001631d0481d5bc7f29cf1ce2a5",
+    "package.json": "a31ce2377810e4614641baef94917d9e979d96aca50eb9c3b4a8b30ea4cb9063",
+    "result.json": "a279113a71c7abf05b943c863b080c189716eabcb629f2bf32cc91dffeeb8279"
+  },
+  "protected_originals_inspected": false,
+  "preserved_ast": [
+    "Fixture",
+    "check_tree",
+    "digest",
+    "docker",
+    "execute_pair",
+    "fixture_now",
+    "measured",
+    "process_fact",
+    "read_artifacts",
+    "require",
+    "snapshot_runtime",
+    "source_identity"
+  ],
+  "credential_methods_preserved": [
+    "provider",
+    "materialize",
+    "release"
+  ]
+}

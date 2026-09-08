@@ -1,0 +1,23 @@
+--- before/v12/python/src/baton_v12/worker_manager/review_cycles.py
++++ candidate/v12/python/src/baton_v12/worker_manager/review_cycles.py
+@@ -12,7 +12,7 @@
+ 
+ from ..contracts import ContractRefusal, canonical_text, digest
+ from ..contracts.errors import name_value
+-from . import (attempts, boundaries, intake, manifests, output, schema,
++from . import (attempts, boundaries, custody, intake, manifests, output, schema,
+                source_boundary, workspaces)
+ from .attempts import assignment_of
+ from .store import manager_signature
+@@ -1119,6 +1119,11 @@
+             or cleaned["directory_custody"] is None:
+         raise ContractRefusal("refused", "precondition",
+                               "historical review cleanup does not prove positive absence and retained custody")
++    adopted = {which: custody.historical_directory_custody(store, attempt["runtime_attempt_id"], which)
++               for which in ("result", "workspace")}
++    if cleaned["directory_custody"] != adopted:
++        raise ContractRefusal("integrity", "schema",
++                              "historical review cleanup differs from its committed directory custody")
+ 
+ 
+ def _completed_review(store, attachment, *, verdict=None):

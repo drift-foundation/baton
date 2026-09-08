@@ -1,0 +1,72 @@
+{
+  "boundary": "real entry, provider process, completed verification process, public result parser; plain target and injected revision; no engine or live model",
+  "cases": [
+    {
+      "case": "restored-deletion",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "exists": true,
+      "symlink": false,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {
+              "imported": 0,
+              "missing": 1,
+              "observed": "the imported candidate is not what this runtime measured once the accepted verification had run",
+              "paths": [
+                "round-1.txt"
+              ]
+            },
+            "reason": "verification-mutated"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "held",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    },
+    {
+      "case": "symlink-replacement",
+      "entry_status": 0,
+      "provider_turns": 1,
+      "exists": true,
+      "symlink": true,
+      "observed": {
+        "state": "answered",
+        "result": {
+          "attempt_id": "attempt-bundle",
+          "canonical_target_id": "target:ordinary-admission",
+          "detail": {
+            "detail": {
+              "imported": 0,
+              "missing": 1,
+              "observed": "the imported candidate is not what this runtime measured once the accepted verification had run",
+              "paths": [
+                "round-1.txt"
+              ]
+            },
+            "reason": "verification-mutated"
+          },
+          "entry_id": "entry-bundle",
+          "fence": 1,
+          "lease_id": "lease-bundle",
+          "outcome": "held",
+          "schema": "baton.v12.integration-result/1"
+        },
+        "hold": null
+      }
+    }
+  ],
+  "parent_hashes_after": {
+    "v12/worker/integration_workload.py": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+    "v12/worker/integration_entry.py": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+    "v12/python/tests/manager/test_integration_worker.py": "74a39f8a84b28efb8f97663413d9bb3729da1474ae2a8e9d7f47a8c2327e9b2b"
+  }
+}

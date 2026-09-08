@@ -1,0 +1,67 @@
+--- a/evidence/real_session_preflight_diagnostic.py
++++ b/evidence/real_session_preflight_help.py
+@@ -49,7 +49,20 @@
+     "stop-unconfirmed", "path-not-found", "permission-denied", "os-error",
+     "timeout", "invalid-encoding", "unexpected-error", "invalid-probe-diagnostic",
+ ))
+-FAILURE_KEYS = frozenset(("outcome", "stage", "reason", "child_exit_code", "os_errno"))
++INITIALIZE_FLAGS = ("--print", "--input-format", "--output-format", "--verbose",
++                    "--tools", "--setting-sources", "--strict-mcp-config", "--mcp-config")
++UNEXERCISED_FLAGS = tuple(flag for flag in FLAGS if flag not in INITIALIZE_FLAGS)
++FAILURE_KEYS = frozenset(("outcome", "stage", "reason", "child_exit_code", "os_errno",
++                          "flags", "missing_help_flags", "unexercised_flags"))
++
++
++def help_observation(flags):
++    require(flags is None or (isinstance(flags, dict) and set(flags) == set(FLAGS)
++            and all(type(value) is bool for value in flags.values())), "invalid-probe-diagnostic")
++    return dict(flags=None if flags is None else dict(flags),
++                missing_help_flags=None if flags is None else [flag for flag in FLAGS if not flags[flag]],
++                unexercised_flags=list(UNEXERCISED_FLAGS))
++
+ 
+ 
+ class ProbeFailure(RuntimeError):
+@@ -93,7 +106,8 @@
+     return dict(outcome="offline-transport-preflight-failed",
+                 stage=stage if stage in STAGES else "identity", reason=reason,
+                 child_exit_code=code if numeric(code, -255, 255) else None,
+-                os_errno=number if numeric(number, 0, 4095) else None)
++                os_errno=number if numeric(number, 0, 4095) else None,
++                **help_observation(diagnostics.get("flags")))
+ 
+ 
+ def checked_failure(answer):
+@@ -104,6 +118,9 @@
+             and isinstance(answer["reason"], str) and answer["reason"] in REASONS
+             and numeric(answer["child_exit_code"], -255, 255)
+             and numeric(answer["os_errno"], 0, 4095), "invalid-probe-diagnostic")
++    observation = help_observation(answer["flags"])
++    require(all(answer[key] == value for key, value in observation.items()),
++            "invalid-probe-diagnostic")
+     # Copy exactly the validated diagnostic projection, never other response data.
+     return {key: answer[key] for key in sorted(FAILURE_KEYS)}
+ 
+@@ -187,7 +204,10 @@
+     diagnostics["stage"] = "help-check"
+     help_text = help_bytes.decode()
+     flags = {flag: flag in help_text for flag in FLAGS}
+-    require(all(flags.values()), "required-flag-absent")
++    diagnostics["flags"] = flags
++    # Help visibility is recorded, never substituted for actual behavior.
++    # The unchanged argv below must still initialize successfully. The six
++    # other flags remain explicit pending live requirements even on success.
+     # No user frame is ever sent. No credential and network=none enforce the
+     # offline boundary even if initialization attempts background traffic.
+     argv = [CLI, "--print", "--input-format", "stream-json", "--output-format",
+@@ -226,8 +246,8 @@
+         require(Path(f"/proc/{child.pid}/stat").read_text().rsplit(")", 1)[1].split()[19]
+                 == start, "cli-process-changed")
+         return dict(outcome="offline-transport-preflight-passed", version=VERSION,
+-                    help_sha256=hashlib.sha256(help_bytes).hexdigest(), flags=flags,
+-                    initialized=True, idle_process_survived=True, pid=child.pid,
++                    help_sha256=hashlib.sha256(help_bytes).hexdigest(),
++                    **help_observation(flags), initialized=True, idle_process_survived=True, pid=child.pid,
+                     start=start, initialization_ns=elapsed,
+                     real_turns=0, session_continuity="unproved", restore="unproved")
+     finally:
